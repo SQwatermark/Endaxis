@@ -1,11 +1,11 @@
 import { expect, it } from 'vitest';
-import type { CombatReceiptEntry } from '../../src/core/combat/receipt/combatReceipt';
-import type { EndaxisProjectDocument } from '../../src/core/project/schema';
+import type { CombatReceiptEntry } from '../../core/combat/receipt/combatReceipt';
+import type { EndaxisProjectDocument } from '../../core/project/schema';
 import { retimeLegacyProjectBySimulation } from './heuristicRetiming';
 import {
   AbilitySystemRuntime,
   type AbilitySkillRuntime,
-} from '../../src/core/combat/abilities/abilitySystemRuntime';
+} from '../../core/combat/abilities/abilitySystemRuntime';
 
 function receipt(
   frame: number,
@@ -171,10 +171,12 @@ it('让旧闪避标签随前一技能顺延，同时保留它相对技能的旧�
     ],
   };
 
+  const observedDodgeFrames: number[] = [];
   const result = retimeLegacyProjectBySimulation(project, preparedSource, scenario => {
     const second = scenario.tracks[0]!.skillCasts[1]!;
     const secondEnabled = second.presentation?.disabled !== true;
     const secondStart = second.placement.startFrame!;
+    if (secondEnabled) observedDodgeFrames.push(scenario.battle.dodgeMarkers![0]!.frame);
     return {
       receiptEntries: [
         receipt(10, 'SkillStarted', firstCastId),
@@ -191,6 +193,7 @@ it('让旧闪避标签随前一技能顺延，同时保留它相对技能的旧�
 
   expect(project.scenarios[0]!.tracks[0]!.skillCasts[1]!.placement.startFrame).toBe(18);
   expect(project.scenarios[0]!.battle.dodgeMarkers![0]!.frame).toBe(19);
+  expect(observedDodgeFrames).toContain(19);
   expect(result.dodgeMarkerAdjustments).toEqual([
     {
       scenarioId: 'test',

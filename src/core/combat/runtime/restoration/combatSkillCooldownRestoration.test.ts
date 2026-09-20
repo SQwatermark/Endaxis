@@ -92,10 +92,9 @@ it('固定面板修正只改变基础周期，错误的数据形状在绑定前�
       receipt: [],
       combatModifiers: [
         {
-          kind: 'skillCooldownReduction',
+          kind: 'skillCooldownMultiplier',
           skillTypes: ['battleSkill'],
-          value: 0.2,
-          modifierId: 'test-cooldown',
+          value: 0.8,
         },
       ],
     },

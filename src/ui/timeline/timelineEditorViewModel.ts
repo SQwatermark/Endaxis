@@ -18,7 +18,7 @@ import {
   type OperatorSupportViewModel,
 } from './library/operatorSupportViewModel';
 import { projectCastHitMarkers, type TimelineHitMarker } from './results/timelineHitProjection';
-import { listSkillGroupLibraryPlacements } from './interaction/skillGroupPlacement';
+import { listSkillGroupLibraryPlacements } from '../../application/editor/skillGroupPlacement';
 import { orderTimelineSkillLibrary } from './library/skillLibraryOrder';
 import { resolveSkillCastStartFrames } from '../../core/project/skillCastPlacement';
 

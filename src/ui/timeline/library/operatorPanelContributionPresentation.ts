@@ -61,9 +61,6 @@ export function resolveOperatorPanelContributionSourceLabel(
     }
     return `${source.source} ${source.index + 1}`;
   }
-  if (source.kind === 'globalConfig') {
-    return context.translate('timeline.globalModifiers.title');
-  }
   const contribution = source.contribution;
   if (contribution.kind === 'weaponTrait') {
     return weaponName(contribution.slug);

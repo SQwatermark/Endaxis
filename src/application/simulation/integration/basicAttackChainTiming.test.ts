@@ -17,7 +17,7 @@ import { ScenarioEditorSession } from '../../editor/scenarioEditorSession';
 import {
   projectSkillCastActualDurationFrames,
   projectSkillCastActualStartFrames,
-} from '../../../ui/timeline/timelineDisplayTime';
+} from '../../../core/projection/timelineDisplayTime';
 import { projectTimelineHitOccurrences } from '../../../ui/timeline/results/timelineHitEffects';
 
 const service = new ScenarioSimulationService({

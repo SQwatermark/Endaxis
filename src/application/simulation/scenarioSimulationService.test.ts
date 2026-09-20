@@ -7,6 +7,7 @@ import { getSkill } from '../../data/operators/testUtils';
 
 const perlicaBattleSkill = getSkill(perlica, 'chr_0004_pelica_normal_skill');
 import { commonBuffDefinitions } from '../../data/buffs/commonDefinitions';
+import { CombatAttributeSet } from '../../core/combat/attributes/combatAttributes';
 import {
   placeSkillGroup,
   groupPlacedSkillSequence,
@@ -108,6 +109,94 @@ const testIndex = {
 };
 
 describe('ScenarioSimulationService', () => {
+  it('自定义全局 Buff 与预设同时生效，停用保留定义且不影响同组其他 Buff', () => {
+    const scenario = createPerlicaScenario();
+    scenario.tracks[1] = { ...structuredClone(scenario.tracks[0]!), id: 'track:1' };
+    scenario.globalConfig.enabledPresetIds = ['combo-cdr-50'];
+    scenario.globalConfig.customBuffs = [true, false].map((enabled, index) => ({
+      id: `scenario:custom-global:${index}`,
+      name: 'Critical Rate',
+      enabled,
+      definition: {
+        stackingType: 'unlimited',
+        attributeModifiers: [{ attribute: 'criticalRate', slot: 'baseAddition', value: 0.2 }],
+      },
+    }));
+    const service = createService();
+    const session = service.createInputCombatSession(scenario, -30);
+    const check = (runtime: typeof session.runtime, rate: number) => {
+      for (const operator of runtime.readState().operators.values()) {
+        const attributes = new CombatAttributeSet(operator.buffs!.attributes);
+        expect(attributes.get('criticalRate')).toBeCloseTo(rate);
+        expect(attributes.get('ComboSkillCooldownScalar')).toBeCloseTo(0.5);
+      }
+    };
+    check(session.runtime, 0.25);
+    check(session.fork(session.runtime.save()).runtime, 0.25);
+    scenario.globalConfig.customBuffs[0]!.enabled = false;
+    check(service.createInputCombatSession(scenario, -30).runtime, 0.05);
+  });
+  it('全局修正经全队 Buff 生效，负帧输入前已安装，切面恢复不重复施加', () => {
+    const scenario = createPerlicaScenario();
+    scenario.tracks[1] = { ...structuredClone(scenario.tracks[0]!), id: 'track:1' };
+    scenario.globalConfig.modifiers = [
+      { id: 'attack', kind: 'operatorStat', modifier: 'attackPercent', value: 0.2 },
+      { id: 'crit', kind: 'operatorStat', modifier: 'criticalRate', value: 0.3 },
+      { id: 'damage', kind: 'operatorStat', modifier: 'criticalDamage', value: 0.4 },
+      { id: 'arts', kind: 'operatorStat', modifier: 'artsIntensity', value: 50 },
+      { id: 'energy', kind: 'operatorStat', modifier: 'ultimateEnergyGainEfficiency', value: 0.2 },
+      {
+        id: 'cd1',
+        kind: 'operatorStat',
+        modifier: 'skillCooldownReduction',
+        skillType: 'comboSkill',
+        value: 0.2,
+      },
+      {
+        id: 'cd2',
+        kind: 'operatorStat',
+        modifier: 'skillCooldownReduction',
+        skillType: 'comboSkill',
+        value: 0.2,
+      },
+    ];
+    const session = createService().createInputCombatSession(scenario, -30);
+    const check = (runtime: typeof session.runtime) => {
+      const state = runtime.readState();
+      expect(
+        state.instances.globalBuffs.groups.get('scenario:global-attribute-modifiers'),
+      ).toHaveLength(1);
+      for (const [operatorId, operator] of state.operators) {
+        const attributes = new CombatAttributeSet(operator.buffs!.attributes);
+        expect(attributes.get('criticalRate')).toBeCloseTo(0.35);
+        expect(attributes.get('criticalDamageIncrease')).toBeCloseTo(0.9);
+        expect(attributes.get('PhysicalAndSpellInflictionEnhance')).toBeCloseTo(50);
+        expect(attributes.get('UltimateSpGainScalar')).toBeCloseTo(1.2);
+        expect(attributes.get('ComboSkillCooldownScalar')).toBeCloseTo(0.64);
+        const panel = session.compiled.operators.find(
+          item => item.operatorId === operatorId,
+        )!.panel!;
+        expect(attributes.getArmed('Atk')).toBeCloseTo(
+          panel.attackBase!.rawValue * (1 + panel.attackBase!.baseMultiplier + 0.2) +
+            panel.attackBase!.baseFinalAddition,
+        );
+        expect(
+          [...operator.buffs!.instances.values()].filter(
+            buff => buff.identity.definitionId === 'scenario:global-attribute-modifiers',
+          ),
+        ).toHaveLength(1);
+      }
+    };
+    check(session.runtime);
+    const saved = session.runtime.save();
+    const branch = session.fork(saved);
+    const branchSaved = branch.runtime.save();
+    new CombatInputSchedule(branch, []).advanceToFrame(10);
+    check(branch.runtime);
+    branch.runtime.restore(branchSaved);
+    check(branch.runtime);
+    check(session.runtime);
+  });
   it('继承切在 Dash 与成功之间，只重放历史输入，修改成功时刻可以复用同一切面', async () => {
     const base = createPerlicaScenario();
     base.battle.resourceRules.initialSp = 0;

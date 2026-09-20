@@ -1,4 +1,4 @@
-import type { CombatReceiptEntry } from '../../core/combat/receipt/combatReceipt';
+import type { CombatReceiptEntry } from '../combat/receipt/combatReceipt';
 
 /** 仅供块体显示裁切。自然结束不等于展示边界；中断也不取消独立效果。 */
 export function projectSkillCastInterruptionFrames(

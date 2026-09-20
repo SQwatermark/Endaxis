@@ -9,7 +9,7 @@ import type {
   ControlSwitchDocument,
   ScenarioDocument,
   SkillCastDocument,
-} from '../../src/core/project/schema';
+} from '../../core/project/schema';
 
 const INFERRED_CONTROL_SWITCH_PREFIX = 'legacy-inferred-control:';
 const CONTROLLED_INPUT_GROUPS = new Set([

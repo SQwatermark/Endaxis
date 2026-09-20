@@ -1,354 +1,433 @@
 <script setup lang="ts">
-import { EaButton, EaDialog, EaDialogActions, EaNumberInput } from '@/design-system';
-/**
- * 编辑存档中由用户维护的全局技力基线。组件只收发数值，不持有项目副本，也不推导尚未接入的
- * 原生运行时规则；撤销、校验和持久化均由外层命令与会话负责。
- */
-import { computed, ref } from 'vue';
+import { computed, ref, defineAsyncComponent, shallowRef } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { EaButton, EaDialog, EaDialogActions, EaNumberInput } from '@/design-system';
 import type {
-  BattleDocument,
+  GlobalConfigDocument,
+  GlobalBuffDocument,
   GlobalOperatorStatModifier,
   GlobalOperatorStatModifierDocument,
 } from '../../../core/project/schema';
-import type { EditableBattleResourceRule } from '../interaction/timelineDocumentCommands';
+import { GLOBAL_CONFIG_PRESETS } from '../../../core/project/globalConfigPresets';
+import TimelineAsyncDialogLoading from './TimelineAsyncDialogLoading.vue';
 import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
 
 const props = defineProps<{
   readOnly?: boolean;
-  mode?: 'full' | 'modifiers';
-  rules: BattleDocument['resourceRules'];
-  modifiers: readonly GlobalOperatorStatModifierDocument[];
-  labels: {
-    title: string;
-    maximum: string;
-    initial: string;
-    recovery: string;
-  };
+  mode?: 'modifiers' | 'presets';
+  config: GlobalConfigDocument;
 }>();
-
 const emit = defineEmits<{
-  update: [field: EditableBattleResourceRule, value: number];
   setModifiers: [modifiers: readonly GlobalOperatorStatModifierDocument[]];
+  setConfig: [config: GlobalConfigDocument];
 }>();
-
 const { t } = useI18n({ useScope: 'global' });
 const editorVisible = ref(false);
-
 interface ModifierChoice {
-  readonly modifier: GlobalOperatorStatModifier;
-  readonly percentage: boolean;
-  readonly skillType?: 'comboSkill';
+  modifier: GlobalOperatorStatModifier;
+  nameKey: string;
+  percentage: boolean;
+  skillType?: 'comboSkill';
 }
-
 const choices: readonly ModifierChoice[] = [
-  { modifier: 'skillCooldownReduction', percentage: true, skillType: 'comboSkill' },
-  { modifier: 'ultimateEnergyGainEfficiency', percentage: true },
-  { modifier: 'artsIntensity', percentage: false },
-  { modifier: 'attackPercent', percentage: true },
-  { modifier: 'criticalRate', percentage: true },
-  { modifier: 'criticalDamage', percentage: true },
+  {
+    modifier: 'skillCooldownReduction',
+    nameKey: 'statDetail.comboCdReduction',
+    percentage: true,
+    skillType: 'comboSkill',
+  },
+  {
+    modifier: 'ultimateEnergyGainEfficiency',
+    nameKey: 'effects.name.ultimateGainEfficiency',
+    percentage: true,
+  },
+  { modifier: 'artsIntensity', nameKey: 'effects.name.artsIntensity', percentage: false },
+  { modifier: 'attackPercent', nameKey: 'effects.name.atkPercent', percentage: true },
+  { modifier: 'criticalRate', nameKey: 'effects.name.critRate', percentage: true },
+  { modifier: 'criticalDamage', nameKey: 'effects.name.critDmg', percentage: true },
 ];
-
-const summary = computed(() =>
-  props.modifiers.length === 0
-    ? t('timeline.globalModifiers.empty')
-    : props.modifiers
-        .map(modifier => `${choiceLabel(modifier)} ${formatValue(modifier)}`)
-        .join(' · '),
+const groups = computed(() =>
+  choices.map(choice => ({
+    ...choice,
+    entries: props.config.modifiers.filter(item => item.modifier === choice.modifier),
+  })),
 );
-
-function choiceFor(modifier: GlobalOperatorStatModifierDocument): ModifierChoice {
-  return choices.find(choice => choice.modifier === modifier.modifier) ?? choices[0]!;
+const modifiers = computed(() => props.config.modifiers);
+const GlobalBuffEditorDialog = defineAsyncComponent({
+  loader: () => import('./GlobalBuffEditorDialog.vue'),
+  loadingComponent: TimelineAsyncDialogLoading,
+  delay: 0,
+});
+const editingBuff = shallowRef<GlobalBuffDocument | null>(null);
+function togglePreset(id: string) {
+  if (props.readOnly) return;
+  const ids = props.config.enabledPresetIds ?? [];
+  emit('setConfig', {
+    ...props.config,
+    enabledPresetIds: ids.includes(id) ? ids.filter(value => value !== id) : [...ids, id],
+  });
 }
-
-function choiceLabel(modifier: Pick<GlobalOperatorStatModifierDocument, 'modifier'>): string {
-  return t(`timeline.globalModifiers.types.${modifier.modifier}`);
+function saveBuff(buff: GlobalBuffDocument) {
+  if (props.readOnly) return;
+  const buffs = props.config.customBuffs ?? [];
+  emit('setConfig', {
+    ...props.config,
+    customBuffs: buffs.some(item => item.id === buff.id)
+      ? buffs.map(item => (item.id === buff.id ? buff : item))
+      : [...buffs, buff],
+  });
+  editingBuff.value = null;
 }
-
-function formatValue(modifier: GlobalOperatorStatModifierDocument): string {
-  const choice = choiceFor(modifier);
-  const value = choice.percentage ? modifier.value * 100 : modifier.value;
-  return `${value > 0 ? '+' : ''}${Number(value.toFixed(3))}${choice.percentage ? '%' : ''}`;
-}
-
-function allocateModifierId(): string {
-  const ids = new Set(props.modifiers.map(modifier => modifier.id));
+function addBuff() {
+  if (props.readOnly) return;
   let index = 1;
-  while (ids.has(`global:modifier:${index}`)) index += 1;
-  return `global:modifier:${index}`;
+  while (props.config.customBuffs?.some(item => item.id === `scenario:custom-global:${index}`))
+    index++;
+  editingBuff.value = {
+    id: `scenario:custom-global:${index}`,
+    name: t('globalConfig.customBuff'),
+    enabled: true,
+    definition: { stackingType: 'unlimited', presentation: { visible: false } },
+  };
 }
-
-function addModifier(choice: ModifierChoice): void {
+function deleteBuff(id: string) {
+  if (!props.readOnly)
+    emit('setConfig', {
+      ...props.config,
+      customBuffs: (props.config.customBuffs ?? []).filter(buff => buff.id !== id),
+    });
+}
+function choiceFor(modifier: GlobalOperatorStatModifierDocument) {
+  return choices.find(choice => choice.modifier === modifier.modifier)!;
+}
+function formatValue(modifier: GlobalOperatorStatModifierDocument) {
+  const choice = choiceFor(modifier);
+  const value = Number((choice.percentage ? modifier.value * 100 : modifier.value).toFixed(3));
+  return `${value > 0 && !choice.skillType ? '+' : ''}${value}${choice.percentage ? '%' : ''}`;
+}
+function addModifier(choice: ModifierChoice) {
+  if (props.readOnly) return;
+  let index = 1;
+  const ids = new Set(props.config.modifiers.map(item => item.id));
+  while (ids.has(`global:modifier:${index}`)) index++;
   emit('setModifiers', [
-    ...props.modifiers,
+    ...props.config.modifiers,
     {
-      id: allocateModifierId(),
+      id: `global:modifier:${index}`,
       kind: 'operatorStat',
       modifier: choice.modifier,
       value: 0,
-      ...(choice.skillType === undefined ? {} : { skillType: choice.skillType }),
+      ...(choice.skillType ? { skillType: choice.skillType } : {}),
     },
   ]);
 }
-
-function updateModifierValue(modifierId: string, displayValue: number | undefined): void {
-  const modifier = props.modifiers.find(candidate => candidate.id === modifierId);
-  if (modifier === undefined || displayValue === undefined || !Number.isFinite(displayValue))
-    return;
-  const choice = choiceFor(modifier);
-  const value = choice.percentage ? displayValue / 100 : displayValue;
+function updateModifierValue(
+  modifier: GlobalOperatorStatModifierDocument,
+  displayValue: number | undefined,
+) {
+  if (props.readOnly || displayValue === undefined || !Number.isFinite(displayValue)) return;
+  const value = choiceFor(modifier).percentage ? displayValue / 100 : displayValue;
   if (modifier.modifier === 'skillCooldownReduction' && value >= 1) return;
   emit(
     'setModifiers',
-    props.modifiers.map(candidate =>
-      candidate.id === modifierId ? { ...candidate, value } : candidate,
-    ),
+    props.config.modifiers.map(item => (item.id === modifier.id ? { ...item, value } : item)),
   );
 }
-
-function removeModifier(modifierId: string): void {
-  emit(
-    'setModifiers',
-    props.modifiers.filter(modifier => modifier.id !== modifierId),
-  );
-}
-
-function emitNumber(field: EditableBattleResourceRule, value: number | undefined): void {
-  if (value !== undefined && Number.isFinite(value)) emit('update', field, value);
+function removeModifier(id: string) {
+  if (!props.readOnly)
+    emit(
+      'setModifiers',
+      props.config.modifiers.filter(item => item.id !== id),
+    );
 }
 </script>
 
 <template>
-  <section
-    class="global-resource-panel"
-    :class="{ 'global-resource-panel--modifiers': props.mode === 'modifiers' }"
-  >
-    <header>{{ labels.title }}</header>
-    <div v-if="props.mode !== 'modifiers'" class="resource-fields">
-      <label>
-        <span>{{ labels.maximum }}</span>
-        <EaNumberInput
-          size="sm"
-          controls-position="right"
-          :min="0"
-          :step="1"
-          :model-value="rules.maxSp"
-          :disabled="readOnly"
-          @change="emitNumber('maxSp', $event)"
-        />
-      </label>
-      <label>
-        <span>{{ labels.initial }}</span>
-        <EaNumberInput
-          size="sm"
-          controls-position="right"
-          :min="0"
-          :max="rules.maxSp"
-          :step="1"
-          :model-value="rules.initialSp"
-          :disabled="readOnly"
-          @change="emitNumber('initialSp', $event)"
-        />
-      </label>
-      <label>
-        <span>{{ labels.recovery }}</span>
-        <EaNumberInput
-          size="sm"
-          controls-position="right"
-          :min="0"
-          :step="0.1"
-          :model-value="rules.spRecoveryPerSecond"
-          :disabled="readOnly"
-          @change="emitNumber('spRecoveryPerSecond', $event)"
-        />
-      </label>
-    </div>
-    <section class="modifier-summary">
-      <div>
-        <strong>{{ t('timeline.globalModifiers.title') }}</strong>
-        <span>{{ summary }}</span>
-      </div>
-      <EaButton size="sm" type="button" @click="editorVisible = true">
-        {{ t('timeline.globalModifiers.edit') }}
+  <section v-if="mode === 'presets'" class="global-config-presets">
+    <div class="preset-title">{{ t('globalConfig.buffsTitle') }}</div>
+    <div class="preset-grid" role="group" :aria-label="t('globalConfig.buffsTitle')">
+      <EaButton
+        v-for="preset in GLOBAL_CONFIG_PRESETS"
+        :key="preset.id"
+        class="preset-tile"
+        :pressed="config.enabledPresetIds?.includes(preset.id) ?? false"
+        :disabled="readOnly"
+        @click="togglePreset(preset.id)"
+      >
+        <strong>{{ t(preset.nameKey) }}</strong
+        ><small>{{ t(preset.descriptionKey) }}</small>
       </EaButton>
-    </section>
+      <article v-for="buff in config.customBuffs ?? []" :key="buff.id" class="custom-buff-card">
+        <EaButton
+          class="preset-tile"
+          :pressed="buff.enabled"
+          :disabled="readOnly"
+          @click="saveBuff({ ...buff, enabled: !buff.enabled })"
+        >
+          <strong>{{ buff.name }}</strong
+          ><small>{{ t(buff.enabled ? 'globalConfig.enabled' : 'globalConfig.disabled') }}</small>
+        </EaButton>
+        <div class="buff-actions">
+          <EaButton size="sm" :disabled="readOnly" @click="editingBuff = buff">{{
+            t('common.edit')
+          }}</EaButton>
+          <EaButton size="sm" variant="danger" :disabled="readOnly" @click="deleteBuff(buff.id)">{{
+            t('common.delete')
+          }}</EaButton>
+        </div>
+      </article>
+      <EaButton class="preset-tile add-buff" :disabled="readOnly" @click="addBuff"
+        >+ {{ t('globalConfig.addBuff') }}</EaButton
+      >
+    </div>
+    <GlobalBuffEditorDialog
+      v-if="editingBuff"
+      :buff="editingBuff"
+      @save="saveBuff"
+      @close="editingBuff = null"
+    />
+  </section>
+  <section v-else class="global-config-settings">
+    <div class="panel-title">{{ t('globalConfig.customSection') }}</div>
+    <div class="stats-summary">
+      <p v-if="modifiers.length === 0" class="empty-hint">{{ t('globalConfig.customEmpty') }}</p>
+      <div v-for="modifier in modifiers" :key="modifier.id" class="summary-row">
+        <span>{{ t(choiceFor(modifier).nameKey) }}</span
+        ><strong>{{ formatValue(modifier) }}</strong>
+      </div>
+      <EaButton size="sm" class="stats-edit-btn" @click="editorVisible = true">{{
+        t('globalConfig.editCustom')
+      }}</EaButton>
+    </div>
     <InputRegionBoundary label="global-modifiers" :active="editorVisible" modal>
       <EaDialog
         v-model="editorVisible"
+        width="440px"
         append-to-body
-        width="520px"
-        class="global-modifier-dialog"
-        :title="t('timeline.globalModifiers.title')"
+        align-center
+        class="armory-dialog global-modifiers-dialog"
+        :title="t('globalConfig.editCustomTitle')"
       >
-        <div class="modifier-editor">
-          <section v-for="choice in choices" :key="choice.modifier" class="modifier-group">
-            <header>
-              <span>{{ choiceLabel(choice) }}</span>
-              <small v-if="choice.skillType === 'comboSkill'">
-                {{ t('timeline.globalModifiers.comboOnly') }}
-              </small>
-              <EaButton
-                variant="ghost"
-                size="sm"
-                icon-only
-                type="button"
-                :disabled="readOnly"
-                @click="addModifier(choice)"
-                >＋</EaButton
-              >
-            </header>
-            <div
-              v-for="modifier in modifiers.filter(item => item.modifier === choice.modifier)"
-              :key="modifier.id"
-              class="modifier-entry"
-            >
-              <EaNumberInput
-                class="modifier-value"
-                :disabled="readOnly"
-                size="sm"
-                controls-position="right"
-                :max="choice.modifier === 'skillCooldownReduction' ? 99.999 : undefined"
-                :step="choice.percentage ? 0.1 : 1"
-                :model-value="choice.percentage ? modifier.value * 100 : modifier.value"
-                @change="updateModifierValue(modifier.id, $event)"
-              />
-              <span>{{ choice.percentage ? '%' : '' }}</span>
-              <EaButton
-                variant="danger"
-                size="sm"
-                type="button"
-                :disabled="readOnly"
-                @click="removeModifier(modifier.id)"
-              >
-                {{ t('common.delete') }}
-              </EaButton>
+        <div class="stat-blocks">
+          <section
+            v-for="group in groups"
+            :key="group.modifier"
+            class="stat-block"
+            :class="{ 'has-entries': group.entries.length }"
+          >
+            <div class="stat-block-head">
+              <span>{{ t(group.nameKey) }}</span>
+              <EaButton size="sm" :disabled="readOnly" @click="addModifier(group)">{{
+                t('globalConfig.addEntry')
+              }}</EaButton>
+            </div>
+            <div v-if="group.entries.length" class="stat-block-body">
+              <div v-for="(modifier, index) in group.entries" :key="modifier.id" class="stat-entry">
+                <span class="affix">{{ group.percentage && !group.skillType ? '+' : '' }}</span>
+                <EaNumberInput
+                  size="sm"
+                  controls-position="right"
+                  :aria-label="`${t(group.nameKey)} ${index + 1}`"
+                  :disabled="readOnly"
+                  :max="group.skillType ? 99.999 : undefined"
+                  :step="group.percentage ? 0.1 : 1"
+                  :model-value="group.percentage ? modifier.value * 100 : modifier.value"
+                  @change="updateModifierValue(modifier, $event)"
+                />
+                <span class="affix">{{ group.percentage ? '%' : '' }}</span>
+                <EaButton
+                  variant="danger"
+                  size="sm"
+                  :disabled="readOnly"
+                  @click="removeModifier(modifier.id)"
+                  >{{ t('common.delete') }}</EaButton
+                >
+              </div>
             </div>
           </section>
         </div>
         <template #footer>
           <EaDialogActions>
-            <EaButton size="sm" type="button" @click="editorVisible = false">{{
-              t('common.close')
-            }}</EaButton>
+            <EaButton size="sm" @click="editorVisible = false">{{ t('common.close') }}</EaButton>
           </EaDialogActions>
         </template>
       </EaDialog>
     </InputRegionBoundary>
   </section>
 </template>
-
 <style scoped>
-.global-resource-panel {
+.global-config-settings,
+.global-config-presets {
   height: 100%;
-  padding: 14px 18px;
-  box-sizing: border-box;
-  color: var(--ea-text-primary, rgb(255 255 255 / 88%));
-  background: var(--ea-surface, #17191c);
-}
-
-.global-resource-panel--modifiers {
-  padding: 12px 12px 16px;
   overflow: auto;
+  padding: 12px 12px 16px;
+  box-sizing: border-box;
+  background: var(--ea-workbench-panel);
+  color: var(--ea-fg);
 }
-
-.global-resource-panel--modifiers .modifier-summary {
-  align-items: stretch;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 12px;
-  padding-top: 0;
-  border-top: 0;
-}
-
-.global-resource-panel--modifiers .modifier-summary span {
-  white-space: normal;
-}
-
-.global-resource-panel--modifiers .modifier-summary .ea-button {
-  min-height: 28px;
-}
-
-header {
-  padding-bottom: 9px;
-  border-bottom: 1px solid var(--ea-border, rgb(255 255 255 / 10%));
+.panel-title {
+  margin-bottom: 12px;
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 600;
+  color: var(--ea-fg-secondary);
 }
-
-.resource-fields {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(120px, 180px));
-  gap: 12px;
-  padding-top: 14px;
+.stats-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
-
-.modifier-summary {
+.summary-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 18px;
-  margin-top: 14px;
-  padding-top: 12px;
-  border-top: 1px solid var(--ea-border, rgb(255 255 255 / 10%));
-}
-
-.modifier-summary > div {
-  min-width: 0;
-  display: grid;
-  gap: 4px;
-}
-
-.modifier-summary span {
-  overflow: hidden;
-  color: var(--ea-text-secondary, rgb(255 255 255 / 62%));
-  font-size: 11px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.modifier-editor {
-  display: grid;
-  gap: 8px;
-}
-
-.modifier-group {
-  padding: 8px;
-  border: 1px solid var(--ea-border-soft);
+  gap: 10px;
+  padding: 8px 10px;
   background: var(--ea-fill-soft);
+  border: 1px solid var(--ea-border-soft);
+  font-size: 12px;
 }
-
-.modifier-group header,
-.modifier-entry {
+.summary-row span {
+  min-width: 0;
+  flex: 1;
+  color: var(--ea-fg-secondary);
+}
+.summary-row strong {
+  flex: none;
+  font-weight: normal;
+  font-variant-numeric: tabular-nums;
+}
+.empty-hint {
+  margin: 0;
+  padding: 4px 0 2px;
+  color: var(--ea-fg-faint);
+  font-size: 12px;
+}
+.stats-edit-btn {
+  align-self: stretch;
+  margin-top: 4px;
+}
+.global-config-presets {
+  padding: 14px 16px 20px;
+}
+.preset-title {
+  margin-bottom: 14px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ea-fg-secondary);
+}
+.preset-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 160px));
+  gap: 8px;
+  max-width: none;
+}
+.preset-tile {
+  height: 64px;
+  min-height: 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px;
+  white-space: normal;
+  background: var(--ea-keycap-bg);
+  border: 1px solid var(--ea-border-strong);
+}
+.preset-tile strong {
+  font-size: 13px;
+  line-height: 1.25;
+}
+.preset-tile small {
+  color: var(--ea-fg-muted);
+  font-size: 11px;
+  line-height: 1.3;
+}
+.preset-tile[aria-pressed='true'] {
+  --ea-control-pressed-border-hover: color-mix(in srgb, var(--ea-gold) 55%, transparent);
+  --ea-control-pressed-bg-hover: color-mix(in srgb, var(--ea-gold) 12%, var(--ea-keycap-bg));
+  border-color: var(--ea-control-pressed-border-hover);
+  background: var(--ea-control-pressed-bg-hover);
+  box-shadow: none;
+}
+.stat-blocks {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 65vh;
+  overflow: hidden auto;
+}
+.stat-block {
+  background: var(--ea-fill-soft);
+  border: 1px solid transparent;
+}
+.stat-block.has-entries {
+  border-color: var(--ea-border-soft);
+}
+.stat-block-head {
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 10px;
 }
-
-.modifier-group header > span {
+.stat-block-head > span {
+  min-width: 0;
   flex: 1;
+  font-size: 13px;
+  color: var(--ea-fg-secondary);
 }
-
-.modifier-group small {
-  color: var(--ea-fg-muted);
+.stat-block-head .ea-button {
+  flex: none;
+  min-width: 52px;
 }
-
-.modifier-entry {
-  margin-top: 7px;
+.stat-block-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 10px 8px;
+  border-top: 1px solid var(--ea-border-soft);
 }
-
-.modifier-entry .modifier-value {
-  max-width: 180px;
-}
-
-.modifier-entry .ea-button {
+.stat-entry {
+  display: grid;
+  grid-template-columns: 14px 96px 14px 52px;
+  align-items: center;
+  gap: 6px;
   margin-left: auto;
 }
-
-label {
-  display: grid;
+.affix {
+  text-align: center;
+  font-size: 12px;
+  color: var(--ea-fg-muted);
+}
+.stat-entry :deep(.ea-number-input) {
+  width: 96px;
+  min-width: 0;
+}
+.stat-entry .ea-button {
+  padding: 0;
+}
+.custom-buff-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.custom-buff-card .preset-tile {
+  width: 100%;
+}
+.buff-actions {
+  display: flex;
   gap: 6px;
-  color: var(--ea-text-secondary, rgb(255 255 255 / 62%));
-  font-size: 11px;
+  padding-top: 6px;
+}
+.buff-actions > * {
+  flex: 1;
+}
+.preset-grid {
+  align-items: start;
+}
+.preset-tile strong {
+  overflow-wrap: anywhere;
+}
+.add-buff {
+  border-style: dashed;
 }
 </style>

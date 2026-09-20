@@ -12,10 +12,11 @@ describe('timeline export helpers', () => {
     expect(source).not.toMatch(/^import .*@zumer\/snapdom/m);
     expect(source).toContain("await import('@zumer/snapdom')");
   });
-  it('normalizes project and image extensions without retaining legacy PNG suffixes', () => {
+  it('exports PNG images and normalizes existing file extensions', () => {
     expect(projectFilename(' rotation.webp ')).toBe('rotation.json');
-    expect(imageFilename('rotation.png')).toBe('rotation.webp');
-    expect(imageFilename('')).toBe('Endaxis_Export.webp');
+    expect(imageFilename('rotation.png')).toBe('rotation.png');
+    expect(imageFilename('rotation.webp')).toBe('rotation.png');
+    expect(imageFilename('')).toBe('Endaxis_Export.png');
   });
 
   it('uses the legacy URL-safe gzip data-code format', async () => {

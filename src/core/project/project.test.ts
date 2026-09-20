@@ -28,6 +28,28 @@ function createTrack(): TrackDocument {
 }
 
 describe('current project document', () => {
+  it('round-trips scenario-owned global Buff definitions and independent selections', () => {
+    const project = createEmptyProject({ createdWith: 'test', gameDataRevision: 'fixture' });
+    project.scenarios[0]!.globalConfig = {
+      modifiers: [],
+      enabledPresetIds: ['combo-cdr-50'],
+      customBuffs: [
+        {
+          id: 'scenario:custom-global:1',
+          name: 'Custom Buff',
+          enabled: false,
+          definition: {
+            stackingType: 'unlimited',
+            attributeModifiers: [{ attribute: 'criticalRate', slot: 'baseAddition', value: 0.1 }],
+          },
+        },
+      ],
+    };
+    expect(parseProjectDocument(serializeProjectDocument(project))).toEqual({
+      ok: true,
+      value: project,
+    });
+  });
   it('round-trips an empty project without adding runtime state', () => {
     const project = createEmptyProject({
       createdWith: 'test',
@@ -244,7 +266,7 @@ describe('current project document', () => {
           },
           {
             path: '$.scenarios[0].globalConfig.modifiers[0].skillType',
-            message: 'skill cooldown reduction requires a skill type',
+            message: 'skill cooldown reduction requires comboSkill',
           },
         ]),
       );

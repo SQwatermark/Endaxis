@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { BuffDisplayName } from './buffDisplayName';
 /** 旧版 TimelineBuffLayer 的 Next 只读版本：18px 图标、层数角标和条纹持续条。 */
 import { computed } from 'vue';
 import { useDurationBarColor } from './durationBarColorContext';
@@ -30,7 +31,7 @@ const props = defineProps<{
     readonly sourceId?: string;
     readonly sourceActionId?: string;
   }) => string | undefined;
-  operatorBuffNameKeys?: ReadonlyMap<string, string>;
+  operatorBuffNameKeys?: ReadonlyMap<string, BuffDisplayName>;
   icon?: (source: {
     readonly sourceId?: string;
     readonly sourceActionId?: string;

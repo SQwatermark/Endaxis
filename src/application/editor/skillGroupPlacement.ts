@@ -1,13 +1,13 @@
 /**
  * 技能库的分组只决定展示与放置；不得参与运行时技能路由或替换。
- * 本文件是基础链、具名形态、换槽技能和内部技能在 UI 放置层的唯一解释器。
+ * 本文件是基础链、具名形态、换槽技能和内部技能在编辑器放置层的唯一解释器。
  */
 import type {
   SkillDefinition,
   SkillGroupDefinition,
   SkillLevelSource,
   SkillType,
-} from '../../../core/game-data/operatorDefinition';
+} from '../../core/game-data/operatorDefinition';
 
 export interface SkillGroupLibraryPlacement {
   readonly entryKey: string;

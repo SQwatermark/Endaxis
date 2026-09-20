@@ -144,7 +144,7 @@ export async function auditCandidateOperatorSkills(args: AuditArguments) {
       '/src/ui/timeline/interaction/placeSkillGroup.ts',
     );
     const libraryPlacementModule = await server.ssrLoadModule(
-      '/src/ui/timeline/interaction/skillGroupPlacement.ts',
+      '/src/application/editor/skillGroupPlacement.ts',
     );
     const serviceModule = await server.ssrLoadModule(
       '/src/application/simulation/scenarioSimulationService.ts',

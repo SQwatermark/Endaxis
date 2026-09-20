@@ -7,7 +7,7 @@ import { arclight, perlica, zhuangFangyi } from '../../data/operators';
 import { gameDataRepository } from '../../data/gameDataRepository';
 import { skillSettings } from '../../data/combat/skillSettings';
 import { placeSkillGroup } from './interaction/placeSkillGroup';
-import { projectSkillCastActualDurationFrames } from './timelineDisplayTime';
+import { projectSkillCastActualDurationFrames } from '../../core/projection/timelineDisplayTime';
 import { ScenarioSimulationService } from '../../application/simulation/scenarioSimulationService';
 import { useScenarioSimulation, type UseScenarioSimulationResult } from './useScenarioSimulation';
 import {

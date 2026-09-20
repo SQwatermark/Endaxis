@@ -1,13 +1,14 @@
 import { onScopeDispose, ref } from 'vue';
 import type { ProjectEditorSession } from '../../application/editor/projectEditorSession';
 import type { EndaxisProjectDocument } from '../../core/project/schema';
+import { getProjectDefinitionLibrary } from '../../core/project/projectDefinitionLibrary';
 import { serializeProjectDocument } from '../../core/project/serialization';
 import { saveBrowserProject } from '../../data/browserProjectStorage';
 import { decompressProjectCode, downloadBlob, projectFilename } from './timelineExport';
 import type { ExportScenarioScope } from './components/TimelineExportDialog.vue';
-import { readProjectCodeFromWebp } from './webpProjectData';
+import { readProjectCodeFromPng } from './pngProjectData';
 
-/** 当前方案导出为可独立打开的项目；继承历史已复制在方案内，去掉指向未导出方案的编辑边界。 */
+/** 单方案仍是完整项目，只携带该方案引用的项目级模板及其套装依赖。 */
 export function selectProjectExportScope(
   project: EndaxisProjectDocument,
   scope: ExportScenarioScope,
@@ -15,8 +16,38 @@ export function selectProjectExportScope(
   if (scope === 'all') return project;
   const active = project.scenarios.find(scenario => scenario.id === project.activeScenarioId);
   if (active === undefined) throw new Error('当前方案不存在');
-  const { inheritance: _inheritance, ...standalone } = active;
-  return { ...project, scenarios: [standalone] };
+  const library = getProjectDefinitionLibrary(project);
+  const operators: typeof library.operators = {};
+  const weapons: typeof library.weapons = {};
+  const gears: typeof library.gears = {};
+  const gearSets: typeof library.gearSets = {};
+  const requireTemplate = <T>(records: Record<string, T>, id: string): T => {
+    const template = records[id];
+    if (template === undefined) throw new Error(`方案引用了不存在的自定义模板：${id}`);
+    return template;
+  };
+  for (const track of active.tracks) {
+    if (track === null) continue;
+    const operatorId = track.operator?.operatorSlug;
+    if (operatorId?.startsWith('project:'))
+      operators[operatorId] = requireTemplate(library.operators, operatorId);
+    const weaponId = track.weapon?.weaponSlug;
+    if (weaponId?.startsWith('project:'))
+      weapons[weaponId] = requireTemplate(library.weapons, weaponId);
+    for (const slot of Object.values(track.gears)) {
+      const gearId = slot?.gearSlug;
+      if (!gearId?.startsWith('project:')) continue;
+      const gear = requireTemplate(library.gears, gearId);
+      gears[gearId] = gear;
+      const setId = gear.definition.gearSetSlug;
+      if (setId?.startsWith('project:')) gearSets[setId] = requireTemplate(library.gearSets, setId);
+    }
+  }
+  return {
+    ...project,
+    scenarios: [active],
+    definitionLibrary: { operators, weapons, gears, gearSets },
+  };
 }
 
 /** 项目会话负责浏览器自动保存、文件读取代次和保存未完成时的离页保护。 */
@@ -101,10 +132,10 @@ export function createProjectFileReader(getProjectRevision: () => number) {
     read(file: Pick<File, 'text'>): Promise<string | null> {
       return readUsing(() => file.text());
     },
-    readWebp(file: Blob): Promise<string | null> {
+    readPng(file: Blob): Promise<string | null> {
       return readUsing(async () => {
-        const code = await readProjectCodeFromWebp(file);
-        if (code === null) throw new Error('这张 WebP 图片没有 Endaxis 项目数据');
+        const code = await readProjectCodeFromPng(file);
+        if (code === null) throw new Error('这张 PNG 图片没有 Endaxis 项目数据');
         return decompressProjectCode(code);
       });
     },

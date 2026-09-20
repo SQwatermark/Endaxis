@@ -34,6 +34,7 @@ import {
   setUnifiedInitialUltimateEnergy,
   updateDodgeMarker,
   setGlobalOperatorStatModifiers,
+  setGlobalConfig,
   setSimulationRangeBoundary,
   setControlSwitchTrack,
   setBattleDurationFrames,
@@ -100,14 +101,10 @@ describe('updateBattleResourceRule', () => {
     expect(original.battle.resourceRules.spRecoveryPerSecond).not.toBe(18.5);
   });
 
-  it('clamps initial SP when the maximum is reduced', () => {
+  it('clamps initial SP to the fixed maximum', () => {
     const original = scenario();
     original.battle.resourceRules.initialSp = 200;
 
-    expect(updateBattleResourceRule(original, 'maxSp', 120).battle.resourceRules).toMatchObject({
-      maxSp: 120,
-      initialSp: 120,
-    });
     expect(
       updateBattleResourceRule(original, 'initialSp', 400).battle.resourceRules.initialSp,
     ).toBe(original.battle.resourceRules.maxSp);
@@ -976,6 +973,36 @@ describe('timeline marker commands', () => {
     expect(() => addCycleBoundary(original, 'cycle:1', -1)).toThrow('marker frame');
     expect(() => addCycleBoundary(original, 'cycle:1', original.battle.durationFrames + 1)).toThrow(
       'marker frame',
+    );
+  });
+});
+
+describe('global Buff selection commands', () => {
+  it('keeps custom definitions when toggling and editing numeric modifiers, without aliasing drafts', () => {
+    const original = scenario();
+    const config = {
+      modifiers: [],
+      enabledPresetIds: ['combo-cdr-50'],
+      customBuffs: [
+        {
+          id: 'scenario:custom-global:1',
+          name: 'Custom',
+          enabled: false,
+          definition: { stackingType: 'unlimited' as const },
+        },
+      ],
+    };
+    const updated = setGlobalConfig(original, config);
+    config.customBuffs[0]!.name = 'Changed draft';
+    expect(updated.globalConfig.customBuffs![0]!.name).toBe('Custom');
+    const edited = setGlobalOperatorStatModifiers(updated, [
+      { id: 'attack', kind: 'operatorStat', modifier: 'attackPercent', value: 0.1 },
+    ]);
+    expect(edited.globalConfig.customBuffs).toEqual(updated.globalConfig.customBuffs);
+    expect(edited.globalConfig.enabledPresetIds).toEqual(['combo-cdr-50']);
+    expect(original.globalConfig.customBuffs).toBeUndefined();
+    expect(() => setGlobalConfig(original, { ...config, enabledPresetIds: ['missing'] })).toThrow(
+      'unknown',
     );
   });
 });

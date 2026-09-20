@@ -42,10 +42,10 @@ describe('timeline export dialogs', () => {
     expect(smallSource).toContain('small-export__preview-inner');
   });
 
-  it('exports both image paths as WebP and restores long-image layout', () => {
-    expect(smallSource).toContain("type: 'webp'");
-    expect(exportSource).toContain("type: 'webp'");
-    expect(exportSource).not.toContain("type: 'png'");
+  it('exports both image paths as PNG and restores long-image layout', () => {
+    expect(smallSource).toContain("type: 'png'");
+    expect(exportSource).toContain("type: 'png'");
+    expect(exportSource).not.toContain("type: 'webp'");
     expect(exportSource).toContain('finally');
     expect(exportSource).toContain('element.style.cssText = cssText');
   });

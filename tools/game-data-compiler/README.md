@@ -174,8 +174,8 @@ combat-spec 查证，再扩展转换器。原始来源、隔离候选、正式�
      明确纳入、排除或说明原因时。
    - `config/enemies/runtime-defaults.json`：敌人的项目运行时默认值有新证据时；新增敌人的表格与
      rank 由生成器读取。
-   - `config/locales/enum-terms.zh.json`、`enum-terms.en.json`：新枚举术语需要项目自有的中英文
-     名称时；游戏文本优先从本轮表格生成。
+   - `src/i18n/locales/zh-CN.json`、`en.json` 的 `enumTerms`：游戏表格没有提供的项目术语；
+     其余游戏文本优先从本轮表格生成。
 
    配置中的 ID 和资源必须能在**本轮来源**中找到。若失败原因是未识别的动作、字段、引用或
    时间语义，应补原生证据和转换规则，不靠填零、复制旧生成文件或跳过该对象放行。
@@ -241,6 +241,9 @@ tables-only 不允许 publish；报告中的 fullRebuild/published 和 remaining
 这是可恢复的文件事务，不代表所有目录在同一瞬间切换。
 
 生成和复核敌人定义期间使用 enemy-ranks.tmp.json，成功或失败均清理，不发布此中间目录。
+敌人选择分类从 `config/enemies/selection-categories.json` 随正式敌人定义一起生成到最终 TS；
+该配置按旧版公开目录整理，所有当前敌人都必须明确分类、列为未分类或隐藏，新增身份遗漏会阻断生成。
+分类显示名由应用的中英文 i18n 提供，隐藏的无图标测试敌人仍保留战斗定义身份。
 GlobalBuff 模板目录同样只在每轮 `tmp/game-data-rebuild/run-*/intermediate` 中存在；
 联合战斗定义编译完成后立即清理。运行时使用已经编译进最终 TS 定义的结果，不读取模板 JSON。
 生成器的 staging、backup 和原子文件统一放在 `tmp/game-data-writes`，正式目录只接收最终产物。

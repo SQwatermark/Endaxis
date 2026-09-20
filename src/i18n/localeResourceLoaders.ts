@@ -81,21 +81,21 @@ export function createLocaleResourceLoaders(
   modules: LocaleResourceModuleMaps,
 ): LocaleResourceLoaders {
   const uiPromises = new Map<SupportedLocale, Promise<LocaleTable>>();
+  function loadUiLocale(locale: SupportedLocale): Promise<LocaleTable> {
+    const normalized = normalizeLocale(locale);
+    const existing = uiPromises.get(normalized);
+    if (existing !== undefined) return existing;
+    const path = `./locales/${normalized}.json`;
+    const promise = requireImporter(modules.ui, path)().catch(error => {
+      uiPromises.delete(normalized);
+      throw error;
+    });
+    uiPromises.set(normalized, promise);
+    return promise;
+  }
 
   return {
-    loadUiLocale(locale) {
-      const normalized = normalizeLocale(locale);
-      const existing = uiPromises.get(normalized);
-      if (existing !== undefined) return existing;
-
-      const path = `./locales/${normalized}.json`;
-      const promise = requireImporter(modules.ui, path)().catch(error => {
-        uiPromises.delete(normalized);
-        throw error;
-      });
-      uiPromises.set(normalized, promise);
-      return promise;
-    },
+    loadUiLocale,
 
     loadGameTextFamily<Family extends GameTextFamily>(
       locale: SupportedLocale,
@@ -115,10 +115,16 @@ export function createLocaleResourceLoaders(
       }
 
       if (family === 'terms') {
+        const uiLocale = gameLocale === 'zh' ? 'zh-CN' : 'en';
         return Promise.all([
           requireImporter(modules.gameText, `${basePath}/terms.json`)(),
-          requireImporter(modules.gameText, `${basePath}/enum-terms.json`)(),
-        ]).then(([battleTerms, enums]) => ({ battleTerms, enums }) as GameTextFamilyTables[Family]);
+          loadUiLocale(uiLocale),
+        ]).then(([battleTerms, uiMessages]) => {
+          const enums = uiMessages.enumTerms;
+          if (typeof enums !== 'object' || enums === null || Array.isArray(enums))
+            throw new Error(`locale resource '${uiLocale}.enumTerms' does not exist`);
+          return { battleTerms, enums } as GameTextFamilyTables[Family];
+        });
       }
 
       const path = `${basePath}/${family}.json`;

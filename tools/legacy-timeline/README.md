@@ -1,6 +1,8 @@
-# 旧时间轴离线转换工具
+# 旧时间轴转换命令行入口
 
-当前阶段：独立转换入口及映射配置已建立，多条真实轴已转换并通过运行检查。
+网页和命令行共用 `src/application/legacyTimeline` 中的转换逻辑与旧版映射快照。
+本目录只保留命令行入口、离线模拟审计及命令行示例配置；正式网页按需加载转换逻辑，
+不会引用本目录或游戏数据编译器。多条真实轴已转换并通过运行检查。
 网页“更多 → 项目 → 加载”已接入旧轴导入，但仍不是完整旧格式兼容器。
 
 网页检测到旧轴后，可选择“保留原时间”（默认）或“智能修复时间”。智能修复按新版显示时长、
@@ -19,7 +21,8 @@ npm run convert:legacy-timeline -- "C:\Users\sqwat\Downloads\Endaxis_Timeline_20
 
 输出目录必须不存在，父目录须存在。只写新目录，不覆盖旧存档。
 成功输出 project.json 和 report.json；有遗漏/目标校验失败只输出报告并以非零状态结束。
-示例配置只演示字段。旧版 2026-08-31 数据快照统一使用 mappings.2026-08-31.json；
+示例配置只演示字段。旧版 2026-08-31 数据快照统一使用
+`src/application/legacyTimeline/mappings.2026-08-31.json`；
 原生样本依据归 [combat-spec](../../../combat-spec-operator-completion/docs/research/README.md)。
 成功转换不等于新旧模拟结果一致。
 报告的 `issues` 保留所有诊断，同时分为 `simulationIssues` 和 `presentationIssues`。
@@ -119,8 +122,8 @@ node --experimental-strip-types tools/legacy-timeline/auditSimulation.ts tmp/con
 
 ## 边界与实现来源
 
-projectConversion.ts 的输入字段搬运以历史提交 9ec608cc 的迁移器为起点，
-仅保留在本工具内；不恢复旧游戏代码或运行时。
+`src/application/legacyTimeline/projectConversion.ts` 的输入字段搬运以历史提交 9ec608cc
+的迁移器为起点；不恢复旧游戏代码或运行时。
 sourcePreparation.ts 单独规格化时间及映射；convert.ts 调用当前正式项目/游戏数据校验。
 CLI 用无监听、无 HTTP 服务的 Vite 模块加载当前仓库。
 
@@ -191,7 +194,7 @@ CLI 用无监听、无 HTTP 服务的 Vite 模块加载当前仓库。
 验证：
 
 ```powershell
-npx vitest run tools/legacy-timeline --maxWorkers=1 --silent
+npx vitest run src/application/legacyTimeline tools/legacy-timeline --maxWorkers=1 --silent
 npx tsc -p tools/legacy-timeline/tsconfig.json
 ```
 

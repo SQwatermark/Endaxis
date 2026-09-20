@@ -15,6 +15,10 @@ const compoundNameKeys: Readonly<Record<string, string>> = Object.fromEntries(
   ]),
 );
 
+const scenarioBuffNameKeys: Readonly<Record<string, string>> = {
+  'scenario:global-attribute-modifiers': 'timeline.globalModifiers.title',
+};
+
 export function collectOperatorBuffDisplayNameKeys(
   operators: readonly {
     readonly buffDisplayNameKeys?: Readonly<Record<string, string>>;
@@ -22,6 +26,9 @@ export function collectOperatorBuffDisplayNameKeys(
 ): ReadonlyMap<string, string> {
   return new Map(operators.flatMap(operator => Object.entries(operator.buffDisplayNameKeys ?? {})));
 }
+
+/** 用户名称保持原文，不当作翻译键解析。 */
+export type BuffDisplayName = string | { readonly text: string };
 
 export interface BuffDisplayI18n {
   readonly te: (key: string) => boolean;
@@ -116,12 +123,15 @@ export function resolveBuffDisplayName(
   i18n: BuffDisplayI18n,
   simpleModifier?: SimpleBuffModifierDisplayFact,
   sourceName?: string,
-  operatorNameKeys: ReadonlyMap<string, string> = new Map(),
+  operatorNameKeys: ReadonlyMap<string, BuffDisplayName> = new Map(),
 ): string {
+  const customName = operatorNameKeys.get(buffId);
+  if (typeof customName === 'object') return customName.text;
   // 公共 Buff 的产品配置是展示名的权威入口；运行时和投影只需提供稳定 Buff ID。
   const configuredNameKey =
+    scenarioBuffNameKeys[buffId] ??
     commonBuffPresentationNameKeys[buffId as keyof typeof commonBuffPresentationNameKeys] ??
-    operatorNameKeys.get(buffId) ??
+    customName ??
     compoundNameKeys[buffId];
   const key = configuredNameKey?.trim();
   if (key) {

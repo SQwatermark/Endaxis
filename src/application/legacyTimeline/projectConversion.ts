@@ -5,11 +5,11 @@
  * 搬运用户输入：养成、配装、场景参数、技能身份和放置帧。游戏数据仓库只负责解析稳定身份，
  * 不能为旧文件补当前编辑器默认值。
  */
-import type { GameDataRepository } from '../../src/core/game-data/gameDataRepository';
+import type { GameDataRepository } from '../../core/game-data/gameDataRepository';
 import {
   layoutSkillGroupPlacement,
   resolveSkillGroupPlacementSkills,
-} from '../../src/ui/timeline/interaction/skillGroupPlacement';
+} from '../editor/skillGroupPlacement';
 export type LegacyMigrationResult =
   { ok: true; value: EndaxisProjectDocument; warnings: string[] } | { ok: false; errors: string[] };
 interface LegacyProjectImporter {
@@ -29,7 +29,7 @@ import {
   type TrackDocument,
   type TrackListDocument,
   type WeaponInstanceDocument,
-} from '../../src/core/project/schema';
+} from '../../core/project/schema';
 
 type UnknownRecord = Record<string, unknown>;
 

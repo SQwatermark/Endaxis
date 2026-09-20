@@ -24,12 +24,13 @@ describe('Next global configuration editor', () => {
     expect(editorSource).toContain('setGlobalOperatorStatModifiers(current, modifiers)');
   });
 
-  it('reuses the same Next modifier editor in the narrow left-bottom summary', () => {
-    expect(source).toContain("mode?: 'full' | 'modifiers'");
-    expect(source).toContain("props.mode !== 'modifiers'");
-    expect(source).toContain('global-resource-panel--modifiers');
+  it('separates numeric edits from multi-select buffs without duplicate resource controls', () => {
+    expect(source).toContain("mode?: 'modifiers' | 'presets'");
     expect(editorSource).toContain('mode="modifiers"');
-    expect(editorSource).toContain("title: t('globalConfig.customSection')");
-    expect(editorSource).not.toContain('<div v-else class="empty-panel">{{ tool }}</div>');
+    expect(editorSource).toContain('mode="presets"');
+    expect(source).toContain('togglePreset(preset.id)');
+    expect(source).toContain('enabled: !buff.enabled');
+    expect(source).not.toContain('maxSp');
+    expect(source).not.toContain('spRecoveryPerSecond');
   });
 });

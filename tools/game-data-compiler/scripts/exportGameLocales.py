@@ -1796,8 +1796,8 @@ def parse_args(repo_root):
         help='Candidate generated gear directory used as the gear ID -> assetSlug authority.',
     )
     parser.add_argument(
-        '--enum-terms-root',
-        help='Directory containing explicit self-owned enum-terms.zh.json and enum-terms.en.json.',
+        '--ui-locale-root',
+        help='Directory containing zh-CN.json and en.json with project-owned enumTerms.',
     )
     parser.add_argument(
         '--no-cache',
@@ -1882,7 +1882,7 @@ def main():
             '--weapon-definition-root': args.weapon_definition_root,
             '--gear-set-definition-root': args.gear_set_definition_root,
             '--gear-definition-root': args.gear_definition_root,
-            '--enum-terms-root': args.enum_terms_root,
+            '--ui-locale-root': args.ui_locale_root,
         }
         missing = [flag for flag, value in required.items() if not value]
         if missing:
@@ -1937,11 +1937,13 @@ def main():
         consumables_file = os.path.join(locale_dir, 'consumables.json')
         old_gearsets_file = os.path.join(default_output_base, out_locale, 'gearsets.json')
         old_gearsets = {} if local_mode else load_json(old_gearsets_file)
-        enum_terms = (
-            load_json(os.path.join(os.path.abspath(args.enum_terms_root), f'enum-terms.{out_locale}.json'))
-            if local_mode
-            else load_json(os.path.join(default_output_base, out_locale, 'enum-terms.json'))
+        ui_locale_root = os.path.abspath(
+            args.ui_locale_root or os.path.join(repo_root, 'src', 'i18n', 'locales')
         )
+        ui_locale = load_json(os.path.join(ui_locale_root, 'zh-CN.json' if out_locale == 'zh' else 'en.json'))
+        enum_terms = ui_locale.get('enumTerms') if isinstance(ui_locale, dict) else None
+        if not isinstance(enum_terms, dict):
+            data_error(f'{out_locale} UI locale', 'missing enumTerms')
 
         operators = export_operators(
             table_dir,
@@ -2009,12 +2011,6 @@ def main():
             json.dump(consumables, f, ensure_ascii=False, indent=2)
             f.write('\n')
         print(f'  [write] {consumables_file} ({len(consumables)} consumables)')
-
-        enum_terms_file = os.path.join(locale_dir, 'enum-terms.json')
-        with open(enum_terms_file, 'w', encoding='utf-8') as f:
-            json.dump(enum_terms, f, ensure_ascii=False, indent=2)
-            f.write('\n')
-        print(f'  [write] {enum_terms_file} ({len(enum_terms)} term groups)')
 
     if args.icon_source_manifest:
         write_icon_source_manifest(args.icon_source_manifest)

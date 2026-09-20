@@ -68,16 +68,15 @@ describe('localeResourceLoaders', () => {
     await expect(loaders.loadGameTextFamily('ru', 'enemies')).resolves.toEqual({ id: 'enemies' });
   });
 
-  it('forms terms only after battle terms and enum terms both load', async () => {
+  it('forms terms from battle text and the effective UI locale enum terms', async () => {
     const loaders = createLocaleResourceLoaders({
-      ui: {},
+      ui: { './locales/en.json': async () => ({ enumTerms: table('enum-terms') }) },
       gameText: {
         './game-locales/en/terms.json': async () => table('battle-terms'),
-        './game-locales/en/enum-terms.json': async () => table('enum-terms'),
       },
     });
 
-    await expect(loaders.loadGameTextFamily('en', 'terms')).resolves.toEqual({
+    await expect(loaders.loadGameTextFamily('ru', 'terms')).resolves.toEqual({
       battleTerms: { id: 'battle-terms' },
       enums: { id: 'enum-terms' },
     });

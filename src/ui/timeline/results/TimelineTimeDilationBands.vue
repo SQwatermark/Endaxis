@@ -2,7 +2,7 @@
 /** 悬停或选中来源技能时，在整个时间轴纵向显示其时间膨胀持续区间。 */
 import { computed } from 'vue';
 import { PROJECT_FPS } from '../../../core/project/schema';
-import type { TimelineTimeDilationBand } from '../timelineDisplayTime';
+import type { TimelineTimeDilationBand } from '../../../core/projection/timelineDisplayTime';
 import { frameToTimelinePx } from '../timelineGeometry';
 
 const props = defineProps<{

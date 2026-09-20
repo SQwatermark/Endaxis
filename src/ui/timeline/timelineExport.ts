@@ -7,7 +7,7 @@ export function projectFilename(value: string, fallback = 'Endaxis_Export'): str
 
 export function imageFilename(value: string, fallback = 'Endaxis_Export'): string {
   const base = value.trim().replace(/\.(?:json|webp|png)$/i, '') || fallback;
-  return `${base}.webp`;
+  return `${base}.png`;
 }
 
 export function downloadBlob(blob: Blob, filename: string): void {
@@ -60,7 +60,7 @@ export interface TimelineLongImageOptions {
 }
 
 /**
- * 截取当前时间轴主区域。渲染期间只临时展开横向裁剪和滚动位置，完成后完整恢复内联样式与滚动。
+ * 截取当前时间轴主区域。渲染期间临时展开裁剪和滚动位置，完成后恢复内联样式与滚动。
  */
 export async function captureTimelineLongImage(
   timelineMain: HTMLElement,
@@ -73,14 +73,30 @@ export async function captureTimelineLongImage(
       options.durationSeconds * 30 * options.pxPerFrame +
       50,
   );
-  const elements = [
-    timelineMain,
-    timelineMain.querySelector<HTMLElement>('.timeline-center'),
-    timelineMain.querySelector<HTMLElement>('.timeline-workspace'),
-    timelineMain.querySelector<HTMLElement>('.timeline-scroll'),
-    timelineMain.querySelector<HTMLElement>('.timeline-surface'),
+  const center = timelineMain.querySelector<HTMLElement>('.timeline-center');
+  const workspace = timelineMain.querySelector<HTMLElement>('.timeline-workspace');
+  const timelineScroll = timelineMain.querySelector<HTMLElement>('.timeline-scroll');
+  const surface = timelineMain.querySelector<HTMLElement>('.timeline-surface');
+  const bottomPanel = timelineMain.querySelector<HTMLElement>('.bottom-panel');
+  const bottomSections = bottomPanel?.querySelector<HTMLElement>('.enemy-status-sections');
+  const horizontalElements = [
+    center,
+    workspace,
+    timelineScroll,
+    surface,
     timelineMain.querySelector<HTMLElement>('.track-stack'),
   ].filter((element): element is HTMLElement => element !== null);
+  const bottomElements = [
+    bottomPanel,
+    bottomPanel?.querySelector<HTMLElement>('.simulation-panel'),
+    bottomPanel?.querySelector<HTMLElement>('.simulation-curves'),
+    bottomSections,
+  ].filter((element): element is HTMLElement => element != null);
+  const elements = [
+    timelineMain,
+    ...horizontalElements,
+    ...bottomElements,
+  ];
   const styles = new Map(elements.map(element => [element, element.style.cssText]));
   const scrollers = Array.from(
     timelineMain.querySelectorAll<HTMLElement>('.timeline-scroll, .timeline-horizontal-scrollbar'),
@@ -92,7 +108,7 @@ export async function captureTimelineLongImage(
     timelineMain.style.width = `${width}px`;
     timelineMain.style.minWidth = `${width}px`;
     timelineMain.style.overflow = 'visible';
-    for (const element of elements.slice(1)) {
+    for (const element of horizontalElements) {
       element.style.width = `${width}px`;
       element.style.maxWidth = 'none';
       element.style.overflow = 'visible';
@@ -104,18 +120,52 @@ export async function captureTimelineLongImage(
     await new Promise<void>(resolve =>
       requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
     );
-    const height = Math.max(
-      1,
-      Math.ceil(timelineMain.scrollHeight || timelineMain.getBoundingClientRect().height),
+    // The workbench uses viewport-sized subgrid rows. Widening alone leaves the
+    // tracks and the status/resource panel clipped at their on-screen heights.
+    const headerHeight = timelineMain.querySelector<HTMLElement>('.timeline-header')?.offsetHeight ?? 0;
+    const resizerHeight = timelineMain.querySelector<HTMLElement>('.bottom-resizer')?.offsetHeight ?? 0;
+    const centerHeight = Math.max(
+      center?.clientHeight ?? 0,
+      timelineScroll?.scrollHeight ?? 0,
+      surface?.scrollHeight ?? 0,
     );
+    const bottomHeight = bottomPanel === null || getComputedStyle(bottomPanel).display === 'none'
+      ? 0
+      : Math.max(
+          bottomPanel.clientHeight,
+          bottomPanel.scrollHeight,
+          ...Array.from(bottomPanel.querySelectorAll<HTMLElement>('*'), element => element.scrollHeight),
+        );
+    const height = Math.max(1, Math.ceil(headerHeight + centerHeight + resizerHeight + bottomHeight));
+    timelineMain.style.height = `${height}px`;
+    timelineMain.style.minHeight = `${height}px`;
+    timelineMain.style.gridTemplateRows = `${headerHeight}px ${centerHeight}px ${resizerHeight}px ${bottomHeight}px`;
+    for (const element of [center, workspace, timelineScroll]) {
+      if (element === null) continue;
+      element.style.height = `${centerHeight}px`;
+      element.style.minHeight = `${centerHeight}px`;
+    }
+    if (bottomHeight > 0) {
+      for (const element of bottomElements) {
+        element.style.height = `${bottomHeight}px`;
+        element.style.minHeight = `${bottomHeight}px`;
+        element.style.overflow = 'visible';
+      }
+    }
+    await new Promise<void>(resolve =>
+      requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+    );
+    // Keep both dimensions within the browser canvas budget for long or tall axes.
+    // instead of silently returning only the leading part of the timeline.
+    const scale = Math.min(1.5, 16_000 / width, 16_000 / height);
     const capture = await snapdom(timelineMain, {
-      scale: 1.5,
+      scale,
       width,
       height,
       backgroundColor: getComputedStyle(timelineMain).backgroundColor || '#191a1d',
       exclude: ['.timeline-horizontal-scrollbar', '.bottom-panel-collapse'],
     });
-    return await capture.toBlob({ type: 'webp', quality: 0.94, dpr: 1 });
+    return await capture.toBlob({ type: 'png', dpr: 1 });
   } finally {
     for (const [element, cssText] of styles) element.style.cssText = cssText;
     for (const [element, position] of scroll) {

@@ -3,7 +3,7 @@ import type {
   ControlSwitchDocument,
   ScenarioDocument,
   SkillCastDocument,
-} from '../../src/core/project/schema';
+} from '../../core/project/schema';
 import {
   isLegacyControlledInputCast,
   legacyInferredControlSwitchId,

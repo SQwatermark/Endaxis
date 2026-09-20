@@ -1837,18 +1837,7 @@
     "skillLibrary": "Skill library",
     "maxSp": "Max SP",
     "globalModifiers": {
-      "title": "Global stat modifiers",
-      "edit": "Edit modifiers",
-      "empty": "No modifiers",
-      "comboOnly": "Combo skills only",
-      "types": {
-        "attackPercent": "Attack percentage",
-        "criticalRate": "Critical rate",
-        "criticalDamage": "Critical damage",
-        "artsIntensity": "Arts intensity",
-        "ultimateEnergyGainEfficiency": "Ultimate energy gain efficiency",
-        "skillCooldownReduction": "Skill cooldown reduction"
-      }
+      "title": "Global stat modifiers"
     },
     "panel": {
       "trustNode": "Talent Array {node}",
@@ -2725,6 +2714,15 @@
       "editStatsTitle": "Customize Enemy Stats",
       "searchPlaceholder": "Search enemy...",
       "level": "Level",
+      "categories": {
+        "wildlife": "Wildlife",
+        "landbreakers": "Landbreakers",
+        "angels": "Angels",
+        "cangThieves": "Cang Thieves",
+        "shadows": "Shadows",
+        "progeny": "Progeny",
+        "witchcraftConstructs": "Witchcraft Constructs"
+      },
       "specialGroup": "Special",
       "standardGroup": "Enemies",
       "customDesc": "Manually adjust attribute values",
@@ -2733,6 +2731,14 @@
     }
   },
   "globalConfig": {
+    "buffsTitle": "Global Buffs",
+    "customBuff": "Custom Global Buff",
+    "addBuff": "Add Global Buff",
+    "buffName": "Name",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "comboAcceleration": "Combo Acceleration",
+    "comboAccelerationDescription": "Reduce team combo skill cooldowns by 50%",
     "title": "Global Config",
     "customSection": "Custom Values",
     "customEmpty": "No custom modifiers yet.",
@@ -2933,5 +2939,64 @@
     "useFromContext": "Use consumable",
     "dialogTitle": "Select a consumable",
     "searchPlaceholder": "Search by name or effect"
+  },
+  "enumTerms": {
+    "element": {
+      "physical": "Physical",
+      "heat": "Heat",
+      "cryo": "Cryo",
+      "electric": "Electric",
+      "nature": "Nature",
+      "arts": "Arts"
+    },
+    "class": {
+      "guard": "Guard",
+      "caster": "Caster",
+      "defender": "Defender",
+      "vanguard": "Vanguard",
+      "striker": "Striker",
+      "supporter": "Supporter"
+    },
+    "weaponType": {
+      "sword": "Sword",
+      "greatsword": "Greatsword",
+      "polearm": "Polearm",
+      "handcannon": "Handcannon",
+      "arts-unit": "Arts Unit",
+      "artsunit": "Arts Unit"
+    },
+    "slotType": {
+      "armor": "Armor",
+      "gloves": "Gloves",
+      "kit": "Kit",
+      "kit1": "Kit",
+      "kit2": "Kit",
+      "accessory": "Accessory"
+    },
+    "quality": {
+      "green": "Green",
+      "blue": "Blue",
+      "purple": "Purple",
+      "gold": "Gold"
+    },
+    "attribute": {
+      "strength": "Strength",
+      "agility": "Agility",
+      "intellect": "Intellect",
+      "will": "Will",
+      "main": "Main",
+      "sub": "Sub"
+    },
+    "operatorUi": {
+      "promote": "Promote",
+      "promoted": "Promoted",
+      "fullyPromoted": "Fully promoted",
+      "promotionUnavailable": "Promotion unavailable"
+    },
+    "weaponUi": {
+      "tuned": "Tuned",
+      "fullyTuned": "Fully tuned",
+      "tuningUnavailable": "Tuning unavailable"
+    }
   }
 }

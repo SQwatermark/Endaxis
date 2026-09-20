@@ -436,7 +436,7 @@ describe('compileScenarioRuntimeAssembly', () => {
     });
   });
 
-  it('carries scenario global modifiers into every compiled operator panel and cooldown ledger', () => {
+  it('compiles global modifiers into initialization Buffs without changing the build panel', () => {
     const scenario = createScenario();
     scenario.globalConfig.modifiers = [
       {
@@ -456,14 +456,16 @@ describe('compileScenarioRuntimeAssembly', () => {
 
     const compiled = compileScenarioRuntimeAssembly(scenario, options());
     expect(compiled.operators[0]!.panel).toMatchObject({
-      criticalRate: 0.25,
-      combatModifiers: [
-        {
-          kind: 'skillCooldownReduction',
-          skillTypes: ['comboSkill'],
-          value: 0.25,
-          modifierId: 'global:combo-cooldown',
-        },
+      criticalRate: 0.05,
+      combatModifiers: [],
+    });
+    expect(
+      compiled.operators[0]!.buffDefinitions?.['scenario:global-attribute-modifiers'],
+    ).toMatchObject({
+      presentation: { visible: false },
+      attributeModifiers: [
+        { attribute: 'criticalRate', slot: 'baseAddition', value: 0.2 },
+        { attribute: 'ComboSkillCooldownScalar', slot: 'finalMultiplier', value: 0.75 },
       ],
     });
   });

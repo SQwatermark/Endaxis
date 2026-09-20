@@ -1,5 +1,5 @@
 <script setup lang="ts">
-/** 旧版小图预览与微调弹窗；预览节点也是最终 WebP 的唯一渲染源。 */
+/** 旧版小图预览与微调弹窗；预览节点也是最终 PNG 的唯一渲染源。 */
 import { computed, nextTick, ref, watch } from 'vue';
 import { snapdom } from '@zumer/snapdom';
 import { ElLoading, ElMessage } from 'element-plus';
@@ -15,7 +15,7 @@ import {
 import TimelineShareCard, { type TimelineShareTrack } from './TimelineShareCard.vue';
 import type { OperationKeycapMode } from '../timelineOperationMarkers';
 import { downloadBlob, imageFilename } from '../timelineExport';
-import { embedProjectCodeInWebp } from '../webpProjectData';
+import { embedProjectCodeInPng } from '../pngProjectData';
 
 const props = defineProps<{
   visible: boolean;
@@ -93,7 +93,9 @@ watch(
   },
   { immediate: true },
 );
-const watermark = computed(() => form.value.filename.replace(/\.webp$/i, '').trim() || 'Endaxis');
+const watermark = computed(
+  () => form.value.filename.replace(/\.(?:png|webp)$/i, '').trim() || 'Endaxis',
+);
 
 async function save(): Promise<void> {
   const filename = imageFilename(form.value.filename, 'Endaxis_Card');
@@ -112,13 +114,8 @@ async function save(): Promise<void> {
       height: root.scrollHeight,
       backgroundColor: form.value.appearance === 'light' ? '#f4f5f7' : '#191a1d',
     });
-    const image = await capture.toBlob({ type: 'webp', quality: 0.94, dpr: 1 });
-    let exportImage = image;
-    try {
-      exportImage = await embedProjectCodeInWebp(image, await props.createShareCode());
-    } catch (error) {
-      console.error('无法把项目数据写入小图', error);
-    }
+    const image = await capture.toBlob({ type: 'png', dpr: 1 });
+    const exportImage = await embedProjectCodeInPng(image, await props.createShareCode());
     downloadBlob(exportImage, filename);
     ElMessage.success(props.labels.exported(filename));
     emit('update:visible', false);

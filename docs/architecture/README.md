@@ -22,10 +22,16 @@
 | `src/core/combat`             | 处理时间、技能、Buff、事件、伤害和资源       |
 | `src/core/projection`         | 从战斗结果记录生成曲线和诊断，不重新结算资源 |
 | `src/application`             | 组织编辑、撤销、模拟、取消和异步结果检查     |
+| `src/application/legacyTimeline` | 网页与命令行共用的旧轴导入和修复逻辑    |
 | `src/ui`                      | 界面和交互，不按干员名称硬编码游戏规则       |
 | `src/data`                    | 正式生成数据，必须通过转换器更新             |
 
 底层不能读取Vue组件或Store。生成器不能读取旧生成文件来填补未知数据。
+
+正式静态网页只发布 Vite 的 `dist`：旧轴导入逻辑与映射由时间轴页面按需加载；
+`tools/legacy-timeline` 只提供命令行入口和离线审计，`tools/game-data-compiler` 在发布前生成
+`src/data` 定义，不随网页发布。`packages/game-data-contract` 是两端共用的纯数据契约：
+类型在构建时擦除，网页实际引用的少量常量与纯函数才进入静态包。
 
 战斗目录进一步分工：`actions`处理同步动作及序列控制，`timeline`负责技能帧调度，`runtime`组织执行和状态，
 `damage`计算伤害，`buffs`、`status`、`infliction`分别管理相关状态，`events`分发通知，
@@ -36,6 +42,11 @@
 资源账户及生命/失衡数值适配归 `resources`，伤害与治疗适配归 `damage`/`heal`，
 异常反应归 `infliction`，同步语义通知归 `events`；装备和潜能事件宿主归 `abilities`。
 新增曲线先找显示层，新增游戏规则先找对应执行模块，不把逻辑塞进装配文件。
+
+用户全局属性修正由编译边界翻译成常驻全队 GlobalBuff，复用危机合约的初始化动作、
+Buff 属性槽与恢复路径；不进入构筑面板、不另写属性或冷却算法。连携冷却每条按
+`ComboSkillCooldownScalar` 最终乘法槽写入 `1 - 缩减值`。内部 Buff 隐藏状态图标，
+属性来源使用“全局属性修正”的本地化名称。
 
 ## 模拟哪些内容
 

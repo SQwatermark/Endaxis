@@ -19,6 +19,14 @@ const i18n = {
 };
 
 describe('Buff display name', () => {
+  it.each([zh, en])('names global modifiers without exposing the internal Buff ID', messages => {
+    expect(
+      resolveBuffDisplayName('scenario:global-attribute-modifiers', {
+        te: key => key === 'timeline.globalModifiers.title',
+        t: () => messages.timeline.globalModifiers.title,
+      }),
+    ).toBe(messages.timeline.globalModifiers.title);
+  });
   it('does not load the complete game data repository for presentation names', () => {
     expect(source).not.toContain('data/gameDataRepository');
   });
@@ -106,4 +114,16 @@ describe('Buff display name', () => {
       }),
     ).toBe('物理脆弱+10%');
   });
+});
+
+it('keeps user-defined Buff names literal even when they look like translation keys', () => {
+  expect(
+    resolveBuffDisplayName(
+      'custom',
+      { te: () => true, t: () => 'translated' },
+      undefined,
+      undefined,
+      new Map([['custom', { text: 'effects.name.atkPercent' }]]),
+    ),
+  ).toBe('effects.name.atkPercent');
 });

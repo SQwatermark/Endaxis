@@ -22,7 +22,11 @@ import type { EnemyDocument, EnemyEditableValues } from '../../../core/project/s
 import { DAMAGE_ELEMENTS } from '../../../core/game-data/operatorDefinition';
 import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
 import { cloneEditorDefinition } from '../../cloneEditorDefinition';
-import { LEGACY_ENEMY_CATEGORIES, legacyEnemyCategory } from './enemySelectionCategories';
+import {
+  generatedEnemySelectionCategories,
+  generatedEnemySelectionCategoryById,
+  generatedHiddenEnemyIds,
+} from '../../../data/enemies/generated/index.generated';
 
 const EDITABLE_RESISTANCE_DAMAGE_TYPES = DAMAGE_ELEMENTS;
 const { t } = useI18n();
@@ -36,6 +40,8 @@ const TIERS: readonly { value: EnemyTier; color: string }[] = [
 ];
 const CATEGORY_ALL = '__all__';
 const CATEGORY_UNCATEGORIZED = '__uncategorized__';
+const categoryByEnemyId: Readonly<Record<string, string>> = generatedEnemySelectionCategoryById;
+const hiddenEnemyIds = new Set<string>(generatedHiddenEnemyIds);
 const TIER_WEIGHT: Readonly<Record<EnemyTier, number>> = {
   normal: 0,
   advanced: 1,
@@ -111,8 +117,9 @@ const resistanceSummary = computed(() =>
 const filteredEnemies = computed(() => {
   const query = searchQuery.value.trim().toLocaleLowerCase();
   return props.enemies.filter(enemy => {
+    if (hiddenEnemyIds.has(enemy.id)) return false;
     if (tierFilter.value !== 'all' && enemy.tier !== tierFilter.value) return false;
-    const category = legacyEnemyCategory(enemy.id) ?? CATEGORY_UNCATEGORIZED;
+    const category = categoryByEnemyId[enemy.id] ?? CATEGORY_UNCATEGORIZED;
     if (categoryFilter.value !== CATEGORY_ALL && category !== categoryFilter.value) return false;
     return query.length === 0 || props.nameOf(enemy.id).toLocaleLowerCase().includes(query);
   });
@@ -120,13 +127,11 @@ const filteredEnemies = computed(() => {
 const groupedEnemies = computed(() => {
   const categories =
     categoryFilter.value === CATEGORY_ALL
-      ? [...LEGACY_ENEMY_CATEGORIES, CATEGORY_UNCATEGORIZED]
+      ? [...generatedEnemySelectionCategories, CATEGORY_UNCATEGORIZED]
       : [categoryFilter.value];
   return categories.flatMap(category => {
     const enemies = filteredEnemies.value
-      .filter(
-        candidate => (legacyEnemyCategory(candidate.id) ?? CATEGORY_UNCATEGORIZED) === category,
-      )
+      .filter(candidate => (categoryByEnemyId[candidate.id] ?? CATEGORY_UNCATEGORIZED) === category)
       .sort((left, right) => TIER_WEIGHT[right.tier] - TIER_WEIGHT[left.tier]);
     return enemies.length === 0 ? [] : [{ category, enemies }];
   });
@@ -152,6 +157,10 @@ watch(statsVisible, visible => {
 
 function supportsLevel(enemy: EnemyDefinition): boolean {
   return getEnemyHpAtLevel(enemy, selectedLevel.value) !== null;
+}
+
+function tierColor(tier: EnemyTier): string {
+  return TIERS.find(item => item.value === tier)?.color ?? '#a0a0a0';
 }
 
 function selectDefinition(enemy: EnemyDefinition): void {
@@ -274,18 +283,20 @@ function removeKnotThreshold(index: number): void {
             :prefix-icon="Search"
             clearable
           />
-          <span class="level-label">{{ labels.level }}</span>
-          <div class="level-buttons">
-            <EaButton
-              size="sm"
-              v-for="level in LEVELS"
-              :key="level"
-              type="button"
-              @click="selectLevel(level)"
-              :pressed="selectedLevel === level"
-            >
-              {{ level }}
-            </EaButton>
+          <div class="enemy-level-picker">
+            <span class="level-label">{{ labels.level }}</span>
+            <div class="level-buttons">
+              <EaButton
+                size="sm"
+                v-for="level in LEVELS"
+                :key="level"
+                type="button"
+                @click="selectLevel(level)"
+                :pressed="selectedLevel === level"
+              >
+                {{ level }}
+              </EaButton>
+            </div>
           </div>
         </div>
         <div class="enemy-filter-rows">
@@ -299,14 +310,14 @@ function removeKnotThreshold(index: number): void {
               {{ labels.all }}
             </EaFilterChip>
             <EaFilterChip
-              v-for="category in LEGACY_ENEMY_CATEGORIES"
+              v-for="category in generatedEnemySelectionCategories"
               :key="category"
               type="button"
               :selected="categoryFilter === category"
               accent="var(--ea-gold)"
               @click="categoryFilter = category"
             >
-              {{ category }}
+              {{ t(`resourceMonitor.enemy.categories.${category}`) }}
             </EaFilterChip>
           </div>
           <div class="tier-filters">
@@ -339,11 +350,12 @@ function removeKnotThreshold(index: number): void {
               <EaButton
                 type="button"
                 class="enemy-card enemy-card--custom"
+                variant="ghost"
                 @click="selectCustom"
                 :pressed="enemy.source.kind === 'custom'"
               >
                 <span class="card-avatar">?</span>
-                <span
+                <span class="card-info"
                   ><strong>{{ labels.custom }}</strong
                   ><small>{{ labels.customDescription }}</small></span
                 >
@@ -359,7 +371,7 @@ function removeKnotThreshold(index: number): void {
               {{
                 group.category === CATEGORY_UNCATEGORIZED
                   ? t('common.uncategorized')
-                  : group.category
+                  : t(`resourceMonitor.enemy.categories.${group.category}`)
               }}
               <span>({{ group.enemies.length }})</span>
             </div>
@@ -369,32 +381,23 @@ function removeKnotThreshold(index: number): void {
                 :key="candidate.id"
                 type="button"
                 class="enemy-card"
+                variant="ghost"
                 :class="{ 'has-tier': candidate.tier !== 'normal' }"
                 :disabled="!supportsLevel(candidate)"
                 :style="{
-                  '--tier-color': TIERS.find(tier => tier.value === candidate.tier)?.color,
+                  '--tier-color': tierColor(candidate.tier),
                 }"
                 @click="selectDefinition(candidate)"
                 :pressed="definition?.id === candidate.id"
               >
                 <span class="card-avatar">
-                  <img v-if="candidate.iconPath" :src="candidate.iconPath" alt="" />
+                  <img :src="candidate.iconPath" alt="" />
                   <span v-if="candidate.tier !== 'normal'" class="tier-strip">{{
                     labels.tier[candidate.tier]
                   }}</span>
                 </span>
-                <span>
-                  <strong
-                    :style="{
-                      color:
-                        candidate.tier === 'leader'
-                          ? '#ff4d4f'
-                          : candidate.tier === 'boss'
-                            ? '#ffd700'
-                            : undefined,
-                    }"
-                    >{{ nameOf(candidate.id) }}</strong
-                  >
+                <span class="card-info">
+                  <strong>{{ nameOf(candidate.id) }}</strong>
                   <small>{{
                     t('resourceMonitor.enemy.desc', {
                       max: candidate.stagger.maximum,
@@ -721,27 +724,28 @@ function removeKnotThreshold(index: number): void {
 .selector-header .el-input {
   width: 180px;
 }
+.enemy-level-picker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
 .level-label {
   color: var(--ea-fg-muted);
   font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  user-select: none;
 }
-.level-buttons,
-.category-tabs,
-.tier-filters {
+.level-buttons {
   display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
+  align-items: center;
+  gap: 4px;
 }
-.level-buttons button,
-.tier-filters button {
+.level-buttons button {
   min-width: 30px;
   height: 24px;
   padding: 0 7px;
-}
-.level-buttons button[aria-pressed='true'],
-.tier-filters button[aria-pressed='true'] {
-  color: var(--tier-color, var(--ea-gold));
-  border-color: var(--tier-color, var(--ea-gold));
 }
 .enemy-filter-rows {
   margin: 0 0 20px;
@@ -754,12 +758,18 @@ function removeKnotThreshold(index: number): void {
 }
 .category-tabs,
 .tier-filters {
+  display: flex;
+  flex-wrap: wrap;
   gap: 6px;
+  max-width: 100%;
+  overflow: visible;
+  white-space: normal;
 }
 .category-tabs .ea-filter-chip,
 .tier-filters .ea-filter-chip {
-  height: auto;
-  padding: 6px 16px;
+  flex: none;
+  padding-right: 16px;
+  padding-left: 16px;
   margin-bottom: 2px;
 }
 .enemy-list-grid {
@@ -781,30 +791,41 @@ function removeKnotThreshold(index: number): void {
 }
 .enemy-card {
   --tier-color: var(--ea-border-strong);
+  position: relative;
   min-width: 0;
   height: 64px;
   padding: 8px;
   display: flex;
   align-items: center;
+  justify-content: flex-start;
   gap: 10px;
   border: 1px solid var(--ea-border-soft);
   border-left: 3px solid var(--ea-border-strong);
-  border-radius: 0;
   box-sizing: border-box;
   cursor: pointer;
   background: var(--ea-fill-muted);
+  color: inherit;
+  font: inherit;
   text-align: left;
+  white-space: normal;
+  transition:
+    border-color 0.16s ease,
+    background-color 0.16s ease;
 }
 .enemy-card.has-tier {
   border-left-color: var(--tier-color);
 }
-.enemy-card:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--tier-color) 10%, var(--ea-fill-muted));
+.enemy-card.ea-button:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--ea-gold) 7%, transparent);
+}
+.enemy-card.ea-button.has-tier:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--tier-color) 10%, rgb(255 255 255 / 3%));
 }
 .enemy-card .card-avatar {
   position: relative;
   width: 42px;
   height: 42px;
+  flex: 0 0 42px;
   display: grid;
   place-items: center;
   border: 1px solid var(--ea-border);
@@ -814,7 +835,7 @@ function removeKnotThreshold(index: number): void {
 .enemy-card .card-avatar > img {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
   object-position: center;
 }
 .enemy-card .tier-strip {
@@ -822,20 +843,35 @@ function removeKnotThreshold(index: number): void {
   left: 0;
   right: 0;
   bottom: 0;
+  z-index: 2;
   height: 14px;
+  padding: 0 2px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--ea-stack-bg, rgb(0 0 0 / 92%));
+  background: linear-gradient(
+    to top,
+    var(--ea-stack-bg, rgb(0 0 0 / 92%)) 0%,
+    color-mix(in srgb, var(--ea-stack-bg, rgb(0 0 0 / 92%)) 70%, transparent) 100%
+  );
   border-top: 1px solid color-mix(in srgb, var(--tier-color) 55%, transparent);
   color: var(--tier-color);
   font-size: 8px;
   font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 2px var(--ea-shadow, rgb(0 0 0 / 85%));
 }
-.enemy-card > span:last-child {
+.enemy-card .card-info {
+  flex: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
 }
 .enemy-card strong,
 .enemy-card small {
@@ -846,6 +882,10 @@ function removeKnotThreshold(index: number): void {
 .enemy-card strong {
   color: var(--ea-fg);
   font-size: 12px;
+  margin-bottom: 2px;
+}
+.enemy-card.has-tier strong {
+  color: var(--tier-color);
 }
 .enemy-card small {
   color: var(--ea-fg-muted);
@@ -868,8 +908,24 @@ function removeKnotThreshold(index: number): void {
   color: var(--ea-fg-faint);
   font-weight: normal;
 }
-.enemy-card[aria-pressed='true'] {
-  background: color-mix(in srgb, var(--tier-color) 15%, var(--ea-fill-muted));
+.enemy-card.ea-button[aria-pressed='true'] {
+  border-top-color: color-mix(in srgb, var(--ea-gold) 18%, transparent);
+  border-right-color: color-mix(in srgb, var(--ea-gold) 18%, transparent);
+  border-bottom-color: color-mix(in srgb, var(--ea-gold) 18%, transparent);
+  background: color-mix(in srgb, var(--ea-gold) 12%, transparent);
+  color: var(--ea-fg);
+}
+.enemy-card.has-tier.ea-button[aria-pressed='true'] {
+  border-top-color: color-mix(in srgb, var(--tier-color) 24%, transparent);
+  border-right-color: color-mix(in srgb, var(--tier-color) 24%, transparent);
+  border-bottom-color: color-mix(in srgb, var(--tier-color) 24%, transparent);
+  background: color-mix(in srgb, var(--tier-color) 16%, rgb(255 255 255 / 3%));
+}
+.enemy-card.ea-button[aria-pressed='true']:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--ea-gold) 15%, transparent);
+}
+.enemy-card.ea-button.has-tier[aria-pressed='true']:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--tier-color) 20%, rgb(255 255 255 / 3%));
 }
 .enemy-card:disabled {
   opacity: 0.35;
@@ -877,10 +933,22 @@ function removeKnotThreshold(index: number): void {
 .enemy-card--custom {
   --tier-color: var(--ea-gold);
 }
+.enemy-card--custom .card-avatar {
+  border-color: color-mix(in srgb, var(--ea-gold) 40%, transparent);
+  background: color-mix(in srgb, var(--ea-gold) 5%, transparent);
+  color: var(--ea-gold);
+  font-family: 'Roboto Mono', monospace;
+  font-size: 22px;
+  font-weight: 900;
+}
+.enemy-card--custom[aria-pressed='true'] .card-avatar {
+  background: color-mix(in srgb, var(--ea-gold) 12%, transparent);
+}
 .empty-state {
   padding: 40px 0;
   color: var(--ea-fg-faint);
   text-align: center;
+  font-size: 13px;
 }
 .stats-form {
   padding: 0;
@@ -948,16 +1016,16 @@ function removeKnotThreshold(index: number): void {
   color: var(--ea-gold);
 }
 
-:global(html[data-theme='light'] .enemy-settings-panel .enemy-card) {
+:global(html[data-theme='light'] .next-enemy-selector .enemy-card) {
   border-color: var(--ea-border);
   background: var(--ea-surface-row);
 }
 
-:global(html[data-theme='light'] .enemy-settings-panel .enemy-card:hover:not(:disabled)) {
+:global(html[data-theme='light'] .next-enemy-selector .enemy-card:hover:not(:disabled)) {
   background: rgb(180 140 0 / 10%);
 }
 
-:global(html[data-theme='light'] .enemy-settings-panel .enemy-card[aria-pressed='true']) {
+:global(html[data-theme='light'] .next-enemy-selector .enemy-card[aria-pressed='true']) {
   border-top-color: rgb(180 140 0 / 35%);
   border-right-color: rgb(180 140 0 / 35%);
   border-bottom-color: rgb(180 140 0 / 35%);
@@ -968,22 +1036,19 @@ function removeKnotThreshold(index: number): void {
   background: var(--ea-surface-row);
 }
 
-:global(html[data-theme='light'] .enemy-settings-panel .enemy-filter-rows) {
+:global(html[data-theme='light'] .next-enemy-selector .enemy-filter-rows) {
   background: var(--ea-surface-sunken);
 }
 
 :global(html[data-theme='light'] .enemy-settings-panel .enemy-avatar-box),
-:global(html[data-theme='light'] .enemy-settings-panel .card-avatar) {
+:global(html[data-theme='light'] .next-enemy-selector .card-avatar) {
   border-color: rgb(26 27 30 / 14%);
   background: var(--ea-chip-fill);
 }
 @media (hover: hover) and (pointer: fine) {
-  .enemy-card[aria-pressed='true']:hover:not(:disabled) {
-    background: color-mix(in srgb, var(--tier-color) 15%, var(--ea-fill-muted));
-  }
   :global(
     html[data-theme='light']
-      .enemy-settings-panel
+      .next-enemy-selector
       .enemy-card[aria-pressed='true']:hover:not(:disabled)
   ) {
     border-top-color: rgb(180 140 0 / 35%);

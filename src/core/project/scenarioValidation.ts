@@ -1,3 +1,5 @@
+import { GLOBAL_CONFIG_PRESETS } from './globalConfigPresets';
+import { validateActionSequenceDefinition } from '../game-data/validation/actionPrograms';
 /**
  * 顶层项目校验器使用的场景内部一致性规则。
  * 这里只检查持久化结构和引用关系，不应调用游戏数据或执行战斗规则。
@@ -356,6 +358,69 @@ export function validateGlobalConfig(
     return;
   }
 
+  if (value.enabledPresetIds !== undefined) {
+    if (!Array.isArray(value.enabledPresetIds))
+      issues.push({ path: `${path}.enabledPresetIds`, message: 'expected an array' });
+    else {
+      const seen = new Set<unknown>();
+      value.enabledPresetIds.forEach((id, index) => {
+        if (!GLOBAL_CONFIG_PRESETS.some(preset => preset.id === id) || seen.has(id))
+          issues.push({
+            path: `${path}.enabledPresetIds[${index}]`,
+            message: 'unknown or duplicate global preset',
+          });
+        seen.add(id);
+      });
+    }
+  }
+  if (value.customBuffs !== undefined) {
+    if (!Array.isArray(value.customBuffs))
+      issues.push({ path: `${path}.customBuffs`, message: 'expected an array' });
+    else {
+      const seen = new Set<string>();
+      value.customBuffs.forEach((buff, index) => {
+        const buffPath = `${path}.customBuffs[${index}]`;
+        if (!isObject(buff)) {
+          issues.push({ path: buffPath, message: 'expected an object' });
+          return;
+        }
+        const id = requireString(buff, 'id', buffPath, issues);
+        if (id !== null) {
+          if (!id.startsWith('scenario:custom-global:') || seen.has(id))
+            issues.push({
+              path: `${buffPath}.id`,
+              message: 'expected a unique scenario:custom-global: id',
+            });
+          seen.add(id);
+        }
+        const name = requireString(buff, 'name', buffPath, issues);
+        if (name !== null && !name.trim())
+          issues.push({ path: `${buffPath}.name`, message: 'name must not be blank' });
+        requireBoolean(buff.enabled, `${buffPath}.enabled`, issues);
+        if (!isObject(buff.definition))
+          issues.push({ path: `${buffPath}.definition`, message: 'expected a Buff definition' });
+        else
+          issues.push(
+            ...validateActionSequenceDefinition(
+              {
+                steps: [
+                  {
+                    kind: 'applyBuff',
+                    parameters: {
+                      target: 'caster',
+                      buffId: id,
+                      definition: buff.definition,
+                    },
+                  },
+                ],
+              },
+              buffPath,
+            ),
+          );
+      });
+    }
+  }
+
   const ids = new Set<string>();
   value.modifiers.forEach((modifier, index) => {
     const modifierPath = `${path}.modifiers[${index}]`;
@@ -378,10 +443,10 @@ export function validateGlobalConfig(
     if (modifier.skillType !== undefined && !skillTypes.has(modifier.skillType as string)) {
       issues.push({ path: `${modifierPath}.skillType`, message: 'unknown skill type' });
     }
-    if (modifier.modifier === 'skillCooldownReduction' && modifier.skillType === undefined) {
+    if (modifier.modifier === 'skillCooldownReduction' && modifier.skillType !== 'comboSkill') {
       issues.push({
         path: `${modifierPath}.skillType`,
-        message: 'skill cooldown reduction requires a skill type',
+        message: 'skill cooldown reduction requires comboSkill',
       });
     }
     if (modifier.modifier !== 'skillCooldownReduction' && modifier.skillType !== undefined) {

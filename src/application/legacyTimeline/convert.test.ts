@@ -1,7 +1,7 @@
 import { expect, it } from 'vitest';
 import { convertLegacyTimeline, resolveLegacyRuntimeReplacementSkillKey } from './convert';
-import { gameDataRepository } from '../../src/data/gameDataRepository';
-import { parseProjectDocument } from '../../src/core/project/serialization';
+import { gameDataRepository } from '../../data/gameDataRepository';
+import { parseProjectDocument } from '../../core/project/serialization';
 import realAxisMappings from './mappings.2026-08-31.json';
 import type { ConversionMappings } from './sourcePreparation';
 

@@ -144,7 +144,6 @@ const roots: string[] = [];
 const localeFiles = [
   'consumables',
   'enemies',
-  'enum-terms',
   'gearpieces',
   'gearsets',
   'operators',

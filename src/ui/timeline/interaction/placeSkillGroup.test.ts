@@ -14,7 +14,7 @@ import {
   placeLibrarySkillGroup,
   type TimelineDocumentIdAllocator,
 } from './placeSkillGroup';
-import { listSkillGroupLibraryPlacements } from './skillGroupPlacement';
+import { listSkillGroupLibraryPlacements } from '../../../application/editor/skillGroupPlacement';
 
 function createIds(): TimelineDocumentIdAllocator {
   let next = 0;

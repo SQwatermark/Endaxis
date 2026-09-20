@@ -49,7 +49,7 @@
 累计施法者变速后的局部帧，到达边界时产生一次记录。此跟踪独立于技能是否自然结束，
 也不能替代下一技能的输入路由或中断判断。
 
-[显示投影](../../src/ui/timeline/timelineDisplayTime.ts) 配对 `SkillStarted` 与
+[显示投影](../../src/core/projection/timelineDisplayTime.ts) 配对 `SkillStarted` 与
 `SkillOperableBoundaryReached`，得到实际宽度。边界是在本帧输入结束后的技能更新阶段观察到的，
 因此显示区间覆盖到下一输入边界，宽度计算包含这一个帧间隔。
 

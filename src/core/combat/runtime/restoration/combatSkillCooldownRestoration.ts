@@ -37,12 +37,6 @@ export function resolveCombatSkillCooldownConfiguration(
     ) {
       return result * modifier.value;
     }
-    if (
-      modifier.kind === 'skillCooldownReduction' &&
-      modifier.skillTypes.includes(program.skillType)
-    ) {
-      return result * (1 - modifier.value);
-    }
     return result;
   }, 1);
   if (!Number.isFinite(multiplier) || multiplier <= 0) {

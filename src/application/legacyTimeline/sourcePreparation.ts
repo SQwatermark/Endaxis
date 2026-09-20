@@ -1,4 +1,4 @@
-import { PROJECT_FPS, type SkillCastDocument } from '../../src/core/project/schema';
+import { PROJECT_FPS, type SkillCastDocument } from '../../core/project/schema';
 import {
   hydrateLegacyTrack,
   isLegacyDodgeAction,

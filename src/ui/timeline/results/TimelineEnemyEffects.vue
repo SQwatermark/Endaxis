@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { BuffDisplayName } from './buffDisplayName';
 /**
  * 敌人效果面板（对齐旧版 ResourceMonitor 的敌人状态区样式）：
  * 可见 Buff = 原生图标框 + 层数角标 + 45 度条纹时长条；爆发/反应消费 = 图标标记。
@@ -77,7 +78,7 @@ const props = defineProps<{
     readonly sourceId?: string;
     readonly sourceActionId?: string;
   }) => string | undefined;
-  operatorBuffNameKeys?: ReadonlyMap<string, string>;
+  operatorBuffNameKeys?: ReadonlyMap<string, BuffDisplayName>;
   icon?: (source: {
     readonly sourceId?: string;
     readonly sourceActionId?: string;

@@ -1,11 +1,24 @@
-import { readFile } from 'node:fs/promises';
+import sharp from 'sharp';
 import { effectScope } from 'vue';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createEmptyProject, createEmptyScenario } from '../../core/project/createProject';
+import {
+  deriveProjectGearSetTemplate,
+  deriveProjectGearTemplate,
+  deriveProjectOperatorTemplate,
+  getProjectDefinitionLibrary,
+  replaceProjectGearTemplateDefinition,
+} from '../../core/project/projectDefinitionLibrary';
+import { createDefaultOperatorInstance } from '../../application/editor/loadoutBuildFactory';
+import { openProject } from '../../application/openProject';
+import { createProjectGameDataRepository } from '../../data/projectGameDataRepository';
+import { perlica } from '../../data/operators/perlica.generated';
+import generatedGear from '../../data/equipment/generated/suit_wisdwill01/item_equip_t1_suit_wisdwill01_hand_01.generated';
+import generatedSet from '../../data/equipment/generated-gear-sets/suit_wisdwill01.generated';
 import { parseProjectDocument, serializeProjectDocument } from '../../core/project/serialization';
 import { ProjectEditorSession } from '../../application/editor/projectEditorSession';
 import { compressProjectCode } from './timelineExport';
-import { embedProjectCodeInWebp } from './webpProjectData';
+import { embedProjectCodeInPng } from './pngProjectData';
 import {
   createProjectFileReader,
   selectProjectExportScope,
@@ -28,7 +41,7 @@ describe('project export scope', () => {
     expect(selectProjectExportScope(project, 'all')).toBe(project);
   });
 
-  it('exports an inherited current scenario as a standalone, importable project', () => {
+  it('exports an inherited current scenario with its frozen edit boundary', () => {
     const project = createEmptyProject({ createdWith: 'test', gameDataRevision: 'test' });
     const child = createEmptyScenario('scenario:2', 'Second');
     child.inheritance = { frame: 30, sourceScenarioId: project.activeScenarioId };
@@ -37,28 +50,85 @@ describe('project export scope', () => {
 
     const exported = selectProjectExportScope(project, 'current');
     expect(exported.scenarios.map(scenario => scenario.id)).toEqual([child.id]);
-    expect(exported.scenarios[0]?.inheritance).toBeUndefined();
+    expect(exported.scenarios[0]?.inheritance).toEqual(child.inheritance);
     expect(child.inheritance).toBeDefined();
     expect(parseProjectDocument(serializeProjectDocument(exported)).ok).toBe(true);
   });
+
+  it('exports only templates used by the selected scenario, including its custom gear set', async () => {
+    let project = createEmptyProject({ createdWith: 'test', gameDataRevision: 'test' });
+    project = deriveProjectOperatorTemplate(project, {
+      id: 'project:operator:unused',
+      name: '未使用',
+      baseTemplateId: perlica.slug,
+      definition: perlica,
+    });
+    project = deriveProjectGearSetTemplate(project, {
+      id: 'project:gearSet:1',
+      name: '自定义套装',
+      baseTemplateId: generatedSet.slug,
+      definition: generatedSet,
+    });
+    project = deriveProjectGearTemplate(project, {
+      id: 'project:gear:1',
+      name: '自定义手套',
+      baseTemplateId: generatedGear.slug,
+      definition: generatedGear,
+    });
+    project = replaceProjectGearTemplateDefinition(project, 'project:gear:1', {
+      ...getProjectDefinitionLibrary(project).gears['project:gear:1']!.definition,
+      gearSetSlug: 'project:gearSet:1',
+    });
+    const second = createEmptyScenario('scenario:2', 'Second');
+    second.inheritance = { frame: 30, sourceScenarioId: project.activeScenarioId };
+    second.tracks[0] = {
+      id: 'track:1',
+      operator: createDefaultOperatorInstance(perlica),
+      weapon: null,
+      gears: {
+        armor: null,
+        gloves: { gearSlug: 'project:gear:1', artificingLevels: generatedGear.traits.map(() => 1) },
+        accessory1: null,
+        accessory2: null,
+      },
+      initialState: { ultimateEnergy: 0 },
+      skillCasts: [],
+    };
+    project.scenarios.push(second);
+    project.activeScenarioId = second.id;
+
+    const exported = selectProjectExportScope(project, 'current');
+    expect(Object.keys(getProjectDefinitionLibrary(exported).operators)).toEqual([]);
+    expect(Object.keys(getProjectDefinitionLibrary(exported).gears)).toEqual(['project:gear:1']);
+    expect(Object.keys(getProjectDefinitionLibrary(exported).gearSets)).toEqual([
+      'project:gearSet:1',
+    ]);
+    expect(exported.scenarios[0]?.inheritance).toEqual(second.inheritance);
+    const repository = await createProjectGameDataRepository(exported);
+    expect(
+      openProject(serializeProjectDocument(exported), { gameDataRepository: repository }).ok,
+    ).toBe(true);
+  });
 });
 
-it('reads an exported WebP through the project file reader', async () => {
-  const bytes = await readFile(
-    new URL('../../../public/next/passive-ui/typhoea-bg.webp', import.meta.url),
-  );
+it('reads an exported PNG through the project file reader', async () => {
+  const bytes = await sharp({
+    create: { width: 2, height: 2, channels: 3, background: '#191a1d' },
+  })
+    .png()
+    .toBuffer();
   const content = '{"kind":"test"}';
-  const image = await embedProjectCodeInWebp(
-    new Blob([Uint8Array.from(bytes)], { type: 'image/webp' }),
+  const image = await embedProjectCodeInPng(
+    new Blob([Uint8Array.from(bytes)], { type: 'image/png' }),
     await compressProjectCode(content),
   );
   let revision = 0;
   const reader = createProjectFileReader(() => revision);
-  await expect(reader.readWebp(image)).resolves.toBe(content);
+  await expect(reader.readPng(image)).resolves.toBe(content);
   revision += 1;
-  await expect(reader.readWebp(image)).resolves.toBe(content);
+  await expect(reader.readPng(image)).resolves.toBe(content);
   reader.dispose();
-  await expect(reader.readWebp(image)).resolves.toBeNull();
+  await expect(reader.readPng(image)).resolves.toBeNull();
 });
 
 it('allows refresh after browser autosave completes, but protects edits while it is pending', async () => {

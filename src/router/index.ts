@@ -23,6 +23,7 @@ const timelineRouteProps = (route: { meta: Record<PropertyKey, unknown> }) => {
     gameDataRepository,
     browserPersistenceEnabled: route.meta.timelineBrowserPersistenceEnabled === true,
     browserRestoreError: route.meta.timelineBrowserRestoreError,
+    browserRestoreRaw: route.meta.timelineBrowserRestoreRaw,
   };
 };
 
@@ -54,18 +55,27 @@ async function prepareSavedTimelineRoute(to: {
     input = JSON.parse(saved) as unknown;
   } catch {
     to.meta.timelineBrowserRestoreError = '浏览器保存的项目不是有效的 JSON';
+    to.meta.timelineBrowserRestoreRaw = saved;
     await prepareTimelineRoute(to, undefined);
     return;
   }
-  const gameDataRepository = await createProjectGameDataRepository(input);
-  const result = openProject(input, { gameDataRepository });
-  if (!result.ok) {
-    to.meta.timelineBrowserRestoreError = '浏览器保存的项目无法通过校验，请重新导入项目文件';
+  try {
+    const gameDataRepository = await createProjectGameDataRepository(input);
+    const result = openProject(input, { gameDataRepository });
+    if (!result.ok) {
+      to.meta.timelineBrowserRestoreError = '浏览器保存的项目无法通过校验，请重新导入项目文件';
+      to.meta.timelineBrowserRestoreRaw = saved;
+      await prepareTimelineRoute(to, undefined);
+      return;
+    }
+    to.meta.timelineInitialProject = result.project;
+    to.meta.timelineGameDataRepository = gameDataRepository;
+  } catch (error) {
+    to.meta.timelineBrowserRestoreError =
+      error instanceof Error ? error.message : '项目定义加载失败';
+    to.meta.timelineBrowserRestoreRaw = saved;
     await prepareTimelineRoute(to, undefined);
-    return;
   }
-  to.meta.timelineInitialProject = result.project;
-  to.meta.timelineGameDataRepository = gameDataRepository;
 }
 
 const routes: RouteRecordRaw[] = [

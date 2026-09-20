@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { CombatReceiptEntry } from '../../core/combat/receipt/combatReceipt';
+import type { CombatReceiptEntry } from '../combat/receipt/combatReceipt';
 import {
   projectCastTimeDilationSegments,
   projectSkillCastActualDurationFrames,

@@ -7,6 +7,7 @@ import type {
   DamageElement,
   OperatorDefinition,
   SkillDefinition,
+  SkillBuffDefinition,
   SkillType,
 } from '../game-data/operatorDefinition';
 import type {
@@ -348,12 +349,22 @@ export interface GlobalOperatorStatModifierDocument {
   modifier: GlobalOperatorStatModifier;
   /** 百分比类使用小数，artsIntensity 使用绝对值；允许负数表达反向修正。 */
   value: number;
-  /** 当前只允许 skillCooldownReduction 指定技能类型；其他修正作用于全队静态面板。 */
+  /** 冷却修正只支持 comboSkill；所有修正由战斗初始化的全队 Buff 生效。 */
   skillType?: SkillType;
+}
+
+/** 方案自有的全队 Buff 定义；启停不删除定义。 */
+export interface GlobalBuffDocument {
+  id: string;
+  name: string;
+  enabled: boolean;
+  definition: SkillBuffDefinition;
 }
 
 /** 场景级全局修正配置。 */
 export interface GlobalConfigDocument {
+  enabledPresetIds?: string[];
+  customBuffs?: GlobalBuffDocument[];
   modifiers: GlobalOperatorStatModifierDocument[];
 }
 

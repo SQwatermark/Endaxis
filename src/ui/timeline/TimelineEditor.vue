@@ -13,8 +13,10 @@ import {
   shallowRef,
   watch,
   toRaw,
+  type Component,
 } from 'vue';
 import { durationBarColorKey } from './results/durationBarColorContext';
+import TimelineAsyncDialogLoading from './components/TimelineAsyncDialogLoading.vue';
 import {
   provideInteractionSession,
   useInteractionBarrier,
@@ -178,7 +180,7 @@ import {
   downloadBlob,
   imageFilename,
 } from './timelineExport';
-import { embedProjectCodeInWebp } from './webpProjectData';
+import { embedProjectCodeInPng } from './pngProjectData';
 import { projectOpenFailureMessage } from './projectOpenFailureMessage';
 import { formatLegacyConversionReport } from './legacyConversionReport';
 import type { ProjectGameDataRepository } from '../../data/projectGameDataRepository';
@@ -212,7 +214,7 @@ import {
   layoutSkillGroupPlacement,
   resolveSkillGroupPlacementSkills,
   skillPlacementDisplayFrames,
-} from './interaction/skillGroupPlacement';
+} from '../../application/editor/skillGroupPlacement';
 import { createProjectDocumentIdAllocator } from './projectDocumentIdAllocator';
 import {
   projectTimelineEditor,
@@ -230,7 +232,7 @@ import {
   projectSkillCastActualStartFrames,
   projectSkillCastInterruptionFrames,
   projectTimelineTimeDilationBands,
-} from './timelineDisplayTime';
+} from '../../core/projection/timelineDisplayTime';
 import { useTimelineLoadoutEditor } from './library/useTimelineLoadoutEditor';
 import { timelineVisibleSkillEnds } from './timelineVisibleSkillEnds';
 import {
@@ -280,6 +282,7 @@ import {
   setBattlePrepFrames,
   setTimelinePrepExpanded,
   setGlobalOperatorStatModifiers,
+  setGlobalConfig,
   type EditableBattleResourceRule,
   updateTrackInitialUltimateEnergy,
   applyInitialUltimateEnergyPreset,
@@ -369,6 +372,7 @@ import { layoutEnemyDamageHits } from './results/enemyDamageHitLayout';
 import { useSimulationReceiptSelection } from './results/useSimulationReceiptSelection';
 import {
   collectOperatorBuffDisplayNameKeys,
+  type BuffDisplayName,
   resolveBuffDisplayName,
 } from './results/buffDisplayName';
 import type { CombatReceiptEntry } from '../../core/combat/receipt/combatReceipt';
@@ -406,56 +410,58 @@ import {
 
 // 定义编辑器只在用户明确打开时加载。它们会引入完整的行为编辑组件树，常驻在
 // 时间轴首页既浪费内存，也会让 Vite 在首次打开页面时转换大量不会使用的源码。
-const GearDefinitionWorkspaceDialog = defineAsyncComponent(
-  () => import('./definitions/equipment/GearDefinitionWorkspaceDialog.vue'),
-);
-const GearSetDefinitionWorkspaceDialog = defineAsyncComponent(
-  () => import('./definitions/equipment/GearSetDefinitionWorkspaceDialog.vue'),
-);
-const OperatorDefinitionWorkspaceDialog = defineAsyncComponent(
-  () => import('./definitions/operators/OperatorDefinitionWorkspaceDialog.vue'),
-);
-const WeaponDefinitionWorkspaceDialog = defineAsyncComponent(
-  () => import('./definitions/equipment/WeaponDefinitionWorkspaceDialog.vue'),
-);
-const SkillDefinitionEditorDialog = defineAsyncComponent(
+function defineLazyDialog<T extends Component>(load: () => Promise<{ default: T }>) {
+  return defineAsyncComponent<T>({
+    loader: load,
+    loadingComponent: TimelineAsyncDialogLoading,
+    delay: 150,
+  });
+}
+
+const loadGearDefinitionWorkspaceDialog = () =>
+  import('./definitions/equipment/GearDefinitionWorkspaceDialog.vue');
+const loadGearSetDefinitionWorkspaceDialog = () =>
+  import('./definitions/equipment/GearSetDefinitionWorkspaceDialog.vue');
+const loadOperatorDefinitionWorkspaceDialog = () =>
+  import('./definitions/operators/OperatorDefinitionWorkspaceDialog.vue');
+const loadWeaponDefinitionWorkspaceDialog = () =>
+  import('./definitions/equipment/WeaponDefinitionWorkspaceDialog.vue');
+const GearDefinitionWorkspaceDialog = defineLazyDialog(loadGearDefinitionWorkspaceDialog);
+const GearSetDefinitionWorkspaceDialog = defineLazyDialog(loadGearSetDefinitionWorkspaceDialog);
+const OperatorDefinitionWorkspaceDialog = defineLazyDialog(loadOperatorDefinitionWorkspaceDialog);
+const WeaponDefinitionWorkspaceDialog = defineLazyDialog(loadWeaponDefinitionWorkspaceDialog);
+const SkillDefinitionEditorDialog = defineLazyDialog(
   () => import('./definitions/skills/SkillDefinitionEditorDialog.vue'),
 );
-const GearSelectionDialog = defineAsyncComponent(() => import('./library/GearSelectionDialog.vue'));
-const GearLoadoutBuildDialog = defineAsyncComponent(
+const GearSelectionDialog = defineLazyDialog(() => import('./library/GearSelectionDialog.vue'));
+const GearLoadoutBuildDialog = defineLazyDialog(
   () => import('./library/GearLoadoutBuildDialog.vue'),
 );
-const OperatorPanelDialog = defineAsyncComponent(() => import('./library/OperatorPanelDialog.vue'));
-const OperatorBuildDialog = defineAsyncComponent(() => import('./library/OperatorBuildDialog.vue'));
-const WeaponBuildDialog = defineAsyncComponent(() => import('./library/WeaponBuildDialog.vue'));
-const OperatorSelectionDialog = defineAsyncComponent(
+const OperatorPanelDialog = defineLazyDialog(() => import('./library/OperatorPanelDialog.vue'));
+const OperatorBuildDialog = defineLazyDialog(() => import('./library/OperatorBuildDialog.vue'));
+const WeaponBuildDialog = defineLazyDialog(() => import('./library/WeaponBuildDialog.vue'));
+const OperatorSelectionDialog = defineLazyDialog(
   () => import('./library/OperatorSelectionDialog.vue'),
 );
-const WeaponSelectionDialog = defineAsyncComponent(
-  () => import('./library/WeaponSelectionDialog.vue'),
-);
-const TimelineResetDialog = defineAsyncComponent(
-  () => import('./components/TimelineResetDialog.vue'),
-);
-const TimelineHitDetailDialog = defineAsyncComponent(
+const WeaponSelectionDialog = defineLazyDialog(() => import('./library/WeaponSelectionDialog.vue'));
+const TimelineResetDialog = defineLazyDialog(() => import('./components/TimelineResetDialog.vue'));
+const TimelineHitDetailDialog = defineLazyDialog(
   () => import('./results/TimelineHitDetailDialog.vue'),
 );
-const TimelineBuffDetailDialog = defineAsyncComponent(
+const TimelineBuffDetailDialog = defineLazyDialog(
   () => import('./results/TimelineBuffDetailDialog.vue'),
 );
-const TimelineOperatorPassiveUiDetailDialog = defineAsyncComponent(
+const TimelineOperatorPassiveUiDetailDialog = defineLazyDialog(
   () => import('./results/TimelineOperatorPassiveUiDetailDialog.vue'),
 );
-const TimelineExportDialog = defineAsyncComponent(
+const TimelineExportDialog = defineLazyDialog(
   () => import('./components/TimelineExportDialog.vue'),
 );
-const TimelineSmallImageExportDialog = defineAsyncComponent(
+const TimelineSmallImageExportDialog = defineLazyDialog(
   () => import('./components/TimelineSmallImageExportDialog.vue'),
 );
-const DamageAnalysisDialog = defineAsyncComponent(
-  () => import('./results/DamageAnalysisDialog.vue'),
-);
-const TimelineShortcutHelpDialog = defineAsyncComponent(
+const DamageAnalysisDialog = defineLazyDialog(() => import('./results/DamageAnalysisDialog.vue'));
+const TimelineShortcutHelpDialog = defineLazyDialog(
   () => import('./interaction/TimelineShortcutHelpDialog.vue'),
 );
 
@@ -777,6 +783,7 @@ const props = defineProps<{
   gameDataRepository: ProjectGameDataRepository;
   browserPersistenceEnabled?: boolean;
   browserRestoreError?: string;
+  browserRestoreRaw?: string;
 }>();
 const gameDataRepository = props.gameDataRepository;
 const consumables = gameDataRepository.getConsumables();
@@ -800,6 +807,7 @@ if (props.initialScenario !== undefined) {
   initialProject.scenarios = [initialScenario];
 }
 const projectSession = new ProjectEditorSession(initialProject);
+projectDefinitionLibrary.value = getProjectDefinitionLibrary(initialProject);
 const scenarioSession = new ActiveScenarioEditorSession(projectSession);
 const projectRevision = ref(0);
 const projectScenarios = computed(() => {
@@ -842,7 +850,34 @@ watch(browserSaveError, error => {
 });
 onMounted(() => {
   if (props.browserRestoreError !== undefined) {
-    ElMessage.error(`浏览器项目恢复失败：${props.browserRestoreError}`);
+    const raw = props.browserRestoreRaw;
+    if (raw === undefined) {
+      void ElMessageBox.alert(
+        `浏览器项目恢复失败：${props.browserRestoreError}。未能读取原始存档，请检查浏览器存储；当前页面可以继续编辑。`,
+        '项目恢复失败',
+      );
+      return;
+    }
+    void ElMessageBox.confirm(
+      `浏览器项目恢复失败：${props.browserRestoreError}。当前已打开空项目，继续编辑会自动保存并覆盖浏览器中的旧存档。建议先下载原始存档。`,
+      '项目恢复失败',
+      {
+        confirmButtonText: '下载原始存档',
+        cancelButtonText: '继续编辑',
+        showClose: false,
+        closeOnClickModal: false,
+        closeOnPressEscape: false,
+        beforeClose: (action, _instance, done) => {
+          if (action === 'confirm') {
+            downloadBlob(
+              new Blob([raw], { type: 'application/json' }),
+              `Endaxis_Browser_Recovery_${new Date().toISOString().replace(/[:.]/g, '-')}.json`,
+            );
+          }
+          done();
+        },
+      },
+    ).catch(() => {});
   }
 });
 const scenario = shallowRef(scenarioSession.snapshot.scenario);
@@ -924,8 +959,8 @@ async function handleProjectFileChange(event: Event): Promise<void> {
   if (file === undefined) return;
   try {
     const content =
-      /\.webp$/i.test(file.name) || file.type === 'image/webp'
-        ? await projectFileReader.readWebp(file)
+      /\.png$/i.test(file.name) || file.type === 'image/png'
+        ? await projectFileReader.readPng(file)
         : await projectFileReader.read(file);
     if (content !== null) await openProjectContent(content);
   } catch (error) {
@@ -994,8 +1029,8 @@ async function openProjectContent(content: string): Promise<boolean> {
       });
       try {
         const [{ convertLegacyTimeline }, { default: legacyMappings }] = await Promise.all([
-          import('../../../tools/legacy-timeline/convert'),
-          import('../../../tools/legacy-timeline/mappings.2026-08-31.json'),
+          import('../../application/legacyTimeline/convert'),
+          import('../../application/legacyTimeline/mappings.2026-08-31.json'),
         ]);
         const conversion = convertLegacyTimeline(
           parsedInput,
@@ -1183,12 +1218,7 @@ async function exportTimelineLongImage(options: {
       prepWidth,
       trackHeaderWidth: TIMELINE_TRACK_HEADER_WIDTH,
     });
-    let exportImage = blob;
-    try {
-      exportImage = await embedProjectCodeInWebp(blob, await createCurrentScenarioShareCode());
-    } catch (error) {
-      console.error('无法把项目数据写入长图', error);
-    }
+    const exportImage = await embedProjectCodeInPng(blob, await createCurrentScenarioShareCode());
     downloadBlob(exportImage, filename);
     ElMessage.success(t('timeline.export.imageExported', { filename }));
   } catch (error) {
@@ -1235,7 +1265,12 @@ const editorGameDataRepository = {
 
 const operatorBuffDisplayNameKeys = computed(() => {
   operatorDefinitionRevision.value;
-  return collectOperatorBuffDisplayNameKeys(editorGameDataRepository.getOperators());
+  const names = new Map<string, BuffDisplayName>(
+    collectOperatorBuffDisplayNameKeys(editorGameDataRepository.getOperators()),
+  );
+  for (const buff of scenario.value.globalConfig.customBuffs ?? [])
+    names.set(buff.id, { text: buff.name });
+  return names;
 });
 
 const {
@@ -1288,19 +1323,37 @@ async function ensureAllGameData(): Promise<void> {
   operatorDefinitionRevision.value += 1;
 }
 
+let gameDataDialogOpening = false;
+async function openAfterGameDataLoad(open: () => void): Promise<void> {
+  if (gameDataDialogOpening) return;
+  if (fullGameDataRevisionApplied) {
+    open();
+    return;
+  }
+  gameDataDialogOpening = true;
+  const loading = ElLoading.service({ lock: true, text: t('timeline.loading') });
+  try {
+    await ensureAllGameData();
+    open();
+    await nextTick();
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : String(error));
+  } finally {
+    loading.close();
+    gameDataDialogOpening = false;
+  }
+}
+
 async function openOperatorDialog(trackIndex?: TrackIndex): Promise<void> {
-  await ensureAllGameData();
-  openOperatorDialogNow(trackIndex);
+  await openAfterGameDataLoad(() => openOperatorDialogNow(trackIndex));
 }
 
 async function openWeaponDialog(trackIndex?: TrackIndex): Promise<void> {
-  await ensureAllGameData();
-  openWeaponDialogNow(trackIndex);
+  await openAfterGameDataLoad(() => openWeaponDialogNow(trackIndex));
 }
 
 async function openGearDialog(trackIndex?: TrackIndex, slot?: TrackGearSlot): Promise<void> {
-  await ensureAllGameData();
-  openGearDialogNow(trackIndex, slot);
+  await openAfterGameDataLoad(() => openGearDialogNow(trackIndex, slot));
 }
 const {
   enemies,
@@ -1518,16 +1571,16 @@ const {
   selectedGearCustomDefinition,
   selectedGearSetCustomDefinition,
   selectedGearSetBaseDefinition,
-  openOperatorDefinitionWorkspace,
+  openOperatorDefinitionWorkspace: openOperatorDefinitionWorkspaceNow,
   saveOperatorDefinition,
   resetOperatorDefinition,
-  openWeaponDefinitionWorkspace,
+  openWeaponDefinitionWorkspace: openWeaponDefinitionWorkspaceNow,
   saveWeaponDefinition,
   resetWeaponDefinition,
-  openGearDefinitionWorkspace,
+  openGearDefinitionWorkspace: openGearDefinitionWorkspaceNow,
   saveGearDefinition,
   resetGearDefinition,
-  openGearSetDefinitionWorkspace,
+  openGearSetDefinitionWorkspace: openGearSetDefinitionWorkspaceNow,
   saveGearSetDefinition,
   resetGearSetDefinition,
 } = useProjectDefinitionWorkspaces({
@@ -1554,6 +1607,52 @@ const {
     ElMessage.error(message);
   },
 });
+
+let definitionWorkspaceOpening = false;
+async function openLoadedDefinitionWorkspace(
+  load: () => Promise<unknown>,
+  open: () => void | Promise<void>,
+): Promise<void> {
+  if (definitionWorkspaceOpening) return;
+  definitionWorkspaceOpening = true;
+  const loading = ElLoading.service({ lock: true, text: t('timeline.loading') });
+  try {
+    await load();
+    await open();
+    await nextTick();
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : String(error));
+  } finally {
+    loading.close();
+    definitionWorkspaceOpening = false;
+  }
+}
+
+function openOperatorDefinitionWorkspace(): Promise<void> {
+  return openLoadedDefinitionWorkspace(
+    () => Promise.all([loadOperatorDefinitionWorkspaceDialog(), ensureAllGameData()]),
+    openOperatorDefinitionWorkspaceNow,
+  );
+}
+
+function openWeaponDefinitionWorkspace(): Promise<void> {
+  return openLoadedDefinitionWorkspace(
+    () => Promise.all([loadWeaponDefinitionWorkspaceDialog(), ensureAllGameData()]),
+    openWeaponDefinitionWorkspaceNow,
+  );
+}
+
+function openGearDefinitionWorkspace(slot: TrackGearSlot): Promise<void> {
+  return openLoadedDefinitionWorkspace(loadGearDefinitionWorkspaceDialog, () =>
+    openGearDefinitionWorkspaceNow(slot),
+  );
+}
+
+function openGearSetDefinitionWorkspace(definition: GearDefinition): Promise<void> {
+  return openLoadedDefinitionWorkspace(loadGearSetDefinitionWorkspaceDialog, () =>
+    openGearSetDefinitionWorkspaceNow(definition),
+  );
+}
 const selectedLibraryInspectorModel = computed(() => {
   const entry = selectedLibraryEntry.value;
   if (entry === null) {
@@ -5592,6 +5691,10 @@ function setBattleResourceRule(field: EditableBattleResourceRule, value: number)
   );
 }
 
+function updateGlobalConfig(config: Parameters<typeof setGlobalConfig>[1]): void {
+  commitScenario('setGlobalConfig', current => setGlobalConfig(current, config));
+}
+
 function setGlobalModifiers(modifiers: Parameters<typeof setGlobalOperatorStatModifiers>[1]): void {
   commitScenario('setGlobalOperatorStatModifiers', current =>
     setGlobalOperatorStatModifiers(current, modifiers),
@@ -5751,7 +5854,7 @@ function setPanelDialogVisible(visible: boolean): void {
     ref="projectFileInput"
     class="project-file-input"
     type="file"
-    accept="application/json,.json,image/webp,.webp"
+    accept="application/json,.json,image/png,.png"
     @change="handleProjectFileChange"
   />
   <TimelineWorkbenchShell
@@ -5902,16 +6005,9 @@ function setPanelDialogVisible(visible: boolean): void {
         :read-only="configurationReadOnly"
         v-else-if="tool === 'global'"
         mode="modifiers"
-        :rules="scenario.battle.resourceRules"
-        :modifiers="scenario.globalConfig.modifiers"
-        :labels="{
-          title: t('globalConfig.customSection'),
-          maximum: t('timeline.maxSp'),
-          initial: t('resourceMonitor.labels.initialSp'),
-          recovery: t('resourceMonitor.labels.spPerSecond'),
-        }"
-        @update="setBattleResourceRule"
+        :config="scenario.globalConfig"
         @set-modifiers="setGlobalModifiers"
+        @set-config="updateGlobalConfig"
       />
       <div v-else-if="tool === 'contract'" class="contract-side-panel">
         <img
@@ -6905,16 +7001,10 @@ function setPanelDialogVisible(visible: boolean): void {
       <GlobalResourcePanel
         :read-only="configurationReadOnly"
         v-if="tool === 'global'"
-        :rules="scenario.battle.resourceRules"
-        :modifiers="scenario.globalConfig.modifiers"
-        :labels="{
-          title: t('timeline.activityBar.globalConfig'),
-          maximum: t('timeline.maxSp'),
-          initial: t('resourceMonitor.labels.initialSp'),
-          recovery: t('resourceMonitor.labels.spPerSecond'),
-        }"
-        @update="setBattleResourceRule"
+        mode="presets"
+        :config="scenario.globalConfig"
         @set-modifiers="setGlobalModifiers"
+        @set-config="updateGlobalConfig"
       />
       <section v-else-if="tool === 'enemy'" class="simulation-panel">
         <div v-if="simulationRun !== null" class="simulation-curves">

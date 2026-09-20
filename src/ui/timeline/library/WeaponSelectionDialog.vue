@@ -20,6 +20,7 @@ import type { WeaponDefinition } from '../../../core/game-data/equipmentDefiniti
 import WeaponSelectionTooltip from './WeaponSelectionTooltip.vue';
 import { DEFAULT_WEAPON_ICON_PATH } from '../../gameAssetPaths';
 import { matchesLocalizedNameSearch } from './localizedNameSearch';
+import './selectionDialog.css';
 
 export interface WeaponSelectionDialogLabels {
   readonly title: string;

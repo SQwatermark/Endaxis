@@ -10,7 +10,7 @@ import type {
   TrackIndex,
 } from '../../../core/project/schema';
 import { resolveUniquePlayerActionForSkill } from '../../../core/game-data/resolvePlayerActionRoute';
-import { layoutSkillGroupPlacement, resolveSkillGroupPlacementSkills } from './skillGroupPlacement';
+import { layoutSkillGroupPlacement, resolveSkillGroupPlacementSkills } from '../../../application/editor/skillGroupPlacement';
 import type { RecursiveSkillChain } from '../../../application/simulation/recursiveSkillChain';
 
 /** 放置命令生成稳定文档身份所需的端口。 */

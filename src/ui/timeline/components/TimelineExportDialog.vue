@@ -44,7 +44,7 @@ watch(
     if (!visible) return;
     scope.value = 'all';
     filename.value = `Endaxis_Timeline_${new Date().toISOString().slice(0, 10)}`;
-    duration.value = Math.min(60, Math.max(10, Math.round(props.maxDuration || 120)));
+    duration.value = Math.max(10, Math.round(props.maxDuration || 120));
   },
   { immediate: true },
 );

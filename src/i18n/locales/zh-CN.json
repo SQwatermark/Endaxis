@@ -1574,7 +1574,7 @@
         "createGlobalBuff": "创建战斗级 GlobalBuff 父实例，并把其子 Buff 投影到固定队伍的每名成员。",
         "finishParentGlobalBuff": "结束当前子 Buff 精确关联的 GlobalBuff 父实例及该层全部队伍镜像。",
         "finishGlobalBuffsById": "按原生 GlobalBuff ID 结束当前战斗中全部同名父实例及其队伍镜像。",
-        "readSkillSettingData": "按运行时列号从版本化 SkillSetting 读取数值，可应用已恢复的术法强度增强公式。",
+        "readSkillSettingData": "按运行时列号从版本化 SkillSetting 读取数值，可应用已恢复的源石技艺强度增强公式。",
         "readBuffBlackboard": "查找目标身上的 Buff，把其中一个黑板值写入当前技能动作黑板。",
         "readBuffRemainingDuration": "查找目标身上首个匹配的有效 Buff，把剩余秒数写入当前技能动作黑板；无限时长写入 0。",
         "readEventBuffBlackboard": "从当前 Buff 消费或结束事件携带的实例快照读取黑板值。",
@@ -1819,18 +1819,7 @@
     "skillLibrary": "干员技能库",
     "maxSp": "技力上限",
     "globalModifiers": {
-      "title": "全局属性修正",
-      "edit": "编辑修正",
-      "empty": "未设置修正",
-      "comboOnly": "仅连携技",
-      "types": {
-        "attackPercent": "攻击力百分比",
-        "criticalRate": "暴击率",
-        "criticalDamage": "暴击伤害",
-        "artsIntensity": "术法强度",
-        "ultimateEnergyGainEfficiency": "终结技能量回复效率",
-        "skillCooldownReduction": "技能冷却缩减"
-      }
+      "title": "全局属性修正"
     },
     "panel": {
       "trustNode": "天赋阵列 {node}",
@@ -2707,6 +2696,15 @@
       "editStatsTitle": "自定义敌人属性",
       "searchPlaceholder": "搜索敌人...",
       "level": "等级",
+      "categories": {
+        "wildlife": "野外生物",
+        "landbreakers": "裂地者",
+        "angels": "天使",
+        "cangThieves": "沧贼",
+        "shadows": "蚀影",
+        "progeny": "造裔",
+        "witchcraftConstructs": "巫术造物"
+      },
       "specialGroup": "特殊",
       "standardGroup": "敌人",
       "customDesc": "手动调整属性数值",
@@ -2715,6 +2713,14 @@
     }
   },
   "globalConfig": {
+    "buffsTitle": "全局 Buff",
+    "customBuff": "自定义全局 Buff",
+    "addBuff": "添加全局 Buff",
+    "buffName": "名称",
+    "enabled": "已启用",
+    "disabled": "未启用",
+    "comboAcceleration": "连携加速",
+    "comboAccelerationDescription": "全队连携冷却缩减 50%",
     "title": "全局配置",
     "customSection": "自定义数值",
     "customEmpty": "尚未添加自定义修正。",
@@ -2915,5 +2921,64 @@
     "useFromContext": "使用物品",
     "dialogTitle": "选择消耗品",
     "searchPlaceholder": "搜索名称或效果"
+  },
+  "enumTerms": {
+    "element": {
+      "physical": "物理",
+      "heat": "灼热",
+      "cryo": "寒冷",
+      "electric": "电磁",
+      "nature": "自然",
+      "arts": "法术"
+    },
+    "class": {
+      "guard": "近卫",
+      "caster": "术师",
+      "defender": "重装",
+      "vanguard": "先锋",
+      "striker": "突击",
+      "supporter": "辅助"
+    },
+    "weaponType": {
+      "sword": "单手剑",
+      "greatsword": "双手剑",
+      "polearm": "长柄武器",
+      "handcannon": "手铳",
+      "arts-unit": "施术单元",
+      "artsunit": "施术单元"
+    },
+    "slotType": {
+      "armor": "护甲",
+      "gloves": "护手",
+      "kit": "配件",
+      "kit1": "配件",
+      "kit2": "配件",
+      "accessory": "配件"
+    },
+    "quality": {
+      "green": "绿色",
+      "blue": "蓝色",
+      "purple": "紫色",
+      "gold": "金色"
+    },
+    "attribute": {
+      "strength": "力量",
+      "agility": "敏捷",
+      "intellect": "智识",
+      "will": "意志",
+      "main": "主属性",
+      "sub": "副属性"
+    },
+    "operatorUi": {
+      "promote": "精英化",
+      "promoted": "精英化",
+      "fullyPromoted": "满精英化",
+      "promotionUnavailable": "无法精英化"
+    },
+    "weaponUi": {
+      "tuned": "突破",
+      "fullyTuned": "满突破",
+      "tuningUnavailable": "无法突破"
+    }
   }
 }

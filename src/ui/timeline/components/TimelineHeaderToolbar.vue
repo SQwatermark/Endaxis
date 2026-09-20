@@ -1,7 +1,14 @@
 <script setup lang="ts">
 import { EaPopover } from '@/design-system';
 /** 时间轴顶部方案栏。DOM 分区与视觉契约以旧版 TimelineEditor 为准。 */
-import { EaButton, EaDeleteIcon, EaDiceIcon, EaInput, EaNumberInput } from '@/design-system';
+import {
+  EaButton,
+  EaDeleteIcon,
+  EaDiceIcon,
+  EaInput,
+  EaNumberInput,
+  EaPlusIcon,
+} from '@/design-system';
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import TimelineDurationBarColorControls from '../results/TimelineDurationBarColorControls.vue';
@@ -256,11 +263,13 @@ onBeforeUnmount(() => {
           :key="scenario.id"
           type="button"
           class="ts-tab-item"
+          variant="ghost"
+          size="sm"
+          :pressed="scenario.id === activeScenarioId"
           :title="scenario.name"
           :aria-label="scenario.name"
           :aria-current="scenario.id === activeScenarioId ? 'page' : undefined"
           @click="$emit('select', scenario.id)"
-          :pressed="scenario.id === activeScenarioId"
         >
           {{ String(index + 1).padStart(2, '0') }}
         </EaButton>
@@ -274,7 +283,7 @@ onBeforeUnmount(() => {
           :aria-label="labels.add"
           @click="$emit('add')"
         >
-          +
+          <EaPlusIcon />
         </EaButton>
       </div>
     </div>
@@ -867,14 +876,16 @@ onBeforeUnmount(() => {
 }
 
 .ts-tab-item {
+  --ea-control-pressed-border-hover: transparent;
+  --ea-control-pressed-bg-hover: var(--ea-tab-active-bg);
+  --ea-control-pressed-fg-hover: var(--ea-tab-active-fg);
+
   min-width: 40px;
   height: 24px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0;
-  border: 0;
   border-radius: 4px;
   background: var(--ea-tab-idle-bg);
   color: var(--ea-tab-idle-fg);
@@ -882,16 +893,15 @@ onBeforeUnmount(() => {
   font:
     700 12px/1 'Roboto Mono',
     monospace;
-  transition: all 0.2s;
+  transition:
+    background-color 0.2s,
+    color 0.2s,
+    box-shadow 0.2s;
   user-select: none;
 }
 
-.ts-tab-item:hover {
-  background: var(--ea-hover-fill);
-  color: var(--ea-fg);
-}
-
 .ts-tab-item[aria-pressed='true'] {
+  border-color: transparent;
   background: var(--ea-tab-active-bg);
   color: var(--ea-tab-active-fg);
   box-shadow: 0 1px 3px rgb(0 0 0 / 30%);
@@ -899,7 +909,6 @@ onBeforeUnmount(() => {
 
 .ts-add-btn {
   margin-left: 4px;
-  font-size: 14px;
 }
 
 .header-controls {
@@ -1180,10 +1189,9 @@ onBeforeUnmount(() => {
   }
 }
 @media (hover: hover) and (pointer: fine) {
-  .ts-tab-item[aria-pressed='true']:hover:not(:disabled) {
-    background: var(--ea-tab-active-bg);
-    color: var(--ea-tab-active-fg);
-    box-shadow: 0 1px 3px rgb(0 0 0 / 30%);
+  .ts-tab-item.ea-button:hover:not(:disabled):not([aria-pressed='true']) {
+    background-color: var(--ea-hover-fill);
+    color: var(--ea-fg);
   }
 }
 </style>

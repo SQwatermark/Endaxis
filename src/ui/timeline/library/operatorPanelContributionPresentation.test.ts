@@ -46,7 +46,7 @@ describe('operator panel contribution presentation', () => {
       ),
     ).toBe('自定义武器');
   });
-  it('uses stable translated labels for base, trust, and global sources', () => {
+  it('uses stable translated labels for base and trust sources', () => {
     expect(
       resolveOperatorPanelContributionSourceLabel(
         entry({ kind: 'operatorBase', operatorSlug: 'test' }),
@@ -59,12 +59,6 @@ describe('operator panel contribution presentation', () => {
         context,
       ),
     ).toBe('timeline.panel.trustNode:4');
-    expect(
-      resolveOperatorPanelContributionSourceLabel(
-        entry({ kind: 'globalConfig', modifierId: 'global:attack' }),
-        context,
-      ),
-    ).toBe('timeline.globalModifiers.title');
   });
 
   it('keeps an unresolved upgrade identity visible rather than inventing a name', () => {

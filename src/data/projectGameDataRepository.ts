@@ -84,6 +84,7 @@ function collectProjectDefinitionReferences(value: unknown): ProjectDefinitionRe
     gearSets: new Set(),
   };
   const seen = new Set<object>();
+  const projectGears = new Set<string>();
 
   const visit = (current: unknown): void => {
     if (current === null || typeof current !== 'object' || seen.has(current)) return;
@@ -93,32 +94,34 @@ function collectProjectDefinitionReferences(value: unknown): ProjectDefinitionRe
       return;
     }
     const record = current as Record<string, unknown>;
-    if (record.definitionLibrary !== null && typeof record.definitionLibrary === 'object') {
-      const library = record.definitionLibrary as Record<string, unknown>;
-      const collectOrigins = (category: string, target: Set<string>): void => {
-        const entries = library[category];
-        if (entries === null || typeof entries !== 'object') return;
-        for (const entry of Object.values(entries as Record<string, unknown>)) {
-          if (entry === null || typeof entry !== 'object') continue;
-          const origin = (entry as Record<string, unknown>).origin;
-          if (origin === null || typeof origin !== 'object') continue;
-          const templateId = (origin as Record<string, unknown>).templateId;
-          if (typeof templateId === 'string') target.add(templateId);
-        }
-      };
-      collectOrigins('operators', references.operators);
-      collectOrigins('weapons', references.weapons);
-      collectOrigins('gears', references.gears);
-      collectOrigins('gearSets', references.gearSets);
+    if (typeof record.operatorSlug === 'string' && !record.operatorSlug.startsWith('project:'))
+      references.operators.add(record.operatorSlug);
+    if (typeof record.weaponSlug === 'string' && !record.weaponSlug.startsWith('project:'))
+      references.weapons.add(record.weaponSlug);
+    if (typeof record.gearSlug === 'string') {
+      if (record.gearSlug.startsWith('project:')) projectGears.add(record.gearSlug);
+      else references.gears.add(record.gearSlug);
     }
-    if (typeof record.operatorSlug === 'string') references.operators.add(record.operatorSlug);
-    if (typeof record.weaponSlug === 'string') references.weapons.add(record.weaponSlug);
-    if (typeof record.gearSlug === 'string') references.gears.add(record.gearSlug);
-    if (typeof record.gearSetSlug === 'string') references.gearSets.add(record.gearSetSlug);
-    for (const nested of Object.values(record)) visit(nested);
+    if (typeof record.gearSetSlug === 'string' && !record.gearSetSlug.startsWith('project:'))
+      references.gearSets.add(record.gearSetSlug);
+    // Project definitions are materialized in the save; their origins are audit-only.
+    for (const [key, nested] of Object.entries(record)) {
+      if (key !== 'definitionLibrary') visit(nested);
+    }
   };
 
   visit(value);
+  // A materialized project gear can still use a built-in set. Its origin is
+  // audit-only, but its gearSetSlug is a live simulation dependency.
+  const library = (
+    value as {
+      definitionLibrary?: { gears?: Record<string, { definition?: { gearSetSlug?: string } }> };
+    } | null
+  )?.definitionLibrary;
+  for (const slug of projectGears) {
+    const setSlug = library?.gears?.[slug]?.definition?.gearSetSlug;
+    if (setSlug !== undefined && !setSlug.startsWith('project:')) references.gearSets.add(setSlug);
+  }
   return references;
 }
 

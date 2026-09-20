@@ -12,7 +12,7 @@ import {
 import {
   projectSkillCastActualDurationFrames,
   projectSkillCastActualStartFrames,
-} from '../../../ui/timeline/timelineDisplayTime';
+} from '../../../core/projection/timelineDisplayTime';
 import { ScenarioSimulationService } from '../scenarioSimulationService';
 
 function fixture() {

@@ -1,27 +1,27 @@
 import { prepareLegacySource, type ConversionMappings } from './sourcePreparation';
 import { createLegacyProjectImporter } from './projectConversion';
-import { parseProjectDocument } from '../../src/core/project/serialization';
-import type { GameDataRepository } from '../../src/core/game-data/gameDataRepository';
-import { resolveScenarioBuilds } from '../../src/core/compiler/resolveScenarioBuilds';
-import { resolveScenarioOperatorPanels } from '../../src/core/compiler/resolveOperatorPanel';
-import { compileOperatorDefinitionSkills } from '../../src/core/compiler/compileScenarioTimeline';
-import { resolveScenarioOperatorResourceRules } from '../../src/core/compiler/resolveScenarioResourceRules';
-import type { EndaxisProjectDocument } from '../../src/core/project/schema';
+import { parseProjectDocument } from '../../core/project/serialization';
+import type { GameDataRepository } from '../../core/game-data/gameDataRepository';
+import { resolveScenarioBuilds } from '../../core/compiler/resolveScenarioBuilds';
+import { resolveScenarioOperatorPanels } from '../../core/compiler/resolveOperatorPanel';
+import { compileOperatorDefinitionSkills } from '../../core/compiler/compileScenarioTimeline';
+import { resolveScenarioOperatorResourceRules } from '../../core/compiler/resolveScenarioResourceRules';
+import type { EndaxisProjectDocument } from '../../core/project/schema';
 import {
   retimeLegacyProjectBySimulation,
   type LegacyRuntimeReplacementResolver,
   type LegacyTimingMode,
 } from './heuristicRetiming';
-import { ScenarioSimulationService } from '../../src/application/simulation/scenarioSimulationService';
+import { ScenarioSimulationService } from '../simulation/scenarioSimulationService';
 import { CheckpointRetimingSession } from './checkpointRetiming';
-import { skillSettings, skillSettingResources } from '../../src/data/combat/skillSettings';
-import { elementalAttachments } from '../../src/data/buffs/elementalAttachments';
-import { compoundStatusFactories } from '../../src/data/buffs/compoundStatusFactories';
-import { MechanicAdapterRegistry } from '../../src/core/mechanics/mechanicCompiler';
-import { contingencyContractMechanicAdapter } from '../../src/data/mechanics/contingencyContractAdapter';
+import { skillSettings, skillSettingResources } from '../../data/combat/skillSettings';
+import { elementalAttachments } from '../../data/buffs/elementalAttachments';
+import { compoundStatusFactories } from '../../data/buffs/compoundStatusFactories';
+import { MechanicAdapterRegistry } from '../../core/mechanics/mechanicCompiler';
+import { contingencyContractMechanicAdapter } from '../../data/mechanics/contingencyContractAdapter';
 import { expandLegacyRecursiveSkillSequences } from './recursiveSequenceExpansion';
-import { listSkillGroupDefinitionBindings } from '../../src/core/game-data/operatorSkillDefinitions';
-import type { OperatorDefinition } from '../../src/core/game-data/operatorDefinition';
+import { listSkillGroupDefinitionBindings } from '../../core/game-data/operatorSkillDefinitions';
+import type { OperatorDefinition } from '../../core/game-data/operatorDefinition';
 
 export function resolveLegacyRuntimeReplacementSkillKey(
   operator: OperatorDefinition,
@@ -160,7 +160,7 @@ function normalizeInitialUltimateEnergy(
   const adjustments: LegacyResourceAdjustment[] = [];
   for (const [scenarioIndex, scenario] of project.scenarios.entries()) {
     const builds = resolveScenarioBuilds(scenario, repository);
-    const panels = resolveScenarioOperatorPanels(builds, scenario.globalConfig);
+    const panels = resolveScenarioOperatorPanels(builds);
     const programs = builds.map(build => ({
       operatorId: build.track.id,
       skills: compileOperatorDefinitionSkills(

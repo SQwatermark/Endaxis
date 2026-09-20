@@ -4,13 +4,13 @@
  * 映射只声明技能组和形态；本层复用编辑器的正式递归规划器，根据模拟回执选择每一段，
  * 不在转换器里复制干员技能路由，也不向项目存档增加旧版专用字段。
  */
-import type { GameDataRepository } from '../../src/core/game-data/gameDataRepository';
-import type { EndaxisProjectDocument } from '../../src/core/project/schema';
+import type { GameDataRepository } from '../../core/game-data/gameDataRepository';
+import type { EndaxisProjectDocument } from '../../core/project/schema';
 import {
   planRecursiveSkillChain,
   type RecursiveSkillChain,
-} from '../../src/application/simulation/recursiveSkillChain';
-import { resolveSkillGroupPlacementSkills } from '../../src/ui/timeline/interaction/skillGroupPlacement';
+} from '../simulation/recursiveSkillChain';
+import { resolveSkillGroupPlacementSkills } from '../editor/skillGroupPlacement';
 import type { LegacyRetimingSimulationRunner } from './heuristicRetiming';
 
 type UnknownRecord = Record<string, unknown>;

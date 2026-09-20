@@ -5,18 +5,18 @@
  * 真实开始、技能块实际显示结束和终结技时间膨胀区间。后续规则应作为新的明确步骤加入，
  * 不要把它们隐藏在存档转换或技能定义中。
  */
-import type { CombatReceiptEntry } from '../../src/core/combat/receipt/combatReceipt';
-import type { ScheduledCombatFrameInput } from '../../src/application/simulation/combatInputSchedule';
+import type { CombatReceiptEntry } from '../../core/combat/receipt/combatReceipt';
+import type { ScheduledCombatFrameInput } from '../simulation/combatInputSchedule';
 import type {
   EndaxisProjectDocument,
   ScenarioDocument,
   SkillCastDocument,
-} from '../../src/core/project/schema';
+} from '../../core/project/schema';
 import {
   projectSkillCastActualDurationFrames,
   projectSkillCastActualStartFrames,
   projectSkillCastInterruptionFrames,
-} from '../../src/ui/timeline/timelineDisplayTime';
+} from '../../core/projection/timelineDisplayTime';
 import {
   isLegacyControlledInputCast,
   legacyInferredControlSwitchId,
@@ -646,6 +646,7 @@ export function retimeLegacyProjectBySimulation(
         targetCast.placement = { startFrame: candidateFrame };
         workingCast.placement = { startFrame: candidateFrame };
         retimeControlSwitches(scenario, working, sourceData, ordered.slice(0, index + 1));
+        retimeDodgeMarkers(scenario, working, sourceData, ordered.slice(0, index + 1));
         synchronizeLegacyInferredControlSwitches(
           scenario,
           ordered.slice(0, index + 1).map((item, order) => ({ ...item, order })),

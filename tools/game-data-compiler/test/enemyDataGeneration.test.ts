@@ -80,21 +80,31 @@ describe('enemy data generation', () => {
       },
     });
     const ranks = join(root, 'ranks.json');
-    await writeJson(ranks, { enemies: { eny_9999_fixture: { rank: 'elite' } } });
+    await writeJson(ranks, {
+      enemies: { eny_9999_fixture: { rank: 'elite', iconAssetPath: 'MonsterIcon/eny_9999_fixture.png' } },
+    });
     const defaults = join(root, 'defaults.json');
     await writeJson(defaults, {
       knotBreakDurationSeconds: 2,
       evidence: 'test compatibility evidence',
     });
+    const selectionCategories = join(root, 'selection-categories.json');
+    await writeJson(selectionCategories, {
+      categories: [{ id: 'wildlife', enemyIds: ['eny_9999_fixture'] }],
+      uncategorizedEnemyIds: [],
+      hiddenEnemyIds: [],
+    });
 
-    const plan = await planEnemyDefinitions(tables, ranks, defaults);
+    const plan = await planEnemyDefinitions(tables, ranks, defaults, selectionCategories);
     expect(plan.excludedDisplayIds).toEqual(['tatget_001_normal']);
     expect(plan.compatibilityDefaults.evidence).toBe('test compatibility evidence');
+    expect(plan.selection.categoryByEnemyId).toEqual({ 'eny-9999-fixture': 'wildlife' });
     await expect(
       generateEnemyDefinitions({
         tablesDirectory: tables,
         rankEvidence: ranks,
         runtimeDefaults: defaults,
+        selectionCategories,
         outputDirectory: join(root, 'generated'),
         check: false,
       }),
@@ -122,6 +132,7 @@ describe('enemy data generation', () => {
         tablesDirectory: tables,
         rankEvidence: ranks,
         runtimeDefaults: defaults,
+        selectionCategories,
       }),
     ).resolves.toMatchObject({
       candidateCount: 1,
@@ -129,6 +140,15 @@ describe('enemy data generation', () => {
       fullLevelNodeCount: 1,
       evidence: 'current source tables plus same-run EnemyTemplateData rank extraction',
     });
+
+    await writeJson(selectionCategories, {
+      categories: [{ id: 'wildlife', enemyIds: [] }],
+      uncategorizedEnemyIds: [],
+      hiddenEnemyIds: [],
+    });
+    await expect(
+      planEnemyDefinitions(tables, ranks, defaults, selectionCategories),
+    ).rejects.toThrow('unclassified enemies eny_9999_fixture');
   });
 });
 

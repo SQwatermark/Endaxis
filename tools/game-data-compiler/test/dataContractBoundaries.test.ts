@@ -34,6 +34,7 @@ import {
 const root = fileURLToPath(new URL('../../../', import.meta.url));
 const contractRoot = join(root, 'packages/game-data-contract/src');
 const compilerRoot = join(root, 'tools/game-data-compiler');
+const toolsRoot = join(root, 'tools');
 const productRoot = join(root, 'src');
 
 function inside(file: string, directory: string): boolean {
@@ -612,7 +613,7 @@ describe('独立游戏数据契约边界', () => {
     ).toEqual([]);
   }, 30_000);
 
-  it('本体生产代码不得引用转换器，跨端测试是显式例外', () => {
+  it('本体生产代码不得引用命令行工具或游戏数据编译器，跨端测试是显式例外', () => {
     const violations: string[] = [];
     for (const path of sourceFiles(productRoot).filter(path => !/\.(test|spec)\.ts$/.test(path))) {
       const text = readFileSync(path, 'utf8');
@@ -623,7 +624,7 @@ describe('独立游戏数据契约边界', () => {
       for (const specifier of scripts.flatMap(moduleReferences)) {
         if (
           specifier.includes('game-data-compiler') ||
-          (specifier.startsWith('.') && inside(resolve(dirname(path), specifier), compilerRoot))
+          (specifier.startsWith('.') && inside(resolve(dirname(path), specifier), toolsRoot))
         ) {
           violations.push(`${relative(root, path)}: ${specifier}`);
         }

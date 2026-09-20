@@ -28,13 +28,13 @@ describe('Next project I/O shell', () => {
     expect(editorSource).toContain("legacy = inspectProjectInput(parsedInput).kind === 'legacy'");
     expect(editorSource).toContain("'转换旧版本轴'");
     expect(editorSource).toContain("confirmButtonText: '确定并转换'");
-    expect(editorSource).toContain("'../../../tools/legacy-timeline/convert'");
-    expect(editorSource).toContain("'../../../tools/legacy-timeline/mappings.2026-08-31.json'");
+    expect(editorSource).toContain("'../../application/legacyTimeline/convert'");
+    expect(editorSource).toContain("'../../application/legacyTimeline/mappings.2026-08-31.json'");
     expect(editorSource).toContain('legacyMappings as Parameters<typeof convertLegacyTimeline>[2]');
     expect(editorSource).toContain('showLegacyConversionReport(conversion.report, true)');
     expect(editorSource).toContain("'旧版本轴转换报告'");
     expect(editorSource.indexOf("'转换旧版本轴'")).toBeLessThan(
-      editorSource.indexOf("'../../../tools/legacy-timeline/convert'"),
+      editorSource.indexOf("'../../application/legacyTimeline/convert'"),
     );
   });
 

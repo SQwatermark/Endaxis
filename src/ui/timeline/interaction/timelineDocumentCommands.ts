@@ -1,3 +1,5 @@
+import { validateGlobalConfig } from '../../../core/project/scenarioValidation';
+import type { GlobalConfigDocument } from '../../../core/project/schema';
 /**
  * 时间轴编辑器对存档执行的最小不可变命令。
  *
@@ -27,7 +29,7 @@ import { validateSkillDefinition } from '../../../core/game-data/validateSkillDe
 
 export type EditableBattleResourceRule = keyof Pick<
   BattleDocument['resourceRules'],
-  'maxSp' | 'initialSp' | 'spRecoveryPerSecond'
+  'initialSp' | 'spRecoveryPerSecond'
 >;
 
 /** 战前准备只改变现实时间轴的负向可视区，不平移以战斗帧保存的技能或标记。 */
@@ -104,12 +106,21 @@ export function updateBattleResourceRule(
   const next = {
     ...current,
     [field]: normalizedValue,
-    ...(field === 'maxSp' && current.initialSp > normalizedValue
-      ? { initialSp: normalizedValue }
-      : {}),
   };
   if (next[field] === current[field] && next.initialSp === current.initialSp) return scenario;
   return { ...scenario, battle: { ...scenario.battle, resourceRules: next } };
+}
+
+/** 全局配置整体进入撤销与继承锁定的公共方案命令。 */
+export function setGlobalConfig(
+  scenario: ScenarioDocument,
+  config: GlobalConfigDocument,
+): ScenarioDocument {
+  const issues: { path: string; message: string }[] = [];
+  validateGlobalConfig(config, 'globalConfig', issues);
+  if (issues.length)
+    throw new Error(issues.map(issue => `${issue.path}: ${issue.message}`).join('\n'));
+  return { ...scenario, globalConfig: JSON.parse(JSON.stringify(config)) as GlobalConfigDocument };
 }
 
 /**
@@ -130,9 +141,9 @@ export function setGlobalOperatorStatModifiers(
       throw new TypeError(`global modifier '${modifier.id}' value must be finite`);
     }
     if (modifier.modifier === 'skillCooldownReduction') {
-      if (modifier.skillType === undefined || modifier.value >= 1) {
+      if (modifier.skillType !== 'comboSkill' || modifier.value >= 1) {
         throw new RangeError(
-          `global cooldown reduction '${modifier.id}' requires a skill type and a value less than 1`,
+          `global cooldown reduction '${modifier.id}' requires comboSkill and a value less than 1`,
         );
       }
     } else if (modifier.skillType !== undefined) {
@@ -143,7 +154,10 @@ export function setGlobalOperatorStatModifiers(
     return scenario;
   return {
     ...scenario,
-    globalConfig: { modifiers: modifiers.map(modifier => ({ ...modifier })) },
+    globalConfig: {
+      ...scenario.globalConfig,
+      modifiers: modifiers.map(modifier => ({ ...modifier })),
+    },
   };
 }
 

@@ -31,8 +31,7 @@ export type OperatorPanelContributionSource =
     }
   | { readonly kind: 'weaponBase'; readonly weaponSlug: string }
   | { readonly kind: 'gearBase'; readonly gearSlug: string }
-  | { readonly kind: 'equipment'; readonly contribution: EquipmentContributionSource }
-  | { readonly kind: 'globalConfig'; readonly modifierId: string };
+  | { readonly kind: 'equipment'; readonly contribution: EquipmentContributionSource };
 
 /** 战斗中的稳定对象身份；回执和切面使用同一份数据类型。 */
 export type CombatObjectRef =

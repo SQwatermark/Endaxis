@@ -7,6 +7,7 @@ interface Arguments {
   readonly tablesDirectory: string;
   readonly rankEvidence: string;
   readonly runtimeDefaults: string;
+  readonly selectionCategories?: string;
 }
 
 export async function auditCandidateEnemyDefinitions(args: Arguments) {
@@ -14,6 +15,7 @@ export async function auditCandidateEnemyDefinitions(args: Arguments) {
     args.tablesDirectory,
     args.rankEvidence,
     args.runtimeDefaults,
+    args.selectionCategories,
   );
   const ids = plan.definitions.map(definition => definition.id);
   const gameIds = plan.definitions.map(definition => definition.gameId);
@@ -24,6 +26,8 @@ export async function auditCandidateEnemyDefinitions(args: Arguments) {
     candidateCount: plan.definitions.length,
     definitionIds: ids,
     excludedDisplayIds: plan.excludedDisplayIds,
+    selectionCategoryCount: plan.selection.categories.length,
+    hiddenSelectionIds: plan.selection.hiddenEnemyIds,
     fullLevelNodeCount: plan.definitions.reduce(
       (sum, definition) => sum + definition.levelHp.length,
       0,
@@ -48,9 +52,13 @@ function parseArguments(values: readonly string[]): Arguments {
     parsed.get('--runtime-defaults') ??
       'tools/game-data-compiler/config/enemies/runtime-defaults.json',
   );
+  const selectionCategories = resolve(
+    parsed.get('--selection-categories') ??
+      'tools/game-data-compiler/config/enemies/selection-categories.json',
+  );
   if (!isAbsolute(tablesDirectory) || !isAbsolute(rankEvidence))
     throw new Error('--tables and --rank-evidence are required');
-  return { tablesDirectory, rankEvidence, runtimeDefaults };
+  return { tablesDirectory, rankEvidence, runtimeDefaults, selectionCategories };
 }
 
 if (process.argv[1] && pathToFileURL(resolve(process.argv[1])).href === import.meta.url) {

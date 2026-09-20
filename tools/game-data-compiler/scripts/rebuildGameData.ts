@@ -50,7 +50,6 @@ const GAME_LOCALE_FILES = ['zh', 'en'].flatMap(locale =>
     'weapons',
     'gearsets',
     'gearpieces',
-    'enum-terms',
     'enemies',
     'contingency-contracts',
     'consumables',
@@ -320,6 +319,10 @@ export async function rebuildGameData(args: RebuildArguments, projectRoot = PROJ
               root,
               'tools/game-data-compiler/config/enemies/runtime-defaults.json',
             ),
+            selectionCategories: path.join(
+              root,
+              'tools/game-data-compiler/config/enemies/selection-categories.json',
+            ),
             outputDirectory: path.join(candidateRoot, relativeOutput),
             check: false,
           };
@@ -332,6 +335,7 @@ export async function rebuildGameData(args: RebuildArguments, projectRoot = PROJ
               tablesDirectory: rankInput.tablesDirectory,
               rankEvidence: rankOutput,
               runtimeDefaults: generationInput.runtimeDefaults,
+              selectionCategories: generationInput.selectionCategories,
             }),
             deterministicCheck: 'passed',
             comparison: await compareCandidateFiles(
@@ -709,7 +713,7 @@ export async function rebuildGameData(args: RebuildArguments, projectRoot = PROJ
                 candidateRoot,
                 'src/data/equipment/generated-gear-sets',
               ),
-              enumTermsRoot: path.join(root, 'tools/game-data-compiler/config/locales'),
+              uiLocaleRoot: path.join(root, 'src/i18n/locales'),
               output,
             };
             const generated = await exportCandidateGameLocales(root, input);
@@ -1096,7 +1100,7 @@ interface CandidateLocaleInput {
   readonly weaponDefinitionRoot: string;
   readonly gearDefinitionRoot: string;
   readonly gearSetDefinitionRoot: string;
-  readonly enumTermsRoot: string;
+  readonly uiLocaleRoot: string;
   readonly output: string;
 }
 
@@ -1120,8 +1124,8 @@ async function exportCandidateGameLocales(projectRoot: string, input: CandidateL
       input.gearDefinitionRoot,
       '--gear-set-definition-root',
       input.gearSetDefinitionRoot,
-      '--enum-terms-root',
-      input.enumTermsRoot,
+      '--ui-locale-root',
+      input.uiLocaleRoot,
       '--output',
       input.output,
     ],
@@ -1131,7 +1135,6 @@ async function exportCandidateGameLocales(projectRoot: string, input: CandidateL
     'consumables.json',
     'contingency-contracts.json',
     'enemies.json',
-    'enum-terms.json',
     'gearpieces.json',
     'gearsets.json',
     'operators.json',

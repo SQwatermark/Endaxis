@@ -123,8 +123,8 @@ describe('Next timeline simulation projection retention', () => {
   });
 
   it('feeds workbench result panels only from Next documents and simulation projections', () => {
-    expect(source).toContain(':rules="scenario.battle.resourceRules"');
-    expect(source).toContain(':modifiers="scenario.globalConfig.modifiers"');
+    expect(source).toContain(':initial-sp="scenario.battle.resourceRules.initialSp"');
+    expect(source).toContain(':config="scenario.globalConfig"');
     expect(source).toContain(':cast="selectedCastModel?.cast ?? null"');
     expect(source).toContain(':log="battleLogSnapshot"');
     expect(source).toMatch(

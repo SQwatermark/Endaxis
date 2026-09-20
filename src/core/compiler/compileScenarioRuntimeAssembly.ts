@@ -40,6 +40,7 @@ import {
 } from './compileScenarioTimeline';
 import type { ResolvedOperatorPanel } from './resolveOperatorPanel';
 import { resolveScenarioOperatorPanels } from './resolveOperatorPanel';
+import { compileGlobalModifiers } from './compileGlobalModifiers';
 import { resolveScenarioBuilds } from './resolveScenarioBuilds';
 import { resolveScenarioOperatorResourceRules } from './resolveScenarioResourceRules';
 
@@ -178,10 +179,7 @@ export function compileScenarioCustomSkillCastPrograms(
 ): readonly CombatSkillCastProgram[] {
   const builds = resolveScenarioBuilds(scenario, index);
   const panels = new Map(
-    resolveScenarioOperatorPanels(builds, scenario.globalConfig).map(panel => [
-      panel.operatorId,
-      panel,
-    ]),
+    resolveScenarioOperatorPanels(builds).map(panel => [panel.operatorId, panel]),
   );
   return builds.flatMap(build => {
     const panel = panels.get(build.track.id);
@@ -317,6 +315,7 @@ export function compileScenarioRuntimeAssembly(
     );
   }
   const mechanics = compileScenarioMechanics(scenario, options);
+  const globalModifiers = compileGlobalModifiers(scenario.globalConfig);
   const mechanicInitializations = mechanics.contributions.flatMap(entry =>
     entry.contribution.kind === 'battleInitializationSequence'
       ? [{ ...entry, contribution: entry.contribution }]
@@ -344,10 +343,7 @@ export function compileScenarioRuntimeAssembly(
     options.index.getCommonAbilityEntityDefinitions?.(),
   );
   const panels = new Map(
-    resolveScenarioOperatorPanels(builds, scenario.globalConfig).map(panel => [
-      panel.operatorId,
-      panel,
-    ]),
+    resolveScenarioOperatorPanels(builds).map(panel => [panel.operatorId, panel]),
   );
   const equipment = new Map(
     compileResolvedScenarioEquipment(builds).map(entry => [entry.operatorId, entry.contributions]),
@@ -405,7 +401,7 @@ export function compileScenarioRuntimeAssembly(
       const equipmentContributions = equipment.get(operator.operatorId) ?? [];
       const equipmentBuffDefinitions = mergeEquipmentBuffDefinitions(
         operator.operatorId,
-        operator.buffDefinitions ?? {},
+        { ...operator.buffDefinitions, ...globalModifiers.buffDefinitions },
         equipmentContributions,
       );
       const equipmentInitializationPrograms = equipmentContributions.flatMap(
@@ -458,6 +454,7 @@ export function compileScenarioRuntimeAssembly(
           ? {}
           : { buffDefinitions: equipmentBuffDefinitions }),
         initializationPrograms: [
+          ...(operatorIndex === 0 ? globalModifiers.initializationPrograms : []),
           ...(operator.initializationPrograms ?? []),
           ...equipmentInitializationPrograms,
           ...(operatorIndex === 0

@@ -7,7 +7,7 @@ import {
   asSkillDefinitions,
   listSkillGroupDefinitionBindings,
 } from '../../../../core/game-data/operatorSkillDefinitions';
-import { listSkillGroupLibraryPlacements } from '../../interaction/skillGroupPlacement';
+import { listSkillGroupLibraryPlacements } from '../../../../application/editor/skillGroupPlacement';
 const props = defineProps<{ group: SkillGroupDefinition }>();
 const emit = defineEmits<{ update: [group: SkillGroupDefinition] }>();
 const candidates = computed(() =>

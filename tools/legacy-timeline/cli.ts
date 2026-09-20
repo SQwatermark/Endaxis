@@ -24,7 +24,7 @@ const server = await createServer({
 });
 try {
   const { gameDataRepository } = await server.ssrLoadModule('/src/data/gameDataRepository.ts');
-  const { convertLegacyTimeline } = await server.ssrLoadModule('/tools/legacy-timeline/convert.ts');
+  const { convertLegacyTimeline } = await server.ssrLoadModule('/src/application/legacyTimeline/convert.ts');
   const result = convertLegacyTimeline(input, gameDataRepository, mappings);
   await mkdir(output); // 必须使用新目录；失败不覆盖已有结果。
   await writeFile(resolve(output, 'report.json'), JSON.stringify(result.report, null, 2), {
