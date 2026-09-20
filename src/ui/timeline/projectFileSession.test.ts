@@ -28,6 +28,13 @@ import {
 const { saveBrowserProjectMock } = vi.hoisted(() => ({ saveBrowserProjectMock: vi.fn() }));
 vi.mock('../../data/browserProjectStorage', () => ({ saveBrowserProject: saveBrowserProjectMock }));
 
+function createBeforeUnloadEvent(): Event {
+  const event = new Event('beforeunload', { cancelable: true });
+  // 浏览器 BeforeUnloadEvent 的 returnValue 可写；Node 的普通 Event 在部分版本中只读。
+  Object.defineProperty(event, 'returnValue', { value: '', writable: true });
+  return event;
+}
+
 afterEach(() => {
   vi.unstubAllGlobals();
   vi.clearAllMocks();
@@ -148,12 +155,12 @@ it('allows refresh after browser autosave completes, but protects edits while it
   scope.run(() => useProjectFileSession(project, { persistToBrowser: true }));
   try {
     project.commit('edit', value => ({ ...value, createdWith: 'edited' }));
-    const pending = new Event('beforeunload', { cancelable: true });
+    const pending = createBeforeUnloadEvent();
     target.dispatchEvent(pending);
     expect(pending.defaultPrevented).toBe(true);
     completeSave();
     await Promise.resolve();
-    const saved = new Event('beforeunload', { cancelable: true });
+    const saved = createBeforeUnloadEvent();
     target.dispatchEvent(saved);
     expect(saved.defaultPrevented).toBe(false);
     expect(saveBrowserProjectMock).toHaveBeenCalledWith(project.snapshot.project);
@@ -175,7 +182,7 @@ it('keeps refresh protection and exposes the error when browser autosave fails',
     project.commit('edit', value => ({ ...value, createdWith: 'edited' }));
     await Promise.resolve();
     expect(files.browserSaveError.value).toBe('storage unavailable');
-    const event = new Event('beforeunload', { cancelable: true });
+    const event = createBeforeUnloadEvent();
     target.dispatchEvent(event);
     expect(event.defaultPrevented).toBe(true);
   } finally {
@@ -192,7 +199,7 @@ it('does not warn about unexported edits when browser persistence is disabled', 
   scope.run(() => useProjectFileSession(project));
   try {
     project.commit('edit', value => ({ ...value, createdWith: 'edited' }));
-    const event = new Event('beforeunload', { cancelable: true });
+    const event = createBeforeUnloadEvent();
     window.dispatchEvent(event);
     expect(event.defaultPrevented).toBe(false);
   } finally {
@@ -210,7 +217,7 @@ it('cancels pending file reads and removes leave protection when its scope ends'
   const scope = effectScope();
   const files = scope.run(() => useProjectFileSession(project, { persistToBrowser: true }))!;
   project.commit('edit', value => ({ ...value, createdWith: 'edited' }));
-  const before = new Event('beforeunload', { cancelable: true });
+  const before = createBeforeUnloadEvent();
   target.dispatchEvent(before);
   expect(before.defaultPrevented).toBe(true);
   let finish!: (text: string) => void;
@@ -223,7 +230,7 @@ it('cancels pending file reads and removes leave protection when its scope ends'
   scope.stop();
   finish('stale');
   await expect(pending).resolves.toBeNull();
-  const after = new Event('beforeunload', { cancelable: true });
+  const after = createBeforeUnloadEvent();
   target.dispatchEvent(after);
   expect(after.defaultPrevented).toBe(false);
 });
