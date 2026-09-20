@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { CombatReceiptCollector } from '../receipt/combatReceipt';
 import { CombatClock } from '../time/combatClock';
 import { COMBO_WINDOW_DURATION_FRAMES, ComboWindowRuntime } from './comboWindowRuntime';
+import { projectComboWindowTimelineViz } from '../../projection/comboWindowTimelineViz';
 
 function advance(clock: CombatClock, runtime: ComboWindowRuntime, frames: number): void {
   for (let index = 0; index < frames; index += 1) {
@@ -11,6 +12,51 @@ function advance(clock: CombatClock, runtime: ComboWindowRuntime, frames: number
 }
 
 describe('ComboWindowRuntime', () => {
+  it('projects the actual perfect interval through pauses and consumption', () => {
+    const clock = new CombatClock();
+    const receipt = new CombatReceiptCollector();
+    const runtime = new ComboWindowRuntime(clock, receipt);
+    runtime.open('operator', 'combo');
+    runtime.registerRingQte('operator', 15, 15);
+    advance(clock, runtime, 15);
+    runtime.setGloballyPaused(true);
+    advance(clock, runtime, 20);
+    runtime.setGloballyPaused(false);
+    advance(clock, runtime, 15);
+    expect(runtime.consume('operator', 'combo', undefined, 1, 'cast').consumed).toBe(true);
+    expect(runtime.wasRingQteSuccessful(1)).toBe(true);
+    expect(
+      projectComboWindowTimelineViz(receipt.entries, 60).map(segment => [
+        segment.startFrame,
+        segment.endFrame,
+        segment.perfectTiming ?? false,
+      ]),
+    ).toEqual([
+      [0, 15, false],
+      [15, 50, true],
+    ]);
+  });
+
+  it('closes perfect display on the first invalid frame and on unregister', () => {
+    const clock = new CombatClock();
+    const receipt = new CombatReceiptCollector();
+    const runtime = new ComboWindowRuntime(clock, receipt);
+    runtime.open('operator', 'combo');
+    runtime.registerRingQte('operator', 15, 15);
+    advance(clock, runtime, 31);
+    const next = runtime.registerRingQte('operator', 0, 15);
+    advance(clock, runtime, 4);
+    runtime.unregisterRingQte(next);
+    expect(
+      projectComboWindowTimelineViz(receipt.entries, 40)
+        .filter(segment => segment.perfectTiming)
+        .map(segment => [segment.startFrame, segment.endFrame]),
+    ).toEqual([
+      [15, 31],
+      [31, 35],
+    ]);
+  });
+
   it('待释放窗口只保存施放参数，不捕获触发事件中的活动 Buff 或回调', () => {
     const window = new ComboWindowRuntime(new CombatClock(), new CombatReceiptCollector());
     const pending = {

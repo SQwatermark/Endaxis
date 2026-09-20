@@ -6671,6 +6671,7 @@ function setPanelDialogVisible(visible: boolean): void {
                     trackEffectLayout(track.trackIndex, track.operatorInstanceId).actionTop
                   "
                   :label="t('timeline.header.viewLayers.comboWindows')"
+                  :perfect-label="t('effects.name.perfectTiming')"
                 />
                 <div
                   class="prep-zone"

@@ -11,6 +11,7 @@ const props = defineProps<{
   pxPerFrame: number;
   actionTop: number;
   label: string;
+  perfectLabel?: string;
   prepEndFrame?: number;
 
   prepExpanded: boolean;
@@ -67,10 +68,10 @@ const items = computed(() =>
   >
     <div
       v-for="item in items"
-      :key="`${item.operatorId}:${item.sequence}`"
+      :key="`${item.operatorId}:${item.sequence}:${item.startFrame}`"
       class="combo-window-bar"
-      :class="`is-${item.outcome}`"
-      :title="label"
+      :class="[`is-${item.outcome}`, { 'perfect-timing-bar': item.perfectTiming }]"
+      :title="item.perfectTiming ? (perfectLabel ?? label) : label"
       :style="{
         left: `${item.left}px`,
         width: `${item.width}px`,
@@ -139,5 +140,11 @@ const items = computed(() =>
   line-height: 1;
   text-shadow: 0 1px 2px rgb(0 0 0 / 80%);
   white-space: nowrap;
+}
+
+.perfect-timing-bar .cw-line {
+  height: 2px;
+  border-bottom: none;
+  background: var(--cw-color);
 }
 </style>

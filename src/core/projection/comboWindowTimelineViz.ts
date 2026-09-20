@@ -10,6 +10,7 @@ export interface ComboWindowTimelineSegment {
   readonly startFrame: number;
   readonly endFrame: number;
   readonly outcome: ComboWindowTimelineOutcome;
+  readonly perfectTiming?: boolean;
 }
 
 function requireData(entry: CombatReceiptEntry): Readonly<Record<string, CombatReceiptValue>> {
@@ -136,7 +137,7 @@ export function projectComboWindowTimelineViz(
     }
   }
 
-  return [
+  const segments: ComboWindowTimelineSegment[] = [
     ...closed,
     ...[...activeByOperator.values()].map(active => ({
       sequence: active.sequence,
@@ -147,4 +148,52 @@ export function projectComboWindowTimelineViz(
       outcome: 'pending' as const,
     })),
   ].sort((left, right) => left.startFrame - right.startFrame || left.sequence - right.sequence);
+  const perfect = new Map<string, { startFrame: number; endFrame: number }[]>();
+  const active = new Map<string, number>();
+  for (const entry of entries) {
+    if (entry.frame > endFrame) break;
+    if (entry.event !== 'ComboRingQteActiveChanged' || entry.sourceId === undefined) continue;
+    if (entry.data?.active === true) active.set(entry.sourceId, entry.frame);
+    else {
+      const startFrame = active.get(entry.sourceId);
+      if (startFrame === undefined) continue;
+      const ranges = perfect.get(entry.sourceId) ?? [];
+      ranges.push({ startFrame, endFrame: entry.frame });
+      perfect.set(entry.sourceId, ranges);
+      active.delete(entry.sourceId);
+    }
+  }
+  for (const [operatorId, startFrame] of active) {
+    const ranges = perfect.get(operatorId) ?? [];
+    ranges.push({ startFrame, endFrame });
+    perfect.set(operatorId, ranges);
+  }
+  // 仅分割已有连携窗口；精准区间不单独生成轨道，也不跨越消费/到期边界。
+  return segments.flatMap(segment => {
+    const ranges = (perfect.get(segment.operatorId) ?? []).filter(
+      range => range.startFrame < segment.endFrame && range.endFrame > segment.startFrame,
+    );
+    if (ranges.length === 0) return [segment];
+    const boundaries = [
+      ...new Set([
+        segment.startFrame,
+        segment.endFrame,
+        ...ranges.flatMap(range => [
+          Math.max(segment.startFrame, range.startFrame),
+          Math.min(segment.endFrame, range.endFrame),
+        ]),
+      ]),
+    ].sort((a, b) => a - b);
+    return boundaries.slice(1).map((end, index) => {
+      const start = boundaries[index]!;
+      return {
+        ...segment,
+        startFrame: start,
+        endFrame: end,
+        ...(ranges.some(range => start >= range.startFrame && end <= range.endFrame)
+          ? { perfectTiming: true }
+          : {}),
+      };
+    });
+  });
 }

@@ -13,6 +13,7 @@ import {
   type ComboWindowState,
   type PendingComboRecord,
   type PendingComboWindow,
+  type ComboRingQteRegistration,
 } from '../state/environmentState';
 
 export const COMBO_WINDOW_DURATION_FRAMES = 5 * COMBAT_FRAMES_PER_SECOND;
@@ -60,6 +61,7 @@ export class ComboWindowRuntime implements FrameRuntime {
     if (!Number.isFinite(activeDurationFrames) || activeDurationFrames < 0)
       throw new Error('combo ring QTE active duration must be a non-negative finite number');
     const sequence = this.runtimeState.nextRingQteSequence++;
+    const previous = this.#perfectOperators();
     const currentRemaining =
       this.runtimeState.records.get(operatorId)?.candidates.at(-1)?.remainingFrames ??
       COMBO_WINDOW_DURATION_FRAMES;
@@ -77,11 +79,14 @@ export class ComboWindowRuntime implements FrameRuntime {
       sourceId: operatorId,
       data: { sequence, earlyDurationFrames, activeDurationFrames },
     });
+    this.#recordPerfectChanges(previous);
     return sequence;
   }
 
   unregisterRingQte(sequence: number): void {
+    const previous = this.#perfectOperators();
     this.runtimeState.ringQtes.delete(sequence);
+    this.#recordPerfectChanges(previous);
   }
 
   wasRingQteSuccessful(skillCastId: number): boolean {
@@ -101,6 +106,7 @@ export class ComboWindowRuntime implements FrameRuntime {
   ): PendingComboWindow {
     if (operatorId.length === 0) throw new Error('combo window operatorId must not be empty');
     if (nextSkillKey.length === 0) throw new Error('combo window nextSkillKey must not be empty');
+    const previous = this.#perfectOperators();
     const window: PendingComboWindow = {
       sequence: this.runtimeState.nextSequence,
       operatorId,
@@ -151,6 +157,7 @@ export class ComboWindowRuntime implements FrameRuntime {
         remainingFrames: window.remainingFrames,
       },
     });
+    this.#recordPerfectChanges(previous);
     return window;
   }
 
@@ -194,9 +201,7 @@ export class ComboWindowRuntime implements FrameRuntime {
       .sort((left, right) => right.sequence - left.sequence)[0];
     if (qte !== undefined) {
       const elapsedFrames = qte.startRemainingFrames - candidate.remainingFrames;
-      const succeeded =
-        elapsedFrames >= qte.earlyDurationFrames &&
-        elapsedFrames <= qte.earlyDurationFrames + qte.activeDurationFrames;
+      const succeeded = this.#isPerfect(qte, candidate);
       if (succeeded && skillCastId !== undefined)
         this.runtimeState.successfulRingQteSkillCastIds.add(skillCastId);
       this.receipt.record({
@@ -213,6 +218,7 @@ export class ComboWindowRuntime implements FrameRuntime {
         },
       });
     }
+    const previous = this.#perfectOperators();
     this.runtimeState.records.delete(operatorId);
     this.receipt.record({
       frame: this.clock.frame,
@@ -221,6 +227,7 @@ export class ComboWindowRuntime implements FrameRuntime {
       sourceId: operatorId,
       data: { windowSequence: candidate.sequence, nextSkillKey: skillKey },
     });
+    this.#recordPerfectChanges(previous);
     return { consumed: true, window: candidate };
   }
 
@@ -235,6 +242,7 @@ export class ComboWindowRuntime implements FrameRuntime {
 
   advanceFrame(): void {
     if (this.runtimeState.globallyPaused) return;
+    const previous = this.#perfectOperators();
     for (const record of [...this.runtimeState.records.values()]) {
       if (this.runtimeState.pausedOperators.has(record.operatorId)) continue;
       for (const candidate of record.candidates) candidate.remainingFrames -= 1;
@@ -257,6 +265,44 @@ export class ComboWindowRuntime implements FrameRuntime {
         });
       }
       if (record.candidates.length === 0) this.runtimeState.records.delete(record.operatorId);
+    }
+    this.#recordPerfectChanges(previous);
+  }
+
+  #isPerfect(qte: ComboRingQteRegistration, candidate: PendingComboWindow): boolean {
+    const elapsed = qte.startRemainingFrames - candidate.remainingFrames;
+    return (
+      elapsed >= qte.earlyDurationFrames &&
+      elapsed <= qte.earlyDurationFrames + qte.activeDurationFrames
+    );
+  }
+
+  /** 与消费共用最新 QTE 和剩余时间判定，不增加切面状态或按墙钟推算。 */
+  #perfectOperators(): ReadonlySet<string> {
+    const latest = new Map<string, ComboRingQteRegistration>();
+    for (const qte of this.runtimeState.ringQtes.values()) {
+      if ((latest.get(qte.operatorId)?.sequence ?? -1) < qte.sequence)
+        latest.set(qte.operatorId, qte);
+    }
+    const result = new Set<string>();
+    for (const [operatorId, qte] of latest) {
+      const candidate = this.runtimeState.records.get(operatorId)?.candidates.at(-1);
+      if (candidate !== undefined && this.#isPerfect(qte, candidate)) result.add(operatorId);
+    }
+    return result;
+  }
+
+  #recordPerfectChanges(previous: ReadonlySet<string>): void {
+    const current = this.#perfectOperators();
+    for (const operatorId of new Set([...previous, ...current])) {
+      if (previous.has(operatorId) === current.has(operatorId)) continue;
+      this.receipt.record({
+        frame: this.clock.frame,
+        time: this.clock.time,
+        event: 'ComboRingQteActiveChanged',
+        sourceId: operatorId,
+        data: { active: current.has(operatorId) },
+      });
     }
   }
 
