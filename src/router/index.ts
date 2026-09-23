@@ -91,6 +91,16 @@ const routes: RouteRecordRaw[] = [
   },
 ];
 
+if (import.meta.env.DEV) {
+  routes.push({
+    path: '/prototypes/typhoeus-floating-attack',
+    name: 'TyphoeusFloatingAttackPrototype',
+    component: () =>
+      import('../ui/timeline/definitions/skills/TyphoeusFloatingAttackPrototype.vue'),
+    meta: { gameTextFamilies: ALL_GAME_TEXT_FAMILIES },
+  });
+}
+
 const router = createRouter({
   history:
     typeof window !== 'undefined' && window.location.hostname === 'appassets.androidplatform.net'

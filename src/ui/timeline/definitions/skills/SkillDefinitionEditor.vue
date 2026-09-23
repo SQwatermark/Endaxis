@@ -99,6 +99,7 @@ import InlineAbilityEntityChildSkillInspector from '../operators/InlineAbilityEn
 import EditorFieldLabel from '../inspector/EditorFieldLabel.vue';
 import SkillBlackboardEditor from './SkillBlackboardEditor.vue';
 import SkillStructureMindMap from '../SkillStructureMindMap.vue';
+import SkillFlowOverview from './SkillFlowOverview.vue';
 import StepTypePicker from '../actions/StepTypePicker.vue';
 import BuffDetailNodeInspector from '../buffs/BuffDetailNodeInspector.vue';
 import { isBuffDetailNode, appendBuffGraphChild } from '../buffs/buffDamageModifierGraph';
@@ -144,6 +145,7 @@ const props = defineProps<{
     sequence: string;
   };
   showReferencePins?: boolean;
+  initialFlowView?: boolean;
   allowInvalidSave?: boolean;
   buffIds?: readonly string[];
   backLabel?: string;
@@ -181,6 +183,7 @@ const draft = {
   },
 };
 const selectedSection = ref<EditorSection>('overview');
+const flowView = ref(props.initialFlowView ?? false);
 const selectedStructureNodeId = ref('skill');
 const selectedStructureSourcePath = ref('');
 const structureMap = ref<{
@@ -1153,6 +1156,9 @@ function reset(): void {
         <span>{{ labels.structure }}</span>
       </div>
       <div class="skill-editor__status">
+        <EaButton size="sm" @click="flowView = !flowView">{{
+          flowView ? '完整结构' : '时间与流程（原型）'
+        }}</EaButton>
         <span v-if="customized">{{ labels.customized }}</span>
         <span>{{ t('timeline.skillEditing.diffCount', { count: view.diffCount }) }}</span>
         <EaButton
@@ -1168,7 +1174,16 @@ function reset(): void {
     </header>
 
     <div class="skill-editor__workspace">
+      <SkillFlowOverview
+        v-if="flowView"
+        class="skill-editor__map"
+        :skill="draft.value"
+        :root="structureRoot"
+        :selected-id="selectedStructureNodeId"
+        @select="selectStructureNode"
+      />
       <SkillStructureMindMap
+        v-else
         ref="structureMap"
         class="skill-editor__map"
         :root="structureRoot"
@@ -1538,7 +1553,13 @@ function reset(): void {
               />
             </label>
           </div>
-          <p class="node-inspector__hint">子步骤在左侧导图中添加和选择。</p>
+          <p class="node-inspector__hint">
+            {{
+              flowView
+                ? '在左侧选择子步骤；添加子步骤请切换到完整结构。'
+                : '子步骤在左侧导图中添加和选择。'
+            }}
+          </p>
         </section>
 
         <section v-else-if="selectedCombatStep" class="editor-section node-inspector">
@@ -1575,7 +1596,11 @@ function reset(): void {
             />
           </DefinitionPropertyScope>
           <p v-if="selectedStructureNode?.children.length" class="node-inspector__hint">
-            分支和子步骤在左侧导图中编辑。
+            {{
+              flowView
+                ? '在左侧查看分支；编辑分支结构请切换到完整结构。'
+                : '分支和子步骤在左侧导图中编辑。'
+            }}
           </p>
         </section>
 
