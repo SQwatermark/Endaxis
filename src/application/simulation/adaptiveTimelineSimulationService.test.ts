@@ -99,3 +99,31 @@ it('keeps slow and unmeasured scenarios in the worker', async () => {
   service.dispose();
 });
 
+it('性能观察异常不阻止其他订阅者或后续拖动的后端选择', async () => {
+  const worker = backend('worker');
+  const local = backend('local');
+  const service = new AdaptiveTimelineSimulationService(worker as never, () => local as never);
+  const observerError = new Error('adaptive observer failed');
+  const report = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+  const observed = vi.fn();
+  service.subscribePerformance(() => {
+    throw observerError;
+  });
+  service.subscribePerformance(observed);
+  const scenario = createEmptyScenario('adaptive:observer', 'observer');
+  try {
+    expect(() => worker.publish(sample(20))).not.toThrow();
+    service.beginInteractiveSession();
+    expect(await service.simulate(scenario, 60)).toEqual({ label: 'local' });
+    expect(() => local.publish(sample(300))).not.toThrow();
+    service.endInteractiveSession();
+    service.beginInteractiveSession();
+    expect(await service.simulate(scenario, 60)).toEqual({ label: 'worker' });
+    expect(observed.mock.calls.map(([value]) => value.totalMs)).toEqual([20, 300]);
+    expect(report).toHaveBeenCalledTimes(2);
+    expect(report).toHaveBeenCalledWith('Simulation performance subscriber failed', observerError);
+  } finally {
+    service.dispose();
+    report.mockRestore();
+  }
+});

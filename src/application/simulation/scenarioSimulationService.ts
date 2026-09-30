@@ -1,3 +1,4 @@
+import { notifySimulationPerformanceSubscribers } from './simulationPerformanceNotification';
 import type { ResolvedCombatStepForKind } from '../../core/compiler/combatProgram';
 
 import {
@@ -538,6 +539,6 @@ export class ScenarioSimulationService {
       simulationMs: Math.max(0, sample.simulationMs),
       projectionMs: Math.max(0, sample.projectionMs),
     });
-    for (const subscriber of this.#performanceSubscribers) subscriber(frozen);
+    notifySimulationPerformanceSubscribers(this.#performanceSubscribers, frozen);
   }
 }

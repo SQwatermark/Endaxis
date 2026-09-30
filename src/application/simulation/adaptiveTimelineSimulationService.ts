@@ -1,3 +1,4 @@
+import { notifySimulationPerformanceSubscribers } from './simulationPerformanceNotification';
 import type { RecursiveSkillChain } from './recursiveSkillChain';
 import type {
   ScenarioSimulationPerformanceSample,
@@ -110,6 +111,6 @@ export class AdaptiveTimelineSimulationService {
     if (sample.outcome === 'completed') {
       this.lastCompletedDurationMs = sample.totalMs;
     }
-    for (const listener of this.subscribers) listener(sample);
+    notifySimulationPerformanceSubscribers(this.subscribers, sample);
   }
 }

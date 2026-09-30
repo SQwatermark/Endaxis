@@ -1302,6 +1302,41 @@ describe('ScenarioSimulationService', () => {
     });
   });
 
+  it('性能观察异常不改变成功结果、原始模拟错误或取消原因', async () => {
+    const service = createService();
+    const scenario = createPerlicaScenario();
+    const observerError = new Error('local observer failed');
+    const simulationError = new Error('definition lookup failed');
+    const abortReason = new Error('caller cancelled');
+    const report = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const getOperator = vi.spyOn(testIndex, 'getOperator');
+    const samples: ScenarioSimulationPerformanceSample[] = [];
+    service.subscribePerformance(() => {
+      throw observerError;
+    });
+    service.subscribePerformance(sample => samples.push(sample));
+    try {
+      expect((await service.simulate(scenario, 2)).frame).toBe(2);
+      getOperator.mockImplementationOnce(() => {
+        throw simulationError;
+      });
+      await expect(service.simulate(scenario, 2)).rejects.toBe(simulationError);
+      const controller = new AbortController();
+      controller.abort(abortReason);
+      await expect(service.simulate(scenario, 2, controller.signal)).rejects.toBe(abortReason);
+      expect(samples.map(sample => sample.outcome)).toEqual(['completed', 'failed', 'aborted']);
+      expect(report).toHaveBeenCalledTimes(3);
+      expect(report).toHaveBeenCalledWith(
+        'Simulation performance subscriber failed',
+        observerError,
+      );
+    } finally {
+      service.clearCache();
+      getOperator.mockRestore();
+      report.mockRestore();
+    }
+  });
+
   it('拒绝已中止的请求', async () => {
     const controller = new AbortController();
     controller.abort();

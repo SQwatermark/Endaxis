@@ -90,3 +90,9 @@ NODE
 - H1：回调抛出 `observer failed`；dispose 前 `first: pending, second: pending, sent: 1`；dispose 后 `first: pending, second: rejected`
 
 修复后不能把这些基线输出直接作为通过条件。原生回归测试应断言观察错误不会悬空任务或阻止后续任务；跨线程结果保持本地同等的不可变保证。浏览器端还需检查 busy/stale 状态能正常结束。
+
+## H1 整改后的预期
+
+H1 的正式回归现位于 Worker 桥接、本地模拟服务和自适应服务的原生测试中。整改后，上述实验仍打印观察错误到控制台，但 `onmessage` 不再向调用者抛出该错误；dispose 前应为 `first: resolved, second: pending, sent: 2`，dispose 后为 `first: resolved, second: rejected`。第二请求已被发送，只因实验没有提供第二个响应而保持 pending，并能由 dispose 正常结算。
+
+H2 的嵌套冻结差异不在这次整改范围内，仍保留原有复现输出。

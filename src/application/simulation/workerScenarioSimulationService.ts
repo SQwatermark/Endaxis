@@ -1,3 +1,4 @@
+import { notifySimulationPerformanceSubscribers } from './simulationPerformanceNotification';
 import type { ScenarioDocument } from '../../core/project/schema';
 
 import type { RecursiveSkillChain } from './recursiveSkillChain';
@@ -72,13 +73,19 @@ export class WorkerScenarioSimulationService {
       const current = this.active;
       if (!current || current.request.id !== response.id) return;
       this.active = undefined;
-      current.cleanup();
-      for (const sample of response.samples)
-        for (const listener of this.subscribers) listener(sample);
-      if (current.request.revision !== this.revision) current.reject(abort());
-      else if (response.ok) current.resolve(fromSimulationWorkerResult(response.result));
-      else current.reject(new Error(response.message));
-      this.pump();
+      try {
+        current.cleanup();
+        for (const sample of response.samples)
+          notifySimulationPerformanceSubscribers(this.subscribers, sample);
+        if (this.disposed || current.request.revision !== this.revision) current.reject(abort());
+        else if (response.ok) current.resolve(fromSimulationWorkerResult(response.result));
+        else current.reject(new Error(response.message));
+      } catch (error) {
+        // 回执重建等结果处理失败也必须结算当前请求，不能丢失已移出 active 的任务。
+        current.reject(error instanceof Error ? error : new Error(String(error)));
+      } finally {
+        this.pump();
+      }
     };
     worker.onerror = event => this.fail(new Error(event.message || '后台模拟线程失败'));
     worker.onmessageerror = () => this.fail(new Error('后台模拟结果无法反序列化'));

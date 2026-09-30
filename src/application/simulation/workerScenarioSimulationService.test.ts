@@ -262,3 +262,167 @@ it('线程故障拒绝在途及等待请求，不让页面永久运行中', asyn
   expect(await second).toBe('broken');
   expect(worker.terminate).toHaveBeenCalledOnce();
 });
+
+it.each(['completed', 'failed', 'invalid-history'] as const)(
+  '性能订阅者抛错后仍结算 %s 请求并继续待算位置',
+  async outcome => {
+    const { worker, service, reply } = harness();
+    const scenario = createEmptyScenario('observer-error', 'observer-error');
+    const observerError = new Error('performance observer failed');
+    const report = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const observed = vi.fn();
+    service.subscribePerformance(() => {
+      throw observerError;
+    });
+    service.subscribePerformance(observed);
+    const first = service.simulate(scenario, 1).then(
+      result => ({ result }),
+      (error: unknown) => ({ error }),
+    );
+    const second = service.simulate(scenario, 2);
+    const sample = {
+      totalMs: 1,
+      simulationMs: 1,
+      projectionMs: 0,
+      outcome: outcome === 'failed' ? 'failed' : 'completed',
+      endFrame: 1,
+      receiptCount: 0,
+    };
+    try {
+      expect(() =>
+        worker.onmessage({
+          data: {
+            id: 1,
+            samples: [sample],
+            ...(outcome === 'failed'
+              ? { ok: false, message: 'simulation failed' }
+              : {
+                  ok: true,
+                  result:
+                    outcome === 'completed'
+                      ? { frame: 1 }
+                      : { frame: 1, receiptEntries: [{ sequence: 1 }] },
+                }),
+          },
+        }),
+      ).not.toThrow();
+      expect(worker.postMessage).toHaveBeenCalledTimes(2);
+      expect(observed).toHaveBeenCalledWith(sample);
+      expect(report).toHaveBeenCalledWith(
+        'Simulation performance subscriber failed',
+        observerError,
+      );
+      if (outcome === 'completed') expect(await first).toEqual({ result: { frame: 1 } });
+      else
+        expect(await first).toEqual({
+          error: new Error(
+            outcome === 'failed'
+              ? 'simulation failed'
+              : 'receipt history expected sequence 0, received 1',
+          ),
+        });
+      reply(2);
+      expect((await second).frame).toBe(2);
+    } finally {
+      service.dispose();
+      report.mockRestore();
+      await second.catch(() => undefined);
+    }
+  },
+);
+
+it('观察异常不改变取消、缓存换代和销毁时的请求结算', async () => {
+  const { worker, service } = harness();
+  const scenario = createEmptyScenario('observer-cancel', 'observer-cancel');
+  const report = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+  const observer = vi.fn(() => {
+    throw new Error('observer failed');
+  });
+  service.subscribePerformance(observer);
+  const respond = (id: number) =>
+    worker.onmessage({
+      data: {
+        id,
+        ok: true,
+        result: { frame: id },
+        samples: [
+          {
+            totalMs: 1,
+            simulationMs: 1,
+            projectionMs: 0,
+            outcome: 'completed',
+            endFrame: id,
+            receiptCount: 0,
+          },
+        ],
+      },
+    });
+  const controller = new AbortController();
+  const cancelled = service.simulate(scenario, 1, controller.signal).catch(error => error.name);
+  try {
+    controller.abort();
+    expect(await cancelled).toBe('AbortError');
+    // 已取消的计算仍占用线程，直到其响应到达才能发送下一位置。
+    const stale = service.simulate(scenario, 2).catch(error => error.name);
+    expect(worker.postMessage).toHaveBeenCalledTimes(1);
+    expect(() => respond(1)).not.toThrow();
+    expect(worker.postMessage).toHaveBeenCalledTimes(2);
+    service.clearCache();
+    const disposed = service.simulate(scenario, 3).catch(error => error.name);
+    expect(() => respond(2)).not.toThrow();
+    expect(await stale).toBe('AbortError');
+    expect(worker.postMessage).toHaveBeenCalledTimes(3);
+    service.dispose();
+    expect(await disposed).toBe('AbortError');
+    expect(() => respond(3)).not.toThrow();
+    expect(observer).toHaveBeenCalledTimes(2);
+    expect(report).toHaveBeenCalledTimes(2);
+    expect(worker.terminate).toHaveBeenCalledOnce();
+  } finally {
+    service.dispose();
+    report.mockRestore();
+  }
+});
+
+it.each(['dispose', 'clearCache'] as const)(
+  '性能回调重入 %s 后仍拒绝已移出 active 的当前任务',
+  async action => {
+    const { worker, service } = harness();
+    const scenario = createEmptyScenario('observer-reentry', 'observer-reentry');
+    const report = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    service.subscribePerformance(() => {
+      service[action]();
+      throw new Error('observer failed after invalidation');
+    });
+    const first = service.simulate(scenario, 1).catch(error => error.name);
+    const second = service.simulate(scenario, 2).catch(error => error.name);
+    try {
+      expect(() =>
+        worker.onmessage({
+          data: {
+            id: 1,
+            ok: true,
+            result: { frame: 1 },
+            samples: [
+              {
+                totalMs: 1,
+                simulationMs: 1,
+                projectionMs: 0,
+                outcome: 'completed',
+                endFrame: 1,
+                receiptCount: 0,
+              },
+            ],
+          },
+        }),
+      ).not.toThrow();
+      expect(await first).toBe('AbortError');
+      expect(await second).toBe('AbortError');
+      expect(worker.postMessage).toHaveBeenCalledOnce();
+      expect(report).toHaveBeenCalledOnce();
+    } finally {
+      service.dispose();
+      report.mockRestore();
+    }
+  },
+);
