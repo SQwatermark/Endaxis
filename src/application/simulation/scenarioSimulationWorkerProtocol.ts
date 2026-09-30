@@ -60,8 +60,35 @@ export function toSimulationWorkerResult(
   return result;
 }
 
+/** 只恢复发布时已有的曲线保护，不递归冻结其他只读类型字段。 */
+function freezePublishedCurve(curve: { readonly points: readonly object[] }): void {
+  for (const point of curve.points) Object.freeze(point);
+  Object.freeze(curve.points);
+  Object.freeze(curve);
+}
+
 function restoreRun(run: TransferableScenarioSimulationRun): ScenarioSimulationRun {
   const receiptHistory = restoreCombatReceiptView(run.receiptEntries);
+  // structuredClone 不保留 freeze。这里恢复本地收集器明确提供的快照保证，
+  // 不冻结可编辑方案、编译器对象或当前仍可变的资源快照、诊断 reasons 等字段。
+  freezePublishedCurve(run.resourceCurves.sp);
+  for (const curve of run.resourceCurves.ultimateEnergy) freezePublishedCurve(curve);
+  Object.freeze(run.resourceCurves.ultimateEnergy);
+  Object.freeze(run.resourceCurves);
+  Object.freeze(run.enemyVitals);
+  for (const curve of run.buffProgressCurves) freezePublishedCurve(curve);
+  Object.freeze(run.buffProgressCurves);
+  for (const diagnostics of [
+    run.availabilityDiagnostics,
+    run.executionDiagnostics,
+    run.comboWindowDiagnostics,
+  ]) {
+    for (const diagnostic of diagnostics) {
+      Object.freeze(diagnostic.receiptSequences);
+      Object.freeze(diagnostic);
+    }
+    Object.freeze(diagnostics);
+  }
   return Object.freeze({
     ...run,
     receiptHistory,

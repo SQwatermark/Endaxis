@@ -180,12 +180,16 @@ it('在主线程从纯回执数据重建固定历史视图', async () => {
   const { worker, service } = harness();
   const scenario = createEmptyScenario('history', 'history');
   const pending = service.simulate(scenario, 1);
+  const local = createScenarioSimulationService(
+    createGameDataRepository({ revision: 'history', commonDefinitionSources: [] }),
+  );
   const result = {
-    frame: 1,
+    ...toSimulationWorkerResult(await local.simulate(scenario, 1)),
     receiptEntries: [
       { sequence: 0, frame: 1, time: 1 / 30, event: 'SkillStarted', data: { castId: 'cast' } },
     ],
   };
+  local.clearCache();
   worker.onmessage({
     data: { id: 1, ok: true, result, samples: [] },
   });
