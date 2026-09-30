@@ -39,7 +39,7 @@
 | M14  | Buff、全局 Buff 与标签：`combat/buffs`、`combat/tags`                                                               | 17 + 2 个 TS 文件                 | [战斗](../architecture/combat.md)、[技能操作](../architecture/skill-operations.md)                              | 关键路径已查 |
 | M15  | 能力实体、投射物及延迟后果：abilities 中对应目录与装配 hooks                                                        | 库存计入 M08/M12                  | [战斗](../architecture/combat.md)、[切面](../architecture/checkpoints.md)                                       | 关键路径已查 |
 | M16  | 伤害、治疗、附着与状态：`combat/damage/heal/infliction/status`                                                      | 21 + 3 + 9 + 7 个 TS 文件         | [战斗](../architecture/combat.md)、[结果](../architecture/results.md)                                           | 关键路径已查 |
-| M17  | 回执、投影与来源：`combat/receipt`、`core/projection`                                                               | 4 + 30 个 TS 文件                 | [结果](../architecture/results.md)                                                                              | 待查         |
+| M17  | 回执、投影与来源：`combat/receipt`、`core/projection`                                                               | 4 + 30 个 TS 文件                 | [结果](../architecture/results.md)                                                                              | 关键路径已查 |
 | M18  | 场景服务、输入排程、增量/继承、线程与发布：`application/simulation`、`core/pipeline`                                | 17 + 1 个 TS 文件                 | [编辑器](../architecture/editor.md)、[切面](../architecture/checkpoints.md)、[结果](../architecture/results.md) | 待查         |
 | M19  | 旧方案格式转换与重排：`application/legacyTimeline`、`tools/legacy-timeline`                                         | 9 + 3 个 TS 文件                  | [编辑器](../architecture/editor.md)、工具 README                                                                | 待查         |
 
@@ -48,7 +48,7 @@
 ## 当前进度
 
 - 库存和检查顺序已记录。
-- M01–M16 关键路径已核查。待整改的重要项为 D07 当前方案导出缺失定义、D06 页面项目效果查询遗漏、D04 测试守卫盲区；均未自动修代码。下一组 M17–M18 回执投影与应用模拟发布，最后 M19 旧轴转换。
+- M01–M17 关键路径已核查。待整改的重要项为 D07 当前方案导出缺失定义、D06 页面项目效果查询遗漏、D04 测试守卫盲区；均未自动修代码。下一项 M18 应用模拟发布，最后 M19 旧轴转换。
 - 新发现只给出证据、风险和最小整改建议；此次后续模块检查不自动修改生产逻辑。
 
 ## M01：共享契约、查询协议与校验
@@ -245,3 +245,14 @@ npx vitest run tools/game-data-compiler/test/dataContractBoundaries.test.ts --ma
 - **D13，接口约束：** 部分运行时查询会惰性移除过期反应或 sweep 标记并通知；这些不是任意 UI 可以调用的纯查询口。当前发布/复制边界保留隔离，未证明现有 UI 违规推进战斗。
 - M15 验证：逻辑实体、子技能、回调宿主、投射物/编号及恢复 11 个原生文件、127 项通过。M16 验证：damage/heal/infliction/status 与标准环境/兼容/技能集成 36 个原生文件、361 项通过。
 - 未查范围：未逐个数值对照所有生成技能、免伤链及原生反汇编；未扩展空间/多敌人能力，也未把内置单目标通过当作真实碰撞验收。异常回调的任意组合和长期对象增长需专项实验。
+
+## M17：回执、投影与来源分析
+
+已核查追加时复制/冻结、段共享、固定视图、分支游标、传输序号恢复；沿变化点 → 曲线/诊断、来源索引 → 直接贡献追踪只读消费者。稳定说明见[回执写端、历史视图与投影入口](../architecture/results.md#回执写端历史视图与投影入口)。
+
+证据：`receipt/combatReceiptHistory.ts:29–96,107–173,182–232`、`projection/resourceCurves.ts:42–138`、`skillDiagnosticReducer.ts:27–85`、`combatObjectOrigins.ts` 的出生/历史截止查询、`damageContribution.ts:17–80` 的吸收/非正基线退回规则。
+
+- 无新确认缺陷。H2 明确发布对象保护和 Worker 重建仍生效，不扩大为所有 readonly 字段深冻结；历史冻结依赖现有标量协议，不能宣称任意用户 JSON 都经过完备验证。
+- 来源索引与贡献不是同一目的：前者追事实关系，后者只分配已支持直接修正。未归因和退回自身保留诊断，不能从缺少贡献推断该 Buff 不影响战斗。
+- 验证：receipt 与 projection 31 个原生文件、143 项通过，覆盖固定历史/游标、同帧顺序、曲线连续性、历史截止、同名实例和贡献金额守恒。
+- 未查范围：未做来源图真实浏览器布局/主题/交互验收，未证明所有当前生成效果都能拆分贡献；投影测试不是原生公式验证。
