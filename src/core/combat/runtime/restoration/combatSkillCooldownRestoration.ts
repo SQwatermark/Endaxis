@@ -1,55 +1,19 @@
-/**
- * 统一解析普通技能的固定冷却配置，并为恢复候选绑定共享冷却账本。
- * 基础周期来自编译程序；当前计时来自切面；连携冷却倍率始终从当前分支的 Buff 目标读取。
- */
+/** 校验恢复候选的固定配置与保存账本，再为同一技能的全部施放绑定一个冷却对象。 */
 import type { CompiledSkillCooldownProgram } from '../../../compiler/combatProgram';
 import type { CombatOperatorProgram } from '../combatRuntimeAssembly';
-import { SkillCooldown } from '../../skills/skillCooldown';
+import type { SkillCooldown } from '../../skills/skillCooldown';
+import {
+  createCombatSkillCooldown,
+  resolveCombatSkillCooldownConfiguration,
+  type CombatSkillCooldownConfiguration,
+} from '../../skills/combatSkillCooldownRules';
 import type { SkillCooldownState } from '../../state/abilityState';
-
-export interface CombatSkillCooldownConfiguration {
-  readonly periodFrames?: number;
-  readonly commitFrame?: number;
-}
 
 export interface RestoredCombatSkillCooldownBinding {
   readonly program: CompiledSkillCooldownProgram;
   readonly skillIds: ReadonlySet<string>;
   readonly cooldown: SkillCooldown;
   readonly configuration: CombatSkillCooldownConfiguration;
-}
-
-export function resolveCombatSkillCooldownConfiguration(
-  operator: CombatOperatorProgram,
-  program: CompiledSkillCooldownProgram,
-): CombatSkillCooldownConfiguration {
-  if (program.operatorId !== operator.operatorId) {
-    throw new Error(
-      `skill '${program.skillId}' belongs to '${program.operatorId}', expected '${operator.operatorId}'`,
-    );
-  }
-  const multiplier = (operator.panel?.combatModifiers ?? []).reduce((result, modifier) => {
-    if (
-      modifier.kind === 'skillCooldownMultiplier' &&
-      (Array.isArray(modifier.skillTypes)
-        ? modifier.skillTypes.includes(program.skillType)
-        : modifier.skillTypes === program.skillType)
-    ) {
-      return result * modifier.value;
-    }
-    return result;
-  }, 1);
-  if (!Number.isFinite(multiplier) || multiplier <= 0) {
-    throw new RangeError(
-      `skill '${program.skillId}' of '${operator.operatorId}' has invalid cooldown multiplier ${multiplier}`,
-    );
-  }
-  return program.cooldownFrames === undefined
-    ? {}
-    : {
-        periodFrames: program.cooldownFrames * multiplier,
-        ...(program.costFrame === undefined ? {} : { commitFrame: program.costFrame }),
-      };
 }
 
 /**
@@ -118,12 +82,10 @@ export function bindRestoredCombatSkillCooldowns(
         `restored cooldown '${operator.operatorId}:${skillId}' does not match its fixed configuration`,
       );
     }
-    const cooldown = new SkillCooldown(
-      definition.configuration.periodFrames,
-      definition.configuration.commitFrame,
-      definition.program.skillType === 'comboSkill'
-        ? () => operator.buffRuntime?.getAttributeValue?.('ComboSkillCooldownScalar') ?? 1
-        : undefined,
+    const cooldown = createCombatSkillCooldown(
+      operator,
+      definition.program,
+      definition.configuration,
       state,
     );
     result.set(skillId, {

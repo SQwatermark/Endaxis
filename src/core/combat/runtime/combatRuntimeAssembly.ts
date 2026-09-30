@@ -151,7 +151,7 @@ import {
   SkillCastInheritanceOperationExecutor,
 } from '../skills/skillCastInheritanceOperationExecutor';
 import { SkillCastOperationExecutor } from '../skills/skillCastOperationExecutor';
-import { SkillCooldown } from '../skills/skillCooldown';
+import type { SkillCooldown } from '../skills/skillCooldown';
 import {
   adjustMatchingSkillCooldowns,
   SkillCooldownOperationExecutor,
@@ -221,7 +221,11 @@ import {
   prepareCombatRuntimeRestore,
   type CombatRuntimeRestorePreparation,
 } from './restoration/combatRuntimeRestorePreparation';
-import { resolveCombatSkillCooldownConfiguration } from './restoration/combatSkillCooldownRestoration';
+import {
+  advanceCombatSkillCooldown,
+  createCombatSkillCooldown,
+  resolveCombatSkillCooldownConfiguration,
+} from '../skills/combatSkillCooldownRules';
 
 /** 同一干员在一场战斗中唯一的 Buff 状态与实体黑板所有者。 */
 export type OperatorBuffRuntime = FrameRuntime &
@@ -1629,20 +1633,13 @@ export class CombatRuntimeAssembly {
             return {
               skillId,
               advanceCooldown: deltaSeconds => {
-                if (ledger.cooldown.ready) return;
-                const recoveryScalar =
-                  ledger.program.skillType === 'comboSkill'
-                    ? (runtimeOperator.buffRuntime?.getAttributeValue?.(
-                        'ComboSkillCooldownRecoveryScalar',
-                      ) ?? 1)
-                    : 1;
-                if (!Number.isFinite(recoveryScalar) || recoveryScalar < 0) {
-                  throw new RangeError(
-                    `combo skill cooldown recovery scalar of '${operator.operatorId}' must be non-negative and finite, received ${recoveryScalar}`,
-                  );
-                }
                 if (
-                  !ledger.cooldown.advance(deltaSeconds * COMBAT_FRAMES_PER_SECOND * recoveryScalar)
+                  !advanceCombatSkillCooldown(
+                    runtimeOperator,
+                    ledger.program,
+                    ledger.cooldown,
+                    deltaSeconds,
+                  )
                 )
                   return;
                 // 共享冷却属于技能定义，不能借任意放置块（可能尚未提交）的身份发布。
@@ -3207,13 +3204,7 @@ export class CombatRuntimeAssembly {
         existing.skillIds.add(program.executionSkillId ?? program.skillId);
       return { cooldown: existing.cooldown, advancesCooldown: false };
     }
-    const cooldown = new SkillCooldown(
-      periodFrames,
-      configuration.commitFrame,
-      program.skillType === 'comboSkill'
-        ? () => operator.buffRuntime?.getAttributeValue?.('ComboSkillCooldownScalar') ?? 1
-        : undefined,
-    );
+    const cooldown = createCombatSkillCooldown(operator, program, configuration);
     this.#skillCooldowns.set(key, {
       cooldown,
       program,

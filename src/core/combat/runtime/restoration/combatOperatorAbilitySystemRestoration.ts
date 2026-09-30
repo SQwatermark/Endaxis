@@ -10,7 +10,7 @@ import {
 import type { AbilitySystemState } from '../../state/abilityState';
 import type { RestoredCombatSkillCooldownBinding } from './combatSkillCooldownRestoration';
 import type { SkillRuntime } from '../../skills/skillRuntime';
-import { COMBAT_FRAMES_PER_SECOND } from '../../time/combatClock';
+import { advanceCombatSkillCooldown } from '../../skills/combatSkillCooldownRules';
 
 export interface RestoreCombatOperatorAbilitySystemOptions {
   readonly operator: CombatOperatorProgram;
@@ -41,19 +41,14 @@ export function bindRestoredCombatOperatorAbilitySystem(
       skillTickPlan: [...options.cooldowns].map(([skillId, binding]) => ({
         skillId,
         advanceCooldown: deltaSeconds => {
-          if (binding.cooldown.ready) return;
-          const recoveryScalar =
-            binding.program.skillType === 'comboSkill'
-              ? (options.operator.buffRuntime?.getAttributeValue?.(
-                  'ComboSkillCooldownRecoveryScalar',
-                ) ?? 1)
-              : 1;
-          if (!Number.isFinite(recoveryScalar) || recoveryScalar < 0) {
-            throw new RangeError(
-              `combo skill cooldown recovery scalar of '${options.operator.operatorId}' must be non-negative and finite, received ${recoveryScalar}`,
-            );
-          }
-          if (binding.cooldown.advance(deltaSeconds * COMBAT_FRAMES_PER_SECOND * recoveryScalar)) {
+          if (
+            advanceCombatSkillCooldown(
+              options.operator,
+              binding.program,
+              binding.cooldown,
+              deltaSeconds,
+            )
+          ) {
             options.onCooldownReady?.(skillId);
           }
         },

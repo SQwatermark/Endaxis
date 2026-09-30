@@ -22,6 +22,9 @@ import { CombatSkillPrograms } from '../skills/combatSkillPrograms';
 import { ProjectileCallbackPrograms } from '../abilities/projectileCallbackPrograms';
 import { createEnemyCombatVitals } from '../resources/combatVitalsFactory';
 import { deriveHitId } from '../timeline/deriveHitId';
+import { CombatAttributeSet } from '../attributes/combatAttributes';
+import { BuffDefinitionOperationTarget } from '../buffs/buffDefinitionOperationTarget';
+import { SkillCooldown } from '../skills/skillCooldown';
 
 const compileGraphEntry = (
   revision: string,
@@ -440,6 +443,112 @@ it.each([0, 4, 6])('投射物在第 %i 帧分支恢复后保留伤害的技能�
   }
   expect(restored.receipt.entries).toEqual(original.receipt.entries);
   expect(restored.stateGraph).toEqual(original.stateGraph);
+});
+
+it('共享冷却在新建与恢复分支按各自当前倍率推进，未放置技能也只发布一次就绪', () => {
+  const program: CompiledSkillProgram = {
+    operatorId: 'operator',
+    skillGroupKey: 'comboSkill',
+    skillId: 'combo',
+    skillType: 'comboSkill',
+    skillLevel: 1,
+    initialBlackboard: {},
+    timelineBlockFrames: 0,
+    timelineActions: [],
+    cooldownFrames: 10,
+    costFrame: 0,
+    costs: [],
+  };
+  const operators: CombatOperatorProgram[] = [
+    {
+      operatorId: 'operator',
+      skills: [program],
+      skillCasts: ['first', 'second'].map(castId => ({ castId, program })),
+      skillCooldownPrograms: [{ ...program, skillId: 'unplaced', cooldownFrames: 6 }],
+    },
+  ];
+  const environment = new StandardPlayerDamageEnvironment({
+    ...environmentInput(),
+    enemyVitals: createEnemyCombatVitals(enemy),
+  });
+  const original = new CombatRuntimeAssembly({
+    ...environment.runtimeOptions,
+    resources,
+    enemy,
+    operators,
+  });
+  const originalOperator = original.stateGraph.operators.get('operator')!;
+  const originalAttributes = new CombatAttributeSet(originalOperator.buffs!.attributes);
+  originalAttributes.define('ComboSkillCooldownScalar', 1, {});
+  originalAttributes.define('ComboSkillCooldownRecoveryScalar', 1, { minimum: 0 });
+  new SkillCooldown(6, 0, undefined, originalOperator.cooldowns.get('unplaced')).tryReserve();
+  expect(original.tryStartSkill('operator', 'combo', 'first')).toBe(true);
+  original.advanceFrame();
+  expect(original.tryStartSkill('operator', 'combo', 'second')).toBe(true);
+  const restored = CombatRuntimeAssembly.restore({
+    graph: structuredClone(original.stateGraph),
+    receiptHistory: original.receipt.history.snapshot(),
+    resources,
+    enemy,
+    operators,
+    environment: environmentInput(),
+    abilityEntityChildSkillPrograms: original.abilityEntityChildSkillPrograms,
+    combatOperationPrograms: original.combatOperationPrograms,
+    combatSkillPrograms: original.combatSkillPrograms,
+    projectileCallbackPrograms: original.projectileLifetimes.callbackPrograms,
+  });
+  for (const assembly of [original, restored]) {
+    const state = assembly.stateGraph.operators.get('operator')!;
+    for (const castId of ['', 'first', 'second']) {
+      expect(state.skills.get(`combo\u0000${castId}`)!.cooldown).toBe(state.cooldowns.get('combo'));
+    }
+    expect([...state.skills.keys()]).toEqual([
+      'combo\u0000',
+      'combo\u0000first',
+      'combo\u0000second',
+    ]);
+  }
+  const attributes = (assembly: CombatRuntimeAssembly) =>
+    new CombatAttributeSet(assembly.stateGraph.operators.get('operator')!.buffs!.attributes);
+  const remaining = (assembly: CombatRuntimeAssembly) =>
+    ['combo', 'unplaced'].map(
+      skillId =>
+        assembly.stateGraph.operators.get('operator')!.cooldowns.get(skillId)!.timer!.remaining,
+    );
+  expect(remaining(original)).toEqual([9, 5]);
+  for (const [scalar, expected] of [
+    [0, [9, 5]],
+    [2, [7, 3]],
+    [1, [6, 2]],
+    [4, [2, 0]],
+    [4, [0, 0]],
+  ] as const) {
+    // 先只改恢复分支；若它仍读取原分支的 Buff 目标，会得到错误的推进量。
+    attributes(original).setRawValue('ComboSkillCooldownRecoveryScalar', 0.5);
+    attributes(restored).setRawValue('ComboSkillCooldownRecoveryScalar', scalar);
+    const originalBefore = structuredClone(original.stateGraph);
+    restored.advanceFrame();
+    expect(original.stateGraph).toEqual(originalBefore);
+    expect(remaining(restored)).toEqual(expected);
+    attributes(original).setRawValue('ComboSkillCooldownRecoveryScalar', scalar);
+    original.advanceFrame();
+    expect(restored.stateGraph).toEqual(original.stateGraph);
+    expect(restored.receipt.entries).toEqual(original.receipt.entries);
+  }
+  const reads = vi.spyOn(BuffDefinitionOperationTarget.prototype, 'getAttributeValue');
+  try {
+    original.advanceFrames(2);
+    restored.advanceFrames(2);
+    expect(
+      reads.mock.calls.filter(([attribute]) => attribute === 'ComboSkillCooldownRecoveryScalar'),
+    ).toHaveLength(0);
+  } finally {
+    reads.mockRestore();
+  }
+  const ready = original.receipt.entries.filter(entry => entry.event === 'SkillCooldownReady');
+  expect(ready.map(entry => entry.data)).toEqual([{ skillId: 'unplaced' }, { skillId: 'combo' }]);
+  expect(restored.stateGraph).toEqual(original.stateGraph);
+  expect(restored.receipt.entries).toEqual(original.receipt.entries);
 });
 
 it.each(['operator-a', 'battle'])('GlobalBuff 恢复保留队伍顺序和共享账本：%s', sourceId => {

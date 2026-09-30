@@ -1,10 +1,8 @@
 import { expect, it } from 'vitest';
 import type { CompiledSkillProgram } from '../../../compiler/combatProgram';
 import type { CombatOperatorProgram } from '../combatRuntimeAssembly';
-import {
-  bindRestoredCombatSkillCooldowns,
-  resolveCombatSkillCooldownConfiguration,
-} from './combatSkillCooldownRestoration';
+import { bindRestoredCombatSkillCooldowns } from './combatSkillCooldownRestoration';
+import { resolveCombatSkillCooldownConfiguration } from '../../skills/combatSkillCooldownRules';
 import { SkillCooldown } from '../../skills/skillCooldown';
 import { CombatBuffContainer } from '../../buffs/combatBuffs';
 import { CombatAttributeSet } from '../../attributes/combatAttributes';
