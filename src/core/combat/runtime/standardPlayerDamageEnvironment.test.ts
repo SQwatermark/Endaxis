@@ -1,3 +1,4 @@
+import type { CombatOperationContext } from '../skills/skillRuntime';
 import type { CompiledSkillProgram } from '../../compiler/combatProgram';
 import { withAbilityEventResponseContext } from '../events/abilityEventResponseContext';
 import { CombatVitals } from '../resources/combatVitals';
@@ -3418,7 +3419,7 @@ it.each(['beforeDamageAction', 'beforeCalculateDamage'] as const)(
   '%s 响应沿用真实可变伤害包，不转换成字段副本',
   event => {
     const environment = createEnvironment();
-    const operationContext = { blackboard: new ActionBlackboard() };
+    const operationContext: CombatOperationContext = { blackboard: new ActionBlackboard() };
     let calls = 0;
     environment.eventsFor('operator').registerAction(event, 0, published => {
       withAbilityEventResponseContext(operationContext, published, undefined, () => {

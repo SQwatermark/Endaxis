@@ -6,13 +6,22 @@ import type { CombatAbilityEvent } from './combatAbilityEvent';
 import { abilityEventSkillCastInfo } from './combatAbilityEvent';
 import type { CombatSemanticEventContext } from './combatSemanticEventRuntime';
 
+/** 事件响应只拥有临时事件与目标绑定；技能、Buff 和动作宿主身份不在其写入范围。 */
+type AbilityEventResponseFields = Pick<
+  CombatOperationContext,
+  'event' | 'eventSkillCastInfo' | 'targetContext' | 'actionInputTarget'
+>;
+export type AbilityEventResponseScope = {
+  -readonly [Key in keyof AbilityEventResponseFields]: AbilityEventResponseFields[Key];
+};
+
 /**
  * 同步事件响应唯一的临时上下文边界；宿主仍拥有黑板、序列和注册生命周期。
  * 嵌套通知和异常均恢复外层事件与 Trigger，不清空宿主保存的其他目标组。
  * 此处接收内部生产的强类型事件，不是 JSON 输入校验器，也不重新识别事件类别。
  */
 export function withAbilityEventResponseContext<T>(
-  context: { -readonly [Key in keyof CombatOperationContext]: CombatOperationContext[Key] },
+  context: AbilityEventResponseScope,
   published: CombatAbilityEvent<AbilityResponseEventName>,
   targets: AbilityEventRuntimeActionContext | undefined,
   execute: () => T,
@@ -22,7 +31,7 @@ export function withAbilityEventResponseContext<T>(
 
 /** 旧定义仅保留触发器筛选；原生响应仍进入同一上下文边界，手工标记不补造目标绑定。 */
 export function withCombatEventResponseContext<T>(
-  context: { -readonly [Key in keyof CombatOperationContext]: CombatOperationContext[Key] },
+  context: AbilityEventResponseScope,
   response: CombatSemanticEventContext,
   execute: () => T,
 ): T {
@@ -37,8 +46,8 @@ export function withCombatEventResponseContext<T>(
 }
 
 function withEventContext<T>(
-  context: { -readonly [Key in keyof CombatOperationContext]: CombatOperationContext[Key] },
-  event: NonNullable<CombatOperationContext['event']>,
+  context: AbilityEventResponseScope,
+  event: NonNullable<AbilityEventResponseScope['event']>,
   targets: AbilityEventRuntimeActionContext | undefined,
   execute: () => T,
 ): T {

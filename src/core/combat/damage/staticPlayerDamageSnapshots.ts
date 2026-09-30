@@ -87,9 +87,15 @@ type DamageSnapshotContext =
   | CombatDamageExecutorContext
   | (Pick<CombatDamageExecutorContext, 'panel' | 'enemy'> & { readonly operatorId: string });
 
+/** 属性快照只读实际执行技能的修正；纯面板调用不冒充响应式动作来源。 */
+type DamageSnapshotOrigin = Pick<
+  CombatDamageOrigin,
+  'operatorId' | 'sourceOperatorId' | 'skillId' | 'skillType' | 'statModifiers'
+>;
+
 function resolveStaticDamageScales(
   context: DamageSnapshotContext,
-  origin: CombatDamageOrigin,
+  origin: DamageSnapshotOrigin,
   step: DamageStep,
   record: (
     modifier: import('../../compiler/resolveOperatorPanel').ResolvedOperatorCombatModifier,
@@ -138,7 +144,7 @@ export function resolveStaticPlayerDamageSnapshots(
   operatorAttributes: CombatAttributeSet<string>,
   enemyAttributes?: CombatAttributeSet<string>,
 ): PlayerDamageAttributeSnapshots {
-  const origin =
+  const origin: DamageSnapshotOrigin =
     'kind' in context
       ? resolveCombatDamageOrigin(context)
       : { operatorId: context.operatorId, sourceOperatorId: context.operatorId };

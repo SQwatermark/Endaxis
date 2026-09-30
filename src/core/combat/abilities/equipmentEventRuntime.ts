@@ -267,7 +267,7 @@ export class EquipmentEventRuntime {
       if (activeOperations === undefined) throw new Error('equipment response is not executing');
       return activeOperations;
     };
-    const operationContext = {
+    const operationContext: CombatOperationContext = {
       blackboard: this.blackboardFor(contributionIndex),
       canExecuteAction: () => this.#hosts.get(contributionIndex)?.canExecuteAction === true,
       actionOwnerId: this.#operatorId,
@@ -275,7 +275,7 @@ export class EquipmentEventRuntime {
       addAbilityChildBuff: (child: BuffApplicationHandle) => {
         this.addChildBuff(contributionIndex, child);
       },
-    } satisfies CombatOperationContext;
+    };
     // 原生队列保存 SequenceAction 实例；不能在同步重入时重新创建 Pending 状态。
     const sequence = new CombatActionSequenceRuntime(
       {

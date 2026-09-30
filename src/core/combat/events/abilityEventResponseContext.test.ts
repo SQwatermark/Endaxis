@@ -329,11 +329,18 @@ it.each(['finishedBuff', 'buffEndsEarly', 'buffConsumed', 'buffAbsorbed'] as con
   },
 );
 
-it('嵌套事件及异常恢复外层 Trigger、Input 与事件，保留宿主目标组和黑板', () => {
+it('嵌套事件及异常恢复外层事件来源与目标，不覆盖技能、Buff 和动作宿主身份', () => {
   const targetContext = new RuntimeTargetContext();
   const saved = { kind: 'abilityEntity' as const, instanceId: 1 };
   const outer = { kind: 'abilityEntity' as const, instanceId: 2 };
   const inner = { kind: 'abilityEntity' as const, instanceId: 3 };
+  const hostCast = {
+    skillCastId: 1,
+    originSkillId: 'buff-source-skill',
+    nonReturnedSpCost: 0,
+  };
+  const eventCast = { ...hostCast, skillCastId: 2, originSkillId: 'event-source-skill' };
+  const executingBuff = { buffId: 'host-buff', buffOwnerId: 'owner', buffInstanceId: 7 };
   targetContext.setSingle('saved', saved);
   targetContext.setSingle('trigger', saved);
   const context: CombatOperationContext = {
@@ -341,20 +348,42 @@ it('嵌套事件及异常恢复外层 Trigger、Input 与事件，保留宿主�
     targetContext,
     actionOwnerId: 'owner',
     actionSourceId: 'source',
+    skillCastInfo: hostCast,
+    buffSourceId: 'buff-source',
+    buffOwnerId: 'owner',
+    executingBuff,
+  };
+  const expectHostIdentity = () => {
+    expect(context.skillCastInfo).toBe(hostCast);
+    expect(context.executingBuff).toBe(executingBuff);
+    expect(context.buffSourceId).toBe('buff-source');
+    expect(context.buffOwnerId).toBe('owner');
+    expect(context.actionSourceId).toBe('source');
+    expect(context.actionOwnerId).toBe('owner');
   };
   withAbilityEventResponseContext(
     context,
-    { event: 'abilityEntitySpawned', payload },
+    {
+      event: 'abilityEntitySpawned',
+      payload: { ...payload, sourceId: 'event-source', skillCastInfo: eventCast },
+    },
     { inputTarget: outer, triggerTarget: outer },
     () => {
       const event = context.event;
+      expectHostIdentity();
+      expect(context.eventSkillCastInfo).toBe(eventCast);
       expect(targetContext.get('trigger')).toEqual([outer]);
       expect(() =>
         withAbilityEventResponseContext(
           context,
-          { event: 'abilityEntityFinished', payload },
+          {
+            event: 'abilityEntityFinished',
+            payload: { ...payload, sourceId: 'inner-source', skillCastInfo: null },
+          },
           { inputTarget: inner, triggerTarget: inner },
           () => {
+            expectHostIdentity();
+            expect(context.eventSkillCastInfo).toBeNull();
             expect(targetContext.get('trigger')).toEqual([inner]);
             context.blackboard.assignDynamic('count', 1);
             throw new Error('nested');
@@ -362,6 +391,8 @@ it('嵌套事件及异常恢复外层 Trigger、Input 与事件，保留宿主�
         ),
       ).toThrow('nested');
       expect(context.event).toBe(event);
+      expect(context.eventSkillCastInfo).toBe(eventCast);
+      expectHostIdentity();
       expect(context.actionInputTarget).toBe(outer);
       expect(targetContext.get('trigger')).toEqual([outer]);
     },
@@ -371,7 +402,8 @@ it('嵌套事件及异常恢复外层 Trigger、Input 与事件，保留宿主�
   expect(targetContext.get('trigger')).toEqual([saved]);
   expect(targetContext.get('saved')).toEqual([saved]);
   expect(context.blackboard.getNumber('count')).toBe(1);
-  expect(context.actionSourceId).toBe('source');
+  expect(context.eventSkillCastInfo).toBeUndefined();
+  expectHostIdentity();
 });
 
 it('无 Trigger 的事件不会读到上次触发目标，退出后恢复宿主目标', () => {
