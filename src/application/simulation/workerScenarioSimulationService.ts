@@ -72,6 +72,8 @@ export class WorkerScenarioSimulationService {
       const response = event.data;
       const current = this.active;
       if (!current || current.request.id !== response.id) return;
+      // 错误可能来自定义初始化；后续同一选择集合也必须重新发送定义。
+      if (!response.ok) this.sentGameDataKey = undefined;
       this.active = undefined;
       try {
         current.cleanup();
