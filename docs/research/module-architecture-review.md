@@ -21,34 +21,34 @@
 
 ## 模块清单与顺序
 
-| 编号 | 责任模块与主要目录                                                                                                  | 首轮库存                          | 对应稳定文档                                                                                                    | 深入检查状态 |
-| ---- | ------------------------------------------------------------------------------------------------------------------- | --------------------------------- | --------------------------------------------------------------------------------------------------------------- | ------------ |
-| M01  | 共享契约、定义查询协议与校验：`packages/game-data-contract/src`、`src/core/game-data`                               | 17 + 25 个 TS 文件                | [游戏数据](../architecture/game-data.md)                                                                        | 关键路径已查 |
-| M02  | 离线来源读取、缓存、版本与来源追踪：`tools/game-data-compiler/src/source`                                           | 107 个 TS 文件                    | [游戏数据](../architecture/game-data.md)、工具 README                                                           | 关键路径已查 |
-| M03  | 离线动作投影、引用、领域组装与优化：`tools/game-data-compiler/src/compiler`、`tools/game-data-compiler/src/domains` | 89 + 39 个 TS 文件（含 M04）      | [游戏数据](../architecture/game-data.md)、[动作图](../architecture/action-graphs.md)                            | 关键路径已查 |
-| M04  | 候选构建、验证、发布和回滚：编译器 `build/publication` 与脚本                                                       | 脚本 52 个 TS 文件                | 工具 README、[游戏数据](../architecture/game-data.md)                                                           | 关键路径已查 |
-| M05  | 正式数据登记、按需加载和项目覆盖：`src/data`                                                                        | 435 个 TS 文件，主要为生成定义    | [游戏数据](../architecture/game-data.md)                                                                        | 关键路径已查 |
-| M06  | 项目格式、编辑事务、草稿与存储：`core/project`、`application/editor`、`application/openProject`、存储适配           | 11 + 16 个 TS 文件及存储适配      | [编辑器](../architecture/editor.md)                                                                             | 关键路径已查 |
-| M07  | 图校验、场景编译、构筑和机制：`core/action-graph`、`compiler`、`mechanics`                                          | 3 + 25 + 4 个 TS 文件             | [动作图](../architecture/action-graphs.md)、[游戏数据](../architecture/game-data.md)                            | 关键路径已查 |
-| M08  | 战斗数据图、装配及恢复：`combat/state`、`combat/runtime`                                                            | 6 + 34 个 TS 文件（含恢复与输入） | [战斗](../architecture/combat.md)、[切面](../architecture/checkpoints.md)                                       | 关键路径已查 |
-| M09  | 时钟、变速、随机：`combat/time`、`combat/random`                                                                    | 5 + 3 个 TS 文件                  | [战斗](../architecture/combat.md)、[随机](../architecture/randomness.md)                                        | 关键路径已查 |
-| M10  | 资源和属性账本：`combat/resources`、`combat/attributes`                                                             | 11 + 4 个 TS 文件                 | [战斗](../architecture/combat.md)                                                                               | 关键路径已查 |
-| M11  | 动作解释与时间线：`combat/actions`、`combat/timeline`                                                               | 13 + 3 个 TS 文件                 | [技能操作](../architecture/skill-operations.md)、[动作图](../architecture/action-graphs.md)                     | 关键路径已查 |
-| M12  | 技能、能力、冷却和输入：`combat/skills`、`combat/abilities`、输入协调                                               | 33 + 21 个 TS 文件（含 M15）      | [战斗](../architecture/combat.md)、[技能操作](../architecture/skill-operations.md)                              | 关键路径已查 |
-| M13  | 事件分发、身份和宿主订阅：`combat/events` 与宿主生命周期                                                            | 12 个 TS 文件及能力宿主           | [技能操作](../architecture/skill-operations.md)、[切面](../architecture/checkpoints.md)                         | 关键路径已查 |
-| M14  | Buff、全局 Buff 与标签：`combat/buffs`、`combat/tags`                                                               | 17 + 2 个 TS 文件                 | [战斗](../architecture/combat.md)、[技能操作](../architecture/skill-operations.md)                              | 关键路径已查 |
-| M15  | 能力实体、投射物及延迟后果：abilities 中对应目录与装配 hooks                                                        | 库存计入 M08/M12                  | [战斗](../architecture/combat.md)、[切面](../architecture/checkpoints.md)                                       | 关键路径已查 |
-| M16  | 伤害、治疗、附着与状态：`combat/damage/heal/infliction/status`                                                      | 21 + 3 + 9 + 7 个 TS 文件         | [战斗](../architecture/combat.md)、[结果](../architecture/results.md)                                           | 关键路径已查 |
-| M17  | 回执、投影与来源：`combat/receipt`、`core/projection`                                                               | 4 + 30 个 TS 文件                 | [结果](../architecture/results.md)                                                                              | 关键路径已查 |
-| M18  | 场景服务、输入排程、增量/继承、线程与发布：`application/simulation`、`core/pipeline`                                | 17 + 1 个 TS 文件                 | [编辑器](../architecture/editor.md)、[切面](../architecture/checkpoints.md)、[结果](../architecture/results.md) | 关键路径已查 |
-| M19  | 旧方案格式转换与重排：`application/legacyTimeline`、`tools/legacy-timeline`                                         | 9 + 3 个 TS 文件                  | [编辑器](../architecture/editor.md)、工具 README                                                                | 待查         |
+| 编号 | 责任模块与主要目录                                                                                                  | 首轮库存                          | 对应稳定文档                                                                                                                   | 深入检查状态 |
+| ---- | ------------------------------------------------------------------------------------------------------------------- | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | ------------ |
+| M01  | 共享契约、定义查询协议与校验：`packages/game-data-contract/src`、`src/core/game-data`                               | 17 + 25 个 TS 文件                | [游戏数据](../architecture/game-data.md)                                                                                       | 关键路径已查 |
+| M02  | 离线来源读取、缓存、版本与来源追踪：`tools/game-data-compiler/src/source`                                           | 107 个 TS 文件                    | [离线生产](../architecture/game-data-production.md)、工具 README                                                               | 关键路径已查 |
+| M03  | 离线动作投影、引用、领域组装与优化：`tools/game-data-compiler/src/compiler`、`tools/game-data-compiler/src/domains` | 89 + 39 个 TS 文件（含 M04）      | [离线生产](../architecture/game-data-production.md)、[动作图](../architecture/action-graphs.md)                                | 关键路径已查 |
+| M04  | 候选构建、验证、发布和回滚：编译器 `build/publication` 与脚本                                                       | 脚本 52 个 TS 文件                | [离线生产](../architecture/game-data-production.md)、工具 README                                                               | 关键路径已查 |
+| M05  | 正式数据登记、按需加载和项目覆盖：`src/data`                                                                        | 435 个 TS 文件，主要为生成定义    | [游戏数据](../architecture/game-data.md)                                                                                       | 关键路径已查 |
+| M06  | 项目格式、编辑事务、草稿与存储：`core/project`、`application/editor`、`application/openProject`、存储适配           | 11 + 16 个 TS 文件及存储适配      | [编辑器](../architecture/editor.md)                                                                                            | 关键路径已查 |
+| M07  | 图校验、场景编译、构筑和机制：`core/action-graph`、`compiler`、`mechanics`                                          | 3 + 25 + 4 个 TS 文件             | [场景编译](../architecture/scenario-compilation.md)、[动作图](../architecture/action-graphs.md)                                | 关键路径已查 |
+| M08  | 战斗数据图、装配及恢复：`combat/state`、`combat/runtime`                                                            | 6 + 34 个 TS 文件（含恢复与输入） | [战斗](../architecture/combat.md)、[切面](../architecture/checkpoints.md)                                                      | 关键路径已查 |
+| M09  | 时钟、变速、随机：`combat/time`、`combat/random`                                                                    | 5 + 3 个 TS 文件                  | [战斗](../architecture/combat.md)、[随机](../architecture/randomness.md)                                                       | 关键路径已查 |
+| M10  | 资源和属性账本：`combat/resources`、`combat/attributes`                                                             | 11 + 4 个 TS 文件                 | [战斗](../architecture/combat.md)                                                                                              | 关键路径已查 |
+| M11  | 动作解释与时间线：`combat/actions`、`combat/timeline`                                                               | 13 + 3 个 TS 文件                 | [技能操作](../architecture/skill-operations.md)、[动作图](../architecture/action-graphs.md)                                    | 关键路径已查 |
+| M12  | 技能、能力、冷却和输入：`combat/skills`、`combat/abilities`、输入协调                                               | 33 + 21 个 TS 文件（含 M15）      | [战斗](../architecture/combat.md)、[技能操作](../architecture/skill-operations.md)                                             | 关键路径已查 |
+| M13  | 事件分发、身份和宿主订阅：`combat/events` 与宿主生命周期                                                            | 12 个 TS 文件及能力宿主           | [事件与 Buff](../architecture/events-and-buffs.md)、[切面](../architecture/checkpoints.md)                                     | 关键路径已查 |
+| M14  | Buff、全局 Buff 与标签：`combat/buffs`、`combat/tags`                                                               | 17 + 2 个 TS 文件                 | [事件与 Buff](../architecture/events-and-buffs.md)                                                                             | 关键路径已查 |
+| M15  | 能力实体、投射物及延迟后果：abilities 中对应目录与装配 hooks                                                        | 库存计入 M08/M12                  | [实体与效果](../architecture/combat-effects.md)、[切面](../architecture/checkpoints.md)                                        | 关键路径已查 |
+| M16  | 伤害、治疗、附着与状态：`combat/damage/heal/infliction/status`                                                      | 21 + 3 + 9 + 7 个 TS 文件         | [实体与效果](../architecture/combat-effects.md)、[结果](../architecture/results.md)                                            | 关键路径已查 |
+| M17  | 回执、投影与来源：`combat/receipt`、`core/projection`                                                               | 4 + 30 个 TS 文件                 | [结果](../architecture/results.md)                                                                                             | 关键路径已查 |
+| M18  | 场景服务、输入排程、增量/继承、线程与发布：`application/simulation`、`core/pipeline`                                | 17 + 1 个 TS 文件                 | [模拟服务](../architecture/simulation-services.md)、[切面](../architecture/checkpoints.md)、[结果](../architecture/results.md) | 关键路径已查 |
+| M19  | 旧方案格式转换与重排：`application/legacyTimeline`、`tools/legacy-timeline`                                         | 9 + 3 个 TS 文件                  | [编辑器](../architecture/editor.md)、工具 README                                                                               | 关键路径已查 |
 
 库存统计来自基线目录，排除常规测试、类型断言、性能测试和明确测试支持目录；数字仅帮助理解范围，不表示已经阅读相同数量文件。UI 手势、样式、设计系统、图表安装/纯展示辅助和发布托管不属于本次核心模块的独立审查项，只在输入/输出边界需要时读取。
 
 ## 当前进度
 
 - 库存和检查顺序已记录。
-- M01–M18 关键路径已核查。待整改的重要项为 D07 当前方案导出缺失定义、D06 页面项目效果查询遗漏、D04 测试守卫盲区；均未自动修代码。剩余 M19 旧轴转换，随后汇总优先级与本轮覆盖边界。
+- M01–M19 关键路径已核查。待整改的重要项为 D07 当前方案导出缺失定义、D06 页面项目效果查询遗漏、D04 测试守卫盲区；均未自动修代码。有限模块清单本轮已走完；完整性只指清单关键路径覆盖，不是全部分支、生成定义或浏览器异常穷举。
 - 新发现只给出证据、风险和最小整改建议；此次后续模块检查不自动修改生产逻辑。
 
 ## M01：共享契约、查询协议与校验
@@ -305,3 +305,36 @@ NODE
 实际输出：`handlerRejected: duplicate common definition source 'duplicate'`；`responses: 0`。这是直接调用真实 handler 的隔离实验，不是实际 Worker 浏览器调度。正式 capture 从已装配仓库取数据，尚未找到它产生此重复来源包的路径。
 
 最小建议：将服务初始化也纳入请求错误响应边界，增加真实入口初始化失败和后续请求测试；再用浏览器 Worker 验证错误传播。优先级低于 D06/D07 已证实功能缺口，暂不修改生产代码。
+
+## M19：旧格式转换、重排与审计工具
+
+已追踪来源复制/身份与单位归一化、逐方案尽力保留、迁移/资源/结构校验、递归展开、preserve/repair、候选切面与释放，以及 CLI 新目录独占写入、只读最终模拟摘要。稳定说明补入[工具模块边界](../../tools/legacy-timeline/README.md#模块边界与所有权)，编辑器和切面文档已连接。
+
+证据：`legacyTimeline/convert.ts:91–156,195–320`、`projectConversion.ts:549–579`、`checkpointRetiming.ts:24–108`、`heuristicRetiming.ts:680–798` 及结束段、`preservedInputs.ts:6–58`、`tools/legacy-timeline/cli.ts:29–45`、`auditSimulation.ts:22–66`。
+
+- **D15，验证缺口而非已确认错误：** 转换器最后进行结构解析，没有独立最终整轴模拟门禁；候选试算后还调整切人/闪避。报告为 converted/converted-with-issues 不等于最终整轴无诊断。稳定文档已将“最终完整重跑”明确为额外验收，避免误读为当前自动保证。
+- CLI 用新目录和独占文件保留源/已有输出，文件逐个写入并非目录级原子发布；写盘失败可能留下 report 或部分新目录。没有发现覆盖原存档路径。
+- 验证：8 个原生文件、75 项通过，默认跳过 1 项需显式 GC 的候选释放实验；工具独立类型检查通过。GC 补跑结果见下方最终验证记录。
+- 未查范围：未转换用户私人旧轴、未访问整批线上旧存档，映射样本不能证明所有历史变体；智能重排可能改变 Buff 覆盖，不承诺保持旧版总伤。
+
+## 本轮结论与整改顺序
+
+本轮已为 M01–M19 的实际关键路径补齐/扩展稳定架构文档，并将检查范围和未查边界逐项记录。代码证据以顶部基线为准；之后这些模块提交只改文档。阶段内重复运行的测试可能重叠，不能将各段数量相加作为唯一用例总数。
+
+| 顺序 | 项目                         | 证据等级与影响                                                         | 最小整改与验收                                                                                             |
+| ---- | ---------------------------- | ---------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| 1    | D07 当前方案导出缺定义       | 原生边界已复现；保存的新载荷保留 effectId 却缺项目定义，重新打开仍放行 | 补导出全局效果依赖与打开引用校验；current/all/分享码/PNG载荷对照，重开后用正式仓库成功模拟；不得修改原项目 |
+| 2    | D06 页面联合查询遗漏全局效果 | 真实保存/路由链与实际 SFC 表达式已复现；模拟输入捕获失败               | 用唯一共享组合规则覆盖页面；项目新 ID、同 ID 覆盖、禁用引用、保存/撤销后数据换代；补页面集成测试           |
+| 3    | D04 投影分层守卫失效         | 四个旧入口不存在而测试仍通过；独立遍历未发现当前生产违规               | 更新路径并断言入口存在、增加故意违规负例；测试必须对错误进口失败                                           |
+| 4    | D14 Worker 初始化错误响应    | 非法包 handler 实验；未证明合法输入可达或浏览器传播                    | 统一请求错误边界并测试初始化拒绝/后续请求；再验证真实 Worker 行为                                          |
+| 5    | D15 转换后的最终验收         | 源码确认缺独立整轴门禁；没有已复现错误输出                             | 明确报告契约；按产品选择自动完整复跑或显式审计步骤，覆盖最终切人/闪避调整                                  |
+
+D01–D03、D05、D08–D13 是已查明的所有权/能力/维护约束或适配风险，不是一串待修 bug。保留文档和针对性回归即可，没有证据支持仅按类大小拆分装配根、统一所有生命周期或引入第二套状态框架。H1/H2 已完成修复并分别通过当时完整 Linux/Windows CI，不重复列为待办。
+
+下一轮若进入实现，优先一起处理 D07/D06 的全局效果端到端闭合，再补 D04 守卫；本轮未自动修改这些代码。剩余专项验证包括真实浏览器 Worker/存储故障、原始资源同版本一致性、任意嵌套异常与长期内存、全部原生数值/空间语义。这些不会因文档清楚或测试通过自动变成已验证。
+
+### 最终验证记录
+
+- GC 专项补跑：`npx vitest run src/application/legacyTimeline/checkpointRetiming.test.ts --pool=forks --execArgv=--expose-gc --maxWorkers=1`，4 项通过，原先跳过项实际执行。本次持有候选相对基线增加约 10.18 MB，dispose 后约 0.26 MB；这是该固定样本的引用释放证据，不代表所有浏览器长期内存形态。
+- 本轮生产代码保持 H2 基线不变；每组文档执行格式化和 diff 检查，复现代码只读取原模块。模块测试范围和未覆盖环境见各组记录。
+- 最终文档提交对应的完整 CI 另在该提交的 GitHub Actions 记录核对；不能拿前一文档提交或被新提交取消的运行替代最终 SHA 结果。
