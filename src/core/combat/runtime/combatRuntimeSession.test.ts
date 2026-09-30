@@ -445,6 +445,103 @@ it.each([0, 4, 6])('投射物在第 %i 帧分支恢复后保留伤害的技能�
   expect(restored.stateGraph).toEqual(original.stateGraph);
 });
 
+it('换槽动作中途恢复后按原结束帧还原，继续使用恢复分支的冷却账本', () => {
+  const base: CompiledSkillProgram = {
+    operatorId: 'operator',
+    skillGroupKey: 'battleSkill',
+    skillId: 'base',
+    skillType: 'battleSkill',
+    skillLevel: 1,
+    initialBlackboard: {},
+    timelineBlockFrames: 8,
+    cooldownFrames: 10,
+    costFrame: 0,
+    costs: [],
+    timelineActions: [
+      {
+        startFrame: 0,
+        endFrame: 6,
+        sequence: chainEntry('restored-slot-replacement', [
+          {
+            kind: 'changeSkillSlot',
+            parameters: {
+              skillSlotKey: 'battle',
+              targetSkillKey: 'enhanced',
+              lifetime: 'finishByAction',
+              inheritOriginSkillCooldownProgress: true,
+            },
+          },
+        ]),
+      },
+    ],
+  };
+  const enhanced = { ...base, skillId: 'enhanced', cooldownFrames: 40, timelineActions: [] };
+  const operators: CombatOperatorProgram[] = [
+    {
+      operatorId: 'operator',
+      skills: [base, enhanced],
+      skillSlotGroups: [
+        { skillSlotKey: 'battle', baseSkillKey: 'base', replacementSkillKeys: ['enhanced'] },
+      ],
+    },
+  ];
+  const environment = new StandardPlayerDamageEnvironment({
+    ...environmentInput(),
+    enemyVitals: createEnemyCombatVitals(enemy),
+  });
+  const original = new CombatRuntimeAssembly({
+    ...environment.runtimeOptions,
+    resources,
+    enemy,
+    operators,
+  });
+  expect(original.tryStartSkill('operator', 'base')).toBe(true);
+  original.advanceFrames(2);
+  const saved = structuredClone(original.stateGraph);
+  const restored = CombatRuntimeAssembly.restore({
+    graph: structuredClone(saved),
+    receiptHistory: original.receipt.history.snapshot(),
+    resources,
+    enemy,
+    operators,
+    environment: environmentInput(),
+    abilityEntityChildSkillPrograms: original.abilityEntityChildSkillPrograms,
+    combatOperationPrograms: original.combatOperationPrograms,
+    combatSkillPrograms: original.combatSkillPrograms,
+    projectileCallbackPrograms: original.projectileLifetimes.callbackPrograms,
+  });
+  const state = restored.stateGraph.operators.get('operator')!;
+  expect(state.ability.currentSkillKey).toBe('base\u0000');
+  expect(state.ability.skillSlotGroups.get('battle')!.currentSkillKey).toBe('enhanced');
+  expect(state.ability.skillSlotReplacements.get('battle')!.registrationId).toBe(0);
+  const cooldown = new SkillCooldown(40, 0, undefined, state.cooldowns.get('enhanced'));
+  cooldown.setProgress(0.5);
+  restored.advanceFrames(5);
+  expect(state.ability.skillSlotGroups.get('battle')!.currentSkillKey).toBe('base');
+  expect(state.ability.skillSlotReplacements.size).toBe(0);
+  expect(state.ability.nextSkillSlotReplacementId).toBe(1);
+  const slotChanges = restored.receipt.entries.filter(entry => entry.event === 'SkillSlotChanged');
+  expect(slotChanges).toHaveLength(2);
+  expect(slotChanges[1]).toMatchObject({
+    frame: 6,
+    sourceId: 'operator',
+    data: { previousSkillKey: 'enhanced', targetSkillKey: 'base' },
+  });
+  expect(slotChanges[1]!.data!.inheritedCooldownProgress).toBeGreaterThan(0.5);
+  expect(state.cooldowns.get('base')!.timer!.remaining).toBeLessThan(5);
+  // 恢复分支的结束回调不能修改原分支，也不能把仍在施放的 base 替换为 enhanced。
+  expect(original.stateGraph).toEqual(saved);
+  new SkillCooldown(
+    40,
+    0,
+    undefined,
+    original.stateGraph.operators.get('operator')!.cooldowns.get('enhanced'),
+  ).setProgress(0.5);
+  original.advanceFrames(5);
+  expect(restored.receipt.entries).toEqual(original.receipt.entries);
+  expect(restored.stateGraph).toEqual(original.stateGraph);
+});
+
 it('共享冷却在新建与恢复分支按各自当前倍率推进，未放置技能也只发布一次就绪', () => {
   const program: CompiledSkillProgram = {
     operatorId: 'operator',

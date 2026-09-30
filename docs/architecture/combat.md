@@ -41,6 +41,8 @@
 
 [combatSkillCooldownRules.ts](../../src/core/combat/skills/combatSkillCooldownRules.ts) 统一新建与恢复使用的固定冷却配置、动态周期倍率绑定和逐帧推进规则。连携冷却预占时读取当前分支的 `ComboSkillCooldownScalar`，未就绪时每次推进读取 `ComboSkillCooldownRecoveryScalar`；就绪后不再读取恢复倍率或重复发布就绪回执。同技能的各次施放引用同一账本，没有施放实例的已配置技能也按能力系统的冷却时间推进。恢复入口仍负责保存数据校验和共享对象绑定，不重新初始化冷却。
 
+[combatSkillSlotCoordination.ts](../../src/core/combat/skills/combatSkillSlotCoordination.ts) 协调槽位切换、同干员冷却账本查找、归一化进度继承与成功回执。两侧均无账本时只换槽；仅一侧缺失时还原槽位并报错，不发布成功回执。槽位只影响后续释放，当前施放仍持有原技能。每槽替换登记、先结束旧替换和旧编号失效仍由 `abilitySystemExecution.ts` 负责，动作结束时使用当前分支的槽位与冷却账本；协调入口不新增可恢复状态。
+
 投射物的来源时间同步不是直接借用施法者时钟。原生发射时读取来源 AbilitySystem
 的时钟倍率，后续收到倍率通知才复制来源实体的自身倍率，并另行同步忽略全局缩放的开关。
 当前编译器明确拒绝开启来源时间同步的持续投射物；支持它需要保存和恢复订阅状态，

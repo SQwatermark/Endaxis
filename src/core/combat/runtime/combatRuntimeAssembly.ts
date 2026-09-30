@@ -1,3 +1,4 @@
+import { changeCombatSkillSlot } from '../skills/combatSkillSlotCoordination';
 import { isEmptyActionProgram } from '../../compiler/actionProgramInspection';
 import { hasUnmodeledIncomingAttackTrigger } from '../skills/comboConditionCheckability';
 import { bindProjectileCallbackLifecycle } from '../abilities/projectileCallbackRuntime';
@@ -732,7 +733,6 @@ export class CombatRuntimeAssembly {
   readonly #globalCooldowns: GlobalCooldowns;
   readonly #skillCastIds: SkillCastIdAllocator;
   readonly #basicAttackSkillCastInheritance: BasicAttackSkillCastInheritanceRegistry;
-  /** 原生 ChangeSkillAction 每槽只允许一个有效句柄；新句柄会先结束旧句柄。 */
   /** 同一干员同一技能的所有放置块共用一份冷却事实。 */
   readonly #skillCooldowns = new Map<
     string,
@@ -3498,41 +3498,18 @@ export class CombatRuntimeAssembly {
     targetSkillKey: string,
     inheritOriginSkillCooldownProgress: boolean,
   ): void {
-    const abilitySystem = this.#requireAbilitySystem(operatorId);
-    const previousSkillKey = abilitySystem.changeSkillSlot(skillSlotKey, targetSkillKey);
-    let inheritedCooldownProgress: number | undefined;
-    try {
-      if (inheritOriginSkillCooldownProgress && previousSkillKey !== targetSkillKey) {
-        const source = this.#skillCooldowns.get(`${operatorId}\u0000${previousSkillKey}`);
-        const target = this.#skillCooldowns.get(`${operatorId}\u0000${targetSkillKey}`);
-        if ((source === undefined) !== (target === undefined)) {
-          throw new Error(
-            `ability skill slot '${skillSlotKey}' cannot inherit cooldown from ` +
-              `'${previousSkillKey}' to '${targetSkillKey}' before both skills are assembled`,
-          );
-        }
-        if (source !== undefined && target !== undefined) {
-          inheritedCooldownProgress = source.cooldown.snapshot.progress;
-          target.cooldown.setProgress(inheritedCooldownProgress);
-        }
-      }
-    } catch (error) {
-      abilitySystem.changeSkillSlot(skillSlotKey, previousSkillKey);
-      throw error;
-    }
-    this.receipt.record({
-      frame: this.clock.frame,
-      time: this.clock.time,
-      event: 'SkillSlotChanged',
-      sourceId: operatorId,
-      data: {
-        skillSlotKey,
-        targetSkillKey,
-        previousSkillKey,
-        inheritOriginSkillCooldownProgress,
-        ...(inheritedCooldownProgress === undefined ? {} : { inheritedCooldownProgress }),
+    changeCombatSkillSlot(
+      {
+        operatorId,
+        abilitySystem: this.#requireAbilitySystem(operatorId),
+        cooldowns: this.#skillCooldowns,
+        clock: this.clock,
+        receipt: this.receipt,
       },
-    });
+      skillSlotKey,
+      targetSkillKey,
+      inheritOriginSkillCooldownProgress,
+    );
   }
 
   #replaceSkillSlot(

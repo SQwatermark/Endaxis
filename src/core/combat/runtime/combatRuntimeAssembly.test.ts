@@ -2373,6 +2373,9 @@ describe('CombatRuntimeAssembly', () => {
       assembly.receipt.entries.filter(entry => entry.event === 'SkillStarted').at(-1)?.data
         ?.skillId,
     ).toBe('ultimate');
+    const ability = assembly.stateGraph.operators.get('operator')!.ability;
+    expect(ability.skillSlotGroups.get('ultimate')!.currentSkillKey).toBe('arcana');
+    expect(ability.currentSkillKey).toBe('ultimate\u0000ultimate-cast');
     assembly.advanceFrames(2);
 
     expect(assembly.tryStartSkill('operator', 'ultimate', 'ultimate-cast')).toBe(true);

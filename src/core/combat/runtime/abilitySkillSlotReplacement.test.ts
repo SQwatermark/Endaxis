@@ -1,37 +1,50 @@
 /** 验证替换登记与真实冷却账本共同恢复，覆盖旧编号失效和分支独立推进。 */
 import { describe, expect, it } from 'vitest';
-import { createAbilitySystemState } from '../state/abilityState';
 import {
   replaceAbilitySkillSlot,
   finishAbilitySkillSlotReplacement,
   type SkillSlotReplacementHost,
 } from '../abilities/abilitySystemExecution';
+import { AbilitySystemRuntime } from '../abilities/abilitySystemRuntime';
+import { CombatReceiptCollector } from '../receipt/combatReceipt';
+import { CombatClock } from '../time/combatClock';
+import { changeCombatSkillSlot } from '../skills/combatSkillSlotCoordination';
 import { SkillCooldown } from '../skills/skillCooldown';
 
 describe('技能槽替换恢复', () => {
   it('撤销使用当前分支的冷却进度，旧编号不能撤销后来安装的替换', () => {
-    const state = createAbilitySystemState();
-    state.skillSlotGroups.set('battle', {
-      baseSkillKey: 'base',
-      input: 'battleSkill',
-      defaultForInput: true,
-      stableInputSkillKeys: new Set(),
-      allowedSkillKeys: new Set(['base', 'first', 'second']),
-      currentSkillKey: 'base',
-    });
+    const definition = {
+      skills: [],
+      skillSlotGroups: [
+        {
+          skillSlotKey: 'battle',
+          baseSkillKey: 'base',
+          replacementSkillKeys: ['first', 'second'],
+        },
+      ],
+    };
+    const state = new AbilitySystemRuntime(definition).runtimeState;
     const cooldowns = new Map(
       ['base', 'first', 'second'].map(key => [key, new SkillCooldown(100, 0)]),
     );
     cooldowns.get('base')!.setProgress(0.25);
-    const bind = (data: typeof state, ledgers: typeof cooldowns): SkillSlotReplacementHost => ({
-      currentSkillKey: group => data.skillSlotGroups.get(group)!.currentSkillKey,
-      changeSkillSlot: (group, skill, inherit) => {
-        const slot = data.skillSlotGroups.get(group)!;
-        if (inherit)
-          ledgers.get(skill)!.setProgress(ledgers.get(slot.currentSkillKey)!.snapshot.progress);
-        slot.currentSkillKey = skill;
-      },
-    });
+    const bind = (data: typeof state, ledgers: typeof cooldowns): SkillSlotReplacementHost => {
+      const abilitySystem = new AbilitySystemRuntime(definition, data);
+      const host = {
+        operatorId: 'operator',
+        abilitySystem,
+        cooldowns: new Map(
+          [...ledgers].map(([key, cooldown]) => [`operator\u0000${key}`, { cooldown }]),
+        ),
+        clock: new CombatClock(),
+        receipt: new CombatReceiptCollector(),
+      };
+      return {
+        currentSkillKey: group => abilitySystem.currentSkillKeyForSlot(group),
+        changeSkillSlot: (group, skill, inherit) =>
+          changeCombatSkillSlot(host, group, skill, inherit),
+      };
+    };
     const host = bind(state, cooldowns);
     const first = replaceAbilitySkillSlot(
       state,
