@@ -1,6 +1,6 @@
-# 项目全局效果的查询缺口复现
+# 项目全局效果的查询与导出缺口复现
 
-对应[逐模块审查 D06](module-architecture-review.md#d06页面联合查询遗漏项目全局效果)。检查基线为 `8bcc46b97e03dedd7fb84480dbee7c0fcda43d93`；后续到本记录的提交只改文档。
+对应[逐模块审查 D06](module-architecture-review.md#d06页面联合查询遗漏项目全局效果)及 D07 当前方案导出缺口。检查基线为 `8bcc46b97e03dedd7fb84480dbee7c0fcda43d93`；后续到本记录的提交只改文档。
 
 ## 实际入口链
 
@@ -48,6 +48,8 @@ const code = esbuild.buildSync({
       export { saveProjectTemplateDefinition } from './src/application/editor/projectTemplateCommands';
       export { GLOBAL_EFFECT_PRESETS } from './src/data/globalEffectPresets';
       export { openProject } from './src/application/openProject';
+      export { selectProjectExportScope } from './src/ui/timeline/projectFileSession';
+      export { serializeProjectDocument } from './src/core/project/serialization';
       export { createProjectGameDataRepository } from './src/core/project/projectDefinitionLibrary';
       export { captureScenarioSimulationGameData } from './src/application/simulation/scenarioSimulationGameData';
     `,
@@ -84,6 +86,18 @@ try {
 } catch (error) { console.log('UI capture failure', error.message); }
 console.log('shared capture', api.captureScenarioSimulationGameData(scenario, shared)
   .globalEffects.map(effect => effect.id));
+const current = api.selectProjectExportScope(project, 'current');
+const serialized = api.serializeProjectDocument(current);
+console.log('all effect keys', Object.keys(api.selectProjectExportScope(project, 'all').definitionLibrary.globalEffects));
+console.log('current saved library keys', Object.keys(JSON.parse(serialized).definitionLibrary));
+console.log('current effect references', current.scenarios[0].globalConfig.effects);
+console.log('current reopened', api.openProject(serialized, { gameDataRepository: base }).ok);
+try {
+  api.captureScenarioSimulationGameData(current.scenarios[0],
+    api.createProjectGameDataRepository(base, current.definitionLibrary));
+  console.log('unexpected current capture success');
+} catch (error) { console.log('current shared capture failure', error.message); }
+console.log('original retained', Object.hasOwn(project.definitionLibrary.globalEffects, id));
 NODE
 ```
 
@@ -92,3 +106,11 @@ NODE
 输出依次为：项目打开 `true`；页面查询 `null`；共享查询返回项目效果 ID；页面捕获抛出 `global effect definition 'project:globalEffect:repro' does not exist`；共享捕获包含该 ID。
 
 最小建议是让页面联合查询复用同一项目组合规则，并保留定义提交/撤销时的缓存换代。不要只在捕获失败处回退到内置效果，那会改变用户选择的定义。验收应通过真实保存/打开后的项目视图，同时覆盖选择目录、主线程模拟、Worker 捕获，以及保存修改/撤销后的新定义；还需浏览器确认选择项目全局效果后的实际界面结果。
+
+## D07：当前方案导出丢失定义
+
+`projectFileSession.ts:12–51` 的裁剪只收集角色、武器、装备与套装，返回的 definitionLibrary 不包含 globalEffects，但保留场景 effectId。导出对话框的真实 scope 枚举是 `current | all`，当前方案按钮会发出 current；`TimelineEditor.vue:1180–1189` 的当前方案分享码也使用 current，PNG 导出复用该分享码。
+
+上述新增输出为：all 仍含项目效果；current 序列化后的库只有 operators/weapons/gears/gearSets，引用仍为项目 effectId；openProject 对该缺失定义的文件仍返回 true，但经正确的共享组合器捕获数据时失败。原项目保留定义（`original retained: true`），因此丢失发生在当前方案导出载荷，不是删除了原项目资产。这个缺口独立于 D06 的页面查询错误。
+
+后续应补齐当前方案导出的依赖闭包，并使打开校验能识别缺失的项目全局效果引用。验收比较 all/current 保存内容，检查重新打开后主线程与 Worker 使用相同项目效果；覆盖启用和保存但禁用的引用，并确认未引用的模板仍可裁剪。不要把静默回退内置效果或忽略该引用当成修复。

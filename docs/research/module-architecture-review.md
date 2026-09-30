@@ -28,7 +28,7 @@
 | M03  | 离线动作投影、引用、领域组装与优化：`tools/game-data-compiler/src/compiler`、`tools/game-data-compiler/src/domains` | 89 + 39 个 TS 文件（含 M04）      | [游戏数据](../architecture/game-data.md)、[动作图](../architecture/action-graphs.md)                            | 关键路径已查 |
 | M04  | 候选构建、验证、发布和回滚：编译器 `build/publication` 与脚本                                                       | 脚本 52 个 TS 文件                | 工具 README、[游戏数据](../architecture/game-data.md)                                                           | 关键路径已查 |
 | M05  | 正式数据登记、按需加载和项目覆盖：`src/data`                                                                        | 435 个 TS 文件，主要为生成定义    | [游戏数据](../architecture/game-data.md)                                                                        | 关键路径已查 |
-| M06  | 项目格式、编辑事务、草稿与存储：`core/project`、`application/editor`、`application/openProject`、存储适配           | 11 + 16 个 TS 文件及存储适配      | [编辑器](../architecture/editor.md)                                                                             | 待查         |
+| M06  | 项目格式、编辑事务、草稿与存储：`core/project`、`application/editor`、`application/openProject`、存储适配           | 11 + 16 个 TS 文件及存储适配      | [编辑器](../architecture/editor.md)                                                                             | 关键路径已查 |
 | M07  | 图校验、场景编译、构筑和机制：`core/action-graph`、`compiler`、`mechanics`                                          | 3 + 25 + 4 个 TS 文件             | [动作图](../architecture/action-graphs.md)、[游戏数据](../architecture/game-data.md)                            | 待查         |
 | M08  | 战斗数据图、装配及恢复：`combat/state`、`combat/runtime`                                                            | 6 + 34 个 TS 文件（含恢复与输入） | [战斗](../architecture/combat.md)、[切面](../architecture/checkpoints.md)                                       | 待查         |
 | M09  | 时钟、变速、随机：`combat/time`、`combat/random`                                                                    | 5 + 3 个 TS 文件                  | [战斗](../architecture/combat.md)、[随机](../architecture/randomness.md)                                        | 待查         |
@@ -48,7 +48,7 @@
 ## 当前进度
 
 - 库存和检查顺序已记录。
-- M01–M05 数据供应链关键路径已核查；D04 测试守卫盲区和 D06 页面项目效果查询缺口已记录，未修改生产代码。下一组是 M06 项目/编辑/存储与 M07 场景编译，再向战斗内部推进。
+- M01–M06 关键路径已核查。待整改的重要项为 D07 当前方案导出缺失定义、D06 页面项目效果查询遗漏、D04 测试守卫盲区；均未自动修代码。下一项 M07 场景编译，随后按清单进入战斗内部。
 - 新发现只给出证据、风险和最小整改建议；此次后续模块检查不自动修改生产逻辑。
 
 ## M01：共享契约、查询协议与校验
@@ -157,3 +157,25 @@ npx vitest run tools/game-data-compiler/test/dataContractBoundaries.test.ts --ma
 - 未逐一核对全部生成定义数值；未模拟浏览器模块下载失败后的缓存策略、真实断网和内存驻留曲线。D06 的源代码链和边界实验不能替代后续浏览器验收。
 
 - M05 验证：按需仓库、项目模板库、模拟数据包、openProject 和工作区资产会话 5 个原生文件、36 项通过；D06 文档中的命令已逐字提取重跑，输出与记录一致。通过的下层测试没有覆盖页面手写组合器，因此不抵消 D06 证据。
+
+## M06：项目、编辑事务、草稿与存储
+
+已追踪 parse/openProject 的结构与定义校验、项目/场景统一历史、编辑约束与替换边界、草稿复制/冻结/保存、文件读取代次与 revision、IndexedDB 自动保存与离页保护，以及 current/all 导出裁剪。稳定说明见[项目进入编辑与持久化](../architecture/editor.md#项目进入编辑与持久化)。
+
+证据：`src/core/project/serialization.ts:55–129`、`definitionValidation.ts:22–52`、`src/application/editor/projectEditorSession.ts:59–83,108–219`、`scenarioEditorSession.ts:74–149`、`definitionDraftSession.ts:12–87`、`src/ui/timeline/projectFileSession.ts:12–160`、`src/data/browserProjectStorage.ts:10–66`。nativeBridge 只提供返回键/就绪通知，不是项目存储后端。
+
+### D07：当前方案导出保留引用却丢弃全局效果定义
+
+类型：已复现的导出载荷缺失。`selectProjectExportScope(project, 'current')` 返回的新 definitionLibrary 只包含角色/武器/装备/套装；合法场景中的项目全局 effectId 仍在，但对应定义没有被带入。完整 all 导出和原项目仍有该定义。
+
+实际导出对话框支持 current/all，当前方案分享码和 PNG 内嵌项目码复用 current 路径。原生工作区创建 → 保存 → current 裁剪 → serialize 成功，保存内容可直接看见缺失的 globalEffects；重新 openProject 仍返回 true，因为当前定义引用校验覆盖构筑/敌人/机制，未检查全局效果引用。随后使用正确的共享项目查询组合器捕获数据也失败，排除了仅由 D06 页面查询器造成的可能。
+
+完整命令、全量/当前对照及保留原项目的证据已补到[全局效果复现](project-global-effect-reproduction.md#d07当前方案导出丢失定义)。需要补当前方案依赖闭包及全局效果引用校验，优先于一般防回归整理；不能仅阻止页面查询报错而继续导出不完整的文件。本次未修生产代码，未做浏览器下载/PNG 重开端到端。
+
+### 所有权与其他边界
+
+- R1 是不均匀的保护：页面接入初始项目时先复制，图草稿/图发布有深冻结，但通用项目命令依然靠不可变约定。没有发现现有正常命令原地污染历史的具体路径。
+- 项目/场景通知发生在 snapshot 更新之后，当前实现不隔离所有订阅者异常。这是已查明的失败语义，不把它等同于已经复现用户操作丢失；后续若要求观察层异常隔离，需要独立验收提交结果与历史一致性。
+- 未检查真实浏览器配额、跨标签页数据库版本切换或机器中断时的持久性；自动保存单元路径不能作为用户已拥有外部备份的证明。
+
+- M06 验证：项目结构/引用、项目/场景会话、编辑约束、草稿/不可变图、文件会话和 nativeBridge 9 个原生文件、56 项通过。D07 文档代码逐字提取重跑；current/all 载荷、重新打开和正确共享查询的对照输出与记录一致。
