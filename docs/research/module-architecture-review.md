@@ -40,7 +40,7 @@
 | M15  | 能力实体、投射物及延迟后果：abilities 中对应目录与装配 hooks                                                        | 库存计入 M08/M12                  | [战斗](../architecture/combat.md)、[切面](../architecture/checkpoints.md)                                       | 关键路径已查 |
 | M16  | 伤害、治疗、附着与状态：`combat/damage/heal/infliction/status`                                                      | 21 + 3 + 9 + 7 个 TS 文件         | [战斗](../architecture/combat.md)、[结果](../architecture/results.md)                                           | 关键路径已查 |
 | M17  | 回执、投影与来源：`combat/receipt`、`core/projection`                                                               | 4 + 30 个 TS 文件                 | [结果](../architecture/results.md)                                                                              | 关键路径已查 |
-| M18  | 场景服务、输入排程、增量/继承、线程与发布：`application/simulation`、`core/pipeline`                                | 17 + 1 个 TS 文件                 | [编辑器](../architecture/editor.md)、[切面](../architecture/checkpoints.md)、[结果](../architecture/results.md) | 待查         |
+| M18  | 场景服务、输入排程、增量/继承、线程与发布：`application/simulation`、`core/pipeline`                                | 17 + 1 个 TS 文件                 | [编辑器](../architecture/editor.md)、[切面](../architecture/checkpoints.md)、[结果](../architecture/results.md) | 关键路径已查 |
 | M19  | 旧方案格式转换与重排：`application/legacyTimeline`、`tools/legacy-timeline`                                         | 9 + 3 个 TS 文件                  | [编辑器](../architecture/editor.md)、工具 README                                                                | 待查         |
 
 库存统计来自基线目录，排除常规测试、类型断言、性能测试和明确测试支持目录；数字仅帮助理解范围，不表示已经阅读相同数量文件。UI 手势、样式、设计系统、图表安装/纯展示辅助和发布托管不属于本次核心模块的独立审查项，只在输入/输出边界需要时读取。
@@ -48,7 +48,7 @@
 ## 当前进度
 
 - 库存和检查顺序已记录。
-- M01–M17 关键路径已核查。待整改的重要项为 D07 当前方案导出缺失定义、D06 页面项目效果查询遗漏、D04 测试守卫盲区；均未自动修代码。下一项 M18 应用模拟发布，最后 M19 旧轴转换。
+- M01–M18 关键路径已核查。待整改的重要项为 D07 当前方案导出缺失定义、D06 页面项目效果查询遗漏、D04 测试守卫盲区；均未自动修代码。剩余 M19 旧轴转换，随后汇总优先级与本轮覆盖边界。
 - 新发现只给出证据、风险和最小整改建议；此次后续模块检查不自动修改生产逻辑。
 
 ## M01：共享契约、查询协议与校验
@@ -256,3 +256,52 @@ npx vitest run tools/game-data-compiler/test/dataContractBoundaries.test.ts --ma
 - 来源索引与贡献不是同一目的：前者追事实关系，后者只分配已支持直接修正。未归因和退回自身保留诊断，不能从缺少贡献推断该 Buff 不影响战斗。
 - 验证：receipt 与 projection 31 个原生文件、143 项通过，覆盖固定历史/游标、同帧顺序、曲线连续性、历史截止、同名实例和贡献金额守恒。
 - 未查范围：未做来源图真实浏览器布局/主题/交互验收，未证明所有当前生成效果都能拆分贡献；投影测试不是原生公式验证。
+
+## M18：应用模拟、输入排程、线程与发布
+
+已追踪真实工厂/页面调用、全量/增量/继承选择、排程前缀保存、缓存清理、Worker single-active/latest-pending、取消/revision/dispose、结果重建、性能观察隔离和页面 epoch 发布。稳定文档见[模拟服务](../architecture/simulation-services.md)。
+
+证据：`scenarioSimulationService.ts:321–355,447–550`、`incrementalScenarioSimulation.ts:28–56,91–165,192–219`、`inheritedScenarioSimulation.ts:27–135`、`workerScenarioSimulationService.ts:66–86,118–197`、`scenarioSimulation.worker.ts:17–65`、`src/ui/timeline/useScenarioSimulation.ts:96–175`。
+
+- H1/H2 原生回归仍通过。没有将性能观察隔离推广成游戏事件异常隔离，也未声称整个结果对象深冻结。
+- UI 确实允许同方案旧落点完整结果先发布并标 stale；已检查 epoch、方案身份与发布序号拒绝跨项目/倒序覆盖。不能把旧落点发布本身误报成版本 bug。
+- 验证：application/simulation 全目录 49 个原生文件、389 项通过；页面发布 1 文件、24 项通过。包含真实生成定义集成、全量/增量/继承、协议及替身 Worker；未运行真实浏览器 E2E。
+
+### D14：Worker 启动失败的响应边界
+
+类型：入口错误响应的结构风险；非法包实验已验证，合法用户输入可达性未证实。数据仓库恢复/服务创建在 handler 的 try/catch 外；下列重复公共来源包使真实入口返回 rejected Promise、发送 0 个响应。客户端监听 message/error/messageerror，未证明浏览器对 async handler 未处理拒绝会给客户端哪个事件，因此**不声称用户页面永久挂起**。
+
+在仓库根目录执行，仅打包原模块到内存，不修改源码：
+
+```sh
+node --input-type=module <<'NODE'
+import { build } from 'esbuild';
+import vm from 'node:vm';
+const compiled = await build({
+  entryPoints: ['src/application/simulation/scenarioSimulation.worker.ts'],
+  bundle: true, platform: 'node', format: 'cjs', write: false, logLevel: 'silent',
+});
+const sent = [];
+const self = { postMessage: message => sent.push(message) };
+vm.runInNewContext(compiled.outputFiles[0].text, {
+  self, console, performance, setTimeout, clearTimeout, structuredClone,
+  Map, Set, WeakMap, DOMException,
+});
+try {
+  await self.onmessage({ data: {
+    id: 1, revision: 0, scenario: {}, endFrame: 0,
+    gameData: {
+      revision: 'repro', selectionKey: 'repro',
+      commonDefinitionSources: [{ id: 'duplicate' }, { id: 'duplicate' }],
+      operators: [], weapons: [], gears: [], gearSets: [], enemies: [],
+      mechanics: [], consumables: [], globalEffects: [],
+    },
+  } });
+} catch (error) { console.log('handlerRejected:', error.message); }
+console.log('responses:', sent.length);
+NODE
+```
+
+实际输出：`handlerRejected: duplicate common definition source 'duplicate'`；`responses: 0`。这是直接调用真实 handler 的隔离实验，不是实际 Worker 浏览器调度。正式 capture 从已装配仓库取数据，尚未找到它产生此重复来源包的路径。
+
+最小建议：将服务初始化也纳入请求错误响应边界，增加真实入口初始化失败和后续请求测试；再用浏览器 Worker 验证错误传播。优先级低于 D06/D07 已证实功能缺口，暂不修改生产代码。
