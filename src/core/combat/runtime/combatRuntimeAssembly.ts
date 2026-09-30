@@ -193,6 +193,7 @@ import {
   type TimeDilationInstanceKind,
   type TimeDilationPrograms,
   type TimeDilationRuntimeConfig,
+  type TimeDilationRuntimeObserver,
 } from '../time/timeDilationRuntime';
 import type { CombatFrameInput } from './combatFrameInput';
 import { bindCombatFramePipeline } from './combatFramePipeline';
@@ -864,20 +865,7 @@ export class CombatRuntimeAssembly {
             : {
                 timeDilation: {
                   config: restoreOptions.timeDilation.config,
-                  observer: {
-                    started: (kind, instance, entityId) =>
-                      this.#recordTimeDilation('TimeDilationStarted', kind, instance, entityId),
-                    rejected: (kind, instance, entityId) =>
-                      this.#recordTimeDilation('TimeDilationRejected', kind, instance, entityId),
-                    ended: (kind, instance, reason, entityId) =>
-                      this.#recordTimeDilation(
-                        'TimeDilationEnded',
-                        kind,
-                        instance,
-                        entityId,
-                        reason,
-                      ),
-                  },
+                  observer: this.#createTimeDilationObserver(),
                 },
               }),
         },
@@ -1407,14 +1395,7 @@ export class CombatRuntimeAssembly {
       });
       this.simulation = frame.simulation;
       this.#enemyStatuses = frame.enemyStatuses;
-      this.#scheduledFrameInputs = {
-        skillInputs: () => {
-          this.#applyScheduledConsumables();
-          this.#dodgeInputRuntime.applyCurrentFrame(this.#dodgeInputState);
-          this.#inputRuntime.applyCurrentFrame();
-        },
-        externalEvents: () => this.#externalEventRuntime.applyCurrentFrame(),
-      };
+      this.#scheduledFrameInputs = this.#createScheduledFrameInputs();
       this.sharedState = sharedRuntime.runtimeState;
       this.stateGraph = preparation.graph;
       return;
@@ -1432,14 +1413,7 @@ export class CombatRuntimeAssembly {
         : {
             timeDilation: {
               config: options.timeDilation.config,
-              observer: {
-                started: (kind, instance, entityId) =>
-                  this.#recordTimeDilation('TimeDilationStarted', kind, instance, entityId),
-                rejected: (kind, instance, entityId) =>
-                  this.#recordTimeDilation('TimeDilationRejected', kind, instance, entityId),
-                ended: (kind, instance, reason, entityId) =>
-                  this.#recordTimeDilation('TimeDilationEnded', kind, instance, entityId, reason),
-              },
+              observer: this.#createTimeDilationObserver(),
             },
           }),
     });
@@ -1953,14 +1927,7 @@ export class CombatRuntimeAssembly {
       this.#inputRuntime = this.#createCombatInputRuntime(options);
       this.#dodgeInputRuntime = this.#createDodgeInputRuntime(options);
       this.#externalEventRuntime = this.#createExternalCombatEventRuntime(options);
-      this.#scheduledFrameInputs = {
-        skillInputs: () => {
-          this.#applyScheduledConsumables();
-          this.#dodgeInputRuntime.applyCurrentFrame(this.#dodgeInputState);
-          this.#inputRuntime.applyCurrentFrame();
-        },
-        externalEvents: () => this.#externalEventRuntime.applyCurrentFrame(),
-      };
+      this.#scheduledFrameInputs = this.#createScheduledFrameInputs();
       if (!options.deferInitialInput) {
         this.#operatorControl.advanceFrame();
         this.#scheduledFrameInputs.skillInputs?.();
@@ -2380,6 +2347,18 @@ export class CombatRuntimeAssembly {
         castId,
       ),
     );
+  }
+
+  /** 新建和恢复只绑定同一排程顺序，创建此对象不会提交输入或发布外部事件。 */
+  #createScheduledFrameInputs(): import('./combatSimulation').CombatFrameInputs {
+    return {
+      skillInputs: () => {
+        this.#applyScheduledConsumables();
+        this.#dodgeInputRuntime.applyCurrentFrame(this.#dodgeInputState);
+        this.#inputRuntime.applyCurrentFrame();
+      },
+      externalEvents: () => this.#externalEventRuntime.applyCurrentFrame(),
+    };
   }
 
   #createCombatInputRuntime(
@@ -3940,6 +3919,154 @@ export class CombatRuntimeAssembly {
     );
   }
 
+  /**
+   * 相同的实体/效果包装顺序只有一个装配入口。调用方分别提供来源、定义目录、子宿主工厂和
+   * 状态目标，不在这里猜技能/事件种类，也不创建或推进动作生命周期。
+   */
+  #wrapHostEffectOperations(options: {
+    readonly operatorId: string;
+    readonly definitionOperator: CombatOperatorProgram;
+    /** Buff 与全局 Buff 继续归因来源施放/来源事件。 */
+    readonly sourceActionId: string;
+    /** 当前技能/事件动作身份，供状态、时间与目标诊断使用。 */
+    readonly executionActionId: string;
+    readonly delegate: CombatOperationExecutor;
+    readonly resolveChildOperations: (state: CombatOperationHostState) => CombatOperationExecutor;
+    readonly resolveAbilityEntityDefinition: (
+      id: string,
+    ) => ResolvedAbilityEntityDefinition | undefined;
+    readonly resolveStatusTarget: (target: CombatTarget) => CombatStatusRuntime;
+    readonly isOperatorControlled: CombatRuntimeAssemblyOptions['isOperatorControlled'];
+    readonly resolveOperatorVitals: CombatRuntimeAssemblyOptions['resolveOperatorVitals'];
+    readonly operationHost: {
+      readonly state: CombatOperationHostState;
+      readonly programs: CombatOperationPrograms;
+    };
+  }): CombatOperationExecutor {
+    const {
+      operatorId,
+      definitionOperator,
+      sourceActionId,
+      executionActionId,
+      delegate,
+      resolveChildOperations,
+      resolveAbilityEntityDefinition,
+      resolveStatusTarget,
+      isOperatorControlled,
+      resolveOperatorVitals,
+      operationHost,
+    } = options;
+    const semanticOutputDelegate = new CombatSemanticOutputOperationExecutor({
+      sourceOperatorId: operatorId,
+      resolveTargetId: target => (target === 'enemy' ? 'enemy' : operatorId),
+      semanticEvents: this.semanticEvents,
+      emitPhysicalInfliction: payload => this.#publishPhysicalInfliction(payload),
+      clock: this.clock,
+      receipt: this.receipt,
+      delegate,
+    });
+    const deferredSkillCasts = this.#wrapSkillControlOperations(operatorId, semanticOutputDelegate);
+    const customAbilityEvents = new CustomAbilityEventOperationExecutor({
+      sourceId: operatorId,
+      emit: (entityId, payload) => {
+        if (this.#options.emitAbilityEvent === undefined) {
+          throw new Error('custom ability event requires an AbilitySystem event emitter');
+        }
+        this.#options.emitAbilityEvent(entityId, 'customAbilityEvent', payload);
+      },
+      delegate: deferredSkillCasts,
+    });
+    const targetContextOperations = new TargetContextOperationExecutor(
+      operatorId,
+      customAbilityEvents,
+      id => this.#resolveAbilitySystemSourceId(id),
+      {
+        listOperatorIds: () => this.#operatorOrder,
+        isOperatorControlled: candidate => {
+          if (isOperatorControlled === undefined) {
+            throw new Error(
+              `character-team query '${executionActionId}' requires the current controlled operator`,
+            );
+          }
+          return isOperatorControlled(candidate, this.clock.frame);
+        },
+        resolveVitals: candidate => {
+          if (resolveOperatorVitals === undefined) {
+            throw new Error(`character-team query '${executionActionId}' requires operator vitals`);
+          }
+          return resolveOperatorVitals(candidate);
+        },
+      },
+      id => this.#findAbilitySystemSource(id),
+      id => this.#resolveAbilityEntityObjectType(id),
+      () => this.projectileLifetimes.getUnfinishedTargets(),
+    );
+    const abilityEntityOperations = new AbilityEntityOperationExecutor(
+      operatorId,
+      this.abilityEntities,
+      targetContextOperations,
+      {
+        resolveOperations: resolveChildOperations,
+        semanticEvents: this.semanticEvents,
+        installPassiveSkills: (entity, definition) =>
+          this.#installAbilityEntityPassiveSkills(entity, definition),
+        programs: this.abilityEntityChildSkillPrograms,
+        ...this.#projectileRuntimeDependencies(operatorId),
+      },
+      resolveAbilityEntityDefinition,
+      { state: operationHost.state.abilityEntities, programs: operationHost.programs },
+    );
+    const timeDilationOperations = this.#wrapPresentationAndTimeOperations(
+      abilityEntityOperations,
+      operatorId,
+      executionActionId,
+      isOperatorControlled,
+      operationHost,
+    );
+    const buffOperations = new BuffOperationExecutor({
+      sourceId: operatorId,
+      definitionOwnerId: definitionOperator.operatorId,
+      readProcessingSkillCastId: ownerId =>
+        this.#abilitySystems.get(ownerId)?.currentProcessingSkillCastId,
+      sourceActionId,
+      resolveTarget: target => this.#resolveBuffTarget(target, operatorId),
+      resolveApplicationTargets: target =>
+        this.#resolveBuffApplicationTargets(
+          target,
+          operatorId,
+          isOperatorControlled,
+          resolveOperatorVitals,
+        ),
+      resolveCurrentAbilityEntityTarget: target =>
+        this.#resolveAbilityEntityBuffTarget(target, this.#options),
+      resolveAbilityEntityTimedMarkerSource: (target, markerId) =>
+        this.abilityEntities.timedMarkers(target).latestActiveSourceTargetId(markerId),
+      resolveEventTarget: targetId => this.#resolveBuffTargetById(targetId),
+      resolveBuffReference: reference => this.#resolveBuffReference(reference),
+      resolveBuffDefinition: buffId => definitionOperator.buffDefinitions?.[buffId],
+      onPhysicalInflictionApplied: event => this.#publishAfterPhysicalInfliction(event),
+      onBeforeOutputPhysicalInfliction: payload => this.#publishBeforePhysicalInfliction(payload),
+      delegate: timeDilationOperations,
+    });
+    const globalBuffOperations = new GlobalBuffOperationExecutor(
+      {
+        sourceId: operatorId,
+        sourceActionId,
+        runtime: this.globalBuffs,
+        delegate: buffOperations,
+      },
+      { state: operationHost.state.globalBuffs, programs: operationHost.programs },
+    );
+    return new StatusOperationExecutor({
+      sourceId: operatorId,
+      sourceActionId: executionActionId,
+      clock: this.clock,
+      receipt: this.receipt,
+      resolveTarget: resolveStatusTarget,
+      delegate: globalBuffOperations,
+    });
+  }
+
   #createOperationChain(options: {
     readonly operator: CombatOperatorProgram;
     /** 当前时间轴施放身份；定义程序本身始终与单次施放无关。 */
@@ -3998,127 +4125,31 @@ export class CombatRuntimeAssembly {
       receipt: this.receipt,
       semanticEvents: this.semanticEvents,
     });
-    const semanticOutputDelegate = new CombatSemanticOutputOperationExecutor({
-      sourceOperatorId: operatorId,
-      resolveTargetId: target => (target === 'enemy' ? 'enemy' : operatorId),
-      semanticEvents: this.semanticEvents,
-      emitPhysicalInfliction: payload => this.#publishPhysicalInfliction(payload),
-      clock: this.clock,
-      receipt: this.receipt,
-      delegate: terminalDelegate,
-    });
-    const deferredSkillCasts = this.#wrapSkillControlOperations(operatorId, semanticOutputDelegate);
-    const customAbilityEvents = new CustomAbilityEventOperationExecutor({
-      sourceId: operatorId,
-      emit: (entityId, payload) => {
-        if (this.#options.emitAbilityEvent === undefined) {
-          throw new Error('custom ability event requires an AbilitySystem event emitter');
-        }
-        this.#options.emitAbilityEvent(entityId, 'customAbilityEvent', payload);
-      },
-      delegate: deferredSkillCasts,
-    });
-    const targetContextOperations = new TargetContextOperationExecutor(
+    const statusOperations = this.#wrapHostEffectOperations({
       operatorId,
-      customAbilityEvents,
-      id => this.#resolveAbilitySystemSourceId(id),
-      {
-        listOperatorIds: () => this.#operatorOrder,
-        isOperatorControlled: candidate => {
-          if (isOperatorControlled === undefined) {
-            throw new Error(
-              `character-team query '${program.skillId}' requires the current controlled operator`,
-            );
-          }
-          return isOperatorControlled(candidate, this.clock.frame);
-        },
-        resolveVitals: candidate => {
-          if (resolveOperatorVitals === undefined) {
-            throw new Error(`character-team query '${program.skillId}' requires operator vitals`);
-          }
-          return resolveOperatorVitals(candidate);
-        },
-      },
-      id => this.#findAbilitySystemSource(id),
-      id => this.#resolveAbilityEntityObjectType(id),
-      () => this.projectileLifetimes.getUnfinishedTargets(),
-    );
-    const abilityEntityOperations = new AbilityEntityOperationExecutor(
-      operatorId,
-      this.abilityEntities,
-      targetContextOperations,
-      {
-        resolveOperations: state =>
-          this.#createOperationChain({
-            ...options,
-            operationHost: { state, programs: operationHost.programs },
-          }),
-        semanticEvents: this.semanticEvents,
-        installPassiveSkills: (entity, definition) =>
-          this.#installAbilityEntityPassiveSkills(entity, definition),
-        programs: this.abilityEntityChildSkillPrograms,
-        ...this.#projectileRuntimeDependencies(operatorId),
-      },
-      abilityEntityId =>
-        this.#resolveOperatorAbilityEntityDefinition(definitionOperator, abilityEntityId, program),
-      { state: operationHost.state.abilityEntities, programs: operationHost.programs },
-    );
-    const timeDilationOperations = this.#wrapPresentationAndTimeOperations(
-      abilityEntityOperations,
-      operatorId,
-      program.skillId,
-      isOperatorControlled,
-      operationHost,
-    );
-    const buffOperations = new BuffOperationExecutor({
-      sourceId: operatorId,
-      definitionOwnerId: definitionOperator.operatorId,
-      readProcessingSkillCastId: ownerId =>
-        this.#abilitySystems.get(ownerId)?.currentProcessingSkillCastId,
+      definitionOperator,
       sourceActionId,
-      resolveTarget: target => this.#resolveBuffTarget(target, operatorId),
-      resolveApplicationTargets: target =>
-        this.#resolveBuffApplicationTargets(
-          target,
-          operatorId,
-          isOperatorControlled,
-          resolveOperatorVitals,
-        ),
-      resolveCurrentAbilityEntityTarget: target =>
-        this.#resolveAbilityEntityBuffTarget(target, this.#options),
-      resolveAbilityEntityTimedMarkerSource: (target, markerId) =>
-        this.abilityEntities.timedMarkers(target).latestActiveSourceTargetId(markerId),
-      resolveEventTarget: targetId => this.#resolveBuffTargetById(targetId),
-      resolveBuffReference: reference => this.#resolveBuffReference(reference),
-      resolveBuffDefinition: buffId => definitionOperator.buffDefinitions?.[buffId],
-      onPhysicalInflictionApplied: event => this.#publishAfterPhysicalInfliction(event),
-      onBeforeOutputPhysicalInfliction: payload => this.#publishBeforePhysicalInfliction(payload),
-      delegate: timeDilationOperations,
-    });
-    const globalBuffOperations = new GlobalBuffOperationExecutor(
-      {
-        sourceId: operatorId,
-        sourceActionId,
-        runtime: this.globalBuffs,
-        delegate: buffOperations,
-      },
-      { state: operationHost.state.globalBuffs, programs: operationHost.programs },
-    );
-    const statusOperations = new StatusOperationExecutor({
-      sourceId: operatorId,
-      sourceActionId: program.skillId,
-      clock: this.clock,
-      receipt: this.receipt,
-      resolveTarget: target => {
-        const targetRuntime = target === 'enemy' ? this.#enemyStatuses : statusRuntime;
-        if (targetRuntime === undefined) {
+      executionActionId: program.skillId,
+      delegate: terminalDelegate,
+      resolveChildOperations: state =>
+        this.#createOperationChain({
+          ...options,
+          operationHost: { state, programs: operationHost.programs },
+        }),
+      resolveAbilityEntityDefinition: abilityEntityId =>
+        this.#resolveOperatorAbilityEntityDefinition(definitionOperator, abilityEntityId, program),
+      resolveStatusTarget: target => {
+        const runtime = target === 'enemy' ? this.#enemyStatuses : statusRuntime;
+        if (runtime === undefined) {
           throw new Error(
             `combat ${target} '${target === 'enemy' ? 'enemy' : operatorId}' has no status runtime`,
           );
         }
-        return targetRuntime;
+        return runtime;
       },
-      delegate: globalBuffOperations,
+      isOperatorControlled,
+      resolveOperatorVitals,
+      operationHost,
     });
     const operationChain = this.#wrapCommonActionOperations({
       operator,
@@ -4181,124 +4212,27 @@ export class CombatRuntimeAssembly {
       state: restoredOperationHost ?? createCombatOperationHostState(),
       programs: this.combatOperationPrograms,
     };
-    const semanticOutputOperations = new CombatSemanticOutputOperationExecutor({
-      sourceOperatorId: operatorId,
-      resolveTargetId: target => (target === 'enemy' ? 'enemy' : operatorId),
-      semanticEvents: this.semanticEvents,
-      emitPhysicalInfliction: payload => this.#publishPhysicalInfliction(payload),
-      clock: this.clock,
-      receipt: this.receipt,
-      delegate: terminal,
-    });
-    const deferredSkillCasts = this.#wrapSkillControlOperations(
-      operatorId,
-      semanticOutputOperations,
-    );
-    const customAbilityEvents = new CustomAbilityEventOperationExecutor({
-      sourceId: operatorId,
-      emit: (entityId, payload) => {
-        if (options.emitAbilityEvent === undefined) {
-          throw new Error('custom ability event requires an AbilitySystem event emitter');
-        }
-        options.emitAbilityEvent(entityId, 'customAbilityEvent', payload);
-      },
-      delegate: deferredSkillCasts,
-    });
-    const targetContextOperations = new TargetContextOperationExecutor(
-      operatorId,
-      customAbilityEvents,
-      id => this.#resolveAbilitySystemSourceId(id),
-      {
-        listOperatorIds: () => this.#operatorOrder,
-        isOperatorControlled: candidate => {
-          if (options.isOperatorControlled === undefined) {
-            throw new Error(
-              `character-team query '${sourceActionId}' requires the current controlled operator`,
-            );
-          }
-          return options.isOperatorControlled(candidate, this.clock.frame);
-        },
-        resolveVitals: candidate => {
-          if (options.resolveOperatorVitals === undefined) {
-            throw new Error(`character-team query '${sourceActionId}' requires operator vitals`);
-          }
-          return options.resolveOperatorVitals(candidate);
-        },
-      },
-      id => this.#findAbilitySystemSource(id),
-      id => this.#resolveAbilityEntityObjectType(id),
-      () => this.projectileLifetimes.getUnfinishedTargets(),
-    );
-    const abilityEntityOperations = new AbilityEntityOperationExecutor(
-      operatorId,
-      this.abilityEntities,
-      targetContextOperations,
-      {
-        resolveOperations: state =>
-          this.#createReactiveOperationChain(operator, sourceActionId, terminal, options, state),
-        semanticEvents: this.semanticEvents,
-        installPassiveSkills: (entity, definition) =>
-          this.#installAbilityEntityPassiveSkills(entity, definition),
-        programs: this.abilityEntityChildSkillPrograms,
-        ...this.#projectileRuntimeDependencies(operatorId),
-      },
-      abilityEntityId => this.#resolveOperatorAbilityEntityDefinition(operator, abilityEntityId),
-      { state: operationHost.state.abilityEntities, programs: operationHost.programs },
-    );
-    const timeDilationOperations = this.#wrapPresentationAndTimeOperations(
-      abilityEntityOperations,
-      operatorId,
-      sourceActionId,
-      options.isOperatorControlled,
-      operationHost,
-    );
-    const buffOperations = new BuffOperationExecutor({
-      sourceId: operatorId,
-      sourceActionId,
-      readProcessingSkillCastId: ownerId =>
-        this.#abilitySystems.get(ownerId)?.currentProcessingSkillCastId,
-      resolveTarget: target => this.#resolveBuffTarget(target, operatorId),
-      resolveApplicationTargets: target =>
-        this.#resolveBuffApplicationTargets(
-          target,
-          operatorId,
-          options.isOperatorControlled,
-          options.resolveOperatorVitals,
-        ),
-      resolveCurrentAbilityEntityTarget: target =>
-        this.#resolveAbilityEntityBuffTarget(target, options),
-      resolveAbilityEntityTimedMarkerSource: (target, markerId) =>
-        this.abilityEntities.timedMarkers(target).latestActiveSourceTargetId(markerId),
-      resolveEventTarget: targetId => this.#resolveBuffTargetById(targetId),
-      resolveBuffReference: reference => this.#resolveBuffReference(reference),
-      resolveBuffDefinition: buffId => operator.buffDefinitions?.[buffId],
-      onPhysicalInflictionApplied: event => this.#publishAfterPhysicalInfliction(event),
-      onBeforeOutputPhysicalInfliction: payload => this.#publishBeforePhysicalInfliction(payload),
-      delegate: timeDilationOperations,
-    });
-    const globalBuffOperations = new GlobalBuffOperationExecutor(
-      {
-        sourceId: operatorId,
-        sourceActionId,
-        runtime: this.globalBuffs,
-        delegate: buffOperations,
-      },
-      { state: operationHost.state.globalBuffs, programs: operationHost.programs },
-    );
     const statusRuntime = this.#operatorStatuses.get(operatorId);
-    const statusOperations = new StatusOperationExecutor({
-      sourceId: operatorId,
+    const statusOperations = this.#wrapHostEffectOperations({
+      operatorId,
+      definitionOperator: operator,
       sourceActionId,
-      clock: this.clock,
-      receipt: this.receipt,
-      resolveTarget: target => {
+      executionActionId: sourceActionId,
+      delegate: terminal,
+      resolveChildOperations: state =>
+        this.#createReactiveOperationChain(operator, sourceActionId, terminal, options, state),
+      resolveAbilityEntityDefinition: abilityEntityId =>
+        this.#resolveOperatorAbilityEntityDefinition(operator, abilityEntityId),
+      resolveStatusTarget: target => {
         const runtime = target === 'enemy' ? this.#enemyStatuses : statusRuntime;
         if (runtime === undefined) {
           throw new Error(`reactive event target '${target}' has no status runtime`);
         }
         return runtime;
       },
-      delegate: globalBuffOperations,
+      isOperatorControlled: options.isOperatorControlled,
+      resolveOperatorVitals: options.resolveOperatorVitals,
+      operationHost,
     });
     const operationChain = this.#wrapCommonActionOperations({
       operator,
@@ -4451,6 +4385,18 @@ export class CombatRuntimeAssembly {
       },
       { state: binding.state.timeDilation, programs: binding.programs },
     );
+  }
+
+  /** 两条装配路径共用回执映射；恢复绑定本身不重放历史通知。 */
+  #createTimeDilationObserver(): TimeDilationRuntimeObserver {
+    return {
+      started: (kind, instance, entityId) =>
+        this.#recordTimeDilation('TimeDilationStarted', kind, instance, entityId),
+      rejected: (kind, instance, entityId) =>
+        this.#recordTimeDilation('TimeDilationRejected', kind, instance, entityId),
+      ended: (kind, instance, reason, entityId) =>
+        this.#recordTimeDilation('TimeDilationEnded', kind, instance, entityId, reason),
+    };
   }
 
   #recordTimeDilation(

@@ -5866,7 +5866,11 @@ describe('CombatRuntimeAssembly', () => {
 });
 
 describe('普通技能与响应式事件的公共动作装配', () => {
-  function setup(sequence: ResolvedActionSequence) {
+  function setup(
+    sequence: ResolvedActionSequence,
+    lifecycle: Pick<CombatOperationExecutor, 'prepare' | 'end'> &
+      Partial<Pick<CombatOperationExecutor, 'evaluate'>> = {},
+  ) {
     const native = createNativeEventFixture();
     const vitals = new CombatVitals({
       health: 80,
@@ -5941,10 +5945,15 @@ describe('普通技能与响应式事件的公共动作装配', () => {
         return vitals;
       },
       isOperatorControlled: id => id === 'operator',
-      createOperationExecutor: () => ({ execute: normalTerminal, evaluate: () => false }),
+      createOperationExecutor: () => ({
+        execute: normalTerminal,
+        evaluate: () => false,
+        ...lifecycle,
+      }),
       createEquipmentEventOperationExecutor: () => ({
         execute: reactiveTerminal,
         evaluate: () => false,
+        ...lifecycle,
       }),
     });
     return {
@@ -6054,6 +6063,66 @@ describe('普通技能与响应式事件的公共动作装配', () => {
       expect(vitals.runtimeState.healthFloors.size).toBe(0);
       vitals.takeDamage(100);
       expect(vitals.health).toBe(0);
+    },
+  );
+
+  it.each(['skill', 'reactive'] as const)(
+    '%s 按原生命周期把准备、条件、执行和结束交到同一末端',
+    path => {
+      const calls: string[] = [];
+      const boards: ActionBlackboard[] = [];
+      const { assembly, trigger, normalTerminal, reactiveTerminal } = setup(
+        compileGraphEntry(`terminal-lifecycle-${path}`, 'condition', {
+          condition: {
+            action: {
+              kind: 'conditional',
+              parameters: { condition: { kind: 'elementalReactionActive', reaction: 'corrosion' } },
+              whenTrue: { $sequence: 'damage' },
+            },
+            next: null,
+          },
+          damage: {
+            action: {
+              kind: 'dealDamage',
+              parameters: { damageType: 'physical', attackScale: 1, tags: [] },
+            },
+            next: null,
+          },
+        }),
+        {
+          prepare: (step, context) => {
+            if (step.kind === 'dealDamage') {
+              calls.push('prepare');
+              boards.push(context.blackboard);
+            }
+          },
+          evaluate: condition => {
+            expect(condition.kind).toBe('elementalReactionActive');
+            calls.push('evaluate');
+            return true;
+          },
+          end: step => {
+            if (step.kind === 'dealDamage') calls.push('end');
+          },
+        },
+      );
+      const terminal = path === 'skill' ? normalTerminal : reactiveTerminal;
+      terminal.mockImplementation(() => {
+        calls.push('execute');
+        return true;
+      });
+      trigger(path);
+      if (path === 'skill') assembly.advanceFrame();
+      const cycle =
+        path === 'skill'
+          ? ['prepare', 'evaluate', 'execute', 'end']
+          : ['evaluate', 'execute', 'end', 'prepare'];
+      expect(calls).toEqual(cycle);
+      if (path === 'skill') assembly.advanceFrame();
+      trigger(path);
+      if (path === 'skill') assembly.advanceFrame();
+      expect(calls).toEqual([...cycle, ...cycle]);
+      expect(new Set(boards).size).toBe(1);
     },
   );
 
