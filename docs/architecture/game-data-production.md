@@ -80,3 +80,24 @@
 [用途分析](../../tools/game-data-compiler/src/compiler/optimization/definitionUsageAnalysis.ts) 分别记录本地读取/写入、带选择器的外部读取、未知访问、可能抛错和可观察行为。没人读取一个输出键，不代表整个动作可以删掉：随机流、事件、属性刷新或缺失运行环境仍可能影响后续执行。无法证明实体/宿主接收者完整时，保留相关值。
 
 `off` 保留原定义；`report` 计算候选和报告但返回原定义；`apply` 才返回优化产物。优化后的大小不是验收目标，验收必须在相同冻结来源与随机策略下比较有序回执、资源、状态和来源。职责及公共类型的完整约束仍见[游戏数据](game-data.md#编译优化)和[动作图](action-graphs.md)。
+
+## 候选验证与正式发布
+
+[rebuildGameData](../../tools/game-data-compiler/scripts/rebuildGameData.ts) 是完整版本生产的编排者。每一步记录 passed、failed 或 blocked；独立阶段可以继续收集结果，但有失败/阻塞不能发布。它负责验证前提，[文件发布器](../../tools/game-data-compiler/src/compiler/publication/gameDataCandidatePublisher.ts) 只负责安全安装已验证候选，不解释游戏语义。
+
+候选必须在未来正式路径的上下文中验证，否则相对导入、手写入口与公共定义可能引用错误的数据。
+
+- [候选类型视图](../../tools/game-data-compiler/src/compiler/publication/candidateTypeCheck.ts) 用 TypeScript host 映射候选文件，不覆盖工作树。完整替换目录遮蔽旧文件，缺少登记产物立即失败。
+- [候选运行视图](../../tools/game-data-compiler/src/compiler/publication/candidateRuntimeOverlay.ts) 让模拟加载同一批候选；完整替换目录中缺文件不能回退正式库，未替换的手写模块才允许共用。它是模块解析适配，不是完整候选验证器，不能代替先前的产物完整性和类型检查。
+- [候选运行服务](../../tools/game-data-compiler/src/compiler/publication/candidateRuntimeServer.ts) 关闭监听和 HMR，专供审计加载；初始化失败主动关闭，成功返回后由调用方负责关闭。
+- 生成结束后再次核对来源快照哈希，防止把变化中的来源当成同一批。独立确定性生成、类型、资源和模拟等阶段全部通过，且显式请求完整发布后，才调用文件发布器。
+
+### 发布所有权与恢复
+
+发布清单区分“完全由生成器拥有的目录”和“混合目录中的指定文件”。前者按候选同步并删除过期成员；后者只替换登记文件，不删除手写入口、辅助逻辑或测试。新增领域必须同时检查生成入口、候选覆盖、验证阶段、发布清单和消费者，不是把一个文件写到 `src/data` 就完成集成。
+
+发布器先验证全部源/目标路径、类型和链接约束，将候选及现有目标复制到事务暂存与备份区，再开始修改正式输出内容。安装失败按相反顺序恢复已经开始修改的输出；回滚也失败时聚合错误并保留恢复材料，不能把它报告为成功。
+
+这是**可恢复的多文件事务，不是整个目录树的原子切换**。为兼容开发服务器监听下的 Windows 目录限制，正式目录根不重命名，文件逐个安装；过程中并发读者可能看到混合状态。它也不等于崩溃恢复日志：异常回滚与进程/机器中断后的恢复需要区分。
+
+候选成功但未请求完整发布的退出结果，与正式发布成功不同。操作时应读取 report 的 stages、published、fullRebuild 和 remaining，具体命令及退出码以[工具说明](../../tools/game-data-compiler/README.md#4-发布与复核)为准。

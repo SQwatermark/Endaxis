@@ -26,7 +26,7 @@
 | M01  | 共享契约、定义查询协议与校验：`packages/game-data-contract/src`、`src/core/game-data`                               | 17 + 25 个 TS 文件                | [游戏数据](../architecture/game-data.md)                                                                        | 关键路径已查 |
 | M02  | 离线来源读取、缓存、版本与来源追踪：`tools/game-data-compiler/src/source`                                           | 107 个 TS 文件                    | [游戏数据](../architecture/game-data.md)、工具 README                                                           | 关键路径已查 |
 | M03  | 离线动作投影、引用、领域组装与优化：`tools/game-data-compiler/src/compiler`、`tools/game-data-compiler/src/domains` | 89 + 39 个 TS 文件（含 M04）      | [游戏数据](../architecture/game-data.md)、[动作图](../architecture/action-graphs.md)                            | 关键路径已查 |
-| M04  | 候选构建、验证、发布和回滚：编译器 `build/publication` 与脚本                                                       | 脚本 52 个 TS 文件                | 工具 README、[游戏数据](../architecture/game-data.md)                                                           | 待查         |
+| M04  | 候选构建、验证、发布和回滚：编译器 `build/publication` 与脚本                                                       | 脚本 52 个 TS 文件                | 工具 README、[游戏数据](../architecture/game-data.md)                                                           | 关键路径已查 |
 | M05  | 正式数据登记、按需加载和项目覆盖：`src/data`                                                                        | 435 个 TS 文件，主要为生成定义    | [游戏数据](../architecture/game-data.md)                                                                        | 待查         |
 | M06  | 项目格式、编辑事务、草稿与存储：`core/project`、`application/editor`、存储适配                                      | 11 + 16 个 TS 文件及存储适配      | [编辑器](../architecture/editor.md)                                                                             | 待查         |
 | M07  | 图校验、场景编译、构筑和机制：`core/action-graph`、`compiler`、`mechanics`                                          | 3 + 25 + 4 个 TS 文件             | [动作图](../architecture/action-graphs.md)、[游戏数据](../architecture/game-data.md)                            | 待查         |
@@ -48,7 +48,7 @@
 ## 当前进度
 
 - 库存和检查顺序已记录。
-- M01–M03 的关键路径已核查；发现 D04 投影层守卫入口失效，已记录但未改代码。接下来检查 M04 候选验证/发布，再到 M05 正式加载和项目覆盖。
+- M01–M04 的关键路径已核查；D04 测试守卫盲区已记录但未改代码。当前进入 M05 正式加载、项目覆盖与缓存换代。
 - 新发现只给出证据、风险和最小整改建议；此次后续模块检查不自动修改生产逻辑。
 
 ## M01：共享契约、查询协议与校验
@@ -124,3 +124,14 @@ npx vitest run tools/game-data-compiler/test/dataContractBoundaries.test.ts --ma
 - 尚未逐个证明所有原生动作和场景策略分支，未做完整冻结来源的优化前后全量重建。已检查的是控制流与所有权规则、代表性拒绝路径和原生测试，不是全部角色语义验收。
 
 - M03 验证：序列编排、Buff 投影、静态引用闭包、角色闭包、用途分析和资源图优化共 6 文件、136 项通过；另 1 个真实来源优化对照文件的 3 项因缺少 `ENDAXIS_HIDE_UI_SOURCE_ROOT` / `ENDAXIS_HIDE_UI_GLOBAL_BUFF_CATALOG` 跳过。未宣称优化的全部真实资源双路等价已通过。
+
+## M04：候选验证、发布与回滚
+
+已追踪 rebuild 的阶段报告、第二轮独立生成失败、候选类型/运行覆盖、来源复核、完整发布 gate，以及 publisher 的预备、安装、逆序回滚。稳定说明见[候选验证与正式发布](../architecture/game-data-production.md#候选验证与正式发布)。
+
+证据：`scripts/rebuildGameData.ts:74–106,817–861,928–991`；`src/compiler/publication/candidateTypeCheck.ts:17–64`、`candidateRuntimeOverlay.ts:18–85`、`candidateRuntimeServer.ts:23–59`、`gameDataCandidatePublisher.ts:148–242`。
+
+- **D05（发布责任约束），非已证实缺陷：** 文件发布器信任调用方已完成语义/模拟/来源校验，它本身只验证文件事务条件。运行覆盖器也不是候选完整性校验器。新增入口不能绕过 rebuild 的前提；目前读取的正式 rebuild 在全部阶段 passed 且显式 publish 时才调用它。
+- **原子性限制：** 现有实现有意逐文件安装并保留目录根，不提供并发读者看不到中间状态的保证，也不提供进程崩溃后的自动恢复日志。本次没有把 catch 回滚测试外推成断电安全。
+- **验证：** candidate publisher、runtime overlay、type check、asset check、rebuild、combat rebuild 6 文件、50 项通过；包括先验证全部目标、安装中途失败恢复、文件/目录类型变化、候选缺失不读旧生成成员以及第二轮生成失败阻断发布。
+- **未查范围：** 未实际发布整套原始资源，没有进行真实 Windows 文件锁、磁盘满、进程中断或回滚再次失败的系统实验；测试使用仓库自身隔离文件夹和故障替身。没有发现需要自动修改代码的新发布缺陷。
