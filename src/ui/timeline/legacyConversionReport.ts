@@ -28,7 +28,7 @@ export function formatLegacyConversionReport(report: LegacyConversionReportView)
   if (report.fatalIssues.length > 0) {
     lines.push('无法建立可打开的新版项目。');
   } else if (report.issues.length > 0) {
-    lines.push('项目已转换并打开。无法转换的局部内容已省略或保留为直接转换结果。');
+    lines.push('项目已转换并打开，仍有需要检查的问题。请核对下方转换与最终模拟诊断。');
   } else {
     lines.push('项目已完整转换。');
   }

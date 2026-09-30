@@ -1,3 +1,4 @@
+import { validateLegacyFinalSimulation } from './finalSimulationValidation';
 import { prepareLegacySource, type ConversionMappings } from './sourcePreparation';
 import { createLegacyProjectImporter } from './projectConversion';
 import { parseProjectDocument } from '../../core/project/serialization';
@@ -296,6 +297,22 @@ export function convertLegacyTimeline(
     const checked = parseProjectDocument(project, { gameDataRepository: repository });
     if (!checked.ok) fatalIssues.push({ path: '', message: JSON.stringify(checked) });
   }
+  const finalSimulation =
+    project !== null && fatalIssues.length === 0
+      ? validateLegacyFinalSimulation(project, runSimulation)
+      : [];
+  for (const result of finalSimulation) {
+    if (result.status === 'failed')
+      issues.push({
+        path: result.path,
+        message: `最终整轴模拟失败，项目已保留供编辑：${result.message}`,
+      });
+    else if (result.status === 'issues')
+      issues.push({
+        path: result.path,
+        message: `最终整轴模拟存在诊断：可用性 ${result.availability.length} 项、执行 ${result.execution.length} 项、连携窗口 ${result.comboWindow.length} 项、闪避 ${result.dodges.length} 项、拒绝输入 ${result.rejectedInputs.length} 项。请检查技能块和闪避标签的诊断，项目已保留供编辑。`,
+      });
+  }
   return {
     status:
       project === null || fatalIssues.length > 0
@@ -306,6 +323,7 @@ export function convertLegacyTimeline(
     project: fatalIssues.length === 0 ? project : null,
     report: {
       timingMode: options.timingMode ?? 'repair',
+      finalSimulation,
       issues,
       simulationIssues: issues.filter(issue => issue.impact !== 'presentation'),
       presentationIssues: issues.filter(issue => issue.impact === 'presentation'),

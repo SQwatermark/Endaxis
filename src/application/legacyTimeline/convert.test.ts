@@ -1,4 +1,6 @@
 import { expect, it, vi } from 'vitest';
+import type { ScenarioDocument } from '../../core/project/schema';
+import { ScenarioSimulationService } from '../simulation/scenarioSimulationService';
 import { CombatRuntimeSession } from '../../core/combat/runtime/combatRuntimeSession';
 import { convertLegacyTimeline, resolveLegacyRuntimeReplacementSource } from './convert';
 import { gameDataRepository } from '../../data/gameDataRepository';
@@ -39,7 +41,12 @@ it('保留时间允许同轴重叠，智能修复则顺延，且不改变原始�
   const repaired = convertLegacyTimeline(input, gameDataRepository, mappings, {
     timingMode: 'repair',
   });
-  expect(preserved.report.issues).toEqual([]);
+  expect(preserved.status).toBe('converted-with-issues');
+  expect(preserved.report.finalSimulation[0]).toMatchObject({
+    status: 'issues',
+    availability: [expect.objectContaining({ reasons: ['skillInterruptUnavailable'] })],
+  });
+  expect(preserved.report.issues).toHaveLength(1);
   expect(preserved.report.timingMode).toBe('preserve');
   expect(preserved.report.timingAdjustments).toEqual([]);
   for (const converted of [preserved, repaired]) {
@@ -111,12 +118,33 @@ it('把旧版空闪避块转换为同轨普通闪避标签，不生成技能块�
     ],
   });
 
-  const result = convertLegacyTimeline(
-    input,
-    gameDataRepository,
-    realAxisMappings as ConversionMappings,
-    { timingMode: 'preserve' },
-  );
+  const snapshots: ScenarioDocument[] = [];
+  const originalCreate = ScenarioSimulationService.prototype.createCombatSession;
+  const simulate = vi
+    .spyOn(ScenarioSimulationService.prototype, 'createCombatSession')
+    .mockImplementation(function (this: ScenarioSimulationService, scenario, endFrame) {
+      snapshots.push(structuredClone(scenario));
+      return originalCreate.call(this, scenario, endFrame);
+    });
+  let result: ReturnType<typeof convertLegacyTimeline>;
+  try {
+    result = convertLegacyTimeline(
+      input,
+      gameDataRepository,
+      realAxisMappings as ConversionMappings,
+      { timingMode: 'preserve' },
+    );
+
+    expect(simulate).toHaveBeenCalledTimes(1);
+    expect(snapshots).toEqual([result.project!.scenarios[0]]);
+    expect(simulate.mock.lastCall).toEqual([
+      result.project!.scenarios[0],
+      result.project!.scenarios[0]!.battle.durationFrames,
+    ]);
+    expect(result.report.finalSimulation[0]).toMatchObject({ status: 'passed' });
+  } finally {
+    simulate.mockRestore();
+  }
 
   expect(result.report.issues).toEqual([]);
   expect(result.project!.scenarios[0]!.tracks[0]!.skillCasts).toEqual([]);
@@ -312,7 +340,14 @@ it('真实轴的末次诀终结技明确映射为秘仪，不自动替换其他�
     gameDataRepository,
     realAxisMappings as ConversionMappings,
   );
-  expect(result.report.issues).toEqual([]);
+  expect(result.status).toBe('converted-with-issues');
+  expect(result.report.finalSimulation[0]).toMatchObject({
+    status: 'issues',
+    availability: expect.arrayContaining([
+      expect.objectContaining({ reasons: expect.arrayContaining(['resourceUnavailable']) }),
+    ]),
+  });
+  expect(result.report.issues).toHaveLength(1);
   const casts = result.project!.scenarios[0]!.tracks[0]!.skillCasts;
   expect(casts[39]!.source).toMatchObject({
     skillGroupKey: 'ultimate',
@@ -346,7 +381,14 @@ it.each(['inst_e889ock', 'different-share-instance'])(
       gameDataRepository,
       realAxisMappings as ConversionMappings,
     );
-    expect(result.report.issues).toEqual([]);
+    expect(result.status).toBe('converted-with-issues');
+    expect(result.report.finalSimulation[0]).toMatchObject({
+      status: 'issues',
+      availability: expect.arrayContaining([
+        expect.objectContaining({ reasons: expect.arrayContaining(['resourceUnavailable']) }),
+      ]),
+    });
+    expect(result.report.issues).toHaveLength(1);
     expect(JSON.stringify(input)).toBe(before);
     const casts = result.project!.scenarios[0]!.tracks[0]!.skillCasts;
     expect(casts[2]!.source).toMatchObject({ skillKey: 'chr_0032_lizhiyan_ultimate_skill' });
@@ -573,7 +615,15 @@ it('retimes from simulated starts, same-track ends, and ultimate dilation', () =
     },
   });
 
-  expect(result.report.issues).toEqual([]);
+  expect(result.status).toBe('converted-with-issues');
+  expect(result.report.finalSimulation[0]).toMatchObject({
+    status: 'issues',
+    availability: [
+      expect.objectContaining({ reasons: ['resourceUnavailable'] }),
+      expect.objectContaining({ reasons: ['cooldownUnavailable', 'resourceUnavailable'] }),
+    ],
+  });
+  expect(result.report.issues).toHaveLength(1);
   expect(
     result.project?.scenarios[0]?.tracks[0]?.skillCasts.map(cast => cast.placement.startFrame),
   ).toEqual([150, 237]);
@@ -872,4 +922,29 @@ it('preserves enemy identity and falls back to a custom enemy when the identity 
     rank: 'elite',
     editable: { hp: 100000, defense: 100, superArmor: 0, finisherMultiplier: 1 },
   });
+});
+
+it('最终模拟异常保留已转换项目并明确报告验证失败', () => {
+  const input = fixture();
+  input.scenarioList[0]!.data.tracks = [];
+  const simulate = vi
+    .spyOn(ScenarioSimulationService.prototype, 'createCombatSession')
+    .mockImplementation(() => {
+      throw new Error('final simulation unavailable');
+    });
+  try {
+    const result = convertLegacyTimeline(input, gameDataRepository, {}, { timingMode: 'preserve' });
+    expect(result.project).not.toBeNull();
+    expect(result.status).toBe('converted-with-issues');
+    expect(result.report.fatalIssues).toEqual([]);
+    expect(result.report.finalSimulation).toMatchObject([
+      { status: 'failed', message: 'final simulation unavailable' },
+    ]);
+    expect(result.report.simulationIssues).toContainEqual({
+      path: '$.scenarios[0]',
+      message: '最终整轴模拟失败，项目已保留供编辑：final simulation unavailable',
+    });
+  } finally {
+    simulate.mockRestore();
+  }
 });
