@@ -71,15 +71,47 @@ function loadProgram(configFile: string): ts.Program {
   return ts.createProgram(parsed.fileNames, parsed.options);
 }
 
+/** 每个层入口必须实际参与图遍历，路径迁移不能把守卫变成空检查。 */
+function projectionLayerViolations(
+  graph: ReadonlyMap<string, readonly string[]>,
+  layers: ReadonlyMap<string, number>,
+  directory: string,
+): string[] {
+  if (layers.size === 0) throw new Error('projection layers must not be empty');
+  for (const start of layers.keys()) {
+    if (!graph.has(start))
+      throw new Error(`missing projection entry: ${relative(directory, start)}`);
+  }
+  const violations: string[] = [];
+  for (const [start, layer] of layers) {
+    const visited = new Set<string>();
+    const visit = (path: string, chain: readonly string[]): void => {
+      for (const dependency of graph.get(path) ?? []) {
+        const next = [...chain, dependency];
+        const targetLayer = layers.get(dependency);
+        if (targetLayer !== undefined && targetLayer >= layer) {
+          violations.push(next.map(item => relative(directory, item)).join(' -> '));
+        }
+        if (!visited.has(dependency)) {
+          visited.add(dependency);
+          visit(dependency, next);
+        }
+      }
+    };
+    visit(start, [start]);
+  }
+  return violations;
+}
+
 describe('独立游戏数据契约边界', () => {
   it('条件与叶子投影不得直接或间接回流到上层编排，包括类型依赖', () => {
     const directory = join(compilerRoot, 'src/compiler');
     const layers = new Map([
       [join(directory, 'combatProjectionCommon.ts'), 0],
-      [join(directory, 'combatConditionProjection.ts'), 1],
-      [join(directory, 'combatActionLeafProjection.ts'), 1],
-      [join(directory, 'combatEntityAndTimeProjection.ts'), 2],
-      [join(directory, 'buffRuntimeProjection.ts'), 3],
+      [join(directory, 'conditions/combatConditionProjection.ts'), 1],
+      [join(directory, 'actions/combatActionLeafProjection.ts'), 1],
+      [join(directory, 'actions/combatEntityAndTimeProjection.ts'), 2],
+      [join(directory, 'buffs/buffRuntimeProjection.ts'), 3],
     ]);
     const graph = new Map(
       sourceFiles(join(compilerRoot, 'src')).map(path => [
@@ -89,25 +121,42 @@ describe('独立游戏数据契约边界', () => {
           .map(specifier => resolve(dirname(path), specifier)),
       ]),
     );
-    const violations: string[] = [];
-    for (const [start, layer] of layers) {
-      const visited = new Set<string>();
-      const visit = (path: string, chain: readonly string[]): void => {
-        for (const dependency of graph.get(path) ?? []) {
-          const next = [...chain, dependency];
-          const targetLayer = layers.get(dependency);
-          if (targetLayer !== undefined && targetLayer >= layer) {
-            violations.push(next.map(item => relative(directory, item)).join(' -> '));
-          }
-          if (!visited.has(dependency)) {
-            visited.add(dependency);
-            visit(dependency, next);
-          }
-        }
-      };
-      visit(start, [start]);
-    }
+    const violations = projectionLayerViolations(graph, layers, directory);
     expect(violations).toEqual([]);
+  });
+
+  it('分层守卫拒绝缺失入口，并沿类型导入和转导出发现间接回流', () => {
+    const directory = resolve('projection-guard-fixture');
+    const lower = join(directory, 'lower.ts');
+    const helper = join(directory, 'helper.ts');
+    const upper = join(directory, 'upper.ts');
+    const layers = new Map([
+      [lower, 0],
+      [upper, 1],
+    ]);
+    const sources = new Map([
+      [lower, "import type { Value } from './helper.ts';"],
+      [helper, "export type { Value } from './upper.ts';"],
+      [upper, 'export type Value = number;'],
+    ]);
+    const graph = new Map(
+      [...sources].map(([path, source]) => [
+        path,
+        moduleReferences(source).map(specifier => resolve(dirname(path), specifier)),
+      ]),
+    );
+    expect(projectionLayerViolations(graph, layers, directory)).toEqual([
+      'lower.ts -> helper.ts -> upper.ts',
+    ]);
+    graph.set(helper, []);
+    expect(projectionLayerViolations(graph, layers, directory)).toEqual([]);
+    graph.delete(lower);
+    expect(() => projectionLayerViolations(graph, layers, directory)).toThrow(
+      'missing projection entry: lower.ts',
+    );
+    expect(() => projectionLayerViolations(graph, new Map(), directory)).toThrow(
+      'projection layers must not be empty',
+    );
   });
 
   it('依赖扫描覆盖类型、转导出及动态引用，但不把生成字符串误判成 import', () => {
