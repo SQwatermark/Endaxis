@@ -25,7 +25,7 @@
 | ---- | ------------------------------------------------------------------------------------------------------------------- | --------------------------------- | --------------------------------------------------------------------------------------------------------------- | ------------ |
 | M01  | 共享契约、定义查询协议与校验：`packages/game-data-contract/src`、`src/core/game-data`                               | 17 + 25 个 TS 文件                | [游戏数据](../architecture/game-data.md)                                                                        | 关键路径已查 |
 | M02  | 离线来源读取、缓存、版本与来源追踪：`tools/game-data-compiler/src/source`                                           | 107 个 TS 文件                    | [游戏数据](../architecture/game-data.md)、工具 README                                                           | 关键路径已查 |
-| M03  | 离线动作投影、引用、领域组装与优化：`tools/game-data-compiler/src/compiler`、`tools/game-data-compiler/src/domains` | 89 + 39 个 TS 文件（含 M04）      | [游戏数据](../architecture/game-data.md)、[动作图](../architecture/action-graphs.md)                            | 待查         |
+| M03  | 离线动作投影、引用、领域组装与优化：`tools/game-data-compiler/src/compiler`、`tools/game-data-compiler/src/domains` | 89 + 39 个 TS 文件（含 M04）      | [游戏数据](../architecture/game-data.md)、[动作图](../architecture/action-graphs.md)                            | 关键路径已查 |
 | M04  | 候选构建、验证、发布和回滚：编译器 `build/publication` 与脚本                                                       | 脚本 52 个 TS 文件                | 工具 README、[游戏数据](../architecture/game-data.md)                                                           | 待查         |
 | M05  | 正式数据登记、按需加载和项目覆盖：`src/data`                                                                        | 435 个 TS 文件，主要为生成定义    | [游戏数据](../architecture/game-data.md)                                                                        | 待查         |
 | M06  | 项目格式、编辑事务、草稿与存储：`core/project`、`application/editor`、存储适配                                      | 11 + 16 个 TS 文件及存储适配      | [编辑器](../architecture/editor.md)                                                                             | 待查         |
@@ -48,7 +48,7 @@
 ## 当前进度
 
 - 库存和检查顺序已记录。
-- M01/M02 的关键入口、所有权和失败边界已核查并补充架构说明；接下来检查 M03 的动作投影、引用闭包和优化，再到候选发布与运行时装载。
+- M01–M03 的关键路径已核查；发现 D04 投影层守卫入口失效，已记录但未改代码。接下来检查 M04 候选验证/发布，再到 M05 正式加载和项目覆盖。
 - 新发现只给出证据、风险和最小整改建议；此次后续模块检查不自动修改生产逻辑。
 
 ## M01：共享契约、查询协议与校验
@@ -75,3 +75,52 @@
 - **已查失败路径：** 损坏来源身份或资产哈希不当作可补缺 404；非 BuffData 的坏集合清单不能降格为空；失败解析移除缓存；缺少来源通过 missingInputs 阻断完整发布。总体来源版本是否真正一致仍是外部证据问题。
 - **验证：** provider、下载、hybrid 补缺、来源缓存 4 个原生测试文件、34 项通过。使用 `npx vitest run tools/game-data-compiler/test/{gameDataProviders,downloadGameDataSources,hybridSourceDownload,sourceFileCache}.test.ts --maxWorkers=1`。
 - **未查范围：** 未访问实际 CDN/VFS 或重建原始 Unity 资源；未逐个遍历全部来源解析器的每种原生字段组合。测试使用原生工具的替身来源，不能证明真实版本覆盖完整。
+
+## M03：离线投影、引用与优化
+
+已沿来源控制流 → 条件/叶子/实体时间投影 → 通用序列编排 → Buff/领域定义 → 资源图优化追踪正常和拒绝路径。稳定说明已补入[公共动作投影与领域组装](../architecture/game-data-production.md#公共动作投影与领域组装)。
+
+证据：`src/compiler/actions/actionSequenceProgram.ts:16–96,148–174,180–456`、`conditions/combatConditionProjection.ts:22–88`、`references/referenceClosure.ts:25–82`、`domains/operator/sourceClosure.ts:78–100`、`optimization/definitionProgramOptimization.ts:29–60`、`resourceGraphOptimization.ts:178–184`、`definitionUsageAnalysis.ts:45–87`。
+
+### D04：投影分层守卫的四个入口已失效
+
+类型：已确认的测试盲区；尚未发现对应的生产分层违规。`tools/game-data-compiler/test/dataContractBoundaries.test.ts:75–111` 的第一项测试仍把下列文件放在 compiler 根目录，但实际实现已经进入子目录：
+
+| 守卫中的旧入口（相对 compiler）    | 当前实现                                   |
+| ---------------------------------- | ------------------------------------------ |
+| `combatConditionProjection.ts`     | `conditions/combatConditionProjection.ts`  |
+| `combatActionLeafProjection.ts`    | `actions/combatActionLeafProjection.ts`    |
+| `combatEntityAndTimeProjection.ts` | `actions/combatEntityAndTimeProjection.ts` |
+| `buffRuntimeProjection.ts`         | `buffs/buffRuntimeProjection.ts`           |
+
+`combatProjectionCommon.ts` 仍存在。其他四个起点不在 graph 中，`graph.get(path) ?? []` 使遍历直接结束；测试没有先断言起点存在。因此这项测试通过不能证明这些层仍受保护。
+
+在仓库根目录可直接复核路径，无需改代码：
+
+```sh
+node --input-type=module <<'NODE'
+import { existsSync } from 'node:fs';
+const root = 'tools/game-data-compiler/src/compiler/';
+const moved = [
+  ['combatConditionProjection.ts', 'conditions/combatConditionProjection.ts'],
+  ['combatActionLeafProjection.ts', 'actions/combatActionLeafProjection.ts'],
+  ['combatEntityAndTimeProjection.ts', 'actions/combatEntityAndTimeProjection.ts'],
+  ['buffRuntimeProjection.ts', 'buffs/buffRuntimeProjection.ts'],
+];
+for (const [oldPath, currentPath] of moved)
+  console.log({ oldPath, oldExists: existsSync(root + oldPath), currentPath, currentExists: existsSync(root + currentPath) });
+NODE
+npx vitest run tools/game-data-compiler/test/dataContractBoundaries.test.ts --maxWorkers=1
+```
+
+基线结果：四项均为 `oldExists: false, currentExists: true`，而现有 7 项测试全部通过。另用 TypeScript AST 对当前五个真实起点进行独立传递遍历（包括类型导入），并先断言每个起点在图中：没有发现原规则禁止的同级/向上回流。这个独立结果只能说明当前依赖，不能修复未来 CI 的盲区。
+
+最小建议：纠正四个入口；在遍历前断言所有登记起点存在，并用受控违规样例证明守卫确实能失败，避免以后移动文件又静默退化。本次文档检查未修改测试或生产代码。
+
+### 其他结论与限制
+
+- 引用解析能返回缺失列表供审计，但完整领域编译会拒绝缺失启用依赖；不能把报告 API 与发布 API 混为一谈。
+- 优化已有外部读取、未知访问、可能抛错和可观察行为维度；暂无依据为缩小产物删除概率/事件步骤，或把分散资源合成全局动作图。
+- 尚未逐个证明所有原生动作和场景策略分支，未做完整冻结来源的优化前后全量重建。已检查的是控制流与所有权规则、代表性拒绝路径和原生测试，不是全部角色语义验收。
+
+- M03 验证：序列编排、Buff 投影、静态引用闭包、角色闭包、用途分析和资源图优化共 6 文件、136 项通过；另 1 个真实来源优化对照文件的 3 项因缺少 `ENDAXIS_HIDE_UI_SOURCE_ROOT` / `ENDAXIS_HIDE_UI_GLOBAL_BUFF_CATALOG` 跳过。未宣称优化的全部真实资源双路等价已通过。
