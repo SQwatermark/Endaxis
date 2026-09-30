@@ -80,7 +80,7 @@ export class SkillSlotOperationExecutor implements CombatOperationExecutor {
       const state = context?.actionRegistrationState;
       if (replace === undefined || finish === undefined || state === undefined)
         throw new Error('skill-slot replacement requires action state and lifecycle ports');
-      if (state.registrationId !== null) finish(step.parameters.skillSlotKey, state.registrationId);
+      // 同槽旧登记由替换入口处理，避免提前撤销改变默认还原目标的快照时点。
       state.registrationId = replace({
         skillSlotKey: step.parameters.skillSlotKey,
         targetSkillKey: step.parameters.targetSkillKey,

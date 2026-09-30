@@ -66,7 +66,7 @@ describe('技能槽切换协调', () => {
     ]);
   });
 
-  it.each(['base', 'enhanced'])('只有 %s 账本时还原槽位，不改账本或发布成功回执', present => {
+  it.each(['base', 'enhanced'])('只有 %s 账本时拒绝换槽，不改账本或发布成功回执', present => {
     const host = fixture();
     const cooldown = new SkillCooldown(10, 0);
     cooldown.setProgress(0.4);

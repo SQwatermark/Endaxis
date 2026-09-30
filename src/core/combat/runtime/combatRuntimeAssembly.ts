@@ -1,12 +1,12 @@
-import { changeCombatSkillSlot } from '../skills/combatSkillSlotCoordination';
+import {
+  changeCombatSkillSlot,
+  replaceCombatSkillSlot,
+  finishCombatSkillSlotReplacement,
+  type CombatSkillSlotChangeHost,
+} from '../skills/combatSkillSlotCoordination';
 import { isEmptyActionProgram } from '../../compiler/actionProgramInspection';
 import { hasUnmodeledIncomingAttackTrigger } from '../skills/comboConditionCheckability';
 import { bindProjectileCallbackLifecycle } from '../abilities/projectileCallbackRuntime';
-import {
-  finishAbilitySkillSlotReplacement,
-  replaceAbilitySkillSlot,
-  type SkillSlotReplacementHost,
-} from '../abilities/abilitySystemExecution';
 import { createCallbackSkillHostFactory } from '../abilities/callbackSkillHost';
 import type { RegisterPassiveAbilityEventAction } from '../abilities/passiveAbilityEventRuntime';
 import {
@@ -3494,13 +3494,7 @@ export class CombatRuntimeAssembly {
     inheritOriginSkillCooldownProgress: boolean,
   ): void {
     changeCombatSkillSlot(
-      {
-        operatorId,
-        abilitySystem: this.#requireAbilitySystem(operatorId),
-        cooldowns: this.#skillCooldowns,
-        clock: this.clock,
-        receipt: this.receipt,
-      },
+      this.#skillSlotChangeHost(operatorId),
       skillSlotKey,
       targetSkillKey,
       inheritOriginSkillCooldownProgress,
@@ -3516,11 +3510,7 @@ export class CombatRuntimeAssembly {
       readonly inheritOriginSkillCooldownProgress: boolean;
     },
   ): number {
-    return replaceAbilitySkillSlot(
-      this.#requireAbilitySystem(operatorId).runtimeState,
-      parameters,
-      this.#skillSlotReplacementHost(operatorId),
-    );
+    return replaceCombatSkillSlot(this.#skillSlotChangeHost(operatorId), parameters);
   }
 
   #finishSkillSlotReplacement(
@@ -3528,20 +3518,20 @@ export class CombatRuntimeAssembly {
     skillSlotKey: string,
     registrationId: number,
   ): void {
-    finishAbilitySkillSlotReplacement(
-      this.#requireAbilitySystem(operatorId).runtimeState,
+    finishCombatSkillSlotReplacement(
+      this.#skillSlotChangeHost(operatorId),
       skillSlotKey,
       registrationId,
-      this.#skillSlotReplacementHost(operatorId),
     );
   }
 
-  #skillSlotReplacementHost(operatorId: string): SkillSlotReplacementHost {
+  #skillSlotChangeHost(operatorId: string): CombatSkillSlotChangeHost {
     return {
-      currentSkillKey: group =>
-        this.#requireAbilitySystem(operatorId).currentSkillKeyForSlot(group),
-      changeSkillSlot: (group, skill, inherit) =>
-        this.#changeSkillSlot(operatorId, group, skill, inherit),
+      operatorId,
+      abilitySystem: this.#requireAbilitySystem(operatorId),
+      cooldowns: this.#skillCooldowns,
+      clock: this.clock,
+      receipt: this.receipt,
     };
   }
 

@@ -2,64 +2,6 @@
 import type { AbilitySystemState, BeforeSkillCastPreparation } from '../state/abilityState';
 import type { CombatSkillCastInfo, PostSkillCastRequest } from '../state/foundationState';
 
-/** 执行时才绑定当前分支的槽位、冷却账本与回执，不保存这些函数。 */
-export interface SkillSlotReplacementHost {
-  currentSkillKey(group: string): string;
-  changeSkillSlot(group: string, skill: string, inheritCooldown: boolean): void;
-}
-
-/** 先撤销同槽旧替换，再读取还原目标；不把旧替换层层压栈。 */
-export function replaceAbilitySkillSlot(
-  state: AbilitySystemState,
-  parameters: {
-    readonly skillSlotKey: string;
-    readonly targetSkillKey: string;
-    readonly revertedSkillKey?: string;
-    readonly inheritOriginSkillCooldownProgress: boolean;
-  },
-  host: SkillSlotReplacementHost,
-): number {
-  const previous = state.skillSlotReplacements.get(parameters.skillSlotKey);
-  if (previous !== undefined)
-    finishAbilitySkillSlotReplacement(
-      state,
-      parameters.skillSlotKey,
-      previous.registrationId,
-      host,
-    );
-  const revertedSkillKey =
-    parameters.revertedSkillKey ?? host.currentSkillKey(parameters.skillSlotKey);
-  host.changeSkillSlot(
-    parameters.skillSlotKey,
-    parameters.targetSkillKey,
-    parameters.inheritOriginSkillCooldownProgress,
-  );
-  const registrationId = state.nextSkillSlotReplacementId++;
-  state.skillSlotReplacements.set(parameters.skillSlotKey, {
-    registrationId,
-    revertedSkillKey,
-    inheritOriginSkillCooldownProgress: parameters.inheritOriginSkillCooldownProgress,
-  });
-  return registrationId;
-}
-
-/** 先解除登记再还原；已经被替代的编号不能撤销新替换。 */
-export function finishAbilitySkillSlotReplacement(
-  state: AbilitySystemState,
-  group: string,
-  registrationId: number,
-  host: SkillSlotReplacementHost,
-): void {
-  const replacement = state.skillSlotReplacements.get(group);
-  if (replacement?.registrationId !== registrationId) return;
-  state.skillSlotReplacements.delete(group);
-  host.changeSkillSlot(
-    group,
-    replacement.revertedSkillKey,
-    replacement.inheritOriginSkillCooldownProgress,
-  );
-}
-
 /** 新登记排在已有映射之后，查询时保持后登记优先的顺序。 */
 export function registerAbilityBasicAttackMapping(
   state: AbilitySystemState,
