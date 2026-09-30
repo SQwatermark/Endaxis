@@ -83,6 +83,7 @@ export interface OperatorAttackDerivationInput {
   readonly mainAttribute: OperatorAttribute;
   readonly secondaryAttribute: OperatorAttribute;
   readonly combatModifiers?: readonly {
+    readonly source?: import('../state/foundationState').OperatorPanelContributionSource;
     readonly kind: string;
     readonly target?: string;
     readonly slot?: string;
@@ -153,7 +154,9 @@ export function createOperatorAttackAttributes(
       createCombatAttributeModifier(
         attribute,
         attributeModifierValues(slot, modifier.value),
-        ATTRIBUTE_MODIFIER_SOURCES.equipment,
+        modifier.source?.kind === 'operatorUpgrade'
+          ? ATTRIBUTE_MODIFIER_SOURCES[modifier.source.source]
+          : ATTRIBUTE_MODIFIER_SOURCES.equipment,
         'deck',
       ),
     );

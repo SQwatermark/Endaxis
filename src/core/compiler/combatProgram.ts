@@ -563,7 +563,6 @@ export interface CompiledOperatorUpgradeEventProgram {
 /** 只在当前技能程序及其派生操作链中参与伤害快照的构筑期属性修正。 */
 export interface CompiledSkillStatModifiers {
   readonly criticalRate?: number;
-  readonly damageToStaggeredEnemyIncrease?: number;
 }
 
 /** 已解析等级的执行程序；非时间轴宿主不需要伪造分组、养成等级或块宽。 */

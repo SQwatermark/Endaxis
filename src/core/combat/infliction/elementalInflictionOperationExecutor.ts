@@ -34,7 +34,7 @@ export type ElementalInflictionEvent = (typeof ELEMENTAL_INFLICTION_EVENTS)[numb
 export interface ElementalInflictionEventPayload {
   readonly sourceId: string;
   readonly targetId: string;
-  readonly skillId: string;
+  readonly skillId?: string;
   readonly element: InflictionStep['parameters']['element'];
   readonly isExtra: boolean;
   /** undefined 表示生产端尚未提供来源；null 表示已确认本事件没有来源技能。 */
@@ -47,7 +47,8 @@ export interface ElementalInflictionOperationDependencies {
   /** 存档中的技能释放身份；附着回执凭它与具体施放对应。单元测试程序可能缺失。 */
   readonly castId?: string;
   readonly targetId: string;
-  readonly skillId: string;
+  readonly skillId?: string;
+  readonly sourceActionId?: string;
   readonly clock: CombatClock;
   readonly receipt: CombatReceiptSink;
   readonly getExistingAttachment: () => ExistingElementalAttachment | null;
@@ -109,7 +110,7 @@ export class ElementalInflictionOperationExecutor implements CombatOperationExec
     const payload: ElementalInflictionEventPayload = {
       sourceId: this.dependencies.sourceOperatorId,
       targetId: this.dependencies.targetId,
-      skillId: this.dependencies.skillId,
+      ...(this.dependencies.skillId === undefined ? {} : { skillId: this.dependencies.skillId }),
       element: step.parameters.element,
       isExtra: step.parameters.isExtra,
       ...(context?.skillCastInfo === undefined ? {} : { skillCastInfo: context.skillCastInfo }),
@@ -124,7 +125,8 @@ export class ElementalInflictionOperationExecutor implements CombatOperationExec
     );
     const producedBy = operationProducer(context, {
       ownerId: this.dependencies.sourceOperatorId,
-      actionId: this.dependencies.castId ?? this.dependencies.skillId,
+      actionId:
+        this.dependencies.castId ?? this.dependencies.skillId ?? this.dependencies.sourceActionId,
     });
     let consumedInstance: ElementalInflictionBuffIdentity | void = undefined;
     let outputInstance: ElementalInflictionBuffIdentity | void = undefined;
@@ -174,7 +176,10 @@ export class ElementalInflictionOperationExecutor implements CombatOperationExec
       sourceId: this.dependencies.sourceOperatorId,
       targetId: this.dependencies.targetId,
       data: {
-        skillId: this.dependencies.skillId,
+        ...(this.dependencies.skillId === undefined ? {} : { skillId: this.dependencies.skillId }),
+        ...(this.dependencies.sourceActionId === undefined
+          ? {}
+          : { sourceActionId: this.dependencies.sourceActionId }),
         ...(this.dependencies.castId === undefined ? {} : { castId: this.dependencies.castId }),
         requestedElement: step.parameters.element,
         isExtra: payload.isExtra,

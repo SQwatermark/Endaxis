@@ -893,3 +893,37 @@ it('direct talent Buff installations resolve level values without an operator gr
     },
   ]);
 });
+
+it('技能暴击养成只匹配真实执行体，不随技能目录首项迁移', () => {
+  const target = { ...program('wrapper', 'battleSkill', 'sp', 0), executionSkillId: 'actual-body' };
+  const other = program('other', 'basicAttack', 'sp', 0);
+  const upgrades = [
+    {
+      source: 'potential' as const,
+      index: 0,
+      level: 1,
+      definition: {
+        levels: 1,
+        modifiers: [
+          {
+            kind: 'addSkillStat' as const,
+            skillKey: 'actual-body',
+            stat: 'criticalRate' as const,
+            value: 0.3,
+          },
+        ],
+      },
+    },
+  ];
+  for (const source of [
+    [target, other],
+    [other, target],
+  ]) {
+    const patched = applyOperatorUpgradeSkillPatches(source, upgrades);
+    expect(patched.find(item => item.executionSkillId === 'actual-body')!.statModifiers).toEqual({
+      criticalRate: 0.3,
+    });
+    expect(patched.find(item => item.skillId === 'other')!.statModifiers).toBeUndefined();
+  }
+  expect(target.statModifiers).toBeUndefined();
+});

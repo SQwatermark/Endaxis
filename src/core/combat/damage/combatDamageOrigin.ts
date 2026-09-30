@@ -1,9 +1,6 @@
 /** 将真实宿主身份投影为伤害末端所需输入，不以程序存在与否推断操作能力。 */
 import type { CompiledSkillExecutionProgram } from '../../compiler/combatProgram';
-import type {
-  CombatDamageExecutorContext,
-  CombatOperationExecutorContext,
-} from '../runtime/combatRuntimeAssembly';
+import type { CombatDamageExecutorContext } from '../runtime/combatRuntimeAssembly';
 
 export interface CombatDamageOrigin {
   /** 元素动作与技能修正的执行宿主；跨宿主 Buff 可以不同于伤害归属。 */
@@ -17,10 +14,6 @@ export interface CombatDamageOrigin {
   readonly statModifiers?: CompiledSkillExecutionProgram['statModifiers'];
 }
 
-export function resolveCombatDamageOrigin(
-  context: CombatOperationExecutorContext,
-): CombatDamageOrigin & { readonly skillId: string };
-export function resolveCombatDamageOrigin(context: CombatDamageExecutorContext): CombatDamageOrigin;
 export function resolveCombatDamageOrigin(
   context: CombatDamageExecutorContext,
 ): CombatDamageOrigin {
@@ -37,14 +30,10 @@ export function resolveCombatDamageOrigin(
       };
     case 'reactive':
       return {
-        operatorId: context.legacyDamageProfile.operatorId,
+        operatorId: context.sourceOperatorId,
         sourceOperatorId: context.sourceOperatorId,
-        // 历史回执/命中键使用事件来源作为技能与施放字段；保留输出但不在宿主上伪造技能程序。
-        castId: context.sourceActionId,
-        skillId: context.sourceActionId,
-        executingSkillId: context.legacyDamageProfile.executionSkillId ?? context.sourceActionId,
-        skillType: context.legacyDamageProfile.skillType,
-        statModifiers: context.legacyDamageProfile.statModifiers,
+        // 常驻动作没有执行技能；其来源身份不能冒充时间轴施放或事件触发技能。
+        sourceActionId: context.sourceActionId,
       };
     case 'equipment':
       return {

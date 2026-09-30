@@ -29,7 +29,11 @@ import {
   type AttackReceiptSnapshot,
 } from './attackReceiptDetail';
 import { calculateBreakingAttackValue } from './breakingAttackDamage';
-import { classifyDamageTags, injectDamageScaleAttributes } from './damageScaleAttributes';
+import {
+  classifyDamageTags,
+  classifyDamageSkillTypes,
+  injectDamageScaleAttributes,
+} from './damageScaleAttributes';
 import {
   DAMAGE_SCALE_ZONES,
   type AppliedDamageModifier,
@@ -249,6 +253,11 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
     if (step.parameters.damageType === 'lifeDrain') {
       throw new Error('life-drain damage uses a separate native calculation branch');
     }
+    const castId = skillCastInfo?.originCastId ?? this.dependencies.castId;
+    const damageSkillTypes = classifyDamageSkillTypes(step.parameters.tags);
+    const skillType =
+      this.dependencies.skillType ??
+      (damageSkillTypes.length === 1 ? damageSkillTypes[0] : undefined);
     const context = new PlayerDamageContext({
       sourceId: this.dependencies.sourceOperatorId,
       targetId: this.dependencies.targetId,
@@ -260,9 +269,7 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
       ...(skillCastInfo === undefined ? {} : { skillCastId: skillCastInfo.skillCastId }),
       skillCastInfo: skillCastInfo ?? null,
       ...(this.dependencies.skillId === undefined ? {} : { skillId: this.dependencies.skillId }),
-      ...(this.dependencies.skillType === undefined
-        ? {}
-        : { skillType: this.dependencies.skillType }),
+      ...(skillType === undefined ? {} : { skillType }),
       ports: {
         captureAttributeSnapshots: () => this.dependencies.captureAttributeSnapshots(step),
         applyModifiers: (timing, side, damageContext) =>
@@ -386,7 +393,7 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
           : this.dependencies.resolveReactionCriticalOverride?.({
               sourceId: this.dependencies.sourceOperatorId,
               targetId: this.dependencies.targetId,
-              castId: skillCastInfo?.originCastId ?? this.dependencies.castId,
+              castId,
               actionId:
                 operationContext?.executingBuff?.buffId ??
                 this.dependencies.executingSkillId ??
@@ -424,9 +431,7 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
               context.attackerAttributes.criticalRate > 0.00001
                 ? this.dependencies.criticalSamples.nextCriticalSample({
                     expectedSequenceId: this.dependencies.sourceOperatorId,
-                    ...(this.dependencies.castId === undefined
-                      ? {}
-                      : { castId: this.dependencies.castId }),
+                    ...(castId === undefined ? {} : { castId }),
                   })
                 : 0,
           },
@@ -520,9 +525,9 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
           : (attackSnapshot.attackDetail ?? this.dependencies.attackDetail);
       const hitId =
         step.hitId ??
-        (this.dependencies.castId === undefined || step.key === undefined
+        (castId === undefined || step.key === undefined
           ? undefined
-          : deriveHitId(this.dependencies.castId, step.key));
+          : deriveHitId(castId, step.key));
       executeHealthDamage({
         ...(multiplierCalculation === undefined
           ? {}
@@ -560,9 +565,7 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
           ...(this.dependencies.sourceActionId === undefined
             ? {}
             : { sourceActionId: this.dependencies.sourceActionId }),
-          ...(this.dependencies.skillType === undefined
-            ? {}
-            : { skillType: this.dependencies.skillType }),
+          ...(skillType === undefined ? {} : { skillType }),
           attack: receiptAttack,
           ...freezeAttackReceiptDetail(receiptAttack, attackDetail),
           ...(attackSnapshot === undefined
@@ -647,7 +650,7 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
         target: this.dependencies.targetVitals,
         clock: this.dependencies.clock,
         receipt: this.dependencies.receipt,
-        ...(this.dependencies.castId === undefined ? {} : { castId: this.dependencies.castId }),
+        ...(castId === undefined ? {} : { castId }),
         ...(step.key === undefined ? {} : { stepKey: step.key }),
         ...(hitId === undefined ? {} : { hitId }),
         emitSourceEvent: this.dependencies.emitHealthSourceEvent,

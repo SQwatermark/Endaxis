@@ -11,10 +11,11 @@ if (context.kind === 'skill') {
   void timeline;
 } else if (context.kind === 'reactive') {
   context.sourceActionId;
-  context.legacyDamageProfile.statModifiers;
+  // @ts-expect-error 常驻动作没有首技能属性模板。
+  context.statModifiers;
   // @ts-expect-error 响应式来源不是技能程序。
   context.program;
-  // @ts-expect-error 旧回执归因只在伤害投影中保留，不成为真实施放身份。
+  // @ts-expect-error 响应式来源不是时间轴施放。
   context.castId;
   // @ts-expect-error 响应式来源没有逐施放随机覆盖入口。
   context.readSimulationInputs;

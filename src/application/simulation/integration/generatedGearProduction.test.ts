@@ -223,9 +223,11 @@ describe('generated gear production integration', () => {
     const setProcDamage = result.receiptEntries.filter(
       entry =>
         entry.event === 'DamageApplied' &&
-        entry.data?.castId === 'upgrade-initialization:gear-set:suit_phy01',
+        entry.data?.sourceActionId === 'upgrade-initialization:gear-set:suit_phy01',
     );
     expect(setProcDamage).toHaveLength(1);
+    expect(setProcDamage[0]!.data).not.toHaveProperty('castId');
+    expect(setProcDamage[0]!.data).not.toHaveProperty('skillType');
     expect(setProcDamage[0]).toMatchObject({
       sourceId: 'track:pogranichnik',
       targetId: 'enemy',

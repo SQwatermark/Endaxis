@@ -3456,7 +3456,7 @@ it('输出事件携带实际技能身份而不是展示组，承伤方不携带�
   expect(targets[0]).not.toHaveProperty('executingSkillId');
 });
 
-it('响应式末端保留已有首技能伤害分类与加成，并区分无模板的拒绝路径', () => {
+it('响应式伤害只按自身标签取分类，不依赖技能目录顺序或技能专属暴击修正', () => {
   const base = createContext();
   const first = {
     ...base.program,
@@ -3468,6 +3468,7 @@ it('响应式末端保留已有首技能伤害分类与加成，并区分无模�
   const run = (
     skills: readonly CompiledSkillProgram[],
     definitionSkillPrograms?: readonly CompiledSkillProgram[],
+    tagged = false,
   ) => {
     const environment = createEnvironment(testEnemy, 0.9);
     const outputs: AbilityEventPayloadMap['outputDamage'][] = [];
@@ -3485,11 +3486,21 @@ it('响应式末端保留已有首技能伤害分类与加成，并区分无模�
           skills,
           definitionSkillPrograms,
           skillCooldownPrograms: definitionSkillPrograms,
-          panel: base.panel,
+          panel: {
+            ...base.panel!,
+            combatModifiers: [
+              { kind: 'damageScale', target: 'battleSkill', slot: 'addition', value: 0.2 },
+            ],
+          },
           initializationPrograms: [
             {
-              key: 'damage-profile',
-              sequence: chainEntry('reactive-damage-profile', [damageStep]),
+              key: 'damage-origin',
+              sequence: chainEntry('reactive-damage-origin', [
+                {
+                  ...damageStep,
+                  parameters: { ...damageStep.parameters, tags: tagged ? ['normalSkill'] : [] },
+                },
+              ]),
             },
           ],
         },
@@ -3497,38 +3508,123 @@ it('响应式末端保留已有首技能伤害分类与加成，并区分无模�
       createOperationExecutor: createTerminal,
     });
     return {
-      assembly,
       createTerminal,
       outputs,
       hit: assembly.receipt.entries.find(entry => entry.event === 'DamageApplied')!,
     };
   };
   const firstRun = run([first, second]);
-  const secondRun = run([second, first]);
-  const reactiveContext = firstRun.createTerminal.mock.calls.find(
+  const context = firstRun.createTerminal.mock.calls.find(
     ([context]) => context.kind === 'reactive',
   )![0];
-  expect(reactiveContext).not.toHaveProperty('program');
-  expect(reactiveContext).not.toHaveProperty('castId');
-  expect(reactiveContext).not.toHaveProperty('readSimulationInputs');
+  expect(context).not.toHaveProperty('program');
+  expect(context).not.toHaveProperty('castId');
+  expect(context).not.toHaveProperty('readSimulationInputs');
   expect(firstRun.hit.data).toMatchObject({
-    castId: 'upgrade-initialization:damage-profile',
-    skillType: 'battleSkill',
-    isCritical: true,
+    sourceActionId: 'upgrade-initialization:damage-origin',
+    isCritical: false,
   });
-  expect(firstRun.hit.data!.value).toBeCloseTo((700 / 3) * 0.8 * 1.2 * 1.6);
-  expect(firstRun.outputs[0]).toMatchObject({
-    executingSkillId: 'first-body',
-    skillCastInfo: null,
+  expect(firstRun.hit.data).not.toHaveProperty('castId');
+  expect(firstRun.hit.data).not.toHaveProperty('skillType');
+  expect(firstRun.hit.data!.value).toBeCloseTo((700 / 3) * 0.8);
+  expect(firstRun.outputs[0]).toMatchObject({ skillCastInfo: null });
+  expect(firstRun.outputs[0]).not.toHaveProperty('executingSkillId');
+  for (const result of [
+    run([second, first]),
+    run([], [first, second]),
+    run([], [second, first]),
+    run([]),
+  ]) {
+    expect(result.hit).toEqual(firstRun.hit);
+    expect(result.outputs).toEqual(firstRun.outputs);
+  }
+  const tagged = run([], undefined, true);
+  expect(tagged.hit.data).toMatchObject({ skillType: 'battleSkill', isCritical: false });
+  expect(tagged.hit.data!.value).toBeCloseTo((700 / 3) * 0.8 * 1.2);
+});
+
+it('响应式伤害保留显式环境施法和实时 Buff 修正，不借用触发事件的技能', () => {
+  const base = createContext();
+  const environment = createEnvironment(testEnemy, 0.9);
+  const outputs: AbilityEventPayloadMap['outputDamage'][] = [];
+  environment
+    .eventsFor('operator')
+    .registerAction('outputDamage', 0, event => outputs.push(event.payload));
+  const executor = environment.runtimeOptions.createOperationExecutor({
+    ...base,
+    kind: 'reactive',
+    sourceOperatorId: 'operator',
+    sourceActionId: 'passive:damage',
   });
-  expect(secondRun.outputs[0]).toMatchObject({
-    executingSkillId: 'upgrade-initialization:damage-profile',
-    skillCastInfo: null,
+  const buffTarget = environment.runtimeOptions.createOperatorBuffRuntime!('operator', base.panel);
+  if (!(buffTarget instanceof BuffDefinitionOperationTarget))
+    throw new Error('missing Buff runtime');
+  buffTarget.container.attributes.addModifier(
+    createCombatAttributeModifier(
+      'criticalRate',
+      attributeModifierValues('baseAddition', 1),
+      ATTRIBUTE_MODIFIER_SOURCES.buff,
+      'runtime',
+    ),
+  );
+  buffTarget.apply({
+    buffId: 'buff.reactive-modifier',
+    sourceId: 'operator',
+    blackboardValues: {},
+    definition: {
+      stackingType: 'unique',
+      damageModifiers: [
+        {
+          enabledSide: 'attacker',
+          processors: [{ kind: 'damageScale', side: 'attacker', zone: 'normal', addition: 0.3 }],
+        },
+      ],
+    },
   });
-  expect(secondRun.hit.data).toMatchObject({ skillType: 'basicAttack', isCritical: false });
-  expect(secondRun.hit.data!.value).toBeCloseTo((700 / 3) * 0.8);
-  expect(run([], [first]).hit.data).toEqual(firstRun.hit.data);
-  expect(() => run([])).toThrow("reactive event handler does not support 'dealDamage'");
+  const inherited = {
+    skillCastId: 42,
+    originCastId: 'actual-cast',
+    originSkillId: 'actual-skill',
+    originSkillType: 'ultimate' as const,
+    nonReturnedSpCost: 0,
+  };
+  const eventOrigin = {
+    ...inherited,
+    skillCastId: 99,
+    originCastId: 'trigger-cast',
+    originSkillId: 'trigger-skill',
+    originSkillType: 'battleSkill' as const,
+  };
+  const operation = { blackboard: new ActionBlackboard(), eventSkillCastInfo: eventOrigin };
+  const step = {
+    ...damageStep,
+    key: 'reactive-hit',
+    parameters: {
+      ...damageStep.parameters,
+      tags: [],
+      instantDamageScaleModifiers: [
+        {
+          side: 'attacker' as const,
+          zone: 'normal' as const,
+          addition: { kind: 'constant' as const, value: 0.1 },
+        },
+      ],
+    },
+  };
+  executor.execute(step, operation);
+  executor.execute(step, { ...operation, skillCastInfo: inherited });
+  const hits = (base.receipt as CombatReceiptCollector).entries.filter(
+    entry => entry.event === 'DamageApplied',
+  );
+  expect(hits.map(hit => hit.data?.value)).toEqual([
+    expect.closeTo((700 / 3) * 0.8 * 1.4 * 1.6),
+    expect.closeTo((700 / 3) * 0.8 * 1.4 * 1.6),
+  ]);
+  expect(hits[0]!.data).not.toHaveProperty('castId');
+  expect(hits[1]!.data).toMatchObject({ castId: 'actual-cast', isCritical: true });
+  for (const hit of hits) expect(hit.data).not.toHaveProperty('skillType');
+  expect(outputs.map(output => output.skillCastInfo)).toEqual([null, inherited]);
+  for (const output of outputs) expect(output).not.toHaveProperty('executingSkillId');
 });
 
 it('配装末端仍拒绝元素操作，显式响应式宿主保留元素能力', () => {
@@ -3550,7 +3646,6 @@ it('配装末端仍拒绝元素操作，显式响应式宿主保留元素能力'
     kind: 'reactive',
     sourceOperatorId: 'operator',
     sourceActionId: 'passive:elemental',
-    legacyDamageProfile: { operatorId: 'operator', skillType: 'battleSkill' },
     enemy: base.enemy,
     panel: base.panel,
     equipmentContributions: [],
@@ -3560,9 +3655,11 @@ it('配装末端仍拒绝元素操作，显式响应式宿主保留元素能力'
     semanticEvents: base.semanticEvents,
   });
   expect(reactive.execute(step)).toBe(true);
-  expect(
-    (base.receipt as CombatReceiptCollector).entries.filter(
-      entry => entry.event === 'ElementalInflictionApplied',
-    ),
-  ).toHaveLength(1);
+  const hits = (base.receipt as CombatReceiptCollector).entries.filter(
+    entry => entry.event === 'ElementalInflictionApplied',
+  );
+  expect(hits).toHaveLength(1);
+  expect(hits[0]!.data).toMatchObject({ sourceActionId: 'passive:elemental' });
+  expect(hits[0]!.data).not.toHaveProperty('skillId');
+  expect(hits[0]!.data).not.toHaveProperty('castId');
 });

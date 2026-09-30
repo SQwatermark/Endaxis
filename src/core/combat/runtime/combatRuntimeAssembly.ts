@@ -363,20 +363,10 @@ export interface CombatSkillOperationExecutorContext extends OperatorOperationEx
   readonly sourceOperatorId?: string;
 }
 
-/**
- * 旧响应式末端从首技能继承的伤害输入。这里只明确保留已有语义，不声称事件属于该技能；
- * 首技能顺序依赖的玩法修正须单独核对，不能混入责任链重构。
- */
-export type LegacyReactiveDamageProfile = Pick<
-  CompiledSkillExecutionProgram,
-  'operatorId' | 'skillType' | 'executionSkillId' | 'statModifiers'
->;
-
 export interface CombatReactiveOperationExecutorContext extends OperatorOperationExecutorContext {
   readonly kind: 'reactive';
   readonly sourceOperatorId: string;
   readonly sourceActionId: string;
-  readonly legacyDamageProfile: LegacyReactiveDamageProfile;
 }
 
 export type CombatOperationExecutorContext =
@@ -4269,20 +4259,12 @@ export class CombatRuntimeAssembly {
     sourceActionId: string,
     options: CombatRuntimeAssemblyOptions,
   ): CombatOperationExecutor {
-    const template = operator.skills[0] ?? operator.definitionSkillPrograms?.[0];
-    if (template === undefined) return unsupportedReactiveTerminal;
     return options.createOperationExecutor({
       kind: 'reactive',
       sourceActionId,
       sourceOperatorId: operator.operatorId,
       resolveAbilitySystemSourceId: entityId => this.#resolveAbilitySystemSourceId(entityId),
       buffDefinitions: operator.buffDefinitions,
-      legacyDamageProfile: {
-        operatorId: template.operatorId,
-        skillType: template.skillType,
-        executionSkillId: template.executionSkillId,
-        statModifiers: template.statModifiers,
-      },
       enemy: options.enemy,
       equipmentContributions: operator.equipmentContributions ?? [],
       ...(operator.panel === undefined ? {} : { panel: operator.panel }),

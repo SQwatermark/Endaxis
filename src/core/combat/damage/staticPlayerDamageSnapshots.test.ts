@@ -505,21 +505,58 @@ describe('resolveStaticPlayerDamageSnapshots', () => {
     expect(panel.criticalRate).toBe(0.15);
   });
 
-  it('把当前技能的失衡目标增伤写入既有实时条件伤害属性', () => {
+  it('无技能来源仍保留构筑的失衡目标增伤，不取得显式技能宿主过滤加成', () => {
+    const modifiedPanel = {
+      ...panel,
+      combatModifiers: [
+        ...panel.combatModifiers,
+        { kind: 'damageScale', target: 'staggeredEnemy', slot: 'addition', value: 0.3 } as const,
+      ],
+    };
+    const attributes = createOperatorAttackAttributes(modifiedPanel);
     const snapshots = resolveStaticPlayerDamageSnapshots(
-      createContext({
-        program: {
-          ...createContext().program,
-          statModifiers: { damageToStaggeredEnemyIncrease: 0.3 },
-        },
-      }),
+      { operatorId: 'operator', panel: modifiedPanel, enemy },
       electricDamage,
-      createOperatorAttackAttributes(panel),
+      attributes,
     );
-
     expect(snapshots.attacker.damageToStaggeredEnemyIncrease).toBeCloseTo(0.3);
     expect(snapshots.defender.damageToStaggeredEnemyIncrease).toBe(0);
+    expect(snapshots.attacker.electricDamageIncrease).toBe(0);
   });
+
+  it.each(['finisher', 'plungingAttack', 'dodge'] as const)(
+    '自定义 %s 宿主过滤不被原生四类伤害标签覆盖',
+    skillType => {
+      const modifiedPanel = {
+        ...panel,
+        combatModifiers: [
+          {
+            kind: 'damageBonus',
+            damageTypes: 'electric',
+            skillTypes: skillType,
+            value: 0.25,
+          } as const,
+        ],
+      };
+      const context = createContext({
+        panel: modifiedPanel,
+        program: { ...createContext().program, skillType },
+      });
+      const attributes = createOperatorAttackAttributes(modifiedPanel);
+      const step = { ...electricDamage, parameters: { ...electricDamage.parameters, tags: [] } };
+      expect(
+        resolveStaticPlayerDamageSnapshots(context, step, attributes).attacker
+          .electricDamageIncrease,
+      ).toBe(0.25);
+      expect(
+        resolveStaticPlayerDamageSnapshots(
+          { operatorId: 'operator', panel: modifiedPanel, enemy },
+          step,
+          attributes,
+        ).attacker.electricDamageIncrease,
+      ).toBe(0);
+    },
+  );
 
   it('按伤害类型和技能类型筛选静态伤害加成', () => {
     const snapshots = resolveStaticPlayerDamageSnapshots(

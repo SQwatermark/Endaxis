@@ -112,6 +112,7 @@ function resolveStaticDamageScales(
     }
     if (modifier.kind !== 'damageBonus') continue;
     if (!includesValue(modifier.damageTypes, step.parameters.damageType)) continue;
+    // 自定义 damageBonus 的 skillTypes 是真实执行宿主过滤；与原生 damageScale 标签增伤不同。
     if (
       modifier.skillTypes !== undefined &&
       (origin.skillType === undefined || !includesValue(modifier.skillTypes, origin.skillType))
@@ -190,23 +191,18 @@ export function resolveStaticPlayerDamageSnapshots(
   );
   for (const key of DAMAGE_SCALE_ATTRIBUTE_KEYS)
     attackerDamageScales[key] += operatorAttributes.get(key);
-  attackerDamageScales.damageToStaggeredEnemyIncrease +=
-    origin.statModifiers?.damageToStaggeredEnemyIncrease ?? 0;
   const attack = resolveOperatorAttack(panel, operatorAttributes);
-  if (origin.statModifiers !== undefined) {
-    for (const attribute of ['criticalRate', 'damageToStaggeredEnemyIncrease'] as const) {
-      const value = origin.statModifiers?.[attribute];
-      if (value === undefined || value === 0) continue;
-      modifierDetails.push({
-        kind: 'attribute',
-        sourceId: origin.operatorId,
-        sourceActionId: origin.skillId,
-        side: 'attacker',
-        attribute,
-        slot: attribute === 'criticalRate' ? 'baseAddition' : 'addition',
-        value,
-      });
-    }
+  const skillCriticalRate = origin.statModifiers?.criticalRate;
+  if (skillCriticalRate !== undefined && skillCriticalRate !== 0) {
+    modifierDetails.push({
+      kind: 'attribute',
+      sourceId: origin.operatorId,
+      sourceActionId: origin.skillId,
+      side: 'attacker',
+      attribute: 'criticalRate',
+      slot: 'baseAddition',
+      value: skillCriticalRate,
+    });
   }
   const result: PlayerDamageAttributeSnapshots = {
     attacker: {

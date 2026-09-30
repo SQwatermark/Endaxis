@@ -131,6 +131,7 @@ const PANEL_MODIFIER_KINDS = new Set<UpgradeModifierDefinition['kind']>([
   'modifyBasePanelStat',
   'addStaticDamageIncrease',
   'addStaticHealingIncrease',
+  'addConditionalDamage',
 ]);
 
 function requireMultiplier(value: number, path: string): void {
@@ -572,30 +573,6 @@ function addSkillStat(
   });
 }
 
-function addConditionalDamage(
-  programs: readonly CompiledSkillProgram[],
-  modifier: Extract<UpgradeModifierDefinition, { kind: 'addConditionalDamage' }>,
-  upgradeLevel: number,
-  path: string,
-): readonly CompiledSkillProgram[] {
-  const condition = modifier.condition;
-  if (condition.kind !== 'targetStaggered' || condition.target !== 'enemy') {
-    throw new Error(
-      `${path}.condition only supports targetStaggered for the enemy damage snapshot`,
-    );
-  }
-  const value = resolveUpgradeLevelValue(modifier.values, upgradeLevel, `${path}.values`);
-  if (programs.length === 0) throw new Error(`${path} requires at least one compiled skill`);
-  return programs.map(program => ({
-    ...program,
-    statModifiers: {
-      ...program.statModifiers,
-      damageToStaggeredEnemyIncrease:
-        (program.statModifiers?.damageToStaggeredEnemyIncrease ?? 0) + value,
-    },
-  }));
-}
-
 /**
  * 按养成声明顺序修正技能程序。面板类 modifier 由面板编译器消费；其余还没做通的类型必须失败。
  */
@@ -670,10 +647,6 @@ export function applyOperatorUpgradeSkillPatches(
       }
       if (modifier.kind === 'addSkillStat') {
         patched = addSkillStat(patched, modifier, path);
-        continue;
-      }
-      if (modifier.kind === 'addConditionalDamage') {
-        patched = addConditionalDamage(patched, modifier, upgrade.level, path);
         continue;
       }
       if (modifier.kind === 'addReactionDuration' || modifier.kind === 'addReactionEffectiveness') {

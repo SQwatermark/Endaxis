@@ -59,6 +59,7 @@ export function createPlayerActiveOperationExecutor(
   const shared = {
     sourceOperatorId: origin.operatorId,
     skillId: origin.skillId,
+    sourceActionId: origin.sourceActionId,
     skillType: origin.skillType,
     resolveCriticalOverride: (
       step: Parameters<

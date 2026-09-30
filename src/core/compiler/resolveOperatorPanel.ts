@@ -197,6 +197,7 @@ function maxTrustLevel(build: OperatorInstanceDocument): number {
 
 function applyUpgradeModifier(
   modifier: UpgradeModifierDefinition,
+  upgradeLevel: number,
   source: OperatorPanelContributionSource,
   values: MutablePanelValues,
   receipt: OperatorPanelContributionReceipt[],
@@ -221,6 +222,27 @@ function applyUpgradeModifier(
       source,
       target: modifier.target,
       value: modifier.value,
+    });
+  } else if (modifier.kind === 'addConditionalDamage') {
+    if (modifier.condition.kind !== 'targetStaggered' || modifier.condition.target !== 'enemy') {
+      throw new Error(
+        'addConditionalDamage only supports targetStaggered for the enemy damage snapshot',
+      );
+    }
+    const value =
+      typeof modifier.values === 'number' ? modifier.values : modifier.values[upgradeLevel - 1];
+    if (value === undefined || !Number.isFinite(value)) {
+      throw new TypeError(
+        `addConditionalDamage has no finite value for upgrade level ${upgradeLevel}`,
+      );
+    }
+    // 该养成作用于来源干员的全部伤害，不依赖任何技能程序是否存在。
+    combatModifiers.push({
+      kind: 'damageScale',
+      target: 'staggeredEnemy',
+      slot: 'addition',
+      value,
+      source,
     });
   } else if (modifier.kind === 'addStaticHealingIncrease') {
     combatModifiers.push({
@@ -389,7 +411,7 @@ export function resolveOperatorPanel(build: ResolvedScenarioBuild): ResolvedOper
       index: upgrade.index,
     } as const;
     for (const modifier of upgrade.definition.modifiers ?? []) {
-      applyUpgradeModifier(modifier, source, values, receipt, combatModifiers);
+      applyUpgradeModifier(modifier, upgrade.level, source, values, receipt, combatModifiers);
     }
   }
 

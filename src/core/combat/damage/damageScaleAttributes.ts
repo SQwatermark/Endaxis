@@ -2,7 +2,12 @@
  * 属性快照与七区间伤害倍率之间的原生映射层。
  * 只接受同一伤害包已经冻结的快照；调用过程中修改属性会破坏阶段语义。
  */
-import type { DamageFeature, DamageTag, DamageType } from '../../game-data/operatorDefinition';
+import type {
+  DamageFeature,
+  DamageTag,
+  DamageType,
+  SkillType,
+} from '../../game-data/operatorDefinition';
 import { DamageScaleAccumulator } from './damageScale';
 
 export const DAMAGE_SCALE_CLASSIFICATIONS = [
@@ -219,4 +224,19 @@ function getTypedAttributes(damageType: DamageType):
     }
   | undefined {
   return TYPED_ATTRIBUTES[damageType];
+}
+
+const DAMAGE_SKILL_TYPES: Readonly<Partial<Record<DamageScaleClassification, SkillType>>> = {
+  normalAttack: 'basicAttack',
+  normalSkill: 'battleSkill',
+  comboSkill: 'comboSkill',
+  ultimateSkill: 'ultimate',
+};
+
+/** 技能类增伤按本次 DamageDecorateMask 选择，不能从执行技能或事件来源反推。 */
+export function classifyDamageSkillTypes(tags: readonly DamageTag[]): readonly SkillType[] {
+  return classifyDamageTags(tags).flatMap(kind => {
+    const type = DAMAGE_SKILL_TYPES[kind];
+    return type === undefined ? [] : [type];
+  });
 }

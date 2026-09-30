@@ -11,6 +11,12 @@ import type {
 import type { OperatorDefinition } from '../game-data/operatorDefinition';
 import type { OperatorInstanceDocument, TrackDocument } from '../project/schema';
 import { resolveOperatorPanel } from './resolveOperatorPanel';
+import { createOperatorAttackAttributes } from '../combat/attributes/operatorAttackAttributes';
+import { ATTRIBUTE_MODIFIER_SOURCES } from '../combat/state/foundationState';
+import {
+  applyOperatorUpgradeSkillPatches,
+  resolveActiveOperatorUpgrades,
+} from './compileOperatorUpgrades';
 import type { ResolvedScenarioBuild } from './resolveScenarioBuilds';
 
 const gearDisplay = {
@@ -333,4 +339,44 @@ describe('resolveOperatorPanel', () => {
       resolveOperatorPanel(resolvedBuild(zhuangFangyi, { baseStatOverrides: { attack: 1 } })),
     ).toThrow('panel override semantics are not normalized');
   });
+});
+
+it('失衡目标养成按等级进入干员属性，不要求技能模板或泄漏技能专属暴击率', () => {
+  const operator: OperatorDefinition = {
+    ...endministrator,
+    talents: [
+      {
+        levels: 2,
+        modifiers: [
+          {
+            kind: 'addConditionalDamage',
+            condition: { kind: 'targetStaggered', target: 'enemy' },
+            values: [0.1, 0.3],
+          },
+        ],
+      },
+    ],
+  };
+  const build = resolvedBuild(operator, { talentStates: { '0': 2 } });
+  const panel = resolveOperatorPanel(build);
+  expect(panel.combatModifiers).toContainEqual({
+    kind: 'damageScale',
+    target: 'staggeredEnemy',
+    slot: 'addition',
+    value: 0.3,
+    source: { kind: 'operatorUpgrade', source: 'talent', index: 0 },
+  });
+  const attributes = createOperatorAttackAttributes(panel);
+  expect(attributes.get('damageToStaggeredEnemyIncrease', ATTRIBUTE_MODIFIER_SOURCES.talent)).toBe(
+    0.3,
+  );
+  expect(
+    attributes.get('damageToStaggeredEnemyIncrease', ATTRIBUTE_MODIFIER_SOURCES.equipment),
+  ).toBe(0);
+  expect(
+    applyOperatorUpgradeSkillPatches(
+      [],
+      resolveActiveOperatorUpgrades(build.operatorInstance, operator),
+    ),
+  ).toEqual([]);
 });
