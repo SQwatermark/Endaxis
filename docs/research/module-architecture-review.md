@@ -30,8 +30,8 @@
 | M05  | 正式数据登记、按需加载和项目覆盖：`src/data`                                                                        | 435 个 TS 文件，主要为生成定义    | [游戏数据](../architecture/game-data.md)                                                                        | 关键路径已查 |
 | M06  | 项目格式、编辑事务、草稿与存储：`core/project`、`application/editor`、`application/openProject`、存储适配           | 11 + 16 个 TS 文件及存储适配      | [编辑器](../architecture/editor.md)                                                                             | 关键路径已查 |
 | M07  | 图校验、场景编译、构筑和机制：`core/action-graph`、`compiler`、`mechanics`                                          | 3 + 25 + 4 个 TS 文件             | [动作图](../architecture/action-graphs.md)、[游戏数据](../architecture/game-data.md)                            | 关键路径已查 |
-| M08  | 战斗数据图、装配及恢复：`combat/state`、`combat/runtime`                                                            | 6 + 34 个 TS 文件（含恢复与输入） | [战斗](../architecture/combat.md)、[切面](../architecture/checkpoints.md)                                       | 待查         |
-| M09  | 时钟、变速、随机：`combat/time`、`combat/random`                                                                    | 5 + 3 个 TS 文件                  | [战斗](../architecture/combat.md)、[随机](../architecture/randomness.md)                                        | 待查         |
+| M08  | 战斗数据图、装配及恢复：`combat/state`、`combat/runtime`                                                            | 6 + 34 个 TS 文件（含恢复与输入） | [战斗](../architecture/combat.md)、[切面](../architecture/checkpoints.md)                                       | 关键路径已查 |
+| M09  | 时钟、变速、随机：`combat/time`、`combat/random`                                                                    | 5 + 3 个 TS 文件                  | [战斗](../architecture/combat.md)、[随机](../architecture/randomness.md)                                        | 关键路径已查 |
 | M10  | 资源和属性账本：`combat/resources`、`combat/attributes`                                                             | 11 + 4 个 TS 文件                 | [战斗](../architecture/combat.md)                                                                               | 待查         |
 | M11  | 动作解释与时间线：`combat/actions`、`combat/timeline`                                                               | 13 + 3 个 TS 文件                 | [技能操作](../architecture/skill-operations.md)、[动作图](../architecture/action-graphs.md)                     | 待查         |
 | M12  | 技能、能力、冷却和输入：`combat/skills`、`combat/abilities`、输入协调                                               | 33 + 21 个 TS 文件（含 M15）      | [战斗](../architecture/combat.md)、[技能操作](../architecture/skill-operations.md)                              | 待查         |
@@ -48,7 +48,7 @@
 ## 当前进度
 
 - 库存和检查顺序已记录。
-- M01–M07 关键路径已核查。待整改的重要项为 D07 当前方案导出缺失定义、D06 页面项目效果查询遗漏、D04 测试守卫盲区；均未自动修代码。下一项 M08 战斗数据图、装配及恢复，随后按清单进入战斗内部。
+- M01–M09 关键路径已核查。待整改的重要项为 D07 当前方案导出缺失定义、D06 页面项目效果查询遗漏、D04 测试守卫盲区；均未自动修代码。下一项 M10 资源与属性账本，随后进入动作与技能执行。
 - 新发现只给出证据、风险和最小整改建议；此次后续模块检查不自动修改生产逻辑。
 
 ## M01：共享契约、查询协议与校验
@@ -190,3 +190,14 @@ npx vitest run tools/game-data-compiler/test/dataContractBoundaries.test.ts --ma
 - **所有权核对：** 运行环境只补实体端口，编译身份与技能程序优先；未来输入计划与已装配状态分离。连续组只有锚点/成员，不是预先执行的技能序列。图编译目录可延迟补节点，但不保存动作运行进度。
 - **验证：** 图校验/编译、构筑/面板、时间轴/完整编译、全局效果与机制编译/工具 9 个原生文件、101 项通过。未引入外部验证运行器。
 - **未查范围：** 未逐项证明所有养成、装备/动作参数组合及原生机制数值；任意自定义 Adapter 的行为不视作可信。后续 M08–M16 检查装配后状态、执行与恢复，不把编译阶段通过等同于这些路径通过。
+
+## M08–M09：战斗装配、恢复、时间与随机
+
+已沿应用调用的 Assembly → Session → 保存/候选恢复路径核对数据图、程序目录、历史、共享引用与帧管线；继续追踪时间域仲裁、曲线目录和随机配置/取样状态。稳定说明补入[切面](../architecture/checkpoints.md#装配根与受控会话的边界)、[时间](../architecture/combat.md#时间模块的状态与程序)、[随机](../architecture/randomness.md#模块所有权与扩展边界)。
+
+证据：`combatRuntimeSession.ts:75–216`、`combatRuntimeAssembly.ts:810–851,1034–1391,2457–2510`、`restoration/combatRuntimeRestorePreparation.ts:44–152,292–390`、`combatRuntimeRestoreFoundation.ts:97–175`、`combatFramePipeline.ts:42–103`、`time/timeDilationRuntime.ts:21–42,293–397`、`random/simulationRandom.ts:35–98,104–174`。
+
+- **D09，接口约束，非新缺陷：** Assembly 公布的是活动状态，Session 才提供复制读口；步进失败进入 faulted，不提供自动账本回滚。候选恢复不触碰旧分支，成功才换代。不能把恢复的提交保障宣传成所有游戏动作的事务保障。
+- **D10，适配风险，未发现产品错误：** 内置随机配置/状态随图恢复，但直接注入的有限样本源游标不在图里。正式应用使用内置可恢复模式；任意自定义回调的外部状态不能由 Session 自动回退。曲线目录同样是共享程序，数据切面仅保存编号。
+- **验证：** 数据层导入守卫、会话/装配/帧驱动、基础/引用/Buff 预检，以及时间和随机目录共 17 个原生文件、226 项通过。覆盖分支 A/B/A、拒绝候选保留原图/历史、首帧、动态施放、冷却别名、程序身份和时间/随机状态；这不等于遍历全部恢复组合。
+- **未查范围：** 此组未逐一审完每个宿主恢复器，Buff、实体、投射物与订阅关系继续在 M12–M15 核查。未注入任意外部端口副作用、长时间整数极限或真实内存压力；未声称对第三方回调实现了隔离沙箱。

@@ -80,3 +80,11 @@ Buff、资源、治疗、实体生成和时间线跳转会改变后面的战斗�
 - [healthDamage.ts](../../src/core/combat/damage/healthDamage.ts)：伤害结果与暴击后效事件的边界。
 - [scenarioSimulationService.ts](../../src/application/simulation/scenarioSimulationService.ts)：从场景创建随机源并接入正式模拟。
 - [environmentState.ts](../../src/core/combat/state/environmentState.ts)：进入战斗切面的随机状态。
+
+## 模块所有权与扩展边界
+
+`SimulationRandomSource` 持有配置副本和当前状态的解析函数，每次取样重新解析数据，不缓存旧分支对象。配置首次绑定到状态后必须匹配；登记施放种子只写输入选择，不建立随机流。真正的取样推进对应的流或期望序列位置，并记录已消费的种子选择。
+
+正式恢复使用保存图中的随机状态重建此端口。直接注入的 CriticalSampleSource / ProbabilitySampleSource 是另一种测试或适配入口：显式有限样本源内部有自己的游标，它不会自动进入 CombatStateGraph。调用者若选择这种入口，必须承担恢复一致性，不能把内置模式的可恢复保证推广到任意有状态回调。样本耗尽明确抛错，不能补随机值掩盖覆盖不足。
+
+随机模块不决定哪个游戏动作应抽样，也不决定伤害、暴击后效或概率条件的消费次数；这些分别由动作/伤害消费者负责。新增消费点需要在固定程序、来源身份、状态保存与回执验收之间闭合，单测相同 seed 得到相同数字仍不足以证明接线正确。
