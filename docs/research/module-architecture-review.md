@@ -27,8 +27,8 @@
 | M02  | 离线来源读取、缓存、版本与来源追踪：`tools/game-data-compiler/src/source`                                           | 107 个 TS 文件                    | [游戏数据](../architecture/game-data.md)、工具 README                                                           | 关键路径已查 |
 | M03  | 离线动作投影、引用、领域组装与优化：`tools/game-data-compiler/src/compiler`、`tools/game-data-compiler/src/domains` | 89 + 39 个 TS 文件（含 M04）      | [游戏数据](../architecture/game-data.md)、[动作图](../architecture/action-graphs.md)                            | 关键路径已查 |
 | M04  | 候选构建、验证、发布和回滚：编译器 `build/publication` 与脚本                                                       | 脚本 52 个 TS 文件                | 工具 README、[游戏数据](../architecture/game-data.md)                                                           | 关键路径已查 |
-| M05  | 正式数据登记、按需加载和项目覆盖：`src/data`                                                                        | 435 个 TS 文件，主要为生成定义    | [游戏数据](../architecture/game-data.md)                                                                        | 待查         |
-| M06  | 项目格式、编辑事务、草稿与存储：`core/project`、`application/editor`、存储适配                                      | 11 + 16 个 TS 文件及存储适配      | [编辑器](../architecture/editor.md)                                                                             | 待查         |
+| M05  | 正式数据登记、按需加载和项目覆盖：`src/data`                                                                        | 435 个 TS 文件，主要为生成定义    | [游戏数据](../architecture/game-data.md)                                                                        | 关键路径已查 |
+| M06  | 项目格式、编辑事务、草稿与存储：`core/project`、`application/editor`、`application/openProject`、存储适配           | 11 + 16 个 TS 文件及存储适配      | [编辑器](../architecture/editor.md)                                                                             | 待查         |
 | M07  | 图校验、场景编译、构筑和机制：`core/action-graph`、`compiler`、`mechanics`                                          | 3 + 25 + 4 个 TS 文件             | [动作图](../architecture/action-graphs.md)、[游戏数据](../architecture/game-data.md)                            | 待查         |
 | M08  | 战斗数据图、装配及恢复：`combat/state`、`combat/runtime`                                                            | 6 + 34 个 TS 文件（含恢复与输入） | [战斗](../architecture/combat.md)、[切面](../architecture/checkpoints.md)                                       | 待查         |
 | M09  | 时钟、变速、随机：`combat/time`、`combat/random`                                                                    | 5 + 3 个 TS 文件                  | [战斗](../architecture/combat.md)、[随机](../architecture/randomness.md)                                        | 待查         |
@@ -48,7 +48,7 @@
 ## 当前进度
 
 - 库存和检查顺序已记录。
-- M01–M04 的关键路径已核查；D04 测试守卫盲区已记录但未改代码。当前进入 M05 正式加载、项目覆盖与缓存换代。
+- M01–M05 数据供应链关键路径已核查；D04 测试守卫盲区和 D06 页面项目效果查询缺口已记录，未修改生产代码。下一组是 M06 项目/编辑/存储与 M07 场景编译，再向战斗内部推进。
 - 新发现只给出证据、风险和最小整改建议；此次后续模块检查不自动修改生产逻辑。
 
 ## M01：共享契约、查询协议与校验
@@ -135,3 +135,25 @@ npx vitest run tools/game-data-compiler/test/dataContractBoundaries.test.ts --ma
 - **原子性限制：** 现有实现有意逐文件安装并保留目录根，不提供并发读者看不到中间状态的保证，也不提供进程崩溃后的自动恢复日志。本次没有把 catch 回滚测试外推成断电安全。
 - **验证：** candidate publisher、runtime overlay、type check、asset check、rebuild、combat rebuild 6 文件、50 项通过；包括先验证全部目标、安装中途失败恢复、文件/目录类型变化、候选缺失不读旧生成成员以及第二轮生成失败阻断发布。
 - **未查范围：** 未实际发布整套原始资源，没有进行真实 Windows 文件锁、磁盘满、进程中断或回滚再次失败的系统实验；测试使用仓库自身隔离文件夹和故障替身。没有发现需要自动修改代码的新发布缺陷。
+
+## M05：正式加载、项目覆盖与缓存换代
+
+已追踪路由准备内置模块 → 稳定查询外壳 → 项目定义视图 → 页面实时查询 → Worker 数据包；检查了类别并发合并、失败任务移除、项目 origin 与真实套装依赖的区别，以及项目定义保存/撤销后的 clearCache 调用。稳定说明见[内置装载与项目定义视图](../architecture/game-data.md#内置装载与项目定义视图)。
+
+证据：`src/data/projectGameDataRepository.ts:51–95,124–263`、`src/core/project/projectDefinitionLibrary.ts:578–663`、`src/application/simulation/scenarioSimulationGameData.ts:53–70,125–180`、`TimelineEditor.vue:1234–1262,1553–1564,1717–1720,5358–5365`。
+
+### D06：页面联合查询遗漏项目全局效果
+
+类型：在真实保存/打开/查询与数据捕获边界已复现的功能缺口；未做浏览器端到端。页面手写联合查询覆盖角色、武器、装备、套装，却遗漏项目 getGlobalEffect/getGlobalEffects；共享核心组合器包含它们。资产工作区确实可以保存项目全局效果，全局配置选项确实包含这些项目条目，路由传入的仍是内置基础仓库。
+
+使用真实内置效果，经 WorkspaceAssetSession 和 saveProjectTemplateDefinition 创建项目，openProject 返回 true；执行从 SFC 提取的实际查询初始化表达式后，页面查询返回 null，Worker 数据捕获抛出缺失定义错误。换成共享核心组合器则解析和捕获成功。完整路径、无源码改动的命令及输出见[项目全局效果复现](project-global-effect-reproduction.md)。
+
+影响是合法项目全局效果在页面模拟输入准备阶段被当作缺失定义，不是静默算出错误伤害。捕获会包含保存的禁用引用，所以只禁用该引用也不能自动消除查询缺口。最小方向是消除重复的项目查询规则，并测试真实页面所用视图；不能在捕获处用内置效果兜底冒充项目定义。此次未修改生产代码。
+
+### 其他结论与限制
+
+- 初始按需装载、类别扩充与 Worker 子仓库是三层寿命；clearCache 不等于从浏览器卸载所有已 import 的生成模块。
+- 图缓存靠新图对象区分修订，Worker 包靠主动 revision 换代区分同 ID 定义变化；实际保存和历史恢复入口已有显式刷新，但新入口必须继续承担该责任。
+- 未逐一核对全部生成定义数值；未模拟浏览器模块下载失败后的缓存策略、真实断网和内存驻留曲线。D06 的源代码链和边界实验不能替代后续浏览器验收。
+
+- M05 验证：按需仓库、项目模板库、模拟数据包、openProject 和工作区资产会话 5 个原生文件、36 项通过；D06 文档中的命令已逐字提取重跑，输出与记录一致。通过的下层测试没有覆盖页面手写组合器，因此不抵消 D06 证据。
