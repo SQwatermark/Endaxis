@@ -33,8 +33,8 @@
 | M08  | 战斗数据图、装配及恢复：`combat/state`、`combat/runtime`                                                            | 6 + 34 个 TS 文件（含恢复与输入） | [战斗](../architecture/combat.md)、[切面](../architecture/checkpoints.md)                                       | 关键路径已查 |
 | M09  | 时钟、变速、随机：`combat/time`、`combat/random`                                                                    | 5 + 3 个 TS 文件                  | [战斗](../architecture/combat.md)、[随机](../architecture/randomness.md)                                        | 关键路径已查 |
 | M10  | 资源和属性账本：`combat/resources`、`combat/attributes`                                                             | 11 + 4 个 TS 文件                 | [战斗](../architecture/combat.md)                                                                               | 关键路径已查 |
-| M11  | 动作解释与时间线：`combat/actions`、`combat/timeline`                                                               | 13 + 3 个 TS 文件                 | [技能操作](../architecture/skill-operations.md)、[动作图](../architecture/action-graphs.md)                     | 待查         |
-| M12  | 技能、能力、冷却和输入：`combat/skills`、`combat/abilities`、输入协调                                               | 33 + 21 个 TS 文件（含 M15）      | [战斗](../architecture/combat.md)、[技能操作](../architecture/skill-operations.md)                              | 待查         |
+| M11  | 动作解释与时间线：`combat/actions`、`combat/timeline`                                                               | 13 + 3 个 TS 文件                 | [技能操作](../architecture/skill-operations.md)、[动作图](../architecture/action-graphs.md)                     | 关键路径已查 |
+| M12  | 技能、能力、冷却和输入：`combat/skills`、`combat/abilities`、输入协调                                               | 33 + 21 个 TS 文件（含 M15）      | [战斗](../architecture/combat.md)、[技能操作](../architecture/skill-operations.md)                              | 关键路径已查 |
 | M13  | 事件分发、身份和宿主订阅：`combat/events` 与宿主生命周期                                                            | 12 个 TS 文件及能力宿主           | [技能操作](../architecture/skill-operations.md)、[切面](../architecture/checkpoints.md)                         | 待查         |
 | M14  | Buff、全局 Buff 与标签：`combat/buffs`、`combat/tags`                                                               | 17 + 2 个 TS 文件                 | [战斗](../architecture/combat.md)、[技能操作](../architecture/skill-operations.md)                              | 待查         |
 | M15  | 能力实体、投射物及延迟后果：abilities 中对应目录与装配 hooks                                                        | 库存计入 M08/M12                  | [战斗](../architecture/combat.md)、[切面](../architecture/checkpoints.md)                                       | 待查         |
@@ -48,7 +48,7 @@
 ## 当前进度
 
 - 库存和检查顺序已记录。
-- M01–M10 关键路径已核查。待整改的重要项为 D07 当前方案导出缺失定义、D06 页面项目效果查询遗漏、D04 测试守卫盲区；均未自动修代码。下一组 M11–M12 动作、时间线、技能与输入执行。
+- M01–M12 关键路径已核查。待整改的重要项为 D07 当前方案导出缺失定义、D06 页面项目效果查询遗漏、D04 测试守卫盲区；均未自动修代码。下一组 M13–M14 事件宿主、Buff 和标签生命周期。
 - 新发现只给出证据、风险和最小整改建议；此次后续模块检查不自动修改生产逻辑。
 
 ## M01：共享契约、查询协议与校验
@@ -212,3 +212,14 @@ npx vitest run tools/game-data-compiler/test/dataContractBoundaries.test.ts --ma
 - 特别检查了低层 pay 接收多条费用但不聚合相同资源的疑点：正式技能编译已经拒绝多费用槽，已有专门拒绝测试，因此不能直接报告为现有技能支付 bug。低层接口不构成对任意手工参数的产品承诺。
 - 验证：资源与属性 12 个原生文件、94 项通过。后续 Buff/技能模块继续核对句柄宿主与结束/恢复接线。
 - 未查范围：没有逐项对照所有原生属性上限/舍入规则，也未证明任意外部动态 resolver 无异常。此组不重复把同步通知失败语义报成新缺陷。
+
+## M11–M12：动作图、时间轴、技能与输入
+
+已追踪输入协调 → 能力系统 → 技能 → 时间轴 → 图控制流 → 领域操作；核对同步 End/Jump、分支/重复/目标作用域、黑板共享、执行结果与诊断、动态登记、延迟请求、共享冷却与换槽预检。稳定文档见[执行模块如何分工](../architecture/skill-operations.md#执行模块如何分工)。
+
+证据：`actions/actionSequenceExecution.ts:29–101`、`actionGraphExecution.ts:112–145,609–650,689–730`、`combatActionEventListener.ts:42–113`、`timeline/timelineActionExecution.ts:61–225`、`skills/skillExecution.ts:13–119`、`skillRuntime.ts:679–803`、`abilities/abilitySystemRuntime.ts:1091–1277`、`abilitySystemExecution.ts:54–91`、`runtime/playerSkillInputCoordination.ts:55–78,214–218`。
+
+- 没有新确认的产品缺陷。先前修好的 executed/rejected、换槽双侧预检、冷却共同工厂仍在实际路径；未重复列为待整改。
+- **D11，维护约束：** 动作状态先写后通知、同帧按源配置顺序、CurrentSkill 先切换再结束旧技能、延迟请求先清再执行，分别服务同步重入和原生生命周期。抽出统一调度/事务模板可能破坏时序，不能只因类较大建议拆分。
+- 验证：actions/timeline/skills、输入运行时及技能/能力恢复 41 个原生文件、425 项通过；另单独运行实际 `abilitySystemRuntime.test.ts`，57 项通过。合计 42 文件、482 项。
+- 未查范围：未枚举所有动作组合及全部相互递归生命周期；目标群体仍受零空间模型约束。领域后果继续在 M13–M16 检查，不能用控制流测试替代伤害/Buff 语义验收。
