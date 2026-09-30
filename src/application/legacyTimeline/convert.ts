@@ -11,14 +11,9 @@ import {
   type LegacyRuntimeReplacementResolver,
   type LegacyTimingMode,
 } from './heuristicRetiming';
-import { ScenarioSimulationService } from '../simulation/scenarioSimulationService';
+import { createScenarioSimulationService } from '../simulation/createScenarioSimulationService';
 import { CheckpointRetimingSession } from './checkpointRetiming';
 import { createLegacyPreservedInputRunner } from './preservedInputs';
-import { skillSettings, skillSettingResources } from '../../data/combat/skillSettings';
-import { elementalAttachments } from '../../data/buffs/elementalAttachments';
-import { compoundStatusFactories } from '../../data/buffs/compoundStatusFactories';
-import { MechanicAdapterRegistry } from '../../core/mechanics/mechanicCompiler';
-import { contingencyContractMechanicAdapter } from '../../data/mechanics/contingencyContractAdapter';
 import { expandLegacyRecursiveSkillSequences } from './recursiveSequenceExpansion';
 import { listSkillGroupDefinitionBindings } from '../../core/game-data/operatorSkillDefinitions';
 import type { OperatorDefinition } from '../../core/game-data/operatorDefinition';
@@ -201,23 +196,8 @@ export function convertLegacyTimeline(
 ) {
   const prepared = prepareLegacySourceBestEffort(input, mappings);
   const result = createLegacyProjectImporter(repository).migrate(prepared.source);
-  const mechanicAdapters = new MechanicAdapterRegistry([contingencyContractMechanicAdapter]);
-  const simulation = new ScenarioSimulationService({
-    index: repository,
-    mechanicAdapters,
-    elementalInflictionDocument: elementalAttachments,
-    spellInflictionSettings: skillSettings,
-    compoundStatusFactories,
-    resources: {
-      sharedSpGain: { baseGainEfficiency: skillSettingResources.atbGainEfficiency },
-      spRecoveryPauseDuration: skillSettingResources.atbRecoverInterval,
-      ultimateEnergySystemUnlocked: true,
-      normalSkillUltimateEnergy: {
-        selfGainPerSp: skillSettingResources.atbConsumedDefaultUspGainSelf,
-        otherGainPerSp: skillSettingResources.atbConsumedDefaultUspGainOther,
-      },
-    },
-  });
+  // 与主线程/Worker 使用同一正式装配；重排候选自己管理切面，不启用服务缓存。
+  const simulation = createScenarioSimulationService(repository);
   const runSimulation = (
     scenario: EndaxisProjectDocument['scenarios'][number],
     endFrame: number,
