@@ -37,8 +37,8 @@
 | M12  | 技能、能力、冷却和输入：`combat/skills`、`combat/abilities`、输入协调                                               | 33 + 21 个 TS 文件（含 M15）      | [战斗](../architecture/combat.md)、[技能操作](../architecture/skill-operations.md)                              | 关键路径已查 |
 | M13  | 事件分发、身份和宿主订阅：`combat/events` 与宿主生命周期                                                            | 12 个 TS 文件及能力宿主           | [技能操作](../architecture/skill-operations.md)、[切面](../architecture/checkpoints.md)                         | 关键路径已查 |
 | M14  | Buff、全局 Buff 与标签：`combat/buffs`、`combat/tags`                                                               | 17 + 2 个 TS 文件                 | [战斗](../architecture/combat.md)、[技能操作](../architecture/skill-operations.md)                              | 关键路径已查 |
-| M15  | 能力实体、投射物及延迟后果：abilities 中对应目录与装配 hooks                                                        | 库存计入 M08/M12                  | [战斗](../architecture/combat.md)、[切面](../architecture/checkpoints.md)                                       | 待查         |
-| M16  | 伤害、治疗、附着与状态：`combat/damage/heal/infliction/status`                                                      | 21 + 3 + 9 + 7 个 TS 文件         | [战斗](../architecture/combat.md)、[结果](../architecture/results.md)                                           | 待查         |
+| M15  | 能力实体、投射物及延迟后果：abilities 中对应目录与装配 hooks                                                        | 库存计入 M08/M12                  | [战斗](../architecture/combat.md)、[切面](../architecture/checkpoints.md)                                       | 关键路径已查 |
+| M16  | 伤害、治疗、附着与状态：`combat/damage/heal/infliction/status`                                                      | 21 + 3 + 9 + 7 个 TS 文件         | [战斗](../architecture/combat.md)、[结果](../architecture/results.md)                                           | 关键路径已查 |
 | M17  | 回执、投影与来源：`combat/receipt`、`core/projection`                                                               | 4 + 30 个 TS 文件                 | [结果](../architecture/results.md)                                                                              | 待查         |
 | M18  | 场景服务、输入排程、增量/继承、线程与发布：`application/simulation`、`core/pipeline`                                | 17 + 1 个 TS 文件                 | [编辑器](../architecture/editor.md)、[切面](../architecture/checkpoints.md)、[结果](../architecture/results.md) | 待查         |
 | M19  | 旧方案格式转换与重排：`application/legacyTimeline`、`tools/legacy-timeline`                                         | 9 + 3 个 TS 文件                  | [编辑器](../architecture/editor.md)、工具 README                                                                | 待查         |
@@ -48,7 +48,7 @@
 ## 当前进度
 
 - 库存和检查顺序已记录。
-- M01–M14 关键路径已核查。待整改的重要项为 D07 当前方案导出缺失定义、D06 页面项目效果查询遗漏、D04 测试守卫盲区；均未自动修代码。下一组 M15–M16 实体、投射物、伤害及状态后果。
+- M01–M16 关键路径已核查。待整改的重要项为 D07 当前方案导出缺失定义、D06 页面项目效果查询遗漏、D04 测试守卫盲区；均未自动修代码。下一组 M17–M18 回执投影与应用模拟发布，最后 M19 旧轴转换。
 - 新发现只给出证据、风险和最小整改建议；此次后续模块检查不自动修改生产逻辑。
 
 ## M01：共享契约、查询协议与校验
@@ -234,3 +234,14 @@ npx vitest run tools/game-data-compiler/test/dataContractBoundaries.test.ts --ma
 - **D12，维护约束：** Buff 结束、释放、回收和 Enable/Disable 具有不同回调时机与引用有效性；全局父实例也不能退化成同名组。文档保留这些区别，没有为追求统一生命周期而掩盖耦合。
 - 验证：事件/Buff/标签、四类 Ability 宿主及对应恢复共 41 个原生文件、574 项通过，包含嵌套黑板、订阅阶段、失败清理与回收引用。
 - 未查范围：未证明所有游戏版本事件均投影完整，未穷举任意回调在每个清理点连续抛错的组合；当前游戏异常仍采用会话失败封闭，不声称所有清理都是事务。
+
+## M15–M16：实体、投射物与数值/状态后果
+
+已追踪共享编号、实体死亡/延迟释放、子技能/Buff/被动清理、投射物四阶段与回调惰性宿主、恢复关系，以及实际标准环境接入的伤害/治疗/失衡、附着、反应、通用状态和标记。稳定文档见[实体、伤害与状态后果](../architecture/combat-effects.md)。
+
+证据：`abilities/logicalAbilityEntityRuntime.ts:437–568`、`projectileLifecycleExecution.ts:103–216`、`projectileCallbackRuntime.ts:45–139`、`runtime/combatRuntimeAssembly.ts:3124–3155`、`damage/playerDamageOperationExecutor.ts:250–334,531–689`、`healthDamage.ts:185–239`、`heal/healOperationExecutor.ts:110–150`、`infliction/elementalInflictionBuffAdapter.ts:87–141`、`status/timedMarkers.ts:91–145`。
+
+- 未发现新确认产品缺陷。既有来源判别联合仍正确区分执行宿主和继承施法；没有重新列出此前已修的身份/事件字段问题。
+- **D13，接口约束：** 部分运行时查询会惰性移除过期反应或 sweep 标记并通知；这些不是任意 UI 可以调用的纯查询口。当前发布/复制边界保留隔离，未证明现有 UI 违规推进战斗。
+- M15 验证：逻辑实体、子技能、回调宿主、投射物/编号及恢复 11 个原生文件、127 项通过。M16 验证：damage/heal/infliction/status 与标准环境/兼容/技能集成 36 个原生文件、361 项通过。
+- 未查范围：未逐个数值对照所有生成技能、免伤链及原生反汇编；未扩展空间/多敌人能力，也未把内置单目标通过当作真实碰撞验收。异常回调的任意组合和长期对象增长需专项实验。
