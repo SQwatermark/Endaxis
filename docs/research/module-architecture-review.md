@@ -24,7 +24,7 @@
 | 编号 | 责任模块与主要目录                                                                                                  | 首轮库存                          | 对应稳定文档                                                                                                    | 深入检查状态 |
 | ---- | ------------------------------------------------------------------------------------------------------------------- | --------------------------------- | --------------------------------------------------------------------------------------------------------------- | ------------ |
 | M01  | 共享契约、定义查询协议与校验：`packages/game-data-contract/src`、`src/core/game-data`                               | 17 + 25 个 TS 文件                | [游戏数据](../architecture/game-data.md)                                                                        | 关键路径已查 |
-| M02  | 离线来源读取、缓存、版本与来源追踪：`tools/game-data-compiler/src/source`                                           | 107 个 TS 文件                    | [游戏数据](../architecture/game-data.md)、工具 README                                                           | 待查         |
+| M02  | 离线来源读取、缓存、版本与来源追踪：`tools/game-data-compiler/src/source`                                           | 107 个 TS 文件                    | [游戏数据](../architecture/game-data.md)、工具 README                                                           | 关键路径已查 |
 | M03  | 离线动作投影、引用、领域组装与优化：`tools/game-data-compiler/src/compiler`、`tools/game-data-compiler/src/domains` | 89 + 39 个 TS 文件（含 M04）      | [游戏数据](../architecture/game-data.md)、[动作图](../architecture/action-graphs.md)                            | 待查         |
 | M04  | 候选构建、验证、发布和回滚：编译器 `build/publication` 与脚本                                                       | 脚本 52 个 TS 文件                | 工具 README、[游戏数据](../architecture/game-data.md)                                                           | 待查         |
 | M05  | 正式数据登记、按需加载和项目覆盖：`src/data`                                                                        | 435 个 TS 文件，主要为生成定义    | [游戏数据](../architecture/game-data.md)                                                                        | 待查         |
@@ -48,7 +48,7 @@
 ## 当前进度
 
 - 库存和检查顺序已记录。
-- M01 的关键入口、所有权和失败边界已核查并补充架构说明；后续继续 M02 来源读取与来源追踪，再到 M03–M05。
+- M01/M02 的关键入口、所有权和失败边界已核查并补充架构说明；接下来检查 M03 的动作投影、引用闭包和优化，再到候选发布与运行时装载。
 - 新发现只给出证据、风险和最小整改建议；此次后续模块检查不自动修改生产逻辑。
 
 ## M01：共享契约、查询协议与校验
@@ -63,3 +63,15 @@
 - **未查范围：** 未逐字段证明 17 个契约文件的游戏单位/原生语义，未穷举 25 个领域文件中的全部非法组合；下一模块继续检查外部来源如何进入这些类型。没有把类型检查通过当作原生正确性证明。
 
 - M01 验证：契约独立类型检查通过；图编译仓库、技能/干员/构筑校验、数据仓库及契约边界共 6 个原生文件、89 项通过。命令范围：`npm run type-check:game-data-contract` 与上述对应 `*.test.ts` 的 `npx vitest run ... --maxWorkers=1`。这是列明路径的验证，不代表所有定义语义已审计。
+
+## M02：离线来源、缓存与准入
+
+已追踪 provider 请求/响应体重试及身份验证 → 下载器的隔离目录与来源账本 → verifyGameDataSnapshot → rebuild 的 source-coverage gate；另追踪 SourceFileCache 配对读取、嵌套冻结、LRU 淘汰及读盘/解析失败。稳定说明见[离线游戏数据生产](../architecture/game-data-production.md)。
+
+证据：`scripts/gameDataProviders.ts:95–130`、`downloadGameDataSources.ts:78–232`、`verifyGameDataSnapshot.ts:8–138`、`rebuildGameData.ts:215–268`、`src/source/sourceFileCache.ts:37–145`。
+
+- **D02，准入约束，非已证实缺陷：** 下载工具能产出 vfs-only 或定向文件，不代表正式构建接受它。正式准入要求 hybrid 账本、完整文件集合和 AKEDB BuffData；定向补文件不能凭“下载成功”跳过整批来源校验。
+- **D03，缓存约束，非已证实缺陷：** SourceFileCache 故意在命中时保留第一次读取，不按文件 mtime 自动失效；独立验收必须重新读取。原文字节容量不等于堆占用，暂无实测泄漏依据。
+- **已查失败路径：** 损坏来源身份或资产哈希不当作可补缺 404；非 BuffData 的坏集合清单不能降格为空；失败解析移除缓存；缺少来源通过 missingInputs 阻断完整发布。总体来源版本是否真正一致仍是外部证据问题。
+- **验证：** provider、下载、hybrid 补缺、来源缓存 4 个原生测试文件、34 项通过。使用 `npx vitest run tools/game-data-compiler/test/{gameDataProviders,downloadGameDataSources,hybridSourceDownload,sourceFileCache}.test.ts --maxWorkers=1`。
+- **未查范围：** 未访问实际 CDN/VFS 或重建原始 Unity 资源；未逐个遍历全部来源解析器的每种原生字段组合。测试使用原生工具的替身来源，不能证明真实版本覆盖完整。
