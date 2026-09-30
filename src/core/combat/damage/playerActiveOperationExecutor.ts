@@ -1,3 +1,4 @@
+import { resolveCombatDamageOrigin } from './combatDamageOrigin';
 /**
  * 将玩家主动技能当前已闭环的元素附着与伤害执行器接入同一后继责任链。
  * 本模块只完成运行时接线；一个 Hit 内的真实先后仍完全由已编译 sequence 的 step 顺序决定。
@@ -54,16 +55,17 @@ export interface PlayerActiveElementalTargetOptions<Key extends string> extends 
 export function createPlayerActiveOperationExecutor(
   options: PlayerActiveOperationExecutorOptions,
 ): CombatOperationExecutor {
+  const origin = resolveCombatDamageOrigin(options.context);
   const shared = {
-    sourceOperatorId: options.context.program.operatorId,
-    skillId: options.context.program.skillId,
-    skillType: options.context.program.skillType,
+    sourceOperatorId: origin.operatorId,
+    skillId: origin.skillId,
+    skillType: origin.skillType,
     resolveCriticalOverride: (
       step: Parameters<
         NonNullable<PlayerDamageOperationDependencies['resolveCriticalOverride']>
       >[0],
     ) =>
-      step.key === undefined
+      step.key === undefined || options.context.kind !== 'skill'
         ? undefined
         : options.context.readSimulationInputs?.()?.criticalOverrides?.[step.key],
     targetId: options.targetId,
@@ -79,7 +81,7 @@ export function createPlayerActiveOperationExecutor(
   return new ElementalInflictionOperationExecutor({
     ...options.infliction,
     ...shared,
-    skillId: options.context.program.skillId,
+    skillId: origin.skillId,
     delegate: damage,
   });
 }
@@ -92,7 +94,7 @@ export function createPlayerActiveOperationExecutorForElementalTarget<Key extend
   options: PlayerActiveElementalTargetOptions<Key>,
 ): CombatOperationExecutor {
   const adapter = options.elementalTarget.createInflictionAdapter(
-    options.context.program.operatorId,
+    resolveCombatDamageOrigin(options.context).operatorId,
   );
   return createPlayerActiveOperationExecutor({
     context: options.context,

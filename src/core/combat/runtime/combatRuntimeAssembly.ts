@@ -335,13 +335,8 @@ type CombatOperationProgram = CompiledSkillExecutionProgram & {
   readonly skillLevel?: number;
 };
 
-export interface CombatOperationExecutorContext {
-  readonly readSimulationInputs?: () => SkillSimulationInputs | undefined;
-  /** 当前时间轴施放身份；固定定义和非技能宿主不提供。 */
-  readonly castId?: string;
-  readonly program: CompiledSkillProgram;
-  /** 伤害、治疗和属性读取归属的干员；能力实体作为动作宿主时仍指向其定义宿主。 */
-  readonly sourceOperatorId?: string;
+/** 所有干员操作末端共享的战斗端口；不携带动作图实例或编辑器时间轴身份。 */
+interface OperatorOperationExecutorContext {
   /** 把能力实体 AbilitySystem 身份沿来源链解析到实际干员/敌人。 */
   readonly resolveAbilitySystemSourceId?: (entityId: string) => string;
   /** 当前定义宿主的已解析 Buff 闭包，供具有隐式 Buff 依赖的原生根动作复用。 */
@@ -355,6 +350,36 @@ export interface CombatOperationExecutorContext {
   /** 全场唯一的语义事件中心；执行器只报告已完成的战斗事实。 */
   readonly semanticEvents: CombatSemanticEventRuntime;
 }
+
+/** 时间轴、能力实体子技能和 Buff 派生链均持有真实的技能执行程序。 */
+export interface CombatSkillOperationExecutorContext extends OperatorOperationExecutorContext {
+  readonly kind: 'skill';
+  readonly program: CombatOperationProgram;
+  /** 当前时间轴施放身份；固定定义和非时间轴技能宿主不提供。 */
+  readonly castId?: string;
+  readonly readSimulationInputs?: () => SkillSimulationInputs | undefined;
+  /** 伤害、治疗和属性读取归属；跨宿主 Buff 仍使用定义来源干员。 */
+  readonly sourceOperatorId?: string;
+}
+
+/**
+ * 旧响应式末端从首技能继承的伤害输入。这里只明确保留已有语义，不声称事件属于该技能；
+ * 首技能顺序依赖的玩法修正须单独核对，不能混入责任链重构。
+ */
+export type LegacyReactiveDamageProfile = Pick<
+  CompiledSkillExecutionProgram,
+  'operatorId' | 'skillType' | 'executionSkillId' | 'statModifiers'
+>;
+
+export interface CombatReactiveOperationExecutorContext extends OperatorOperationExecutorContext {
+  readonly kind: 'reactive';
+  readonly sourceOperatorId: string;
+  readonly sourceActionId: string;
+  readonly legacyDamageProfile: LegacyReactiveDamageProfile;
+}
+
+export type CombatOperationExecutorContext =
+  CombatSkillOperationExecutorContext | CombatReactiveOperationExecutorContext;
 
 /** 装配根在任何开局程序执行前交给外部战斗环境的一次性运行时上下文。 */
 export interface CombatBattleRuntimeContext {
@@ -389,6 +414,7 @@ export interface BoundCombatBattleRuntimes {
 
 /** 配装事件中未被通用执行器消费的操作，由环境按明确来源决定是否支持。 */
 export interface EquipmentEventOperationExecutorContext extends EquipmentEventExecutionContext {
+  readonly kind: 'equipment';
   readonly buffDefinitions?: CombatOperatorProgram['buffDefinitions'];
   readonly enemy: CombatEnemyProgram;
   readonly panel?: ResolvedOperatorPanel;
@@ -3958,8 +3984,8 @@ export class CombatRuntimeAssembly {
         this.#castParameters.get(
           `${definitionOperator.operatorId}\u0000${options.castId ?? program.skillId}`,
         ),
-      // 环境末端的旧公开端口仍声明时间轴程序；嵌入式宿主不会读取编辑身份。
-      program: program as CompiledSkillProgram,
+      kind: 'skill',
+      program,
       ...(options.castId === undefined ? {} : { castId: options.castId }),
       sourceOperatorId: definitionOperator.operatorId,
       resolveAbilitySystemSourceId: entityId => this.#resolveAbilitySystemSourceId(entityId),
@@ -4130,6 +4156,7 @@ export class CombatRuntimeAssembly {
     const sourceActionId = `equipment:${source.source.kind}:${source.source.slug}:${source.handlerKey}`;
     const terminal = createTerminal({
       ...source,
+      kind: 'equipment',
       buffDefinitions: operator.buffDefinitions,
       enemy: options.enemy,
       ...(operator.panel === undefined ? {} : { panel: operator.panel }),
@@ -4311,20 +4338,16 @@ export class CombatRuntimeAssembly {
     const template = operator.skills[0] ?? operator.definitionSkillPrograms?.[0];
     if (template === undefined) return unsupportedReactiveTerminal;
     return options.createOperationExecutor({
-      castId: sourceActionId,
+      kind: 'reactive',
+      sourceActionId,
       sourceOperatorId: operator.operatorId,
       resolveAbilitySystemSourceId: entityId => this.#resolveAbilitySystemSourceId(entityId),
       buffDefinitions: operator.buffDefinitions,
-      program: {
-        ...template,
-        skillId: sourceActionId,
-        initialBlackboard: {},
-        timelineBlockFrames: 0,
-        cooldownFrames: undefined,
-        costFrame: undefined,
-        costs: [],
-        timelineActions: [],
-        abilityEntityDefinitions: operator.abilityEntityDefinitions,
+      legacyDamageProfile: {
+        operatorId: template.operatorId,
+        skillType: template.skillType,
+        executionSkillId: template.executionSkillId,
+        statModifiers: template.statModifiers,
       },
       enemy: options.enemy,
       equipmentContributions: operator.equipmentContributions ?? [],

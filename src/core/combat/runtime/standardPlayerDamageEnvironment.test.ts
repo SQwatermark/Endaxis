@@ -1,3 +1,4 @@
+import type { CompiledSkillProgram } from '../../compiler/combatProgram';
 import { withAbilityEventResponseContext } from '../events/abilityEventResponseContext';
 import { CombatVitals } from '../resources/combatVitals';
 import type { BoundCombatBattleRuntimes } from './combatRuntimeAssembly';
@@ -643,7 +644,7 @@ import type { PendingComboCondition } from '../skills/comboSkillConditionRuntime
 import { CombatClock } from '../time/combatClock';
 import type {
   CombatEnemyProgram,
-  CombatOperationExecutorContext,
+  CombatSkillOperationExecutorContext,
   EquipmentEventOperationExecutorContext,
 } from './combatRuntimeAssembly';
 import { CombatRuntimeAssembly } from './combatRuntimeAssembly';
@@ -724,7 +725,7 @@ it.each([
   (element, idPart, burstType, tag) => {
     const buffId = `buff_common_${idPart}_${idPart}_triggered`;
     const base = createContext();
-    const context: CombatOperationExecutorContext = {
+    const context: CombatSkillOperationExecutorContext = {
       ...base,
       buffDefinitions: {
         [buffId]: {
@@ -819,8 +820,11 @@ const testEnemy: CombatEnemyProgram = {
   },
 };
 
-function createContext(): CombatOperationExecutorContext {
+function createContext(): CombatSkillOperationExecutorContext & {
+  readonly program: CompiledSkillProgram;
+} {
   return {
+    kind: 'skill',
     program: {
       operatorId: 'operator',
       skillGroupKey: 'battleSkill',
@@ -874,7 +878,7 @@ function createContext(): CombatOperationExecutorContext {
 /** 本组隔离用例不发射投射物；新增相关动作时必须换实际宿主，不能靠空回调漏执行。 */
 function bindBattleWithoutProjectiles(
   environment: StandardPlayerDamageEnvironment,
-  context: CombatOperationExecutorContext,
+  context: CombatSkillOperationExecutorContext,
 ): BoundCombatBattleRuntimes {
   return environment.runtimeOptions.bindBattleRuntime!({
     enemy: context.enemy,
@@ -913,6 +917,7 @@ function createEquipmentContext(): EquipmentEventOperationExecutorContext {
   const { program: _program, equipmentContributions: _contributions, ...battle } = createContext();
   return {
     ...battle,
+    kind: 'equipment',
     operatorId: 'operator',
     source: { kind: 'weaponTrait', slug: 'fixture', traitKey: 'effect' },
     handlerKey: 'additional-hit',
@@ -2397,7 +2402,7 @@ describe('StandardPlayerDamageEnvironment', () => {
     });
     const sourceBase = createContext();
     const sourceReceipt = new CombatReceiptCollector();
-    const source: CombatOperationExecutorContext = {
+    const source: CombatSkillOperationExecutorContext = {
       ...sourceBase,
       receipt: sourceReceipt,
       program: { ...sourceBase.program, operatorId: 'operator:a' },
@@ -2408,7 +2413,7 @@ describe('StandardPlayerDamageEnvironment', () => {
       },
     };
     const targetBase = createContext();
-    const target: CombatOperationExecutorContext = {
+    const target: CombatSkillOperationExecutorContext = {
       ...targetBase,
       program: { ...targetBase.program, operatorId: 'operator:b' },
       panel: { ...targetBase.panel!, operatorId: 'operator:b' },
@@ -2602,7 +2607,7 @@ describe('StandardPlayerDamageEnvironment', () => {
     const baseContext = createContext();
     const lowHealthEnemy = { ...testEnemy, health: 100 };
     const environment = createEnvironment(lowHealthEnemy);
-    const context: CombatOperationExecutorContext = {
+    const context: CombatSkillOperationExecutorContext = {
       ...baseContext,
       enemy: lowHealthEnemy,
       semanticEvents: new CombatSemanticEventRuntime(
@@ -2905,7 +2910,7 @@ describe('StandardPlayerDamageEnvironment', () => {
     const baseContext = createContext();
     if (baseContext.panel === undefined) throw new Error('test fixture requires a resolved panel');
     const receipt = new CombatReceiptCollector();
-    const context: CombatOperationExecutorContext = {
+    const context: CombatSkillOperationExecutorContext = {
       ...baseContext,
       panel: { ...baseContext.panel, artsIntensity: 2 },
       receipt,
@@ -3449,4 +3454,115 @@ it('输出事件携带实际技能身份而不是展示组，承伤方不携带�
   expect(outputs[0]).toHaveProperty('executingSkillId', 'unrelated-id');
   expect(targets).toHaveLength(1);
   expect(targets[0]).not.toHaveProperty('executingSkillId');
+});
+
+it('响应式末端保留已有首技能伤害分类与加成，并区分无模板的拒绝路径', () => {
+  const base = createContext();
+  const first = {
+    ...base.program,
+    skillId: 'first',
+    executionSkillId: 'first-body',
+    statModifiers: { criticalRate: 1 },
+  };
+  const second = { ...base.program, skillId: 'second', skillType: 'basicAttack' as const };
+  const run = (
+    skills: readonly CompiledSkillProgram[],
+    definitionSkillPrograms?: readonly CompiledSkillProgram[],
+  ) => {
+    const environment = createEnvironment(testEnemy, 0.9);
+    const outputs: AbilityEventPayloadMap['outputDamage'][] = [];
+    environment
+      .eventsFor('operator')
+      .registerAction('outputDamage', 0, event => outputs.push(event.payload));
+    const createTerminal = vi.fn(environment.runtimeOptions.createOperationExecutor);
+    const assembly = new CombatRuntimeAssembly({
+      ...environment.runtimeOptions,
+      resources: base.resources.snapshot(),
+      enemy: testEnemy,
+      operators: [
+        {
+          operatorId: 'operator',
+          skills,
+          definitionSkillPrograms,
+          skillCooldownPrograms: definitionSkillPrograms,
+          panel: base.panel,
+          initializationPrograms: [
+            {
+              key: 'damage-profile',
+              sequence: chainEntry('reactive-damage-profile', [damageStep]),
+            },
+          ],
+        },
+      ],
+      createOperationExecutor: createTerminal,
+    });
+    return {
+      assembly,
+      createTerminal,
+      outputs,
+      hit: assembly.receipt.entries.find(entry => entry.event === 'DamageApplied')!,
+    };
+  };
+  const firstRun = run([first, second]);
+  const secondRun = run([second, first]);
+  const reactiveContext = firstRun.createTerminal.mock.calls.find(
+    ([context]) => context.kind === 'reactive',
+  )![0];
+  expect(reactiveContext).not.toHaveProperty('program');
+  expect(reactiveContext).not.toHaveProperty('castId');
+  expect(reactiveContext).not.toHaveProperty('readSimulationInputs');
+  expect(firstRun.hit.data).toMatchObject({
+    castId: 'upgrade-initialization:damage-profile',
+    skillType: 'battleSkill',
+    isCritical: true,
+  });
+  expect(firstRun.hit.data!.value).toBeCloseTo((700 / 3) * 0.8 * 1.2 * 1.6);
+  expect(firstRun.outputs[0]).toMatchObject({
+    executingSkillId: 'first-body',
+    skillCastInfo: null,
+  });
+  expect(secondRun.outputs[0]).toMatchObject({
+    executingSkillId: 'upgrade-initialization:damage-profile',
+    skillCastInfo: null,
+  });
+  expect(secondRun.hit.data).toMatchObject({ skillType: 'basicAttack', isCritical: false });
+  expect(secondRun.hit.data!.value).toBeCloseTo((700 / 3) * 0.8);
+  expect(run([], [first]).hit.data).toEqual(firstRun.hit.data);
+  expect(() => run([])).toThrow("reactive event handler does not support 'dealDamage'");
+});
+
+it('配装末端仍拒绝元素操作，显式响应式宿主保留元素能力', () => {
+  const base = createContext();
+  const environment = createInflictionEnvironment();
+  const equipment = environment.runtimeOptions.createEquipmentEventOperationExecutor!({
+    ...createEquipmentContext(),
+    clock: base.clock,
+    resources: base.resources,
+    receipt: base.receipt,
+    enemy: base.enemy,
+  });
+  const step = {
+    kind: 'applyElementalInfliction' as const,
+    parameters: { element: 'electric' as const, isExtra: false },
+  };
+  expect(() => equipment.execute(step)).toThrow();
+  const reactive = environment.runtimeOptions.createOperationExecutor({
+    kind: 'reactive',
+    sourceOperatorId: 'operator',
+    sourceActionId: 'passive:elemental',
+    legacyDamageProfile: { operatorId: 'operator', skillType: 'battleSkill' },
+    enemy: base.enemy,
+    panel: base.panel,
+    equipmentContributions: [],
+    clock: base.clock,
+    resources: base.resources,
+    receipt: base.receipt,
+    semanticEvents: base.semanticEvents,
+  });
+  expect(reactive.execute(step)).toBe(true);
+  expect(
+    (base.receipt as CombatReceiptCollector).entries.filter(
+      entry => entry.event === 'ElementalInflictionApplied',
+    ),
+  ).toHaveLength(1);
 });

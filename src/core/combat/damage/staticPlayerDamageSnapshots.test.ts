@@ -6,7 +6,7 @@ import { CombatClock } from '../time/combatClock';
 import { CombatResources } from '../resources/combatResources';
 import type {
   CombatEnemyProgram,
-  CombatOperationExecutorContext,
+  CombatSkillOperationExecutorContext,
   EquipmentEventOperationExecutorContext,
 } from '../runtime/combatRuntimeAssembly';
 import { CombatReceiptCollector } from '../receipt/combatReceipt';
@@ -100,8 +100,9 @@ it('freezes level-derived reaction scalars after runtime attribute modifiers', (
   expect(snapshot.attacker.physicalInflictionDamageMultiplier).toBeCloseTo(1 + 89 / 392);
 });
 
-function createContext(overrides: Partial<CombatOperationExecutorContext> = {}) {
+function createContext(overrides: Partial<CombatSkillOperationExecutorContext> = {}) {
   return {
+    kind: 'skill',
     program: {
       operatorId: 'operator',
       skillGroupKey: 'battleSkill',
@@ -131,7 +132,7 @@ function createContext(overrides: Partial<CombatOperationExecutorContext> = {}) 
     receipt: new CombatReceiptCollector(),
     semanticEvents: new CombatSemanticEventRuntime(),
     ...overrides,
-  } satisfies CombatOperationExecutorContext;
+  } satisfies CombatSkillOperationExecutorContext;
 }
 
 const electricDamage: ResolvedCombatStepForKind<'dealDamage'> = {
@@ -386,6 +387,7 @@ describe('resolveStaticPlayerDamageSnapshots', () => {
     const { program: _program, equipmentContributions: _contributions, ...battle } = skillContext;
     const context: EquipmentEventOperationExecutorContext = {
       ...battle,
+      kind: 'equipment',
       operatorId: 'operator',
       source: { kind: 'weaponTrait', slug: 'fixture', traitKey: 'effect' },
       handlerKey: 'extra',

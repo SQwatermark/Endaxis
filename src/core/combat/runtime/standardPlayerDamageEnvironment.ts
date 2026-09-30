@@ -1,3 +1,4 @@
+import { resolveCombatDamageOrigin } from '../damage/combatDamageOrigin';
 import { ABILITY_EVENTS } from '../../../../packages/game-data-contract/src/abilityEvents';
 import {
   nextReactionDamageKey,
@@ -769,12 +770,9 @@ export class StandardPlayerDamageEnvironment {
   }
 
   #createOperationExecutor(context: CombatDamageExecutorContext): CombatOperationExecutor {
-    const program = 'program' in context ? context.program : undefined;
-    const operatorId =
-      'program' in context
-        ? (context.sourceOperatorId ?? context.program.operatorId)
-        : context.operatorId;
-    if ('program' in context && context.resolveAbilitySystemSourceId !== undefined) {
+    const origin = resolveCombatDamageOrigin(context);
+    const operatorId = origin.sourceOperatorId;
+    if (context.kind !== 'equipment' && context.resolveAbilitySystemSourceId !== undefined) {
       this.#resolveAbilitySystemSourceId = context.resolveAbilitySystemSourceId;
     }
     this.#bindBattleRuntime(context);
@@ -788,15 +786,11 @@ export class StandardPlayerDamageEnvironment {
     const operatorBuffs = this.#operatorBuffRuntime(operatorId, context.panel).container;
     const damage = new PlayerDamageOperationExecutor({
       sourceOperatorId: operatorId,
-      castId: 'program' in context ? context.castId : undefined,
-      skillId: program?.skillId,
-      executingSkillId: program?.executionSkillId ?? program?.skillId,
-      skillType: program?.skillType,
-      ...('program' in context
-        ? {}
-        : {
-            sourceActionId: `equipment:${context.source.kind}:${context.source.slug}:${context.handlerKey}`,
-          }),
+      castId: origin.castId,
+      skillId: origin.skillId,
+      executingSkillId: origin.executingSkillId,
+      skillType: origin.skillType,
+      sourceActionId: origin.sourceActionId,
       targetId: 'enemy',
       targetVitals: this.enemyVitals,
       clock: context.clock,
@@ -821,7 +815,7 @@ export class StandardPlayerDamageEnvironment {
       resolveCriticalOverride: step =>
         step.key === undefined
           ? undefined
-          : 'program' in context
+          : context.kind === 'skill'
             ? context.readSimulationInputs?.()?.criticalOverrides?.[step.key]
             : undefined,
       resolveReactionCriticalOverride: identity => this.#resolveReactionCriticalOverride(identity),
@@ -849,9 +843,11 @@ export class StandardPlayerDamageEnvironment {
       beforePoiseZero: modifier =>
         this.#poiseBreakBuffs.begin(modifier.sourceId, poiseBreakDefinition),
       // 配装元素链仍需独立闭环，不能因 HP 伤害可用而自动开放。
-      delegate: 'program' in context ? this.#createReactionExecutor(context) : strictTerminal,
+      delegate:
+        context.kind === 'equipment' ? strictTerminal : this.#createReactionExecutor(context),
     });
-    const delegate = 'program' in context ? this.#createKnockDownExecutor(context, damage) : damage;
+    const delegate =
+      context.kind === 'equipment' ? damage : this.#createKnockDownExecutor(context, damage);
     return this.#createHealExecutor(context, operatorId, delegate);
   }
 
@@ -861,7 +857,7 @@ export class StandardPlayerDamageEnvironment {
   ): CombatOperationExecutor {
     const control = this.#enemyKnockDown;
     if (control === null) return delegate;
-    const sourceId = context.program.operatorId;
+    const sourceId = resolveCombatDamageOrigin(context).operatorId;
     const record = (event: string) =>
       context.receipt.record({
         frame: context.clock.frame,
@@ -947,9 +943,10 @@ export class StandardPlayerDamageEnvironment {
   }
 
   #createReactionExecutor(context: CombatOperationExecutorContext): CombatOperationExecutor {
+    const origin = resolveCombatDamageOrigin(context);
     return new ElementalReactionOperationExecutor({
-      sourceOperatorId: context.program.operatorId,
-      castId: context.castId,
+      sourceOperatorId: origin.operatorId,
+      castId: origin.castId,
       targetId: 'enemy',
       clock: context.clock,
       receipt: context.receipt,
@@ -983,13 +980,14 @@ export class StandardPlayerDamageEnvironment {
   }
 
   #createInflictionExecutor(context: CombatOperationExecutorContext): CombatOperationExecutor {
+    const origin = resolveCombatDamageOrigin(context);
     if (this.options.elementalInflictionDocument === undefined) return strictTerminal;
-    const adapter = this.#inflictionAdapter(context.program.operatorId);
+    const adapter = this.#inflictionAdapter(origin.operatorId);
     return new ElementalInflictionOperationExecutor({
-      sourceOperatorId: context.program.operatorId,
-      castId: context.castId,
+      sourceOperatorId: origin.operatorId,
+      castId: origin.castId,
       targetId: 'enemy',
-      skillId: context.program.skillId,
+      skillId: origin.skillId,
       clock: context.clock,
       receipt: context.receipt,
       getExistingAttachment: () => adapter.getExistingAttachment(),
@@ -1002,9 +1000,9 @@ export class StandardPlayerDamageEnvironment {
             const buff = this.#enemyBuffRuntime.applyScoped({
               buffId,
               definition,
-              sourceId: context.program.operatorId,
-              definitionOwnerId: context.program.operatorId,
-              sourceActionId: context.program.skillId,
+              sourceId: origin.operatorId,
+              definitionOwnerId: origin.operatorId,
+              sourceActionId: origin.skillId,
               blackboardValues: {},
               skillCastInfo,
               producedBy,
@@ -1017,8 +1015,7 @@ export class StandardPlayerDamageEnvironment {
       },
       // 原生 TriggerSpellBurstEventAction 只发布事件；后续 DamageAction 自己结算伤害。
       triggerSpellBurst: payload => this.#emitSpellBurstEvents(payload),
-      emitSourceEvent: (event, payload) =>
-        this.#emitInfliction(context.program.operatorId, event, payload),
+      emitSourceEvent: (event, payload) => this.#emitInfliction(origin.operatorId, event, payload),
       emitTargetEvent: (event, payload) => this.#emitInfliction('enemy', event, payload),
       delegate: strictTerminal,
     });

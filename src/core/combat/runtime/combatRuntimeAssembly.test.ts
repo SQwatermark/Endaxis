@@ -874,7 +874,7 @@ describe('CombatRuntimeAssembly', () => {
       definitionSkillPrograms: [definition],
       ...nativeEventRuntimeOptions(),
       createOperationExecutor: context => {
-        created.push(context.castId);
+        created.push(context.kind === 'skill' ? context.castId : undefined);
         return rejectingExecutor;
       },
     });

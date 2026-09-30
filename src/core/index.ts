@@ -38,6 +38,7 @@ export * from './combat/resources/combatVitalsFactory';
 export * from './combat/damage/playerDamageOperationExecutor';
 export * from './combat/damage/playerActiveOperationExecutor';
 export * from './combat/runtime/standardPlayerDamageEnvironment';
+export * from './combat/damage/combatDamageOrigin';
 export * from './combat/infliction/elementalInflictionOperationExecutor';
 export * from './combat/skills/operatorControlConditionExecutor';
 export * from './combat/skills/operatorControlTimeline';

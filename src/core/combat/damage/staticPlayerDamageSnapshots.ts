@@ -1,3 +1,4 @@
+import { resolveCombatDamageOrigin, type CombatDamageOrigin } from './combatDamageOrigin';
 import type { ResolvedCombatStepForKind } from '../../compiler/combatProgram';
 /**
  * 把场景编译得到的干员面板和敌人静态输入冻结为单次玩家伤害快照。
@@ -88,6 +89,7 @@ type DamageSnapshotContext =
 
 function resolveStaticDamageScales(
   context: DamageSnapshotContext,
+  origin: CombatDamageOrigin,
   step: DamageStep,
   record: (
     modifier: import('../../compiler/resolveOperatorPanel').ResolvedOperatorCombatModifier,
@@ -112,7 +114,7 @@ function resolveStaticDamageScales(
     if (!includesValue(modifier.damageTypes, step.parameters.damageType)) continue;
     if (
       modifier.skillTypes !== undefined &&
-      (!('program' in context) || !includesValue(modifier.skillTypes, context.program.skillType))
+      (origin.skillType === undefined || !includesValue(modifier.skillTypes, origin.skillType))
     ) {
       continue;
     }
@@ -135,11 +137,13 @@ export function resolveStaticPlayerDamageSnapshots(
   operatorAttributes: CombatAttributeSet<string>,
   enemyAttributes?: CombatAttributeSet<string>,
 ): PlayerDamageAttributeSnapshots {
+  const origin =
+    'kind' in context
+      ? resolveCombatDamageOrigin(context)
+      : { operatorId: context.operatorId, sourceOperatorId: context.operatorId };
   const panel = context.panel;
   if (panel === undefined) {
-    throw new Error(
-      `operator '${'program' in context ? context.program.operatorId : context.operatorId}' has no resolved panel`,
-    );
+    throw new Error(`operator '${origin.operatorId}' has no resolved panel`);
   }
   const modifierDetails: import('./damageScale').AppliedDamageModifier[] = [];
   // Deck 的 Atk 槽位已按构筑面板合并；仅补回来源明细，不再次施加数值。
@@ -169,6 +173,7 @@ export function resolveStaticPlayerDamageSnapshots(
   }
   const attackerDamageScales = resolveStaticDamageScales(
     context,
+    origin,
     step,
     (modifier, attribute, slot) => {
       if (modifier.source === undefined || !('value' in modifier) || modifier.value === 0) return;
@@ -186,18 +191,16 @@ export function resolveStaticPlayerDamageSnapshots(
   for (const key of DAMAGE_SCALE_ATTRIBUTE_KEYS)
     attackerDamageScales[key] += operatorAttributes.get(key);
   attackerDamageScales.damageToStaggeredEnemyIncrease +=
-    ('program' in context
-      ? context.program.statModifiers?.damageToStaggeredEnemyIncrease
-      : undefined) ?? 0;
+    origin.statModifiers?.damageToStaggeredEnemyIncrease ?? 0;
   const attack = resolveOperatorAttack(panel, operatorAttributes);
-  if ('program' in context) {
+  if (origin.statModifiers !== undefined) {
     for (const attribute of ['criticalRate', 'damageToStaggeredEnemyIncrease'] as const) {
-      const value = context.program.statModifiers?.[attribute];
+      const value = origin.statModifiers?.[attribute];
       if (value === undefined || value === 0) continue;
       modifierDetails.push({
         kind: 'attribute',
-        sourceId: context.program.operatorId,
-        sourceActionId: context.program.skillId,
+        sourceId: origin.operatorId,
+        sourceActionId: origin.skillId,
         side: 'attacker',
         attribute,
         slot: attribute === 'criticalRate' ? 'baseAddition' : 'addition',
@@ -225,8 +228,8 @@ export function resolveStaticPlayerDamageSnapshots(
       // 技能专属加成也在最终乘法之前求值；只读叠加，不污染其他技能或 Buff 命中。
       criticalRate: operatorAttributes.getWithAdditionalModifiers(
         'criticalRate',
-        'program' in context && context.program.statModifiers?.criticalRate !== undefined
-          ? [attributeModifierValues('baseAddition', context.program.statModifiers.criticalRate)]
+        origin.statModifiers?.criticalRate !== undefined
+          ? [attributeModifierValues('baseAddition', origin.statModifiers.criticalRate)]
           : [],
       ),
       criticalDamageIncrease: operatorAttributes.get('criticalDamageIncrease'),

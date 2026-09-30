@@ -84,6 +84,7 @@ describe('Perlica standard damage slice', () => {
     });
     const operations = createPlayerActiveOperationExecutorForElementalTarget({
       context: {
+        kind: 'skill',
         program,
         enemy: {
           source: { kind: 'custom', level: 90 },
