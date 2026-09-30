@@ -29,7 +29,7 @@
 | M04  | 候选构建、验证、发布和回滚：编译器 `build/publication` 与脚本                                                       | 脚本 52 个 TS 文件                | 工具 README、[游戏数据](../architecture/game-data.md)                                                           | 关键路径已查 |
 | M05  | 正式数据登记、按需加载和项目覆盖：`src/data`                                                                        | 435 个 TS 文件，主要为生成定义    | [游戏数据](../architecture/game-data.md)                                                                        | 关键路径已查 |
 | M06  | 项目格式、编辑事务、草稿与存储：`core/project`、`application/editor`、`application/openProject`、存储适配           | 11 + 16 个 TS 文件及存储适配      | [编辑器](../architecture/editor.md)                                                                             | 关键路径已查 |
-| M07  | 图校验、场景编译、构筑和机制：`core/action-graph`、`compiler`、`mechanics`                                          | 3 + 25 + 4 个 TS 文件             | [动作图](../architecture/action-graphs.md)、[游戏数据](../architecture/game-data.md)                            | 待查         |
+| M07  | 图校验、场景编译、构筑和机制：`core/action-graph`、`compiler`、`mechanics`                                          | 3 + 25 + 4 个 TS 文件             | [动作图](../architecture/action-graphs.md)、[游戏数据](../architecture/game-data.md)                            | 关键路径已查 |
 | M08  | 战斗数据图、装配及恢复：`combat/state`、`combat/runtime`                                                            | 6 + 34 个 TS 文件（含恢复与输入） | [战斗](../architecture/combat.md)、[切面](../architecture/checkpoints.md)                                       | 待查         |
 | M09  | 时钟、变速、随机：`combat/time`、`combat/random`                                                                    | 5 + 3 个 TS 文件                  | [战斗](../architecture/combat.md)、[随机](../architecture/randomness.md)                                        | 待查         |
 | M10  | 资源和属性账本：`combat/resources`、`combat/attributes`                                                             | 11 + 4 个 TS 文件                 | [战斗](../architecture/combat.md)                                                                               | 待查         |
@@ -48,7 +48,7 @@
 ## 当前进度
 
 - 库存和检查顺序已记录。
-- M01–M06 关键路径已核查。待整改的重要项为 D07 当前方案导出缺失定义、D06 页面项目效果查询遗漏、D04 测试守卫盲区；均未自动修代码。下一项 M07 场景编译，随后按清单进入战斗内部。
+- M01–M07 关键路径已核查。待整改的重要项为 D07 当前方案导出缺失定义、D06 页面项目效果查询遗漏、D04 测试守卫盲区；均未自动修代码。下一项 M08 战斗数据图、装配及恢复，随后按清单进入战斗内部。
 - 新发现只给出证据、风险和最小整改建议；此次后续模块检查不自动修改生产逻辑。
 
 ## M01：共享契约、查询协议与校验
@@ -179,3 +179,14 @@ npx vitest run tools/game-data-compiler/test/dataContractBoundaries.test.ts --ma
 - 未检查真实浏览器配额、跨标签页数据库版本切换或机器中断时的持久性；自动保存单元路径不能作为用户已拥有外部备份的证明。
 
 - M06 验证：项目结构/引用、项目/场景会话、编辑约束、草稿/不可变图、文件会话和 nativeBridge 9 个原生文件、56 项通过。D07 文档代码逐字提取重跑；current/all 载荷、重新打开和正确共享查询的对照输出与记录一致。
+
+## M07：图与场景编译、构筑和机制
+
+已追踪构筑解析、静态面板、共同图缓存、时间轴锚点/连续组、自定义施放与逐帧初始化、资源规则和机制贡献进入完整装配参数的路径。稳定文档为[场景编译](../architecture/scenario-compilation.md)，图资源详细规则仍由原动作图页维护。
+
+证据：`src/core/compiler/resolveScenarioBuilds.ts:140–191`、`compileScenarioRuntimeAssembly.ts:317–570`、`compileScenarioTimeline.ts:494–577`、`compileActionGraph.ts:150–198,331–348`、`src/core/mechanics/mechanicCompiler.ts:158–237`、`mechanicRuntime.ts:55–90`。
+
+- **D08，能力边界，非已证实缺陷：** 机制贡献类型和通用安装工具支持事件形式，但正式场景编译明确拒绝它。检索当前生产调用链只见核心公共出口导出通用工具，没有页面/应用调用者；不能凭单元测试或 export 认定产品已支持事件型机制。
+- **所有权核对：** 运行环境只补实体端口，编译身份与技能程序优先；未来输入计划与已装配状态分离。连续组只有锚点/成员，不是预先执行的技能序列。图编译目录可延迟补节点，但不保存动作运行进度。
+- **验证：** 图校验/编译、构筑/面板、时间轴/完整编译、全局效果与机制编译/工具 9 个原生文件、101 项通过。未引入外部验证运行器。
+- **未查范围：** 未逐项证明所有养成、装备/动作参数组合及原生机制数值；任意自定义 Adapter 的行为不视作可信。后续 M08–M16 检查装配后状态、执行与恢复，不把编译阶段通过等同于这些路径通过。
