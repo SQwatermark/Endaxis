@@ -21,6 +21,7 @@ export function selectProjectExportScope(
   const weapons: typeof library.weapons = {};
   const gears: typeof library.gears = {};
   const gearSets: typeof library.gearSets = {};
+  const globalEffects: NonNullable<typeof library.globalEffects> = {};
   const requireTemplate = <T>(records: Record<string, T>, id: string): T => {
     const template = records[id];
     if (template === undefined) throw new Error(`方案引用了不存在的自定义模板：${id}`);
@@ -43,10 +44,17 @@ export function selectProjectExportScope(
       if (setId?.startsWith('project:')) gearSets[setId] = requireTemplate(library.gearSets, setId);
     }
   }
+  for (const effect of active.globalConfig.effects ?? []) {
+    if (effect.effectId.startsWith('project:'))
+      globalEffects[effect.effectId] = requireTemplate(
+        library.globalEffects ?? {},
+        effect.effectId,
+      );
+  }
   return {
     ...project,
     scenarios: [active],
-    definitionLibrary: { operators, weapons, gears, gearSets },
+    definitionLibrary: { operators, weapons, gears, gearSets, globalEffects },
   };
 }
 

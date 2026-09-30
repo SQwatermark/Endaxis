@@ -5,6 +5,8 @@ import { createEmptyProject, createEmptyScenario } from '../../core/project/crea
 import {
   deriveProjectGearSetTemplate,
   deriveProjectGearTemplate,
+  deriveProjectGlobalEffectTemplate,
+  createProjectGameDataRepository as composeProjectGameData,
   getProjectDefinitionLibrary,
   replaceProjectGearTemplateDefinition,
 } from '../../core/project/projectDefinitionLibrary';
@@ -13,11 +15,13 @@ import { createDefaultOperatorInstance } from '../../application/editor/loadoutB
 import { openProject } from '../../application/openProject';
 import { createProjectGameDataRepository } from '../../data/projectGameDataRepository';
 import { perlica } from '../../data/operators/perlica.generated';
+import { GLOBAL_EFFECT_PRESETS } from '../../data/globalEffectPresets';
+import { captureScenarioSimulationGameData } from '../../application/simulation/scenarioSimulationGameData';
 import generatedGear from '../../data/equipment/generated/suit_wisdwill01/item_equip_t1_suit_wisdwill01_hand_01.generated';
 import generatedSet from '../../data/equipment/generated-gear-sets/suit_wisdwill01.generated';
 import { parseProjectDocument, serializeProjectDocument } from '../../core/project/serialization';
 import { ProjectEditorSession } from '../../application/editor/projectEditorSession';
-import { compressProjectCode } from './timelineExport';
+import { compressProjectCode, decompressProjectCode } from './timelineExport';
 import { embedProjectCodeInPng } from './pngProjectData';
 import {
   createProjectFileReader,
@@ -41,6 +45,75 @@ afterEach(() => {
 });
 
 describe('project export scope', () => {
+  it('当前方案的 JSON、分享码和 PNG 保留启用及禁用的项目全局效果，重开后可捕获，原项目不变', async () => {
+    let project = createEmptyProject({ createdWith: 'test' });
+    const ids = ['enabled', 'disabled', 'unused'].map(name => `project:globalEffect:${name}`);
+    for (const id of ids)
+      project = deriveProjectGlobalEffectTemplate(project, {
+        id,
+        name: id,
+        baseTemplateId: GLOBAL_EFFECT_PRESETS[0].id,
+        definition: GLOBAL_EFFECT_PRESETS[0],
+      });
+    project.scenarios[0]!.globalConfig.effects = [
+      { effectId: ids[0]!, enabled: true },
+      { effectId: ids[1]!, enabled: false },
+      { effectId: GLOBAL_EFFECT_PRESETS[0].id, enabled: true },
+    ];
+    const original = serializeProjectDocument(project);
+    const exported = selectProjectExportScope(project, 'current');
+    expect(Object.keys(exported.definitionLibrary!.globalEffects!)).toEqual(ids.slice(0, 2));
+    expect(
+      Object.keys(selectProjectExportScope(project, 'all').definitionLibrary!.globalEffects!),
+    ).toEqual(ids);
+    const json = serializeProjectDocument(exported);
+    const code = await compressProjectCode(json);
+    const png = await sharp({ create: { width: 2, height: 2, channels: 3, background: '#191a1d' } })
+      .png()
+      .toBuffer();
+    const image = await embedProjectCodeInPng(
+      new Blob([Uint8Array.from(png)], { type: 'image/png' }),
+      code,
+    );
+    const reader = createProjectFileReader(() => 0);
+    const base = await createProjectGameDataRepository(exported);
+    for (const content of [json, await decompressProjectCode(code), await reader.readPng(image)]) {
+      expect(content).toBe(json);
+      const opened = openProject(content, { gameDataRepository: base });
+      expect(opened.ok).toBe(true);
+      if (!opened.ok) throw new Error('exported project did not reopen');
+      const packet = captureScenarioSimulationGameData(
+        opened.project.scenarios[0]!,
+        composeProjectGameData(base, getProjectDefinitionLibrary(opened.project)),
+      );
+      expect(packet.globalEffects.map(effect => effect.id)).toEqual([
+        ids[0],
+        ids[1],
+        GLOBAL_EFFECT_PRESETS[0].id,
+      ]);
+    }
+    reader.dispose();
+    expect(serializeProjectDocument(project)).toBe(original);
+    const broken = {
+      ...exported,
+      definitionLibrary: { ...exported.definitionLibrary!, globalEffects: {} },
+    };
+    expect(() => selectProjectExportScope(broken, 'current')).toThrow(ids[0]);
+    expect(openProject(broken, { gameDataRepository: base })).toMatchObject({
+      ok: false,
+      kind: 'definition-validation-failed',
+      issues: [
+        {
+          path: '$.scenarios[0].globalConfig.effects[0].effectId',
+          message: 'unknown global effect',
+        },
+        {
+          path: '$.scenarios[0].globalConfig.effects[1].effectId',
+          message: 'unknown global effect',
+        },
+      ],
+    });
+  });
   it('keeps every scenario when exporting the whole project', () => {
     const project = createEmptyProject({ createdWith: 'test' });
     project.scenarios.push(createEmptyScenario('scenario:2', 'Second'));

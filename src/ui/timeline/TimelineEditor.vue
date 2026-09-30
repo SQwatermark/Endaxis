@@ -174,6 +174,7 @@ import {
   type ScenarioDocument,
   type TrackIndex,
 } from '../../core/project/schema';
+import { bindProjectEditorGameData } from '../../application/editor/projectEditorGameData';
 import { getProjectDefinitionLibrary } from '../../core/project/projectDefinitionLibrary';
 import { saveProjectTemplateDefinition } from '../../application/editor/projectTemplateCommands';
 import type { WorkspaceAssetSave, WorkspaceAssetSource } from '../asset-workspace/workspaceSession';
@@ -810,6 +811,9 @@ if (props.initialScenario !== undefined) {
   initialProject.scenarios = [initialScenario];
 }
 const projectSession = new ProjectEditorSession(initialProject);
+const { repository: editorGameDataRepository, dispose: unbindProjectGameData } =
+  bindProjectEditorGameData(gameDataRepository, projectSession);
+onScopeDispose(unbindProjectGameData);
 projectDefinitionLibrary.value = getProjectDefinitionLibrary(initialProject);
 const scenarioSession = new ActiveScenarioEditorSession(projectSession);
 const projectRevision = ref(0);
@@ -1229,37 +1233,6 @@ async function exportTimelineLongImage(options: {
     loading.close();
   }
 }
-
-/** 项目模板库与版本化数据的联合查询端口；实例只保存模板 ID 和养成/配装状态。 */
-const editorGameDataRepository = {
-  ...gameDataRepository,
-  getOperator: (slug: string) =>
-    projectDefinitionLibrary.value.operators[slug]?.definition ??
-    gameDataRepository.getOperator(slug),
-  getOperators: () => [
-    ...gameDataRepository.getOperators(),
-    ...Object.values(projectDefinitionLibrary.value.operators).map(value => value.definition),
-  ],
-  getWeapon: (slug: string) =>
-    projectDefinitionLibrary.value.weapons[slug]?.definition ?? gameDataRepository.getWeapon(slug),
-  getWeapons: () => [
-    ...gameDataRepository.getWeapons(),
-    ...Object.values(projectDefinitionLibrary.value.weapons).map(value => value.definition),
-  ],
-  getGear: (slug: string) =>
-    projectDefinitionLibrary.value.gears[slug]?.definition ?? gameDataRepository.getGear(slug),
-  getGears: () => [
-    ...gameDataRepository.getGears(),
-    ...Object.values(projectDefinitionLibrary.value.gears).map(value => value.definition),
-  ],
-  getGearSet: (slug: string) =>
-    projectDefinitionLibrary.value.gearSets[slug]?.definition ??
-    gameDataRepository.getGearSet(slug),
-  getGearSets: () => [
-    ...gameDataRepository.getGearSets(),
-    ...Object.values(projectDefinitionLibrary.value.gearSets).map(value => value.definition),
-  ],
-};
 
 /** 全局效果的展示名称：项目资产用条目名，内置效果用语言键；未解析时返回 null。 */
 function globalEffectDisplayName(id: string): string | null {

@@ -4,6 +4,8 @@
 
 基线：`8bcc46b97e03dedd7fb84480dbee7c0fcda43d93`。H1/H2 已在该基线修复，两个修复提交的 Linux/Windows CI 均通过。背景见[首轮审查](core-architecture-audit.md)。
 
+当前整改状态见[修复计划与进度](architecture-remediation.md)。以下问题描述保留审查基线证据，是否已修复以该进度为准。
+
 ## 完成标准与边界
 
 本次是一次有明确结束条件的模块检查，不是无限研究，也不是逐行证明全部游戏逻辑。每个模块需要完成：
