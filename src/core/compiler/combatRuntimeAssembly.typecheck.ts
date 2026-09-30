@@ -1,6 +1,8 @@
 import { expectTypeOf } from 'vitest';
 import type {
+  CombatRuntimeAssembly,
   CombatRuntimeAssemblyOptions,
+  CombatRuntimeAssemblyRestoreOptions,
   CombatRuntimeEnvironmentOptions,
   CombatRuntimeScenarioOptions,
 } from '../combat/runtime/combatRuntimeAssembly';
@@ -16,3 +18,10 @@ expectTypeOf<keyof CombatRuntimeAssemblyOptions>().toEqualTypeOf<
 expectTypeOf<
   CompileScenarioRuntimeAssemblyOptions['environment']
 >().toEqualTypeOf<CombatRuntimeEnvironmentOptions>();
+
+// 构造器只接收一个完整的新建或已预检恢复输入，不能再搭配伪造的新建选项。
+type ConstructionInput = ConstructorParameters<typeof CombatRuntimeAssembly>;
+expectTypeOf<ConstructionInput['length']>().toEqualTypeOf<1>();
+expectTypeOf<CombatRuntimeAssemblyOptions>().toExtend<ConstructionInput[0]>();
+expectTypeOf<CombatRuntimeAssemblyRestoreOptions>().not.toExtend<ConstructionInput[0]>();
+expectTypeOf<{}>().not.toExtend<ConstructionInput[0]>();

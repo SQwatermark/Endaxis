@@ -1,4 +1,7 @@
-import type { CombatInputExecution } from '../skills/combatInputExecution';
+import type {
+  CombatInputExecution,
+  CombatInputExecutionOutcome,
+} from '../skills/combatInputExecution';
 import type {
   CombatSkillInput,
   ConsumableUseInput,
@@ -20,7 +23,7 @@ export interface CombatSkillInputPhase extends CombatInputExecution {
     input: ScheduledSkillInput,
     actualFrame: number,
     skillProgram?: CombatSkillCastProgram,
-  ): boolean;
+  ): CombatInputExecutionOutcome;
   canContinue(previous: ScheduledSkillInput): boolean;
   canPlanContinuation(
     input: ScheduledSkillInput,

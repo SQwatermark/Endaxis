@@ -31,7 +31,7 @@ it.each([-10, 0, 10])('固定输入从 %s 帧向前运行，同帧修正后只�
           expect(actualFrame).toBe(frame);
           submitted.push(skill.skillId);
           actualSkill = 'replacement2';
-          return true;
+          return 'executed';
         },
       } as CombatSkillInputPhase);
   };

@@ -8,14 +8,24 @@ it('同一切面可以提交不同的后续输入，不保留另一分支的输�
   let receipt = new CombatReceiptCollector();
   const step = (input: ScheduledSkillInput) =>
     processCombatSkillInput(input, 30, (_operator, skill) => skill !== 'rejected', receipt);
-  expect(step({ frame: 30, operatorId: 'operator', skillId: 'first' })).toBe(true);
+  expect(step({ frame: 30, operatorId: 'operator', skillId: 'first' })).toBe('executed');
   const saved = receipt.history.snapshot();
-  expect(step({ frame: 30, operatorId: 'operator', skillId: 'rejected' })).toBe(false);
+  expect(step({ frame: 30, operatorId: 'operator', skillId: 'rejected' })).toBe('rejected');
+  expect(receipt.entries[1]!.data).toEqual({
+    skillId: 'rejected',
+    accepted: false,
+    scheduledActualFrame: 30,
+  });
   receipt = new CombatReceiptCollector(saved);
-  expect(step({ frame: 30, operatorId: 'operator', skillId: 'other' })).toBe(true);
+  expect(step({ frame: 30, operatorId: 'operator', skillId: 'other' })).toBe('executed');
   const entries = receipt.entries;
   expect(entries.map(entry => entry.sequence)).toEqual([0, 1]);
   expect(entries.map(entry => entry.data!.skillId)).toEqual(['first', 'other']);
   expect(entries[1]!.time).toBe(1);
+  expect(entries[1]!.data).toEqual({
+    skillId: 'other',
+    accepted: true,
+    scheduledActualFrame: 30,
+  });
   expect(saved.length).toBe(1);
 });

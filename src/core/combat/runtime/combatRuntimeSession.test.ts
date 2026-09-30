@@ -12,6 +12,7 @@ import type {
   ActionGraphStep,
 } from '../../../../packages/game-data-contract/src/actionGraph';
 import type { CombatStateGraph } from '../state/combatState';
+import type { SkillGlobalBuffDefinition } from '../../game-data/operatorDefinition';
 import { CombatRuntimeSession } from './combatRuntimeSession';
 import { StandardPlayerDamageEnvironment } from './standardPlayerDamageEnvironment';
 import { CombatVitals } from '../resources/combatVitals';
@@ -441,7 +442,7 @@ it.each([0, 4, 6])('投射物在第 %i 帧分支恢复后保留伤害的技能�
   expect(restored.stateGraph).toEqual(original.stateGraph);
 });
 
-it('恢复后群体 GlobalBuff 仍按原生队伍逆序应用子 Buff', () => {
+it.each(['operator-a', 'battle'])('GlobalBuff 恢复保留队伍顺序和共享账本：%s', sourceId => {
   const childDefinition: ResolvedSkillBuffDefinition = { stackingType: 'unlimited' };
   const operators: CombatOperatorProgram[] = [
     {
@@ -482,30 +483,51 @@ it('恢复后群体 GlobalBuff 仍按原生队伍逆序应用子 Buff', () => {
     enemy,
     operators,
   });
-  const saved = structuredClone(original.stateGraph);
-  const restored = CombatRuntimeAssembly.restore({
-    receiptHistory: original.receipt.history.snapshot(),
-    graph: saved,
-    resources: twoOperatorResources,
-    enemy,
-    operators,
-    environment: environmentInput(),
-    abilityEntityChildSkillPrograms: original.abilityEntityChildSkillPrograms,
-    combatOperationPrograms: original.combatOperationPrograms,
-    combatSkillPrograms: original.combatSkillPrograms,
-    projectileCallbackPrograms: original.projectileLifetimes.callbackPrograms,
-  });
-  const definition = {
-    stackingType: 'unlimited' as const,
+  const restore = (assembly: CombatRuntimeAssembly) =>
+    CombatRuntimeAssembly.restore({
+      receiptHistory: assembly.receipt.history.snapshot(),
+      graph: structuredClone(assembly.stateGraph),
+      resources: twoOperatorResources,
+      enemy,
+      operators,
+      environment: environmentInput(),
+      abilityEntityChildSkillPrograms: original.abilityEntityChildSkillPrograms,
+      combatOperationPrograms: original.combatOperationPrograms,
+      combatSkillPrograms: original.combatSkillPrograms,
+      projectileCallbackPrograms: original.projectileLifetimes.callbackPrograms,
+    });
+  const restored = restore(original);
+  const definition: SkillGlobalBuffDefinition = {
+    stackingType: 'unlimited',
     durationSeconds: 1,
     blackboard: {},
     children: [{ buffId: 'party-child', blackboardAssignments: {} }],
+    sharedSpModifiers: [
+      {
+        attribute: 'gainEfficiency',
+        operation: 'addition',
+        value: { kind: 'constant', value: 0.2 },
+        applyToReturnSpGain: false,
+      },
+      {
+        attribute: 'spRecovery',
+        operation: 'multiplier',
+        value: { kind: 'constant', value: -0.5 },
+        applyToReturnSpGain: true,
+      },
+    ],
   };
+  const definitionProgramId = original.combatOperationPrograms.slot({
+    kind: 'createGlobalBuff',
+    parameters: { globalBuffId: 'party-global', definition },
+  });
   const add = (assembly: CombatRuntimeAssembly) => {
     assembly.globalBuffs.add({
       id: 'party-global',
       definition,
-      sourceId: 'operator-a',
+      definitionProgramId,
+      sourceId,
+      sourceActionOwnerId: 'operator-a',
       blackboardValues: {},
     });
     return assembly.receipt.entries
@@ -514,7 +536,47 @@ it('恢复后群体 GlobalBuff 仍按原生队伍逆序应用子 Buff', () => {
   };
 
   expect(add(original)).toEqual(['operator-b', 'operator-a']);
+  expect(
+    original.receipt.entries
+      .filter(entry => ['GlobalBuffCreated', 'BuffApplied'].includes(entry.event))
+      .map(entry => entry.event),
+  ).toEqual(['GlobalBuffCreated', 'BuffApplied', 'BuffApplied']);
   expect(add(restored)).toEqual(['operator-b', 'operator-a']);
+  expect(restored.receipt.entries).toEqual(original.receipt.entries);
+  expect(restored.stateGraph).toEqual(original.stateGraph);
+
+  const activeRestored = restore(original);
+  const activeGraph = activeRestored.stateGraph;
+  const parent = activeGraph.instances.globalBuffs.groups.get('party-global')![0]!;
+  expect(activeRestored.globalBuffs.runtimeState).toBe(activeGraph.instances.globalBuffs);
+  expect(parent.sharedSpGainModifiers[0]).toBe(
+    activeGraph.shared.resources.sharedSpGainModifiers.modifiers[0],
+  );
+  expect(parent.sharedSpRecoveryModifiers[0]).toBe(
+    activeGraph.shared.resources.sharedSpRecoveryModifiers.modifiers[0],
+  );
+  expect(activeRestored.receipt.entries).toEqual(original.receipt.entries);
+  expect(activeGraph).toEqual(original.stateGraph);
+  expect(
+    activeRestored.resources.sharedSpGainModifiers.resolve('skill', 'gain').totalEfficiency,
+  ).toBe(1.2);
+  expect(activeRestored.resources.sharedSpRecoveryModifiers.resolve(3)).toBe(1.5);
+
+  activeRestored.globalBuffs.finishInstance(parent, 'early');
+  expect(
+    activeRestored.resources.sharedSpGainModifiers.resolve('skill', 'gain').totalEfficiency,
+  ).toBe(1);
+  expect(activeRestored.resources.sharedSpRecoveryModifiers.resolve(3)).toBe(3);
+  expect(
+    activeRestored.receipt.entries
+      .filter(entry => entry.event === 'BuffFinished')
+      .map(entry => entry.targetId),
+  ).toEqual(['operator-b', 'operator-a']);
+  expect(original.resources.sharedSpGainModifiers.resolve('skill', 'gain').totalEfficiency).toBe(
+    1.2,
+  );
+  expect(original.resources.sharedSpRecoveryModifiers.resolve(3)).toBe(1.5);
+  expect(original.globalBuffs.runtimeState.groups.get('party-global')![0]!.finished).toBe(false);
 });
 
 it.each([true, false])('未来候选和父分支登记互不污染，候选先运行=%s', candidateFirst => {
@@ -610,12 +672,19 @@ it('从同一完整帧按 A、B、A 回退，失败候选不替换当前装配',
   expect(session.readState()).toEqual(branchA);
   expect(session.generation).toBe(2);
 
+  const historyBeforeRejectedCandidate = session.readHistory();
   restore.mockImplementationOnce(() => {
     throw new Error('rejected candidate');
   });
   expect(() => session.restore(checkpoint)).toThrow('rejected candidate');
   expect(session.readState()).toEqual(branchA);
+  expect(session.readHistory()).toBe(historyBeforeRejectedCandidate);
   expect(session.generation).toBe(2);
+  session.advanceFrame();
+  const uninterrupted = createFixture().session;
+  uninterrupted.advanceFrames(6);
+  expect(session.readState()).toEqual(uninterrupted.readState());
+  expect(session.readHistory().toArray()).toEqual(uninterrupted.readHistory().toArray());
 });
 
 it('本帧技能与人工标记随分支回退，空输入帧不读取原切人排程', () => {

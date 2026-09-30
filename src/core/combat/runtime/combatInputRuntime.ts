@@ -3,7 +3,10 @@ import { type ScheduledSkillInput } from '../state/environmentState';
  * 在原生 PlayerController 所在的 Frame 阶段消费已编译施放输入。
  * 输入必须按帧有序；同帧输入保持声明顺序，不能在运行时按干员或技能身份重排。
  */
-import type { CombatInputExecution } from '../skills/combatInputExecution';
+import type {
+  CombatInputExecution,
+  CombatInputExecutionOutcome,
+} from '../skills/combatInputExecution';
 import { sameSkillSimulationInputs } from '../skills/skillSimulationInputs';
 import type {
   CombatInputRuntimeState,
@@ -226,20 +229,20 @@ export class CombatInputRuntime implements FrameRuntime {
         // Never move a generated continuation past another authored operation on this operator.
         this.runtimeState.continuation.stopped = true;
       }
-      const accepted = this.#processInput(input);
+      const outcome = this.#processInput(input);
       const ownGroup =
         input.castId === undefined ? undefined : this.#groupByCastId.get(input.castId);
       if (ownGroup !== undefined) {
         ownGroup.state.previous = { ...input, frame: actualFrame };
         ownGroup.state.nextIndex += 1;
-        if (!accepted) this.#stopGroup(ownGroup, 'inputRejected');
+        if (outcome === 'rejected') this.#stopGroup(ownGroup, 'inputRejected');
       }
-      if (candidate.group === undefined && accepted) {
+      if (candidate.group === undefined && outcome === 'executed') {
         this.#stopOtherGroupsForInput(input, ownGroup);
       }
       if (anchor !== undefined && input.castId === anchor.castId) {
         this.runtimeState.continuation.previous = { ...input, frame: actualFrame };
-        if (!accepted && this.#canContinue?.ignoreInputFailures !== true)
+        if (outcome === 'rejected' && this.#canContinue?.ignoreInputFailures !== true)
           this.runtimeState.continuation.stopped = true;
       }
     }
@@ -257,9 +260,9 @@ export class CombatInputRuntime implements FrameRuntime {
     // At most one continuation per real frame, including repeated applyCurrentFrame calls.
     this.runtimeState.continuation.nextIndex += 1;
     this.runtimeState.continuation.previous = input;
-    const accepted = this.#processInput(input);
-    if (accepted) this.#stopOtherGroupsForInput(input);
-    if (!accepted && this.#canContinue?.ignoreInputFailures !== true)
+    const outcome = this.#processInput(input);
+    if (outcome === 'executed') this.#stopOtherGroupsForInput(input);
+    if (outcome === 'rejected' && this.#canContinue?.ignoreInputFailures !== true)
       this.runtimeState.continuation.stopped = true;
   }
 
@@ -298,7 +301,7 @@ export class CombatInputRuntime implements FrameRuntime {
     });
   }
 
-  #processInput(input: ScheduledSkillInput): boolean {
+  #processInput(input: ScheduledSkillInput): CombatInputExecutionOutcome {
     return this.#execution.submit(input, this.#clock.frame);
   }
 }

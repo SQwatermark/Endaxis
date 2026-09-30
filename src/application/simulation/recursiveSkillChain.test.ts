@@ -126,3 +126,39 @@ it('取消在下一次规划前生效，原场景保持不变', () => {
   expect(input.run).not.toHaveBeenCalled();
   expect(input.scenario.tracks[0]!.skillCasts).toHaveLength(1);
 });
+
+it.each(['SkillInputResolutionUnknown', 'SkillInputInterruptionUnknown', 'rejected'])(
+  '%s 时停止递归建议，不把已执行或没有告警当成原生许可',
+  outcome => {
+    const input = fixture();
+    const result = planRecursiveSkillChain({
+      ...input,
+      run: (scenario, frame) => {
+        const { receiptEntries } = input.run(scenario, frame);
+        return {
+          receiptEntries:
+            outcome === 'rejected'
+              ? receiptEntries.map(entry =>
+                  entry.event === 'SkillInputProcessed'
+                    ? { ...entry, data: { ...entry.data, accepted: false } }
+                    : entry,
+                )
+              : [
+                  ...receiptEntries,
+                  {
+                    sequence: receiptEntries.length,
+                    frame: 1,
+                    time: 1 / 30,
+                    event: outcome,
+                    data: { castId: 'seed', reason: 'unrecovered native rule' },
+                  },
+                ],
+        };
+      },
+    });
+    expect(result.complete).toBe(false);
+    expect(result.skillCastIds).toEqual(['seed']);
+    expect(result.scenario).toEqual(input.scenario);
+    expect(input.run).toHaveBeenCalledTimes(1);
+  },
+);

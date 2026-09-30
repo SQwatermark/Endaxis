@@ -35,15 +35,21 @@ import { createNativeEventFixture } from '../events/nativeEventTestFixture';
 import { CombatReceiptCollector } from '../receipt/combatReceipt';
 import { CombatVitals } from '../resources/combatVitals';
 import { CombatSkillPrograms } from '../skills/combatSkillPrograms';
+import { createCombatInputExecution } from '../skills/combatInputExecution';
 import type { CombatOperationExecutor } from '../skills/skillRuntime';
 import { createTimelineActionState, type ActionGraphExecutionState } from '../state/actionState';
 import { createBuffInstanceState } from '../state/instanceState';
 import { CombatStatusContainer } from '../status/combatStatuses';
 import { GameplayTagPredefine } from '../tags/gameplayTagPredefine';
 import { GameplayTagRegistry } from '../tags/gameplayTags';
-import { CombatRuntimeAssembly, type CombatEnemyProgram } from './combatRuntimeAssembly';
+import {
+  CombatRuntimeAssembly,
+  type CombatEnemyProgram,
+  type CombatRuntimeAssemblyOptions,
+} from './combatRuntimeAssembly';
 import { prepareCombatRuntimeRestore } from './restoration/combatRuntimeRestorePreparation';
 import { CombatObjectOrigins } from '../../projection/combatObjectOrigins';
+import { projectSkillAvailabilityDiagnostics } from '../../projection/skillAvailabilityDiagnostics';
 
 const emptyEnemyBuffRuntime = {
   ownerId: 'enemy',
@@ -221,7 +227,7 @@ function nativeEventRuntimeOptions() {
       native.dispatcher.dispatch(
         { event, payload } as import('../events/combatAbilityEvent').CombatAbilityEvent,
         [],
-      )) as NonNullable<ConstructorParameters<typeof CombatRuntimeAssembly>[0]['emitAbilityEvent']>,
+      )) as NonNullable<CombatRuntimeAssemblyOptions['emitAbilityEvent']>,
   };
 }
 
@@ -230,67 +236,39 @@ function createAssembly(
     | readonly TestSkillProgram[]
     | {
         programs: readonly TestSkillProgram[];
-        skillCasts?: ConstructorParameters<
-          typeof CombatRuntimeAssembly
-        >[0]['operators'][number]['skillCasts'];
+        skillCasts?: CombatRuntimeAssemblyOptions['operators'][number]['skillCasts'];
         definitionSkillPrograms?: readonly CompiledSkillProgram[];
-        skillCooldownPrograms?: ConstructorParameters<
-          typeof CombatRuntimeAssembly
-        >[0]['operators'][number]['skillCooldownPrograms'];
-        createOperationExecutor?: ConstructorParameters<
-          typeof CombatRuntimeAssembly
-        >[0]['createOperationExecutor'];
-        emitAbilityEvent?: ConstructorParameters<
-          typeof CombatRuntimeAssembly
-        >[0]['emitAbilityEvent'];
+        skillCooldownPrograms?: CombatRuntimeAssemblyOptions['operators'][number]['skillCooldownPrograms'];
+        createOperationExecutor?: CombatRuntimeAssemblyOptions['createOperationExecutor'];
+        emitAbilityEvent?: CombatRuntimeAssemblyOptions['emitAbilityEvent'];
         registerCombatAbilityEvent: NonNullable<
-          ConstructorParameters<typeof CombatRuntimeAssembly>[0]['registerCombatAbilityEvent']
+          CombatRuntimeAssemblyOptions['registerCombatAbilityEvent']
         >;
-        registerPassiveAbilityEventAction?: ConstructorParameters<
-          typeof CombatRuntimeAssembly
-        >[0]['registerPassiveAbilityEventAction'];
+        registerPassiveAbilityEventAction?: CombatRuntimeAssemblyOptions['registerPassiveAbilityEventAction'];
         combatSkillPrograms?: CombatSkillPrograms;
-        dodgeProgram?: ConstructorParameters<
-          typeof CombatRuntimeAssembly
-        >[0]['operators'][number]['dodgeProgram'];
-        dodgeInputs?: ConstructorParameters<typeof CombatRuntimeAssembly>[0]['dodgeInputs'];
-        dashTiming?: ConstructorParameters<typeof CombatRuntimeAssembly>[0]['dashTiming'];
-        createOperatorBuffRuntime?: ConstructorParameters<
-          typeof CombatRuntimeAssembly
-        >[0]['createOperatorBuffRuntime'];
+        dodgeProgram?: CombatRuntimeAssemblyOptions['operators'][number]['dodgeProgram'];
+        dodgeInputs?: CombatRuntimeAssemblyOptions['dodgeInputs'];
+        dashTiming?: CombatRuntimeAssemblyOptions['dashTiming'];
+        createOperatorBuffRuntime?: CombatRuntimeAssemblyOptions['createOperatorBuffRuntime'];
         skillAvailabilityTags?: GameplayTagPredefine;
-        submitCastRandomSeed?: ConstructorParameters<
-          typeof CombatRuntimeAssembly
-        >[0]['submitCastRandomSeed'];
-        resolveDashControllerState?: ConstructorParameters<
-          typeof CombatRuntimeAssembly
-        >[0]['resolveDashControllerState'];
+        submitCastRandomSeed?: CombatRuntimeAssemblyOptions['submitCastRandomSeed'];
+        resolveDashControllerState?: CombatRuntimeAssemblyOptions['resolveDashControllerState'];
       },
   isOperatorControlled?: (operatorId: string, frame: number) => boolean,
-  resolveVitals?: ConstructorParameters<typeof CombatRuntimeAssembly>[0]['resolveVitals'],
-  enemyBuffRuntime: ConstructorParameters<
-    typeof CombatRuntimeAssembly
-  >[0]['enemyBuffRuntime'] = emptyEnemyBuffRuntime,
-  createOperatorBuffRuntime?: ConstructorParameters<
-    typeof CombatRuntimeAssembly
-  >[0]['createOperatorBuffRuntime'],
+  resolveVitals?: CombatRuntimeAssemblyOptions['resolveVitals'],
+  enemyBuffRuntime: CombatRuntimeAssemblyOptions['enemyBuffRuntime'] = emptyEnemyBuffRuntime,
+  createOperatorBuffRuntime?: CombatRuntimeAssemblyOptions['createOperatorBuffRuntime'],
   enemy: CombatEnemyProgram = testEnemy,
-  timeDilation?: ConstructorParameters<typeof CombatRuntimeAssembly>[0]['timeDilation'],
-  createAbilityEntityBuffRuntime?: ConstructorParameters<
-    typeof CombatRuntimeAssembly
-  >[0]['createAbilityEntityBuffRuntime'],
+  timeDilation?: CombatRuntimeAssemblyOptions['timeDilation'],
+  createAbilityEntityBuffRuntime?: CombatRuntimeAssemblyOptions['createAbilityEntityBuffRuntime'],
   initialEntityBlackboard?: Readonly<Record<string, number>>,
   skillSlotGroups?: readonly CompiledSkillSlotGroup[],
-  emitAbilityEvent?: ConstructorParameters<typeof CombatRuntimeAssembly>[0]['emitAbilityEvent'],
-  buffDefinitions?: ConstructorParameters<
-    typeof CombatRuntimeAssembly
-  >[0]['operators'][number]['buffDefinitions'],
+  emitAbilityEvent?: CombatRuntimeAssemblyOptions['emitAbilityEvent'],
+  buffDefinitions?: CombatRuntimeAssemblyOptions['operators'][number]['buffDefinitions'],
   passivePrograms?: readonly CompiledOperatorPassiveProgram[],
-  panel?: ConstructorParameters<typeof CombatRuntimeAssembly>[0]['operators'][number]['panel'],
-  inputs?: ConstructorParameters<typeof CombatRuntimeAssembly>[0]['inputs'],
-  playerActionRoutes?: ConstructorParameters<
-    typeof CombatRuntimeAssembly
-  >[0]['operators'][number]['playerActionRoutes'],
+  panel?: CombatRuntimeAssemblyOptions['operators'][number]['panel'],
+  inputs?: CombatRuntimeAssemblyOptions['inputs'],
+  playerActionRoutes?: CombatRuntimeAssemblyOptions['operators'][number]['playerActionRoutes'],
   skillAvailabilityTags?: GameplayTagPredefine,
 ): CombatRuntimeAssembly {
   const testPrograms = 'programs' in input ? input.programs : input;
@@ -404,6 +382,13 @@ function createAssembly(
 }
 
 describe('CombatRuntimeAssembly', () => {
+  const inputExecution = (assembly: CombatRuntimeAssembly) =>
+    createCombatInputExecution(
+      (operatorId, skillId, castId, action, simulationInputs) =>
+        assembly.tryStartPlayerInput(operatorId, skillId, castId, action, simulationInputs),
+      assembly.receipt,
+    );
+
   it('registers isolated input parameters before seed submission and cast creation', () => {
     const submitCastRandomSeed = vi.fn((castId: string, seed: number | undefined) => {
       expect(assembly.stateGraph.inputs.castParameters.get(`operator\u0000${castId}`)).toEqual({
@@ -492,11 +477,22 @@ describe('CombatRuntimeAssembly', () => {
       expect(assembly.tryStartSkill('operator', 'current')).toBe(true);
       assembly.ultimatePresentation.setActive(true, 'another-operator', 'cinematic');
       const before = assembly.receipt.entries.length;
-      expect(assembly.tryStartPlayerInput('operator', 'authored', 'input', 'ultimate')).toBe(true);
+      expect(
+        inputExecution(assembly).submit(
+          {
+            frame: 0,
+            operatorId: 'operator',
+            skillId: 'authored',
+            castId: 'input',
+            action: 'ultimate',
+          },
+          0,
+        ),
+      ).toBe('executed');
       const entries = assembly.receipt.entries.slice(before);
       const diagnostics = entries.filter(
         entry =>
-          entry.event.startsWith('SkillInput') ||
+          (entry.event.startsWith('SkillInput') && entry.event !== 'SkillInputProcessed') ||
           entry.event === 'UltimateInputBlockedByPresentation',
       );
       expect(diagnostics.map(entry => entry.event)).toEqual([
@@ -524,6 +520,10 @@ describe('CombatRuntimeAssembly', () => {
       )!;
       expect(executionEvent.data).toMatchObject({ skillId: 'authored', castId: 'input' });
       expect(entries.indexOf(executionEvent)).toBeGreaterThan(entries.indexOf(diagnostics[3]!));
+      expect(entries.at(-1)).toMatchObject({
+        event: 'SkillInputProcessed',
+        data: { skillId: 'authored', castId: 'input', accepted: true, scheduledActualFrame: 0 },
+      });
       expect(entries.filter(entry => entry.event === 'SkillInterrupted')).toHaveLength(
         bypass ? 0 : 1,
       );
@@ -533,6 +533,46 @@ describe('CombatRuntimeAssembly', () => {
       if (bypass) expect(entries.some(entry => entry.event === 'SkillStarted')).toBe(false);
     },
   );
+
+  it('执行成功仍保留未知诊断，重复提交执行中的实例则拒绝且不再启动', () => {
+    const assembly = createAssembly([
+      skill({
+        skillId: 'current',
+        costs: [],
+        exclusiveFrame: 30,
+        inputWindows: { allowedNextSkills: [], hasConditionalActions: true },
+      }),
+      skill({ skillId: 'authored', costs: [] }),
+    ]);
+    expect(assembly.tryStartSkill('operator', 'current')).toBe(true);
+    const execution = inputExecution(assembly);
+    const input = { frame: 0, operatorId: 'operator', skillId: 'authored', castId: 'input' };
+    expect(execution.submit(input, 0)).toBe('executed');
+    expect(projectSkillAvailabilityDiagnostics(assembly.receipt.entries)).toEqual([
+      expect.objectContaining({
+        skillId: 'authored',
+        reasons: ['skillInputUnknown', 'skillInterruptUnknown'],
+        inputResolutionDetail: expect.any(String),
+        interruptionDetail: 'current skill has conditional next-skill actions',
+      }),
+    ]);
+    const before = assembly.receipt.entries.length;
+    expect(execution.submit(input, 0)).toBe('rejected');
+    const rejected = assembly.receipt.entries.slice(before);
+    expect(rejected.map(entry => entry.event)).toEqual([
+      'SkillInputResolutionUnknown',
+      'SkillInputProcessed',
+    ]);
+    expect(rejected.at(-1)!.data).toEqual({
+      skillId: 'authored',
+      castId: 'input',
+      accepted: false,
+      scheduledActualFrame: 0,
+    });
+    expect(assembly.stateGraph.operators.get('operator')!.ability.currentSkillKey).toBe(
+      'authored\u0000input',
+    );
+  });
 
   it('缺少未查明的闪避数据时保留输入并记录局部告警，不终止整场模拟', () => {
     const current = skill({
@@ -1169,6 +1209,11 @@ describe('CombatRuntimeAssembly', () => {
       expect(assembly.receipt.entries.some(entry => entry.event === 'SkillInputGroupBlocked')).toBe(
         false,
       );
+      expect(
+        assembly.receipt.entries
+          .filter(entry => entry.event === 'SkillInputProcessed')
+          .map(entry => entry.data?.accepted),
+      ).toEqual([true, true]);
       if (instant) {
         expect(assembly.receipt.entries.some(entry => entry.event === 'SkillStarted')).toBe(false);
         expect(

@@ -5,6 +5,7 @@ import { LogicalAbilityEntityRuntime } from '../../abilities/logicalAbilityEntit
 import { ProjectileCallbackPrograms } from '../../abilities/projectileCallbackPrograms';
 import { ProjectileLifecycleRuntime } from '../../abilities/projectileLifecycleRuntime';
 import { CombatOperationPrograms } from '../../actions/combatOperationPrograms';
+import { AbilityEventDispatcher } from '../../events/abilityEventDispatcher';
 import { CombatSemanticEventRuntime } from '../../events/combatSemanticEventRuntime';
 import { SimulationRandomSource } from '../../random/simulationRandom';
 import { CombatVitals } from '../../resources/combatVitals';
@@ -360,7 +361,7 @@ it('整场恢复基础阶段直接绑定共享账本、环境和全部基础 Buf
   expect(restoreRandomGraph(42).stateGraph.environment!.random).toEqual(randomState);
 });
 
-it('正式装配从活动技能切面恢复后继续得到相同逐帧结果', () => {
+it('正式装配恢复不重放初始化、事件或随机取样，续跑状态与回执一致', () => {
   const spawnedEntityDefinition = {
     lifetime: { kind: 'limited' as const, durationSeconds: 10 },
     childSkill: {
@@ -579,8 +580,8 @@ it('正式装配从活动技能切面恢复后继续得到相同逐帧结果', (
     secondaryAttribute: 'will' as const,
     health: 1000,
     defense: 0,
-    criticalRate: 0,
-    criticalDamage: 0,
+    criticalRate: 0.5,
+    criticalDamage: 0.5,
     artsIntensity: 0,
     ultimateEnergyGainEfficiency: 1,
     skillCooldownReduction: 0,
@@ -588,8 +589,15 @@ it('正式装配从活动技能切面恢复后继续得到相同逐帧结果', (
     combatModifiers: [],
     receipt: [],
   };
+  const randomState = createSimulationRandomState();
+  const simulationRandomSettings = { mode: 'sampled' as const, globalSeed: 42 };
+  const randomSource = new SimulationRandomSource(simulationRandomSettings, () => randomState);
   const environment = new StandardPlayerDamageEnvironment({
     ...environmentInput,
+    criticalSamples: randomSource,
+    probabilitySamples: randomSource,
+    randomMode: simulationRandomSettings.mode,
+    randomState,
     enemyVitals: new CombatVitals({
       health: 1000,
       maxHealth: 1000,
@@ -609,7 +617,7 @@ it('正式装配从活动技能切面恢复后继续得到相同逐帧结果', (
       source: { kind: 'weaponTrait' as const, slug: 'fixture-weapon', traitKey: 'damage-count' },
       selectedLevel: 1,
       modifiers: [],
-      blackboard: { hits: 0 },
+      blackboard: { hits: 0, initializations: 0 },
       eventHandlers: [
         {
           key: 'count-damage',
@@ -632,7 +640,16 @@ it('正式装配从活动技能切面恢复后继续得到相同逐帧结果', (
     {
       key: 'equipment-fixture',
       equipmentContributionIndex: 0,
-      sequence: chainEntry('equipment-fixture-init', []),
+      sequence: chainEntry('equipment-fixture-init', [
+        {
+          kind: 'modifyActionValue' as const,
+          parameters: {
+            key: 'initializations',
+            operation: 'add' as const,
+            value: { kind: 'constant' as const, value: 1 },
+          },
+        },
+      ]),
     },
   ];
   const upgradeEventPrograms = [
@@ -705,20 +722,36 @@ it('正式装配从活动技能切面恢复后继续得到相同逐帧结果', (
   const restoreBranch = (
     graph: CombatStateGraph,
     projectileCallbackPrograms = original.projectileLifetimes.callbackPrograms,
-  ) =>
-    CombatRuntimeAssembly.restore({
-      receiptHistory: original.receipt.history.snapshot(),
-      graph,
-      resources,
-      enemy,
-      operators: [operatorProgram],
-      environment: environmentInput,
-      abilityEntityChildSkillPrograms: childSkillPrograms,
-      combatOperationPrograms: operationPrograms,
-      combatSkillPrograms: skillPrograms,
-      projectileCallbackPrograms,
-      timeDilation: { config: {}, programs: original.timeDilation!.programs },
-    });
+  ) => {
+    const dispatch = vi.spyOn(AbilityEventDispatcher.prototype, 'dispatch');
+    const emit = vi.spyOn(CombatSemanticEventRuntime.prototype, 'emit');
+    try {
+      const receiptHistory = original.receipt.history.snapshot();
+      const candidate = CombatRuntimeAssembly.restore({
+        receiptHistory,
+        graph,
+        resources,
+        enemy,
+        operators: [operatorProgram],
+        environment: {
+          resolveNonRandomRuntimeSnapshot: environmentInput.resolveNonRandomRuntimeSnapshot,
+          simulationRandomSettings,
+        },
+        abilityEntityChildSkillPrograms: childSkillPrograms,
+        combatOperationPrograms: operationPrograms,
+        combatSkillPrograms: skillPrograms,
+        projectileCallbackPrograms,
+        timeDilation: { config: {}, programs: original.timeDilation!.programs },
+      });
+      expect(dispatch).not.toHaveBeenCalled();
+      expect(emit).not.toHaveBeenCalled();
+      expect(candidate.receipt.history.snapshot()).toBe(receiptHistory);
+      return candidate;
+    } finally {
+      dispatch.mockRestore();
+      emit.mockRestore();
+    }
+  };
   const originalBeforeRejectedCandidate = structuredClone(original.stateGraph);
   expect(() => restoreBranch(structuredClone(saved), new ProjectileCallbackPrograms())).toThrow(
     'missing projectile callback program',
@@ -729,6 +762,18 @@ it('正式装配从活动技能切面恢复后继续得到相同逐帧结果', (
 
   expect(restored.stateGraph).toBe(saved);
   expect(restored.stateGraph).toEqual(original.stateGraph);
+  expect(restored.sharedState).toBe(saved.shared);
+  expect(restored.abilityEntities.runtimeState).toBe(saved.instances.abilityEntities);
+  expect(restored.projectileLifetimes.runtimeState).toBe(saved.instances.projectiles);
+  const savedOperator = saved.operators.get('operator')!;
+  expect(savedOperator.initializations.get('equipment-fixture')!.blackboard).toBe(
+    savedOperator.equipment!.contributions.get(0)!.blackboard,
+  );
+  expect(
+    savedOperator.equipment!.contributions.get(0)!.blackboard.values.get('initializations'),
+  ).toBe(1);
+  expect(saved.environment!.random).toEqual(randomState);
+  expect(saved.environment!.random).not.toBe(randomState);
   original.advanceFrames(5);
   restored.advanceFrames(5);
   expect(
@@ -748,6 +793,8 @@ it('正式装配从活动技能切面恢复后继续得到相同逐帧结果', (
   ).toBe(1);
   expect(restored.stateGraph.operators.get('operator')!.buffs!.instances.size).toBe(3);
   expect(restored.stateGraph).toEqual(original.stateGraph);
+  expect(restored.receipt.entries).toEqual(original.receipt.entries);
+  expect(restored.stateGraph.environment!.random!.streams.size).toBeGreaterThan(0);
   const activeHostSaved = structuredClone(original.stateGraph);
   const activeHostRestored = restoreBranch(activeHostSaved);
   expect(activeHostRestored.stateGraph).toEqual(original.stateGraph);
@@ -756,6 +803,8 @@ it('正式装配从活动技能切面恢复后继续得到相同逐帧结果', (
   activeHostRestored.advanceFrames(12);
   expect(restored.stateGraph).toEqual(original.stateGraph);
   expect(activeHostRestored.stateGraph).toEqual(original.stateGraph);
+  expect(restored.receipt.entries).toEqual(original.receipt.entries);
+  expect(activeHostRestored.receipt.entries).toEqual(original.receipt.entries);
   expect(restored.stateGraph.instances.projectiles.instances.size).toBe(0);
   expect(restored.projectileLifetimes.findSource(1)).toBeUndefined();
 });

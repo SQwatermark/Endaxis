@@ -44,7 +44,8 @@ export interface PlayerSkillInputHost {
 
 /**
  * 登记玩家输入，依次诊断原生请求，再执行时间轴显式技能。
- * 诊断不拒绝已放置操作；是否实际启动及 SwitchToBuffCast 成功仍由能力系统决定。
+ * 返回值仅表示执行成功（含 SwitchToBuffCast），不表示原生合法性或保证有 SkillStarted。
+ * 诊断不拒绝已放置操作；未查明的检查仍单独记录 unknown，不从告警缺失推导合法。
  */
 export function tryStartPlayerSkillInput(
   input: CombatSkillInput,

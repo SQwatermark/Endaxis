@@ -3,6 +3,10 @@ import type { CombatReceiptSink } from '../receipt/combatReceipt';
 import type { CombatSkillInput, ScheduledSkillInput } from '../state/environmentState';
 import { COMBAT_FRAMES_PER_SECOND } from '../time/combatClock';
 
+/**
+ * 既有施放入口的布尔值只表示执行成功，包含 SwitchToBuffCast，不保证有 SkillStarted。
+ * 原生路由、门禁及未知项由独立诊断回执表达，不参与这个返回值。
+ */
 export type TryStartCombatSkill = (
   operatorId: string,
   skillId: string,
@@ -11,9 +15,12 @@ export type TryStartCombatSkill = (
   simulationInputs?: CombatSkillInput['simulationInputs'],
 ) => boolean;
 
+/** 本次输入的执行结果；不是原生合法性结论，也不表示整个技能生命周期已经结束。 */
+export type CombatInputExecutionOutcome = 'executed' | 'rejected';
+
 /** 排程器可提交的事实只限于当前输入和组阻断，不接触活动战斗对象。 */
 export interface CombatInputExecution {
-  submit(input: ScheduledSkillInput, actualFrame: number): boolean;
+  submit(input: ScheduledSkillInput, actualFrame: number): CombatInputExecutionOutcome;
   groupBlocked(input: {
     readonly frame: number;
     readonly operatorId: string;
@@ -47,8 +54,8 @@ export function processCombatSkillInput(
   actualFrame: number,
   tryStartSkill: TryStartCombatSkill,
   receipt: CombatReceiptSink,
-): boolean {
-  const accepted =
+): CombatInputExecutionOutcome {
+  const executed =
     input.simulationInputs !== undefined
       ? tryStartSkill(
           input.operatorId,
@@ -68,9 +75,10 @@ export function processCombatSkillInput(
     data: {
       skillId: input.skillId,
       ...(input.castId === undefined ? {} : { castId: input.castId }),
-      accepted,
+      // 保留既有回执字段及布尔载荷；accepted 仅对应执行结果，不代表原生输入合法。
+      accepted: executed,
       scheduledActualFrame: input.frame,
     },
   });
-  return accepted;
+  return executed ? 'executed' : 'rejected';
 }

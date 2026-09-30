@@ -8,6 +8,7 @@ import {
 } from '../../core/combat/runtime/combatInputRuntime';
 import type { CombatSkillCastProgram } from '../../core/combat/runtime/combatRuntimeAssembly';
 import type { CombatRuntimeCheckpoint } from '../../core/combat/runtime/combatRuntimeSession';
+import type { CombatInputExecutionOutcome } from '../../core/combat/skills/combatInputExecution';
 import type { CombatInputRuntimeState } from '../../core/combat/state/environmentState';
 import {
   type CombatSkillInput,
@@ -426,7 +427,7 @@ export class CombatInputSchedule {
     phase: CombatSkillInputPhase,
     input: ScheduledSkillInput,
     actualFrame: number,
-  ): boolean {
+  ): CombatInputExecutionOutcome {
     if (input.castId !== undefined) {
       const binding = this.#customSkillProgramsByCastId.get(input.castId);
       if (binding !== undefined) return phase.submit(input, actualFrame, binding);

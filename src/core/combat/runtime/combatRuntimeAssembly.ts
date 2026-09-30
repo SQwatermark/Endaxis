@@ -621,10 +621,17 @@ type CombatAbilityEntityEventHooks = Pick<
   'spawned' | 'childSkillRequested' | 'finished' | 'timedMarkerCreated' | 'timedMarkerFinished'
 >;
 
+/** 只有 restore 完成预检后才能构造恢复输入，不与普通新建选项混用。 */
+const restoredCombatRuntimeAssembly: unique symbol = Symbol('restored combat runtime assembly');
+
 interface PreparedCombatRuntimeAssemblyRestore {
+  readonly [restoredCombatRuntimeAssembly]: true;
   readonly preparation: CombatRuntimeRestorePreparation;
   readonly options: CombatRuntimeAssemblyRestoreOptions;
 }
+
+type CombatRuntimeAssemblyConstructionInput =
+  CombatRuntimeAssemblyOptions | PreparedCombatRuntimeAssemblyRestore;
 
 const unsupportedReactiveTerminal: CombatOperationExecutor = {
   execute(step): boolean {
@@ -785,31 +792,31 @@ export class CombatRuntimeAssembly {
       options.operators,
       options.combatSkillPrograms,
     );
-    return new CombatRuntimeAssembly({} as CombatRuntimeAssemblyOptions, {
+    return new CombatRuntimeAssembly({
+      [restoredCombatRuntimeAssembly]: true,
       preparation,
       options,
     });
   }
 
-  constructor(
-    inputOptions: CombatRuntimeAssemblyOptions,
-    restored?: PreparedCombatRuntimeAssemblyRestore,
-  ) {
-    let options = inputOptions;
+  constructor(input: CombatRuntimeAssemblyConstructionInput) {
+    const restored = restoredCombatRuntimeAssembly in input ? input : undefined;
+    let options: CombatRuntimeAssemblyOptions;
     let restoredFoundation: RestoredCombatRuntimeFoundation | undefined;
-    if (restored === undefined) {
+    if (!(restoredCombatRuntimeAssembly in input)) {
+      options = input;
       this.abilityEntityChildSkillPrograms =
         options.abilityEntityChildSkillPrograms ?? new AbilityEntityChildSkillPrograms();
       this.combatOperationPrograms =
         options.combatOperationPrograms ?? new CombatOperationPrograms();
       this.combatSkillPrograms = options.combatSkillPrograms ?? new CombatSkillPrograms();
     } else {
-      const restoreOptions = restored.options;
+      const restoreOptions = input.options;
       this.abilityEntityChildSkillPrograms = restoreOptions.abilityEntityChildSkillPrograms;
       this.combatOperationPrograms = restoreOptions.combatOperationPrograms;
       this.combatSkillPrograms = restoreOptions.combatSkillPrograms;
       restoredFoundation = bindRestoredCombatRuntimeFoundation({
-        preparation: restored.preparation,
+        preparation: input.preparation,
         shared: {
           receipt: new CombatReceiptCollector(restoreOptions.receiptHistory),
           resources: restoreOptions.resources,
@@ -855,7 +862,7 @@ export class CombatRuntimeAssembly {
       options = {
         resources: restoreOptions.resources,
         enemy: restoreOptions.enemy,
-        operators: [...restored.preparation.programs.values()],
+        operators: [...input.preparation.programs.values()],
         ...(restoreOptions.consumables === undefined
           ? {}
           : { consumables: restoreOptions.consumables }),
@@ -1057,22 +1064,9 @@ export class CombatRuntimeAssembly {
         }
         return target;
       });
-      this.globalBuffs = new GlobalBuffRuntime(
+      this.globalBuffs = this.#createGlobalBuffRuntime(
         () => partyTargets,
-        (sourceOperatorId, buffId) => {
-          if (sourceOperatorId !== 'battle') {
-            return this.#operators.get(sourceOperatorId)?.buffDefinitions?.[buffId];
-          }
-          for (const operator of this.#operators.values()) {
-            const definition = operator.buffDefinitions?.[buffId];
-            if (definition !== undefined) return definition;
-          }
-          return undefined;
-        },
-        this.resources.sharedSpGainModifiers,
-        this.resources.sharedSpRecoveryModifiers,
         preparation.graph.instances.globalBuffs,
-        (state, producedBy) => this.#recordGlobalBuffCreated(state, producedBy),
       );
 
       const buffs = bindRestoredCombatBuffInstances({
@@ -1447,23 +1441,7 @@ export class CombatRuntimeAssembly {
       'enemy',
       this.timeDilation?.getEntityClock('enemy') ?? this.clock,
     );
-    this.globalBuffs = new GlobalBuffRuntime(
-      () => this.#requirePartyBuffTargets(),
-      (sourceOperatorId, buffId) => {
-        if (sourceOperatorId !== 'battle') {
-          return this.#operators.get(sourceOperatorId)?.buffDefinitions?.[buffId];
-        }
-        for (const operator of this.#operators.values()) {
-          const definition = operator.buffDefinitions?.[buffId];
-          if (definition !== undefined) return definition;
-        }
-        return undefined;
-      },
-      this.resources.sharedSpGainModifiers,
-      this.resources.sharedSpRecoveryModifiers,
-      undefined,
-      (state, producedBy) => this.#recordGlobalBuffCreated(state, producedBy),
-    );
+    this.globalBuffs = this.#createGlobalBuffRuntime(() => this.#requirePartyBuffTargets());
     const boundBattleRuntimes =
       options.bindBattleRuntime?.({
         isOperatorControlled: operatorId => controlState.get(operatorId) ?? false,
@@ -2045,7 +2023,7 @@ export class CombatRuntimeAssembly {
     return ability.tryStartSkill(skillId, castId);
   }
 
-  /** 玩家时间轴输入记录原生槽位解析差异，但始终执行块中显式声明的技能。 */
+  /** 玩家时间轴输入诊断原生规则后尝试执行显式技能；true 含 Buff 旁路，不表示原生合法。 */
   tryStartPlayerInput(
     operatorId: string,
     expectedSkillId: string,
@@ -3061,6 +3039,30 @@ export class CombatRuntimeAssembly {
               this.timeDilation!.getAbilityTickDeltas(operatorId, COMBAT_FRAME_INTERVAL),
           }),
     };
+  }
+
+  /** 两条装配路径共用定义查找、共享技力账本和回执；恢复实例与子关系仍由恢复阶段绑定。 */
+  #createGlobalBuffRuntime(
+    resolvePartyTargets: () => readonly BuffOperationTarget[],
+    restoredState?: GlobalBuffRuntime['runtimeState'],
+  ): GlobalBuffRuntime {
+    return new GlobalBuffRuntime(
+      resolvePartyTargets,
+      (sourceOperatorId, buffId) => {
+        if (sourceOperatorId !== 'battle') {
+          return this.#operators.get(sourceOperatorId)?.buffDefinitions?.[buffId];
+        }
+        for (const operator of this.#operators.values()) {
+          const definition = operator.buffDefinitions?.[buffId];
+          if (definition !== undefined) return definition;
+        }
+        return undefined;
+      },
+      this.resources.sharedSpGainModifiers,
+      this.resources.sharedSpRecoveryModifiers,
+      restoredState,
+      (state, producedBy) => this.#recordGlobalBuffCreated(state, producedBy),
+    );
   }
 
   #recordGlobalBuffCreated(
