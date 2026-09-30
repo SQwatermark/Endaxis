@@ -163,7 +163,6 @@ import {
   type CombatOperationExecutor,
   type ProjectileRuntimeDependencies,
 } from '../skills/skillRuntime';
-import { sameSkillSimulationInputs } from '../skills/skillSimulationInputs';
 import { SkillSlotOperationExecutor } from '../skills/skillSlotOperationExecutor';
 import { UltimatePresentationRuntime } from '../skills/ultimatePresentationRuntime';
 import {
@@ -198,6 +197,7 @@ import type { CombatFrameInput } from './combatFrameInput';
 import { bindCombatFramePipeline } from './combatFramePipeline';
 import { CombatInputRuntime, type SkillInputGroup } from './combatInputRuntime';
 import { CombatSharedRuntime } from './combatSharedRuntime';
+import { resolvePlayerSkillInput, tryStartPlayerSkillInput } from './playerSkillInputCoordination';
 import { CombatSimulation, type FrameRuntime } from './combatSimulation';
 import {
   bindRestoredCombatRuntimeAbilityEntityRelations,
@@ -2053,191 +2053,31 @@ export class CombatRuntimeAssembly {
     action?: import('../../game-data/operatorDefinition').PlayerSkillInput,
     simulationInputs: SkillSimulationInputs = {},
   ): boolean {
-    const ability = this.#requireAbilitySystem(operatorId);
-    const parameterKey = `${operatorId}\u0000${castId ?? expectedSkillId}`;
-    const existingParameters = this.#castParameters.get(parameterKey);
-    if (
-      existingParameters !== undefined &&
-      !sameSkillSimulationInputs(existingParameters, simulationInputs)
-    ) {
-      throw new Error(`cannot change submitted skill parameters '${parameterKey}'`);
-    }
-    if (existingParameters === undefined)
-      this.#castParameters.set(parameterKey, structuredClone(simulationInputs));
-    if (castId !== undefined)
-      this.#options.submitCastRandomSeed?.(castId, simulationInputs.randomSeed);
-    else if (simulationInputs.randomSeed !== undefined)
-      throw new Error('a cast seed requires a cast id');
-    this.#ensureCastInstance(operatorId, expectedSkillId, castId);
-    const program = this.#skillPrograms.get(
-      `${operatorId}\u0000${expectedSkillId}\u0000${castId ?? ''}`,
+    return tryStartPlayerSkillInput(
+      { operatorId, skillId: expectedSkillId, castId, action, simulationInputs },
+      {
+        clock: this.clock,
+        receipt: this.receipt,
+        castParameters: this.#castParameters,
+        operatorControl: this.#operatorControl,
+        ultimatePresentation: this.ultimatePresentation,
+        skillAvailabilityTags: this.#options.skillAvailabilityTags,
+        submitCastRandomSeed: (cast, seed) => this.#options.submitCastRandomSeed?.(cast, seed),
+        requireAbilitySystem: id => this.#requireAbilitySystem(id),
+        ensureCastInstance: (id, skill, cast) => this.#ensureCastInstance(id, skill, cast),
+        skillTypeForCast: (id, skill, cast) =>
+          this.#skillPrograms.get(`${id}\u0000${skill}\u0000${cast ?? ''}`)?.skillType,
+        centerForOperator: id => {
+          const runtime = this.#operatorCenters.get(id);
+          const state = this.#operatorCenterStates.get(id);
+          return runtime === undefined || state === undefined ? undefined : { runtime, state };
+        },
+        casterBuffTarget: id => this.#resolveBuffTarget('caster', id),
+        resolvePlayerInputSkill: input => this.#resolvePlayerInputSkill(input),
+        prepareTimelineSkillStart: (id, skill, cast, consumeComboWindow) =>
+          this.#prepareSkillStart(id, skill, cast, undefined, false, consumeComboWindow),
+      },
     );
-    this.#operatorControl.beforeSkillInput(operatorId, action, program?.skillType, castId);
-    const center = this.#operatorCenters.get(operatorId);
-    const centerState = this.#operatorCenterStates.get(operatorId);
-    if (
-      ability.nativeSkillTypeForSkill(expectedSkillId) === 'attack' &&
-      center !== undefined &&
-      centerState !== undefined
-    ) {
-      const window = center.inspect(centerState);
-      if (window.canConsumeAttack === false || window.canLeaveForAttack === false) {
-        this.receipt.record({
-          frame: this.clock.frame,
-          time: this.clock.time,
-          event: 'SkillInputBlockedByDashWindow',
-          sourceId: operatorId,
-          data: {
-            skillId: expectedSkillId,
-            ...(castId === undefined ? {} : { castId }),
-            dodgeId: centerState.dashId,
-            attackInputBlocked: window.canConsumeAttack === false,
-            attackTransitionBlocked: window.canLeaveForAttack === false,
-          },
-        });
-      }
-    }
-    const tagRules = this.#options.skillAvailabilityTags;
-    if (tagRules !== undefined) {
-      const blocker = tagRules.getCommonSkillCastBlocker(
-        this.#resolveBuffTarget('caster', operatorId),
-      );
-      if (blocker !== undefined) {
-        this.receipt.record({
-          frame: this.clock.frame,
-          time: this.clock.time,
-          event: 'SkillInputBlockedByCommonTag',
-          sourceId: operatorId,
-          data: { skillId: expectedSkillId, blocker, ...(castId === undefined ? {} : { castId }) },
-        });
-      }
-    }
-    // OnPressUltimateSkillStart checks inUltimateCasting before requesting a cast.
-    // This is an input diagnostic, not a general skill lifecycle/interruption gate.
-    if (action === 'ultimate' && this.ultimatePresentation.inUltimateCasting) {
-      this.receipt.record({
-        frame: this.clock.frame,
-        time: this.clock.time,
-        event: 'UltimateInputBlockedByPresentation',
-        sourceId: operatorId,
-        data: { skillId: expectedSkillId, ...(castId === undefined ? {} : { castId }) },
-      });
-    }
-    const resolution = this.#resolvePlayerInputSkill({
-      operatorId,
-      skillId: expectedSkillId,
-      action,
-    });
-    if (resolution.status === 'mismatched') {
-      this.receipt.record({
-        frame: this.clock.frame,
-        time: this.clock.time,
-        event: 'SkillInputResolvedToDifferentSkill',
-        sourceId: operatorId,
-        data: {
-          skillId: expectedSkillId,
-          actualSkillId: resolution.actualSkillKey,
-          ...(castId === undefined ? {} : { castId }),
-        },
-      });
-    } else if (resolution.status === 'unknown') {
-      this.receipt.record({
-        frame: this.clock.frame,
-        time: this.clock.time,
-        event: 'SkillInputResolutionUnknown',
-        sourceId: operatorId,
-        data: {
-          skillId: expectedSkillId,
-          reason: resolution.reason,
-          ...(castId === undefined ? {} : { castId }),
-        },
-      });
-    }
-    // 原生先解析操作实际指向的技能，再对该技能执行中断门禁。时间轴块即使不一致
-    // 仍会被强制执行，但诊断不能拿块中期望技能冒充原生请求。
-    const interruptionSkillId =
-      resolution.status === 'matched' || resolution.status === 'mismatched'
-        ? resolution.actualSkillKey
-        : expectedSkillId;
-    if (tagRules !== undefined) {
-      const target = this.#resolveBuffTarget('caster', operatorId);
-      // 公共门禁已经诊断；原生 CheckTag 在此短路，不再叠加类型专用原因。
-      if (tagRules.getCommonSkillCastBlocker(target) === undefined) {
-        const nativeSkillType = ability.nativeSkillTypeForSkill(interruptionSkillId);
-        const currentNormalSkillId = ability.currentNormalSkillId;
-        const blocker = tagRules.getSkillTypeCastBlocker(
-          target,
-          nativeSkillType,
-          currentNormalSkillId === undefined
-            ? undefined
-            : interruptionSkillId === currentNormalSkillId,
-        );
-        if (blocker !== undefined) {
-          this.receipt.record({
-            frame: this.clock.frame,
-            time: this.clock.time,
-            event: 'SkillInputBlockedByTypeTag',
-            sourceId: operatorId,
-            data: {
-              skillId: expectedSkillId,
-              assessedSkillId: interruptionSkillId,
-              nativeSkillType,
-              blocker,
-              ...(castId === undefined ? {} : { castId }),
-            },
-          });
-        }
-      }
-    }
-    const interruption = ability.evaluatePlayerInputInterruption(
-      interruptionSkillId,
-      interruptionSkillId === expectedSkillId ? castId : undefined,
-    );
-    if (interruption.status === 'blocked') {
-      this.receipt.record({
-        frame: this.clock.frame,
-        time: this.clock.time,
-        event: 'SkillInputCannotInterruptCurrentSkill',
-        sourceId: operatorId,
-        data: {
-          skillId: expectedSkillId,
-          assessedSkillId: interruptionSkillId,
-          currentSkillId: interruption.currentSkillKey,
-          ...(ability.currentSkillCastId === undefined
-            ? {}
-            : { currentCastId: ability.currentSkillCastId }),
-          // 保存输入阶段实际读到的局部帧，不用两个全局输入时刻相减推测。
-          // 膨胀与同帧推进顺序都会使这两个量不同。
-          ...(ability.currentSkillTimelineFrame === undefined
-            ? {}
-            : { currentSkillTimelineFrame: ability.currentSkillTimelineFrame }),
-          ...(castId === undefined ? {} : { castId }),
-        },
-      });
-    } else if (interruption.status === 'unknown') {
-      this.receipt.record({
-        frame: this.clock.frame,
-        time: this.clock.time,
-        event: 'SkillInputInterruptionUnknown',
-        sourceId: operatorId,
-        data: {
-          skillId: expectedSkillId,
-          assessedSkillId: interruptionSkillId,
-          reason: interruption.reason,
-          ...(castId === undefined ? {} : { castId }),
-        },
-      });
-    }
-    if (!ability.canStartSkill(expectedSkillId, castId, false)) return false;
-    this.#prepareSkillStart(
-      operatorId,
-      expectedSkillId,
-      castId,
-      undefined,
-      false,
-      action === 'comboSkill',
-    );
-    return ability.tryStartTimelineSkill(expectedSkillId, castId);
   }
 
   /** 物理异常前置事件按原生顺序同步通知输出方与承受方。 */
@@ -2764,21 +2604,7 @@ export class CombatRuntimeAssembly {
   }
 
   #resolvePlayerInputSkill(input: import('../state/environmentState').CombatSkillInput) {
-    // 原生连携输入优先使用 HUD 当前候选，而非无候选时的静态技能槽。
-    const pendingCombo = input.action === 'comboSkill' ? this.comboWindows.first : undefined;
-    if (
-      pendingCombo !== undefined &&
-      pendingCombo.operatorId === input.operatorId &&
-      pendingCombo.nativeCondition === undefined
-    ) {
-      return pendingCombo.nextSkillKey === input.skillId
-        ? ({ status: 'matched', actualSkillKey: pendingCombo.nextSkillKey } as const)
-        : ({ status: 'mismatched', actualSkillKey: pendingCombo.nextSkillKey } as const);
-    }
-    return this.#requireAbilitySystem(input.operatorId).resolvePlayerInputSkill(
-      input.skillId,
-      input.action,
-    );
+    return resolvePlayerSkillInput(input, this.comboWindows, id => this.#requireAbilitySystem(id));
   }
 
   #applyConsumableUse(input: import('../state/environmentState').ConsumableUseInput): void {
@@ -3920,6 +3746,204 @@ export class CombatRuntimeAssembly {
     });
   }
 
+  /** 两种入口共用动作装配顺序；时间轴能力、归因与宿主状态由入口显式提供。 */
+  #wrapCommonActionOperations(options: {
+    readonly operator: CombatOperatorProgram;
+    readonly enemy: CombatEnemyProgram;
+    readonly delegate: CombatOperationExecutor;
+    readonly sourceActionId: string;
+    readonly inheritanceSourceId: string;
+    readonly cameraTargetAngle: number | undefined;
+    readonly resolveOwnerCurrentSkillTimelineFrame:
+      ((ownerId: string) => number | undefined) | undefined;
+    readonly isOperatorControlled: CombatRuntimeAssemblyOptions['isOperatorControlled'];
+    readonly resolveVitals: CombatRuntimeAssemblyOptions['resolveVitals'];
+    readonly resolveOperatorVitals: CombatRuntimeAssemblyOptions['resolveOperatorVitals'];
+    readonly readSourceAttributeValue: CombatRuntimeAssemblyOptions['readSourceAttributeValue'];
+    readonly getNonReturnedSpCost: () => number;
+    readonly diagnostics: {
+      readonly label: string;
+      readonly vitalsResolver: string;
+      readonly controlState: string;
+    };
+    readonly operationHost: {
+      readonly state: CombatOperationHostState;
+      readonly programs: CombatOperationPrograms;
+    };
+  }): CombatOperationExecutor {
+    const {
+      operator,
+      enemy,
+      isOperatorControlled,
+      resolveVitals,
+      resolveOperatorVitals,
+      getNonReturnedSpCost,
+      operationHost,
+    } = options;
+    const operatorId = operator.operatorId;
+    const timedMarkerOperations = new TimedMarkerOperationExecutor(
+      {
+        globalCooldowns: this.#globalCooldowns,
+        resolveCooldownCharacter: (target, context) =>
+          this.#requireCooldownCharacter(target, operatorId, context),
+        resolveTarget: target =>
+          target === 'enemy'
+            ? this.#enemyTimedMarkers
+            : this.#requireTimedMarkerContainer(operatorId),
+        resolveAbilityEntityTarget: target => this.abilityEntities.timedMarkers(target),
+        resolveEventTarget: targetId => this.#resolveTimedMarkerContainerById(targetId),
+        globalClock: this.timeDilation ?? this.clock,
+        globalScaledClock: this.timeDilation ?? this.clock,
+        delegate: options.delegate,
+      },
+      { state: operationHost.state.timedMarkers, programs: operationHost.programs },
+    );
+    const angleConditions = new CameraTargetAngleConditionExecutor(
+      options.cameraTargetAngle,
+      timedMarkerOperations,
+    );
+    const superArmorConditions = new EnemySuperArmorConditionExecutor(
+      enemy.superArmor,
+      angleConditions,
+    );
+    const rankConditions = new EnemyRankConditionExecutor(enemy.rank, superArmorConditions);
+    const vitalsConditions = new CombatVitalsConditionExecutor({
+      resolveTarget: (target, buffSourceId) => {
+        if (resolveVitals === undefined) {
+          throw new Error(options.diagnostics.vitalsResolver);
+        }
+        return resolveVitals(target, operatorId, buffSourceId);
+      },
+      resolveContextTarget: candidate => {
+        if (resolveOperatorVitals === undefined) {
+          throw new Error(`${options.diagnostics.label} requires operator vitals`);
+        }
+        return resolveOperatorVitals(candidate);
+      },
+      delegate: rankConditions,
+    });
+    const controlConditions = new OperatorControlConditionExecutor({
+      isCasterControlled: () => {
+        if (isOperatorControlled === undefined) {
+          throw new Error(options.diagnostics.controlState);
+        }
+        return isOperatorControlled(operatorId, this.clock.frame);
+      },
+      delegate: vitalsConditions,
+    });
+    const comboWindowOperations = new ComboWindowOperationExecutor(
+      operatorId,
+      this.comboWindows,
+      controlConditions,
+      (skillSlotKey, ownerId) =>
+        this.#requireAbilitySystem(ownerId).currentSkillKeyForSlot(skillSlotKey),
+      { state: operationHost.state.comboWindows, programs: operationHost.programs },
+    );
+    const eventConditions = new EventContextConditionExecutor(
+      comboWindowOperations,
+      isOperatorControlled === undefined
+        ? undefined
+        : sourceId => isOperatorControlled(sourceId, this.clock.frame),
+      sourceId => this.#resolveAbilitySystemSourceId(sourceId),
+      (targetId, ownedTags, requiredTags, match) =>
+        this.#resolveBuffTargetById(targetId).matchesTags!(ownedTags, requiredTags, match),
+      (target, context) => {
+        const targetId = target === 'caster' ? operatorId : context?.buffOwnerId;
+        return targetId === undefined
+          ? undefined
+          : this.#abilitySystems.get(targetId)?.currentSkillType;
+      },
+      id => this.#resolveAbilityEntityObjectType(id),
+    );
+    const skillCastInheritance = new SkillCastInheritanceOperationExecutor(
+      options.inheritanceSourceId,
+      this.#basicAttackSkillCastInheritance,
+      eventConditions,
+      { state: operationHost.state.skillCastInheritance, programs: operationHost.programs },
+    );
+    const requireEntityVitals = (entityId: string) => {
+      const vitals =
+        entityId === 'enemy'
+          ? resolveVitals?.('enemy', operatorId)
+          : resolveOperatorVitals?.(this.#resolveAbilitySystemSourceId(entityId));
+      if (vitals === undefined) {
+        throw new Error(`${options.diagnostics.label} cannot resolve vitals for '${entityId}'`);
+      }
+      return vitals;
+    };
+    const delegate = new ActionBlackboardOperationExecutor(
+      skillCastInheritance,
+      this.#options.probabilitySamples,
+      options.readSourceAttributeValue === undefined
+        ? undefined
+        : {
+            sourceId: operator.operatorId,
+            read: (sourceId, request) =>
+              options.readSourceAttributeValue!(
+                this.#resolveAbilitySystemSourceId(sourceId),
+                request,
+              ),
+          },
+      options.resolveOwnerCurrentSkillTimelineFrame,
+      operator.panel?.attributes,
+      {
+        sourceId: operatorId,
+        resolve: entityId => this.#operators.get(entityId)?.characterTypeId,
+      },
+      {
+        sourceId: operatorId,
+        resolve: entityId => this.#operators.get(entityId)?.operatorRole,
+      },
+      {
+        read: (entityId, property) => {
+          const vitals = requireEntityVitals(entityId);
+          return property === 'currentHealth'
+            ? vitals.health
+            : property === 'maxHealth'
+              ? vitals.maxHealth
+              : vitals.poise;
+        },
+        setHealthFloor: (entityId, mode, value) => {
+          const vitals = requireEntityVitals(entityId);
+          return vitals.requestHealthFloor(
+            mode === 'maxHealthRatio' ? vitals.maxHealth * value : value,
+          );
+        },
+        removeHealthFloor: (entityId, handle) => {
+          const vitals = requireEntityVitals(entityId);
+          vitals.removeHealthFloor(handle);
+        },
+      },
+      { state: operationHost.state.actionBlackboard, programs: operationHost.programs },
+    );
+    return new SkillResourceOperationExecutor(
+      {
+        sourceOperatorId: operatorId,
+        sourceActionId: options.sourceActionId,
+        clock: this.clock,
+        resources: this.resources,
+        receipt: this.receipt,
+        getNonReturnedSpCost,
+        finisherSpRecovery: enemy.stagger.finisherSpRecovery,
+        onSpGained: event => {
+          if (this.#options.emitAbilityEvent === undefined)
+            throw new Error('SP gain requires an ability event publisher');
+          this.#options.emitAbilityEvent(event.sourceOperatorId, 'skillSpGained', event);
+        },
+        onPerfectDodge: sourceOperatorId => {
+          if (this.#options.emitAbilityEvent === undefined)
+            throw new Error('perfect Dodge record requires an ability event publisher');
+          this.#options.emitAbilityEvent(sourceOperatorId, 'perfectDodge', {
+            sourceId: sourceOperatorId,
+            targetId: sourceOperatorId,
+          });
+        },
+        delegate,
+      },
+      { state: operationHost.state.resources, programs: operationHost.programs },
+    );
+  }
+
   #createOperationChain(options: {
     readonly operator: CombatOperatorProgram;
     /** 当前时间轴施放身份；定义程序本身始终与单次施放无关。 */
@@ -4100,172 +4124,27 @@ export class CombatRuntimeAssembly {
       },
       delegate: globalBuffOperations,
     });
-    const timedMarkerOperations = new TimedMarkerOperationExecutor(
-      {
-        globalCooldowns: this.#globalCooldowns,
-        resolveCooldownCharacter: (target, context) =>
-          this.#requireCooldownCharacter(target, operatorId, context),
-        resolveTarget: target =>
-          target === 'enemy'
-            ? this.#enemyTimedMarkers
-            : this.#requireTimedMarkerContainer(operatorId),
-        resolveAbilityEntityTarget: target => this.abilityEntities.timedMarkers(target),
-        resolveEventTarget: targetId => this.#resolveTimedMarkerContainerById(targetId),
-        globalClock: this.timeDilation ?? this.clock,
-        globalScaledClock: this.timeDilation ?? this.clock,
-        delegate: statusOperations,
+    const operationChain = this.#wrapCommonActionOperations({
+      operator,
+      enemy,
+      delegate: statusOperations,
+      sourceActionId: program.skillId,
+      inheritanceSourceId: definitionOperator.operatorId,
+      cameraTargetAngle: 0,
+      resolveOwnerCurrentSkillTimelineFrame: ownerId =>
+        this.#abilitySystems.get(ownerId)?.currentSkillTimelineFrame,
+      isOperatorControlled,
+      resolveVitals,
+      resolveOperatorVitals,
+      readSourceAttributeValue: this.#options.readSourceAttributeValue,
+      getNonReturnedSpCost,
+      diagnostics: {
+        label: `skill '${program.skillId}'`,
+        vitalsResolver: `skill '${program.skillId}' requires a combat vitals resolver`,
+        controlState: `skill '${program.skillId}' requires the current controlled operator`,
       },
-      { state: operationHost.state.timedMarkers, programs: operationHost.programs },
-    );
-    const angleConditions = new CameraTargetAngleConditionExecutor(0, timedMarkerOperations);
-    const superArmorConditions = new EnemySuperArmorConditionExecutor(
-      enemy.superArmor,
-      angleConditions,
-    );
-    const rankConditions = new EnemyRankConditionExecutor(enemy.rank, superArmorConditions);
-    const vitalsConditions = new CombatVitalsConditionExecutor({
-      resolveTarget: (target, buffSourceId) => {
-        if (resolveVitals === undefined) {
-          throw new Error(`skill '${program.skillId}' requires a combat vitals resolver`);
-        }
-        return resolveVitals(target, operatorId, buffSourceId);
-      },
-      resolveContextTarget: candidate => {
-        if (resolveOperatorVitals === undefined) {
-          throw new Error(`skill '${program.skillId}' requires operator vitals`);
-        }
-        return resolveOperatorVitals(candidate);
-      },
-      delegate: rankConditions,
+      operationHost,
     });
-    const controlConditions = new OperatorControlConditionExecutor({
-      isCasterControlled: () => {
-        if (isOperatorControlled === undefined) {
-          throw new Error(`skill '${program.skillId}' requires the current controlled operator`);
-        }
-        return isOperatorControlled(operatorId, this.clock.frame);
-      },
-      delegate: vitalsConditions,
-    });
-    const comboWindowOperations = new ComboWindowOperationExecutor(
-      operatorId,
-      this.comboWindows,
-      controlConditions,
-      (skillSlotKey, ownerId) =>
-        this.#requireAbilitySystem(ownerId).currentSkillKeyForSlot(skillSlotKey),
-      { state: operationHost.state.comboWindows, programs: operationHost.programs },
-    );
-    const eventConditions = new EventContextConditionExecutor(
-      comboWindowOperations,
-      isOperatorControlled === undefined
-        ? undefined
-        : sourceId => isOperatorControlled(sourceId, this.clock.frame),
-      sourceId => this.#resolveAbilitySystemSourceId(sourceId),
-      (targetId, ownedTags, requiredTags, match) =>
-        this.#resolveBuffTargetById(targetId).matchesTags!(ownedTags, requiredTags, match),
-      (target, context) => {
-        const targetId = target === 'caster' ? operatorId : context?.buffOwnerId;
-        return targetId === undefined
-          ? undefined
-          : this.#abilitySystems.get(targetId)?.currentSkillType;
-      },
-      id => this.#resolveAbilityEntityObjectType(id),
-    );
-    const skillCastInheritance = new SkillCastInheritanceOperationExecutor(
-      definitionOperator.operatorId,
-      this.#basicAttackSkillCastInheritance,
-      eventConditions,
-      { state: operationHost.state.skillCastInheritance, programs: operationHost.programs },
-    );
-    const delegate = new ActionBlackboardOperationExecutor(
-      skillCastInheritance,
-      this.#options.probabilitySamples,
-      this.#options.readSourceAttributeValue === undefined
-        ? undefined
-        : {
-            sourceId: operator.operatorId,
-            read: (sourceId, request) =>
-              this.#options.readSourceAttributeValue!(
-                this.#resolveAbilitySystemSourceId(sourceId),
-                request,
-              ),
-          },
-      ownerId => this.#abilitySystems.get(ownerId)?.currentSkillTimelineFrame,
-      operator.panel?.attributes,
-      {
-        sourceId: operatorId,
-        resolve: entityId => this.#operators.get(entityId)?.characterTypeId,
-      },
-      {
-        sourceId: operatorId,
-        resolve: entityId => this.#operators.get(entityId)?.operatorRole,
-      },
-      {
-        read: (entityId, property) => {
-          const vitals =
-            entityId === 'enemy'
-              ? resolveVitals?.('enemy', operatorId)
-              : resolveOperatorVitals?.(this.#resolveAbilitySystemSourceId(entityId));
-          if (vitals === undefined) {
-            throw new Error(`skill '${program.skillId}' cannot resolve vitals for '${entityId}'`);
-          }
-          return property === 'currentHealth'
-            ? vitals.health
-            : property === 'maxHealth'
-              ? vitals.maxHealth
-              : vitals.poise;
-        },
-        setHealthFloor: (entityId, mode, value) => {
-          const vitals =
-            entityId === 'enemy'
-              ? resolveVitals?.('enemy', operatorId)
-              : resolveOperatorVitals?.(this.#resolveAbilitySystemSourceId(entityId));
-          if (vitals === undefined) {
-            throw new Error(`skill '${program.skillId}' cannot resolve vitals for '${entityId}'`);
-          }
-          return vitals.requestHealthFloor(
-            mode === 'maxHealthRatio' ? vitals.maxHealth * value : value,
-          );
-        },
-        removeHealthFloor: (entityId, handle) => {
-          const vitals =
-            entityId === 'enemy'
-              ? resolveVitals?.('enemy', operatorId)
-              : resolveOperatorVitals?.(this.#resolveAbilitySystemSourceId(entityId));
-          if (vitals === undefined) {
-            throw new Error(`skill '${program.skillId}' cannot resolve vitals for '${entityId}'`);
-          }
-          vitals.removeHealthFloor(handle);
-        },
-      },
-      { state: operationHost.state.actionBlackboard, programs: operationHost.programs },
-    );
-    const operationChain = new SkillResourceOperationExecutor(
-      {
-        sourceOperatorId: operatorId,
-        sourceActionId: program.skillId,
-        clock: this.clock,
-        resources: this.resources,
-        receipt: this.receipt,
-        getNonReturnedSpCost,
-        finisherSpRecovery: enemy.stagger.finisherSpRecovery,
-        onSpGained: event => {
-          if (this.#options.emitAbilityEvent === undefined)
-            throw new Error('SP gain requires an ability event publisher');
-          this.#options.emitAbilityEvent(event.sourceOperatorId, 'skillSpGained', event);
-        },
-        onPerfectDodge: sourceOperatorId => {
-          if (this.#options.emitAbilityEvent === undefined)
-            throw new Error('perfect Dodge record requires an ability event publisher');
-          this.#options.emitAbilityEvent(sourceOperatorId, 'perfectDodge', {
-            sourceId: sourceOperatorId,
-            targetId: sourceOperatorId,
-          });
-        },
-        delegate,
-      },
-      { state: operationHost.state.resources, programs: operationHost.programs },
-    );
     return withTerminalPreparation(operationChain, terminalDelegate, operationHost);
   }
 
@@ -4424,178 +4303,26 @@ export class CombatRuntimeAssembly {
       },
       delegate: globalBuffOperations,
     });
-    const markerOperations = new TimedMarkerOperationExecutor(
-      {
-        globalCooldowns: this.#globalCooldowns,
-        resolveCooldownCharacter: (target, context) =>
-          this.#requireCooldownCharacter(target, operatorId, context),
-        resolveTarget: target =>
-          target === 'enemy'
-            ? this.#enemyTimedMarkers
-            : this.#requireTimedMarkerContainer(operatorId),
-        resolveAbilityEntityTarget: target => this.abilityEntities.timedMarkers(target),
-        resolveEventTarget: targetId => this.#resolveTimedMarkerContainerById(targetId),
-        globalClock: this.timeDilation ?? this.clock,
-        globalScaledClock: this.timeDilation ?? this.clock,
-        delegate: statusOperations,
+    const operationChain = this.#wrapCommonActionOperations({
+      operator,
+      enemy: options.enemy,
+      delegate: statusOperations,
+      sourceActionId,
+      inheritanceSourceId: operatorId,
+      cameraTargetAngle: undefined,
+      resolveOwnerCurrentSkillTimelineFrame: undefined,
+      isOperatorControlled: options.isOperatorControlled,
+      resolveVitals: options.resolveVitals,
+      resolveOperatorVitals: options.resolveOperatorVitals,
+      readSourceAttributeValue: options.readSourceAttributeValue,
+      getNonReturnedSpCost: () => 0,
+      diagnostics: {
+        label: `reactive event '${sourceActionId}'`,
+        vitalsResolver: `reactive event '${sourceActionId}' requires a vitals resolver`,
+        controlState: `reactive event '${sourceActionId}' requires control state`,
       },
-      { state: operationHost.state.timedMarkers, programs: operationHost.programs },
-    );
-    const angleConditions = new CameraTargetAngleConditionExecutor(undefined, markerOperations);
-    const superArmorConditions = new EnemySuperArmorConditionExecutor(
-      options.enemy.superArmor,
-      angleConditions,
-    );
-    const rankConditions = new EnemyRankConditionExecutor(options.enemy.rank, superArmorConditions);
-    const vitalsConditions = new CombatVitalsConditionExecutor({
-      resolveTarget: (target, buffSourceId) => {
-        if (options.resolveVitals === undefined) {
-          throw new Error(`reactive event '${sourceActionId}' requires a vitals resolver`);
-        }
-        return options.resolveVitals(target, operatorId, buffSourceId);
-      },
-      resolveContextTarget: candidate => {
-        if (options.resolveOperatorVitals === undefined) {
-          throw new Error(`reactive event '${sourceActionId}' requires operator vitals`);
-        }
-        return options.resolveOperatorVitals(candidate);
-      },
-      delegate: rankConditions,
+      operationHost,
     });
-    const controlConditions = new OperatorControlConditionExecutor({
-      isCasterControlled: () => {
-        if (options.isOperatorControlled === undefined) {
-          throw new Error(`reactive event '${sourceActionId}' requires control state`);
-        }
-        return options.isOperatorControlled(operatorId, this.clock.frame);
-      },
-      delegate: vitalsConditions,
-    });
-    const comboWindowOperations = new ComboWindowOperationExecutor(
-      operatorId,
-      this.comboWindows,
-      controlConditions,
-      (skillSlotKey, ownerId) =>
-        this.#requireAbilitySystem(ownerId).currentSkillKeyForSlot(skillSlotKey),
-      { state: operationHost.state.comboWindows, programs: operationHost.programs },
-    );
-    const eventConditions = new EventContextConditionExecutor(
-      comboWindowOperations,
-      options.isOperatorControlled === undefined
-        ? undefined
-        : sourceId => options.isOperatorControlled!(sourceId, this.clock.frame),
-      sourceId => this.#resolveAbilitySystemSourceId(sourceId),
-      (targetId, ownedTags, requiredTags, match) =>
-        this.#resolveBuffTargetById(targetId).matchesTags!(ownedTags, requiredTags, match),
-      (target, context) => {
-        const targetId = target === 'caster' ? operatorId : context?.buffOwnerId;
-        return targetId === undefined
-          ? undefined
-          : this.#abilitySystems.get(targetId)?.currentSkillType;
-      },
-      id => this.#resolveAbilityEntityObjectType(id),
-    );
-    const skillCastInheritance = new SkillCastInheritanceOperationExecutor(
-      operatorId,
-      this.#basicAttackSkillCastInheritance,
-      eventConditions,
-      { state: operationHost.state.skillCastInheritance, programs: operationHost.programs },
-    );
-    const blackboardOperations = new ActionBlackboardOperationExecutor(
-      skillCastInheritance,
-      this.#options.probabilitySamples,
-      options.readSourceAttributeValue === undefined
-        ? undefined
-        : {
-            sourceId: operatorId,
-            read: (sourceId, request) =>
-              options.readSourceAttributeValue!(
-                this.#resolveAbilitySystemSourceId(sourceId),
-                request,
-              ),
-          },
-      undefined,
-      operator.panel?.attributes,
-      {
-        sourceId: operatorId,
-        resolve: entityId => this.#operators.get(entityId)?.characterTypeId,
-      },
-      {
-        sourceId: operatorId,
-        resolve: entityId => this.#operators.get(entityId)?.operatorRole,
-      },
-      {
-        read: (entityId, property) => {
-          const vitals =
-            entityId === 'enemy'
-              ? options.resolveVitals?.('enemy', operatorId)
-              : options.resolveOperatorVitals?.(this.#resolveAbilitySystemSourceId(entityId));
-          if (vitals === undefined) {
-            throw new Error(
-              `reactive event '${sourceActionId}' cannot resolve vitals for '${entityId}'`,
-            );
-          }
-          return property === 'currentHealth'
-            ? vitals.health
-            : property === 'maxHealth'
-              ? vitals.maxHealth
-              : vitals.poise;
-        },
-        setHealthFloor: (entityId, mode, value) => {
-          const vitals =
-            entityId === 'enemy'
-              ? options.resolveVitals?.('enemy', operatorId)
-              : options.resolveOperatorVitals?.(this.#resolveAbilitySystemSourceId(entityId));
-          if (vitals === undefined) {
-            throw new Error(
-              `reactive event '${sourceActionId}' cannot resolve vitals for '${entityId}'`,
-            );
-          }
-          return vitals.requestHealthFloor(
-            mode === 'maxHealthRatio' ? vitals.maxHealth * value : value,
-          );
-        },
-        removeHealthFloor: (entityId, handle) => {
-          const vitals =
-            entityId === 'enemy'
-              ? options.resolveVitals?.('enemy', operatorId)
-              : options.resolveOperatorVitals?.(this.#resolveAbilitySystemSourceId(entityId));
-          if (vitals === undefined) {
-            throw new Error(
-              `reactive event '${sourceActionId}' cannot resolve vitals for '${entityId}'`,
-            );
-          }
-          vitals.removeHealthFloor(handle);
-        },
-      },
-      { state: operationHost.state.actionBlackboard, programs: operationHost.programs },
-    );
-    const operationChain = new SkillResourceOperationExecutor(
-      {
-        sourceOperatorId: operatorId,
-        sourceActionId,
-        clock: this.clock,
-        resources: this.resources,
-        receipt: this.receipt,
-        getNonReturnedSpCost: () => 0,
-        finisherSpRecovery: options.enemy.stagger.finisherSpRecovery,
-        onSpGained: event => {
-          if (this.#options.emitAbilityEvent === undefined)
-            throw new Error('SP gain requires an ability event publisher');
-          this.#options.emitAbilityEvent(event.sourceOperatorId, 'skillSpGained', event);
-        },
-        onPerfectDodge: sourceOperatorId => {
-          if (this.#options.emitAbilityEvent === undefined)
-            throw new Error('perfect Dodge record requires an ability event publisher');
-          this.#options.emitAbilityEvent(sourceOperatorId, 'perfectDodge', {
-            sourceId: sourceOperatorId,
-            targetId: sourceOperatorId,
-          });
-        },
-        delegate: blackboardOperations,
-      },
-      { state: operationHost.state.resources, programs: operationHost.programs },
-    );
     const reactiveOperations = withTerminalPreparation(operationChain, terminal, operationHost);
     const bindingKey = `${operatorId}\u0000${sourceActionId}`;
     if (!this.#reactiveOperationBindings.has(bindingKey)) {

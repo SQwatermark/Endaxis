@@ -259,6 +259,9 @@ function createAssembly(
           typeof CombatRuntimeAssembly
         >[0]['createOperatorBuffRuntime'];
         skillAvailabilityTags?: GameplayTagPredefine;
+        submitCastRandomSeed?: ConstructorParameters<
+          typeof CombatRuntimeAssembly
+        >[0]['submitCastRandomSeed'];
         resolveDashControllerState?: ConstructorParameters<
           typeof CombatRuntimeAssembly
         >[0]['resolveDashControllerState'];
@@ -327,6 +330,9 @@ function createAssembly(
     ...(resolvedSkillAvailabilityTags === undefined
       ? {}
       : { skillAvailabilityTags: resolvedSkillAvailabilityTags }),
+    ...('programs' in input && input.submitCastRandomSeed !== undefined
+      ? { submitCastRandomSeed: input.submitCastRandomSeed }
+      : {}),
     ...('programs' in input && input.resolveDashControllerState !== undefined
       ? { resolveDashControllerState: input.resolveDashControllerState }
       : {}),
@@ -398,6 +404,136 @@ function createAssembly(
 }
 
 describe('CombatRuntimeAssembly', () => {
+  it('registers isolated input parameters before seed submission and cast creation', () => {
+    const submitCastRandomSeed = vi.fn((castId: string, seed: number | undefined) => {
+      expect(assembly.stateGraph.inputs.castParameters.get(`operator\u0000${castId}`)).toEqual({
+        randomSeed: seed,
+        criticalOverrides: { hit: true },
+      });
+      expect(
+        assembly.stateGraph.operators.get('operator')!.skills.has(`skill\u0000${castId}`),
+      ).toBe(false);
+    });
+    const assembly = createAssembly({
+      programs: [skill({ costs: [] })],
+      ...nativeEventRuntimeOptions(),
+      submitCastRandomSeed,
+    });
+    const parameters = { randomSeed: 17, criticalOverrides: { hit: true } };
+    expect(assembly.tryStartPlayerInput('operator', 'skill', 'cast', undefined, parameters)).toBe(
+      true,
+    );
+    parameters.criticalOverrides.hit = false;
+    expect(() =>
+      assembly.tryStartPlayerInput('operator', 'skill', 'cast', undefined, parameters),
+    ).toThrow('cannot change submitted skill parameters');
+    expect(submitCastRandomSeed).toHaveBeenCalledExactlyOnceWith('cast', 17);
+    expect(assembly.stateGraph.inputs.castParameters.get('operator\u0000cast')).toEqual({
+      randomSeed: 17,
+      criticalOverrides: { hit: true },
+    });
+    expect(assembly.receipt.entries.filter(entry => entry.event === 'SkillStarted')).toHaveLength(
+      1,
+    );
+    expect(() =>
+      assembly.tryStartPlayerInput('operator', 'skill', undefined, undefined, { randomSeed: 19 }),
+    ).toThrow('a cast seed requires a cast id');
+    expect(submitCastRandomSeed).toHaveBeenCalledTimes(1);
+  });
+
+  it.each([false, true])(
+    'diagnoses the routed skill before executing the authored skill, Buff bypass: %s',
+    bypass => {
+      const table = new GameplayTagPredefine(GAMEPLAY_TAG_PREDEFINE);
+      const container = new CombatBuffContainer('operator', new CombatAttributeSet<string>());
+      container.addEntityTags([table.getQuery('InDisarmed').tags[0]!]);
+      const assembly = createAssembly(
+        [
+          skill({
+            skillId: 'current',
+            costs: [],
+            nativeSkillType: 'normalSkill',
+            exclusiveFrame: 30,
+            naturalDurationFrames: 60,
+            inputWindows: { allowedNextSkills: [], hasConditionalActions: false },
+          }),
+          skill({ skillId: 'routed', costs: [], nativeSkillType: 'attack' }),
+          skill({
+            skillId: 'authored',
+            costs: [],
+            nativeSkillType: 'ultimateSkill',
+            ...(bypass
+              ? {
+                  switchToBuffCast: {
+                    asSkillCast: true,
+                    sequence: chainEntry('input-buff-bypass', []),
+                  },
+                }
+              : {}),
+          }),
+        ],
+        undefined,
+        undefined,
+        emptyEnemyBuffRuntime,
+        () => asBuffRuntime(container),
+        testEnemy,
+        undefined,
+        undefined,
+        undefined,
+        [{ skillSlotKey: 'ultimate', baseSkillKey: 'routed', replacementSkillKeys: ['authored'] }],
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        { ultimate: { kind: 'skillSlot', skillSlotKey: 'ultimate' } },
+        table,
+      );
+      expect(assembly.tryStartSkill('operator', 'current')).toBe(true);
+      assembly.ultimatePresentation.setActive(true, 'another-operator', 'cinematic');
+      const before = assembly.receipt.entries.length;
+      expect(assembly.tryStartPlayerInput('operator', 'authored', 'input', 'ultimate')).toBe(true);
+      const entries = assembly.receipt.entries.slice(before);
+      const diagnostics = entries.filter(
+        entry =>
+          entry.event.startsWith('SkillInput') ||
+          entry.event === 'UltimateInputBlockedByPresentation',
+      );
+      expect(diagnostics.map(entry => entry.event)).toEqual([
+        'UltimateInputBlockedByPresentation',
+        'SkillInputResolvedToDifferentSkill',
+        'SkillInputBlockedByTypeTag',
+        'SkillInputCannotInterruptCurrentSkill',
+      ]);
+      expect(diagnostics[2]!.data).toMatchObject({
+        skillId: 'authored',
+        assessedSkillId: 'routed',
+        nativeSkillType: 'attack',
+        blocker: 'InDisarmed',
+        castId: 'input',
+      });
+      expect(diagnostics[3]!.data).toMatchObject({
+        skillId: 'authored',
+        assessedSkillId: 'routed',
+        currentSkillId: 'current',
+        currentSkillTimelineFrame: 0,
+        castId: 'input',
+      });
+      const executionEvent = entries.find(
+        entry => entry.event === (bypass ? 'SkillSwitchedToBuff' : 'SkillStarted'),
+      )!;
+      expect(executionEvent.data).toMatchObject({ skillId: 'authored', castId: 'input' });
+      expect(entries.indexOf(executionEvent)).toBeGreaterThan(entries.indexOf(diagnostics[3]!));
+      expect(entries.filter(entry => entry.event === 'SkillInterrupted')).toHaveLength(
+        bypass ? 0 : 1,
+      );
+      expect(assembly.stateGraph.operators.get('operator')!.ability.currentSkillKey).toBe(
+        bypass ? 'current\u0000' : 'authored\u0000input',
+      );
+      if (bypass) expect(entries.some(entry => entry.event === 'SkillStarted')).toBe(false);
+    },
+  );
+
   it('缺少未查明的闪避数据时保留输入并记录局部告警，不终止整场模拟', () => {
     const current = skill({
       skillId: 'current',
@@ -5678,5 +5814,220 @@ describe('CombatRuntimeAssembly', () => {
       'SkillInputProcessed',
       'SkillEnded',
     ]);
+  });
+});
+
+describe('普通技能与响应式事件的公共动作装配', () => {
+  function setup(sequence: ResolvedActionSequence) {
+    const native = createNativeEventFixture();
+    const vitals = new CombatVitals({
+      health: 80,
+      maxHealth: 100,
+      maxPoise: 0,
+      poise: 0,
+      poiseRecoveryTime: 0,
+      poiseRecoveryTimeMultiplier: 1,
+      poiseBrokenEndTime: 0,
+      poiseImmune: false,
+    });
+    const normalTerminal = vi.fn(() => true);
+    const reactiveTerminal = vi.fn(() => true);
+    const program = skill({
+      costs: [],
+      costFrame: undefined,
+      timelineActions: [{ startFrame: 0, endFrame: 1, sequence }],
+    });
+    const initialize = chainEntry('common-initialize', []);
+    const assembly = new CombatRuntimeAssembly({
+      ...nativeEventRuntimeOptions(),
+      registerCombatAbilityEvent: native.register,
+      enemy: testEnemy,
+      enemyBuffRuntime: emptyEnemyBuffRuntime,
+      resources: {
+        sp: 0,
+        maxSp: 300,
+        returnedSp: 0,
+        sharedSpGain: { baseGainEfficiency: 1 },
+        spRecovery: { valuePerSecond: 0, pauseDuration: 0, pauseRemaining: 0 },
+        ultimateEnergySystemUnlocked: true,
+        normalSkillUltimateEnergy: { selfGainPerSp: 0, otherGainPerSp: 0 },
+        squad: [
+          {
+            operatorId: 'operator',
+            ultimateEnergy: 0,
+            maxUltimateEnergy: 100,
+            ultimateEnergyGainMultiplier: 1,
+            allowedUltimateEnergyRecoveryTags: null,
+          },
+        ],
+      },
+      operators: [
+        {
+          operatorId: 'operator',
+          skills: [program],
+          skillCasts: [{ castId: 'placed-cast', program }],
+          initializationPrograms: [
+            { key: 'fixture', equipmentContributionIndex: 0, sequence: initialize },
+          ],
+          equipmentContributions: [
+            {
+              source: { kind: 'weaponTrait', slug: 'fixture', traitKey: 'trait' },
+              selectedLevel: 1,
+              modifiers: [],
+              blackboard: {},
+              initializationSequence: initialize,
+              eventHandlers: [
+                {
+                  key: 'response',
+                  event: { kind: 'damageTagHit', tag: 'normalSkill', scope: 'operator' },
+                  sequence,
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      resolveVitals: () => vitals,
+      resolveOperatorVitals: id => {
+        expect(id).toBe('operator');
+        return vitals;
+      },
+      isOperatorControlled: id => id === 'operator',
+      createOperationExecutor: () => ({ execute: normalTerminal, evaluate: () => false }),
+      createEquipmentEventOperationExecutor: () => ({
+        execute: reactiveTerminal,
+        evaluate: () => false,
+      }),
+    });
+    return {
+      assembly,
+      vitals,
+      normalTerminal,
+      reactiveTerminal,
+      trigger: (path: 'skill' | 'reactive') =>
+        path === 'skill'
+          ? assembly.tryStartSkill('operator', 'skill', 'placed-cast')
+          : native.emitOutputDamage({ sourceId: 'operator', tags: ['normalSkill'] }),
+    };
+  }
+
+  it.each(['skill', 'reactive'] as const)(
+    '%s 保留条件、黑板、资源、末端的执行顺序及各自的生命下限寿命',
+    path => {
+      const steps: readonly ActionGraphStep[] = [
+        {
+          kind: 'setHealthFloor',
+          parameters: {
+            target: 'actionOwner',
+            mode: 'maxHealthRatio',
+            value: { kind: 'constant', value: 0.5 },
+          },
+        },
+        {
+          kind: 'storeEntityPropertyValue',
+          parameters: {
+            target: 'actionOwner',
+            property: 'currentHealth',
+            useFloor: false,
+            divisor: { kind: 'constant', value: 1 },
+            multiplier: { kind: 'constant', value: 1 },
+            base: { kind: 'constant', value: 0 },
+            targetKey: 'health',
+          },
+        },
+        {
+          kind: 'changeResourceByActionValue',
+          parameters: {
+            resource: 'sp',
+            recipient: 'team',
+            amount: { kind: 'blackboard', key: 'health' },
+          },
+        },
+        { kind: 'dealDamage', parameters: { damageType: 'physical', attackScale: 1, tags: [] } },
+      ];
+      const sequence = compileGraphEntry(`common-conditions-${path}`, 'check', {
+        check: {
+          action: {
+            kind: 'conditional',
+            parameters: {
+              condition: {
+                kind: 'all',
+                conditions: [
+                  { kind: 'enemyRankIn', ranks: ['mob'] },
+                  {
+                    kind: 'enemySuperArmorCompare',
+                    operator: 'equal',
+                    value: { kind: 'constant', value: 0 },
+                  },
+                  {
+                    kind: 'cameraToTargetAngleCompare',
+                    operator: 'equal',
+                    value: { kind: 'constant', value: 0 },
+                  },
+                  {
+                    kind: 'healthCompare',
+                    target: 'caster',
+                    valueType: 'ratio',
+                    operator: 'greater',
+                    value: { kind: 'constant', value: 0.5 },
+                  },
+                ],
+              },
+            },
+            whenTrue: { $sequence: 'body-0' },
+          },
+          next: null,
+        },
+        ...Object.fromEntries(
+          steps.map((action, index) => [
+            `body-${index}`,
+            { action, next: index + 1 < steps.length ? `body-${index + 1}` : null },
+          ]),
+        ),
+      });
+      const { assembly, vitals, normalTerminal, reactiveTerminal, trigger } = setup(sequence);
+      const terminal = path === 'skill' ? normalTerminal : reactiveTerminal;
+      terminal.mockImplementation(() => {
+        expect(assembly.resources.sp).toBe(80);
+        expect([...vitals.runtimeState.healthFloors.values()]).toEqual([50]);
+        vitals.takeDamage(100);
+        expect(vitals.health).toBe(50);
+        return true;
+      });
+      trigger(path);
+      expect(terminal).toHaveBeenCalledTimes(1);
+      expect(path === 'skill' ? reactiveTerminal : normalTerminal).not.toHaveBeenCalled();
+      expect(assembly.receipt.entries.find(entry => entry.event === 'SpChanged')).toMatchObject({
+        sourceId: 'operator',
+        data: { skillId: path === 'skill' ? 'skill' : 'equipment:weaponTrait:fixture:response' },
+      });
+      expect(vitals.runtimeState.healthFloors.size).toBe(path === 'skill' ? 1 : 0);
+      if (path === 'skill') assembly.advanceFrame();
+      expect(vitals.runtimeState.healthFloors.size).toBe(0);
+      vitals.takeDamage(100);
+      expect(vitals.health).toBe(0);
+    },
+  );
+
+  it.each(['skill', 'reactive'] as const)('%s 保留技能帧上下文可用性', path => {
+    const { assembly, trigger } = setup(
+      chainEntry(`common-frame-${path}`, [
+        { kind: 'storeCurrentTimelineFrame', parameters: { outputKey: 'frame' } },
+        {
+          kind: 'changeResourceByActionValue',
+          parameters: {
+            resource: 'sp',
+            recipient: 'team',
+            amount: { kind: 'blackboard', key: 'frame' },
+          },
+        },
+      ]),
+    );
+    if (path === 'reactive') {
+      expect(() => trigger(path)).toThrow('storeCurrentTimelineFrame requires a timeline host');
+    } else {
+      expect(() => trigger(path)).not.toThrow();
+      expect(assembly.resources.sp).toBe(0);
+    }
   });
 });
