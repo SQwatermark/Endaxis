@@ -35,8 +35,8 @@
 | M10  | 资源和属性账本：`combat/resources`、`combat/attributes`                                                             | 11 + 4 个 TS 文件                 | [战斗](../architecture/combat.md)                                                                               | 关键路径已查 |
 | M11  | 动作解释与时间线：`combat/actions`、`combat/timeline`                                                               | 13 + 3 个 TS 文件                 | [技能操作](../architecture/skill-operations.md)、[动作图](../architecture/action-graphs.md)                     | 关键路径已查 |
 | M12  | 技能、能力、冷却和输入：`combat/skills`、`combat/abilities`、输入协调                                               | 33 + 21 个 TS 文件（含 M15）      | [战斗](../architecture/combat.md)、[技能操作](../architecture/skill-operations.md)                              | 关键路径已查 |
-| M13  | 事件分发、身份和宿主订阅：`combat/events` 与宿主生命周期                                                            | 12 个 TS 文件及能力宿主           | [技能操作](../architecture/skill-operations.md)、[切面](../architecture/checkpoints.md)                         | 待查         |
-| M14  | Buff、全局 Buff 与标签：`combat/buffs`、`combat/tags`                                                               | 17 + 2 个 TS 文件                 | [战斗](../architecture/combat.md)、[技能操作](../architecture/skill-operations.md)                              | 待查         |
+| M13  | 事件分发、身份和宿主订阅：`combat/events` 与宿主生命周期                                                            | 12 个 TS 文件及能力宿主           | [技能操作](../architecture/skill-operations.md)、[切面](../architecture/checkpoints.md)                         | 关键路径已查 |
+| M14  | Buff、全局 Buff 与标签：`combat/buffs`、`combat/tags`                                                               | 17 + 2 个 TS 文件                 | [战斗](../architecture/combat.md)、[技能操作](../architecture/skill-operations.md)                              | 关键路径已查 |
 | M15  | 能力实体、投射物及延迟后果：abilities 中对应目录与装配 hooks                                                        | 库存计入 M08/M12                  | [战斗](../architecture/combat.md)、[切面](../architecture/checkpoints.md)                                       | 待查         |
 | M16  | 伤害、治疗、附着与状态：`combat/damage/heal/infliction/status`                                                      | 21 + 3 + 9 + 7 个 TS 文件         | [战斗](../architecture/combat.md)、[结果](../architecture/results.md)                                           | 待查         |
 | M17  | 回执、投影与来源：`combat/receipt`、`core/projection`                                                               | 4 + 30 个 TS 文件                 | [结果](../architecture/results.md)                                                                              | 待查         |
@@ -48,7 +48,7 @@
 ## 当前进度
 
 - 库存和检查顺序已记录。
-- M01–M12 关键路径已核查。待整改的重要项为 D07 当前方案导出缺失定义、D06 页面项目效果查询遗漏、D04 测试守卫盲区；均未自动修代码。下一组 M13–M14 事件宿主、Buff 和标签生命周期。
+- M01–M14 关键路径已核查。待整改的重要项为 D07 当前方案导出缺失定义、D06 页面项目效果查询遗漏、D04 测试守卫盲区；均未自动修代码。下一组 M15–M16 实体、投射物、伤害及状态后果。
 - 新发现只给出证据、风险和最小整改建议；此次后续模块检查不自动修改生产逻辑。
 
 ## M01：共享契约、查询协议与校验
@@ -223,3 +223,14 @@ npx vitest run tools/game-data-compiler/test/dataContractBoundaries.test.ts --ma
 - **D11，维护约束：** 动作状态先写后通知、同帧按源配置顺序、CurrentSkill 先切换再结束旧技能、延迟请求先清再执行，分别服务同步重入和原生生命周期。抽出统一调度/事务模板可能破坏时序，不能只因类较大建议拆分。
 - 验证：actions/timeline/skills、输入运行时及技能/能力恢复 41 个原生文件、425 项通过；另单独运行实际 `abilitySystemRuntime.test.ts`，57 项通过。合计 42 文件、482 项。
 - 未查范围：未枚举所有动作组合及全部相互递归生命周期；目标群体仍受零空间模型约束。领域后果继续在 M13–M16 检查，不能用控制流测试替代伤害/Buff 语义验收。
+
+## M13–M14：事件、宿主、Buff 与标签
+
+已核查四阶段事件快照/注销/嵌套上下文、原生与手工事件适配、被动/装备/养成宿主清理，以及普通/全局 Buff 的叠层、修正、周期、结束/回收、父子关系和标签计数。稳定说明见[事件、Buff 与宿主生命周期](../architecture/events-and-buffs.md)。
+
+证据：`events/abilityEventExecution.ts:7–71`、`abilityEventDispatcher.ts:146–192`、`abilityEventResponseContext.ts:54–86`、`abilities/abilityEventHostLifecycle.ts:12–29,89–110,167–207`、`buffs/buffLifecycleExecution.ts:28–105,124–175`、`combatBuffs.ts:656–674,1945–1981`、`globalBuffRuntime.ts:239–319`、`restoration/combatBuffRestoration.ts:157–201`、`tags/gameplayTags.ts:15–46`。
+
+- 无新确认的产品缺陷；既有事件写入范围与嵌套 finally 恢复仍有效。事件目录只是登记数据，宿主重建函数，二者不能互相代替。
+- **D12，维护约束：** Buff 结束、释放、回收和 Enable/Disable 具有不同回调时机与引用有效性；全局父实例也不能退化成同名组。文档保留这些区别，没有为追求统一生命周期而掩盖耦合。
+- 验证：事件/Buff/标签、四类 Ability 宿主及对应恢复共 41 个原生文件、574 项通过，包含嵌套黑板、订阅阶段、失败清理与回收引用。
+- 未查范围：未证明所有游戏版本事件均投影完整，未穷举任意回调在每个清理点连续抛错的组合；当前游戏异常仍采用会话失败封闭，不声称所有清理都是事务。
