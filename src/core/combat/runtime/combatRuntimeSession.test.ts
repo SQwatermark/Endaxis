@@ -1225,3 +1225,73 @@ it('试探分支独立推进，显式丢弃检查点后不再保留历史入口'
   expect(() => session.restore(checkpoint)).toThrow('does not belong');
   expect(() => session.fork(checkpoint)).toThrow('does not belong');
 });
+
+it('被动 UI 去重在真实会话保存、嵌套分支和回退后保留下一次数值变化', () => {
+  const program: CompiledSkillProgram = {
+    operatorId: 'operator',
+    skillId: 'ui-counter',
+    skillGroupKey: 'battleSkill',
+    skillType: 'battleSkill',
+    skillLevel: 1,
+    initialBlackboard: {},
+    timelineBlockFrames: 8,
+    costFrame: undefined,
+    costs: [],
+    timelineActions: [0, 2, 2, 0, 0, 3, 3].map((value, startFrame) => ({
+      startFrame,
+      sequence: chainEntry(`passive-ui-${startFrame}`, [
+        {
+          kind: 'setCharacterPassiveUiValue',
+          parameters: { target: 'caster', value: { kind: 'constant', value } },
+        },
+      ]),
+    })),
+  };
+  const operators: CombatOperatorProgram[] = [{ operatorId: 'operator', skills: [program] }];
+  const environment = new StandardPlayerDamageEnvironment({
+    ...environmentInput(),
+    enemyVitals: createEnemyCombatVitals(enemy),
+  });
+  const original = new CombatRuntimeAssembly({
+    ...environment.runtimeOptions,
+    resources,
+    enemy,
+    operators,
+    inputs: [{ frame: 0, operatorId: 'operator', skillId: 'ui-counter' }],
+  });
+  const session = new CombatRuntimeSession(original, (graph, combatSkillPrograms, receiptHistory) =>
+    CombatRuntimeAssembly.restore({
+      graph,
+      combatSkillPrograms,
+      receiptHistory,
+      inputs: [{ frame: 0, operatorId: 'operator', skillId: 'ui-counter' }],
+      resources,
+      enemy,
+      operators,
+      environment: environmentInput(),
+      abilityEntityChildSkillPrograms: original.abilityEntityChildSkillPrograms,
+      combatOperationPrograms: original.combatOperationPrograms,
+      projectileCallbackPrograms: original.projectileLifetimes.callbackPrograms,
+    }),
+  );
+  session.advanceFrames(2);
+  const saved = session.save();
+  const branch = session.fork(saved);
+  branch.advanceFrames(1);
+  const nested = branch.fork(branch.save());
+  session.advanceFrames(6);
+  branch.advanceFrames(5);
+  nested.advanceFrames(5);
+  expect(branch.readHistory().toArray()).toEqual(session.readHistory().toArray());
+  expect(nested.readHistory().toArray()).toEqual(session.readHistory().toArray());
+  expect(branch.readState()).toEqual(session.readState());
+  const complete = session.readHistory().toArray();
+  expect(
+    complete
+      .filter(entry => entry.event === 'CharacterPassiveUiValueChanged')
+      .map(entry => entry.data?.value),
+  ).toEqual([0, 2, 0, 3]);
+  session.restore(saved);
+  session.advanceFrames(6);
+  expect(session.readHistory().toArray()).toEqual(complete);
+});

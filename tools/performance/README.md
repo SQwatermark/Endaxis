@@ -24,6 +24,16 @@ node --experimental-strip-types tools/performance/benchmark-baseline.ts tools/pe
 
 首次同规则生产优化、逐项对照及未保留的实验见[模拟热路径第一轮优化](../../docs/research/simulation-optimization-campaign.md)。
 
+## 被动 UI 回执压缩验收
+
+回执删减会改变完整输出哈希，必须用[专门的语义与性能验收](../../docs/research/passive-ui-receipt-compression.md)，不能直接套用逐位相等结论。
+
+```sh
+node tools/performance/verify-passive-ui-receipts.mjs <优化前仓库> tmp/passive-ui-verification tools/performance/fixtures/public-timelines/*.project.json
+```
+
+两个仓库均需已安装依赖，当前仓库作为候选。输出目录必须尚不存在。工具分别构建两份源码，在独立进程中通过正式入口运行每份项目的首个方案；只允许相同目标、来源与原始有限数值的普通被动 UI 回执删减。它逐项核对保留事实、回执引用、完整结果与状态、逐帧 HUD、被动 UI 与 Buff 曲线。另报收集器重建前缀索引的微测量，不代表完整切面恢复时间。原始二进制结果及构建文件只留本机，不能自动上传。
+
 ## 编辑落点与缓存对照
 
 下面保留已有开发态对照工具。它会改变首个技能位置并复用编辑器服务缓存；不能用其结果代替上述无缓存基线。
