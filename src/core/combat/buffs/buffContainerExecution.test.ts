@@ -68,3 +68,24 @@ it('restores instance data and stacking membership after recycling a branch', ()
   session.step(false);
   expect(instance.lifecycle.finished).toBe(false);
 });
+
+it('推进冷却保持顺序和旧数组隔离，阈值及非法时间不改变语义', () => {
+  const state = createBuffContainerState();
+  const oldValues = [1, 0.500001, 2, 0.5];
+  state.addingCooldowns.set('buff', oldValues);
+  advanceBuffAddingCooldowns(state, 0.5);
+  expect(state.addingCooldowns.get('buff')).toEqual([0.5, 1.5]);
+  expect(oldValues).toEqual([1, 0.500001, 2, 0.5]);
+  const remaining = state.addingCooldowns.get('buff');
+  advanceBuffAddingCooldowns(state, -1);
+  expect(state.addingCooldowns.get('buff')).toEqual([0.5, 1.5]);
+  expect(state.addingCooldowns.get('buff')).not.toBe(remaining);
+  state.addingCooldowns.set('expired', [0.00001, 0.000001, 0]);
+  advanceBuffAddingCooldowns(state, 0);
+  expect(state.addingCooldowns.has('expired')).toBe(false);
+  const beforeInvalid = state.addingCooldowns.get('buff');
+  for (const delta of [NaN, Infinity, -Infinity]) {
+    expect(() => advanceBuffAddingCooldowns(state, delta)).toThrow('must be finite');
+    expect(state.addingCooldowns.get('buff')).toBe(beforeInvalid);
+  }
+});

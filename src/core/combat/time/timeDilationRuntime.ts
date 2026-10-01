@@ -510,12 +510,11 @@ export function advanceTimeDilation(
 }
 
 function localTimeScale(state: TimeDilationState, entityId: string): number {
-  return state.entityInstances
-    .filter(instance => instance.entityId === entityId)
-    .reduce(
-      (scale, instance) => scale * instance.currentScale,
-      state.entityScaleInheritance.get(entityId)?.inheritedScale ?? 1,
-    );
+  let scale = state.entityScaleInheritance.get(entityId)?.inheritedScale ?? 1;
+  for (const instance of state.entityInstances) {
+    if (instance.entityId === entityId) scale *= instance.currentScale;
+  }
+  return scale;
 }
 
 function entityIgnoresGlobalTimeScale(state: TimeDilationState, entityId: string): boolean {

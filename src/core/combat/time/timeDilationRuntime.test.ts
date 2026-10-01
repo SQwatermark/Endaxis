@@ -14,6 +14,39 @@ function createRuntime() {
 }
 
 describe('TimeDilationRuntime', () => {
+  it('局部倍率按实例原顺序连乘继承值，忽略交错的其他实体且恢复后逐位相同', () => {
+    const runtime = createRuntime();
+    runtime.inheritEntityScale('target', 'source', 0.9);
+    for (const [index, scale] of [0.1, 0.7, 0.3].entries()) {
+      runtime.startEntity({
+        entityId: 'target',
+        durationSeconds: 10,
+        slot: `target-${index}`,
+        priority: LOW,
+        curve: () => scale,
+      });
+      runtime.startEntity({
+        entityId: 'other',
+        durationSeconds: 10,
+        slot: `other-${index}`,
+        priority: LOW,
+        curve: () => 0.5,
+      });
+    }
+    const expected = 0.9 * 0.1 * 0.7 * 0.3;
+    expect(runtime.getEntityScale('target')).toBe(expected);
+    const restored = new TimeDilationRuntime(
+      {},
+      {},
+      {
+        state: structuredClone(runtime.runtimeState),
+        programs: runtime.programs,
+      },
+    );
+    expect(restored.getEntityScale('target')).toBe(expected);
+    expect(restored.getEntityScale('other')).toBe(0.125);
+  });
+
   it('来源订阅保留初始 additionalScale，收到最终倍率变化后才继承自身倍率', () => {
     const runtime = createRuntime();
     runtime.startGlobal({ durationSeconds: 10, slot: 'global', priority: LOW, constantScale: 0.2 });

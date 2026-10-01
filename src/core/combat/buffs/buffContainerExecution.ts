@@ -19,10 +19,14 @@ export function removeBuffEntityTags(
 
 export function advanceBuffAddingCooldowns(state: BuffContainerState, deltaTime: number): void {
   if (!Number.isFinite(deltaTime)) throw new TypeError('buff delta time must be finite');
+  const elapsed = Math.max(0, deltaTime);
   for (const [buffId, values] of state.addingCooldowns) {
-    const remaining = values
-      .map(value => value - Math.max(0, deltaTime))
-      .filter(value => value > 0.00001);
+    // 保留旧数组的隔离性，只消除 map 产生的中间数组。
+    const remaining: number[] = [];
+    for (const value of values) {
+      const next = value - elapsed;
+      if (next > 0.00001) remaining.push(next);
+    }
     if (remaining.length === 0) state.addingCooldowns.delete(buffId);
     else state.addingCooldowns.set(buffId, remaining);
   }
