@@ -1,0 +1,3266 @@
+{
+  "kind": "endaxis-optimization-profiles",
+  "baselineReport": "simulation-profile-hotspots.json",
+  "reports": [
+    {
+      "fixture": "dense",
+      "provenance": {
+        "gitHead": "a35901f2b70fcc27dce7c29d702cd5d2c6f8d727",
+        "engineGitRevision": "a35901f2b70fcc27dce7c29d702cd5d2c6f8d727",
+        "dataGitRevision": "f1bc5af07a49046a3a1c6132094e27aa763d7539",
+        "engineDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "engineUntracked": ""
+      },
+      "completedAt": "2026-10-01T02:18:57.008Z",
+      "methodology": "Production SSR; fresh process per mode/repeat; profiling starts after warmups and brackets simulate (includes unavoidable inspector start/stop boundary samples); no hashing, cloning, output writes, startup, clearCache or warmups inside capture. Cache/checkpoint disabled; immutable definition caches retain normal lifetime. CPU 1000us sampling; allocation 32768-byte sampling including objects collected during capture. No forced GC. Inclusive rows overlap and must not be added; each sample contributes once per unique frame key in a lineage. Control has same inspector connection and result verification but no sampling. Source map positions are function-entry mappings, not exact statement samples.",
+      "runs": [
+        {
+          "mode": "control",
+          "repeat": 1,
+          "repetitions": 12,
+          "startedWithWarmups": 5,
+          "sourceSha256": "45f2bb0668618b73749c88ca588dce3ae1ce6349ba669c0c74da78ac6011e1b3",
+          "resultSha256": "90076bbe22daf695b7f1f2b6c26cf92b3b5a13d545244a3dc18e53543341c6e8",
+          "receiptSha256": "0bae9db0099c9076e95bbbbfc2c6444043e8654c73af37e261192ed97d16f323",
+          "scenario": {
+            "id": "sc_lps0edv",
+            "castCount": 104,
+            "endFrame": 2481
+          },
+          "gameDataRevision": "1.5.3@10506507-7",
+          "environment": {
+            "node": "v24.19.0",
+            "v8": "13.6.233.17-node.51",
+            "cpu": "AMD EPYC 9V74 80-Core Processor"
+          },
+          "summary": {
+            "total": {
+              "count": 12,
+              "medianMs": 353.6824939999997,
+              "p95Ms": 392.35206199999993,
+              "minMs": 334.4138980000007,
+              "maxMs": 392.35206199999993
+            },
+            "cpu": {
+              "count": 12,
+              "medianMs": 499.731,
+              "p95Ms": 576.112,
+              "minMs": 419.35,
+              "maxMs": 576.112
+            }
+          },
+          "deterministic": true,
+          "sampleColumnsMs": ["totalMs", "simulationMs", "projectionMs", "cpuMs"],
+          "samples": [
+            [367.746991, 365.284915, 2.462076, 520.102],
+            [356.15371, 353.861369, 2.292341, 527.147],
+            [392.081774, 383.917327, 8.164447, 507.09],
+            [392.352062, 388.924566, 3.427496, 557.111],
+            [348.423576, 346.555931, 1.867645, 511.507],
+            [351.68938, 349.764278, 1.925102, 492.372],
+            [334.413898, 332.63745, 1.776448, 419.35],
+            [384.387652, 374.804166, 9.583486, 576.112],
+            [343.91434, 337.600282, 6.314058, 453.938],
+            [355.675608, 348.028751, 7.646857, 461.209],
+            [336.350387, 330.154818, 6.195569, 449.725],
+            [351.254273, 347.919028, 3.335245, 431.454]
+          ]
+        },
+        {
+          "mode": "cpu",
+          "repeat": 1,
+          "repetitions": 12,
+          "startedWithWarmups": 5,
+          "sourceSha256": "45f2bb0668618b73749c88ca588dce3ae1ce6349ba669c0c74da78ac6011e1b3",
+          "resultSha256": "90076bbe22daf695b7f1f2b6c26cf92b3b5a13d545244a3dc18e53543341c6e8",
+          "receiptSha256": "0bae9db0099c9076e95bbbbfc2c6444043e8654c73af37e261192ed97d16f323",
+          "scenario": {
+            "id": "sc_lps0edv",
+            "castCount": 104,
+            "endFrame": 2481
+          },
+          "gameDataRevision": "1.5.3@10506507-7",
+          "environment": {
+            "node": "v24.19.0",
+            "v8": "13.6.233.17-node.51",
+            "cpu": "AMD EPYC 9V74 80-Core Processor"
+          },
+          "summary": {
+            "total": {
+              "count": 12,
+              "medianMs": 400.86638749999975,
+              "p95Ms": 443.01039299999957,
+              "minMs": 373.56540700000005,
+              "maxMs": 443.01039299999957
+            },
+            "cpu": {
+              "count": 12,
+              "medianMs": 550.332,
+              "p95Ms": 733.221,
+              "minMs": 508.612,
+              "maxMs": 733.221
+            }
+          },
+          "deterministic": true,
+          "sampleColumnsMs": ["totalMs", "simulationMs", "projectionMs", "cpuMs"],
+          "samples": [
+            [431.83356, 427.987414, 3.846146, 728.768],
+            [408.201564, 404.039462, 4.162102, 621.089],
+            [375.540822, 373.15027, 2.390552, 508.674],
+            [387.35064, 382.552099, 4.798541, 541.719],
+            [373.565407, 370.683995, 2.881412, 526.435],
+            [379.887517, 377.238325, 2.649192, 508.612],
+            [443.010393, 440.100002, 2.910391, 733.221],
+            [400.436801, 398.006373, 2.430428, 550.806],
+            [398.814359, 396.790222, 2.024137, 537.309],
+            [401.295974, 399.227411, 2.068563, 549.858],
+            [425.097237, 422.177232, 2.920005, 707.141],
+            [416.82688, 414.677255, 2.149625, 551.421]
+          ],
+          "profile": {
+            "units": "CPU sample counts, not time. selfWeight/totalWeight are raw microseconds and include inspector boundary stalls; never interpret them as simulation time",
+            "total": 4073,
+            "self": [
+              {
+                "location": "(garbage collector) :0",
+                "self": 225,
+                "inclusive": 225,
+                "selfWeight": 408024,
+                "selfPercent": 5.5241836484164,
+                "inclusivePercent": 5.5241836484164
+              },
+              {
+                "location": "src/core/combat/actions/actionGraphExecution.ts 242:3 #binding",
+                "self": 153,
+                "inclusive": 161,
+                "selfWeight": 173271,
+                "selfPercent": 3.7564448809231523,
+                "inclusivePercent": 3.9528602995335134
+              },
+              {
+                "location": "src/core/combat/receipt/combatReceiptHistory.ts 128:3 append",
+                "self": 133,
+                "inclusive": 153,
+                "selfWeight": 153860,
+                "selfPercent": 3.2654063343972504,
+                "inclusivePercent": 3.7564448809231523
+              },
+              {
+                "location": "src/core/combat/buffs/combatBuffs.ts 1944:3 tick",
+                "self": 124,
+                "inclusive": 527,
+                "selfWeight": 144956,
+                "selfPercent": 3.0444389884605942,
+                "inclusivePercent": 12.938865700957525
+              },
+              {
+                "location": "src/core/combat/attributes/combatAttributeExecution.ts 49:17 readCombatAttribute",
+                "self": 117,
+                "inclusive": 117,
+                "selfWeight": 135545,
+                "selfPercent": 2.8725754971765283,
+                "inclusivePercent": 2.8725754971765283
+              },
+              {
+                "location": "src/core/combat/damage/playerDamageOperationExecutor.ts 223:3 execute",
+                "self": 108,
+                "inclusive": 930,
+                "selfWeight": 120984,
+                "selfPercent": 2.651608151239872,
+                "inclusivePercent": 22.833292413454455
+              },
+              {
+                "location": "src/core/combat/actions/actionGraphExecution.ts 659:4 #entries",
+                "self": 107,
+                "inclusive": 280,
+                "selfWeight": 122030,
+                "selfPercent": 2.627056223913577,
+                "inclusivePercent": 6.874539651362632
+              },
+              {
+                "location": "src/core/combat/damage/staticPlayerDamageSnapshots.ts 141:17 resolveStaticPlayerDamageSnapshots",
+                "self": 103,
+                "inclusive": 244,
+                "selfWeight": 119040,
+                "selfPercent": 2.5288485146083968,
+                "inclusivePercent": 5.990670267616008
+              },
+              {
+                "location": "src/core/combat/buffs/combatBuffs.ts 1881:3 captureAttributeModifierDetails",
+                "self": 74,
+                "inclusive": 74,
+                "selfWeight": 83014,
+                "selfPercent": 1.8168426221458385,
+                "inclusivePercent": 1.8168426221458385
+              },
+              {
+                "location": "src/application/simulation/runStandardPlayerDamageScenarioSimulation.ts 118:17 runStandardPlayerDamageScenarioSimulation",
+                "self": 65,
+                "inclusive": 3805,
+                "selfWeight": 75891,
+                "selfPercent": 1.5958752762091823,
+                "inclusivePercent": 93.4200834765529
+              },
+              {
+                "location": "src/core/combat/abilities/abilitySystemRuntime.ts 1181:3 advanceFrame",
+                "self": 60,
+                "inclusive": 1369,
+                "selfWeight": 68722,
+                "selfPercent": 1.4731156395777067,
+                "inclusivePercent": 33.61158850969801
+              },
+              {
+                "location": "src/core/compiler/actionProgramInspection.ts 8:17 rootActionSteps",
+                "self": 55,
+                "inclusive": 55,
+                "selfWeight": 62168,
+                "selfPercent": 1.3503560029462314,
+                "inclusivePercent": 1.3503560029462314
+              },
+              {
+                "location": "src/core/combat/abilities/abilitySystemRuntime.ts 994:3 prepareBeforeSkillCastStart",
+                "self": 48,
+                "inclusive": 63,
+                "selfWeight": 55121,
+                "selfPercent": 1.1784925116621654,
+                "inclusivePercent": 1.5467714215565922
+              },
+              {
+                "location": "src/core/combat/damage/healthDamage.ts 169:17 executeHealthDamage",
+                "self": 45,
+                "inclusive": 234,
+                "selfWeight": 59055,
+                "selfPercent": 1.1048367296832802,
+                "inclusivePercent": 5.7451509943530565
+              },
+              {
+                "location": "src/core/combat/timeline/timelineActionExecution.ts 62:17 tickTimelineActions",
+                "self": 44,
+                "inclusive": 1930,
+                "selfWeight": 51301,
+                "selfPercent": 1.080284802356985,
+                "inclusivePercent": 47.38521973974957
+              },
+              {
+                "location": "src/core/combat/skills/skillRuntime.ts 284:3 SkillRuntime",
+                "self": 42,
+                "inclusive": 47,
+                "selfWeight": 48030,
+                "selfPercent": 1.0311809477043947,
+                "inclusivePercent": 1.1539405843358703
+              },
+              {
+                "location": "src/core/combat/runtime/standardPlayerDamageCompatibility.ts 171:10 inspectSequence",
+                "self": 39,
+                "inclusive": 111,
+                "selfWeight": 42080,
+                "selfPercent": 0.9575251657255095,
+                "inclusivePercent": 2.725263933218758
+              },
+              {
+                "location": "src/core/combat/skills/skillRuntime.ts 870:3 record",
+                "self": 39,
+                "inclusive": 82,
+                "selfWeight": 46726,
+                "selfPercent": 0.9575251657255095,
+                "inclusivePercent": 2.0132580407561993
+              },
+              {
+                "location": "src/core/combat/abilities/abilitySystemRuntime.ts 1219:3 #advanceActiveSkills",
+                "self": 35,
+                "inclusive": 1002,
+                "selfWeight": 44098,
+                "selfPercent": 0.859317456420329,
+                "inclusivePercent": 24.601031180947704
+              },
+              {
+                "location": "src/core/combat/buffs/buffOperationExecutor.ts 506:29 createRequest",
+                "self": 35,
+                "inclusive": 52,
+                "selfWeight": 37739,
+                "selfPercent": 0.859317456420329,
+                "inclusivePercent": 1.276700220967346
+              },
+              {
+                "location": "src/core/combat/abilities/logicalAbilityEntityRuntime.ts 534:3 advanceFrame",
+                "self": 32,
+                "inclusive": 530,
+                "selfWeight": 35888,
+                "selfPercent": 0.7856616744414436,
+                "inclusivePercent": 13.01252148293641
+              },
+              {
+                "location": "src/core/combat/events/abilityEventExecution.ts 56:25 dispatchPhase",
+                "self": 31,
+                "inclusive": 415,
+                "selfWeight": 35534,
+                "selfPercent": 0.7611097471151486,
+                "inclusivePercent": 10.189049840412473
+              },
+              {
+                "location": "src/core/compiler/compileScenarioTimeline.ts 64:10 graphSpawnsEntity",
+                "self": 31,
+                "inclusive": 31,
+                "selfWeight": 37478,
+                "selfPercent": 0.7611097471151486,
+                "inclusivePercent": 0.7611097471151486
+              },
+              {
+                "location": "src/core/combat/abilities/abilityEntityOperationExecutor.ts 122:3 execute",
+                "self": 30,
+                "inclusive": 1225,
+                "selfWeight": 32609,
+                "selfPercent": 0.7365578197888534,
+                "inclusivePercent": 30.076110974711515
+              },
+              {
+                "location": "src/core/combat/runtime/standardPlayerDamageEnvironment.ts 772:3 #createOperationExecutor",
+                "self": 30,
+                "inclusive": 53,
+                "selfWeight": 33495,
+                "selfPercent": 0.7365578197888534,
+                "inclusivePercent": 1.301252148293641
+              },
+              {
+                "location": "src/core/combat/actions/combatActionSequenceRuntime.ts 458:14 scope",
+                "self": 28,
+                "inclusive": 38,
+                "selfWeight": 32328,
+                "selfPercent": 0.6874539651362632,
+                "inclusivePercent": 0.9329732383992143
+              },
+              {
+                "location": "src/core/combat/actions/actionGraphExecution.ts 218:3 #child",
+                "self": 27,
+                "inclusive": 36,
+                "selfWeight": 30793,
+                "selfPercent": 0.662902037809968,
+                "inclusivePercent": 0.8838693837466242
+              },
+              {
+                "location": "src/core/combat/buffs/buffOperationExecutor.ts 277:3 execute",
+                "self": 26,
+                "inclusive": 1725,
+                "selfWeight": 30644,
+                "selfPercent": 0.638350110483673,
+                "inclusivePercent": 42.35207463785907
+              },
+              {
+                "location": "src/core/combat/runtime/standardPlayerDamageEnvironment.ts 1788:32 recordPresentation",
+                "self": 26,
+                "inclusive": 41,
+                "selfWeight": 29421,
+                "selfPercent": 0.638350110483673,
+                "inclusivePercent": 1.0066290203780996
+              },
+              {
+                "location": "src/core/combat/actions/actionSequenceExecution.ts 61:17 tickActionSequence",
+                "self": 25,
+                "inclusive": 305,
+                "selfWeight": 28231,
+                "selfPercent": 0.6137981831573779,
+                "inclusivePercent": 7.48833783452001
+              },
+              {
+                "location": "src/core/combat/buffs/combatBuffs.ts 1953:3 recycleFinishedBuffs",
+                "self": 25,
+                "inclusive": 31,
+                "selfWeight": 28221,
+                "selfPercent": 0.6137981831573779,
+                "inclusivePercent": 0.7611097471151486
+              },
+              {
+                "location": "src/core/combat/damage/attackReceiptDetail.ts 69:17 freezeAttackReceiptDetail",
+                "self": 24,
+                "inclusive": 25,
+                "selfWeight": 26319,
+                "selfPercent": 0.5892462558310827,
+                "inclusivePercent": 0.6137981831573779
+              },
+              {
+                "location": "src/core/combat/runtime/combatRuntimeAssembly.ts 4050:3 #createOperationChain",
+                "self": 23,
+                "inclusive": 105,
+                "selfWeight": 31840,
+                "selfPercent": 0.5646943285047876,
+                "inclusivePercent": 2.577952369260987
+              },
+              {
+                "location": "src/core/combat/runtime/combatRuntimeAssembly.ts 3906:3 #wrapHostEffectOperations",
+                "self": 22,
+                "inclusive": 32,
+                "selfWeight": 23855,
+                "selfPercent": 0.5401424011784925,
+                "inclusivePercent": 0.7856616744414436
+              },
+              {
+                "location": "src/core/combat/abilities/logicalAbilityEntityRuntime.ts 218:3 spawn",
+                "self": 21,
+                "inclusive": 265,
+                "selfWeight": 23032,
+                "selfPercent": 0.5155904738521974,
+                "inclusivePercent": 6.506260741468205
+              },
+              {
+                "location": "src/core/combat/runtime/standardPlayerDamageCompatibility.ts 178:37 (anonymous)",
+                "self": 21,
+                "inclusive": 58,
+                "selfWeight": 25002,
+                "selfPercent": 0.5155904738521974,
+                "inclusivePercent": 1.4240117849251166
+              },
+              {
+                "location": "src/core/combat/time/timeDilationRuntime.ts 473:17 advanceTimeDilation",
+                "self": 20,
+                "inclusive": 29,
+                "selfWeight": 22020,
+                "selfPercent": 0.4910385465259023,
+                "inclusivePercent": 0.7120058924625583
+              },
+              {
+                "location": "src/core/combat/time/timeDilationRuntime.ts 520:10 entityIgnoresGlobalTimeScale",
+                "self": 20,
+                "inclusive": 21,
+                "selfWeight": 22858,
+                "selfPercent": 0.4910385465259023,
+                "inclusivePercent": 0.5155904738521974
+              },
+              {
+                "location": "src/core/combat/abilities/logicalAbilityEntityRuntime.ts 612:3 #snapshot",
+                "self": 19,
+                "inclusive": 31,
+                "selfWeight": 22037,
+                "selfPercent": 0.46648661919960716,
+                "inclusivePercent": 0.7611097471151486
+              },
+              {
+                "location": "src/core/combat/receipt/combatReceiptHistory.ts 147:48 (anonymous)",
+                "self": 19,
+                "inclusive": 19,
+                "selfWeight": 21240,
+                "selfPercent": 0.46648661919960716,
+                "inclusivePercent": 0.46648661919960716
+              }
+            ]
+          }
+        },
+        {
+          "mode": "allocation",
+          "repeat": 1,
+          "repetitions": 12,
+          "startedWithWarmups": 5,
+          "sourceSha256": "45f2bb0668618b73749c88ca588dce3ae1ce6349ba669c0c74da78ac6011e1b3",
+          "resultSha256": "90076bbe22daf695b7f1f2b6c26cf92b3b5a13d545244a3dc18e53543341c6e8",
+          "receiptSha256": "0bae9db0099c9076e95bbbbfc2c6444043e8654c73af37e261192ed97d16f323",
+          "scenario": {
+            "id": "sc_lps0edv",
+            "castCount": 104,
+            "endFrame": 2481
+          },
+          "gameDataRevision": "1.5.3@10506507-7",
+          "environment": {
+            "node": "v24.19.0",
+            "v8": "13.6.233.17-node.51",
+            "cpu": "AMD EPYC 9V74 80-Core Processor"
+          },
+          "summary": {
+            "total": {
+              "count": 12,
+              "medianMs": 771.2535369999996,
+              "p95Ms": 829.9548279999999,
+              "minMs": 516.2590089999999,
+              "maxMs": 829.9548279999999
+            },
+            "cpu": {
+              "count": 12,
+              "medianMs": 1103.4455,
+              "p95Ms": 1162.977,
+              "minMs": 691.555,
+              "maxMs": 1162.977
+            }
+          },
+          "deterministic": true,
+          "sampleColumnsMs": ["totalMs", "simulationMs", "projectionMs", "cpuMs"],
+          "samples": [
+            [516.259009, 513.456176, 2.802833, 691.555],
+            [781.181986, 775.011251, 6.170735, 1099.901],
+            [829.954828, 825.374911, 4.579917, 1125.784],
+            [797.917886, 794.283078, 3.634808, 1113.418],
+            [787.122244, 782.939955, 4.182289, 1120.444],
+            [723.789783, 720.642393, 3.14739, 1024.975],
+            [766.743732, 764.393112, 2.35062, 1114.925],
+            [773.673895, 770.415547, 3.258348, 1095.333],
+            [758.152565, 755.507457, 2.645108, 1106.99],
+            [747.517363, 745.063482, 2.453881, 1067.656],
+            [768.833179, 761.847461, 6.985718, 1091.322],
+            [822.550134, 819.985594, 2.56454, 1162.977]
+          ],
+          "profile": {
+            "units": "V8 statistically estimated allocated bytes, including collected objects; not retained memory or exact counts",
+            "total": 4100125208,
+            "self": [
+              {
+                "location": "src/core/combat/buffs/combatBuffs.ts 1944:3 tick",
+                "self": 308197224,
+                "inclusive": 691033048,
+                "selfWeight": 0,
+                "selfPercent": 7.516775912078439,
+                "inclusivePercent": 16.853949890400518
+              },
+              {
+                "location": "next :0",
+                "self": 281693480,
+                "inclusive": 520414640,
+                "selfWeight": 0,
+                "selfPercent": 6.870362872098905,
+                "inclusivePercent": 12.692652384970776
+              },
+              {
+                "location": "src/core/compiler/actionProgramInspection.ts 8:17 rootActionSteps",
+                "self": 175989880,
+                "inclusive": 200103416,
+                "selfWeight": 0,
+                "selfPercent": 4.292305016847183,
+                "inclusivePercent": 4.880422081002947
+              },
+              {
+                "location": "src/core/combat/actions/actionGraphExecution.ts 659:4 #entries",
+                "self": 131992440,
+                "inclusive": 294958360,
+                "selfWeight": 0,
+                "selfPercent": 3.2192294943203597,
+                "inclusivePercent": 7.1938866506927415
+              },
+              {
+                "location": "Map :0",
+                "self": 126999672,
+                "inclusive": 138652696,
+                "selfWeight": 0,
+                "selfPercent": 3.097458383763582,
+                "inclusivePercent": 3.381669801923766
+              },
+              {
+                "location": "src/core/combat/actions/actionGraphExecution.ts 242:3 #binding",
+                "self": 118885088,
+                "inclusive": 147478752,
+                "selfWeight": 0,
+                "selfPercent": 2.8995477447380433,
+                "inclusivePercent": 3.5969328866407633
+              },
+              {
+                "location": "src/core/combat/receipt/combatReceiptHistory.ts 128:3 append",
+                "self": 100736696,
+                "inclusive": 114884160,
+                "selfWeight": 0,
+                "selfPercent": 2.4569175546992224,
+                "inclusivePercent": 2.8019671149515784
+              },
+              {
+                "location": "src/core/combat/runtime/standardPlayerDamageCompatibility.ts 178:37 (anonymous)",
+                "self": 100574520,
+                "inclusive": 340242744,
+                "selfWeight": 0,
+                "selfPercent": 2.4529621632959655,
+                "inclusivePercent": 8.298350092727217
+              },
+              {
+                "location": "src/core/combat/timeline/timelineActionExecution.ts 62:17 tickTimelineActions",
+                "self": 93575600,
+                "inclusive": 1678045560,
+                "selfWeight": 0,
+                "selfPercent": 2.282262010375172,
+                "inclusivePercent": 40.92669064656525
+              },
+              {
+                "location": "src/core/combat/damage/staticPlayerDamageSnapshots.ts 141:17 resolveStaticPlayerDamageSnapshots",
+                "self": 69632184,
+                "inclusive": 192813888,
+                "selfWeight": 0,
+                "selfPercent": 1.6982940878033792,
+                "inclusivePercent": 4.7026341445326905
+              },
+              {
+                "location": "src/core/combat/time/timeDilationRuntime.ts 473:17 advanceTimeDilation",
+                "self": 68926792,
+                "inclusive": 86080760,
+                "selfWeight": 0,
+                "selfPercent": 1.6810899302663442,
+                "inclusivePercent": 2.099466617069222
+              },
+              {
+                "location": "src/core/combat/actions/actionGraphExecution.ts 681:3 #executionHost",
+                "self": 65841496,
+                "inclusive": 65841496,
+                "selfWeight": 0,
+                "selfPercent": 1.6058411063040883,
+                "inclusivePercent": 1.6058411063040883
+              },
+              {
+                "location": "values :0",
+                "self": 63150856,
+                "inclusive": 63150856,
+                "selfWeight": 0,
+                "selfPercent": 1.5402177444918652,
+                "inclusivePercent": 1.5402177444918652
+              },
+              {
+                "location": "src/core/combat/events/abilityEventExecution.ts 56:25 dispatchPhase",
+                "self": 57729968,
+                "inclusive": 341509384,
+                "selfWeight": 0,
+                "selfPercent": 1.4080050015877466,
+                "inclusivePercent": 8.32924280784549
+              },
+              {
+                "location": "src/core/combat/buffs/combatBuffs.ts 1881:3 captureAttributeModifierDetails",
+                "self": 57155160,
+                "inclusive": 95873920,
+                "selfWeight": 0,
+                "selfPercent": 1.3939857223989438,
+                "inclusivePercent": 2.3383168839072193
+              },
+              {
+                "location": "src/core/combat/skills/skillRuntime.ts 896:21 tickTimeline",
+                "self": 55592296,
+                "inclusive": 1215765904,
+                "selfWeight": 0,
+                "selfPercent": 1.3558682523043575,
+                "inclusivePercent": 29.65192140054275
+              },
+              {
+                "location": "src/core/combat/abilities/abilitySystemRuntime.ts 1181:3 advanceFrame",
+                "self": 54798496,
+                "inclusive": 1646231712,
+                "selfWeight": 0,
+                "selfPercent": 1.3365078679324078,
+                "inclusivePercent": 40.15076682994799
+              },
+              {
+                "location": "src/core/combat/damage/playerDamageOperationExecutor.ts 223:3 execute",
+                "self": 50809968,
+                "inclusive": 782940784,
+                "selfWeight": 0,
+                "selfPercent": 1.23922966793457,
+                "inclusivePercent": 19.095533533277408
+              },
+              {
+                "location": "sort :0",
+                "self": 49000368,
+                "inclusive": 49033152,
+                "selfWeight": 0,
+                "selfPercent": 1.1950944303942828,
+                "inclusivePercent": 1.1958940157322142
+              },
+              {
+                "location": "src/core/combat/buffs/buffLifecycleExecution.ts 105:17 tickBuffLifecycle",
+                "self": 46252408,
+                "inclusive": 165511064,
+                "selfWeight": 0,
+                "selfPercent": 1.128073062494632,
+                "inclusivePercent": 4.03673194362605
+              },
+              {
+                "location": "src/core/combat/skills/skillRuntime.ts 828:3 advance",
+                "self": 44225632,
+                "inclusive": 1060983448,
+                "selfWeight": 0,
+                "selfPercent": 1.078641011101532,
+                "inclusivePercent": 25.876854831892732
+              },
+              {
+                "location": "src/core/combat/actions/actionSequenceExecution.ts 61:17 tickActionSequence",
+                "self": 42649944,
+                "inclusive": 322107888,
+                "selfWeight": 0,
+                "selfPercent": 1.0402107700707075,
+                "inclusivePercent": 7.8560500389479815
+              },
+              {
+                "location": "entries :0",
+                "self": 40451224,
+                "inclusive": 40451224,
+                "selfWeight": 0,
+                "selfPercent": 0.9865850906473098,
+                "inclusivePercent": 0.9865850906473098
+              },
+              {
+                "location": "src/core/combat/attributes/combatAttributeExecution.ts 49:17 readCombatAttribute",
+                "self": 39418016,
+                "inclusive": 39418016,
+                "selfWeight": 0,
+                "selfPercent": 0.9613856650789382,
+                "inclusivePercent": 0.9613856650789382
+              },
+              {
+                "location": "src/core/combat/actions/actionGraphExecution.ts 716:3 tick",
+                "self": 39225992,
+                "inclusive": 173123088,
+                "selfWeight": 0,
+                "selfPercent": 0.9567022959070571,
+                "inclusivePercent": 4.2223853959925215
+              },
+              {
+                "location": "Set :0",
+                "self": 39209464,
+                "inclusive": 57684664,
+                "selfWeight": 0,
+                "selfPercent": 0.9562991862662161,
+                "inclusivePercent": 1.4069000597212982
+              },
+              {
+                "location": "src/core/combat/damage/healthDamage.ts 169:17 executeHealthDamage",
+                "self": 38954480,
+                "inclusive": 233868840,
+                "selfWeight": 0,
+                "selfPercent": 0.95008025423208,
+                "inclusivePercent": 5.703943858682279
+              },
+              {
+                "location": "src/core/combat/actions/actionGraphExecution.ts 708:3 reset",
+                "self": 37922368,
+                "inclusive": 323449248,
+                "selfWeight": 0,
+                "selfPercent": 0.9249075595547033,
+                "inclusivePercent": 7.888765137437725
+              },
+              {
+                "location": "push :0",
+                "self": 33900640,
+                "inclusive": 33900640,
+                "selfWeight": 0,
+                "selfPercent": 0.8268196281873156,
+                "inclusivePercent": 0.8268196281873156
+              },
+              {
+                "location": "src/core/combat/buffs/combatBuffs.ts 300:14 trigger",
+                "self": 32764360,
+                "inclusive": 64566208,
+                "selfWeight": 0,
+                "selfPercent": 0.7991063281694787,
+                "inclusivePercent": 1.5747374707977455
+              },
+              {
+                "location": "add :0",
+                "self": 32168360,
+                "inclusive": 32168360,
+                "selfWeight": 0,
+                "selfPercent": 0.7845701867161126,
+                "inclusivePercent": 0.7845701867161126
+              },
+              {
+                "location": "src/core/combat/runtime/standardPlayerDamageCompatibility.ts 171:10 inspectSequence",
+                "self": 31628304,
+                "inclusive": 331059464,
+                "selfWeight": 0,
+                "selfPercent": 0.7713984913994363,
+                "inclusivePercent": 8.074374493589856
+              },
+              {
+                "location": "src/core/combat/abilities/logicalAbilityEntityRuntime.ts 534:3 advanceFrame",
+                "self": 31024832,
+                "inclusive": 658093224,
+                "selfWeight": 0,
+                "selfPercent": 0.7566801116089233,
+                "inclusivePercent": 16.05056408316397
+              },
+              {
+                "location": "fromEntries :0",
+                "self": 30796904,
+                "inclusive": 73152680,
+                "selfWeight": 0,
+                "selfPercent": 0.7511210618619723,
+                "inclusivePercent": 1.7841572217664823
+              },
+              {
+                "location": "src/core/combat/actions/actionSequenceExecution.ts 49:17 resetActionSequence",
+                "self": 30596768,
+                "inclusive": 348501792,
+                "selfWeight": 0,
+                "selfPercent": 0.7462398450735312,
+                "inclusivePercent": 8.499784136348257
+              },
+              {
+                "location": "src/core/combat/skills/skillRuntime.ts 284:3 SkillRuntime",
+                "self": 29940128,
+                "inclusive": 55692152,
+                "selfWeight": 0,
+                "selfPercent": 0.7302247243957825,
+                "inclusivePercent": 1.3583036901247725
+              },
+              {
+                "location": "src/core/combat/actions/actionGraphExecution.ts 355:26 branchHost",
+                "self": 28374568,
+                "inclusive": 28374568,
+                "selfWeight": 0,
+                "selfPercent": 0.6920415002116687,
+                "inclusivePercent": 0.6920415002116687
+              },
+              {
+                "location": "src/core/combat/runtime/standardPlayerDamageEnvironment.ts 2092:3 #publish",
+                "self": 27638424,
+                "inclusive": 376316840,
+                "selfWeight": 0,
+                "selfPercent": 0.6740873167988386,
+                "inclusivePercent": 9.178179224033101
+              },
+              {
+                "location": "src/core/combat/runtime/combatRuntimeAssembly.ts 3705:3 #wrapCommonActionOperations",
+                "self": 25988072,
+                "inclusive": 31139976,
+                "selfWeight": 0,
+                "selfPercent": 0.6338360582084936,
+                "inclusivePercent": 0.7594884160913166
+              },
+              {
+                "location": "src/core/combat/time/timeDilationRuntime.ts 343:3 getAbilityTickDeltas",
+                "self": 25879272,
+                "inclusive": 32404616,
+                "selfWeight": 0,
+                "selfPercent": 0.6311824807082819,
+                "inclusivePercent": 0.7903323522114254
+              }
+            ]
+          }
+        },
+        {
+          "mode": "allocation",
+          "repeat": 2,
+          "repetitions": 12,
+          "startedWithWarmups": 5,
+          "sourceSha256": "45f2bb0668618b73749c88ca588dce3ae1ce6349ba669c0c74da78ac6011e1b3",
+          "resultSha256": "90076bbe22daf695b7f1f2b6c26cf92b3b5a13d545244a3dc18e53543341c6e8",
+          "receiptSha256": "0bae9db0099c9076e95bbbbfc2c6444043e8654c73af37e261192ed97d16f323",
+          "scenario": {
+            "id": "sc_lps0edv",
+            "castCount": 104,
+            "endFrame": 2481
+          },
+          "gameDataRevision": "1.5.3@10506507-7",
+          "environment": {
+            "node": "v24.19.0",
+            "v8": "13.6.233.17-node.51",
+            "cpu": "AMD EPYC 9V74 80-Core Processor"
+          },
+          "summary": {
+            "total": {
+              "count": 12,
+              "medianMs": 748.4137945000007,
+              "p95Ms": 779.3476470000005,
+              "minMs": 500.51956999999993,
+              "maxMs": 779.3476470000005
+            },
+            "cpu": {
+              "count": 12,
+              "medianMs": 1046.4955,
+              "p95Ms": 1133.988,
+              "minMs": 657.62,
+              "maxMs": 1133.988
+            }
+          },
+          "deterministic": true,
+          "sampleColumnsMs": ["totalMs", "simulationMs", "projectionMs", "cpuMs"],
+          "samples": [
+            [500.51957, 498.476272, 2.043298, 657.62],
+            [744.456659, 740.823241, 3.633418, 1044.514],
+            [767.45489, 764.847726, 2.607164, 1032.379],
+            [774.420633, 771.650684, 2.769949, 1066.484],
+            [762.126741, 759.257332, 2.869409, 1088.965],
+            [765.369867, 761.606213, 3.763654, 1047.398],
+            [779.347647, 776.965845, 2.381802, 1133.988],
+            [730.661068, 725.76137, 4.899698, 1045.593],
+            [711.856886, 708.921532, 2.935354, 1058.67],
+            [699.377349, 696.629628, 2.747721, 998.506],
+            [752.37093, 750.24933, 2.1216, 1071.897],
+            [700.146262, 695.265903, 4.880359, 983.27]
+          ],
+          "profile": {
+            "units": "V8 statistically estimated allocated bytes, including collected objects; not retained memory or exact counts",
+            "total": 4107814912,
+            "self": [
+              {
+                "location": "src/core/combat/buffs/combatBuffs.ts 1944:3 tick",
+                "self": 296078184,
+                "inclusive": 691073992,
+                "selfWeight": 0,
+                "selfPercent": 7.2076807339853195,
+                "inclusivePercent": 16.82339654547707
+              },
+              {
+                "location": "next :0",
+                "self": 289356968,
+                "inclusive": 532183984,
+                "selfWeight": 0,
+                "selfPercent": 7.044060509024219,
+                "inclusivePercent": 12.955403186383876
+              },
+              {
+                "location": "src/core/compiler/actionProgramInspection.ts 8:17 rootActionSteps",
+                "self": 175167376,
+                "inclusive": 197513288,
+                "selfWeight": 0,
+                "selfPercent": 4.264247045023629,
+                "inclusivePercent": 4.808232411421754
+              },
+              {
+                "location": "src/core/combat/actions/actionGraphExecution.ts 659:4 #entries",
+                "self": 126403000,
+                "inclusive": 294788712,
+                "selfWeight": 0,
+                "selfPercent": 3.0771347470097505,
+                "inclusivePercent": 7.176290030469611
+              },
+              {
+                "location": "Map :0",
+                "self": 124684728,
+                "inclusive": 135067448,
+                "selfWeight": 0,
+                "selfPercent": 3.035305403750382,
+                "inclusivePercent": 3.28806070608081
+              },
+              {
+                "location": "src/core/combat/actions/actionGraphExecution.ts 242:3 #binding",
+                "self": 118265728,
+                "inclusive": 150996608,
+                "selfWeight": 0,
+                "selfPercent": 2.879042277550406,
+                "inclusivePercent": 3.675837671237316
+              },
+              {
+                "location": "src/core/combat/runtime/standardPlayerDamageCompatibility.ts 178:37 (anonymous)",
+                "self": 105161712,
+                "inclusive": 338889520,
+                "selfWeight": 0,
+                "selfPercent": 2.560040173494555,
+                "inclusivePercent": 8.249873162737085
+              },
+              {
+                "location": "src/core/combat/receipt/combatReceiptHistory.ts 128:3 append",
+                "self": 102242216,
+                "inclusive": 115941760,
+                "selfWeight": 0,
+                "selfPercent": 2.4889684221488118,
+                "inclusivePercent": 2.8224679661516356
+              },
+              {
+                "location": "src/core/combat/timeline/timelineActionExecution.ts 62:17 tickTimelineActions",
+                "self": 85317624,
+                "inclusive": 1693175480,
+                "selfWeight": 0,
+                "selfPercent": 2.0769588169799214,
+                "inclusivePercent": 41.218397524528
+              },
+              {
+                "location": "src/core/combat/actions/actionGraphExecution.ts 681:3 #executionHost",
+                "self": 76520248,
+                "inclusive": 76520248,
+                "selfWeight": 0,
+                "selfPercent": 1.8627968795883274,
+                "inclusivePercent": 1.8627968795883274
+              },
+              {
+                "location": "src/core/combat/damage/staticPlayerDamageSnapshots.ts 141:17 resolveStaticPlayerDamageSnapshots",
+                "self": 70346248,
+                "inclusive": 197031744,
+                "selfWeight": 0,
+                "selfPercent": 1.7124979948463657,
+                "inclusivePercent": 4.796509780039476
+              },
+              {
+                "location": "src/core/combat/time/timeDilationRuntime.ts 473:17 advanceTimeDilation",
+                "self": 64815416,
+                "inclusive": 83247576,
+                "selfWeight": 0,
+                "selfPercent": 1.5778562907169271,
+                "inclusivePercent": 2.026565894115923
+              },
+              {
+                "location": "values :0",
+                "self": 61808584,
+                "inclusive": 61808584,
+                "selfWeight": 0,
+                "selfPercent": 1.5046584455263792,
+                "inclusivePercent": 1.5046584455263792
+              },
+              {
+                "location": "src/core/combat/buffs/combatBuffs.ts 1881:3 captureAttributeModifierDetails",
+                "self": 58864824,
+                "inclusive": 98014288,
+                "selfWeight": 0,
+                "selfPercent": 1.4329960151817083,
+                "inclusivePercent": 2.3860444080300374
+              },
+              {
+                "location": "src/core/combat/events/abilityEventExecution.ts 56:25 dispatchPhase",
+                "self": 57635352,
+                "inclusive": 342338920,
+                "selfWeight": 0,
+                "selfPercent": 1.4030659422271459,
+                "inclusivePercent": 8.33384481369739
+              },
+              {
+                "location": "src/core/combat/abilities/abilitySystemRuntime.ts 1181:3 advanceFrame",
+                "self": 56046112,
+                "inclusive": 1638823144,
+                "selfWeight": 0,
+                "selfPercent": 1.364377733677208,
+                "inclusivePercent": 39.89525280733973
+              },
+              {
+                "location": "src/core/combat/skills/skillRuntime.ts 896:21 tickTimeline",
+                "self": 54604176,
+                "inclusive": 1227596096,
+                "selfWeight": 0,
+                "selfPercent": 1.3292754705302554,
+                "inclusivePercent": 29.88440624269295
+              },
+              {
+                "location": "src/core/combat/damage/playerDamageOperationExecutor.ts 223:3 execute",
+                "self": 52873352,
+                "inclusive": 796549912,
+                "selfWeight": 0,
+                "selfPercent": 1.2871405633574953,
+                "inclusivePercent": 19.391085749094238
+              },
+              {
+                "location": "sort :0",
+                "self": 52264144,
+                "inclusive": 52496688,
+                "selfWeight": 0,
+                "selfPercent": 1.272310099642581,
+                "inclusivePercent": 1.2779711141961014
+              },
+              {
+                "location": "src/core/combat/buffs/buffLifecycleExecution.ts 105:17 tickBuffLifecycle",
+                "self": 50026816,
+                "inclusive": 176539752,
+                "selfWeight": 0,
+                "selfPercent": 1.2178449387741062,
+                "inclusivePercent": 4.297655950473359
+              },
+              {
+                "location": "src/core/combat/actions/actionSequenceExecution.ts 61:17 tickActionSequence",
+                "self": 44631096,
+                "inclusive": 337461680,
+                "selfWeight": 0,
+                "selfPercent": 1.0864923799176276,
+                "inclusivePercent": 8.21511405039663
+              },
+              {
+                "location": "src/core/combat/skills/skillRuntime.ts 828:3 advance",
+                "self": 42976968,
+                "inclusive": 1060564552,
+                "selfWeight": 0,
+                "selfPercent": 1.0462245481034955,
+                "inclusivePercent": 25.8182166119952
+              },
+              {
+                "location": "entries :0",
+                "self": 42385360,
+                "inclusive": 42385360,
+                "selfWeight": 0,
+                "selfPercent": 1.0318225360198507,
+                "inclusivePercent": 1.0318225360198507
+              },
+              {
+                "location": "Set :0",
+                "self": 41076952,
+                "inclusive": 58932184,
+                "selfWeight": 0,
+                "selfPercent": 0.999970857499044,
+                "inclusivePercent": 1.434635816425022
+              },
+              {
+                "location": "src/core/combat/attributes/combatAttributeExecution.ts 49:17 readCombatAttribute",
+                "self": 39746848,
+                "inclusive": 39746848,
+                "selfWeight": 0,
+                "selfPercent": 0.9675910149673268,
+                "inclusivePercent": 0.9675910149673268
+              },
+              {
+                "location": "src/core/combat/damage/healthDamage.ts 169:17 executeHealthDamage",
+                "self": 39526728,
+                "inclusive": 235389672,
+                "selfWeight": 0,
+                "selfPercent": 0.9622324483153344,
+                "inclusivePercent": 5.730289145023679
+              },
+              {
+                "location": "src/core/combat/buffs/combatBuffs.ts 300:14 trigger",
+                "self": 39492584,
+                "inclusive": 76023504,
+                "selfWeight": 0,
+                "selfPercent": 0.9614012521506714,
+                "inclusivePercent": 1.8507042217972258
+              },
+              {
+                "location": "src/core/combat/actions/actionGraphExecution.ts 708:3 reset",
+                "self": 33983448,
+                "inclusive": 315618352,
+                "selfWeight": 0,
+                "selfPercent": 0.8272877120321432,
+                "inclusivePercent": 7.683363509830893
+              },
+              {
+                "location": "add :0",
+                "self": 32660784,
+                "inclusive": 32660784,
+                "selfWeight": 0,
+                "selfPercent": 0.7950889876900081,
+                "inclusivePercent": 0.7950889876900081
+              },
+              {
+                "location": "src/core/combat/skills/skillRuntime.ts 284:3 SkillRuntime",
+                "self": 31886760,
+                "inclusive": 57201296,
+                "selfWeight": 0,
+                "selfPercent": 0.7762462691989955,
+                "inclusivePercent": 1.39249935124633
+              },
+              {
+                "location": "src/core/combat/actions/actionGraphExecution.ts 716:3 tick",
+                "self": 31583560,
+                "inclusive": 177426680,
+                "selfWeight": 0,
+                "selfPercent": 0.7688652160966691,
+                "inclusivePercent": 4.319247186178967
+              },
+              {
+                "location": "src/core/combat/abilities/logicalAbilityEntityRuntime.ts 534:3 advanceFrame",
+                "self": 31516624,
+                "inclusive": 658649896,
+                "selfWeight": 0,
+                "selfPercent": 0.7672357366426542,
+                "inclusivePercent": 16.034069453224674
+              },
+              {
+                "location": "push :0",
+                "self": 30815624,
+                "inclusive": 30815624,
+                "selfWeight": 0,
+                "selfPercent": 0.7501707029199275,
+                "inclusivePercent": 0.7501707029199275
+              },
+              {
+                "location": "src/core/combat/actions/actionSequenceExecution.ts 49:17 resetActionSequence",
+                "self": 30601176,
+                "inclusive": 350882648,
+                "selfWeight": 0,
+                "selfPercent": 0.7449502145436488,
+                "inclusivePercent": 8.541831984079423
+              },
+              {
+                "location": "src/core/combat/runtime/standardPlayerDamageCompatibility.ts 171:10 inspectSequence",
+                "self": 29786672,
+                "inclusive": 329641104,
+                "selfWeight": 0,
+                "selfPercent": 0.7251220573007161,
+                "inclusivePercent": 8.0247311785405
+              },
+              {
+                "location": "src/core/combat/actions/actionGraphExecution.ts 355:26 branchHost",
+                "self": 29296296,
+                "inclusive": 29296296,
+                "selfWeight": 0,
+                "selfPercent": 0.7131844210998375,
+                "inclusivePercent": 0.7131844210998375
+              },
+              {
+                "location": "fromEntries :0",
+                "self": 28790320,
+                "inclusive": 69803512,
+                "selfWeight": 0,
+                "selfPercent": 0.7008670209530609,
+                "inclusivePercent": 1.69928571504246
+              },
+              {
+                "location": "src/core/combat/runtime/standardPlayerDamageEnvironment.ts 2092:3 #publish",
+                "self": 28390280,
+                "inclusive": 375008704,
+                "selfWeight": 0,
+                "selfPercent": 0.6911285101250443,
+                "inclusivePercent": 9.12915289597157
+              },
+              {
+                "location": "src/core/combat/runtime/combatRuntimeAssembly.ts 3705:3 #wrapCommonActionOperations",
+                "self": 26086904,
+                "inclusive": 30681344,
+                "selfWeight": 0,
+                "selfPercent": 0.6350554871348595,
+                "inclusivePercent": 0.7469018117240819
+              },
+              {
+                "location": "src/core/combat/skills/skillRuntime.ts 870:3 record",
+                "self": 25625216,
+                "inclusive": 60919432,
+                "selfWeight": 0,
+                "selfPercent": 0.6238162270929504,
+                "inclusivePercent": 1.4830130691146388
+              }
+            ]
+          }
+        },
+        {
+          "mode": "cpu",
+          "repeat": 2,
+          "repetitions": 12,
+          "startedWithWarmups": 5,
+          "sourceSha256": "45f2bb0668618b73749c88ca588dce3ae1ce6349ba669c0c74da78ac6011e1b3",
+          "resultSha256": "90076bbe22daf695b7f1f2b6c26cf92b3b5a13d545244a3dc18e53543341c6e8",
+          "receiptSha256": "0bae9db0099c9076e95bbbbfc2c6444043e8654c73af37e261192ed97d16f323",
+          "scenario": {
+            "id": "sc_lps0edv",
+            "castCount": 104,
+            "endFrame": 2481
+          },
+          "gameDataRevision": "1.5.3@10506507-7",
+          "environment": {
+            "node": "v24.19.0",
+            "v8": "13.6.233.17-node.51",
+            "cpu": "AMD EPYC 9V74 80-Core Processor"
+          },
+          "summary": {
+            "total": {
+              "count": 12,
+              "medianMs": 381.27652050000006,
+              "p95Ms": 443.7050650000001,
+              "minMs": 361.41583700000047,
+              "maxMs": 443.7050650000001
+            },
+            "cpu": {
+              "count": 12,
+              "medianMs": 534.2695000000001,
+              "p95Ms": 734.709,
+              "minMs": 497.264,
+              "maxMs": 734.709
+            }
+          },
+          "deterministic": true,
+          "sampleColumnsMs": ["totalMs", "simulationMs", "projectionMs", "cpuMs"],
+          "samples": [
+            [413.082691, 410.487287, 2.595404, 623.353],
+            [443.705065, 440.674436, 3.030629, 734.709],
+            [381.730088, 379.307753, 2.422335, 528.224],
+            [396.771827, 394.457946, 2.313881, 533.296],
+            [380.822953, 378.958589, 1.864364, 535.243],
+            [370.094817, 367.768447, 2.32637, 636.876],
+            [379.147598, 376.460567, 2.687031, 558.819],
+            [390.097977, 385.949433, 4.148544, 515.963],
+            [372.581042, 370.174942, 2.4061, 499.716],
+            [377.081789, 375.121528, 1.960261, 497.264],
+            [361.415837, 359.358032, 2.057805, 516.949],
+            [385.744649, 382.692067, 3.052582, 613.528]
+          ],
+          "profile": {
+            "units": "CPU sample counts, not time. selfWeight/totalWeight are raw microseconds and include inspector boundary stalls; never interpret them as simulation time",
+            "total": 4004,
+            "self": [
+              {
+                "location": "(garbage collector) :0",
+                "self": 284,
+                "inclusive": 284,
+                "selfWeight": 409718,
+                "selfPercent": 7.092907092907093,
+                "inclusivePercent": 7.092907092907093
+              },
+              {
+                "location": "src/core/combat/actions/actionGraphExecution.ts 242:3 #binding",
+                "self": 147,
+                "inclusive": 157,
+                "selfWeight": 168648,
+                "selfPercent": 3.6713286713286712,
+                "inclusivePercent": 3.921078921078921
+              },
+              {
+                "location": "src/core/combat/attributes/combatAttributeExecution.ts 49:17 readCombatAttribute",
+                "self": 124,
+                "inclusive": 124,
+                "selfWeight": 146450,
+                "selfPercent": 3.096903096903097,
+                "inclusivePercent": 3.096903096903097
+              },
+              {
+                "location": "src/core/combat/actions/actionGraphExecution.ts 659:4 #entries",
+                "self": 123,
+                "inclusive": 291,
+                "selfWeight": 134365,
+                "selfPercent": 3.0719280719280717,
+                "inclusivePercent": 7.267732267732268
+              },
+              {
+                "location": "src/core/combat/receipt/combatReceiptHistory.ts 128:3 append",
+                "self": 119,
+                "inclusive": 136,
+                "selfWeight": 131973,
+                "selfPercent": 2.972027972027972,
+                "inclusivePercent": 3.3966033966033966
+              },
+              {
+                "location": "src/core/combat/buffs/combatBuffs.ts 1944:3 tick",
+                "self": 118,
+                "inclusive": 479,
+                "selfWeight": 134676,
+                "selfPercent": 2.947052947052947,
+                "inclusivePercent": 11.963036963036963
+              },
+              {
+                "location": "src/core/combat/damage/playerDamageOperationExecutor.ts 223:3 execute",
+                "self": 114,
+                "inclusive": 891,
+                "selfWeight": 131753,
+                "selfPercent": 2.8471528471528473,
+                "inclusivePercent": 22.252747252747252
+              },
+              {
+                "location": "src/core/combat/damage/staticPlayerDamageSnapshots.ts 141:17 resolveStaticPlayerDamageSnapshots",
+                "self": 105,
+                "inclusive": 241,
+                "selfWeight": 122122,
+                "selfPercent": 2.6223776223776225,
+                "inclusivePercent": 6.018981018981019
+              },
+              {
+                "location": "src/application/simulation/runStandardPlayerDamageScenarioSimulation.ts 118:17 runStandardPlayerDamageScenarioSimulation",
+                "self": 66,
+                "inclusive": 3668,
+                "selfWeight": 78800,
+                "selfPercent": 1.6483516483516483,
+                "inclusivePercent": 91.60839160839161
+              },
+              {
+                "location": "src/core/combat/buffs/combatBuffs.ts 1881:3 captureAttributeModifierDetails",
+                "self": 64,
+                "inclusive": 64,
+                "selfWeight": 75950,
+                "selfPercent": 1.5984015984015985,
+                "inclusivePercent": 1.5984015984015985
+              },
+              {
+                "location": "src/core/combat/runtime/standardPlayerDamageCompatibility.ts 171:10 inspectSequence",
+                "self": 57,
+                "inclusive": 111,
+                "selfWeight": 64609,
+                "selfPercent": 1.4235764235764237,
+                "inclusivePercent": 2.7722277722277724
+              },
+              {
+                "location": "src/core/combat/abilities/abilitySystemRuntime.ts 1181:3 advanceFrame",
+                "self": 55,
+                "inclusive": 1350,
+                "selfWeight": 69919,
+                "selfPercent": 1.3736263736263736,
+                "inclusivePercent": 33.71628371628372
+              },
+              {
+                "location": "src/core/compiler/actionProgramInspection.ts 8:17 rootActionSteps",
+                "self": 51,
+                "inclusive": 52,
+                "selfWeight": 54601,
+                "selfPercent": 1.2737262737262738,
+                "inclusivePercent": 1.2987012987012987
+              },
+              {
+                "location": "src/core/combat/abilities/abilitySystemRuntime.ts 994:3 prepareBeforeSkillCastStart",
+                "self": 50,
+                "inclusive": 62,
+                "selfWeight": 57217,
+                "selfPercent": 1.2487512487512487,
+                "inclusivePercent": 1.5484515484515484
+              },
+              {
+                "location": "src/core/combat/timeline/timelineActionExecution.ts 62:17 tickTimelineActions",
+                "self": 42,
+                "inclusive": 1855,
+                "selfWeight": 47165,
+                "selfPercent": 1.048951048951049,
+                "inclusivePercent": 46.32867132867133
+              },
+              {
+                "location": "src/core/combat/skills/skillRuntime.ts 284:3 SkillRuntime",
+                "self": 41,
+                "inclusive": 47,
+                "selfWeight": 51486,
+                "selfPercent": 1.023976023976024,
+                "inclusivePercent": 1.173826173826174
+              },
+              {
+                "location": "src/core/combat/runtime/standardPlayerDamageEnvironment.ts 772:3 #createOperationExecutor",
+                "self": 41,
+                "inclusive": 64,
+                "selfWeight": 48199,
+                "selfPercent": 1.023976023976024,
+                "inclusivePercent": 1.5984015984015985
+              },
+              {
+                "location": "src/core/combat/damage/healthDamage.ts 169:17 executeHealthDamage",
+                "self": 39,
+                "inclusive": 226,
+                "selfWeight": 46969,
+                "selfPercent": 0.974025974025974,
+                "inclusivePercent": 5.644355644355644
+              },
+              {
+                "location": "src/core/compiler/compileScenarioTimeline.ts 64:10 graphSpawnsEntity",
+                "self": 37,
+                "inclusive": 37,
+                "selfWeight": 40345,
+                "selfPercent": 0.9240759240759241,
+                "inclusivePercent": 0.9240759240759241
+              },
+              {
+                "location": "src/core/combat/buffs/buffOperationExecutor.ts 506:29 createRequest",
+                "self": 36,
+                "inclusive": 52,
+                "selfWeight": 40687,
+                "selfPercent": 0.8991008991008991,
+                "inclusivePercent": 1.2987012987012987
+              },
+              {
+                "location": "src/core/combat/actions/actionSequenceExecution.ts 61:17 tickActionSequence",
+                "self": 34,
+                "inclusive": 314,
+                "selfWeight": 38389,
+                "selfPercent": 0.8491508491508492,
+                "inclusivePercent": 7.842157842157842
+              },
+              {
+                "location": "src/core/combat/runtime/standardPlayerDamageEnvironment.ts 1788:32 recordPresentation",
+                "self": 31,
+                "inclusive": 41,
+                "selfWeight": 35047,
+                "selfPercent": 0.7742257742257742,
+                "inclusivePercent": 1.023976023976024
+              },
+              {
+                "location": "src/core/combat/buffs/combatBuffs.ts 1953:3 recycleFinishedBuffs",
+                "self": 30,
+                "inclusive": 34,
+                "selfWeight": 32484,
+                "selfPercent": 0.7492507492507493,
+                "inclusivePercent": 0.8491508491508492
+              },
+              {
+                "location": "src/core/combat/buffs/buffOperationExecutor.ts 277:3 execute",
+                "self": 29,
+                "inclusive": 1653,
+                "selfWeight": 34109,
+                "selfPercent": 0.7242757242757243,
+                "inclusivePercent": 41.28371628371628
+              },
+              {
+                "location": "src/core/combat/abilities/logicalAbilityEntityRuntime.ts 534:3 advanceFrame",
+                "self": 29,
+                "inclusive": 503,
+                "selfWeight": 31676,
+                "selfPercent": 0.7242757242757243,
+                "inclusivePercent": 12.562437562437562
+              },
+              {
+                "location": "src/core/combat/time/timeDilationRuntime.ts 473:17 advanceTimeDilation",
+                "self": 29,
+                "inclusive": 47,
+                "selfWeight": 37176,
+                "selfPercent": 0.7242757242757243,
+                "inclusivePercent": 1.173826173826174
+              },
+              {
+                "location": "src/core/combat/actions/actionGraphExecution.ts 218:3 #child",
+                "self": 28,
+                "inclusive": 38,
+                "selfWeight": 35069,
+                "selfPercent": 0.6993006993006993,
+                "inclusivePercent": 0.949050949050949
+              },
+              {
+                "location": "src/core/combat/buffs/combatBuffs.ts 1450:3 add",
+                "self": 27,
+                "inclusive": 483,
+                "selfWeight": 30558,
+                "selfPercent": 0.6743256743256744,
+                "inclusivePercent": 12.062937062937063
+              },
+              {
+                "location": "src/core/combat/runtime/combatRuntimeAssembly.ts 3906:3 #wrapHostEffectOperations",
+                "self": 25,
+                "inclusive": 38,
+                "selfWeight": 27544,
+                "selfPercent": 0.6243756243756243,
+                "inclusivePercent": 0.949050949050949
+              },
+              {
+                "location": "src/core/combat/runtime/standardPlayerDamageEnvironment.ts 2092:3 #publish",
+                "self": 24,
+                "inclusive": 447,
+                "selfWeight": 28531,
+                "selfPercent": 0.5994005994005994,
+                "inclusivePercent": 11.163836163836164
+              },
+              {
+                "location": "src/core/combat/actions/combatActionSequenceRuntime.ts 458:14 scope",
+                "self": 24,
+                "inclusive": 36,
+                "selfWeight": 26209,
+                "selfPercent": 0.5994005994005994,
+                "inclusivePercent": 0.8991008991008991
+              },
+              {
+                "location": "src/core/combat/runtime/combatRuntimeAssembly.ts 4050:3 #createOperationChain",
+                "self": 24,
+                "inclusive": 126,
+                "selfWeight": 26186,
+                "selfPercent": 0.5994005994005994,
+                "inclusivePercent": 3.1468531468531467
+              },
+              {
+                "location": "src/core/combat/abilities/abilityEntityOperationExecutor.ts 122:3 execute",
+                "self": 23,
+                "inclusive": 1156,
+                "selfWeight": 26381,
+                "selfPercent": 0.5744255744255744,
+                "inclusivePercent": 28.87112887112887
+              },
+              {
+                "location": "src/core/combat/abilities/logicalAbilityEntityRuntime.ts 218:3 spawn",
+                "self": 23,
+                "inclusive": 240,
+                "selfWeight": 25860,
+                "selfPercent": 0.5744255744255744,
+                "inclusivePercent": 5.994005994005994
+              },
+              {
+                "location": "src/core/combat/abilities/abilitySystemRuntime.ts 1219:3 #advanceActiveSkills",
+                "self": 22,
+                "inclusive": 984,
+                "selfWeight": 24998,
+                "selfPercent": 0.5494505494505495,
+                "inclusivePercent": 24.575424575424574
+              },
+              {
+                "location": "src/core/combat/abilities/logicalAbilityEntityRuntime.ts 612:3 #snapshot",
+                "self": 22,
+                "inclusive": 27,
+                "selfWeight": 26254,
+                "selfPercent": 0.5494505494505495,
+                "inclusivePercent": 0.6743256743256744
+              },
+              {
+                "location": "src/core/combat/skills/skillRuntime.ts 828:3 advance",
+                "self": 21,
+                "inclusive": 924,
+                "selfWeight": 22924,
+                "selfPercent": 0.5244755244755245,
+                "inclusivePercent": 23.076923076923077
+              },
+              {
+                "location": "src/core/combat/actions/actionBlackboardExecution.ts 79:17 createLocalBlackboardState",
+                "self": 20,
+                "inclusive": 21,
+                "selfWeight": 21792,
+                "selfPercent": 0.4995004995004995,
+                "inclusivePercent": 0.5244755244755245
+              },
+              {
+                "location": "src/core/combat/abilities/callbackSkillHost.ts 115:44 create",
+                "self": 20,
+                "inclusive": 88,
+                "selfWeight": 23108,
+                "selfPercent": 0.4995004995004995,
+                "inclusivePercent": 2.197802197802198
+              },
+              {
+                "location": "src/core/combat/buffs/combatBuffs.ts 407:3 CombatBuff",
+                "self": 20,
+                "inclusive": 37,
+                "selfWeight": 25920,
+                "selfPercent": 0.4995004995004995,
+                "inclusivePercent": 0.9240759240759241
+              }
+            ]
+          }
+        },
+        {
+          "mode": "control",
+          "repeat": 2,
+          "repetitions": 12,
+          "startedWithWarmups": 5,
+          "sourceSha256": "45f2bb0668618b73749c88ca588dce3ae1ce6349ba669c0c74da78ac6011e1b3",
+          "resultSha256": "90076bbe22daf695b7f1f2b6c26cf92b3b5a13d545244a3dc18e53543341c6e8",
+          "receiptSha256": "0bae9db0099c9076e95bbbbfc2c6444043e8654c73af37e261192ed97d16f323",
+          "scenario": {
+            "id": "sc_lps0edv",
+            "castCount": 104,
+            "endFrame": 2481
+          },
+          "gameDataRevision": "1.5.3@10506507-7",
+          "environment": {
+            "node": "v24.19.0",
+            "v8": "13.6.233.17-node.51",
+            "cpu": "AMD EPYC 9V74 80-Core Processor"
+          },
+          "summary": {
+            "total": {
+              "count": 12,
+              "medianMs": 358.0203510000001,
+              "p95Ms": 403.801821,
+              "minMs": 345.3475550000003,
+              "maxMs": 403.801821
+            },
+            "cpu": {
+              "count": 12,
+              "medianMs": 504.4425,
+              "p95Ms": 636.441,
+              "minMs": 452.106,
+              "maxMs": 636.441
+            }
+          },
+          "deterministic": true,
+          "sampleColumnsMs": ["totalMs", "simulationMs", "projectionMs", "cpuMs"],
+          "samples": [
+            [403.801821, 401.896531, 1.90529, 589.808],
+            [353.586988, 351.743251, 1.843737, 507.332],
+            [385.016458, 382.942184, 2.074274, 492.445],
+            [355.845298, 353.80148, 2.043818, 491.95],
+            [355.372063, 352.753492, 2.618571, 620.627],
+            [357.367794, 354.904176, 2.463618, 488.492],
+            [358.672908, 356.614628, 2.05828, 508.083],
+            [345.347555, 343.472971, 1.874584, 460.871],
+            [348.896868, 346.941002, 1.955866, 452.106],
+            [380.022183, 377.571848, 2.450335, 636.441],
+            [392.488145, 390.538263, 1.949882, 546.24],
+            [391.228451, 388.254609, 2.973842, 501.553]
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "electric",
+      "provenance": {
+        "gitHead": "a35901f2b70fcc27dce7c29d702cd5d2c6f8d727",
+        "engineGitRevision": "a35901f2b70fcc27dce7c29d702cd5d2c6f8d727",
+        "dataGitRevision": "f1bc5af07a49046a3a1c6132094e27aa763d7539",
+        "engineDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "engineUntracked": ""
+      },
+      "completedAt": "2026-10-01T02:19:51.839Z",
+      "methodology": "Production SSR; fresh process per mode/repeat; profiling starts after warmups and brackets simulate (includes unavoidable inspector start/stop boundary samples); no hashing, cloning, output writes, startup, clearCache or warmups inside capture. Cache/checkpoint disabled; immutable definition caches retain normal lifetime. CPU 1000us sampling; allocation 32768-byte sampling including objects collected during capture. No forced GC. Inclusive rows overlap and must not be added; each sample contributes once per unique frame key in a lineage. Control has same inspector connection and result verification but no sampling. Source map positions are function-entry mappings, not exact statement samples.",
+      "runs": [
+        {
+          "mode": "control",
+          "repeat": 1,
+          "repetitions": 12,
+          "startedWithWarmups": 5,
+          "sourceSha256": "4bdf9ec72f6e598c0fd123ad75e9bb3ca301a7978a69bab5d27e3c94debf40ea",
+          "resultSha256": "3a26f0e72a7953fe936b9171b89459a39b3b53cb4122c27ac7eaeff526443593",
+          "receiptSha256": "0c67a060af109091425ad9825eba471c4885277cad70f9171eb6956f42797413",
+          "scenario": {
+            "id": "sc_q8zl8ry",
+            "castCount": 39,
+            "endFrame": 3600
+          },
+          "gameDataRevision": "1.5.3@10506507-7",
+          "environment": {
+            "node": "v24.19.0",
+            "v8": "13.6.233.17-node.51",
+            "cpu": "AMD EPYC 9V74 80-Core Processor"
+          },
+          "summary": {
+            "total": {
+              "count": 12,
+              "medianMs": 221.02574700000014,
+              "p95Ms": 238.9477139999999,
+              "minMs": 208.20159299999978,
+              "maxMs": 238.9477139999999
+            },
+            "cpu": {
+              "count": 12,
+              "medianMs": 283.428,
+              "p95Ms": 346.651,
+              "minMs": 252.067,
+              "maxMs": 346.651
+            }
+          },
+          "deterministic": true,
+          "sampleColumnsMs": ["totalMs", "simulationMs", "projectionMs", "cpuMs"],
+          "samples": [
+            [237.788287, 235.917224, 1.871063, 346.651],
+            [238.947714, 236.023579, 2.924135, 298.264],
+            [224.841499, 221.59615, 3.245349, 291.373],
+            [208.201593, 206.121196, 2.080397, 257.975],
+            [229.550698, 226.978391, 2.572307, 291.171],
+            [234.759118, 232.916157, 1.842961, 299.022],
+            [230.309658, 228.058514, 2.251144, 275.685],
+            [208.41907, 206.265473, 2.153597, 252.067],
+            [208.394083, 206.583221, 1.810862, 270.185],
+            [217.209995, 213.777666, 3.432329, 317.615],
+            [208.853664, 206.811354, 2.04231, 261.316],
+            [211.554995, 209.273936, 2.281059, 257.789]
+          ]
+        },
+        {
+          "mode": "cpu",
+          "repeat": 1,
+          "repetitions": 12,
+          "startedWithWarmups": 5,
+          "sourceSha256": "4bdf9ec72f6e598c0fd123ad75e9bb3ca301a7978a69bab5d27e3c94debf40ea",
+          "resultSha256": "3a26f0e72a7953fe936b9171b89459a39b3b53cb4122c27ac7eaeff526443593",
+          "receiptSha256": "0c67a060af109091425ad9825eba471c4885277cad70f9171eb6956f42797413",
+          "scenario": {
+            "id": "sc_q8zl8ry",
+            "castCount": 39,
+            "endFrame": 3600
+          },
+          "gameDataRevision": "1.5.3@10506507-7",
+          "environment": {
+            "node": "v24.19.0",
+            "v8": "13.6.233.17-node.51",
+            "cpu": "AMD EPYC 9V74 80-Core Processor"
+          },
+          "summary": {
+            "total": {
+              "count": 12,
+              "medianMs": 250.82785250000052,
+              "p95Ms": 291.885276,
+              "minMs": 225.34717,
+              "maxMs": 291.885276
+            },
+            "cpu": {
+              "count": 12,
+              "medianMs": 337.6535,
+              "p95Ms": 415.546,
+              "minMs": 291.029,
+              "maxMs": 415.546
+            }
+          },
+          "deterministic": true,
+          "sampleColumnsMs": ["totalMs", "simulationMs", "projectionMs", "cpuMs"],
+          "samples": [
+            [234.943219, 231.915246, 3.027973, 350.505],
+            [225.34717, 223.235422, 2.111748, 300.335],
+            [233.155207, 230.985141, 2.170066, 311.474],
+            [281.70018, 278.133889, 3.566291, 357.503],
+            [273.589756, 271.574412, 2.015344, 359.533],
+            [274.4917, 270.605429, 3.886271, 370.298],
+            [291.885276, 289.804188, 2.081088, 388.123],
+            [235.646765, 233.512978, 2.133787, 297.574],
+            [271.586367, 268.194088, 3.392279, 415.546],
+            [245.815935, 243.179392, 2.636543, 314.287],
+            [241.689598, 238.637131, 3.052467, 291.029],
+            [255.83977, 253.542477, 2.297293, 324.802]
+          ],
+          "profile": {
+            "units": "CPU sample counts, not time. selfWeight/totalWeight are raw microseconds and include inspector boundary stalls; never interpret them as simulation time",
+            "total": 2552,
+            "self": [
+              {
+                "location": "src/core/combat/buffs/combatBuffs.ts 1944:3 tick",
+                "self": 124,
+                "inclusive": 506,
+                "selfWeight": 146210,
+                "selfPercent": 4.858934169278997,
+                "inclusivePercent": 19.82758620689655
+              },
+              {
+                "location": "src/core/combat/actions/actionGraphExecution.ts 659:4 #entries",
+                "self": 119,
+                "inclusive": 201,
+                "selfWeight": 140525,
+                "selfPercent": 4.663009404388715,
+                "inclusivePercent": 7.876175548589342
+              },
+              {
+                "location": "(garbage collector) :0",
+                "self": 113,
+                "inclusive": 113,
+                "selfWeight": 224402,
+                "selfPercent": 4.427899686520377,
+                "inclusivePercent": 4.427899686520377
+              },
+              {
+                "location": "src/core/combat/receipt/combatReceiptHistory.ts 128:3 append",
+                "self": 90,
+                "inclusive": 95,
+                "selfWeight": 101688,
+                "selfPercent": 3.5266457680250785,
+                "inclusivePercent": 3.7225705329153604
+              },
+              {
+                "location": "src/core/combat/actions/actionGraphExecution.ts 242:3 #binding",
+                "self": 65,
+                "inclusive": 72,
+                "selfWeight": 75390,
+                "selfPercent": 2.5470219435736676,
+                "inclusivePercent": 2.8213166144200628
+              },
+              {
+                "location": "src/core/combat/damage/staticPlayerDamageSnapshots.ts 141:17 resolveStaticPlayerDamageSnapshots",
+                "self": 61,
+                "inclusive": 123,
+                "selfWeight": 74908,
+                "selfPercent": 2.390282131661442,
+                "inclusivePercent": 4.8197492163009406
+              },
+              {
+                "location": "src/core/combat/abilities/abilitySystemRuntime.ts 1181:3 advanceFrame",
+                "self": 54,
+                "inclusive": 1436,
+                "selfWeight": 63070,
+                "selfPercent": 2.115987460815047,
+                "inclusivePercent": 56.26959247648903
+              },
+              {
+                "location": "src/core/combat/damage/playerDamageOperationExecutor.ts 223:3 execute",
+                "self": 51,
+                "inclusive": 366,
+                "selfWeight": 57642,
+                "selfPercent": 1.9984326018808778,
+                "inclusivePercent": 14.341692789968652
+              },
+              {
+                "location": "src/core/combat/attributes/combatAttributeExecution.ts 49:17 readCombatAttribute",
+                "self": 50,
+                "inclusive": 50,
+                "selfWeight": 58570,
+                "selfPercent": 1.9592476489028212,
+                "inclusivePercent": 1.9592476489028212
+              },
+              {
+                "location": "src/application/simulation/runStandardPlayerDamageScenarioSimulation.ts 118:17 runStandardPlayerDamageScenarioSimulation",
+                "self": 47,
+                "inclusive": 2392,
+                "selfWeight": 54718,
+                "selfPercent": 1.841692789968652,
+                "inclusivePercent": 93.73040752351098
+              },
+              {
+                "location": "src/core/combat/timeline/timelineActionExecution.ts 62:17 tickTimelineActions",
+                "self": 36,
+                "inclusive": 1104,
+                "selfWeight": 39810,
+                "selfPercent": 1.4106583072100314,
+                "inclusivePercent": 43.260188087774296
+              },
+              {
+                "location": "src/core/combat/actions/actionSequenceExecution.ts 61:17 tickActionSequence",
+                "self": 30,
+                "inclusive": 300,
+                "selfWeight": 35389,
+                "selfPercent": 1.1755485893416928,
+                "inclusivePercent": 11.755485893416928
+              },
+              {
+                "location": "src/core/combat/buffs/combatBuffs.ts 1953:3 recycleFinishedBuffs",
+                "self": 28,
+                "inclusive": 31,
+                "selfWeight": 33039,
+                "selfPercent": 1.09717868338558,
+                "inclusivePercent": 1.2147335423197492
+              },
+              {
+                "location": "src/core/combat/abilities/abilitySystemRuntime.ts 1219:3 #advanceActiveSkills",
+                "self": 25,
+                "inclusive": 759,
+                "selfWeight": 28237,
+                "selfPercent": 0.9796238244514106,
+                "inclusivePercent": 29.74137931034483
+              },
+              {
+                "location": "src/core/combat/skills/skillRuntime.ts 870:3 record",
+                "self": 25,
+                "inclusive": 55,
+                "selfWeight": 28802,
+                "selfPercent": 0.9796238244514106,
+                "inclusivePercent": 2.1551724137931036
+              },
+              {
+                "location": "src/core/combat/skills/skillRuntime.ts 284:3 SkillRuntime",
+                "self": 25,
+                "inclusive": 30,
+                "selfWeight": 28191,
+                "selfPercent": 0.9796238244514106,
+                "inclusivePercent": 1.1755485893416928
+              },
+              {
+                "location": "src/core/combat/skills/skillRuntime.ts 828:3 advance",
+                "self": 24,
+                "inclusive": 718,
+                "selfWeight": 28964,
+                "selfPercent": 0.9404388714733543,
+                "inclusivePercent": 28.134796238244515
+              },
+              {
+                "location": "src/core/combat/actions/actionGraphExecution.ts 218:3 #child",
+                "self": 24,
+                "inclusive": 28,
+                "selfWeight": 28646,
+                "selfPercent": 0.9404388714733543,
+                "inclusivePercent": 1.09717868338558
+              },
+              {
+                "location": "src/core/combat/buffs/combatBuffs.ts 1881:3 captureAttributeModifierDetails",
+                "self": 23,
+                "inclusive": 23,
+                "selfWeight": 26002,
+                "selfPercent": 0.9012539184952978,
+                "inclusivePercent": 0.9012539184952978
+              },
+              {
+                "location": "src/core/combat/abilities/abilitySystemRuntime.ts 994:3 prepareBeforeSkillCastStart",
+                "self": 23,
+                "inclusive": 29,
+                "selfWeight": 25093,
+                "selfPercent": 0.9012539184952978,
+                "inclusivePercent": 1.1363636363636365
+              },
+              {
+                "location": "src/core/combat/actions/actionSequenceExecution.ts 22:17 executeActionSequence",
+                "self": 21,
+                "inclusive": 1119,
+                "selfWeight": 26316,
+                "selfPercent": 0.822884012539185,
+                "inclusivePercent": 43.84796238244514
+              },
+              {
+                "location": "src/core/combat/actions/actionSequenceExecution.ts 49:17 resetActionSequence",
+                "self": 21,
+                "inclusive": 174,
+                "selfWeight": 24973,
+                "selfPercent": 0.822884012539185,
+                "inclusivePercent": 6.818181818181818
+              },
+              {
+                "location": "src/core/combat/runtime/standardPlayerDamageEnvironment.ts 772:3 #createOperationExecutor",
+                "self": 19,
+                "inclusive": 40,
+                "selfWeight": 22756,
+                "selfPercent": 0.7445141065830722,
+                "inclusivePercent": 1.567398119122257
+              },
+              {
+                "location": "src/core/combat/time/timeDilationRuntime.ts 473:17 advanceTimeDilation",
+                "self": 19,
+                "inclusive": 28,
+                "selfWeight": 20801,
+                "selfPercent": 0.7445141065830722,
+                "inclusivePercent": 1.09717868338558
+              },
+              {
+                "location": "src/core/combat/abilities/runtimeTargetContext.ts 14:51 (anonymous)",
+                "self": 19,
+                "inclusive": 19,
+                "selfWeight": 21807,
+                "selfPercent": 0.7445141065830722,
+                "inclusivePercent": 0.7445141065830722
+              },
+              {
+                "location": "src/core/combat/abilities/abilityEntityOperationExecutor.ts 474:3 end",
+                "self": 18,
+                "inclusive": 18,
+                "selfWeight": 22831,
+                "selfPercent": 0.7053291536050157,
+                "inclusivePercent": 0.7053291536050157
+              },
+              {
+                "location": "src/core/combat/actions/actionBlackboardOperationExecutor.ts 79:3 execute",
+                "self": 17,
+                "inclusive": 890,
+                "selfWeight": 20708,
+                "selfPercent": 0.6661442006269592,
+                "inclusivePercent": 34.874608150470216
+              },
+              {
+                "location": "src/core/combat/buffs/buffDefinitionOperationTarget.ts 397:3 advanceWithDeltas",
+                "self": 17,
+                "inclusive": 531,
+                "selfWeight": 17760,
+                "selfPercent": 0.6661442006269592,
+                "inclusivePercent": 20.807210031347964
+              },
+              {
+                "location": "src/core/combat/heal/healOperationExecutor.ts 62:3 execute",
+                "self": 17,
+                "inclusive": 502,
+                "selfWeight": 19363,
+                "selfPercent": 0.6661442006269592,
+                "inclusivePercent": 19.670846394984327
+              },
+              {
+                "location": "src/core/combat/buffs/combatBuffs.ts 407:3 CombatBuff",
+                "self": 17,
+                "inclusive": 35,
+                "selfWeight": 18661,
+                "selfPercent": 0.6661442006269592,
+                "inclusivePercent": 1.371473354231975
+              },
+              {
+                "location": "src/core/compiler/compileScenarioTimeline.ts 64:10 graphSpawnsEntity",
+                "self": 16,
+                "inclusive": 16,
+                "selfWeight": 17738,
+                "selfPercent": 0.6269592476489029,
+                "inclusivePercent": 0.6269592476489029
+              },
+              {
+                "location": "src/core/combat/abilities/logicalAbilityEntityRuntime.ts 534:3 advanceFrame",
+                "self": 16,
+                "inclusive": 233,
+                "selfWeight": 19227,
+                "selfPercent": 0.6269592476489029,
+                "inclusivePercent": 9.130094043887148
+              },
+              {
+                "location": "src/core/combat/abilities/runtimeTargetContext.ts 8:17 setRuntimeTargetGroup",
+                "self": 15,
+                "inclusive": 31,
+                "selfWeight": 18692,
+                "selfPercent": 0.5877742946708464,
+                "inclusivePercent": 1.2147335423197492
+              },
+              {
+                "location": "src/core/combat/time/timeDilationRuntime.ts 520:10 entityIgnoresGlobalTimeScale",
+                "self": 15,
+                "inclusive": 15,
+                "selfWeight": 19750,
+                "selfPercent": 0.5877742946708464,
+                "inclusivePercent": 0.5877742946708464
+              },
+              {
+                "location": "src/core/combat/skills/skillCooldown.ts 45:7 get ready",
+                "self": 14,
+                "inclusive": 14,
+                "selfWeight": 14690,
+                "selfPercent": 0.54858934169279,
+                "inclusivePercent": 0.54858934169279
+              },
+              {
+                "location": "src/core/combat/abilities/abilitySystemRuntime.ts 1314:3 #commitComboOffsetTargetAtRecordFrame",
+                "self": 14,
+                "inclusive": 25,
+                "selfWeight": 15362,
+                "selfPercent": 0.54858934169279,
+                "inclusivePercent": 0.9796238244514106
+              },
+              {
+                "location": "src/core/combat/actions/actionSequenceExecution.ts 78:17 endActionSequence",
+                "self": 13,
+                "inclusive": 108,
+                "selfWeight": 14219,
+                "selfPercent": 0.5094043887147336,
+                "inclusivePercent": 4.231974921630094
+              },
+              {
+                "location": "src/core/combat/abilities/abilityEntityOperationExecutor.ts 122:3 execute",
+                "self": 13,
+                "inclusive": 630,
+                "selfWeight": 14398,
+                "selfPercent": 0.5094043887147336,
+                "inclusivePercent": 24.686520376175547
+              },
+              {
+                "location": "src/core/combat/time/timeDilationOperationExecutor.ts 52:3 execute",
+                "self": 13,
+                "inclusive": 647,
+                "selfWeight": 14154,
+                "selfPercent": 0.5094043887147336,
+                "inclusivePercent": 25.352664576802507
+              },
+              {
+                "location": "src/core/combat/actions/actionBlackboardExecution.ts 79:17 createLocalBlackboardState",
+                "self": 13,
+                "inclusive": 13,
+                "selfWeight": 14189,
+                "selfPercent": 0.5094043887147336,
+                "inclusivePercent": 0.5094043887147336
+              }
+            ]
+          }
+        },
+        {
+          "mode": "allocation",
+          "repeat": 1,
+          "repetitions": 12,
+          "startedWithWarmups": 5,
+          "sourceSha256": "4bdf9ec72f6e598c0fd123ad75e9bb3ca301a7978a69bab5d27e3c94debf40ea",
+          "resultSha256": "3a26f0e72a7953fe936b9171b89459a39b3b53cb4122c27ac7eaeff526443593",
+          "receiptSha256": "0c67a060af109091425ad9825eba471c4885277cad70f9171eb6956f42797413",
+          "scenario": {
+            "id": "sc_q8zl8ry",
+            "castCount": 39,
+            "endFrame": 3600
+          },
+          "gameDataRevision": "1.5.3@10506507-7",
+          "environment": {
+            "node": "v24.19.0",
+            "v8": "13.6.233.17-node.51",
+            "cpu": "AMD EPYC 9V74 80-Core Processor"
+          },
+          "summary": {
+            "total": {
+              "count": 12,
+              "medianMs": 545.5069684999994,
+              "p95Ms": 615.7580319999997,
+              "minMs": 305.0578929999997,
+              "maxMs": 615.7580319999997
+            },
+            "cpu": {
+              "count": 12,
+              "medianMs": 826.266,
+              "p95Ms": 906.984,
+              "minMs": 429.341,
+              "maxMs": 906.984
+            }
+          },
+          "deterministic": true,
+          "sampleColumnsMs": ["totalMs", "simulationMs", "projectionMs", "cpuMs"],
+          "samples": [
+            [305.057893, 302.570552, 2.487341, 429.341],
+            [547.511764, 544.712244, 2.79952, 865.145],
+            [600.010367, 597.40337, 2.606997, 902.733],
+            [615.758032, 611.937411, 3.820621, 906.984],
+            [572.114351, 569.6313, 2.483051, 872.164],
+            [547.358033, 544.064334, 3.293699, 835.402],
+            [548.343059, 544.605472, 3.737587, 835.232],
+            [512.314378, 509.58038, 2.733998, 799.878],
+            [529.319186, 526.622886, 2.6963, 788.645],
+            [521.409485, 519.227949, 2.181536, 807.163],
+            [499.08959, 496.673842, 2.415748, 751.197],
+            [543.655904, 540.248677, 3.407227, 817.3]
+          ],
+          "profile": {
+            "units": "V8 statistically estimated allocated bytes, including collected objects; not retained memory or exact counts",
+            "total": 3101404016,
+            "self": [
+              {
+                "location": "src/core/combat/buffs/combatBuffs.ts 1944:3 tick",
+                "self": 328365536,
+                "inclusive": 873565408,
+                "selfWeight": 0,
+                "selfPercent": 10.587641413565514,
+                "inclusivePercent": 28.166772322900094
+              },
+              {
+                "location": "next :0",
+                "self": 239714328,
+                "inclusive": 426924848,
+                "selfWeight": 0,
+                "selfPercent": 7.729219629668526,
+                "inclusivePercent": 13.765534764175014
+              },
+              {
+                "location": "src/core/combat/actions/actionGraphExecution.ts 659:4 #entries",
+                "self": 137962376,
+                "inclusive": 218562232,
+                "selfWeight": 0,
+                "selfPercent": 4.448384515150509,
+                "inclusivePercent": 7.047202843371826
+              },
+              {
+                "location": "src/core/combat/time/timeDilationRuntime.ts 473:17 advanceTimeDilation",
+                "self": 118573144,
+                "inclusive": 125888288,
+                "selfWeight": 0,
+                "selfPercent": 3.823208565807184,
+                "inclusivePercent": 4.059074127412879
+              },
+              {
+                "location": "src/core/combat/timeline/timelineActionExecution.ts 62:17 tickTimelineActions",
+                "self": 86034328,
+                "inclusive": 1187985400,
+                "selfWeight": 0,
+                "selfPercent": 2.774044515198693,
+                "inclusivePercent": 38.304761129837914
+              },
+              {
+                "location": "src/core/combat/receipt/combatReceiptHistory.ts 128:3 append",
+                "self": 84624416,
+                "inclusive": 93416048,
+                "selfWeight": 0,
+                "selfPercent": 2.728584072356473,
+                "inclusivePercent": 3.0120567174760504
+              },
+              {
+                "location": "src/core/combat/abilities/abilitySystemRuntime.ts 1181:3 advanceFrame",
+                "self": 72248560,
+                "inclusive": 2069929592,
+                "selfWeight": 0,
+                "selfPercent": 2.3295436398248346,
+                "inclusivePercent": 66.74169444939547
+              },
+              {
+                "location": "Map :0",
+                "self": 70588288,
+                "inclusive": 73598888,
+                "selfWeight": 0,
+                "selfPercent": 2.2760107240410563,
+                "inclusivePercent": 2.3730828882759787
+              },
+              {
+                "location": "src/core/combat/actions/actionGraphExecution.ts 681:3 #executionHost",
+                "self": 67832328,
+                "inclusive": 67832328,
+                "selfWeight": 0,
+                "selfPercent": 2.1871490347615516,
+                "inclusivePercent": 2.1871490347615516
+              },
+              {
+                "location": "src/core/combat/actions/actionSequenceExecution.ts 61:17 tickActionSequence",
+                "self": 62382360,
+                "inclusive": 401058576,
+                "selfWeight": 0,
+                "selfPercent": 2.0114232031096977,
+                "inclusivePercent": 12.931516627016581
+              },
+              {
+                "location": "src/core/combat/timeline/timelineActionProcessor.ts 111:13 tick",
+                "self": 57782584,
+                "inclusive": 304716568,
+                "selfWeight": 0,
+                "selfPercent": 1.8631105042072016,
+                "inclusivePercent": 9.825116831860065
+              },
+              {
+                "location": "src/core/combat/skills/skillRuntime.ts 896:21 tickTimeline",
+                "self": 55132680,
+                "inclusive": 1059456632,
+                "selfWeight": 0,
+                "selfPercent": 1.777668427446829,
+                "inclusivePercent": 34.16054878804284
+              },
+              {
+                "location": "src/core/combat/actions/actionGraphExecution.ts 242:3 #binding",
+                "self": 53530320,
+                "inclusive": 59734112,
+                "selfWeight": 0,
+                "selfPercent": 1.7260027949870302,
+                "inclusivePercent": 1.9260345215210426
+              },
+              {
+                "location": "values :0",
+                "self": 48166224,
+                "inclusive": 48166224,
+                "selfWeight": 0,
+                "selfPercent": 1.5530457738338082,
+                "inclusivePercent": 1.5530457738338082
+              },
+              {
+                "location": "src/core/combat/skills/skillRuntime.ts 828:3 advance",
+                "self": 44032712,
+                "inclusive": 985560808,
+                "selfWeight": 0,
+                "selfPercent": 1.419767040115937,
+                "inclusivePercent": 31.777891655377285
+              },
+              {
+                "location": "src/core/combat/buffs/combatBuffs.ts 300:14 trigger",
+                "self": 43765360,
+                "inclusive": 86061928,
+                "selfWeight": 0,
+                "selfPercent": 1.411146686281972,
+                "inclusivePercent": 2.77493443472732
+              },
+              {
+                "location": "src/core/combat/actions/actionGraphExecution.ts 699:3 executeInstant",
+                "self": 39874976,
+                "inclusive": 568007176,
+                "selfWeight": 0,
+                "selfPercent": 1.28570724079439,
+                "inclusivePercent": 18.314517330527632
+              },
+              {
+                "location": "src/core/combat/buffs/buffLifecycleExecution.ts 105:17 tickBuffLifecycle",
+                "self": 38763552,
+                "inclusive": 155759384,
+                "selfWeight": 0,
+                "selfPercent": 1.2498710841935017,
+                "inclusivePercent": 5.022221651756577
+              },
+              {
+                "location": "Set :0",
+                "self": 34444136,
+                "inclusive": 37696096,
+                "selfWeight": 0,
+                "selfPercent": 1.1105981620680276,
+                "inclusivePercent": 1.2154526080938692
+              },
+              {
+                "location": "src/core/combat/time/timeDilationRuntime.ts 343:3 getAbilityTickDeltas",
+                "self": 33794304,
+                "inclusive": 37042912,
+                "selfWeight": 0,
+                "selfPercent": 1.0896453292011214,
+                "inclusivePercent": 1.1943916951450804
+              },
+              {
+                "location": "src/core/combat/damage/staticPlayerDamageSnapshots.ts 141:17 resolveStaticPlayerDamageSnapshots",
+                "self": 33752960,
+                "inclusive": 114608744,
+                "selfWeight": 0,
+                "selfPercent": 1.0883122555420075,
+                "inclusivePercent": 3.695382588296745
+              },
+              {
+                "location": "sort :0",
+                "self": 30929552,
+                "inclusive": 31257392,
+                "selfWeight": 0,
+                "selfPercent": 0.9972758092926903,
+                "inclusivePercent": 1.0078465056066401
+              },
+              {
+                "location": "src/core/combat/actions/actionGraphExecution.ts 708:3 reset",
+                "self": 30502808,
+                "inclusive": 202219184,
+                "selfWeight": 0,
+                "selfPercent": 0.9835161056939832,
+                "inclusivePercent": 6.520246409586129
+              },
+              {
+                "location": "src/core/combat/events/abilityEventExecution.ts 56:25 dispatchPhase",
+                "self": 30324512,
+                "inclusive": 184294880,
+                "selfWeight": 0,
+                "selfPercent": 0.977767225539054,
+                "inclusivePercent": 5.94230480934542
+              },
+              {
+                "location": "src/core/combat/actions/actionSequenceExecution.ts 49:17 resetActionSequence",
+                "self": 30308104,
+                "inclusive": 191497472,
+                "selfWeight": 0,
+                "selfPercent": 0.9772381748279777,
+                "inclusivePercent": 6.174541304908145
+              },
+              {
+                "location": "src/core/combat/abilities/projectileLifecycleRuntime.ts 272:3 advanceFrame",
+                "self": 25910632,
+                "inclusive": 421222344,
+                "selfWeight": 0,
+                "selfPercent": 0.8354484570964714,
+                "inclusivePercent": 13.581666297810068
+              },
+              {
+                "location": "src/core/combat/abilities/logicalAbilityEntityRuntime.ts 534:3 advanceFrame",
+                "self": 24507016,
+                "inclusive": 320887176,
+                "selfWeight": 0,
+                "selfPercent": 0.7901910190858539,
+                "inclusivePercent": 10.346513203199516
+              },
+              {
+                "location": "src/core/combat/damage/playerDamageOperationExecutor.ts 223:3 execute",
+                "self": 23902864,
+                "inclusive": 344483504,
+                "selfWeight": 0,
+                "selfPercent": 0.7707110675257474,
+                "inclusivePercent": 11.107340489108337
+              },
+              {
+                "location": "src/core/combat/skills/skillRuntime.ts 822:11 tick",
+                "self": 23479296,
+                "inclusive": 777868920,
+                "selfWeight": 0,
+                "selfPercent": 0.7570537691597546,
+                "inclusivePercent": 25.081186326805867
+              },
+              {
+                "location": "src/core/combat/actions/actionSequenceExecution.ts 78:17 endActionSequence",
+                "self": 23254664,
+                "inclusive": 120878968,
+                "selfWeight": 0,
+                "selfPercent": 0.7498108559874903,
+                "inclusivePercent": 3.8975563124440087
+              },
+              {
+                "location": "src/core/combat/actions/actionGraphExecution.ts 691:3 tryExecute",
+                "self": 23057064,
+                "inclusive": 758404680,
+                "selfWeight": 0,
+                "selfPercent": 0.7434395480579012,
+                "inclusivePercent": 24.453591859926192
+              },
+              {
+                "location": "src/core/combat/actions/actionSequenceExecution.ts 22:17 executeActionSequence",
+                "self": 22727680,
+                "inclusive": 864701200,
+                "selfWeight": 0,
+                "selfPercent": 0.7328190678398864,
+                "inclusivePercent": 27.880959576341763
+              },
+              {
+                "location": "src/core/combat/actions/actionGraphExecution.ts 723:3 end",
+                "self": 22039576,
+                "inclusive": 122792008,
+                "selfWeight": 0,
+                "selfPercent": 0.7106322132266175,
+                "inclusivePercent": 3.959239343423872
+              },
+              {
+                "location": "src/core/combat/actions/combatActionSequenceRuntime.ts 188:12 tryExecute",
+                "self": 21836176,
+                "inclusive": 766096288,
+                "selfWeight": 0,
+                "selfPercent": 0.7040738932221722,
+                "inclusivePercent": 24.701595923902357
+              },
+              {
+                "location": "src/core/combat/abilities/callbackSkillHost.ts 59:28 resolveTickDeltas",
+                "self": 20327760,
+                "inclusive": 20590176,
+                "selfWeight": 0,
+                "selfPercent": 0.6554373404796674,
+                "inclusivePercent": 0.6638985405892375
+              },
+              {
+                "location": "src/core/combat/damage/healthDamage.ts 169:17 executeHealthDamage",
+                "self": 19905544,
+                "inclusive": 100791632,
+                "selfWeight": 0,
+                "selfPercent": 0.641823635273193,
+                "inclusivePercent": 3.249871073875594
+              },
+              {
+                "location": "src/core/combat/actions/actionGraphExecution.ts 355:26 branchHost",
+                "self": 19892648,
+                "inclusive": 19892648,
+                "selfWeight": 0,
+                "selfPercent": 0.6414078235977883,
+                "inclusivePercent": 0.6414078235977883
+              },
+              {
+                "location": "src/core/combat/actions/combatActionSequenceRuntime.ts 197:12 reset",
+                "self": 19728400,
+                "inclusive": 42170544,
+                "selfWeight": 0,
+                "selfPercent": 0.6361118995855456,
+                "inclusivePercent": 1.359724298493331
+              },
+              {
+                "location": "entries :0",
+                "self": 19225424,
+                "inclusive": 19225424,
+                "selfWeight": 0,
+                "selfPercent": 0.6198942124540023,
+                "inclusivePercent": 0.6198942124540023
+              },
+              {
+                "location": "src/core/combat/attributes/combatAttributeExecution.ts 49:17 readCombatAttribute",
+                "self": 18954912,
+                "inclusive": 18954912,
+                "selfWeight": 0,
+                "selfPercent": 0.6111719692827018,
+                "inclusivePercent": 0.6111719692827018
+              }
+            ]
+          }
+        },
+        {
+          "mode": "allocation",
+          "repeat": 2,
+          "repetitions": 12,
+          "startedWithWarmups": 5,
+          "sourceSha256": "4bdf9ec72f6e598c0fd123ad75e9bb3ca301a7978a69bab5d27e3c94debf40ea",
+          "resultSha256": "3a26f0e72a7953fe936b9171b89459a39b3b53cb4122c27ac7eaeff526443593",
+          "receiptSha256": "0c67a060af109091425ad9825eba471c4885277cad70f9171eb6956f42797413",
+          "scenario": {
+            "id": "sc_q8zl8ry",
+            "castCount": 39,
+            "endFrame": 3600
+          },
+          "gameDataRevision": "1.5.3@10506507-7",
+          "environment": {
+            "node": "v24.19.0",
+            "v8": "13.6.233.17-node.51",
+            "cpu": "AMD EPYC 9V74 80-Core Processor"
+          },
+          "summary": {
+            "total": {
+              "count": 12,
+              "medianMs": 554.3538404999999,
+              "p95Ms": 604.0401169999996,
+              "minMs": 311.86557900000025,
+              "maxMs": 604.0401169999996
+            },
+            "cpu": {
+              "count": 12,
+              "medianMs": 847.889,
+              "p95Ms": 905.813,
+              "minMs": 414.148,
+              "maxMs": 905.813
+            }
+          },
+          "deterministic": true,
+          "sampleColumnsMs": ["totalMs", "simulationMs", "projectionMs", "cpuMs"],
+          "samples": [
+            [311.865579, 306.922225, 4.943354, 414.148],
+            [549.767296, 547.283406, 2.48389, 858.671],
+            [559.716397, 557.352718, 2.363679, 838.081],
+            [580.309465, 576.486568, 3.822897, 858.415],
+            [558.98315, 555.244789, 3.738361, 862.161],
+            [514.38796, 511.990324, 2.397636, 804.369],
+            [565.144546, 562.90119, 2.243356, 836.557],
+            [604.040117, 600.803976, 3.236141, 905.813],
+            [558.940385, 556.703225, 2.23716, 881.137],
+            [479.99392, 477.795909, 2.198011, 734.16],
+            [489.549643, 487.362217, 2.187426, 766.334],
+            [549.148963, 547.165624, 1.983339, 857.697]
+          ],
+          "profile": {
+            "units": "V8 statistically estimated allocated bytes, including collected objects; not retained memory or exact counts",
+            "total": 3107441472,
+            "self": [
+              {
+                "location": "src/core/combat/buffs/combatBuffs.ts 1944:3 tick",
+                "self": 336114904,
+                "inclusive": 872869400,
+                "selfWeight": 0,
+                "selfPercent": 10.816451638063226,
+                "inclusivePercent": 28.089648923884866
+              },
+              {
+                "location": "next :0",
+                "self": 250943096,
+                "inclusive": 438764872,
+                "selfWeight": 0,
+                "selfPercent": 8.07555341785694,
+                "inclusivePercent": 14.119811296642178
+              },
+              {
+                "location": "src/core/combat/actions/actionGraphExecution.ts 659:4 #entries",
+                "self": 139226808,
+                "inclusive": 221474384,
+                "selfWeight": 0,
+                "selfPercent": 4.4804321900998305,
+                "inclusivePercent": 7.127226240481868
+              },
+              {
+                "location": "src/core/combat/time/timeDilationRuntime.ts 473:17 advanceTimeDilation",
+                "self": 94018856,
+                "inclusive": 116814536,
+                "selfWeight": 0,
+                "selfPercent": 3.025603437656637,
+                "inclusivePercent": 3.7591870048904337
+              },
+              {
+                "location": "src/core/combat/timeline/timelineActionExecution.ts 62:17 tickTimelineActions",
+                "self": 89714424,
+                "inclusive": 1192397776,
+                "selfWeight": 0,
+                "selfPercent": 2.8870833065846395,
+                "inclusivePercent": 38.372332568264056
+              },
+              {
+                "location": "src/core/combat/receipt/combatReceiptHistory.ts 128:3 append",
+                "self": 84650560,
+                "inclusive": 92555416,
+                "selfWeight": 0,
+                "selfPercent": 2.724124034603861,
+                "inclusivePercent": 2.9785087453450836
+              },
+              {
+                "location": "src/core/combat/actions/actionGraphExecution.ts 681:3 #executionHost",
+                "self": 71162376,
+                "inclusive": 71162376,
+                "selfWeight": 0,
+                "selfPercent": 2.2900632768538913,
+                "inclusivePercent": 2.2900632768538913
+              },
+              {
+                "location": "Map :0",
+                "self": 71083544,
+                "inclusive": 74119536,
+                "selfWeight": 0,
+                "selfPercent": 2.287526398823836,
+                "inclusivePercent": 2.385227096563639
+              },
+              {
+                "location": "src/core/combat/abilities/abilitySystemRuntime.ts 1181:3 advanceFrame",
+                "self": 69264336,
+                "inclusive": 2076209280,
+                "selfWeight": 0,
+                "selfPercent": 2.2289828022221876,
+                "inclusivePercent": 66.81410731973394
+              },
+              {
+                "location": "src/core/combat/actions/actionSequenceExecution.ts 61:17 tickActionSequence",
+                "self": 62941952,
+                "inclusive": 400126728,
+                "selfWeight": 0,
+                "selfPercent": 2.02552333059678,
+                "inclusivePercent": 12.876404321863927
+              },
+              {
+                "location": "src/core/combat/actions/actionGraphExecution.ts 242:3 #binding",
+                "self": 55638272,
+                "inclusive": 61349000,
+                "selfWeight": 0,
+                "selfPercent": 1.7904849536615826,
+                "inclusivePercent": 1.9742608365368435
+              },
+              {
+                "location": "src/core/combat/skills/skillRuntime.ts 896:21 tickTimeline",
+                "self": 55593672,
+                "inclusive": 1022115760,
+                "selfWeight": 0,
+                "selfPercent": 1.7890496893001497,
+                "inclusivePercent": 32.89251846607266
+              },
+              {
+                "location": "src/core/combat/timeline/timelineActionProcessor.ts 111:13 tick",
+                "self": 50518392,
+                "inclusive": 292314760,
+                "selfWeight": 0,
+                "selfPercent": 1.6257230411321484,
+                "inclusivePercent": 9.406927294815997
+              },
+              {
+                "location": "values :0",
+                "self": 50038896,
+                "inclusive": 50038896,
+                "selfWeight": 0,
+                "selfPercent": 1.6102924689292426,
+                "inclusivePercent": 1.6102924689292426
+              },
+              {
+                "location": "src/core/combat/buffs/combatBuffs.ts 300:14 trigger",
+                "self": 46425064,
+                "inclusive": 89280824,
+                "selfWeight": 0,
+                "selfPercent": 1.4939964088887592,
+                "inclusivePercent": 2.873129705079768
+              },
+              {
+                "location": "src/core/combat/skills/skillRuntime.ts 828:3 advance",
+                "self": 42652208,
+                "inclusive": 986190208,
+                "selfWeight": 0,
+                "selfPercent": 1.3725828268793858,
+                "inclusivePercent": 31.736404913373054
+              },
+              {
+                "location": "src/core/combat/actions/actionGraphExecution.ts 699:3 executeInstant",
+                "self": 35765448,
+                "inclusive": 568456200,
+                "selfWeight": 0,
+                "selfPercent": 1.1509612754502105,
+                "inclusivePercent": 18.29338396626767
+              },
+              {
+                "location": "Set :0",
+                "self": 34344200,
+                "inclusive": 37728480,
+                "selfWeight": 0,
+                "selfPercent": 1.105224356096899,
+                "inclusivePercent": 1.2141332456285117
+              },
+              {
+                "location": "src/core/combat/time/timeDilationRuntime.ts 343:3 getAbilityTickDeltas",
+                "self": 34112712,
+                "inclusive": 44198160,
+                "selfWeight": 0,
+                "selfPercent": 1.0977748835296486,
+                "inclusivePercent": 1.4223328226212204
+              },
+              {
+                "location": "src/core/combat/damage/staticPlayerDamageSnapshots.ts 141:17 resolveStaticPlayerDamageSnapshots",
+                "self": 33458712,
+                "inclusive": 107984344,
+                "selfWeight": 0,
+                "selfPercent": 1.0767286303373376,
+                "inclusivePercent": 3.4750242272624208
+              },
+              {
+                "location": "src/core/combat/actions/actionGraphExecution.ts 708:3 reset",
+                "self": 31849416,
+                "inclusive": 204844600,
+                "selfWeight": 0,
+                "selfPercent": 1.024940173032485,
+                "inclusivePercent": 6.592066233452136
+              },
+              {
+                "location": "sort :0",
+                "self": 31395888,
+                "inclusive": 31658160,
+                "selfWeight": 0,
+                "selfPercent": 1.0103452722407382,
+                "inclusivePercent": 1.01878539902553
+              },
+              {
+                "location": "src/core/combat/buffs/buffLifecycleExecution.ts 105:17 tickBuffLifecycle",
+                "self": 31279152,
+                "inclusive": 146334488,
+                "selfWeight": 0,
+                "selfPercent": 1.0065886125883565,
+                "inclusivePercent": 4.70916312724039
+              },
+              {
+                "location": "src/core/combat/events/abilityEventExecution.ts 56:25 dispatchPhase",
+                "self": 29962000,
+                "inclusive": 187343176,
+                "selfWeight": 0,
+                "selfPercent": 0.9642015873823029,
+                "inclusivePercent": 6.028856140592823
+              },
+              {
+                "location": "src/core/combat/actions/actionSequenceExecution.ts 49:17 resetActionSequence",
+                "self": 29676672,
+                "inclusive": 194482008,
+                "selfWeight": 0,
+                "selfPercent": 0.955019499720444,
+                "inclusivePercent": 6.258589574490946
+              },
+              {
+                "location": "src/core/combat/abilities/projectileLifecycleRuntime.ts 272:3 advanceFrame",
+                "self": 26704688,
+                "inclusive": 417240736,
+                "selfWeight": 0,
+                "selfPercent": 0.8593786316050042,
+                "inclusivePercent": 13.427147051991202
+              },
+              {
+                "location": "src/core/combat/actions/combatActionSequenceRuntime.ts 188:12 tryExecute",
+                "self": 24957120,
+                "inclusive": 765061376,
+                "selfWeight": 0,
+                "selfPercent": 0.8031404686099266,
+                "inclusivePercent": 24.620298817972394
+              },
+              {
+                "location": "src/core/combat/actions/actionSequenceExecution.ts 22:17 executeActionSequence",
+                "self": 24737568,
+                "inclusive": 867042000,
+                "selfWeight": 0,
+                "selfPercent": 0.7960751062538436,
+                "inclusivePercent": 27.9021184409294
+              },
+              {
+                "location": "src/core/combat/actions/actionSequenceExecution.ts 78:17 endActionSequence",
+                "self": 24698032,
+                "inclusive": 123043008,
+                "selfWeight": 0,
+                "selfPercent": 0.7948028055409824,
+                "inclusivePercent": 3.9596243117913823
+              },
+              {
+                "location": "src/core/combat/abilities/logicalAbilityEntityRuntime.ts 534:3 advanceFrame",
+                "self": 24442208,
+                "inclusive": 316695328,
+                "selfWeight": 0,
+                "selfPercent": 0.786570180653108,
+                "inclusivePercent": 10.191513850015323
+              },
+              {
+                "location": "src/core/combat/damage/playerDamageOperationExecutor.ts 223:3 execute",
+                "self": 23769808,
+                "inclusive": 330693608,
+                "selfWeight": 0,
+                "selfPercent": 0.7649318004596677,
+                "inclusivePercent": 10.641989912915728
+              },
+              {
+                "location": "src/core/combat/actions/actionGraphExecution.ts 691:3 tryExecute",
+                "self": 23581664,
+                "inclusive": 761426496,
+                "selfWeight": 0,
+                "selfPercent": 0.75887717314986,
+                "inclusivePercent": 24.503325416131926
+              },
+              {
+                "location": "src/core/combat/skills/skillRuntime.ts 822:11 tick",
+                "self": 22626792,
+                "inclusive": 775930440,
+                "selfWeight": 0,
+                "selfPercent": 0.7281486137029969,
+                "inclusivePercent": 24.97007415880945
+              },
+              {
+                "location": "entries :0",
+                "self": 20897512,
+                "inclusive": 20897512,
+                "selfWeight": 0,
+                "selfPercent": 0.6724989734577372,
+                "inclusivePercent": 0.6724989734577372
+              },
+              {
+                "location": "src/core/combat/actions/actionGraphExecution.ts 723:3 end",
+                "self": 20727672,
+                "inclusive": 125755520,
+                "selfWeight": 0,
+                "selfPercent": 0.6670333837907921,
+                "inclusivePercent": 4.0469151594048105
+              },
+              {
+                "location": "src/core/combat/actions/actionGraphExecution.ts 716:3 tick",
+                "self": 19973096,
+                "inclusive": 90515344,
+                "selfWeight": 0,
+                "selfPercent": 0.642750512921004,
+                "inclusivePercent": 2.9128575651577067
+              },
+              {
+                "location": "src/core/combat/actions/combatActionSequenceRuntime.ts 197:12 reset",
+                "self": 19137312,
+                "inclusive": 40954608,
+                "selfWeight": 0,
+                "selfPercent": 0.6158543024040583,
+                "inclusivePercent": 1.3179526748621575
+              },
+              {
+                "location": "src/core/combat/actions/actionGraphExecution.ts 355:26 branchHost",
+                "self": 18608248,
+                "inclusive": 18608248,
+                "selfWeight": 0,
+                "selfPercent": 0.5988285915494147,
+                "inclusivePercent": 0.5988285915494147
+              },
+              {
+                "location": "src/core/combat/abilities/callbackSkillHost.ts 59:28 resolveTickDeltas",
+                "self": 18160080,
+                "inclusive": 18356912,
+                "selfWeight": 0,
+                "selfPercent": 0.5844061799275619,
+                "inclusivePercent": 0.5907403941605115
+              },
+              {
+                "location": "src/core/combat/skills/skillRuntime.ts 870:3 record",
+                "self": 17820128,
+                "inclusive": 46335880,
+                "selfWeight": 0,
+                "selfPercent": 0.5734662474119159,
+                "inclusivePercent": 1.491126395058938
+              }
+            ]
+          }
+        },
+        {
+          "mode": "cpu",
+          "repeat": 2,
+          "repetitions": 12,
+          "startedWithWarmups": 5,
+          "sourceSha256": "4bdf9ec72f6e598c0fd123ad75e9bb3ca301a7978a69bab5d27e3c94debf40ea",
+          "resultSha256": "3a26f0e72a7953fe936b9171b89459a39b3b53cb4122c27ac7eaeff526443593",
+          "receiptSha256": "0c67a060af109091425ad9825eba471c4885277cad70f9171eb6956f42797413",
+          "scenario": {
+            "id": "sc_q8zl8ry",
+            "castCount": 39,
+            "endFrame": 3600
+          },
+          "gameDataRevision": "1.5.3@10506507-7",
+          "environment": {
+            "node": "v24.19.0",
+            "v8": "13.6.233.17-node.51",
+            "cpu": "AMD EPYC 9V74 80-Core Processor"
+          },
+          "summary": {
+            "total": {
+              "count": 12,
+              "medianMs": 234.1045789999996,
+              "p95Ms": 264.177005,
+              "minMs": 213.5237930000003,
+              "maxMs": 264.177005
+            },
+            "cpu": {
+              "count": 12,
+              "medianMs": 307.78049999999996,
+              "p95Ms": 394.726,
+              "minMs": 279.775,
+              "maxMs": 394.726
+            }
+          },
+          "deterministic": true,
+          "sampleColumnsMs": ["totalMs", "simulationMs", "projectionMs", "cpuMs"],
+          "samples": [
+            [264.177005, 262.018354, 2.158651, 394.726],
+            [234.936738, 231.673359, 3.263379, 327.011],
+            [246.417394, 243.528267, 2.889127, 333.676],
+            [229.238484, 227.167144, 2.07134, 299.251],
+            [233.27242, 230.952968, 2.319452, 299.316],
+            [237.848014, 235.784656, 2.063358, 316.245],
+            [224.312479, 221.421489, 2.89099, 286.607],
+            [219.596038, 217.043797, 2.552241, 279.775],
+            [247.506264, 245.647854, 1.85841, 324.939],
+            [243.545722, 240.629144, 2.916578, 356.07],
+            [213.523793, 211.426674, 2.097119, 282.926],
+            [228.834693, 226.051565, 2.783128, 283.237]
+          ],
+          "profile": {
+            "units": "CPU sample counts, not time. selfWeight/totalWeight are raw microseconds and include inspector boundary stalls; never interpret them as simulation time",
+            "total": 2498,
+            "self": [
+              {
+                "location": "src/core/combat/buffs/combatBuffs.ts 1944:3 tick",
+                "self": 148,
+                "inclusive": 503,
+                "selfWeight": 165663,
+                "selfPercent": 5.924739791833467,
+                "inclusivePercent": 20.13610888710969
+              },
+              {
+                "location": "(garbage collector) :0",
+                "self": 143,
+                "inclusive": 143,
+                "selfWeight": 183546,
+                "selfPercent": 5.724579663730985,
+                "inclusivePercent": 5.724579663730985
+              },
+              {
+                "location": "src/core/combat/actions/actionGraphExecution.ts 659:4 #entries",
+                "self": 100,
+                "inclusive": 155,
+                "selfWeight": 112705,
+                "selfPercent": 4.00320256204964,
+                "inclusivePercent": 6.204963971176942
+              },
+              {
+                "location": "src/core/combat/receipt/combatReceiptHistory.ts 128:3 append",
+                "self": 85,
+                "inclusive": 88,
+                "selfWeight": 95380,
+                "selfPercent": 3.4027221777421937,
+                "inclusivePercent": 3.522818254603683
+              },
+              {
+                "location": "src/core/combat/abilities/abilitySystemRuntime.ts 1181:3 advanceFrame",
+                "self": 69,
+                "inclusive": 1355,
+                "selfWeight": 74966,
+                "selfPercent": 2.762209767814251,
+                "inclusivePercent": 54.24339471577262
+              },
+              {
+                "location": "src/application/simulation/runStandardPlayerDamageScenarioSimulation.ts 118:17 runStandardPlayerDamageScenarioSimulation",
+                "self": 63,
+                "inclusive": 2303,
+                "selfWeight": 71256,
+                "selfPercent": 2.522017614091273,
+                "inclusivePercent": 92.19375500400321
+              },
+              {
+                "location": "src/core/combat/damage/staticPlayerDamageSnapshots.ts 141:17 resolveStaticPlayerDamageSnapshots",
+                "self": 57,
+                "inclusive": 121,
+                "selfWeight": 62823,
+                "selfPercent": 2.2818254603682946,
+                "inclusivePercent": 4.843875100080064
+              },
+              {
+                "location": "src/core/combat/damage/playerDamageOperationExecutor.ts 223:3 execute",
+                "self": 57,
+                "inclusive": 354,
+                "selfWeight": 62731,
+                "selfPercent": 2.2818254603682946,
+                "inclusivePercent": 14.171337069655724
+              },
+              {
+                "location": "src/core/combat/attributes/combatAttributeExecution.ts 49:17 readCombatAttribute",
+                "self": 49,
+                "inclusive": 49,
+                "selfWeight": 54657,
+                "selfPercent": 1.9615692554043234,
+                "inclusivePercent": 1.9615692554043234
+              },
+              {
+                "location": "src/core/combat/actions/actionGraphExecution.ts 242:3 #binding",
+                "self": 43,
+                "inclusive": 45,
+                "selfWeight": 47624,
+                "selfPercent": 1.721377101681345,
+                "inclusivePercent": 1.801441152922338
+              },
+              {
+                "location": "src/core/combat/actions/actionSequenceExecution.ts 61:17 tickActionSequence",
+                "self": 32,
+                "inclusive": 255,
+                "selfWeight": 35746,
+                "selfPercent": 1.2810248198558847,
+                "inclusivePercent": 10.208166533226581
+              },
+              {
+                "location": "src/core/combat/actions/actionGraphExecution.ts 218:3 #child",
+                "self": 28,
+                "inclusive": 32,
+                "selfWeight": 30297,
+                "selfPercent": 1.120896717373899,
+                "inclusivePercent": 1.2810248198558847
+              },
+              {
+                "location": "src/core/combat/abilities/abilitySystemRuntime.ts 1219:3 #advanceActiveSkills",
+                "self": 27,
+                "inclusive": 703,
+                "selfWeight": 32337,
+                "selfPercent": 1.0808646917534028,
+                "inclusivePercent": 28.142514011208966
+              },
+              {
+                "location": "src/core/combat/buffs/buffOperationExecutor.ts 277:3 execute",
+                "self": 25,
+                "inclusive": 768,
+                "selfWeight": 28543,
+                "selfPercent": 1.00080064051241,
+                "inclusivePercent": 30.744595676541234
+              },
+              {
+                "location": "src/core/combat/timeline/timelineActionExecution.ts 62:17 tickTimelineActions",
+                "self": 25,
+                "inclusive": 997,
+                "selfWeight": 28209,
+                "selfPercent": 1.00080064051241,
+                "inclusivePercent": 39.911929543634905
+              },
+              {
+                "location": "src/core/combat/actions/actionBlackboardOperationExecutor.ts 79:3 execute",
+                "self": 21,
+                "inclusive": 827,
+                "selfWeight": 25161,
+                "selfPercent": 0.8406725380304243,
+                "inclusivePercent": 33.10648518815052
+              },
+              {
+                "location": "src/core/combat/actions/actionSequenceExecution.ts 78:17 endActionSequence",
+                "self": 20,
+                "inclusive": 95,
+                "selfWeight": 21856,
+                "selfPercent": 0.800640512409928,
+                "inclusivePercent": 3.803042433947158
+              },
+              {
+                "location": "src/core/combat/skills/skillRuntime.ts 828:3 advance",
+                "self": 18,
+                "inclusive": 655,
+                "selfWeight": 19808,
+                "selfPercent": 0.7205764611689351,
+                "inclusivePercent": 26.22097678142514
+              },
+              {
+                "location": "src/core/combat/abilities/abilitySystemRuntime.ts 994:3 prepareBeforeSkillCastStart",
+                "self": 18,
+                "inclusive": 24,
+                "selfWeight": 20683,
+                "selfPercent": 0.7205764611689351,
+                "inclusivePercent": 0.9607686148919136
+              },
+              {
+                "location": "src/core/compiler/compileScenarioTimeline.ts 64:10 graphSpawnsEntity",
+                "self": 17,
+                "inclusive": 17,
+                "selfWeight": 19910,
+                "selfPercent": 0.6805444355484388,
+                "inclusivePercent": 0.6805444355484388
+              },
+              {
+                "location": "src/core/combat/actions/actionBlackboardExecution.ts 79:17 createLocalBlackboardState",
+                "self": 17,
+                "inclusive": 17,
+                "selfWeight": 20039,
+                "selfPercent": 0.6805444355484388,
+                "inclusivePercent": 0.6805444355484388
+              },
+              {
+                "location": "src/core/combat/buffs/combatBuffs.ts 1953:3 recycleFinishedBuffs",
+                "self": 17,
+                "inclusive": 19,
+                "selfWeight": 19274,
+                "selfPercent": 0.6805444355484388,
+                "inclusivePercent": 0.7606084867894315
+              },
+              {
+                "location": "src/core/combat/actions/actionSequenceExecution.ts 49:17 resetActionSequence",
+                "self": 16,
+                "inclusive": 134,
+                "selfWeight": 19512,
+                "selfPercent": 0.6405124099279423,
+                "inclusivePercent": 5.3642914331465175
+              },
+              {
+                "location": "src/core/combat/abilities/abilityEntityOperationExecutor.ts 474:3 end",
+                "self": 16,
+                "inclusive": 16,
+                "selfWeight": 17231,
+                "selfPercent": 0.6405124099279423,
+                "inclusivePercent": 0.6405124099279423
+              },
+              {
+                "location": "src/core/combat/buffs/buffProgressRecorder.ts 110:3 sample",
+                "self": 16,
+                "inclusive": 16,
+                "selfWeight": 17307,
+                "selfPercent": 0.6405124099279423,
+                "inclusivePercent": 0.6405124099279423
+              },
+              {
+                "location": "src/core/combat/time/timeDilationRuntime.ts 473:17 advanceTimeDilation",
+                "self": 16,
+                "inclusive": 20,
+                "selfWeight": 17549,
+                "selfPercent": 0.6405124099279423,
+                "inclusivePercent": 0.800640512409928
+              },
+              {
+                "location": "src/core/combat/resources/skillResourceOperationExecutor.ts 52:3 execute",
+                "self": 15,
+                "inclusive": 856,
+                "selfWeight": 17331,
+                "selfPercent": 0.600480384307446,
+                "inclusivePercent": 34.267413931144915
+              },
+              {
+                "location": "src/core/combat/abilities/abilityEntityOperationExecutor.ts 122:3 execute",
+                "self": 15,
+                "inclusive": 582,
+                "selfWeight": 16544,
+                "selfPercent": 0.600480384307446,
+                "inclusivePercent": 23.298638911128904
+              },
+              {
+                "location": "src/core/combat/abilities/logicalAbilityEntityRuntime.ts 534:3 advanceFrame",
+                "self": 15,
+                "inclusive": 201,
+                "selfWeight": 17323,
+                "selfPercent": 0.600480384307446,
+                "inclusivePercent": 8.046437149719775
+              },
+              {
+                "location": "src/core/combat/events/eventContextConditionExecutor.ts 61:3 evaluate",
+                "self": 15,
+                "inclusive": 47,
+                "selfWeight": 16195,
+                "selfPercent": 0.600480384307446,
+                "inclusivePercent": 1.8815052041633307
+              },
+              {
+                "location": "src/core/combat/actions/actionSequenceExecution.ts 22:17 executeActionSequence",
+                "self": 14,
+                "inclusive": 1044,
+                "selfWeight": 15861,
+                "selfPercent": 0.5604483586869495,
+                "inclusivePercent": 41.79343474779824
+              },
+              {
+                "location": "src/core/combat/damage/healthDamage.ts 169:17 executeHealthDamage",
+                "self": 14,
+                "inclusive": 72,
+                "selfWeight": 18404,
+                "selfPercent": 0.5604483586869495,
+                "inclusivePercent": 2.8823058446757406
+              },
+              {
+                "location": "src/core/combat/skills/skillRuntime.ts 870:3 record",
+                "self": 14,
+                "inclusive": 43,
+                "selfWeight": 15385,
+                "selfPercent": 0.5604483586869495,
+                "inclusivePercent": 1.721377101681345
+              },
+              {
+                "location": "src/core/combat/buffs/combatBuffs.ts 1881:3 captureAttributeModifierDetails",
+                "self": 14,
+                "inclusive": 14,
+                "selfWeight": 18438,
+                "selfPercent": 0.5604483586869495,
+                "inclusivePercent": 0.5604483586869495
+              },
+              {
+                "location": "src/core/combat/skills/skillRuntime.ts 284:3 SkillRuntime",
+                "self": 14,
+                "inclusive": 19,
+                "selfWeight": 15149,
+                "selfPercent": 0.5604483586869495,
+                "inclusivePercent": 0.7606084867894315
+              },
+              {
+                "location": "src/core/combat/damage/attackReceiptDetail.ts 69:17 freezeAttackReceiptDetail",
+                "self": 13,
+                "inclusive": 13,
+                "selfWeight": 13809,
+                "selfPercent": 0.5204163330664532,
+                "inclusivePercent": 0.5204163330664532
+              },
+              {
+                "location": "post node:inspector:115",
+                "self": 12,
+                "inclusive": 13,
+                "selfWeight": 2049707,
+                "selfPercent": 0.4803843074459568,
+                "inclusivePercent": 0.5204163330664532
+              },
+              {
+                "location": "src/core/combat/buffs/combatBuffs.ts 407:3 CombatBuff",
+                "self": 12,
+                "inclusive": 20,
+                "selfWeight": 14245,
+                "selfPercent": 0.4803843074459568,
+                "inclusivePercent": 0.800640512409928
+              },
+              {
+                "location": "src/core/combat/damage/attackReceiptDetail.ts 29:17 captureAttackReceiptSnapshot",
+                "self": 12,
+                "inclusive": 15,
+                "selfWeight": 13132,
+                "selfPercent": 0.4803843074459568,
+                "inclusivePercent": 0.600480384307446
+              },
+              {
+                "location": "src/core/combat/runtime/standardPlayerDamageEnvironment.ts 772:3 #createOperationExecutor",
+                "self": 12,
+                "inclusive": 25,
+                "selfWeight": 12758,
+                "selfPercent": 0.4803843074459568,
+                "inclusivePercent": 1.00080064051241
+              }
+            ]
+          }
+        },
+        {
+          "mode": "control",
+          "repeat": 2,
+          "repetitions": 12,
+          "startedWithWarmups": 5,
+          "sourceSha256": "4bdf9ec72f6e598c0fd123ad75e9bb3ca301a7978a69bab5d27e3c94debf40ea",
+          "resultSha256": "3a26f0e72a7953fe936b9171b89459a39b3b53cb4122c27ac7eaeff526443593",
+          "receiptSha256": "0c67a060af109091425ad9825eba471c4885277cad70f9171eb6956f42797413",
+          "scenario": {
+            "id": "sc_q8zl8ry",
+            "castCount": 39,
+            "endFrame": 3600
+          },
+          "gameDataRevision": "1.5.3@10506507-7",
+          "environment": {
+            "node": "v24.19.0",
+            "v8": "13.6.233.17-node.51",
+            "cpu": "AMD EPYC 9V74 80-Core Processor"
+          },
+          "summary": {
+            "total": {
+              "count": 12,
+              "medianMs": 215.25609449999956,
+              "p95Ms": 236.20415900000035,
+              "minMs": 202.65376399999968,
+              "maxMs": 236.20415900000035
+            },
+            "cpu": {
+              "count": 12,
+              "medianMs": 279.6435,
+              "p95Ms": 337.604,
+              "minMs": 245.801,
+              "maxMs": 337.604
+            }
+          },
+          "deterministic": true,
+          "sampleColumnsMs": ["totalMs", "simulationMs", "projectionMs", "cpuMs"],
+          "samples": [
+            [223.638569, 221.173601, 2.464968, 337.604],
+            [234.627976, 230.88396, 3.744016, 288.308],
+            [231.68274, 229.299124, 2.383616, 301.009],
+            [209.034505, 206.723237, 2.311268, 265.973],
+            [236.204159, 233.673523, 2.530636, 293.299],
+            [214.404419, 211.254099, 3.15032, 278.465],
+            [213.673399, 211.710461, 1.962938, 261.033],
+            [213.506447, 210.790981, 2.715466, 259.036],
+            [215.076896, 213.571405, 1.505491, 280.822],
+            [236.184691, 233.182694, 3.001997, 332.308],
+            [215.435293, 213.627088, 1.808205, 269.027],
+            [202.653764, 200.115063, 2.538701, 245.801]
+          ]
+        }
+      ]
+    }
+  ]
+}

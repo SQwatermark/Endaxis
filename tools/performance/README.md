@@ -22,6 +22,8 @@ node --experimental-strip-types tools/performance/benchmark-baseline.ts tools/pe
 
 原始输出包含每轮计时、诊断、命中与伤害统计、事件计数、输入摘要、引擎/游戏数据版本、Node/V8/操作系统/CPU、可读的容器资源限制和测量时刻。报告可能含输入名称和本机路径，默认保存在忽略目录。可复现的公开结论见[公开时间轴性能基线](../../docs/research/public-timeline-performance.md)。
 
+首次同规则生产优化、逐项对照及未保留的实验见[模拟热路径第一轮优化](../../docs/research/simulation-optimization-campaign.md)。
+
 ## 编辑落点与缓存对照
 
 下面保留已有开发态对照工具。它会改变首个技能位置并复用编辑器服务缓存；不能用其结果代替上述无缓存基线。
