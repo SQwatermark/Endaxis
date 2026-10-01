@@ -127,3 +127,15 @@ node tools/performance/profile-simulation.mjs \
 每轮禁用切面并清空结果缓存，验证完整结果/有序回执/输入不变，模式和进程间结果也必须相同。保留定义级正常缓存寿命。原始 `.cpuprofile`、`.heapprofile`、SSR bundle 和 source map 保存在本机输出目录，可载入 DevTools；不要把其中可能含源码、路径或输入资料的文件自动提交或上传。`report.json` 是按 source map 归并的摘要；源位置是函数入口，不是精确语句位置，JIT 内联可能改变归属。
 
 self 是当前叶帧采样数或采样估算分配字节；inclusive 是包含后代且同一调用链去重后的值，各行互相重叠，严禁求和。分配不是对象精确计数、峰值或存活内存，不能证明泄漏。完整结果见 [两条真实轴的热点报告](../../docs/research/simulation-profile-hotspots.md)。
+
+## 图节点规模与执行次数
+
+[节点数量研究](../../docs/research/graph-node-count-impact.md)将静态编译节点、实例内binding、Execute/Reset/Tick/End访问、条件装饰器转发和时间轴扫描分开；计数不能相加当作机器指令数。
+
+```sh
+node tools/performance/graph-node-diagnostics.mjs tmp/graph-node-diagnostics both
+node --experimental-strip-types --test tools/performance/graph-node-probe.test.ts
+node tools/performance/benchmark-graph-node-scaling.mjs tmp/graph-node-scaling
+```
+
+输出目录必须尚不存在，父目录须存在。首条固定读取六份已提交公开夹具，诊断通过构建期源码转换，仅聚合计数；无插桩对照分别构建、分进程运行，全部保持普通回执。诊断对象保留会改变内存及耗时，不能以诊断进程做性能或分配结论。第三条使用真实图执行器与空操作host做合成缩放，不能将结果称作完整服务提速。重型测量应串行，详情及全部口径见研究报告。
