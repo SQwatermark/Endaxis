@@ -1,0 +1,2487 @@
+{
+  "kind": "endaxis-public-timeline-baseline",
+  "version": 1,
+  "environment": {
+    "node": "v24.19.0",
+    "v8": "13.6.233.17-node.51",
+    "os": "linux",
+    "osRelease": "6.18.44",
+    "architecture": "x64",
+    "cpuModel": "AMD EPYC 9V74 80-Core Processor",
+    "logicalCpuCount": 9,
+    "availableParallelism": 9,
+    "totalMemoryBytes": 10451464192,
+    "nodeEnv": "production",
+    "nodeOptions": "--max-old-space-size=6144",
+    "cgroupV2": {
+      "cpuMax": null,
+      "memoryMax": null
+    }
+  },
+  "methodology": {
+    "execution": "Production Vite SSR bundle; fresh Node process per scenario; no dev server, test runner, Worker transport or UI",
+    "coldDefinition": "First simulation after modules, repository and service are loaded; includes first-use compilation/JIT, excludes module loading/build",
+    "cachePolicy": "reuseCheckpoint=false; clearCache before each run; inherited scenarios rejected; immutable definition compilation caches retain production lifetime",
+    "simulationMs": "Official service stage: compilation, runtime setup, combat advance, core result/resource collection",
+    "projectionMs": "Official service stage: enemy health, poise and diagnostics projection/publication",
+    "cloneMs": "Separate structuredClone of official Worker-transferable result, excluding process-local receiptHistory view; not Worker transfer or round-trip time",
+    "cpuMs": "process.cpuUsage user+system around simulate only, including process background-thread CPU; may exceed wall time. Hashing and cloning are excluded.",
+    "hashing": "SHA-256 of JSON; non-finite numbers use {$number:String(value)}. Result hash covers Worker-transferable data; receipts separately hashed in order. Input checked unchanged after every run.",
+    "p95Method": "nearest-rank ceil(0.95*n), 1-based",
+    "warmups": 3,
+    "repetitions": 20,
+    "forcedGc": false
+  },
+  "provenance": {
+    "gitHead": "62a48ec156225d9a334b7121e5acf002a1ebdb42",
+    "engineGitRevision": "62a48ec156225d9a334b7121e5acf002a1ebdb42",
+    "dataGitRevision": "f1bc5af07a49046a3a1c6132094e27aa763d7539",
+    "engineWorkingTreeDirty": false,
+    "engineDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "gameDataRevision": "1.5.3@10506507-7"
+  },
+  "samples": [
+    {
+      "id": "6aba2a13c9fb961339acd766",
+      "title": "提决佩洁01循环轴无失衡6w4dps",
+      "sourceUrl": "https://www.end-axis.com/shares/6aba2a13c9fb961339acd766",
+      "sourceSha256": "ba60b9bb6878d6b28dce7881d8ee7e09a3216c11ffb967c8de9ad45b1971ecd9",
+      "convertedProjectSha256": "45f2bb0668618b73749c88ca588dce3ae1ce6349ba669c0c74da78ac6011e1b3",
+      "startedAt": "2026-10-01T00:28:37.123Z",
+      "completedAt": "2026-10-01T00:28:56.583Z",
+      "scenario": {
+        "index": 0,
+        "id": "sc_lps0edv",
+        "name": "  不改了就这个了",
+        "castCount": 104,
+        "disabledCastCount": 0,
+        "operators": [
+          {
+            "trackId": "legacy:sc_lps0edv:track:0:typhoeus",
+            "slug": "typhoeus"
+          },
+          {
+            "trackId": "legacy:sc_lps0edv:track:1:arcane",
+            "slug": "arcane"
+          },
+          {
+            "trackId": "legacy:sc_lps0edv:track:2:perlica",
+            "slug": "perlica"
+          },
+          {
+            "trackId": "legacy:sc_lps0edv:track:3:gilberta",
+            "slug": "gilberta"
+          }
+        ],
+        "prepFrames": 150,
+        "durationFrames": 3600,
+        "endFrame": 2481,
+        "fps": 30,
+        "random": {
+          "mode": "expected",
+          "globalSeed": 0,
+          "inputWasModified": false
+        }
+      },
+      "summary": {
+        "total": {
+          "count": 20,
+          "medianMs": 356.39676899999904,
+          "p95Ms": 383.0746079999999,
+          "minMs": 331.50609799999984,
+          "maxMs": 393.25104400000055
+        },
+        "simulation": {
+          "count": 20,
+          "medianMs": 340.79298799999924,
+          "p95Ms": 366.4204659999996,
+          "minMs": 315.4090419999993,
+          "maxMs": 370.78812300000027
+        },
+        "projection": {
+          "count": 20,
+          "medianMs": 14.97383499999978,
+          "p95Ms": 22.46292100000028,
+          "minMs": 13.57386900000165,
+          "maxMs": 22.533034999999472
+        },
+        "clone": {
+          "count": 20,
+          "medianMs": 30.441765000000032,
+          "p95Ms": 34.79898100000037,
+          "minMs": 28.881996000000072,
+          "maxMs": 39.27459700000145
+        },
+        "cpu": {
+          "count": 20,
+          "medianMs": 465.45450000000005,
+          "p95Ms": 620.735,
+          "minMs": 417.535,
+          "maxMs": 628.573
+        }
+      },
+      "coldFirst": {
+        "iteration": 0,
+        "totalMs": 754.072384,
+        "simulationMs": 736.676942,
+        "projectionMs": 17.395442000000003,
+        "outcome": "completed",
+        "resumedFromFrame": null,
+        "endFrame": 2481,
+        "receiptCount": 10992,
+        "cpuMs": 1346.107,
+        "cpuUserMs": 1267.859,
+        "cpuSystemMs": 78.248,
+        "cloneMs": 33.43334600000003,
+        "resultSha256": "90076bbe22daf695b7f1f2b6c26cf92b3b5a13d545244a3dc18e53543341c6e8",
+        "receiptSha256": "0bae9db0099c9076e95bbbbfc2c6444043e8654c73af37e261192ed97d16f323",
+        "diagnostics": {
+          "availability": {
+            "count": 28,
+            "reasons": {
+              "skillInterruptUnavailable": 19,
+              "skillInterruptUnknown": 7,
+              "resourceUnavailable": 2,
+              "skillInputUnknown": 2
+            }
+          },
+          "execution": {
+            "count": 0,
+            "reasons": {}
+          },
+          "comboWindow": {
+            "count": 6,
+            "reasons": {
+              "windowMissing": 4,
+              "releaseOrderMismatch": 2
+            }
+          }
+        },
+        "damageHitCount": 329,
+        "expectedDamage": 3649916.7061251327
+      },
+      "receiptEventCounts": {
+        "BuffCreated": 559,
+        "BuffEnhanceAttempted": 81,
+        "BuffApplied": 601,
+        "BuffStackChanged": 61,
+        "OperatorUpgradeInitialized": 8,
+        "PassiveSkillEnabled": 5,
+        "SkillStarted": 469,
+        "TimelineActionStarted": 1077,
+        "CombatStepReached": 1510,
+        "SkillInputProcessed": 104,
+        "SpChanged": 1831,
+        "TimelineActionEnded": 1067,
+        "ProjectileLaunched": 193,
+        "SkillCostApplied": 457,
+        "DamageApplied": 329,
+        "AbilityEntitySpawned": 178,
+        "AbilityEntityChildSkillRequested": 172,
+        "SkillEnded": 281,
+        "SkillInterrupted": 176,
+        "AbilityEntityFinished": 157,
+        "SkillOperableBoundaryReached": 63,
+        "BuffFinished": 475,
+        "CombatConditionEvaluated": 631,
+        "SkillInputCannotInterruptCurrentSkill": 19,
+        "ComboWindowOpened": 11,
+        "PoiseApplied": 47,
+        "ComboWindowConsumed": 10,
+        "SkillCooldownReserved": 24,
+        "TimeDilationStarted": 88,
+        "SkillSlotChanged": 14,
+        "ElementalReactionApplied": 4,
+        "UltimateEnergyChanged": 69,
+        "TimeDilationEnded": 88,
+        "SkillCooldownAdjusted": 4,
+        "ComboWindowUnavailableAtStart": 6,
+        "ElementalInflictionApplied": 11,
+        "BuffConsumed": 2,
+        "BuffDamageApplied": 22,
+        "ElementalAttachmentConverted": 2,
+        "SkillInputInterruptionUnknown": 7,
+        "TimedMarkerCreated": 16,
+        "TimedMarkerFinished": 12,
+        "SkillCooldownReady": 20,
+        "SkillCostUnavailableAtStart": 2,
+        "UltimatePresentationChanged": 16,
+        "CharacterPassiveUiValueChanged": 7,
+        "SkillInputResolutionUnknown": 2,
+        "BuffReleased": 4
+      },
+      "measuredTimings": [
+        {
+          "iteration": 0,
+          "totalMs": 364.8183790000003,
+          "simulationMs": 350.6560720000002,
+          "projectionMs": 14.162307000000055,
+          "cpuMs": 505.611,
+          "cpuUserMs": 477.384,
+          "cpuSystemMs": 28.227,
+          "cloneMs": 30.641214000000218
+        },
+        {
+          "iteration": 1,
+          "totalMs": 374.75538700000016,
+          "simulationMs": 359.1128700000004,
+          "projectionMs": 15.64251699999977,
+          "cpuMs": 557.071,
+          "cpuUserMs": 535.456,
+          "cpuSystemMs": 21.615,
+          "cloneMs": 34.79898100000037
+        },
+        {
+          "iteration": 2,
+          "totalMs": 377.0025420000002,
+          "simulationMs": 360.8890120000001,
+          "projectionMs": 16.113530000000083,
+          "cpuMs": 620.735,
+          "cpuUserMs": 617.308,
+          "cpuSystemMs": 3.427,
+          "cloneMs": 30.196840000000066
+        },
+        {
+          "iteration": 3,
+          "totalMs": 339.4045719999999,
+          "simulationMs": 324.8572600000002,
+          "projectionMs": 14.547311999999692,
+          "cpuMs": 447.271,
+          "cpuUserMs": 447.271,
+          "cpuSystemMs": 0,
+          "cloneMs": 28.88949700000012
+        },
+        {
+          "iteration": 4,
+          "totalMs": 331.64750899999945,
+          "simulationMs": 315.4090419999993,
+          "projectionMs": 16.238467000000128,
+          "cpuMs": 432.722,
+          "cpuUserMs": 428.472,
+          "cpuSystemMs": 4.25,
+          "cloneMs": 33.81730500000049
+        },
+        {
+          "iteration": 5,
+          "totalMs": 331.5895730000002,
+          "simulationMs": 317.60341900000003,
+          "projectionMs": 13.98615400000017,
+          "cpuMs": 443.647,
+          "cpuUserMs": 443.492,
+          "cpuSystemMs": 0.155,
+          "cloneMs": 28.881996000000072
+        },
+        {
+          "iteration": 6,
+          "totalMs": 331.50609799999984,
+          "simulationMs": 316.54683099999966,
+          "projectionMs": 14.959267000000182,
+          "cpuMs": 417.535,
+          "cpuUserMs": 413.846,
+          "cpuSystemMs": 3.689,
+          "cloneMs": 29.164597999999387
+        },
+        {
+          "iteration": 7,
+          "totalMs": 393.25104400000055,
+          "simulationMs": 370.78812300000027,
+          "projectionMs": 22.46292100000028,
+          "cpuMs": 628.573,
+          "cpuUserMs": 624.485,
+          "cpuSystemMs": 4.088,
+          "cloneMs": 33.43146900000011
+        },
+        {
+          "iteration": 8,
+          "totalMs": 351.75051600000006,
+          "simulationMs": 337.2042160000001,
+          "projectionMs": 14.546299999999974,
+          "cpuMs": 467.196,
+          "cpuUserMs": 466.948,
+          "cpuSystemMs": 0.248,
+          "cloneMs": 30.052303000000393
+        },
+        {
+          "iteration": 9,
+          "totalMs": 349.2785050000002,
+          "simulationMs": 334.6056159999998,
+          "projectionMs": 14.672889000000396,
+          "cpuMs": 444.187,
+          "cpuUserMs": 439.834,
+          "cpuSystemMs": 4.353,
+          "cloneMs": 29.599522999999863
+        },
+        {
+          "iteration": 10,
+          "totalMs": 383.0746079999999,
+          "simulationMs": 360.5415730000004,
+          "projectionMs": 22.533034999999472,
+          "cpuMs": 592.013,
+          "cpuUserMs": 588.647,
+          "cpuSystemMs": 3.366,
+          "cloneMs": 31.77111000000059
+        },
+        {
+          "iteration": 11,
+          "totalMs": 363.81594700000005,
+          "simulationMs": 348.06517799999983,
+          "projectionMs": 15.750769000000219,
+          "cpuMs": 532.496,
+          "cpuUserMs": 532.456,
+          "cpuSystemMs": 0.04,
+          "cloneMs": 30.678619000000253
+        },
+        {
+          "iteration": 12,
+          "totalMs": 345.32548700000007,
+          "simulationMs": 331.170841000001,
+          "projectionMs": 14.154645999999047,
+          "cpuMs": 428.914,
+          "cpuUserMs": 428.914,
+          "cpuSystemMs": 0,
+          "cloneMs": 29.91484799999853
+        },
+        {
+          "iteration": 13,
+          "totalMs": 364.57092999999986,
+          "simulationMs": 350.0866019999994,
+          "projectionMs": 14.48432800000046,
+          "cpuMs": 455.987,
+          "cpuUserMs": 443.341,
+          "cpuSystemMs": 12.646,
+          "cloneMs": 30.242315999999846
+        },
+        {
+          "iteration": 14,
+          "totalMs": 349.17930700000034,
+          "simulationMs": 333.49419599999965,
+          "projectionMs": 15.685111000000688,
+          "cpuMs": 439.24,
+          "cpuUserMs": 435.106,
+          "cpuSystemMs": 4.134,
+          "cloneMs": 32.69047299999875
+        },
+        {
+          "iteration": 15,
+          "totalMs": 344.5452780000014,
+          "simulationMs": 330.97140899999977,
+          "projectionMs": 13.57386900000165,
+          "cpuMs": 435.071,
+          "cpuUserMs": 426.231,
+          "cpuSystemMs": 8.84,
+          "cloneMs": 29.496773999999277
+        },
+        {
+          "iteration": 16,
+          "totalMs": 381.05406500000026,
+          "simulationMs": 366.4204659999996,
+          "projectionMs": 14.633599000000686,
+          "cpuMs": 596.398,
+          "cpuUserMs": 588.492,
+          "cpuSystemMs": 7.906,
+          "cloneMs": 31.426669000000402
+        },
+        {
+          "iteration": 17,
+          "totalMs": 357.58440899999914,
+          "simulationMs": 342.59600599999976,
+          "projectionMs": 14.98840299999938,
+          "cpuMs": 474.266,
+          "cpuUserMs": 474.266,
+          "cpuSystemMs": 0,
+          "cloneMs": 29.728384000000005
+        },
+        {
+          "iteration": 18,
+          "totalMs": 375.56223599999976,
+          "simulationMs": 358.85772299999917,
+          "projectionMs": 16.70451300000059,
+          "cpuMs": 501.155,
+          "cpuUserMs": 497.415,
+          "cpuSystemMs": 3.74,
+          "cloneMs": 31.150786999998672
+        },
+        {
+          "iteration": 19,
+          "totalMs": 355.20912899999894,
+          "simulationMs": 338.9899699999987,
+          "projectionMs": 16.219159000000218,
+          "cpuMs": 463.713,
+          "cpuUserMs": 459.418,
+          "cpuSystemMs": 4.295,
+          "cloneMs": 39.27459700000145
+        }
+      ],
+      "decomposition": {
+        "inputScheduleOnly": {
+          "count": 20,
+          "medianMs": 0.7923025000000052,
+          "p95Ms": 1.782429000000775,
+          "minMs": 0.6393439999992552,
+          "maxMs": 5.690700999999535
+        },
+        "sessionCreationIncludingCompilation": {
+          "count": 20,
+          "medianMs": 28.14475399999901,
+          "p95Ms": 35.790539999999964,
+          "minMs": 23.520855999999185,
+          "maxMs": 38.31014800000048
+        },
+        "advance": {
+          "count": 20,
+          "medianMs": 305.8553899999997,
+          "p95Ms": 330.08041799999955,
+          "minMs": 281.5915590000004,
+          "maxMs": 342.77538399999867
+        },
+        "collectResult": {
+          "count": 20,
+          "medianMs": 35.62482099999943,
+          "p95Ms": 44.32566399999996,
+          "minMs": 34.11511900000187,
+          "maxMs": 45.350634000000355
+        }
+      },
+      "correctness": {
+        "all24ServiceRunsMatch": true,
+        "all20DecompositionReceiptHashesMatch": true,
+        "resultSha256": "90076bbe22daf695b7f1f2b6c26cf92b3b5a13d545244a3dc18e53543341c6e8",
+        "receiptSha256": "0bae9db0099c9076e95bbbbfc2c6444043e8654c73af37e261192ed97d16f323",
+        "scenarioSha256": "9be529197a7fd94464a7eb82e82b04f5dbc76ac6c01043ae7873535d72b620ec",
+        "serviceRunsCompared": 24,
+        "decompositionRunsCompared": 20
+      }
+    },
+    {
+      "id": "6aaa98afecff634734db32cf",
+      "title": "别汤赛决",
+      "sourceUrl": "https://www.end-axis.com/shares/6aaa98afecff634734db32cf",
+      "sourceSha256": "3cffb0e230e6644fe1cb08d0c7a859b14968a11b886fe46826528c977be52c7a",
+      "convertedProjectSha256": "b60f2b6c082ef61c167a62145c3ee0cabb5e9afc5eeb5954f5162fd3b45ab144",
+      "startedAt": "2026-10-01T00:28:18.645Z",
+      "completedAt": "2026-10-01T00:28:32.453Z",
+      "scenario": {
+        "index": 0,
+        "id": "default_sc",
+        "name": "别汤赛决全56 16wDPS（循环等技力）",
+        "castCount": 75,
+        "disabledCastCount": 0,
+        "operators": [
+          {
+            "trackId": "legacy:default_sc:track:0:xaihi",
+            "slug": "xaihi"
+          },
+          {
+            "trackId": "legacy:default_sc:track:1:arcane",
+            "slug": "arcane"
+          },
+          {
+            "trackId": "legacy:default_sc:track:2:last-rite",
+            "slug": "last-rite"
+          },
+          {
+            "trackId": "legacy:default_sc:track:3:tangtang",
+            "slug": "tangtang"
+          }
+        ],
+        "prepFrames": 150,
+        "durationFrames": 3600,
+        "endFrame": 3600,
+        "fps": 30,
+        "random": {
+          "mode": "expected",
+          "globalSeed": 0,
+          "inputWasModified": false
+        }
+      },
+      "summary": {
+        "total": {
+          "count": 20,
+          "medianMs": 244.50775650000014,
+          "p95Ms": 263.89559199999985,
+          "minMs": 221.05180499999915,
+          "maxMs": 264.14407500000016
+        },
+        "simulation": {
+          "count": 20,
+          "medianMs": 227.49131650000027,
+          "p95Ms": 245.71964099999968,
+          "minMs": 204.29166799999985,
+          "maxMs": 245.93455300000005
+        },
+        "projection": {
+          "count": 20,
+          "medianMs": 16.80961100000013,
+          "p95Ms": 18.209522000000106,
+          "minMs": 16.22613999999976,
+          "maxMs": 18.580576000000292
+        },
+        "clone": {
+          "count": 20,
+          "medianMs": 28.8403109999997,
+          "p95Ms": 31.91315499999928,
+          "minMs": 26.950294000000213,
+          "maxMs": 32.06743499999993
+        },
+        "cpu": {
+          "count": 20,
+          "medianMs": 323.16949999999997,
+          "p95Ms": 404.086,
+          "minMs": 276.3,
+          "maxMs": 409.88
+        }
+      },
+      "coldFirst": {
+        "iteration": 0,
+        "totalMs": 730.816224,
+        "simulationMs": 710.195031,
+        "projectionMs": 20.621193000000062,
+        "outcome": "completed",
+        "resumedFromFrame": null,
+        "endFrame": 3600,
+        "receiptCount": 10202,
+        "cpuMs": 1249.832,
+        "cpuUserMs": 1147.566,
+        "cpuSystemMs": 102.266,
+        "cloneMs": 38.412971000000084,
+        "resultSha256": "f140bf3d7936b27f909432c3407edb86b8b6188e785ffb56b22364e75b59bed8",
+        "receiptSha256": "a4019ff92e22678893a65d7fad3f8e10d32966bcfe39351b210533503c90dcf9",
+        "diagnostics": {
+          "availability": {
+            "count": 36,
+            "reasons": {
+              "skillInterruptUnavailable": 29,
+              "resourceUnavailable": 3,
+              "cooldownUnavailable": 1,
+              "skillInputMismatch": 4,
+              "skillTypeTagUnavailable": 1,
+              "ultimateInputDuringPresentation": 1
+            }
+          },
+          "execution": {
+            "count": 0,
+            "reasons": {}
+          },
+          "comboWindow": {
+            "count": 8,
+            "reasons": {
+              "releaseOrderMismatch": 6,
+              "windowMissing": 2
+            }
+          }
+        },
+        "damageHitCount": 246,
+        "expectedDamage": 6283360.0700462265
+      },
+      "receiptEventCounts": {
+        "BuffCreated": 341,
+        "BuffApplied": 486,
+        "OperatorUpgradeInitialized": 5,
+        "PassiveSkillEnabled": 4,
+        "SkillStarted": 151,
+        "SpChanged": 2538,
+        "SkillCostApplied": 148,
+        "TimelineActionStarted": 460,
+        "CombatStepReached": 817,
+        "SkillInputProcessed": 75,
+        "AutomaticControlSwitched": 5,
+        "TimelineActionEnded": 460,
+        "CombatConditionEvaluated": 2947,
+        "AbilityEntitySpawned": 41,
+        "AbilityEntityChildSkillRequested": 45,
+        "BuffFinished": 319,
+        "DamageApplied": 246,
+        "TimeDilationStarted": 166,
+        "TimeDilationEnded": 166,
+        "SkillInputCannotInterruptCurrentSkill": 29,
+        "SkillInterrupted": 113,
+        "ComboWindowOpened": 12,
+        "BuffEnhanceAttempted": 185,
+        "ElementalInflictionApplied": 10,
+        "BuffStackChanged": 20,
+        "PoiseApplied": 55,
+        "UltimateEnergyChanged": 64,
+        "SkillOperableBoundaryReached": 31,
+        "ComboWindowUnavailableAtStart": 8,
+        "SkillCooldownReserved": 17,
+        "ComboWindowConsumed": 6,
+        "ProjectileLaunched": 35,
+        "AbilityEntityFinished": 41,
+        "HealingApplied": 5,
+        "SkillEnded": 38,
+        "CharacterPassiveUiValueChanged": 8,
+        "TimedMarkerCreated": 16,
+        "ComboWindowExpired": 4,
+        "SkillCostUnavailableAtStart": 3,
+        "SkillTimelineJumped": 6,
+        "SkillCooldownUnavailableAtStart": 1,
+        "TimedMarkerFinished": 16,
+        "BuffReleased": 13,
+        "TimeDilationRejected": 7,
+        "SkillCooldownReady": 17,
+        "BuffConsumed": 4,
+        "SkillSwitchedToBuff": 1,
+        "SkillInputResolvedToDifferentSkill": 4,
+        "UltimatePresentationChanged": 8,
+        "SkillInputBlockedByTypeTag": 1,
+        "SkillSlotChanged": 2,
+        "UltimateInputBlockedByPresentation": 1,
+        "PoiseRecovered": 1
+      },
+      "measuredTimings": [
+        {
+          "iteration": 0,
+          "totalMs": 259.7141260000003,
+          "simulationMs": 242.37549400000034,
+          "projectionMs": 17.33863199999996,
+          "cpuMs": 383.519,
+          "cpuUserMs": 344.302,
+          "cpuSystemMs": 39.217,
+          "cloneMs": 28.87941499999988
+        },
+        {
+          "iteration": 1,
+          "totalMs": 262.37617199999977,
+          "simulationMs": 245.63509299999987,
+          "projectionMs": 16.7410789999999,
+          "cpuMs": 359.378,
+          "cpuUserMs": 327.279,
+          "cpuSystemMs": 32.099,
+          "cloneMs": 27.333856999999625
+        },
+        {
+          "iteration": 2,
+          "totalMs": 257.67882599999984,
+          "simulationMs": 241.27331800000002,
+          "projectionMs": 16.405507999999827,
+          "cpuMs": 372.123,
+          "cpuUserMs": 354.345,
+          "cpuSystemMs": 17.778,
+          "cloneMs": 27.996036000000004
+        },
+        {
+          "iteration": 3,
+          "totalMs": 257.41558299999997,
+          "simulationMs": 240.41788099999985,
+          "projectionMs": 16.997702000000118,
+          "cpuMs": 390.147,
+          "cpuUserMs": 347.025,
+          "cpuSystemMs": 43.122,
+          "cloneMs": 30.045716999999968
+        },
+        {
+          "iteration": 4,
+          "totalMs": 253.64691600000015,
+          "simulationMs": 237.21245499999986,
+          "projectionMs": 16.434461000000283,
+          "cpuMs": 388.548,
+          "cpuUserMs": 345.788,
+          "cpuSystemMs": 42.76,
+          "cloneMs": 27.375028000000384
+        },
+        {
+          "iteration": 5,
+          "totalMs": 252.92257500000005,
+          "simulationMs": 234.34199899999976,
+          "projectionMs": 18.580576000000292,
+          "cpuMs": 342.651,
+          "cpuUserMs": 312.808,
+          "cpuSystemMs": 29.843,
+          "cloneMs": 31.91315499999928
+        },
+        {
+          "iteration": 6,
+          "totalMs": 264.14407500000016,
+          "simulationMs": 245.93455300000005,
+          "projectionMs": 18.209522000000106,
+          "cpuMs": 409.88,
+          "cpuUserMs": 386.903,
+          "cpuSystemMs": 22.977,
+          "cloneMs": 32.06743499999993
+        },
+        {
+          "iteration": 7,
+          "totalMs": 240.36067900000035,
+          "simulationMs": 224.1345390000006,
+          "projectionMs": 16.22613999999976,
+          "cpuMs": 312.848,
+          "cpuUserMs": 300.044,
+          "cpuSystemMs": 12.804,
+          "cloneMs": 29.807929999999942
+        },
+        {
+          "iteration": 8,
+          "totalMs": 232.90000799999962,
+          "simulationMs": 216.06217500000002,
+          "projectionMs": 16.83783299999959,
+          "cpuMs": 319.207,
+          "cpuUserMs": 312.883,
+          "cpuSystemMs": 6.324,
+          "cloneMs": 27.637410000000273
+        },
+        {
+          "iteration": 9,
+          "totalMs": 237.96142600000076,
+          "simulationMs": 221.18003700000008,
+          "projectionMs": 16.781389000000672,
+          "cpuMs": 311.312,
+          "cpuUserMs": 306.631,
+          "cpuSystemMs": 4.681,
+          "cloneMs": 30.47852199999943
+        },
+        {
+          "iteration": 10,
+          "totalMs": 232.6154320000005,
+          "simulationMs": 216.26007000000027,
+          "projectionMs": 16.35536200000024,
+          "cpuMs": 317.906,
+          "cpuUserMs": 317.906,
+          "cpuSystemMs": 0,
+          "cloneMs": 27.199055000000044
+        },
+        {
+          "iteration": 11,
+          "totalMs": 221.05180499999915,
+          "simulationMs": 204.29166799999985,
+          "projectionMs": 16.760136999999304,
+          "cpuMs": 279.493,
+          "cpuUserMs": 279.493,
+          "cpuSystemMs": 0,
+          "cloneMs": 26.950294000000213
+        },
+        {
+          "iteration": 12,
+          "totalMs": 226.01903200000015,
+          "simulationMs": 209.39833399999952,
+          "projectionMs": 16.62069800000063,
+          "cpuMs": 288.356,
+          "cpuUserMs": 288.356,
+          "cpuSystemMs": 0,
+          "cloneMs": 27.386363999999958
+        },
+        {
+          "iteration": 13,
+          "totalMs": 232.07581599999958,
+          "simulationMs": 214.99264700000003,
+          "projectionMs": 17.083168999999543,
+          "cpuMs": 302.862,
+          "cpuUserMs": 293.743,
+          "cpuSystemMs": 9.119,
+          "cloneMs": 28.801206999999522
+        },
+        {
+          "iteration": 14,
+          "totalMs": 221.99678700000004,
+          "simulationMs": 205.3626379999996,
+          "projectionMs": 16.634149000000434,
+          "cpuMs": 289.777,
+          "cpuUserMs": 288.418,
+          "cpuSystemMs": 1.359,
+          "cloneMs": 27.444281000000046
+        },
+        {
+          "iteration": 15,
+          "totalMs": 248.65483399999994,
+          "simulationMs": 230.84809399999995,
+          "projectionMs": 17.80673999999999,
+          "cpuMs": 404.086,
+          "cpuUserMs": 342.011,
+          "cpuSystemMs": 62.075,
+          "cloneMs": 29.840409000000363
+        },
+        {
+          "iteration": 16,
+          "totalMs": 263.89559199999985,
+          "simulationMs": 245.71964099999968,
+          "projectionMs": 18.17595100000017,
+          "cpuMs": 337.255,
+          "cpuUserMs": 336.929,
+          "cpuSystemMs": 0.326,
+          "cloneMs": 30.726991999999882
+        },
+        {
+          "iteration": 17,
+          "totalMs": 224.3130940000001,
+          "simulationMs": 207.55011299999933,
+          "projectionMs": 16.762981000000764,
+          "cpuMs": 276.3,
+          "cpuUserMs": 274.346,
+          "cpuSystemMs": 1.954,
+          "cloneMs": 27.46487199999956
+        },
+        {
+          "iteration": 18,
+          "totalMs": 255.63364,
+          "simulationMs": 237.91119600000093,
+          "projectionMs": 17.722443999999086,
+          "cpuMs": 327.132,
+          "cpuUserMs": 325.881,
+          "cpuSystemMs": 1.251,
+          "cloneMs": 29.11837000000014
+        },
+        {
+          "iteration": 19,
+          "totalMs": 237.69148700000005,
+          "simulationMs": 219.54535000000033,
+          "projectionMs": 18.146136999999726,
+          "cpuMs": 293.959,
+          "cpuUserMs": 290.011,
+          "cpuSystemMs": 3.948,
+          "cloneMs": 29.194774999999936
+        }
+      ],
+      "decomposition": {
+        "inputScheduleOnly": {
+          "count": 20,
+          "medianMs": 0.6492645000007542,
+          "p95Ms": 0.8260640000007697,
+          "minMs": 0.4823710000000574,
+          "maxMs": 1.1548949999996694
+        },
+        "sessionCreationIncludingCompilation": {
+          "count": 20,
+          "medianMs": 10.035705500000404,
+          "p95Ms": 12.073137999999744,
+          "minMs": 8.980520000000979,
+          "maxMs": 12.353016000000935
+        },
+        "advance": {
+          "count": 20,
+          "medianMs": 199.9589330000008,
+          "p95Ms": 221.3575519999995,
+          "minMs": 182.995977999999,
+          "maxMs": 223.1033869999992
+        },
+        "collectResult": {
+          "count": 20,
+          "medianMs": 9.901624000000083,
+          "p95Ms": 14.22465100000045,
+          "minMs": 9.113025000000562,
+          "maxMs": 45.488805999999386
+        }
+      },
+      "correctness": {
+        "all24ServiceRunsMatch": true,
+        "all20DecompositionReceiptHashesMatch": true,
+        "resultSha256": "f140bf3d7936b27f909432c3407edb86b8b6188e785ffb56b22364e75b59bed8",
+        "receiptSha256": "a4019ff92e22678893a65d7fad3f8e10d32966bcfe39351b210533503c90dcf9",
+        "scenarioSha256": "4316c2b5c12e609e883841b2579b583028cb40e7d34ad15dc58bcbb185e9f65e",
+        "serviceRunsCompared": 24,
+        "decompositionRunsCompared": 20
+      }
+    },
+    {
+      "id": "6abbd0200ce683bcda839545",
+      "title": "Share 2026-09-29",
+      "sourceUrl": "https://www.end-axis.com/shares/6abbd0200ce683bcda839545",
+      "sourceSha256": "3575dfa61f543844c6b3be91722bc8550c53ee31ce47b03df9f6d90820774e88",
+      "convertedProjectSha256": "5b4c615713b9f6975667c641a11c48bcb1305970d5e121dd31ffb4c03e76a985",
+      "startedAt": "2026-10-01T00:29:01.530Z",
+      "completedAt": "2026-10-01T00:29:07.857Z",
+      "scenario": {
+        "index": 0,
+        "id": "default_sc",
+        "name": "方案 1",
+        "castCount": 17,
+        "disabledCastCount": 0,
+        "operators": [
+          {
+            "trackId": "legacy:default_sc:track:0:estella",
+            "slug": "estella"
+          },
+          {
+            "trackId": "legacy:default_sc:track:1:camille",
+            "slug": "camille"
+          },
+          {
+            "trackId": "legacy:default_sc:track:2:wulfgard",
+            "slug": "wulfgard"
+          },
+          {
+            "trackId": "legacy:default_sc:track:3:arcane",
+            "slug": "arcane"
+          }
+        ],
+        "prepFrames": 150,
+        "durationFrames": 3600,
+        "endFrame": 3600,
+        "fps": 30,
+        "random": {
+          "mode": "expected",
+          "globalSeed": 0,
+          "inputWasModified": false
+        }
+      },
+      "summary": {
+        "total": {
+          "count": 20,
+          "medianMs": 113.43586600000003,
+          "p95Ms": 134.66084899999987,
+          "minMs": 100.9103839999998,
+          "maxMs": 153.774175
+        },
+        "simulation": {
+          "count": 20,
+          "medianMs": 110.98257949999993,
+          "p95Ms": 130.42716799999994,
+          "minMs": 98.72469199999978,
+          "maxMs": 150.75457700000015
+        },
+        "projection": {
+          "count": 20,
+          "medianMs": 2.3514500000001135,
+          "p95Ms": 3.255718999999999,
+          "minMs": 2.026785000000018,
+          "maxMs": 4.233680999999933
+        },
+        "clone": {
+          "count": 20,
+          "medianMs": 11.87440499999991,
+          "p95Ms": 14.938576000000012,
+          "minMs": 10.994388999999956,
+          "maxMs": 17.188182000000324
+        },
+        "cpu": {
+          "count": 20,
+          "medianMs": 148.78,
+          "p95Ms": 219.156,
+          "minMs": 127.712,
+          "maxMs": 227.22
+        }
+      },
+      "coldFirst": {
+        "iteration": 0,
+        "totalMs": 389.207006,
+        "simulationMs": 384.63952700000004,
+        "projectionMs": 4.567478999999935,
+        "outcome": "completed",
+        "resumedFromFrame": null,
+        "endFrame": 3600,
+        "receiptCount": 4257,
+        "cpuMs": 717.244,
+        "cpuUserMs": 675.929,
+        "cpuSystemMs": 41.315,
+        "cloneMs": 19.621204000000034,
+        "resultSha256": "0754671af32e678a159ee241780c464bf307e123faa9a51f0a93c259b81c9de0",
+        "receiptSha256": "104dcf08e23a181050ad647c0a6dd7042dd9368b9ac5c826594046d4e9b25ac7",
+        "diagnostics": {
+          "availability": {
+            "count": 8,
+            "reasons": {
+              "resourceUnavailable": 6,
+              "cooldownUnavailable": 2
+            }
+          },
+          "execution": {
+            "count": 0,
+            "reasons": {}
+          },
+          "comboWindow": {
+            "count": 2,
+            "reasons": {
+              "windowMissing": 2
+            }
+          }
+        },
+        "damageHitCount": 57,
+        "expectedDamage": 1153917.1072200793
+      },
+      "receiptEventCounts": {
+        "BuffCreated": 159,
+        "BuffApplied": 171,
+        "OperatorUpgradeInitialized": 9,
+        "PassiveSkillEnabled": 5,
+        "SpChanged": 2488,
+        "SkillStarted": 53,
+        "SkillCostApplied": 53,
+        "TimelineActionStarted": 196,
+        "CombatStepReached": 221,
+        "SkillInputProcessed": 17,
+        "TimelineActionEnded": 196,
+        "ProjectileLaunched": 22,
+        "AbilityEntitySpawned": 12,
+        "AbilityEntityChildSkillRequested": 20,
+        "ComboWindowOpened": 10,
+        "BuffEnhanceAttempted": 11,
+        "ElementalInflictionApplied": 10,
+        "DamageApplied": 57,
+        "PoiseApplied": 33,
+        "TimeDilationStarted": 45,
+        "UltimateEnergyChanged": 37,
+        "TimeDilationEnded": 45,
+        "SkillOperableBoundaryReached": 14,
+        "ComboWindowConsumed": 7,
+        "SkillCooldownReserved": 9,
+        "BuffStackChanged": 8,
+        "SkillEnded": 22,
+        "CombatConditionEvaluated": 81,
+        "BuffFinished": 139,
+        "SkillInterrupted": 31,
+        "SkillCostUnavailableAtStart": 6,
+        "AbilityEntityFinished": 12,
+        "BuffConsumed": 5,
+        "BuffDamageApplied": 2,
+        "ElementalAttachmentConverted": 2,
+        "TimeDilationRejected": 4,
+        "GlobalBuffCreated": 2,
+        "HealingApplied": 2,
+        "UltimatePresentationChanged": 4,
+        "SkillTimelineJumped": 2,
+        "TimedMarkerCreated": 8,
+        "TimedMarkerFinished": 8,
+        "ComboWindowUnavailableAtStart": 2,
+        "SkillCooldownUnavailableAtStart": 2,
+        "SkillCooldownAdjusted": 1,
+        "SkillCooldownReady": 8,
+        "ComboWindowExpired": 1,
+        "BuffReleased": 5
+      },
+      "measuredTimings": [
+        {
+          "iteration": 0,
+          "totalMs": 153.774175,
+          "simulationMs": 150.75457700000015,
+          "projectionMs": 3.01959799999986,
+          "cpuMs": 204.659,
+          "cpuUserMs": 196.62,
+          "cpuSystemMs": 8.039,
+          "cloneMs": 11.431196
+        },
+        {
+          "iteration": 1,
+          "totalMs": 134.66084899999987,
+          "simulationMs": 130.42716799999994,
+          "projectionMs": 4.233680999999933,
+          "cpuMs": 195.51,
+          "cpuUserMs": 195.152,
+          "cpuSystemMs": 0.358,
+          "cloneMs": 11.782451000000037
+        },
+        {
+          "iteration": 2,
+          "totalMs": 108.79120499999999,
+          "simulationMs": 106.08423300000004,
+          "projectionMs": 2.7069719999999506,
+          "cpuMs": 148.469,
+          "cpuUserMs": 148.445,
+          "cpuSystemMs": 0.024,
+          "cloneMs": 11.878875000000107
+        },
+        {
+          "iteration": 3,
+          "totalMs": 115.40166599999998,
+          "simulationMs": 112.14594699999998,
+          "projectionMs": 3.255718999999999,
+          "cpuMs": 149.091,
+          "cpuUserMs": 148.87,
+          "cpuSystemMs": 0.221,
+          "cloneMs": 14.938576000000012
+        },
+        {
+          "iteration": 4,
+          "totalMs": 118.38447399999995,
+          "simulationMs": 116.35768899999994,
+          "projectionMs": 2.026785000000018,
+          "cpuMs": 165.239,
+          "cpuUserMs": 156.289,
+          "cpuSystemMs": 8.95,
+          "cloneMs": 12.07346900000016
+        },
+        {
+          "iteration": 5,
+          "totalMs": 126.34806000000003,
+          "simulationMs": 123.15129899999988,
+          "projectionMs": 3.1967610000001514,
+          "cpuMs": 227.22,
+          "cpuUserMs": 215.453,
+          "cpuSystemMs": 11.767,
+          "cloneMs": 13.55846500000007
+        },
+        {
+          "iteration": 6,
+          "totalMs": 114.97243100000014,
+          "simulationMs": 112.6477719999998,
+          "projectionMs": 2.324659000000338,
+          "cpuMs": 154.342,
+          "cpuUserMs": 151.004,
+          "cpuSystemMs": 3.338,
+          "cloneMs": 12.167871000000105
+        },
+        {
+          "iteration": 7,
+          "totalMs": 116.4896960000001,
+          "simulationMs": 114.43683199999987,
+          "projectionMs": 2.052864000000227,
+          "cpuMs": 160.463,
+          "cpuUserMs": 160.463,
+          "cpuSystemMs": 0,
+          "cloneMs": 11.97259800000029
+        },
+        {
+          "iteration": 8,
+          "totalMs": 112.08350000000019,
+          "simulationMs": 109.88958600000024,
+          "projectionMs": 2.1939139999999497,
+          "cpuMs": 164.646,
+          "cpuUserMs": 160.908,
+          "cpuSystemMs": 3.738,
+          "cloneMs": 11.675534999999854
+        },
+        {
+          "iteration": 9,
+          "totalMs": 100.9103839999998,
+          "simulationMs": 98.72469199999978,
+          "projectionMs": 2.1856920000000173,
+          "cpuMs": 144.083,
+          "cpuUserMs": 131.952,
+          "cpuSystemMs": 12.131,
+          "cloneMs": 11.071293999999853
+        },
+        {
+          "iteration": 10,
+          "totalMs": 108.85203700000011,
+          "simulationMs": 106.53837399999975,
+          "projectionMs": 2.3136630000003606,
+          "cpuMs": 141.441,
+          "cpuUserMs": 137.574,
+          "cpuSystemMs": 3.867,
+          "cloneMs": 11.635255000000143
+        },
+        {
+          "iteration": 11,
+          "totalMs": 117.79425300000003,
+          "simulationMs": 115.38741100000016,
+          "projectionMs": 2.4068419999998696,
+          "cpuMs": 150.272,
+          "cpuUserMs": 137.364,
+          "cpuSystemMs": 12.908,
+          "cloneMs": 11.270990999999867
+        },
+        {
+          "iteration": 12,
+          "totalMs": 106.40357300000005,
+          "simulationMs": 104.18051500000001,
+          "projectionMs": 2.2230580000000373,
+          "cpuMs": 132.571,
+          "cpuUserMs": 132.218,
+          "cpuSystemMs": 0.353,
+          "cloneMs": 11.869934999999714
+        },
+        {
+          "iteration": 13,
+          "totalMs": 113.58370400000013,
+          "simulationMs": 111.0326070000001,
+          "projectionMs": 2.551097000000027,
+          "cpuMs": 146.029,
+          "cpuUserMs": 141.97,
+          "cpuSystemMs": 4.059,
+          "cloneMs": 13.20980499999996
+        },
+        {
+          "iteration": 14,
+          "totalMs": 111.151793,
+          "simulationMs": 108.52564399999983,
+          "projectionMs": 2.6261490000001686,
+          "cpuMs": 147.008,
+          "cpuUserMs": 143.009,
+          "cpuSystemMs": 3.999,
+          "cloneMs": 11.945517999999993
+        },
+        {
+          "iteration": 15,
+          "totalMs": 101.9534920000001,
+          "simulationMs": 99.60606800000005,
+          "projectionMs": 2.3474240000000464,
+          "cpuMs": 127.712,
+          "cpuUserMs": 123.339,
+          "cpuSystemMs": 4.373,
+          "cloneMs": 11.544159000000036
+        },
+        {
+          "iteration": 16,
+          "totalMs": 103.014815,
+          "simulationMs": 100.87244800000008,
+          "projectionMs": 2.142366999999922,
+          "cpuMs": 134.61,
+          "cpuUserMs": 134.61,
+          "cpuSystemMs": 0,
+          "cloneMs": 10.994388999999956
+        },
+        {
+          "iteration": 17,
+          "totalMs": 105.41395600000033,
+          "simulationMs": 103.32295500000009,
+          "projectionMs": 2.091001000000233,
+          "cpuMs": 139.095,
+          "cpuUserMs": 138.91,
+          "cpuSystemMs": 0.185,
+          "cloneMs": 11.340565000000424
+        },
+        {
+          "iteration": 18,
+          "totalMs": 113.28802799999994,
+          "simulationMs": 110.93255199999976,
+          "projectionMs": 2.3554760000001806,
+          "cpuMs": 143.348,
+          "cpuUserMs": 143.298,
+          "cpuSystemMs": 0.05,
+          "cloneMs": 12.350613000000067
+        },
+        {
+          "iteration": 19,
+          "totalMs": 119.712626,
+          "simulationMs": 116.66607900000008,
+          "projectionMs": 3.0465469999999186,
+          "cpuMs": 219.156,
+          "cpuUserMs": 214.374,
+          "cpuSystemMs": 4.782,
+          "cloneMs": 17.188182000000324
+        }
+      ],
+      "decomposition": {
+        "inputScheduleOnly": {
+          "count": 20,
+          "medianMs": 0.3659459999998944,
+          "p95Ms": 1.8305120000004536,
+          "minMs": 0.2733280000002196,
+          "maxMs": 3.1080889999993815
+        },
+        "sessionCreationIncludingCompilation": {
+          "count": 20,
+          "medianMs": 9.38026500000069,
+          "p95Ms": 12.706294000000526,
+          "minMs": 7.452092000000448,
+          "maxMs": 15.15769199999977
+        },
+        "advance": {
+          "count": 20,
+          "medianMs": 89.57568300000003,
+          "p95Ms": 95.81630700000005,
+          "minMs": 74.55194599999959,
+          "maxMs": 97.88307200000054
+        },
+        "collectResult": {
+          "count": 20,
+          "medianMs": 6.220324000000346,
+          "p95Ms": 7.26739599999928,
+          "minMs": 5.773796999999831,
+          "maxMs": 9.177136999999675
+        }
+      },
+      "correctness": {
+        "all24ServiceRunsMatch": true,
+        "all20DecompositionReceiptHashesMatch": true,
+        "resultSha256": "0754671af32e678a159ee241780c464bf307e123faa9a51f0a93c259b81c9de0",
+        "receiptSha256": "104dcf08e23a181050ad647c0a6dd7042dd9368b9ac5c826594046d4e9b25ac7",
+        "scenarioSha256": "6f5ea37897910dcc35e160f638da20ea48f07d2613446751fcc14ad711f5132e",
+        "serviceRunsCompared": 24,
+        "decompositionRunsCompared": 20
+      }
+    },
+    {
+      "id": "6aa9520520d2d87ecbb2e962",
+      "title": "伊冯碎冰轴",
+      "sourceUrl": "https://www.end-axis.com/shares/6aa9520520d2d87ecbb2e962",
+      "sourceSha256": "5476d69c71255458bb7e97c95cdaf835cfd0796229d8c1502bcae013c8c2befa",
+      "convertedProjectSha256": "26404f29614f5c4d6f03e68a9ba2eac8b2eed6b5e3c96a6b97e15c29e9121bc3",
+      "startedAt": "2026-10-01T00:28:08.678Z",
+      "completedAt": "2026-10-01T00:28:13.763Z",
+      "scenario": {
+        "index": 0,
+        "id": "default_sc",
+        "name": "伊冯碎冰循化轴",
+        "castCount": 36,
+        "disabledCastCount": 0,
+        "operators": [
+          {
+            "trackId": "legacy:default_sc:track:0:yvonne",
+            "slug": "yvonne"
+          },
+          {
+            "trackId": "legacy:default_sc:track:1:gilberta",
+            "slug": "gilberta"
+          },
+          {
+            "trackId": "legacy:default_sc:track:2:estella",
+            "slug": "estella"
+          },
+          {
+            "trackId": "legacy:default_sc:track:3:mifu",
+            "slug": "mifu"
+          }
+        ],
+        "prepFrames": 150,
+        "durationFrames": 3600,
+        "endFrame": 3600,
+        "fps": 30,
+        "random": {
+          "mode": "expected",
+          "globalSeed": 0,
+          "inputWasModified": false
+        }
+      },
+      "summary": {
+        "total": {
+          "count": 20,
+          "medianMs": 88.97048150000012,
+          "p95Ms": 116.12591299999997,
+          "minMs": 77.74975600000016,
+          "maxMs": 136.531115
+        },
+        "simulation": {
+          "count": 20,
+          "medianMs": 86.82192300000008,
+          "p95Ms": 114.11290700000006,
+          "minMs": 76.1127120000001,
+          "maxMs": 133.472628
+        },
+        "projection": {
+          "count": 20,
+          "medianMs": 1.7638994999998658,
+          "p95Ms": 3.0584870000000137,
+          "minMs": 1.446831000000202,
+          "maxMs": 3.1230539999996836
+        },
+        "clone": {
+          "count": 20,
+          "medianMs": 7.689618500000051,
+          "p95Ms": 9.666245000000117,
+          "minMs": 7.1984990000000835,
+          "maxMs": 11.52577099999985
+        },
+        "cpu": {
+          "count": 20,
+          "medianMs": 120.304,
+          "p95Ms": 180.746,
+          "minMs": 94.233,
+          "maxMs": 230.578
+        }
+      },
+      "coldFirst": {
+        "iteration": 0,
+        "totalMs": 338.193707,
+        "simulationMs": 333.47263699999996,
+        "projectionMs": 4.721069999999997,
+        "outcome": "completed",
+        "resumedFromFrame": null,
+        "endFrame": 3600,
+        "receiptCount": 2748,
+        "cpuMs": 615.856,
+        "cpuUserMs": 573.743,
+        "cpuSystemMs": 42.113,
+        "cloneMs": 9.140289000000053,
+        "resultSha256": "878361e39a427709a1084ffd95aaa7b9f7785b1cda06eedf49b38d939643076f",
+        "receiptSha256": "1d4d0d186a40a85ca975fbd2a78a233a64aa15f42996929a0ea63fb9455cb41d",
+        "diagnostics": {
+          "availability": {
+            "count": 10,
+            "reasons": {
+              "skillInterruptUnavailable": 8,
+              "skillInputUnknown": 2,
+              "skillInterruptUnknown": 2
+            }
+          },
+          "execution": {
+            "count": 0,
+            "reasons": {}
+          },
+          "comboWindow": {
+            "count": 2,
+            "reasons": {
+              "releaseOrderMismatch": 2
+            }
+          }
+        },
+        "damageHitCount": 69,
+        "expectedDamage": 989683.3912855517
+      },
+      "receiptEventCounts": {
+        "BuffCreated": 88,
+        "BuffApplied": 135,
+        "OperatorUpgradeInitialized": 7,
+        "PassiveSkillEnabled": 3,
+        "SkillStarted": 75,
+        "TimelineActionStarted": 187,
+        "CombatStepReached": 240,
+        "SkillInputProcessed": 36,
+        "SpChanged": 1103,
+        "SkillCostApplied": 75,
+        "CombatConditionEvaluated": 124,
+        "TimelineActionEnded": 187,
+        "ProjectileLaunched": 37,
+        "DamageApplied": 69,
+        "BuffEnhanceAttempted": 53,
+        "SkillEnded": 42,
+        "SkillOperableBoundaryReached": 24,
+        "SkillInterrupted": 33,
+        "AbilityEntitySpawned": 2,
+        "AbilityEntityChildSkillRequested": 2,
+        "BuffStackChanged": 6,
+        "UltimateEnergyChanged": 25,
+        "SkillInputCannotInterruptCurrentSkill": 8,
+        "PoiseApplied": 19,
+        "ElementalInflictionApplied": 1,
+        "BuffFinished": 69,
+        "TimeDilationStarted": 32,
+        "ComboWindowOpened": 3,
+        "ComboWindowUnavailableAtStart": 2,
+        "SkillCooldownReserved": 5,
+        "ComboWindowConsumed": 2,
+        "TimeDilationEnded": 32,
+        "BuffConsumed": 2,
+        "UltimatePresentationChanged": 2,
+        "AbilityEntityFinished": 2,
+        "SkillSlotChanged": 4,
+        "BuffReleased": 1,
+        "ComboWindowExpired": 1,
+        "SkillInputResolutionUnknown": 2,
+        "SkillInputInterruptionUnknown": 2,
+        "SkillCooldownReady": 5,
+        "PoiseRecovered": 1
+      },
+      "measuredTimings": [
+        {
+          "iteration": 0,
+          "totalMs": 116.12591299999997,
+          "simulationMs": 114.11290700000006,
+          "projectionMs": 2.013005999999905,
+          "cpuMs": 180.746,
+          "cpuUserMs": 168.923,
+          "cpuSystemMs": 11.823,
+          "cloneMs": 8.107716999999866
+        },
+        {
+          "iteration": 1,
+          "totalMs": 136.531115,
+          "simulationMs": 133.472628,
+          "projectionMs": 3.0584870000000137,
+          "cpuMs": 230.578,
+          "cpuUserMs": 213.931,
+          "cpuSystemMs": 16.647,
+          "cloneMs": 9.666245000000117
+        },
+        {
+          "iteration": 2,
+          "totalMs": 111.55560799999989,
+          "simulationMs": 109.8790439999998,
+          "projectionMs": 1.6765640000000985,
+          "cpuMs": 155.257,
+          "cpuUserMs": 146.196,
+          "cpuSystemMs": 9.061,
+          "cloneMs": 9.278115999999955
+        },
+        {
+          "iteration": 3,
+          "totalMs": 103.6673679999999,
+          "simulationMs": 101.81090599999993,
+          "projectionMs": 1.856461999999965,
+          "cpuMs": 152.258,
+          "cpuUserMs": 145.705,
+          "cpuSystemMs": 6.553,
+          "cloneMs": 7.701111000000083
+        },
+        {
+          "iteration": 4,
+          "totalMs": 94.62909100000002,
+          "simulationMs": 92.77208799999994,
+          "projectionMs": 1.857003000000077,
+          "cpuMs": 135.411,
+          "cpuUserMs": 134.428,
+          "cpuSystemMs": 0.983,
+          "cloneMs": 7.67812600000002
+        },
+        {
+          "iteration": 5,
+          "totalMs": 93.40851900000007,
+          "simulationMs": 91.57743400000004,
+          "projectionMs": 1.83108500000003,
+          "cpuMs": 122.621,
+          "cpuUserMs": 113.355,
+          "cpuSystemMs": 9.266,
+          "cloneMs": 7.862000999999964
+        },
+        {
+          "iteration": 6,
+          "totalMs": 92.87501199999997,
+          "simulationMs": 90.11636199999998,
+          "projectionMs": 2.7586499999999887,
+          "cpuMs": 127.6,
+          "cpuUserMs": 127.6,
+          "cpuSystemMs": 0,
+          "cloneMs": 11.52577099999985
+        },
+        {
+          "iteration": 7,
+          "totalMs": 89.92163200000005,
+          "simulationMs": 88.07984099999999,
+          "projectionMs": 1.8417910000000575,
+          "cpuMs": 114.277,
+          "cpuUserMs": 113.697,
+          "cpuSystemMs": 0.58,
+          "cloneMs": 7.544816999999966
+        },
+        {
+          "iteration": 8,
+          "totalMs": 89.74819300000013,
+          "simulationMs": 86.95002499999987,
+          "projectionMs": 2.79816800000026,
+          "cpuMs": 130.526,
+          "cpuUserMs": 130.526,
+          "cpuSystemMs": 0,
+          "cloneMs": 8.452331999999842
+        },
+        {
+          "iteration": 9,
+          "totalMs": 93.87794499999973,
+          "simulationMs": 90.75489100000004,
+          "projectionMs": 3.1230539999996836,
+          "cpuMs": 153.99,
+          "cpuUserMs": 146.852,
+          "cpuSystemMs": 7.138,
+          "cloneMs": 9.253357999999935
+        },
+        {
+          "iteration": 10,
+          "totalMs": 88.19277000000011,
+          "simulationMs": 86.6938210000003,
+          "projectionMs": 1.4989489999998113,
+          "cpuMs": 119.449,
+          "cpuUserMs": 103.776,
+          "cpuSystemMs": 15.673,
+          "cloneMs": 7.1984990000000835
+        },
+        {
+          "iteration": 11,
+          "totalMs": 83.02488399999993,
+          "simulationMs": 81.50603600000022,
+          "projectionMs": 1.518847999999707,
+          "cpuMs": 111.422,
+          "cpuUserMs": 103.813,
+          "cpuSystemMs": 7.609,
+          "cloneMs": 7.570083999999952
+        },
+        {
+          "iteration": 12,
+          "totalMs": 82.50627799999984,
+          "simulationMs": 81.03142500000013,
+          "projectionMs": 1.4748529999997118,
+          "cpuMs": 101.556,
+          "cpuUserMs": 101.556,
+          "cpuSystemMs": 0,
+          "cloneMs": 7.430276000000049
+        },
+        {
+          "iteration": 13,
+          "totalMs": 83.13706000000002,
+          "simulationMs": 81.60929800000031,
+          "projectionMs": 1.5277619999997114,
+          "cpuMs": 114.063,
+          "cpuUserMs": 102.401,
+          "cpuSystemMs": 11.662,
+          "cloneMs": 7.549363999999969
+        },
+        {
+          "iteration": 14,
+          "totalMs": 77.74975600000016,
+          "simulationMs": 76.1127120000001,
+          "projectionMs": 1.63704400000006,
+          "cpuMs": 94.233,
+          "cpuUserMs": 94.233,
+          "cpuSystemMs": 0,
+          "cloneMs": 7.623653999999988
+        },
+        {
+          "iteration": 15,
+          "totalMs": 87.54774700000007,
+          "simulationMs": 86.05576900000005,
+          "projectionMs": 1.4919780000000173,
+          "cpuMs": 114.363,
+          "cpuUserMs": 114.363,
+          "cpuSystemMs": 0,
+          "cloneMs": 7.3435169999997925
+        },
+        {
+          "iteration": 16,
+          "totalMs": 85.29984100000001,
+          "simulationMs": 83.85300999999981,
+          "projectionMs": 1.446831000000202,
+          "cpuMs": 121.159,
+          "cpuUserMs": 121.159,
+          "cpuSystemMs": 0,
+          "cloneMs": 7.799827000000278
+        },
+        {
+          "iteration": 17,
+          "totalMs": 79.83931600000005,
+          "simulationMs": 77.87727600000017,
+          "projectionMs": 1.962039999999888,
+          "cpuMs": 101.823,
+          "cpuUserMs": 101.823,
+          "cpuSystemMs": 0,
+          "cloneMs": 7.578246999999919
+        },
+        {
+          "iteration": 18,
+          "totalMs": 78.73504599999978,
+          "simulationMs": 77.17873199999985,
+          "projectionMs": 1.5563139999999294,
+          "cpuMs": 110.463,
+          "cpuUserMs": 107.453,
+          "cpuSystemMs": 3.01,
+          "cloneMs": 8.808113999999932
+        },
+        {
+          "iteration": 19,
+          "totalMs": 80.55251099999987,
+          "simulationMs": 78.85579700000017,
+          "projectionMs": 1.6967139999997016,
+          "cpuMs": 98.293,
+          "cpuUserMs": 98.293,
+          "cpuSystemMs": 0,
+          "cloneMs": 7.417707000000064
+        }
+      ],
+      "decomposition": {
+        "inputScheduleOnly": {
+          "count": 20,
+          "medianMs": 0.4078295000001617,
+          "p95Ms": 0.536591000000044,
+          "minMs": 0.30672799999956624,
+          "maxMs": 1.066512999999759
+        },
+        "sessionCreationIncludingCompilation": {
+          "count": 20,
+          "medianMs": 9.564768000000186,
+          "p95Ms": 14.393583999999919,
+          "minMs": 8.859480000000076,
+          "maxMs": 15.902006999999685
+        },
+        "advance": {
+          "count": 20,
+          "medianMs": 68.90905350000003,
+          "p95Ms": 79.16321599999992,
+          "minMs": 60.8587720000005,
+          "maxMs": 82.53377
+        },
+        "collectResult": {
+          "count": 20,
+          "medianMs": 5.3407609999999295,
+          "p95Ms": 8.250561000000289,
+          "minMs": 4.746968999999808,
+          "maxMs": 8.841973999999936
+        }
+      },
+      "correctness": {
+        "all24ServiceRunsMatch": true,
+        "all20DecompositionReceiptHashesMatch": true,
+        "resultSha256": "878361e39a427709a1084ffd95aaa7b9f7785b1cda06eedf49b38d939643076f",
+        "receiptSha256": "1d4d0d186a40a85ca975fbd2a78a233a64aa15f42996929a0ea63fb9455cb41d",
+        "scenarioSha256": "3a52befa1ece7b1be0aa14357dbc14c53c7478d5a2a069cfbef20853cd4af6f3",
+        "serviceRunsCompared": 24,
+        "decompositionRunsCompared": 20
+      }
+    },
+    {
+      "id": "6960d9afaf72c0e43d122dfb",
+      "title": "开荒低星碎冰队",
+      "sourceUrl": "https://www.end-axis.com/shares/6960d9afaf72c0e43d122dfb",
+      "sourceSha256": "cba93fa98ea72a873a4720cf98ce9f8a9a2d2488fa5153c39b038477b1cb19a9",
+      "convertedProjectSha256": "6d0e1f02c97c2e58c6a2d319776ace405fd1e8494d82d90998252fdfea112756",
+      "startedAt": "2026-10-01T00:27:43.887Z",
+      "completedAt": "2026-10-01T00:27:47.351Z",
+      "scenario": {
+        "index": 0,
+        "id": "default_sc",
+        "name": "猛击控制轴",
+        "castCount": 35,
+        "disabledCastCount": 0,
+        "operators": [
+          {
+            "trackId": "legacy:default_sc:track:0:chen-qianyu",
+            "slug": "chen-qianyu"
+          },
+          {
+            "trackId": "legacy:default_sc:track:1:endministrator",
+            "slug": "endministrator"
+          },
+          {
+            "trackId": "legacy:default_sc:track:2:estella",
+            "slug": "estella"
+          },
+          {
+            "trackId": "legacy:default_sc:track:3:akekuri",
+            "slug": "akekuri"
+          }
+        ],
+        "prepFrames": 150,
+        "durationFrames": 900,
+        "endFrame": 900,
+        "fps": 30,
+        "random": {
+          "mode": "expected",
+          "globalSeed": 0,
+          "inputWasModified": false
+        }
+      },
+      "summary": {
+        "total": {
+          "count": 20,
+          "medianMs": 55.143364500000075,
+          "p95Ms": 96.62623799999994,
+          "minMs": 47.50270499999988,
+          "maxMs": 113.68602699999997
+        },
+        "simulation": {
+          "count": 20,
+          "medianMs": 54.394235999999864,
+          "p95Ms": 94.49919699999998,
+          "minMs": 46.54472399999986,
+          "maxMs": 112.66465399999993
+        },
+        "projection": {
+          "count": 20,
+          "medianMs": 0.8294639999999163,
+          "p95Ms": 1.3187249999998585,
+          "minMs": 0.5395759999998972,
+          "maxMs": 2.127040999999963
+        },
+        "clone": {
+          "count": 20,
+          "medianMs": 5.951942499999973,
+          "p95Ms": 8.625938000000133,
+          "minMs": 5.152733999999782,
+          "maxMs": 9.072191999999859
+        },
+        "cpu": {
+          "count": 20,
+          "medianMs": 88.77799999999999,
+          "p95Ms": 151.22,
+          "minMs": 54.029,
+          "maxMs": 208.449
+        }
+      },
+      "coldFirst": {
+        "iteration": 0,
+        "totalMs": 261.26496299999997,
+        "simulationMs": 257.151982,
+        "projectionMs": 4.112980999999991,
+        "outcome": "completed",
+        "resumedFromFrame": null,
+        "endFrame": 900,
+        "receiptCount": 1924,
+        "cpuMs": 439.48,
+        "cpuUserMs": 402.477,
+        "cpuSystemMs": 37.003,
+        "cloneMs": 7.492187999999999,
+        "resultSha256": "f9d4da38fdb1e7cbb8dfb2a94f8d49c593e3f43425cd2a9ea36b92dd03496831",
+        "receiptSha256": "ad5d1f31b113d336c7a8b9785505209528c9ef47dc481a4dbb0c1c2d5c1d696b",
+        "diagnostics": {
+          "availability": {
+            "count": 3,
+            "reasons": {
+              "skillInterruptUnavailable": 3
+            }
+          },
+          "execution": {
+            "count": 0,
+            "reasons": {}
+          },
+          "comboWindow": {
+            "count": 0,
+            "reasons": {}
+          }
+        },
+        "damageHitCount": 60,
+        "expectedDamage": 481998.09275846905
+      },
+      "receiptEventCounts": {
+        "BuffCreated": 66,
+        "BuffApplied": 72,
+        "OperatorUpgradeInitialized": 16,
+        "PassiveSkillEnabled": 1,
+        "SkillStarted": 36,
+        "SpChanged": 885,
+        "SkillCostApplied": 35,
+        "TimelineActionStarted": 95,
+        "CombatStepReached": 190,
+        "SkillInputProcessed": 35,
+        "TimelineActionEnded": 95,
+        "DamageApplied": 60,
+        "CombatConditionEvaluated": 73,
+        "SkillOperableBoundaryReached": 31,
+        "SkillInterrupted": 30,
+        "BuffEnhanceAttempted": 10,
+        "ElementalInflictionApplied": 2,
+        "PoiseApplied": 19,
+        "TimeDilationStarted": 42,
+        "UltimateEnergyChanged": 24,
+        "TimeDilationEnded": 42,
+        "ComboWindowOpened": 8,
+        "SkillEnded": 5,
+        "ComboWindowConsumed": 6,
+        "SkillCooldownReserved": 6,
+        "BuffStackChanged": 5,
+        "BuffFinished": 20,
+        "SkillInputCannotInterruptCurrentSkill": 3,
+        "SkillCooldownReady": 2,
+        "ProjectileLaunched": 1,
+        "BuffConsumed": 4,
+        "BuffDamageApplied": 1,
+        "ElementalAttachmentConverted": 1,
+        "PoiseKnotBroken": 1,
+        "TimeDilationRejected": 2
+      },
+      "measuredTimings": [
+        {
+          "iteration": 0,
+          "totalMs": 66.00167600000009,
+          "simulationMs": 65.30063100000007,
+          "projectionMs": 0.7010450000000219,
+          "cpuMs": 117.804,
+          "cpuUserMs": 108.588,
+          "cpuSystemMs": 9.216,
+          "cloneMs": 6.0059420000000046
+        },
+        {
+          "iteration": 1,
+          "totalMs": 65.76262300000008,
+          "simulationMs": 64.97737300000006,
+          "projectionMs": 0.7852500000000191,
+          "cpuMs": 91.243,
+          "cpuUserMs": 84.073,
+          "cpuSystemMs": 7.17,
+          "cloneMs": 5.827376000000072
+        },
+        {
+          "iteration": 2,
+          "totalMs": 96.62623799999994,
+          "simulationMs": 94.49919699999998,
+          "projectionMs": 2.127040999999963,
+          "cpuMs": 151.22,
+          "cpuUserMs": 119.475,
+          "cpuSystemMs": 31.745,
+          "cloneMs": 9.072191999999859
+        },
+        {
+          "iteration": 3,
+          "totalMs": 91.5805969999999,
+          "simulationMs": 90.26187200000004,
+          "projectionMs": 1.3187249999998585,
+          "cpuMs": 121.665,
+          "cpuUserMs": 95.6,
+          "cpuSystemMs": 26.065,
+          "cloneMs": 8.625938000000133
+        },
+        {
+          "iteration": 4,
+          "totalMs": 113.68602699999997,
+          "simulationMs": 112.66465399999993,
+          "projectionMs": 1.0213730000000396,
+          "cpuMs": 208.449,
+          "cpuUserMs": 142.151,
+          "cpuSystemMs": 66.298,
+          "cloneMs": 6.8212069999999585
+        },
+        {
+          "iteration": 5,
+          "totalMs": 59.43794600000001,
+          "simulationMs": 58.68521200000009,
+          "projectionMs": 0.7527339999999185,
+          "cpuMs": 89.829,
+          "cpuUserMs": 89.829,
+          "cpuSystemMs": 0,
+          "cloneMs": 5.953099000000066
+        },
+        {
+          "iteration": 6,
+          "totalMs": 53.48817200000008,
+          "simulationMs": 52.578813999999966,
+          "projectionMs": 0.9093580000001111,
+          "cpuMs": 63.914,
+          "cpuUserMs": 63.914,
+          "cpuSystemMs": 0,
+          "cloneMs": 6.580316000000039
+        },
+        {
+          "iteration": 7,
+          "totalMs": 59.30775400000016,
+          "simulationMs": 58.324434999999994,
+          "projectionMs": 0.983319000000165,
+          "cpuMs": 99.565,
+          "cpuUserMs": 99.565,
+          "cpuSystemMs": 0,
+          "cloneMs": 6.015942999999879
+        },
+        {
+          "iteration": 8,
+          "totalMs": 58.728316999999834,
+          "simulationMs": 57.882474,
+          "projectionMs": 0.8458429999998316,
+          "cpuMs": 137.367,
+          "cpuUserMs": 137.367,
+          "cpuSystemMs": 0,
+          "cloneMs": 5.818798999999899
+        },
+        {
+          "iteration": 9,
+          "totalMs": 52.84058600000003,
+          "simulationMs": 52.00163300000008,
+          "projectionMs": 0.8389529999999468,
+          "cpuMs": 72.331,
+          "cpuUserMs": 70.967,
+          "cpuSystemMs": 1.364,
+          "cloneMs": 5.663297000000057
+        },
+        {
+          "iteration": 10,
+          "totalMs": 55.490874000000076,
+          "simulationMs": 54.646582999999964,
+          "projectionMs": 0.844291000000112,
+          "cpuMs": 109.524,
+          "cpuUserMs": 108.796,
+          "cpuSystemMs": 0.728,
+          "cloneMs": 6.5383139999999
+        },
+        {
+          "iteration": 11,
+          "totalMs": 57.26496799999995,
+          "simulationMs": 56.725392000000056,
+          "projectionMs": 0.5395759999998972,
+          "cpuMs": 87.727,
+          "cpuUserMs": 87.727,
+          "cpuSystemMs": 0,
+          "cloneMs": 5.469497000000047
+        },
+        {
+          "iteration": 12,
+          "totalMs": 50.35467800000015,
+          "simulationMs": 49.643546000000015,
+          "projectionMs": 0.7111320000001342,
+          "cpuMs": 79.615,
+          "cpuUserMs": 71.953,
+          "cpuSystemMs": 7.662,
+          "cloneMs": 5.992429000000129
+        },
+        {
+          "iteration": 13,
+          "totalMs": 52.75793199999998,
+          "simulationMs": 51.77855999999997,
+          "projectionMs": 0.9793720000000121,
+          "cpuMs": 85.952,
+          "cpuUserMs": 85.952,
+          "cpuSystemMs": 0,
+          "cloneMs": 5.812398999999914
+        },
+        {
+          "iteration": 14,
+          "totalMs": 47.50270499999988,
+          "simulationMs": 46.54472399999986,
+          "projectionMs": 0.957981000000018,
+          "cpuMs": 69.899,
+          "cpuUserMs": 60.601,
+          "cpuSystemMs": 9.298,
+          "cloneMs": 5.625039999999899
+        },
+        {
+          "iteration": 15,
+          "totalMs": 54.795855000000074,
+          "simulationMs": 54.141888999999765,
+          "projectionMs": 0.6539660000003096,
+          "cpuMs": 83.886,
+          "cpuUserMs": 64.562,
+          "cpuSystemMs": 19.324,
+          "cloneMs": 5.3685270000000855
+        },
+        {
+          "iteration": 16,
+          "totalMs": 51.84100200000012,
+          "simulationMs": 51.17466700000023,
+          "projectionMs": 0.66633499999989,
+          "cpuMs": 74.065,
+          "cpuUserMs": 71.015,
+          "cpuSystemMs": 3.05,
+          "cloneMs": 6.0013709999998355
+        },
+        {
+          "iteration": 17,
+          "totalMs": 51.65881100000024,
+          "simulationMs": 51.101308000000245,
+          "projectionMs": 0.557502999999997,
+          "cpuMs": 81.577,
+          "cpuUserMs": 69.218,
+          "cpuSystemMs": 12.359,
+          "cloneMs": 5.152733999999782
+        },
+        {
+          "iteration": 18,
+          "totalMs": 48.12273000000005,
+          "simulationMs": 47.32101300000022,
+          "projectionMs": 0.8017169999998259,
+          "cpuMs": 54.029,
+          "cpuUserMs": 53.577,
+          "cpuSystemMs": 0.452,
+          "cloneMs": 5.702265999999781
+        },
+        {
+          "iteration": 19,
+          "totalMs": 51.32994000000008,
+          "simulationMs": 50.50996500000019,
+          "projectionMs": 0.8199749999998858,
+          "cpuMs": 92.829,
+          "cpuUserMs": 84.213,
+          "cpuSystemMs": 8.616,
+          "cloneMs": 5.95078599999988
+        }
+      ],
+      "decomposition": {
+        "inputScheduleOnly": {
+          "count": 20,
+          "medianMs": 0.3192114999999376,
+          "p95Ms": 0.48425300000008065,
+          "minMs": 0.29144499999983964,
+          "maxMs": 0.9507700000003751
+        },
+        "sessionCreationIncludingCompilation": {
+          "count": 20,
+          "medianMs": 9.547922999999855,
+          "p95Ms": 15.019068000000061,
+          "minMs": 8.23307399999976,
+          "maxMs": 16.272289
+        },
+        "advance": {
+          "count": 20,
+          "medianMs": 38.739033500000005,
+          "p95Ms": 44.23216100000036,
+          "minMs": 31.564202999999907,
+          "maxMs": 45.526974999999766
+        },
+        "collectResult": {
+          "count": 20,
+          "medianMs": 4.789792499999976,
+          "p95Ms": 5.495536000000357,
+          "minMs": 4.39182800000026,
+          "maxMs": 5.646963000000142
+        }
+      },
+      "correctness": {
+        "all24ServiceRunsMatch": true,
+        "all20DecompositionReceiptHashesMatch": true,
+        "resultSha256": "f9d4da38fdb1e7cbb8dfb2a94f8d49c593e3f43425cd2a9ea36b92dd03496831",
+        "receiptSha256": "ad5d1f31b113d336c7a8b9785505209528c9ef47dc481a4dbb0c1c2d5c1d696b",
+        "scenarioSha256": "d47ddcb12e3ecfae01eebfd40c71af45f815524bb571631788d306b0021e3a48",
+        "serviceRunsCompared": 24,
+        "decompositionRunsCompared": 20
+      }
+    },
+    {
+      "id": "6a91c4241854aefb13172209",
+      "title": "庄佩梨杰冷启动",
+      "sourceUrl": "https://www.end-axis.com/shares/6a91c4241854aefb13172209",
+      "sourceSha256": "a46c2e4b0f8caf1b6cb54b57913ca559754a7b6061672fa38d5cc616da8d2fbf",
+      "convertedProjectSha256": "4bdf9ec72f6e598c0fd123ad75e9bb3ca301a7978a69bab5d27e3c94debf40ea",
+      "startedAt": "2026-10-01T00:27:52.159Z",
+      "completedAt": "2026-10-01T00:28:04.121Z",
+      "scenario": {
+        "index": 0,
+        "id": "sc_q8zl8ry",
+        "name": "庄佩梨弧",
+        "castCount": 39,
+        "disabledCastCount": 0,
+        "operators": [
+          {
+            "trackId": "legacy:sc_q8zl8ry:track:0:zhuang-fangyi",
+            "slug": "zhuang-fangyi"
+          },
+          {
+            "trackId": "legacy:sc_q8zl8ry:track:1:perlica",
+            "slug": "perlica"
+          },
+          {
+            "trackId": "legacy:sc_q8zl8ry:track:2:liino",
+            "slug": "liino"
+          },
+          {
+            "trackId": "legacy:sc_q8zl8ry:track:3:arclight",
+            "slug": "arclight"
+          }
+        ],
+        "prepFrames": 85,
+        "durationFrames": 3600,
+        "endFrame": 3600,
+        "fps": 30,
+        "random": {
+          "mode": "expected",
+          "globalSeed": 0,
+          "inputWasModified": false
+        }
+      },
+      "summary": {
+        "total": {
+          "count": 20,
+          "medianMs": 209.37992000000008,
+          "p95Ms": 228.257973,
+          "minMs": 192.55298299999959,
+          "maxMs": 236.73790499999996
+        },
+        "simulation": {
+          "count": 20,
+          "medianMs": 200.32639500000005,
+          "p95Ms": 220.55698499999994,
+          "minMs": 184.74355300000025,
+          "maxMs": 226.61854499999936
+        },
+        "projection": {
+          "count": 20,
+          "medianMs": 9.275534000000107,
+          "p95Ms": 10.119360000000597,
+          "minMs": 7.700988000000052,
+          "maxMs": 11.480121000000054
+        },
+        "clone": {
+          "count": 20,
+          "medianMs": 23.550532499999917,
+          "p95Ms": 27.253520999999637,
+          "minMs": 21.56021999999939,
+          "maxMs": 30.6903870000001
+        },
+        "cpu": {
+          "count": 20,
+          "medianMs": 263.5715,
+          "p95Ms": 337.467,
+          "minMs": 226.555,
+          "maxMs": 339.908
+        }
+      },
+      "coldFirst": {
+        "iteration": 0,
+        "totalMs": 653.418573,
+        "simulationMs": 639.8363850000001,
+        "projectionMs": 13.582187999999974,
+        "outcome": "completed",
+        "resumedFromFrame": null,
+        "endFrame": 3600,
+        "receiptCount": 11557,
+        "cpuMs": 1138.089,
+        "cpuUserMs": 1070.188,
+        "cpuSystemMs": 67.901,
+        "cloneMs": 29.350231000000008,
+        "resultSha256": "3a26f0e72a7953fe936b9171b89459a39b3b53cb4122c27ac7eaeff526443593",
+        "receiptSha256": "0c67a060af109091425ad9825eba471c4885277cad70f9171eb6956f42797413",
+        "diagnostics": {
+          "availability": {
+            "count": 14,
+            "reasons": {
+              "skillInterruptUnavailable": 6,
+              "skillInputMismatch": 6,
+              "resourceUnavailable": 1,
+              "cooldownUnavailable": 1
+            }
+          },
+          "execution": {
+            "count": 0,
+            "reasons": {}
+          },
+          "comboWindow": {
+            "count": 3,
+            "reasons": {
+              "windowMissing": 1,
+              "releaseOrderMismatch": 2
+            }
+          }
+        },
+        "damageHitCount": 155,
+        "expectedDamage": 1566157.2226824379
+      },
+      "receiptEventCounts": {
+        "BuffCreated": 243,
+        "BuffApplied": 245,
+        "OperatorUpgradeInitialized": 9,
+        "CharacterPassiveUiValueChanged": 3801,
+        "PassiveSkillEnabled": 3,
+        "SkillStarted": 235,
+        "SkillCostApplied": 232,
+        "TimelineActionStarted": 493,
+        "CombatStepReached": 2703,
+        "SkillSlotChanged": 2,
+        "CombatConditionEvaluated": 346,
+        "SkillInputProcessed": 39,
+        "TimelineActionEnded": 493,
+        "ProjectileLaunched": 110,
+        "DamageApplied": 155,
+        "PoiseApplied": 29,
+        "SkillEnded": 130,
+        "UltimateEnergyChanged": 36,
+        "HealingApplied": 83,
+        "SkillInterrupted": 105,
+        "SkillOperableBoundaryReached": 30,
+        "SpChanged": 1508,
+        "SkillInputCannotInterruptCurrentSkill": 6,
+        "AbilityEntitySpawned": 26,
+        "AbilityEntityChildSkillRequested": 23,
+        "ComboWindowOpened": 15,
+        "TimeDilationStarted": 57,
+        "TimeDilationEnded": 57,
+        "AbilityEntityFinished": 26,
+        "ComboWindowConsumed": 10,
+        "SkillCooldownReserved": 13,
+        "ElementalReactionApplied": 4,
+        "BuffEnhanceAttempted": 7,
+        "BuffFinished": 233,
+        "GlobalBuffCreated": 3,
+        "SkillCooldownReady": 13,
+        "SkillInputResolvedToDifferentSkill": 6,
+        "ElementalInflictionApplied": 5,
+        "BuffConsumed": 4,
+        "ComboWindowUnavailableAtStart": 3,
+        "SkillTimelineJumped": 5,
+        "BuffStackChanged": 2,
+        "ComboWindowExpired": 4,
+        "SkillCostUnavailableAtStart": 1,
+        "UltimatePresentationChanged": 2,
+        "PoiseRecovered": 1,
+        "SkillCooldownUnavailableAtStart": 1
+      },
+      "measuredTimings": [
+        {
+          "iteration": 0,
+          "totalMs": 228.257973,
+          "simulationMs": 220.55698499999994,
+          "projectionMs": 7.700988000000052,
+          "cpuMs": 322.385,
+          "cpuUserMs": 313.129,
+          "cpuSystemMs": 9.256,
+          "cloneMs": 21.563145000000077
+        },
+        {
+          "iteration": 1,
+          "totalMs": 225.84656199999972,
+          "simulationMs": 218.06445299999996,
+          "projectionMs": 7.782108999999764,
+          "cpuMs": 339.908,
+          "cpuUserMs": 332.767,
+          "cpuSystemMs": 7.141,
+          "cloneMs": 22.675005000000056
+        },
+        {
+          "iteration": 2,
+          "totalMs": 221.77899000000025,
+          "simulationMs": 210.2988690000002,
+          "projectionMs": 11.480121000000054,
+          "cpuMs": 297.37,
+          "cpuUserMs": 291.954,
+          "cpuSystemMs": 5.416,
+          "cloneMs": 22.40570400000024
+        },
+        {
+          "iteration": 3,
+          "totalMs": 210.37916899999982,
+          "simulationMs": 200.9105810000001,
+          "projectionMs": 9.468587999999727,
+          "cpuMs": 272.777,
+          "cpuUserMs": 260.927,
+          "cpuSystemMs": 11.85,
+          "cloneMs": 24.652558000000226
+        },
+        {
+          "iteration": 4,
+          "totalMs": 209.50332200000003,
+          "simulationMs": 200.17233000000033,
+          "projectionMs": 9.330991999999696,
+          "cpuMs": 261.347,
+          "cpuUserMs": 248.918,
+          "cpuSystemMs": 12.429,
+          "cloneMs": 25.683395999999902
+        },
+        {
+          "iteration": 5,
+          "totalMs": 214.14931800000022,
+          "simulationMs": 204.80201100000022,
+          "projectionMs": 9.347307,
+          "cpuMs": 280.989,
+          "cpuUserMs": 264.606,
+          "cpuSystemMs": 16.383,
+          "cloneMs": 26.518543000000136
+        },
+        {
+          "iteration": 6,
+          "totalMs": 212.62546199999997,
+          "simulationMs": 202.7163469999996,
+          "projectionMs": 9.909115000000384,
+          "cpuMs": 279.09,
+          "cpuUserMs": 274.962,
+          "cpuSystemMs": 4.128,
+          "cloneMs": 30.6903870000001
+        },
+        {
+          "iteration": 7,
+          "totalMs": 209.69805199999973,
+          "simulationMs": 200.48045999999977,
+          "projectionMs": 9.217591999999968,
+          "cpuMs": 300.224,
+          "cpuUserMs": 300.224,
+          "cpuSystemMs": 0,
+          "cloneMs": 24.42605999999978
+        },
+        {
+          "iteration": 8,
+          "totalMs": 207.56444699999975,
+          "simulationMs": 198.14344100000017,
+          "projectionMs": 9.42100599999958,
+          "cpuMs": 241.169,
+          "cpuUserMs": 240.641,
+          "cpuSystemMs": 0.528,
+          "cloneMs": 22.580042999999932
+        },
+        {
+          "iteration": 9,
+          "totalMs": 209.25651800000014,
+          "simulationMs": 201.21223800000007,
+          "projectionMs": 8.044280000000072,
+          "cpuMs": 259.844,
+          "cpuUserMs": 259.844,
+          "cpuSystemMs": 0,
+          "cloneMs": 22.28479200000038
+        },
+        {
+          "iteration": 10,
+          "totalMs": 200.58078899999964,
+          "simulationMs": 192.6631580000003,
+          "projectionMs": 7.917630999999346,
+          "cpuMs": 235.497,
+          "cpuUserMs": 228.282,
+          "cpuSystemMs": 7.215,
+          "cloneMs": 21.890283000000636
+        },
+        {
+          "iteration": 11,
+          "totalMs": 192.55298299999959,
+          "simulationMs": 184.74355300000025,
+          "projectionMs": 7.809429999999338,
+          "cpuMs": 226.555,
+          "cpuUserMs": 226.555,
+          "cpuSystemMs": 0,
+          "cloneMs": 21.56021999999939
+        },
+        {
+          "iteration": 12,
+          "totalMs": 196.89183200000025,
+          "simulationMs": 188.9203290000005,
+          "projectionMs": 7.971502999999757,
+          "cpuMs": 242.407,
+          "cpuUserMs": 242.407,
+          "cpuSystemMs": 0,
+          "cloneMs": 22.370992000000115
+        },
+        {
+          "iteration": 13,
+          "totalMs": 206.538184,
+          "simulationMs": 196.58426300000065,
+          "projectionMs": 9.953920999999355,
+          "cpuMs": 248.524,
+          "cpuUserMs": 240.556,
+          "cpuSystemMs": 7.968,
+          "cloneMs": 25.686581999999362
+        },
+        {
+          "iteration": 14,
+          "totalMs": 208.12623500000063,
+          "simulationMs": 198.98280400000021,
+          "projectionMs": 9.143431000000419,
+          "cpuMs": 261.407,
+          "cpuUserMs": 252.41,
+          "cpuSystemMs": 8.997,
+          "cloneMs": 25.150971000000027
+        },
+        {
+          "iteration": 15,
+          "totalMs": 195.71234100000038,
+          "simulationMs": 186.49226499999986,
+          "projectionMs": 9.220076000000518,
+          "cpuMs": 251.332,
+          "cpuUserMs": 248.215,
+          "cpuSystemMs": 3.117,
+          "cloneMs": 25.02364200000011
+        },
+        {
+          "iteration": 16,
+          "totalMs": 209.11003400000027,
+          "simulationMs": 199.56616500000018,
+          "projectionMs": 9.543869000000086,
+          "cpuMs": 265.736,
+          "cpuUserMs": 262.392,
+          "cpuSystemMs": 3.344,
+          "cloneMs": 27.253520999999637
+        },
+        {
+          "iteration": 17,
+          "totalMs": 198.19199300000037,
+          "simulationMs": 188.85588400000051,
+          "projectionMs": 9.336108999999851,
+          "cpuMs": 246.829,
+          "cpuUserMs": 239.178,
+          "cpuSystemMs": 7.651,
+          "cloneMs": 22.674254000000474
+        },
+        {
+          "iteration": 18,
+          "totalMs": 236.73790499999996,
+          "simulationMs": 226.61854499999936,
+          "projectionMs": 10.119360000000597,
+          "cpuMs": 337.467,
+          "cpuUserMs": 336.729,
+          "cpuSystemMs": 0.738,
+          "cloneMs": 25.71937600000001
+        },
+        {
+          "iteration": 19,
+          "totalMs": 214.97801600000003,
+          "simulationMs": 205.9643759999999,
+          "projectionMs": 9.013640000000123,
+          "cpuMs": 303.951,
+          "cpuUserMs": 292.29,
+          "cpuSystemMs": 11.661,
+          "cloneMs": 22.665255000000798
+        }
+      ],
+      "decomposition": {
+        "inputScheduleOnly": {
+          "count": 20,
+          "medianMs": 0.4704180000007909,
+          "p95Ms": 0.6469360000000961,
+          "minMs": 0.4069770000005519,
+          "maxMs": 1.1715490000005957
+        },
+        "sessionCreationIncludingCompilation": {
+          "count": 20,
+          "medianMs": 10.081895000000259,
+          "p95Ms": 12.708125999999538,
+          "minMs": 8.698137999999744,
+          "maxMs": 12.81929300000047
+        },
+        "advance": {
+          "count": 20,
+          "medianMs": 188.32795149999993,
+          "p95Ms": 203.07544299999972,
+          "minMs": 174.5416349999996,
+          "maxMs": 203.60019600000123
+        },
+        "collectResult": {
+          "count": 20,
+          "medianMs": 8.742129000000205,
+          "p95Ms": 9.796738999999434,
+          "minMs": 7.628830999999991,
+          "maxMs": 9.964410000000498
+        }
+      },
+      "correctness": {
+        "all24ServiceRunsMatch": true,
+        "all20DecompositionReceiptHashesMatch": true,
+        "resultSha256": "3a26f0e72a7953fe936b9171b89459a39b3b53cb4122c27ac7eaeff526443593",
+        "receiptSha256": "0c67a060af109091425ad9825eba471c4885277cad70f9171eb6956f42797413",
+        "scenarioSha256": "df85e7dfa9f4d664211a53b658db5f63732a1ce2f0e8c2b7166ef4096b19c4ef",
+        "serviceRunsCompared": 24,
+        "decompositionRunsCompared": 20
+      }
+    }
+  ]
+}
