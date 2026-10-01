@@ -1,4 +1,4 @@
-/** 从实际 SFC 提取命中标记读取路径，比较隔离掉旧效果投影后的输出与工作量。不是组件/paint 基准。 */
+/** 从实际 SFC 提取命中标记读取路径，比较修复前后的输出与工作量。不是组件/paint 基准。 */
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { parse } from '@vue/compiler-sfc';
 import ts from 'typescript';
@@ -37,13 +37,7 @@ const source = ts.createSourceFile(
   true,
   ts.ScriptKind.TS,
 );
-const needed = new Set([
-  'castHitEffects',
-  'castHitMarkers',
-  'hitMarkerTitle',
-  'reactionName',
-  'damageElementLabel',
-]);
+const needed = new Set(['castHitMarkers', 'hitMarkerTitle', 'reactionName', 'damageElementLabel']);
 const snippets: string[] = [];
 for (const node of source.statements) {
   if (ts.isFunctionDeclaration(node) && node.name && needed.has(node.name.text)) {
@@ -63,7 +57,12 @@ const executable = ts.transpileModule(snippets.join('\n'), {
   compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.None },
 }).outputText;
 
-it('比较真实轴命中标记数据，隔离未消费的旧投影而不改生产文件', async () => {
+const baselineExecutable = ts.transpileModule(
+  readFileSync('tools/performance/fixtures/hit-marker-read-before-cleanup.ts.txt', 'utf8'),
+  { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.None } },
+).outputText;
+
+it('真实轴命中标记与修复前完全相等，且不再执行未消费的效果投影', async () => {
   const reports: unknown[] = [];
   for (const file of readdirSync('tools/performance/fixtures/public-timelines').filter(file =>
     file.endsWith('.project.json'),
@@ -83,7 +82,7 @@ it('比较真实轴命中标记数据，隔离未消费的旧投影而不改生�
     function harness(
       initial: ScenarioDocument,
       result: ScenarioSimulationRun | null,
-      skipUnusedProjection: boolean,
+      baseline: boolean,
     ) {
       let projectionCalls = 0;
       let projectionMs = 0;
@@ -163,11 +162,10 @@ it('比较真实轴命中标记数据，隔离未消费的旧投影而不改生�
           return value;
         },
       };
-      // 只替换这一个依赖的值；实际 castHitMarkers 与标题函数一字未改。
-      const ending = skipUnusedProjection ? '\ncastHitEffects = { value: new Map() };' : '';
+      // 生产入口与修复前冻结的最小读取路径对比，完整比较标记和提示内容。
       const factory = new Function(
         ...Object.keys(dependencies),
-        `${executable}${ending}\nreturn castHitMarkers;`,
+        `${baseline ? baselineExecutable : executable}\nreturn castHitMarkers;`,
       );
       const markers = factory(...Object.values(dependencies)) as (
         trackIndex: TrackIndex,
@@ -277,9 +275,9 @@ it('比较真实轴命中标记数据，隔离未消费的旧投影而不改生�
             : null;
       service.clearCache();
       const current = harness(candidate, result, false);
-      const isolated = harness(candidate, result, true);
+      const beforeCleanup = harness(candidate, result, true);
       const output = current.read();
-      expect(isolated.read()).toEqual(output);
+      expect(beforeCleanup.read()).toEqual(output);
       const before = current.viewModel.value;
       // 修改一个 placement，不替换未动轨道的文档引用，观察实际全轨投影的身份变化。
       const moved = {
@@ -304,8 +302,10 @@ it('比较真实轴命中标记数据，隔离未消费的旧投影而不改生�
         ) as ScenarioDocument['tracks'],
       };
       current.scenario.value = moved;
-      isolated.scenario.value = moved;
-      expect(isolated.read()).toEqual(current.read());
+      beforeCleanup.scenario.value = moved;
+      expect(beforeCleanup.read()).toEqual(current.read());
+      expect(current.counts().projectionCalls).toBe(0);
+      if (result !== null) expect(beforeCleanup.counts().projectionCalls).toBeGreaterThan(0);
       const after = current.viewModel.value;
       reports.push({
         fixture: file,
@@ -313,7 +313,7 @@ it('比较真实轴命中标记数据，隔离未消费的旧投影而不改生�
         castCount: output.length,
         markerCount: output.reduce((n, row) => n + row.markers.length, 0),
         current: current.counts(),
-        isolated: isolated.counts(),
+        beforeCleanup: beforeCleanup.counts(),
         changedModelTracks: after.tracks.filter((track, index) => track !== before.tracks[index])
           .length,
       });

@@ -372,7 +372,6 @@ import {
   type TimelineHitMarkerView,
 } from './results/timelineHitProjection';
 import {
-  projectHitEffectsByCast,
   projectTimelineHitReceipts,
   projectTimelineHitOccurrences,
   type TimelineHitEffectLabel,
@@ -1549,6 +1548,7 @@ const {
   performanceSamples: simulationPerformanceSamples,
   diagnosticsByCastId,
   simulateNow,
+  ensureCurrentSimulation,
   resetPublication: resetSimulationPublication,
 } = useScenarioSimulation({
   scenario,
@@ -2132,7 +2132,7 @@ const { castMoveGesture, beginCastMove, cancelCastMove, discardCastMove, consume
     alignSelectedCastToTarget,
     applyActionSelection,
     commitScenario,
-    simulateNow,
+    ensureCurrentSimulation,
     warnLocked: () => ElMessage.warning(t('timelineGrid.action.locked')),
     onDropped: offerJoinContinuousGroup,
   });
@@ -2603,34 +2603,6 @@ function castWarningTitle(castId: string, definitionUnavailable = false): string
 
 // 同一发布回执只解析一次；不能每个技能、每次指针移动都重扫整份日志。
 const hitReceipts = computed(() => projectTimelineHitReceipts(publishedReceiptEntries.value));
-const castHitEffects = computed(() => {
-  const current = simulationRun.value;
-  if (current === null) {
-    return new Map<string, ReadonlyMap<string, TimelineHitEffectLabel>>();
-  }
-  const byCastId = new Map<string, ReadonlyMap<string, TimelineHitEffectLabel>>();
-  const models = new Map(
-    viewModel.value.tracks.flatMap(track => track.skillCasts).map(cast => [cast.id, cast]),
-  );
-  for (const track of scenario.value.tracks) {
-    if (track === null) continue;
-    for (const cast of track.skillCasts) {
-      if (!compatibleSkillCastReceiptIds.value.has(cast.id)) continue;
-      const castModel = models.get(cast.id);
-      byCastId.set(
-        cast.id,
-        projectHitEffectsByCast(
-          scenario.value,
-          publishedReceiptEntries.value,
-          cast.id,
-          castModel?.hitMarkers ?? [],
-          hitReceipts.value,
-        ),
-      );
-    }
-  }
-  return byCastId;
-});
 const hitActualFrames = computed(() =>
   projectCompatibleHitFrames(hitReceipts.value.damages, compatibleSkillCastReceiptIds.value),
 );
@@ -3128,7 +3100,6 @@ function castHitMarkers(trackIndex: TrackIndex, castId: string): TimelineHitMark
     candidate => candidate.id === castId,
   );
   if (castModel === undefined || cast === undefined) return [];
-  const effects = castHitEffects.value.get(castId);
   const publishedStartFrame = skillCastActualStartFrames.value.get(castId) ?? castModel.startFrame;
   if (simulationRun.value !== null) {
     return (hitOccurrences.value.get(castId) ?? []).map(hit => ({
@@ -3155,7 +3126,6 @@ function castHitMarkers(trackIndex: TrackIndex, castId: string): TimelineHitMark
           hitActualFrames.value.get(marker.hitId) ?? publishedStartFrame + marker.frameOffset,
         ) - timelineFramePx(publishedStartFrame),
       forcedCritical: cast.simulationInputs?.criticalOverrides?.[marker.stepKey] === true,
-      ...(effects === undefined ? {} : { title: hitMarkerTitle(effects.get(marker.hitId)) }),
     }));
 }
 

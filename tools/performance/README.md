@@ -179,7 +179,7 @@ DRAG_AUDIT_OUTPUT=tmp/drag-audit.json npx vitest run tools/performance/drag-pipe
 DRAG_AUDIT_FIXTURE=6960d9af npx vitest run tools/performance/drag-pipeline-audit.test.ts
 ```
 
-这是单独运行的离线诊断，不包含在 `npm test` 的 `src` 范围内。工具以六份公开轴的完整时长连接正式手势、编辑会话、Vue 调度、两种后端、实际 Worker 入口、协议恢复及发布展示捕获。Worker 消息在同一进程由手动时钟推进；两侧做结构化克隆，但不是浏览器线程和 paint 测量。固定本地/Worker 两条既有分支，不能拿运行时间判断默认 200 ms 阈值是否合适。每条路径验证最终有序回执等于独立复跑、输入未变和单次撤销；输出因果事件顺序、阶段计数和离线克隆/协议恢复计时，不断言墙钟收益或浏览器刷新率。
+这是单独运行的离线诊断，不包含在 `npm test` 的 `src` 范围内。工具以六份公开轴的完整时长连接正式手势、编辑会话、Vue 调度、两种后端、实际 Worker 入口、协议恢复及发布展示捕获。Worker 消息在同一进程由手动时钟推进；两侧做结构化克隆，但不是浏览器线程和 paint 测量。固定本地/Worker 两条既有分支，不能拿运行时间判断默认 200 ms 阈值是否合适。每条路径验证完整可传输结果（含有序回执、资源、曲线和诊断）等于独立复跑、输入未变和单次撤销，并断言逐次完成路径仅四次模拟、突发路径仅首末两次、松手没有原位置瞬时广播；输出因果事件顺序、阶段计数和离线克隆/协议恢复计时，不断言墙钟收益或浏览器刷新率。
 
 输出文件使用排他创建，不覆盖旧证据；父目录需已存在。PowerShell 可用 `$env:DRAG_AUDIT_OUTPUT='tmp/drag-audit.json'` 设置变量。输出留在本地，不自动提交。结论、限制和待验收改进见[拖动模拟链路研究](../../docs/research/drag-simulation-pipeline.md)。
 
@@ -190,6 +190,6 @@ npx vitest run tools/performance/ui-hit-projection-audit.test.ts
 UI_HIT_AUDIT_OUTPUT=tmp/ui-hit-audit.json npx vitest run tools/performance/ui-hit-projection-audit.test.ts
 ```
 
-独立离线诊断通过 Vue SFC / TypeScript AST 提取实际页面的命中标记读取函数与提示文字函数，只在隔离作用域将旧效果 computed 替换为空 Map；不改写生产 SFC。六份公开轴覆盖当前结果、旧结果、无结果，以及自定义匿名/条件命中的结果前后分支，逐项比较命中标记数据，并记录投影调用、模型引用变化与描述性阶段计时。保留正式页面“发布 occurrence 缓存 + 当前兼容过滤”的两层依赖，不把当前过滤误算成重扫全部历史。
+独立离线诊断通过 Vue SFC / TypeScript AST 提取实际页面的命中标记读取函数与提示文字函数，与 `fixtures/hit-marker-read-before-cleanup.ts.txt` 冻结的修复前最小路径比较；夹具取自 `f148fe80`，只供离线差分，不进入应用。六份公开轴覆盖当前结果、旧结果、无结果，以及自定义匿名/条件命中的结果前后分支，逐项比较初始与再移动后的完整命中标记和提示，断言修复后未消费投影调用为零，并记录投影调用、模型引用变化与描述性阶段计时。保留正式页面“发布 occurrence 缓存 + 当前兼容过滤”的两层依赖，不把当前过滤误算成重扫全部历史。
 
 测试不是组件挂载、DOM patch 或 paint 基准；计时仅帮助定位 JavaScript 工作，顺序隔离对照不能直接当成性能收益。输出文件必须不存在。实际入口改名或迁移时工具会报错，需检查新的依赖关系后再调整提取目标。原始输出保留在本地；研究说明见[Vue 展示链路](../../docs/research/drag-simulation-pipeline.md#vue-展示链路已证实工作与仍待测部分)。

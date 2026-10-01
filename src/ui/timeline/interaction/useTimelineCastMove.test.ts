@@ -5,10 +5,14 @@ import { createInteractionSession } from '../../interaction/interactionSession';
 import { createEmptyTimelineActionSelection } from './timelineActionSelection';
 import { useTimelineCastMove } from './useTimelineCastMove';
 import { moveSkillCasts } from './timelineDocumentCommands';
+import { ScenarioEditorSession } from '../../../application/editor/scenarioEditorSession';
+import { createEditorSimulationService } from '../../../application/simulation/testSupport/editorSimulationService';
+import { useScenarioSimulation } from '../useScenarioSimulation';
+import { perlica } from '../../../data/operators';
 
 afterEach(() => vi.unstubAllGlobals());
 
-function fixture(readOnly = false, minimumInputFrame = 0, blocked = false) {
+function fixture(readOnly = false, minimumInputFrame = 0, blocked = false, withSimulation = false) {
   const events = new EventTarget();
   class Lane {
     readonly dataset = { trackIndex: '0' };
@@ -43,19 +47,46 @@ function fixture(readOnly = false, minimumInputFrame = 0, blocked = false) {
       },
     ],
   };
+  if (withSimulation) {
+    original.battle.durationFrames = 120;
+    original.tracks[0]!.operator = {
+      operatorSlug: perlica.slug,
+      level: 90,
+      promoted: true,
+      potential: 0,
+      trustLevel: 4,
+      skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+      talentStates: {},
+    };
+    original.tracks[0]!.skillCasts[0]!.source = {
+      kind: 'operatorSkill',
+      skillGroupKey: 'basicAttack',
+      skillKey: 'chr_0004_pelica_attack1',
+    };
+  }
   const scenario = shallowRef(original);
   const actionSelection = shallowRef(createEmptyTimelineActionSelection());
   const interactionSession = createInteractionSession();
   const simulationService = { beginInteractiveSession: vi.fn(), endInteractiveSession: vi.fn() };
+  const session = new ScenarioEditorSession(original);
+  session.subscribe(snapshot => {
+    scenario.value = snapshot.scenario;
+  });
   const commitScenario = vi.fn(
     (_name: string, command: (current: typeof original) => typeof original) => {
-      scenario.value = command(scenario.value);
-      return true;
+      return session.commit(_name, command);
     },
   );
-  const simulateNow = vi.fn(async () => true);
-  const unblock = blocked ? interactionSession.block() : () => {};
   const scope = effectScope();
+  const service = withSimulation ? createEditorSimulationService() : null;
+  const simulate = service ? vi.spyOn(service, 'simulate') : null;
+  const simulation = service
+    ? scope.run(() => useScenarioSimulation({ scenario, service }))!
+    : null;
+  const ensureCurrentSimulation = vi.fn(
+    () => simulation?.ensureCurrentSimulation() ?? Promise.resolve(true),
+  );
+  const unblock = blocked ? interactionSession.block() : () => {};
   const movement = scope.run(() =>
     useTimelineCastMove({
       isInputReadOnly: () => readOnly,
@@ -77,7 +108,7 @@ function fixture(readOnly = false, minimumInputFrame = 0, blocked = false) {
         actionSelection.value = selection;
       },
       commitScenario,
-      simulateNow,
+      ensureCurrentSimulation,
       warnLocked: vi.fn(),
     }),
   )!;
@@ -112,21 +143,24 @@ function fixture(readOnly = false, minimumInputFrame = 0, blocked = false) {
   return {
     scenario,
     original,
+    session,
+    simulation,
+    simulate,
     begin,
     unblock,
     events,
-    simulateNow,
+    ensureCurrentSimulation,
     movement,
     interactionSession,
     simulationService,
     commitScenario,
     scope,
     move,
-    finish: () =>
+    finish: (clientX = 30) =>
       events.dispatchEvent(
         Object.assign(new Event('pointerup'), {
           pointerId: 1,
-          clientX: 30,
+          clientX,
           clientY: 100,
           stopPropagation() {},
         }),
@@ -135,6 +169,71 @@ function fixture(readOnly = false, minimumInputFrame = 0, blocked = false) {
 }
 
 describe('timeline cast move lifecycle', () => {
+  it('正式编辑会话直接提交已完成预览，不触发原位置或最终位置的额外模拟，撤销保留原引用', async () => {
+    const f = fixture(false, 0, false, true);
+    try {
+      expect(await f.simulation!.ensureCurrentSimulation(), f.simulation!.error.value ?? '').toBe(
+        true,
+      );
+      const preview = f.scenario.value;
+      const run = f.simulation!.run.value;
+      f.simulate!.mockClear();
+      f.finish();
+      await vi.waitFor(() => expect(f.movement.castMoveGesture.value).toBeNull());
+      expect(f.simulate).not.toHaveBeenCalled();
+      expect(f.scenario.value).toBe(preview);
+      expect(f.session.snapshot.scenario).toBe(preview);
+      expect(f.simulation!.run.value).toBe(run);
+      expect(f.session.undo()).toBe(true);
+      expect(f.scenario.value).toBe(f.original);
+      expect(f.session.canUndo).toBe(false);
+      expect(f.session.redo()).toBe(true);
+      expect(f.scenario.value).toBe(preview);
+      expect(await f.simulation!.ensureCurrentSimulation(), f.simulation!.error.value ?? '').toBe(
+        true,
+      );
+    } finally {
+      f.scope.stop();
+    }
+  });
+
+  it('拖回原位不增加撤销记录或重新发布历史基准', async () => {
+    const f = fixture(false, 0, false, true);
+    try {
+      f.move(10);
+      expect(await f.simulation!.ensureCurrentSimulation(), f.simulation!.error.value ?? '').toBe(
+        true,
+      );
+      f.simulate!.mockClear();
+      f.finish(10);
+      await vi.waitFor(() => expect(f.movement.castMoveGesture.value).toBeNull());
+      expect(f.scenario.value).toBe(f.original);
+      expect(f.session.canUndo).toBe(false);
+      expect(f.simulate).not.toHaveBeenCalled();
+    } finally {
+      f.scope.stop();
+    }
+  });
+
+  it('提交抛错时回滚原引用并释放交互，不能留下未提交预览', async () => {
+    const f = fixture();
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+    try {
+      f.commitScenario.mockImplementation(() => {
+        throw new Error('commit failed');
+      });
+      f.finish();
+      await vi.waitFor(() => expect(error).toHaveBeenCalled());
+      expect(f.scenario.value).toBe(f.original);
+      expect(f.session.canUndo).toBe(false);
+      expect(f.movement.castMoveGesture.value).toBeNull();
+      expect(f.interactionSession.current).toBeNull();
+    } finally {
+      error.mockRestore();
+      f.scope.stop();
+    }
+  });
+
   it('交互被屏障阻止时不遗留拖动状态或启动模拟', () => {
     const f = fixture(false, 0, true);
     expect(f.movement.castMoveGesture.value).toBeNull();
@@ -168,7 +267,7 @@ describe('timeline cast move lifecycle', () => {
 
   it('松手后的模拟被替代也清理预览，保留已提交落点', async () => {
     const f = fixture();
-    f.simulateNow.mockResolvedValue(false);
+    f.ensureCurrentSimulation.mockResolvedValue(false);
     f.finish();
     await vi.waitFor(() => expect(f.movement.castMoveGesture.value).toBeNull());
     expect(f.scenario.value.tracks[0]!.skillCasts[0]!.placement.startFrame).toBe(30);
@@ -180,7 +279,7 @@ describe('timeline cast move lifecycle', () => {
     const f = fixture();
     const error = vi.spyOn(console, 'error').mockImplementation(() => {});
     try {
-      f.simulateNow.mockRejectedValue(new Error('simulation failed'));
+      f.ensureCurrentSimulation.mockRejectedValue(new Error('simulation failed'));
       f.finish();
       await vi.waitFor(() => expect(f.movement.castMoveGesture.value).toBeNull());
       expect(f.interactionSession.current).toBeNull();
@@ -216,13 +315,13 @@ describe('timeline cast move lifecycle', () => {
   it('上一轮松手模拟结束不能清除新一轮拖动', async () => {
     const f = fixture();
     let finishSimulation!: (value: boolean) => void;
-    f.simulateNow.mockReturnValue(
+    f.ensureCurrentSimulation.mockReturnValue(
       new Promise(resolve => {
         finishSimulation = resolve;
       }),
     );
     f.finish();
-    await vi.waitFor(() => expect(f.simulateNow).toHaveBeenCalled());
+    await vi.waitFor(() => expect(f.ensureCurrentSimulation).toHaveBeenCalled());
     f.begin();
     f.move(50);
     const current = f.movement.castMoveGesture.value;

@@ -222,7 +222,7 @@ it('审计公开轴的真实拖动调度链并验证最终落点与撤销', asyn
             selection.value = value;
           },
           commitScenario: (name, command) => session.commit(name, command),
-          simulateNow: simulation.simulateNow,
+          ensureCurrentSimulation: simulation.ensureCurrentSimulation,
           warnLocked: () => {},
         }),
       )!;
@@ -285,7 +285,7 @@ it('审计公开轴的真实拖动调度链并验证最终落点与撤销', asyn
           scenario.value,
           scenario.value.battle.simulationRange?.endFrame ?? scenario.value.battle.durationFrames,
         );
-        expect(final.receiptEntries).toEqual(check.receiptEntries);
+        expect(encode(final)).toEqual(encode(check));
         checkService.clearCache();
         phase = 'undo';
         expect(session.undo()).toBe(true);
@@ -359,6 +359,18 @@ it('审计公开轴的真实拖动调度链并验证最终落点与撤销', asyn
               ]),
             ),
           ]),
+        );
+        const dragWork = timeline.filter(
+          event =>
+            (event.phase === 'drag' || event.phase === 'release') &&
+            (event.kind === 'worker-start' || event.kind === 'local-start'),
+        );
+        expect(dragWork.map(event => event.frame)).toEqual(
+          (mode === 'burst-worker' ? [12, 30] : [12, 18, 24, 30]).map(delta => start + delta),
+        );
+        expect(counts.release!.scenario).toBe(0);
+        expect(counts.drag!.publication! + counts.release!.publication!).toBe(
+          mode === 'burst-worker' ? 2 : 4,
         );
         reports.push({ fixture: file, mode, castId: cast.id, startFrame: start, counts, timeline });
       } finally {

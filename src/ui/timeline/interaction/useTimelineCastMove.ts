@@ -37,7 +37,7 @@ interface TimelineCastMoveOptions {
     commandName: string,
     command: (current: ScenarioDocument) => ScenarioDocument,
   ) => boolean;
-  readonly simulateNow: () => Promise<boolean>;
+  readonly ensureCurrentSimulation: () => Promise<boolean>;
   readonly warnLocked: () => void;
   readonly onDropped?: (
     event: PointerEvent,
@@ -63,7 +63,7 @@ export function useTimelineCastMove(options: TimelineCastMoveOptions) {
     alignSelectedCastToTarget,
     applyActionSelection,
     commitScenario,
-    simulateNow,
+    ensureCurrentSimulation,
     warnLocked,
   } = options;
   interface TimelineCastMoveGesture {
@@ -373,17 +373,24 @@ export function useTimelineCastMove(options: TimelineCastMoveOptions) {
       if (suppressedCastClickId === gesture.pointerCastId) suppressedCastClickId = null;
     }, 0);
     try {
-      // 预览不是已提交文档；失败时必须恢复原输入。
-      scenario.value = gesture.baseScenario;
-      const committed = commitScenario('moveSkillCasts', () => finalScenario);
+      // 编辑会话持有原始已提交文档；直接提交预览，不向同步观察者广播历史基准。
+      // 只有拒绝或抛错才回滚，避免成功松手触发一次不会展示的原位置模拟。
+      let committed: boolean;
+      try {
+        committed = commitScenario('moveSkillCasts', () => finalScenario);
+      } catch (error) {
+        scenario.value = gesture.baseScenario;
+        throw error;
+      }
       if (!committed) {
+        scenario.value = gesture.baseScenario;
         castMoveGesture.value = null;
-        await simulateNow();
+        await ensureCurrentSimulation();
         return;
       }
       options.onDropped?.(event, gesture.trackIndex, gesture.skillCastIds);
       await nextTick();
-      await simulateNow();
+      await ensureCurrentSimulation();
     } finally {
       // 模拟可能被较新请求替代或失败，均不得留下已经结束的拖动预览。
       // 旧请求结束时也不能清掉后来开始的新手势。

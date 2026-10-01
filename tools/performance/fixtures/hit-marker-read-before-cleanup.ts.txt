@@ -1,0 +1,103 @@
+// f148fe80 baseline: differential offline audit only; not imported by the application.
+const castHitEffects = computed(() => {
+  const current = simulationRun.value;
+  if (current === null) {
+    return new Map<string, ReadonlyMap<string, TimelineHitEffectLabel>>();
+  }
+  const byCastId = new Map<string, ReadonlyMap<string, TimelineHitEffectLabel>>();
+  const models = new Map(
+    viewModel.value.tracks.flatMap(track => track.skillCasts).map(cast => [cast.id, cast]),
+  );
+  for (const track of scenario.value.tracks) {
+    if (track === null) continue;
+    for (const cast of track.skillCasts) {
+      if (!compatibleSkillCastReceiptIds.value.has(cast.id)) continue;
+      const castModel = models.get(cast.id);
+      byCastId.set(
+        cast.id,
+        projectHitEffectsByCast(
+          scenario.value,
+          publishedReceiptEntries.value,
+          cast.id,
+          castModel?.hitMarkers ?? [],
+          hitReceipts.value,
+        ),
+      );
+    }
+  }
+  return byCastId;
+});
+
+function damageElementLabel(element: string): string {
+  const key = `hitEditor.elements.${element}`;
+  const translated = t(key);
+  return translated === key ? element : translated;
+}
+
+function reactionName(reaction: string): string {
+  const key = `effects.name.${reaction}`;
+  const translated = t(key);
+  return translated === key ? reaction : translated;
+}
+
+function hitMarkerTitle(label: TimelineHitEffectLabel | undefined): string {
+  if (label === undefined) return '';
+  const parts: string[] = [];
+  for (const damage of label.damage) {
+    parts.push(
+      `${Math.round(damage.value)}${publishedRandomMode.value === 'sampled' && damage.isCritical ? '!' : ''} ${damageElementLabel(damage.damageType)}`,
+    );
+  }
+  for (const infliction of label.infliction) {
+    parts.push(`${damageElementLabel(infliction.element)}${t('timeline.hitInflictionSuffix')}`);
+  }
+  for (const reaction of label.reactions) {
+    const name = reactionName(reaction.reaction);
+    parts.push(
+      reaction.applied
+        ? `${name} Lv${reaction.level}`
+        : `${name}${t('timeline.hitReactionConsumed')}`,
+    );
+  }
+  return parts.join(' · ');
+}
+
+function castHitMarkers(trackIndex: TrackIndex, castId: string): TimelineHitMarkerView[] {
+  if (simulationRun.value !== null && !compatibleSkillCastReceiptIds.value.has(castId)) return [];
+  const castModel = viewModel.value.tracks[trackIndex]?.skillCasts.find(
+    candidate => candidate.id === castId,
+  );
+  const cast = scenario.value.tracks[trackIndex]?.skillCasts.find(
+    candidate => candidate.id === castId,
+  );
+  if (castModel === undefined || cast === undefined) return [];
+  const effects = castHitEffects.value.get(castId);
+  const publishedStartFrame = skillCastActualStartFrames.value.get(castId) ?? castModel.startFrame;
+  if (simulationRun.value !== null) {
+    return (hitOccurrences.value.get(castId) ?? []).map(hit => ({
+      stepKey: hit.stepKey,
+      hitId: hit.hitId,
+      executionFrame: hit.frame,
+      leftPx: timelineFramePx(hit.frame) - timelineFramePx(publishedStartFrame),
+      triggered: hit.triggered,
+      stackIndex: hit.stackIndex,
+      linkBuffed: hit.linkBuffed,
+      forcedCritical: cast.simulationInputs?.criticalOverrides?.[hit.stepKey] === true,
+      title: hitMarkerTitle(hit.label),
+    }));
+  }
+  return castModel.hitMarkers
+    .filter(marker =>
+      shouldDisplayTimelineHitMarker(marker, simulationRun.value !== null, hitActualFrames.value),
+    )
+    .map(marker => ({
+      stepKey: marker.stepKey,
+      hitId: marker.hitId,
+      leftPx:
+        timelineFramePx(
+          hitActualFrames.value.get(marker.hitId) ?? publishedStartFrame + marker.frameOffset,
+        ) - timelineFramePx(publishedStartFrame),
+      forcedCritical: cast.simulationInputs?.criticalOverrides?.[marker.stepKey] === true,
+      ...(effects === undefined ? {} : { title: hitMarkerTitle(effects.get(marker.hitId)) }),
+    }));
+}
