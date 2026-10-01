@@ -34,7 +34,12 @@ it.each([0, 3])(
     };
     // 正式编辑器随机样本为1，10%留羊分支不触发，不篡改随机结果来补命中。
     const inputBefore = JSON.stringify(scenario);
-    const run = await createEditorSimulationService().simulate(scenario, 400);
+    const run = await createEditorSimulationService().simulate(
+      scenario,
+      400,
+      undefined,
+      'detailed',
+    );
     expect(JSON.stringify(scenario)).toBe(inputBefore);
     expect(run.executionDiagnostics).toEqual([]);
     expect(

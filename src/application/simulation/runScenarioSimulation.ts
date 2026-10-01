@@ -2,7 +2,10 @@
  * 应用层的一次性场景模拟入口。
  * 这里只编排已有编译器与战斗装配，不解释敌人，也不为运行环境依赖提供默认值。
  */
-import type { CombatReceiptEntry } from '../../core/combat/receipt/combatReceipt';
+import type {
+  CombatReceiptDetail,
+  CombatReceiptEntry,
+} from '../../core/combat/receipt/combatReceipt';
 import type { CombatReceiptView } from '../../core/combat/receipt/combatReceiptHistory';
 import {
   CombatResources,
@@ -33,6 +36,8 @@ export interface RunScenarioSimulationInput {
 }
 
 export interface ScenarioSimulationResult {
+  /** 本轮实际收集的执行详情级别，不能把普通回执当作完整执行日志。 */
+  readonly receiptDetail: CombatReceiptDetail;
   readonly frame: number;
   /** 本次模拟实际交给操作执行器的敌人静态输入。 */
   readonly enemy: CombatEnemyProgram;
@@ -159,6 +164,7 @@ export function collectCombatStateGraphResult(
 
   return Object.freeze({
     frame: graph.shared.clock.frame,
+    receiptDetail: compiled.receiptDetail ?? compiled.receipt?.receiptDetail ?? 'standard',
     enemy: compiled.enemy,
     operatorPanels,
     initialResources,

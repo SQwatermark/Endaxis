@@ -1,4 +1,5 @@
 import type { ResolvedCombatStepForKind } from '../../core/compiler/combatProgram';
+import type { CombatReceiptDetail } from '../../core/combat/receipt/combatReceipt';
 
 /**
  * 一条现成的模拟入口：编译场景 → 跑标准战斗环境 → 返回结果。
@@ -57,6 +58,8 @@ import { BuffProgressRecorder } from '../../core/combat/buffs/buffProgressRecord
 type DamageStep = ResolvedCombatStepForKind<'dealDamage' | 'dealFixedDamage'>;
 
 export interface RunStandardPlayerDamageScenarioInput {
+  /** 执行追踪详情不影响战斗规则；省略时保留完整回执。 */
+  readonly receiptDetail?: CombatReceiptDetail;
   readonly scenario: ScenarioDocument;
   readonly options: Omit<CompileScenarioRuntimeAssemblyOptions, 'environment'>;
   readonly endFrame: number;
@@ -190,6 +193,7 @@ export function prepareStandardPlayerDamageScenarioRuntime(
     ...input.options,
     environment: {
       ...environment.runtimeOptions,
+      receiptDetail: input.receiptDetail,
       skillAvailabilityTags: new GameplayTagPredefine(GAMEPLAY_TAG_PREDEFINE),
       dashTiming: createNativeDashTimingProgram(),
       timeDilation: {

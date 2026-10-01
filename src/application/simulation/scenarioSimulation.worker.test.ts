@@ -1,13 +1,126 @@
 import { afterEach, expect, it, vi } from 'vitest';
 import { createEmptyScenario } from '../../core/project/createProject';
 import { createGameDataRepository } from '../../data/createGameDataRepository';
+import { commonBuffDefinitions } from '../../data/buffs/commonDefinitions';
+import { perlica } from '../../data/operators/perlica.generated';
+import { placeSkillGroup } from '../../ui/timeline/interaction/placeSkillGroup';
+import { createScenarioSimulationService } from './createScenarioSimulationService';
 import { captureScenarioSimulationGameData } from './scenarioSimulationGameData';
+import { toSimulationWorkerResult } from './scenarioSimulationWorkerProtocol';
 import type {
   SimulationWorkerRequest,
   SimulationWorkerResponse,
 } from './scenarioSimulationWorkerProtocol';
 
 afterEach(() => vi.unstubAllGlobals());
+
+it('真实 Worker 切换回执模式和规划时保留接续事实，与各模式完整重算一致', async () => {
+  vi.resetModules();
+  const sent: SimulationWorkerResponse[] = [];
+  const host: {
+    onmessage?: (event: { data: SimulationWorkerRequest }) => Promise<void>;
+    postMessage: (response: SimulationWorkerResponse) => void;
+  } = { postMessage: response => sent.push(structuredClone(response)) };
+  vi.stubGlobal('self', host);
+  await import('./scenarioSimulation.worker');
+  const initial = createEmptyScenario('worker-receipt-detail', 'worker-receipt-detail');
+  initial.tracks[0] = {
+    id: 'track:0',
+    operator: {
+      operatorSlug: perlica.slug,
+      level: 90,
+      promoted: true,
+      potential: 0,
+      trustLevel: 4,
+      skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+      talentStates: {},
+    },
+    weapon: null,
+    gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+    initialState: { ultimateEnergy: 0 },
+    skillCasts: [],
+  };
+  let identity = 0;
+  const { scenario, skillCastIds } = placeSkillGroup({
+    scenario: initial,
+    trackIndex: 0,
+    operator: perlica,
+    skillGroupKey: 'basicAttack',
+    startFrame: 1,
+    ids: { allocate: kind => `${kind}:worker-detail:${identity++}` },
+  });
+  const repository = createGameDataRepository({
+    revision: 'worker-receipt-detail',
+    operators: [perlica],
+    commonDefinitionSources: [{ id: 'common', buffDefinitions: commonBuffDefinitions }],
+  });
+  const gameData = captureScenarioSimulationGameData(scenario, repository);
+  const full = createScenarioSimulationService(repository);
+  const optionalEvents = new Set([
+    'CombatStepReached',
+    'CombatConditionEvaluated',
+    'TimelineActionStarted',
+    'TimelineActionEnded',
+  ]);
+  let id = 0;
+  try {
+    for (const receiptDetail of ['detailed', 'standard', 'detailed'] as const) {
+      const candidate = structuredClone(scenario);
+      // 重叠的作者帧须由正式规划恢复接续，标准回执不能遗漏规划所需事实。
+      candidate.tracks[0]!.skillCasts.forEach(cast => {
+        cast.placement = { startFrame: id + 1 };
+      });
+      for (const plan of [undefined, { castIds: skillCastIds, mode: 'continuation' as const }]) {
+        await host.onmessage!({
+          data: {
+            id: ++id,
+            revision: 0,
+            scenario: candidate,
+            endFrame: 300,
+            receiptDetail,
+            ...(id === 1 ? { gameData } : {}),
+            ...(plan === undefined ? {} : { plan }),
+          },
+        });
+        const response = sent.at(-1)!;
+        expect(response.ok).toBe(true);
+        if (!response.ok) throw new Error(response.message);
+        const expected = plan
+          ? await full.planSkillChain(
+              candidate,
+              skillCastIds,
+              300,
+              undefined,
+              'continuation',
+              undefined,
+              receiptDetail,
+            )
+          : await full.simulate(candidate, 300, undefined, receiptDetail);
+        expect(response.result).toEqual(toSimulationWorkerResult(expected));
+        const run =
+          'receiptEntries' in response.result
+            ? response.result
+            : response.result.status === 'planned'
+              ? response.result.run
+              : undefined;
+        expect(run).toBeDefined();
+        if (!run) throw new Error('expected completed simulation or plan');
+        const optional = run.receiptEntries.filter(entry => optionalEvents.has(entry.event));
+        if (receiptDetail === 'standard') expect(optional).toEqual([]);
+        else expect(optional.length).toBeGreaterThan(0);
+        if (plan) {
+          const accepted = run.receiptEntries.filter(
+            entry => entry.event === 'SkillInputProcessed' && entry.data?.accepted === true,
+          );
+          expect(accepted.map(entry => entry.data?.castId)).toEqual(skillCastIds);
+          expect(new Set(accepted.map(entry => entry.frame)).size).toBe(skillCastIds.length);
+        }
+      }
+    }
+  } finally {
+    full.clearCache();
+  }
+});
 
 it('真实 Worker 入口将初始化失败返回请求错误，丢弃旧仓库并允许后续有效包恢复', async () => {
   vi.resetModules();

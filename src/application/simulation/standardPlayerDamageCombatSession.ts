@@ -93,6 +93,7 @@ function createRestoreAssembly(
   return (graph: CombatStateGraph, skillPrograms, receiptHistory) =>
     CombatRuntimeAssembly.restore({
       receiptHistory,
+      receiptDetail: compiled.receiptDetail ?? compiled.receipt?.receiptDetail ?? 'standard',
       graph,
       resources: compiled.resources,
       enemy: compiled.enemy,

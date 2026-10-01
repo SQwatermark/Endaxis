@@ -8,6 +8,7 @@ import type {
 } from './scenarioSimulationService';
 import type { WorkerScenarioSimulationService } from './workerScenarioSimulationService';
 import type { ScenarioDocument } from '../../core/project/schema';
+import type { CombatReceiptDetail } from '../../core/combat/receipt/combatReceipt';
 
 type SimulationBackend = Pick<
   ScenarioSimulationService,
@@ -65,11 +66,13 @@ export class AdaptiveTimelineSimulationService {
     scenario: ScenarioDocument,
     endFrame: number,
     signal?: AbortSignal,
+    receiptDetail: CombatReceiptDetail = 'standard',
   ): Promise<ScenarioSimulationRun> {
     return (this.interactiveBackend === 'local' ? this.local : this.worker).simulate(
       scenario,
       endFrame,
       signal,
+      receiptDetail,
     );
   }
 
@@ -80,8 +83,17 @@ export class AdaptiveTimelineSimulationService {
     signal?: AbortSignal,
     mode: 'continuation' | 'compact' = 'continuation',
     extension?: RecursiveSkillChain,
+    receiptDetail: CombatReceiptDetail = 'standard',
   ) {
-    return this.worker.planSkillChain(scenario, castIds, endFrame, signal, mode, extension);
+    return this.worker.planSkillChain(
+      scenario,
+      castIds,
+      endFrame,
+      signal,
+      mode,
+      extension,
+      receiptDetail,
+    );
   }
 
   subscribePerformance(listener: ScenarioSimulationPerformanceSubscriber): () => void {

@@ -4,7 +4,7 @@
  * 新战斗和恢复战斗都必须通过这里一次性建立时钟、资源、回执、时间膨胀、连携、演出、冷却和
  * 编号目录。恢复时每个对象直接绑定同一份 `CombatSharedState` 数据，不能先创建空账本再覆盖。
  */
-import { CombatReceiptCollector } from '../receipt/combatReceipt';
+import { CombatReceiptCollector, type CombatReceiptDetail } from '../receipt/combatReceipt';
 import { AbilityEntityInstanceIdAllocator } from '../abilities/abilityEntityInstanceIdAllocator';
 import { CombatClock } from '../time/combatClock';
 import type {
@@ -31,6 +31,7 @@ export interface CombatSharedRuntimeOptions {
   readonly operatorOrder: readonly string[];
   readonly initialFrame?: number;
   readonly receipt?: CombatReceiptCollector;
+  readonly receiptDetail?: CombatReceiptDetail;
   readonly timeDilation?: {
     readonly config: TimeDilationRuntimeConfig;
     readonly observer?: TimeDilationRuntimeObserver;
@@ -77,7 +78,13 @@ export class CombatSharedRuntime {
       options.resourceResolvers,
       state?.resources,
     );
-    this.receipt = options.receipt ?? new CombatReceiptCollector();
+    if (
+      options.receipt !== undefined &&
+      options.receiptDetail !== undefined &&
+      options.receipt.receiptDetail !== options.receiptDetail
+    )
+      throw new Error('receipt collector detail must match the runtime');
+    this.receipt = options.receipt ?? new CombatReceiptCollector(undefined, options.receiptDetail);
     this.ultimatePresentation = new UltimatePresentationRuntime(
       this.clock,
       this.receipt,

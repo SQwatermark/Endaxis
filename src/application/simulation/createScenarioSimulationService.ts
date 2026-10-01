@@ -5,6 +5,7 @@
  * 相同的编译器、运行时规则和资源常量。
  */
 import type { GameDataRepository } from '../../core/game-data/gameDataRepository';
+import type { CombatReceiptDetail } from '../../core/combat/receipt/combatReceipt';
 
 import { skillSettings, skillSettingResources } from '../../data/combat/skillSettings';
 import { ScenarioSimulationService } from './scenarioSimulationService';
@@ -12,8 +13,10 @@ import { ScenarioSimulationService } from './scenarioSimulationService';
 export function createScenarioSimulationService(
   repository: GameDataRepository,
   reuseCheckpoint = false,
+  receiptDetail: CombatReceiptDetail = 'standard',
 ): ScenarioSimulationService {
   return new ScenarioSimulationService({
+    receiptDetail,
     reuseCheckpoint,
     index: repository,
     spellInflictionSettings: skillSettings,

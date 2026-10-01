@@ -8,14 +8,15 @@ import { createHash } from 'node:crypto';
 import { build } from 'vite';
 
 const usage =
-  'node tools/performance/profile-simulation.mjs <project.json> <new-output-directory> [repetitions=12] [warmups=5]\nFirst independent scenario only; repetitions 1–50, warmups 1–20. Two fresh processes per mode, 600s hard timeout each. Raw traces and SSR source maps stay in the output directory.';
+  'node tools/performance/profile-simulation.mjs <project.json> <new-output-directory> [repetitions=12] [warmups=5] [receipt-detail=standard]\nFirst independent scenario only; repetitions 1–50, warmups 1–20. Two fresh processes per mode, 600s hard timeout each. Raw traces and SSR source maps stay in the output directory.';
 const args = process.argv.slice(2);
 if (args.includes('--help')) {
   console.log(usage);
   process.exit(0);
 }
-if (args.length < 2 || args.length > 4) throw new Error(usage);
-const [input, output, repetitionsText = '12', warmupsText = '5'] = args;
+if (args.length < 2 || args.length > 5) throw new Error(usage);
+const [input, output, repetitionsText = '12', warmupsText = '5', receiptDetail = 'standard'] = args;
+if (!['standard', 'detailed'].includes(receiptDetail)) throw new Error(usage);
 function integer(text, max) {
   const n = Number(text);
   if (!Number.isSafeInteger(n) || n < 1 || n > max) throw new Error(usage);
@@ -169,7 +170,14 @@ for (let repeat = 1; repeat <= 2; repeat++)
       process.execPath,
       [
         join(outputDirectory, 'runner.mjs'),
-        JSON.stringify({ inputPath, outputDirectory: directory, mode, repetitions, warmups }),
+        JSON.stringify({
+          inputPath,
+          outputDirectory: directory,
+          mode,
+          repetitions,
+          warmups,
+          receiptDetail,
+        }),
       ],
       {
         cwd: root,
@@ -207,6 +215,7 @@ writeFileSync(
       provenance,
       repetitions,
       warmups,
+      receiptDetail,
       methodology:
         'Production SSR; fresh process per mode/repeat; profiling starts after warmups and brackets simulate (includes unavoidable inspector start/stop boundary samples); no hashing, cloning, output writes, startup, clearCache or warmups inside capture. Cache/checkpoint disabled; immutable definition caches retain normal lifetime. CPU 1000us sampling; allocation 32768-byte sampling including objects collected during capture. No forced GC. Inclusive rows overlap and must not be added; each sample contributes once per unique frame key in a lineage. Control has same inspector connection and result verification but no sampling. Source map positions are function-entry mappings, not exact statement samples.',
       runs,

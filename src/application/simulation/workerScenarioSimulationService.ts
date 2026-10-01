@@ -1,5 +1,6 @@
 import { notifySimulationPerformanceSubscribers } from './simulationPerformanceNotification';
 import type { ScenarioDocument } from '../../core/project/schema';
+import type { CombatReceiptDetail } from '../../core/combat/receipt/combatReceipt';
 
 import type { RecursiveSkillChain } from './recursiveSkillChain';
 import type {
@@ -100,8 +101,15 @@ export class WorkerScenarioSimulationService {
     scenario: ScenarioDocument,
     endFrame: number,
     signal?: AbortSignal,
+    receiptDetail: CombatReceiptDetail = 'standard',
   ): Promise<ScenarioSimulationRun> {
-    return this.enqueue(scenario, endFrame, signal) as Promise<ScenarioSimulationRun>;
+    return this.enqueue(
+      scenario,
+      endFrame,
+      signal,
+      undefined,
+      receiptDetail,
+    ) as Promise<ScenarioSimulationRun>;
   }
   planSkillChain(
     scenario: ScenarioDocument,
@@ -110,12 +118,19 @@ export class WorkerScenarioSimulationService {
     signal?: AbortSignal,
     mode: 'continuation' | 'compact' = 'continuation',
     extension?: RecursiveSkillChain,
+    receiptDetail: CombatReceiptDetail = 'standard',
   ): Promise<SimulationPlan> {
-    return this.enqueue(scenario, endFrame, signal, {
-      castIds,
-      mode,
-      ...(extension ? { extension } : {}),
-    }) as Promise<SimulationPlan>;
+    return this.enqueue(
+      scenario,
+      endFrame,
+      signal,
+      {
+        castIds,
+        mode,
+        ...(extension ? { extension } : {}),
+      },
+      receiptDetail,
+    ) as Promise<SimulationPlan>;
   }
   clearCache() {
     this.revision++;
@@ -143,6 +158,7 @@ export class WorkerScenarioSimulationService {
     endFrame: number,
     signal?: AbortSignal,
     plan?: SimulationWorkerRequest['plan'],
+    receiptDetail: CombatReceiptDetail = 'standard',
   ) {
     if (this.disposed || signal?.aborted) return Promise.reject(abort());
     return new Promise<ScenarioSimulationRun | SimulationPlan>((resolve, reject) => {
@@ -154,6 +170,7 @@ export class WorkerScenarioSimulationService {
           revision: this.revision,
           scenario,
           endFrame,
+          receiptDetail,
           ...(plan ? { plan } : {}),
         },
         resolve,

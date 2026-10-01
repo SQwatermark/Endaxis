@@ -401,11 +401,13 @@ export class SkillRuntime {
     this.#sequenceRuntime = new CombatActionSequenceRuntime(
       dependencies.operations,
       this.#operationContext,
-      {
-        stepReached: step => this.record('CombatStepReached', { kind: step.kind }),
-        conditionEvaluated: (condition, passed) =>
-          this.record('CombatConditionEvaluated', { kind: condition.kind, passed }),
-      },
+      dependencies.receipt.receiptDetail !== 'detailed'
+        ? {}
+        : {
+            stepReached: step => this.record('CombatStepReached', { kind: step.kind }),
+            conditionEvaluated: (condition, passed) =>
+              this.record('CombatConditionEvaluated', { kind: condition.kind, passed }),
+          },
       dependencies.semanticEvents,
       this.#hostIdentity.semanticEventOwnerOperatorId,
       restored?.state.scopes,
@@ -732,7 +734,8 @@ export class SkillRuntime {
     };
     if (route.condition !== undefined) {
       const passed = this.#dependencies.operations.evaluate(route.condition, routeContext);
-      this.record('CombatConditionEvaluated', { kind: route.condition.kind, passed });
+      if (this.#dependencies.receipt.receiptDetail === 'detailed')
+        this.record('CombatConditionEvaluated', { kind: route.condition.kind, passed });
       if (!passed) return false;
     }
     const cooldownReserved = this.#cooldown.tryReserve();
@@ -808,10 +811,13 @@ export class SkillRuntime {
   #createTimeline(state?: SkillRuntimeState['timeline']) {
     return this.#sequenceRuntime.createTimeline(
       this.#program.timelineActions,
-      {
-        started: action => this.record('TimelineActionStarted', { startFrame: action.startFrame }),
-        ended: action => this.record('TimelineActionEnded', { startFrame: action.startFrame }),
-      },
+      this.#dependencies.receipt.receiptDetail !== 'detailed'
+        ? {}
+        : {
+            started: action =>
+              this.record('TimelineActionStarted', { startFrame: action.startFrame }),
+            ended: action => this.record('TimelineActionEnded', { startFrame: action.startFrame }),
+          },
       state ?? undefined,
     );
   }

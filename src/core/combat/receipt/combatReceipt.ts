@@ -6,6 +6,9 @@ import { CombatReceiptHistory, type CombatReceiptView } from './combatReceiptHis
 import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
 import type { AppliedDamageModifier, CombatObjectRef } from '../state/foundationState';
 export type { CombatObjectRef } from '../state/foundationState';
+/** standard 保留直接展示和玩法所需事实；detailed 额外记录动作执行过程。 */
+export type CombatReceiptDetail = 'standard' | 'detailed';
+
 export type CombatReceiptValue = boolean | number | string | null;
 
 /** 一条带帧、事实类型和结构化数据的运行时回执。 */
@@ -30,6 +33,8 @@ export interface CombatReceiptEntry {
 
 /** 运行时追加事实的最小端口，投影层只读取其最终结果。 */
 export interface CombatReceiptSink {
+  /** 缺省只收集普通事实；在宿主装配时决定，不在执行中切换。 */
+  readonly receiptDetail?: CombatReceiptDetail;
   record(entry: Omit<CombatReceiptEntry, 'sequence'>): void;
 }
 
@@ -38,7 +43,10 @@ export class CombatReceiptCollector implements CombatReceiptSink {
   readonly history: CombatReceiptHistory;
   /** 已发布数值的派生索引；恢复时只读固定前缀重建，分支之间不共享。 */
   readonly #passiveUiValues = new Map<string, { sourceId: string; value: number }>();
-  constructor(saved?: CombatReceiptView) {
+  constructor(
+    saved?: CombatReceiptView,
+    readonly receiptDetail: CombatReceiptDetail = 'standard',
+  ) {
     this.history = saved?.fork() ?? new CombatReceiptHistory();
     if (saved !== undefined)
       for (const entry of saved.entries())

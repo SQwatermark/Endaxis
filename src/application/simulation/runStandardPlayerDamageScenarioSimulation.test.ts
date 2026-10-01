@@ -2460,6 +2460,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
 
   it('runs generated Mifu shield creation and active battle-skill replacement', () => {
     const result = runStandardPlayerDamageScenarioSimulation({
+      receiptDetail: 'detailed',
       scenario: createGeneratedMifuProtectionScenario(),
       endFrame: 240,
       criticalSamples: new ExplicitCriticalSampleSource(Array(30).fill(1)),

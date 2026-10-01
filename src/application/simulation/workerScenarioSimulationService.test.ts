@@ -256,6 +256,35 @@ it('定义版本变更使旧结果作废，新请求重新传当前场景数据'
   await next;
   service.dispose();
 });
+it('切换回执详情后取消的在途结果只释放队列，不结算新模式请求', async () => {
+  const { worker, service, reply, captureGameData } = harness();
+  const scenario = createEmptyScenario('receipt-detail', 'receipt-detail');
+  const controller = new AbortController();
+  const standard = service
+    .simulate(scenario, 10, controller.signal, 'standard')
+    .catch(error => error.name);
+  let detailedSettled = false;
+  const detailed = service.simulate(scenario, 10, undefined, 'detailed').then(run => {
+    detailedSettled = true;
+    return run;
+  });
+  expect(worker.postMessage.mock.lastCall![0].receiptDetail).toBe('standard');
+  controller.abort();
+  expect(await standard).toBe('AbortError');
+  expect(worker.postMessage).toHaveBeenCalledTimes(1);
+
+  reply(1);
+  expect(worker.postMessage).toHaveBeenCalledTimes(2);
+  expect(worker.postMessage.mock.lastCall![0].receiptDetail).toBe('detailed');
+  expect(worker.postMessage.mock.lastCall![0]).not.toHaveProperty('gameData');
+  reply(1);
+  await Promise.resolve();
+  expect(detailedSettled).toBe(false);
+  reply(2);
+  expect((await detailed).frame).toBe(2);
+  expect(captureGameData).toHaveBeenCalledOnce();
+  service.dispose();
+});
 it('线程故障拒绝在途及等待请求，不让页面永久运行中', async () => {
   const { worker, service } = harness();
   const scenario = createEmptyScenario('qa', 'qa');

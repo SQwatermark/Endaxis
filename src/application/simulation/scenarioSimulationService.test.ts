@@ -61,6 +61,7 @@ import { CombatInputSchedule } from './combatInputSchedule';
 import { createScenarioSimulationService } from './createScenarioSimulationService';
 import { createEditorSimulationService } from './editorSimulationService';
 import type { CombatSkillInputPhase } from '../../core/combat/runtime/combatFrameInput';
+import type { CombatReceiptDetail } from '../../core/combat/receipt/combatReceipt';
 import {
   compileFixedCombatInputSchedule,
   compileCombatInputSchedule,
@@ -243,7 +244,7 @@ describe('ScenarioSimulationService', () => {
       commonDefinitionSources: [{ id: 'shared', buffDefinitions: commonBuffDefinitions }],
     });
     const service = createEditorSimulationService(repository);
-    const full = createScenarioSimulationService(repository);
+    const full = createScenarioSimulationService(repository, false, 'standard');
     const samples: ScenarioSimulationPerformanceSample[] = [];
     service.subscribePerformance(sample => samples.push(sample));
     try {
@@ -274,6 +275,63 @@ describe('ScenarioSimulationService', () => {
       clock.mockRestore();
     }
   });
+
+  it.each(['incremental', 'inherited'] as const)(
+    '%s 前缀在详情切换和编辑后只复用同级别历史，清缓存同时释放两个级别',
+    async cache => {
+      let now = 0;
+      const service = createService(() => (now += 30), true);
+      const full = createService();
+      const create = vi.spyOn(ScenarioSimulationService.prototype, 'createInputCombatSession');
+      const samples: ScenarioSimulationPerformanceSample[] = [];
+      service.subscribePerformance(sample => samples.push(sample));
+      let scenario = createPerlicaScenario();
+      for (const frame of [1, 210]) {
+        scenario = placeSkillGroup({
+          scenario,
+          trackIndex: 0,
+          operator: perlica,
+          skillGroupKey: 'plungingAttack',
+          startFrame: frame,
+          ids: { allocate: kind => `${kind}:${frame}` },
+        }).scenario;
+      }
+      if (cache === 'inherited')
+        scenario.inheritance = { frame: 150, sourceScenarioId: 'receipt-mode-source' };
+      const check = async (receiptDetail: CombatReceiptDetail, frame: number, reused: boolean) => {
+        scenario = structuredClone(scenario);
+        scenario.tracks[0]!.skillCasts.at(-1)!.placement = { startFrame: frame };
+        const before = create.mock.calls.length;
+        const actual = await service.simulate(scenario, 300, undefined, receiptDetail);
+        expect(create.mock.calls.length - before).toBe(reused ? 0 : 1);
+        if (cache === 'incremental')
+          expect(samples.at(-1)?.resumedFromFrame).toBe(reused ? 150 : null);
+        const fresh = structuredClone(scenario);
+        delete fresh.inheritance;
+        const expected = await full.simulate(fresh, 300, undefined, receiptDetail);
+        const { receiptHistory: actualHistory, ...actualData } = actual;
+        const { receiptHistory: expectedHistory, ...expectedData } = expected;
+        expect(actualData).toEqual(expectedData);
+        expect(actualHistory.toArray()).toEqual(expectedHistory.toArray());
+        expect(actual.receiptEntries.some(entry => entry.event === 'CombatStepReached')).toBe(
+          receiptDetail === 'detailed',
+        );
+      };
+      try {
+        await check('detailed', 210, false);
+        await check('standard', 220, false);
+        await check('standard', 225, true);
+        await check('detailed', 230, true);
+        service.clearCache();
+        await check('standard', 235, false);
+        await check('detailed', 240, false);
+      } finally {
+        service.clearCache();
+        full.clearCache();
+        create.mockRestore();
+      }
+    },
+  );
 
   it.each(['expected', 'sampled'] as const)('单切面续算与完整重算一致：%s', async mode => {
     let now = 0;

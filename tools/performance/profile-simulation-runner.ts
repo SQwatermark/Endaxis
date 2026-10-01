@@ -18,6 +18,7 @@ const options: {
   inputPath: string;
   outputDirectory: string;
   mode: 'control' | 'cpu' | 'allocation';
+  receiptDetail?: 'standard' | 'detailed';
   repetitions: number;
   warmups: number;
 } = JSON.parse(process.argv[2]!);
@@ -38,7 +39,7 @@ const repository = overlay(
   await createProjectGameDataRepository(project),
   getProjectDefinitionLibrary(project),
 );
-const service = createScenarioSimulationService(repository, false);
+const service = createScenarioSimulationService(repository, false, options.receiptDetail);
 const timings: ScenarioSimulationPerformanceSample[] = [];
 const unsubscribe = service.subscribePerformance(sample => timings.push(sample));
 const inspector = new Session();
@@ -112,6 +113,7 @@ try {
   console.log(
     JSON.stringify({
       mode: options.mode,
+      receiptDetail: options.receiptDetail ?? 'standard',
       startedWithWarmups: options.warmups,
       repetitions: options.repetitions,
       sourceSha256: sha256(source),

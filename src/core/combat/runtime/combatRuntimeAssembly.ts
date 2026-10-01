@@ -113,7 +113,11 @@ import { CustomAbilityEventOperationExecutor } from '../events/customAbilityEven
 import { EventContextConditionExecutor } from '../events/eventContextConditionExecutor';
 import { ExternalCombatEventRuntime } from '../events/externalCombatEventRuntime';
 import type { ProbabilitySampleSource } from '../random/probabilitySampleSource';
-import { CombatReceiptCollector, type CombatReceiptSink } from '../receipt/combatReceipt';
+import {
+  CombatReceiptCollector,
+  type CombatReceiptSink,
+  type CombatReceiptDetail,
+} from '../receipt/combatReceipt';
 import { CombatResourceRuntime } from '../resources/combatResourceRuntime';
 import { CombatResources, type CombatResourceSnapshot } from '../resources/combatResources';
 import type { CombatVitals } from '../resources/combatVitals';
@@ -597,10 +601,12 @@ export interface CombatRuntimeEnvironmentOptions extends CombatRuntimeInputRules
     pending: PendingComboCondition,
   ) => void;
   readonly receipt?: CombatReceiptCollector;
+  readonly receiptDetail?: CombatReceiptDetail;
 }
 
 /** 从同一切面树的固定程序与标准环境配置建立完整的当前分支装配。 */
 export interface CombatRuntimeAssemblyRestoreOptions extends CombatRuntimeInputRules {
+  readonly receiptDetail?: CombatReceiptDetail;
   readonly operatorControl?: OperatorControlConfiguration;
   readonly receiptHistory: import('../receipt/combatReceiptHistory').CombatReceiptView;
   readonly graph: CombatStateGraph;
@@ -839,7 +845,10 @@ export class CombatRuntimeAssembly {
       restoredFoundation = bindRestoredCombatRuntimeFoundation({
         preparation: input.preparation,
         shared: {
-          receipt: new CombatReceiptCollector(restoreOptions.receiptHistory),
+          receipt: new CombatReceiptCollector(
+            restoreOptions.receiptHistory,
+            restoreOptions.receiptDetail,
+          ),
           resources: restoreOptions.resources,
           resourceResolvers: {
             ultimateEnergyGainMultiplier: operatorId =>
@@ -888,6 +897,9 @@ export class CombatRuntimeAssembly {
           ? {}
           : { externalEvents: restoreOptions.externalEvents }),
         ...restoredFoundation.environment.runtimeOptions,
+        ...(restoreOptions.receiptDetail === undefined
+          ? {}
+          : { receiptDetail: restoreOptions.receiptDetail }),
         abilityEntityChildSkillPrograms: restoreOptions.abilityEntityChildSkillPrograms,
         combatOperationPrograms: restoreOptions.combatOperationPrograms,
         combatSkillPrograms: restoreOptions.combatSkillPrograms,
@@ -1398,6 +1410,7 @@ export class CombatRuntimeAssembly {
       operatorOrder: options.operators.map(operator => operator.operatorId),
       ...(options.initialFrame === undefined ? {} : { initialFrame: options.initialFrame }),
       ...(options.receipt === undefined ? {} : { receipt: options.receipt }),
+      ...(options.receiptDetail === undefined ? {} : { receiptDetail: options.receiptDetail }),
       ...(options.timeDilation === undefined
         ? {}
         : {

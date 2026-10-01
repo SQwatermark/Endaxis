@@ -25,6 +25,7 @@ import { deriveHitId } from '../timeline/deriveHitId';
 import { CombatAttributeSet } from '../attributes/combatAttributes';
 import { BuffDefinitionOperationTarget } from '../buffs/buffDefinitionOperationTarget';
 import { SkillCooldown } from '../skills/skillCooldown';
+import type { CombatReceiptDetail } from '../receipt/combatReceipt';
 
 const compileGraphEntry = (
   revision: string,
@@ -116,6 +117,7 @@ function createFixture(
   lazyCasts = false,
   cameraSensitive = false,
   operatorControl?: OperatorControlConfiguration,
+  receiptDetail: CombatReceiptDetail = 'standard',
 ) {
   const environment = new StandardPlayerDamageEnvironment({
     ...environmentInput(isOperatorControlled),
@@ -264,6 +266,7 @@ function createFixture(
     },
   ];
   const original = new CombatRuntimeAssembly({
+    receiptDetail,
     deferInitialInput,
     ...environment.runtimeOptions,
     ...(isOperatorControlled === undefined ? {} : { isOperatorControlled }),
@@ -282,6 +285,7 @@ function createFixture(
       candidateInputs = live ? [] : inputs,
       candidateExternalEvents = live ? [] : externalEvents,
       candidateOperators = operators,
+      candidateReceiptDetail = receiptDetail,
     ) =>
     (
       graph: typeof original.stateGraph,
@@ -289,6 +293,7 @@ function createFixture(
       receiptHistory: import('../receipt/combatReceiptHistory').CombatReceiptView,
     ) =>
       CombatRuntimeAssembly.restore({
+        receiptDetail: candidateReceiptDetail,
         receiptHistory,
         graph,
         operatorControl,
@@ -1112,6 +1117,54 @@ it('截面复制不包含回执历史，恢复和分叉保留原事实对象', (
     clone.mockRestore();
   }
 });
+
+it.each(['standard', 'detailed'] as const)(
+  '%s 回执切面只接受同级别恢复，拒绝的候选不污染原分支',
+  receiptDetail => {
+    const { session, createRestore } = createFixture(
+      undefined,
+      false,
+      false,
+      false,
+      true,
+      undefined,
+      receiptDetail,
+    );
+    session.advanceFrames(3);
+    const checkpoint = session.save();
+    const prefix = session.readHistory();
+    const branch = session.fork(checkpoint);
+    expect(branch.readHistory()).toBe(prefix);
+    session.advanceFrames(5);
+    branch.advanceFrames(5);
+    const completedState = session.readState();
+    const completedHistory = session.readHistory();
+    expect(branch.readState()).toEqual(completedState);
+    expect(branch.readHistory().toArray()).toEqual(completedHistory.toArray());
+    expect(completedHistory.toArray().some(entry => entry.event === 'CombatStepReached')).toBe(
+      receiptDetail === 'detailed',
+    );
+
+    const generation = session.generation;
+    const wrongMode = createRestore(
+      undefined,
+      undefined,
+      undefined,
+      receiptDetail === 'standard' ? 'detailed' : 'standard',
+    );
+    expect(() => session.restore(checkpoint, wrongMode)).toThrow('checkpoint receipt detail');
+    expect(() => session.fork(checkpoint, wrongMode)).toThrow('checkpoint receipt detail');
+    expect(session.generation).toBe(generation);
+    expect(session.readState()).toEqual(completedState);
+    expect(session.readHistory()).toBe(completedHistory);
+
+    session.restore(checkpoint);
+    expect(session.readHistory()).toBe(prefix);
+    session.advanceFrames(5);
+    expect(session.readState()).toEqual(completedState);
+    expect(session.readHistory().toArray()).toEqual(completedHistory.toArray());
+  },
+);
 
 it('按游标筛选回执返回不可变事实，回退后旧游标失效', () => {
   const { session } = createFixture(undefined, true, true);

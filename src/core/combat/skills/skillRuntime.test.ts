@@ -13,7 +13,7 @@ import type {
 import { listOperatorSkillDefinitionBindings } from '../../game-data/operatorSkillDefinitions';
 import { compileSkill } from '../../compiler/compileSkill';
 import { ActionGraphDefinitionRepository } from '../../compiler/actionGraphDefinitionRepository';
-import { CombatReceiptCollector } from '../receipt/combatReceipt';
+import { CombatReceiptCollector, type CombatReceiptDetail } from '../receipt/combatReceipt';
 import { CombatClock } from '../time/combatClock';
 import { CombatResources } from '../resources/combatResources';
 import { projectResourceChangePoints } from '../../projection/resourceChangePoints';
@@ -135,6 +135,8 @@ function createBattleSkillRuntime(
   emitAfterSkillApplyCost?: ConstructorParameters<
     typeof SkillRuntime
   >[1]['emitAfterSkillApplyCost'],
+  receiptDetail: CombatReceiptDetail = 'standard',
+  omitReceiptSinkDetail = false,
 ) {
   const clock = new CombatClock();
   const resources = new CombatResources({
@@ -155,7 +157,7 @@ function createBattleSkillRuntime(
       },
     ],
   });
-  const receipt = new CombatReceiptCollector();
+  const receipt = new CombatReceiptCollector(undefined, receiptDetail);
   const { semanticEvents, emitAddedBuff, emitOutputDamage } = createNativeEventFixture();
   const operations: CombatOperationExecutor = {
     execute: vi.fn(() => true),
@@ -180,7 +182,7 @@ function createBattleSkillRuntime(
   const runtime = new SkillRuntime(compiledProgram, {
     clock,
     resources,
-    receipt,
+    receipt: omitReceiptSinkDetail ? { record: entry => receipt.record(entry) } : receipt,
     operations,
     allocateSkillCastId: () => nextSkillCastId++,
     semanticEvents,
@@ -203,6 +205,84 @@ function createBattleSkillRuntime(
 }
 
 describe('SkillRuntime', () => {
+  it.each(['standard', undefined] as const)(
+    '%s 回执模式不调用过程记录器，仍执行条件、费用、动作和自然结束',
+    receiptDetail => {
+      const definition = defineSkillFixture({
+        key: 'optional-execution-receipts',
+        timelineBlockFrames: 3,
+        naturalDurationFrames: 3,
+        costs: [{ resource: 'sp', value: 10 }],
+        costFrame: 0,
+        scheduled: [
+          {
+            startFrame: 0,
+            endFrame: 2,
+            steps: [
+              {
+                kind: 'conditional',
+                parameters: {
+                  condition: {
+                    kind: 'cameraToTargetAngleCompare',
+                    operator: 'greater',
+                    value: { kind: 'constant', value: 0 },
+                  },
+                },
+                whenTrue: { $sequence: 'hit' },
+              },
+            ],
+          },
+        ],
+        extraNodes: {
+          hit: {
+            action: {
+              kind: 'dealDamage',
+              parameters: { damageType: 'physical', attackScale: 1, tags: [] },
+            },
+            next: null,
+          },
+        },
+      });
+      const run = (detail: CombatReceiptDetail | undefined) => {
+        const fixture = createBattleSkillRuntime(
+          300,
+          undefined,
+          undefined,
+          definition,
+          undefined,
+          undefined,
+          detail,
+          detail === undefined,
+        );
+        const record = vi.spyOn(fixture.runtime, 'record');
+        expect(fixture.runtime.tryStart()).toBe(true);
+        fixture.simulation.advanceFrames(4);
+        return { ...fixture, recorded: record.mock.calls.map(([event]) => event) };
+      };
+      const detailed = run('detailed');
+      const standard = run(receiptDetail);
+      const optional = new Set([
+        'CombatStepReached',
+        'CombatConditionEvaluated',
+        'TimelineActionStarted',
+        'TimelineActionEnded',
+      ]);
+      expect(detailed.recorded.filter(event => optional.has(event))).toEqual(
+        expect.arrayContaining([...optional]),
+      );
+      expect(standard.recorded.some(event => optional.has(event))).toBe(false);
+      expect(standard.runtime.runtimeState).toEqual(detailed.runtime.runtimeState);
+      expect(standard.resources.snapshot()).toEqual(detailed.resources.snapshot());
+      expect(standard.operations.execute).toHaveBeenCalledTimes(1);
+      expect(standard.operations.evaluate).toHaveBeenCalledTimes(1);
+      expect(standard.receipt.entries).toEqual(
+        detailed.receipt.entries
+          .filter(entry => !optional.has(entry.event))
+          .map((entry, sequence) => ({ ...entry, sequence })),
+      );
+    },
+  );
+
   it('正式技能宿主执行图区间，施法中恢复保留身份、输入标记和自然结束时序', () => {
     const graph = createActionGraphCompilation(
       {
@@ -1050,6 +1130,7 @@ describe('SkillRuntime', () => {
       definition!,
       emitSkillEnd,
       emitAfterSkillApplyCost,
+      'detailed',
     );
     const afterCastStart = {
       trigger: { kind: 'enemy' as const },
@@ -2127,7 +2208,15 @@ describe('SkillRuntime', () => {
   });
 
   it('applies frame-zero cost during the native initial tick', () => {
-    const fixture = createBattleSkillRuntime(300);
+    const fixture = createBattleSkillRuntime(
+      300,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      'detailed',
+    );
 
     expect(fixture.runtime.tryStart()).toBe(true);
     expect(fixture.runtime.skillCastInfo.nonReturnedSpCost).toBe(100);
@@ -2241,7 +2330,15 @@ describe('SkillRuntime', () => {
   });
 
   it('executes Perlica hit steps in source order at relative frame 13', () => {
-    const fixture = createBattleSkillRuntime(300);
+    const fixture = createBattleSkillRuntime(
+      300,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      'detailed',
+    );
     fixture.runtime.tryStart();
 
     fixture.simulation.advanceFrames(13);
@@ -2274,7 +2371,15 @@ describe('SkillRuntime', () => {
   });
 
   it('reports insufficient SP without preventing the scheduled skill simulation', () => {
-    const fixture = createBattleSkillRuntime(99);
+    const fixture = createBattleSkillRuntime(
+      99,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      'detailed',
+    );
 
     expect(fixture.runtime.tryStart()).toBe(true);
 

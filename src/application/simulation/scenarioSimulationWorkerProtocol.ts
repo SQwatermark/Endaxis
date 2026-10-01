@@ -4,6 +4,7 @@ import type {
   ScenarioSimulationPerformanceSample,
 } from './scenarioSimulationService';
 import type { ScenarioDocument } from '../../core/project/schema';
+import type { CombatReceiptDetail } from '../../core/combat/receipt/combatReceipt';
 
 import type { RecursiveSkillChain } from './recursiveSkillChain';
 import { restoreCombatReceiptView } from '../../core/combat/receipt/combatReceiptHistory';
@@ -24,6 +25,7 @@ export interface SimulationWorkerRequest {
   readonly gameData?: ScenarioSimulationGameData;
   readonly scenario: ScenarioDocument;
   readonly endFrame: number;
+  readonly receiptDetail?: CombatReceiptDetail;
   readonly plan?: {
     readonly castIds: readonly string[];
     readonly mode: 'continuation' | 'compact';

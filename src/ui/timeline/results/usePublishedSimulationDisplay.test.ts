@@ -5,7 +5,7 @@ import { CombatReceiptCollector } from '../../../core/combat/receipt/combatRecei
 import type { PublishedScenarioSimulation } from '../useScenarioSimulation';
 import { usePublishedSimulationDisplay } from './usePublishedSimulationDisplay';
 
-it('captures on publication, shares history and clears all display sources synchronously', () => {
+it('publishes the standard receipt history to the battle log and clears all display sources synchronously', () => {
   const published = shallowRef<PublishedScenarioSimulation | null>(null);
   const weapon = { slug: 'weapon', displayName: 'original' };
   const gear = { slug: 'gear', iconPath: '/original.webp' };
@@ -29,7 +29,10 @@ it('captures on publication, shares history and clears all display sources synch
     const receiptHistory = new CombatReceiptCollector().history.snapshot();
     published.value = {
       scenario: createEmptyScenario('test', 'test'),
-      run: { receiptHistory } as unknown as PublishedScenarioSimulation['run'],
+      run: {
+        receiptHistory,
+        receiptDetail: 'standard',
+      } as unknown as PublishedScenarioSimulation['run'],
     };
     expect(display.battleLogSnapshot.value?.history).toBe(receiptHistory);
     expect(display.publishedReceiptEntries.value).toBe(receiptHistory.toArray());

@@ -39,8 +39,14 @@ self.onmessage = async (event: MessageEvent<SimulationWorkerRequest>) => {
           undefined,
           request.plan.mode,
           request.plan.extension,
+          request.receiptDetail,
         )
-      : await currentService.simulate(request.scenario, request.endFrame);
+      : await currentService.simulate(
+          request.scenario,
+          request.endFrame,
+          undefined,
+          request.receiptDetail,
+        );
     response = { id: request.id, ok: true, result: toSimulationWorkerResult(result), samples };
   } catch (error) {
     response = {

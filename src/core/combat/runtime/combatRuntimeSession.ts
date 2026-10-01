@@ -9,7 +9,7 @@ import type { CombatStateGraph } from '../state/combatState';
 import type { CombatRuntimeAssembly } from './combatRuntimeAssembly';
 import type { CombatFrameInput } from './combatFrameInput';
 import type { CombatSkillPrograms } from '../skills/combatSkillPrograms';
-import type { CombatReceiptEntry } from '../receipt/combatReceipt';
+import type { CombatReceiptEntry, CombatReceiptDetail } from '../receipt/combatReceipt';
 import type { CombatReceiptView, CombatReceiptCursor } from '../receipt/combatReceiptHistory';
 
 const combatCheckpointIdentity: unique symbol = Symbol('combat runtime checkpoint');
@@ -25,6 +25,7 @@ export type RestoreCombatRuntimeAssembly = (
 ) => CombatRuntimeAssembly;
 
 interface SavedCombatRuntime {
+  readonly receiptDetail: CombatReceiptDetail;
   readonly graph: CombatStateGraph;
   readonly skillPrograms: CombatSkillPrograms;
   readonly history: CombatReceiptView;
@@ -132,6 +133,7 @@ export class CombatRuntimeSession {
         [combatCheckpointIdentity]: true as const,
       });
       this.#checkpoints.set(checkpoint, {
+        receiptDetail: this.#current.receipt.receiptDetail,
         graph: structuredClone(this.#current.stateGraph),
         skillPrograms: this.#current.combatSkillPrograms.fork(),
         history: this.#current.receipt.history.snapshot(),
@@ -198,6 +200,11 @@ export class CombatRuntimeSession {
   ): CombatRuntimeAssembly {
     const programs = saved.skillPrograms.fork();
     const candidate = restore(structuredClone(saved.graph), programs, saved.history);
+    if (candidate.receipt.receiptDetail !== saved.receiptDetail) {
+      throw new Error(
+        'restored combat must retain the checkpoint receipt detail; rerun from start to change it',
+      );
+    }
     if (candidate.combatSkillPrograms !== programs) {
       throw new Error('restored combat must use the checkpoint skill program bindings');
     }

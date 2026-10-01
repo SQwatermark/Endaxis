@@ -1,5 +1,6 @@
 import { notifySimulationPerformanceSubscribers } from './simulationPerformanceNotification';
 import type { ResolvedCombatStepForKind } from '../../core/compiler/combatProgram';
+import type { CombatReceiptDetail } from '../../core/combat/receipt/combatReceipt';
 
 import {
   compileCombatInputSchedule,
@@ -99,6 +100,8 @@ function resolveScenarioRandomSettings(scenario: ScenarioDocument): {
 }
 
 export interface ScenarioSimulationServiceOptions {
+  /** 固定本服务及其检查点的收集级别；省略时只收集普通事实，执行追踪必须显式启用。 */
+  readonly receiptDetail?: CombatReceiptDetail;
   /** 慢轴单切面复用试验；只在 Worker 中开启，完整重算保留作对照。 */
   readonly reuseCheckpoint?: boolean;
   readonly index: CompileScenarioRuntimeAssemblyOptions['index'];
@@ -176,8 +179,10 @@ function freezeDiagnostics<T extends { readonly receiptSequences: readonly numbe
  */
 export class ScenarioSimulationService {
   readonly #options: ScenarioSimulationServiceOptions & {
+    readonly receiptDetail: CombatReceiptDetail;
     readonly elementalInflictionDocument: CombatBuffDefinitionsDocument;
   };
+  #alternateReceiptService: ScenarioSimulationService | undefined;
   readonly #inheritedSimulation = new InheritedScenarioSimulation();
   readonly #incrementalSimulation: IncrementalScenarioSimulation;
   readonly #performanceNow: () => number;
@@ -186,6 +191,7 @@ export class ScenarioSimulationService {
   constructor(options: ScenarioSimulationServiceOptions) {
     this.#options = {
       ...options,
+      receiptDetail: options.receiptDetail ?? 'standard',
       resolveNonRandomRuntimeSnapshot:
         options.resolveNonRandomRuntimeSnapshot ?? defaultNonRandomRuntimeSnapshot,
       elementalInflictionDocument: options.elementalInflictionDocument ?? elementalAttachments,
@@ -216,6 +222,7 @@ export class ScenarioSimulationService {
     signal?: AbortSignal,
     mode: 'continuation' | 'compact' = 'continuation',
     extension?: RecursiveSkillChain,
+    receiptDetail: CombatReceiptDetail = this.#options.receiptDetail,
   ): Promise<
     | {
         readonly status: 'incomplete';
@@ -232,6 +239,15 @@ export class ScenarioSimulationService {
         readonly skillCastIds?: readonly string[];
       }
   > {
+    if (receiptDetail !== this.#options.receiptDetail)
+      return this.#serviceForReceiptDetail(receiptDetail).planSkillChain(
+        scenario,
+        castIds,
+        endFrame,
+        signal,
+        mode,
+        extension,
+      );
     assertNotAborted(signal);
     // 一次性整理不能拆掉用户保存的接续关系；连续组由正式模拟直接排程。
     const selected = new Set(castIds);
@@ -418,6 +434,7 @@ export class ScenarioSimulationService {
     return {
       scenario,
       endFrame,
+      receiptDetail: this.#options.receiptDetail,
       ...(continuationPlanCastIds === undefined
         ? {}
         : { continuationPlanCastIds, continuationPlanMode }),
@@ -448,7 +465,10 @@ export class ScenarioSimulationService {
     scenario: ScenarioDocument,
     endFrame: number,
     signal?: AbortSignal,
+    receiptDetail: CombatReceiptDetail = this.#options.receiptDetail,
   ): Promise<ScenarioSimulationRun> {
+    if (receiptDetail !== this.#options.receiptDetail)
+      return this.#serviceForReceiptDetail(receiptDetail).simulate(scenario, endFrame, signal);
     const startedAt = this.#performanceNow();
     let simulationStartedAt: number | null = null;
     let simulationEndedAt: number | null = null;
@@ -530,6 +550,17 @@ export class ScenarioSimulationService {
   clearCache(): void {
     this.#incrementalSimulation.clear();
     this.#inheritedSimulation.clear();
+    this.#alternateReceiptService?.clearCache();
+  }
+
+  /** 两种收集模式拥有各自的会话与前缀，详情请求不能续用缺少追踪的历史。 */
+  #serviceForReceiptDetail(receiptDetail: CombatReceiptDetail): ScenarioSimulationService {
+    if (this.#alternateReceiptService === undefined) {
+      const service = new ScenarioSimulationService({ ...this.#options, receiptDetail });
+      service.subscribePerformance(sample => this.#publishPerformance(sample));
+      this.#alternateReceiptService = service;
+    }
+    return this.#alternateReceiptService;
   }
 
   #publishPerformance(sample: ScenarioSimulationPerformanceSample): void {
