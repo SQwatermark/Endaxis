@@ -168,3 +168,17 @@ node tools/performance/benchmark-graph-node-scaling.mjs tmp/graph-node-scaling
 ```
 
 输出目录必须尚不存在，父目录须存在。首条固定读取六份已提交公开夹具，诊断通过构建期源码转换，仅聚合计数；无插桩对照分别构建、分进程运行，全部保持普通回执。诊断对象保留会改变内存及耗时，不能以诊断进程做性能或分配结论。第三条使用真实图执行器与空操作host做合成缩放，不能将结果称作完整服务提速。重型测量应串行，详情及全部口径见研究报告。
+
+## 拖动调度与重复工作
+
+```sh
+npx vitest run tools/performance/drag-pipeline-audit.test.ts
+# 可选：写到不存在的文件；未指定时只输出计数
+DRAG_AUDIT_OUTPUT=tmp/drag-audit.json npx vitest run tools/performance/drag-pipeline-audit.test.ts
+# 可选：按公开夹具 ID 前缀只运行其中一份
+DRAG_AUDIT_FIXTURE=6960d9af npx vitest run tools/performance/drag-pipeline-audit.test.ts
+```
+
+这是单独运行的离线诊断，不包含在 `npm test` 的 `src` 范围内。工具以六份公开轴的完整时长连接正式手势、编辑会话、Vue 调度、两种后端、实际 Worker 入口、协议恢复及发布展示捕获。Worker 消息在同一进程由手动时钟推进；两侧做结构化克隆，但不是浏览器线程和 paint 测量。固定本地/Worker 两条既有分支，不能拿运行时间判断默认 200 ms 阈值是否合适。每条路径验证最终有序回执等于独立复跑、输入未变和单次撤销；输出因果事件顺序、阶段计数和离线克隆/协议恢复计时，不断言墙钟收益或浏览器刷新率。
+
+输出文件使用排他创建，不覆盖旧证据；父目录需已存在。PowerShell 可用 `$env:DRAG_AUDIT_OUTPUT='tmp/drag-audit.json'` 设置变量。输出留在本地，不自动提交。结论、限制和待验收改进见[拖动模拟链路研究](../../docs/research/drag-simulation-pipeline.md)。
