@@ -1,3 +1,5 @@
+import { ActionGraphExecution, type ActionGraphExecutionHost } from './actionGraphExecution';
+import { CombatStep, type CombatExecutionContext } from './combatStep';
 import { describe, expect, it, vi } from 'vitest';
 import type {
   ActionGraphDefinition,
@@ -55,6 +57,64 @@ function fixture(execute?: CombatOperationExecutor['execute']) {
 }
 
 describe('直接图执行', () => {
+  it.each([false, true])('同步重入 Tick 后恢复外层上下文（内层抛错：%s）', nestedThrows => {
+    const outer: CombatExecutionContext = {};
+    const inner: CombatExecutionContext = {};
+    const failure = new Error('nested tick failed');
+    const seen: Array<[string, CombatExecutionContext]> = [];
+    let execution: ActionGraphExecution;
+    const unsupported = (): never => {
+      throw new Error('unexpected host operation');
+    };
+    const host: ActionGraphExecutionHost = {
+      listener: unsupported,
+      targets: unsupported,
+      withTarget: unsupported,
+      canExecute: () => true,
+      evaluate: unsupported,
+      value: unsupported,
+      once: unsupported,
+      scope: unsupported,
+      bindOperation: action => {
+        const label = action.kind === 'setContextFlag' ? action.parameters.flag : action.kind;
+        return new (class extends CombatStep {
+          override get executionData() {
+            return { kind: 'stateless' as const };
+          }
+          execute(_context: CombatExecutionContext): void {}
+          override tick(_delta: number, context: CombatExecutionContext): void {
+            seen.push([label, context]);
+            if (label !== 'first') return;
+            if (context === inner && nestedThrows) throw failure;
+            if (context === outer) {
+              if (nestedThrows) expect(() => execution.tick(1 / 30, inner)).toThrow(failure);
+              else execution.tick(1 / 30, inner);
+            }
+          }
+        })();
+      },
+    };
+    const program = createActionGraphCompilation(graph, 1).compileAll();
+    execution = new ActionGraphExecution(program, 'first', 'context-test', host);
+    expect(execution.tryExecute({})).toBe(true);
+    execution.tick(1 / 30, outer);
+    const expected: Array<[string, CombatExecutionContext]> = nestedThrows
+      ? [
+          ['first', outer],
+          ['first', inner],
+          ['dealDamage', outer],
+        ]
+      : [
+          ['first', outer],
+          ['first', inner],
+          ['dealDamage', inner],
+          ['dealDamage', outer],
+        ];
+    expect(seen.map(([label]) => label)).toEqual(expected.map(([label]) => label));
+    for (let index = 0; index < expected.length; index++)
+      expect(seen[index]![1]).toBe(expected[index]![1]);
+  });
+
   it('外部资源使用自己的同名节点，执行和恢复均不借用调用方图', () => {
     const child: ActionGraphResourceDefinition = {
       main: {
