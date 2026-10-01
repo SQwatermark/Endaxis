@@ -80,3 +80,19 @@ node tools/performance/benchmark-compare-versions.mjs \
 - 新版复用正式基线入口，禁用切面和结果缓存。两版不可变定义、旧版已装配的 store 数据保持正常寿命。没有强制 GC
 - 输出 `comparison.json`、每轴每版本 JSON 和本机 SSR bundle；JSON 不带本机输入路径或原始存档。旧版结果摘要涵盖正式投影及日志，并保留 Map/Set/非有限数；不声称序列化了含方法的完整状态实例
 - 时间上限是相同的，不意味着游戏规则、事件粒度、数据版本或结果投影相同。数字伤害与实际命中数必须一起检查；不能由版本耗时比推导等语义内核回归
+
+## 暖态 CPU / 分配采样
+
+```sh
+node tools/performance/profile-simulation.mjs \
+  tools/performance/fixtures/public-timelines/6aba2a13c9fb961339acd766.project.json \
+  tmp/profile-dense 12 5
+```
+
+仅测首个独立方案。输出目录必须尚不存在，避免覆盖证据；默认每模式 12 次测量、5 次热身，上限分别 50、20。每个子进程硬超时 600 秒。工具构建生产 SSR，并对 control、CPU、allocation 各运行两次独立进程，第二轮反向排列模式；所有进程串行。CPU 间隔 1000 µs，分配采样间隔 32768 字节，包含采样期间已被 minor/major GC 回收的对象，不强制 GC。
+
+每次 `simulate` 前启用、返回后立即停止采样，然后才写文件、生成 Worker 结果和检查哈希；构建、加载、热身、清缓存、哈希、复制与输出不属于目标区间。Inspector 自身启停/异步边界仍会落入 trace：按 CPU sample count 统计热点，不能把原始 timeDelta 权重之和当模拟耗时。正式服务计时来自同样运行的 control 对照，分配采样尤其会大幅扰动耗时。哈希在采样外产生的对象也可能影响后续 GC，不能把 GC 全部归因于生产模拟。
+
+每轮禁用切面并清空结果缓存，验证完整结果/有序回执/输入不变，模式和进程间结果也必须相同。保留定义级正常缓存寿命。原始 `.cpuprofile`、`.heapprofile`、SSR bundle 和 source map 保存在本机输出目录，可载入 DevTools；不要把其中可能含源码、路径或输入资料的文件自动提交或上传。`report.json` 是按 source map 归并的摘要；源位置是函数入口，不是精确语句位置，JIT 内联可能改变归属。
+
+self 是当前叶帧采样数或采样估算分配字节；inclusive 是包含后代且同一调用链去重后的值，各行互相重叠，严禁求和。分配不是对象精确计数、峰值或存活内存，不能证明泄漏。完整结果见 [两条真实轴的热点报告](../../docs/research/simulation-profile-hotspots.md)。
