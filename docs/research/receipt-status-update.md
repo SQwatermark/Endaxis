@@ -59,3 +59,10 @@
 - 前一提交 `34e727453950a95204d609068a2fbdae1d1df38a` 的 [CI 36810882769](https://github.com/SQwatermark/Endaxis/actions/runs/36810882769) 已通过
 - 伊冯轴额外恢复探针中的 `missing projectile reset handler 0` 是优化前已有的问题，仍未修复；不能将该轴的切面恢复报告为通过
 - 上述 CI 链接只证明此前压缩提交，不代表当前可选追踪修改的远端验证；当前修改的 CI 结果以其实际发布后的 Actions 页面为准
+
+## 后续进度：可选回执已发布，继续检查其他热点
+
+- 实现提交 `16bd46e09adff8f581cbe5f28956eaf6bafcfe44` 已发布；[CI 36821172491](https://github.com/SQwatermark/Endaxis/actions/runs/36821172491) 的 Ubuntu / Windows 全部检查通过
+- 无损压缩测量证据已由 `e0398f84699d304e81702200e58df93dc5414ce4` 补充，不改变生产源码
+- 动作程序只读检查的三项候选完成反向顺序对照，均未建立稳定完整服务提速，已全部撤回；详见[负面实验与下一步](action-program-inspection-experiments.md)
+- 下一方向是单次伤害快照内批量属性读取，正在独立调查真实调用/修饰器扫描开销；尚未保留新的生产改动，也不提前宣称提速
