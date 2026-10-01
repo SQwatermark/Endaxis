@@ -1,0 +1,693 @@
+{
+  "timingMode": "preserve",
+  "finalSimulation": [
+    {
+      "scenarioId": "default_sc",
+      "path": "$.scenarios[0]",
+      "endFrame": 3600,
+      "status": "issues",
+      "availability": [
+        {
+          "frame": 95,
+          "sourceId": "legacy:default_sc:track:0:estella",
+          "skillId": "chr_0021_whiten_normal_skill",
+          "reasons": ["resourceUnavailable"],
+          "receiptSequences": [388]
+        },
+        {
+          "frame": 217,
+          "sourceId": "legacy:default_sc:track:0:estella",
+          "skillId": "chr_0021_whiten_ultimate_skill",
+          "reasons": ["resourceUnavailable"],
+          "receiptSequences": [759]
+        },
+        {
+          "frame": 419,
+          "sourceId": "legacy:default_sc:track:2:wulfgard",
+          "skillId": "chr_0006_wolfgd_normal_skill",
+          "reasons": ["resourceUnavailable"],
+          "receiptSequences": [1132]
+        },
+        {
+          "frame": 456,
+          "sourceId": "legacy:default_sc:track:2:wulfgard",
+          "skillId": "chr_0006_wolfgd_combo_skill",
+          "reasons": ["cooldownUnavailable"],
+          "receiptSequences": [1220]
+        },
+        {
+          "frame": 481,
+          "sourceId": "legacy:default_sc:track:2:wulfgard",
+          "skillId": "chr_0006_wolfgd_ultimate_skill",
+          "reasons": ["resourceUnavailable"],
+          "receiptSequences": [1287]
+        },
+        {
+          "frame": 550,
+          "sourceId": "legacy:default_sc:track:3:arcane",
+          "skillId": "chr_0032_lizhiyan_combo_skill",
+          "reasons": ["cooldownUnavailable"],
+          "receiptSequences": [1395]
+        },
+        {
+          "frame": 640,
+          "sourceId": "legacy:default_sc:track:0:estella",
+          "skillId": "chr_0021_whiten_normal_skill",
+          "reasons": ["resourceUnavailable"],
+          "receiptSequences": [1688]
+        },
+        {
+          "frame": 796,
+          "sourceId": "legacy:default_sc:track:2:wulfgard",
+          "skillId": "chr_0006_wolfgd_normal_skill",
+          "reasons": ["resourceUnavailable"],
+          "receiptSequences": [2102]
+        }
+      ],
+      "execution": [],
+      "comboWindow": [
+        {
+          "frame": 456,
+          "sourceId": "legacy:default_sc:track:2:wulfgard",
+          "skillId": "chr_0006_wolfgd_combo_skill",
+          "reasons": ["windowMissing"],
+          "receiptSequences": [1218]
+        },
+        {
+          "frame": 550,
+          "sourceId": "legacy:default_sc:track:3:arcane",
+          "skillId": "chr_0032_lizhiyan_combo_skill",
+          "reasons": ["windowMissing"],
+          "receiptSequences": [1394]
+        }
+      ],
+      "dodges": [],
+      "rejectedInputs": []
+    }
+  ],
+  "issues": [
+    {
+      "path": "$.scenarios[0]",
+      "message": "最终整轴模拟存在诊断：可用性 8 项、执行 0 项、连携窗口 2 项、闪避 0 项、拒绝输入 0 项。请检查技能块和闪避标签的诊断，项目已保留供编辑。"
+    }
+  ],
+  "simulationIssues": [
+    {
+      "path": "$.scenarios[0]",
+      "message": "最终整轴模拟存在诊断：可用性 8 项、执行 0 项、连携窗口 2 项、闪避 0 项、拒绝输入 0 项。请检查技能块和闪避标签的诊断，项目已保留供编辑。"
+    }
+  ],
+  "presentationIssues": [],
+  "fatalIssues": [],
+  "times": [
+    {
+      "path": "scenarioList[0].data.prepDuration",
+      "sourceValue": 300,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 150,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.battleDuration",
+      "sourceValue": 7200,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 3600,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.systemConstants.staggerNodeDuration",
+      "sourceValue": 120,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 60,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.systemConstants.staggerBreakDuration",
+      "sourceValue": 540,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 270,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[0].duration",
+      "sourceValue": 90,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 45,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[0].logicalStartTime",
+      "sourceValue": 490,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 95,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[0].startTime",
+      "sourceValue": 490,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 95,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[1].duration",
+      "sourceValue": 40,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 20,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[1].logicalStartTime",
+      "sourceValue": 557,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 129,
+      "errorSeconds": 0.016666666666666607
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[1].startTime",
+      "sourceValue": 557,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 129,
+      "errorSeconds": 0.016666666666666607
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[2].duration",
+      "sourceValue": 120,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 60,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[2].logicalStartTime",
+      "sourceValue": 734,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 217,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[2].startTime",
+      "sourceValue": 734,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 217,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[3].duration",
+      "sourceValue": 90,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 45,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[3].logicalStartTime",
+      "sourceValue": 1579,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 640,
+      "errorSeconds": 0.01666666666666572
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[3].startTime",
+      "sourceValue": 1579,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 640,
+      "errorSeconds": 0.01666666666666572
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[4].duration",
+      "sourceValue": 40,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 20,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[4].logicalStartTime",
+      "sourceValue": 1683,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 692,
+      "errorSeconds": 0.01666666666666572
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[4].startTime",
+      "sourceValue": 1683,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 692,
+      "errorSeconds": 0.01666666666666572
+    },
+    {
+      "path": "scenarioList[0].data.tracks[1].actions[0].duration",
+      "sourceValue": 54,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 27,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[1].actions[0].logicalStartTime",
+      "sourceValue": 305,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 3,
+      "errorSeconds": 0.016666666666666677
+    },
+    {
+      "path": "scenarioList[0].data.tracks[1].actions[0].startTime",
+      "sourceValue": 305,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 3,
+      "errorSeconds": 0.016666666666666677
+    },
+    {
+      "path": "scenarioList[0].data.tracks[1].actions[1].duration",
+      "sourceValue": 128,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 64,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[1].actions[1].logicalStartTime",
+      "sourceValue": 602,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 151,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[1].actions[1].startTime",
+      "sourceValue": 602,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 151,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[1].actions[2].duration",
+      "sourceValue": 128,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 64,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[1].actions[2].logicalStartTime",
+      "sourceValue": 1739,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 720,
+      "errorSeconds": 0.01666666666666572
+    },
+    {
+      "path": "scenarioList[0].data.tracks[1].actions[2].startTime",
+      "sourceValue": 1739,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 720,
+      "errorSeconds": 0.01666666666666572
+    },
+    {
+      "path": "scenarioList[0].data.tracks[2].actions[0].duration",
+      "sourceValue": 45,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 23,
+      "errorSeconds": 0.01666666666666672
+    },
+    {
+      "path": "scenarioList[0].data.tracks[2].actions[0].logicalStartTime",
+      "sourceValue": 372,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 36,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[2].actions[0].startTime",
+      "sourceValue": 372,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 36,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[2].actions[1].duration",
+      "sourceValue": 63,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 32,
+      "errorSeconds": 0.016666666666666607
+    },
+    {
+      "path": "scenarioList[0].data.tracks[2].actions[1].logicalStartTime",
+      "sourceValue": 469,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 85,
+      "errorSeconds": 0.016666666666666607
+    },
+    {
+      "path": "scenarioList[0].data.tracks[2].actions[1].startTime",
+      "sourceValue": 469,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 85,
+      "errorSeconds": 0.016666666666666607
+    },
+    {
+      "path": "scenarioList[0].data.tracks[2].actions[2].duration",
+      "sourceValue": 63,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 32,
+      "errorSeconds": 0.016666666666666607
+    },
+    {
+      "path": "scenarioList[0].data.tracks[2].actions[2].logicalStartTime",
+      "sourceValue": 1137,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 419,
+      "errorSeconds": 0.016666666666667496
+    },
+    {
+      "path": "scenarioList[0].data.tracks[2].actions[2].startTime",
+      "sourceValue": 1137,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 419,
+      "errorSeconds": 0.016666666666667496
+    },
+    {
+      "path": "scenarioList[0].data.tracks[2].actions[3].duration",
+      "sourceValue": 45,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 23,
+      "errorSeconds": 0.01666666666666672
+    },
+    {
+      "path": "scenarioList[0].data.tracks[2].actions[3].logicalStartTime",
+      "sourceValue": 1211,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 456,
+      "errorSeconds": 0.01666666666666572
+    },
+    {
+      "path": "scenarioList[0].data.tracks[2].actions[3].startTime",
+      "sourceValue": 1211,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 456,
+      "errorSeconds": 0.01666666666666572
+    },
+    {
+      "path": "scenarioList[0].data.tracks[2].actions[4].duration",
+      "sourceValue": 150,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 75,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[2].actions[4].logicalStartTime",
+      "sourceValue": 1261,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 481,
+      "errorSeconds": 0.016666666666669272
+    },
+    {
+      "path": "scenarioList[0].data.tracks[2].actions[4].startTime",
+      "sourceValue": 1261,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 481,
+      "errorSeconds": 0.016666666666669272
+    },
+    {
+      "path": "scenarioList[0].data.tracks[2].actions[5].duration",
+      "sourceValue": 45,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 23,
+      "errorSeconds": 0.01666666666666672
+    },
+    {
+      "path": "scenarioList[0].data.tracks[2].actions[5].logicalStartTime",
+      "sourceValue": 1478,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 589,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[2].actions[5].startTime",
+      "sourceValue": 1478,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 589,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[2].actions[6].duration",
+      "sourceValue": 63,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 32,
+      "errorSeconds": 0.016666666666666607
+    },
+    {
+      "path": "scenarioList[0].data.tracks[2].actions[6].logicalStartTime",
+      "sourceValue": 1892,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 796,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[2].actions[6].startTime",
+      "sourceValue": 1892,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 796,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[3].actions[0].duration",
+      "sourceValue": 60,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 30,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[3].actions[0].logicalStartTime",
+      "sourceValue": 421,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 61,
+      "errorSeconds": 0.016666666666666607
+    },
+    {
+      "path": "scenarioList[0].data.tracks[3].actions[0].startTime",
+      "sourceValue": 421,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 61,
+      "errorSeconds": 0.016666666666666607
+    },
+    {
+      "path": "scenarioList[0].data.tracks[3].actions[1].duration",
+      "sourceValue": 60,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 30,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[3].actions[1].logicalStartTime",
+      "sourceValue": 1400,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 550,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[3].actions[1].startTime",
+      "sourceValue": 1400,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 550,
+      "errorSeconds": 0
+    }
+  ],
+  "identityChanges": [
+    {
+      "path": "scenarioList[0].data.activeEnemyId",
+      "from": "eny_0082_hsbear",
+      "to": "eny-0082-hsbear"
+    },
+    { "path": "scenarioList[0].data.tracks[0].id", "from": "estella", "to": "estella" },
+    { "path": "scenarioList[0].data.tracks[1].id", "from": "camille", "to": "camille" },
+    { "path": "scenarioList[0].data.tracks[2].id", "from": "wulfgard", "to": "wulfgard" },
+    { "path": "scenarioList[0].data.tracks[3].id", "from": "arcane", "to": "arcane" },
+    { "path": "scenarioList[0].data.weapons[0].weaponSlug", "from": "jet", "to": "wpn_lance_0011" },
+    {
+      "path": "scenarioList[0].data.weapons[1].weaponSlug",
+      "from": "type-42-solemn-phalanx",
+      "to": "wpn_funnel_0016"
+    },
+    {
+      "path": "scenarioList[0].data.weapons[2].weaponSlug",
+      "from": "blessing-of-lustrous-carmine",
+      "to": "wpn_lance_0015"
+    },
+    {
+      "path": "scenarioList[0].data.weapons[3].weaponSlug",
+      "from": "rational-farewell",
+      "to": "wpn_pistol_0004"
+    },
+    {
+      "path": "scenarioList[0].data.gears[0].gearPieceId",
+      "from": "type-50-yinglung-light-armor",
+      "to": "item_equip_t4_suit_atk02_body_04"
+    },
+    {
+      "path": "scenarioList[0].data.gears[1].gearPieceId",
+      "from": "hot-work-gloves",
+      "to": "item_equip_t4_suit_fire_natr01_hand_01"
+    },
+    {
+      "path": "scenarioList[0].data.gears[2].gearPieceId",
+      "from": "hot-work-power-bank",
+      "to": "item_equip_t4_suit_fire_natr01_edc_01"
+    },
+    {
+      "path": "scenarioList[0].data.gears[3].gearPieceId",
+      "from": "hot-work-power-cartridge",
+      "to": "item_equip_t4_suit_fire_natr01_edc_03"
+    },
+    {
+      "path": "scenarioList[0].data.gears[4].gearPieceId",
+      "from": "hot-work-power-cartridge",
+      "to": "item_equip_t4_suit_fire_natr01_edc_03"
+    },
+    {
+      "path": "scenarioList[0].data.gears[5].gearPieceId",
+      "from": "eternal-xiranite-light-armor",
+      "to": "item_equip_t4_suit_usp02_body_03"
+    },
+    {
+      "path": "scenarioList[0].data.gears[6].gearPieceId",
+      "from": "eternal-xiranite-gloves-t1",
+      "to": "item_equip_t4_suit_usp02_hand_02"
+    },
+    {
+      "path": "scenarioList[0].data.gears[7].gearPieceId",
+      "from": "eternal-xiranite-auxiliary-arm",
+      "to": "item_equip_t4_suit_usp02_edc_03"
+    },
+    {
+      "path": "scenarioList[0].data.gears[8].gearPieceId",
+      "from": "eternal-xiranite-wraps",
+      "to": "item_equip_t4_suit_usp02_hand_03"
+    },
+    {
+      "path": "scenarioList[0].data.gears[9].gearPieceId",
+      "from": "eternal-xiranite-auxiliary-arm",
+      "to": "item_equip_t4_suit_usp02_edc_03"
+    },
+    {
+      "path": "scenarioList[0].data.gears[10].gearPieceId",
+      "from": "frontiers-protection-suit",
+      "to": "item_equip_t4_suit_atb01_body_05"
+    },
+    {
+      "path": "scenarioList[0].data.gears[11].gearPieceId",
+      "from": "frontiers-fiber-gloves-t1",
+      "to": "item_equip_t4_suit_atb01_hand_03"
+    },
+    {
+      "path": "scenarioList[0].data.gears[12].gearPieceId",
+      "from": "frontiers-extra-o2-tube",
+      "to": "item_equip_t4_suit_atb01_edc_04"
+    },
+    {
+      "path": "scenarioList[0].data.gears[13].gearPieceId",
+      "from": "redeemer-seal",
+      "to": "item_equip_t4_parts_wuling01_edc_03"
+    },
+    {
+      "path": "scenarioList[0].data.gears[14].gearPieceId",
+      "from": "hot-work-exoskeleton",
+      "to": "item_equip_t4_suit_fire_natr01_body_01"
+    },
+    {
+      "path": "scenarioList[0].data.gears[15].gearPieceId",
+      "from": "hot-work-power-bank",
+      "to": "item_equip_t4_suit_fire_natr01_edc_01"
+    },
+    {
+      "path": "scenarioList[0].data.gears[16].gearPieceId",
+      "from": "hot-work-power-bank",
+      "to": "item_equip_t4_suit_fire_natr01_edc_01"
+    },
+    {
+      "path": "scenarioList[0].data.gears[17].gearPieceId",
+      "from": "aic-fieldwork-hands",
+      "to": "item_equip_t4_parts_wuling00_hand_02"
+    },
+    {
+      "path": "scenarioList[0].data.gears[18].gearPieceId",
+      "from": "lynx-gloves",
+      "to": "item_equip_t4_suit_heal01_hand_01"
+    },
+    {
+      "path": "scenarioList[0].data.gears[19].gearPieceId",
+      "from": "eternal-xiranite-bracing-slab",
+      "to": "item_equip_t4_suit_usp02_edc_04"
+    }
+  ],
+  "ignoredCustomizations": [],
+  "unresolvedSkills": [],
+  "sequenceExpansions": [],
+  "resourceAdjustments": [],
+  "timingAdjustments": [],
+  "skillFormAdjustments": [],
+  "controlSwitchAdjustments": [],
+  "dodgeMarkerAdjustments": [],
+  "retimingSimulationStats": {
+    "scenarioCount": 1,
+    "castCount": 17,
+    "candidateProbes": 0,
+    "simulationRuns": 1
+  },
+  "sourceActionCounts": [{ "id": "default_sc", "count": 17 }],
+  "limitations": [
+    "保留旧轴技能位置（换算为新版帧率），不修复重叠或不可接续；仍判断技能形态并补主控切换",
+    "旧轴默认第1轨道为主控，并在其他干员的普攻、强化普攻、下落攻击或处决开始时补主控切换标记",
+    "标准旧闪避块转换为同轨普通向前闪避标签；旧格式没有方向或极限闪避成功事实，因此不补成功收益",
+    "使用当前游戏定义重算；旧 hits、Buff、面板、伤害等快照不迁移",
+    "连接只支持可唯一对应技能块的 action-to-action 端点；未实现旧自定义行为、派生端点、继承状态、合约及非中性全局修正"
+  ]
+}

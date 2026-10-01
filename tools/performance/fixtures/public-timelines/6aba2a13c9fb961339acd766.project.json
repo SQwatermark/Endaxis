@@ -1,0 +1,1189 @@
+{
+  "kind": "EndaxisProject",
+  "schemaVersion": 1,
+  "createdWith": "Endaxis legacy importer",
+  "createdAt": "2026-10-01T00:00:00.000Z",
+  "fps": 30,
+  "activeScenarioId": "sc_lps0edv",
+  "definitionLibrary": { "operators": {}, "weapons": {}, "gears": {}, "gearSets": {} },
+  "scenarios": [
+    {
+      "id": "sc_lps0edv",
+      "name": "  不改了就这个了",
+      "tracks": [
+        {
+          "id": "legacy:sc_lps0edv:track:0:typhoeus",
+          "operator": {
+            "operatorSlug": "typhoeus",
+            "level": 90,
+            "promoted": true,
+            "potential": 0,
+            "trustLevel": 4,
+            "skillLevels": {
+              "basicAttack": 12,
+              "battleSkill": 12,
+              "comboSkill": 12,
+              "ultimate": 12
+            },
+            "talentStates": { "0": 3, "1": 2 }
+          },
+          "weapon": {
+            "weaponSlug": "wpn_funnel_0019",
+            "level": 90,
+            "tuned": true,
+            "potential": 0,
+            "traitLevels": [9, 9, 4]
+          },
+          "gears": {
+            "armor": {
+              "gearSlug": "item_equip_t4_suit_spellburst_body_01",
+              "artificingLevels": [3, 3, 3]
+            },
+            "gloves": {
+              "gearSlug": "item_equip_t4_suit_spellburst_hand_01",
+              "artificingLevels": [3, 3, 3]
+            },
+            "accessory1": {
+              "gearSlug": "item_equip_t4_suit_spellburst_edc_01",
+              "artificingLevels": [3, 3, 3]
+            },
+            "accessory2": {
+              "gearSlug": "item_equip_t4_suit_heal01_edc_03",
+              "artificingLevels": [3, 3, 3]
+            }
+          },
+          "initialState": { "ultimateEnergy": 0 },
+          "skillCasts": [
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:0",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0034_typhoea_attack1"
+              },
+              "placement": { "startFrame": 0 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:1",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0034_typhoea_attack2"
+              },
+              "placement": { "startFrame": 11 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:2",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0034_typhoea_attack3"
+              },
+              "placement": { "startFrame": 24 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:3",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0034_typhoea_attack4"
+              },
+              "placement": { "startFrame": 45 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:4",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0034_typhoea_attack5"
+              },
+              "placement": { "startFrame": 72 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:5",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "battleSkill",
+                "skillKey": "chr_0034_typhoea_normal_skill_floating_start"
+              },
+              "placement": { "startFrame": 111 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:6",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "enhancedBasicAttack",
+                "skillKey": "chr_0034_typhoea_floating_attack1"
+              },
+              "placement": { "startFrame": 152 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:7",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "enhancedBasicAttack",
+                "skillKey": "chr_0034_typhoea_floating_attack2"
+              },
+              "placement": { "startFrame": 171 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:8",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "enhancedBasicAttack",
+                "skillKey": "chr_0034_typhoea_floating_attack3"
+              },
+              "placement": { "startFrame": 190 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:9",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "enhancedBasicAttack",
+                "skillKey": "chr_0034_typhoea_floating_attack4"
+              },
+              "placement": { "startFrame": 209 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:10",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "floatingComboSkill",
+                "skillKey": "chr_0034_typhoea_combo_skillfloating"
+              },
+              "placement": { "startFrame": 213 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:11",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "enhancedBasicAttack",
+                "skillKey": "chr_0034_typhoea_floating_attack1"
+              },
+              "placement": { "startFrame": 287 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:12",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "enhancedBasicAttack",
+                "skillKey": "chr_0034_typhoea_floating_attack2"
+              },
+              "placement": { "startFrame": 306 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:13",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "enhancedBasicAttack",
+                "skillKey": "chr_0034_typhoea_floating_attack3"
+              },
+              "placement": { "startFrame": 325 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:14",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "enhancedBasicAttack",
+                "skillKey": "chr_0034_typhoea_floating_attack4"
+              },
+              "placement": { "startFrame": 344 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:15",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "enhancedBasicAttack",
+                "skillKey": "chr_0034_typhoea_floating_attack5"
+              },
+              "placement": { "startFrame": 363 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:16",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0034_typhoea_attack1"
+              },
+              "placement": { "startFrame": 405 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:17",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0034_typhoea_attack2"
+              },
+              "placement": { "startFrame": 416 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:18",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0034_typhoea_attack3"
+              },
+              "placement": { "startFrame": 429 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:19",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0034_typhoea_attack4"
+              },
+              "placement": { "startFrame": 450 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:20",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0034_typhoea_attack5"
+              },
+              "placement": { "startFrame": 477 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:21",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0034_typhoea_attack1"
+              },
+              "placement": { "startFrame": 519 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:22",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0034_typhoea_attack2"
+              },
+              "placement": { "startFrame": 530 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:23",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0034_typhoea_attack3"
+              },
+              "placement": { "startFrame": 543 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:24",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0034_typhoea_attack4"
+              },
+              "placement": { "startFrame": 564 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:25",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0034_typhoea_attack5"
+              },
+              "placement": { "startFrame": 591 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:26",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0034_typhoea_attack1"
+              },
+              "placement": { "startFrame": 633 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:27",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0034_typhoea_attack2"
+              },
+              "placement": { "startFrame": 644 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:28",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0034_typhoea_attack3"
+              },
+              "placement": { "startFrame": 657 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:29",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0034_typhoea_attack4"
+              },
+              "placement": { "startFrame": 678 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:30",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0034_typhoea_attack5"
+              },
+              "placement": { "startFrame": 705 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:31",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0034_typhoea_attack1"
+              },
+              "placement": { "startFrame": 777 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:32",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "comboSkill",
+                "skillKey": "chr_0034_typhoea_combo_skill"
+              },
+              "placement": { "startFrame": 786 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:33",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "battleSkill",
+                "skillKey": "chr_0034_typhoea_normal_skill_floating_start"
+              },
+              "placement": { "startFrame": 957 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:34",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "enhancedBasicAttack",
+                "skillKey": "chr_0034_typhoea_floating_attack1"
+              },
+              "placement": { "startFrame": 982 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:35",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "enhancedBasicAttack",
+                "skillKey": "chr_0034_typhoea_floating_attack2"
+              },
+              "placement": { "startFrame": 1034 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:36",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "enhancedBasicAttack",
+                "skillKey": "chr_0034_typhoea_floating_attack3"
+              },
+              "placement": { "startFrame": 1053 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:37",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "enhancedBasicAttack",
+                "skillKey": "chr_0034_typhoea_floating_attack4"
+              },
+              "placement": { "startFrame": 1072 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:38",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "enhancedBasicAttack",
+                "skillKey": "chr_0034_typhoea_floating_attack5"
+              },
+              "placement": { "startFrame": 1091 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:39",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0034_typhoea_attack1"
+              },
+              "placement": { "startFrame": 1131 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:40",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0034_typhoea_attack2"
+              },
+              "placement": { "startFrame": 1142 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:41",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0034_typhoea_attack3"
+              },
+              "placement": { "startFrame": 1155 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:42",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0034_typhoea_attack4"
+              },
+              "placement": { "startFrame": 1176 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:43",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0034_typhoea_attack5"
+              },
+              "placement": { "startFrame": 1203 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:44",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0034_typhoea_attack1"
+              },
+              "placement": { "startFrame": 1293 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:45",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0034_typhoea_attack2"
+              },
+              "placement": { "startFrame": 1304 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:46",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0034_typhoea_attack3"
+              },
+              "placement": { "startFrame": 1317 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:47",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0034_typhoea_attack4"
+              },
+              "placement": { "startFrame": 1338 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:48",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0034_typhoea_attack5"
+              },
+              "placement": { "startFrame": 1365 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:49",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "comboSkill",
+                "skillKey": "chr_0034_typhoea_combo_skill"
+              },
+              "placement": { "startFrame": 1392 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:50",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "battleSkill",
+                "skillKey": "chr_0034_typhoea_normal_skill_floating_start"
+              },
+              "placement": { "startFrame": 1485 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:51",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "enhancedBasicAttack",
+                "skillKey": "chr_0034_typhoea_floating_attack1"
+              },
+              "placement": { "startFrame": 1511 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:52",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "enhancedBasicAttack",
+                "skillKey": "chr_0034_typhoea_floating_attack2"
+              },
+              "placement": { "startFrame": 1530 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:53",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "enhancedBasicAttack",
+                "skillKey": "chr_0034_typhoea_floating_attack3"
+              },
+              "placement": { "startFrame": 1549 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:54",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "enhancedBasicAttack",
+                "skillKey": "chr_0034_typhoea_floating_attack4"
+              },
+              "placement": { "startFrame": 1568 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:55",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "enhancedBasicAttack",
+                "skillKey": "chr_0034_typhoea_floating_attack5"
+              },
+              "placement": { "startFrame": 1587 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:56",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0034_typhoea_attack1"
+              },
+              "placement": { "startFrame": 1629 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:57",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0034_typhoea_attack2"
+              },
+              "placement": { "startFrame": 1640 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:58",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0034_typhoea_attack3"
+              },
+              "placement": { "startFrame": 1653 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:59",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0034_typhoea_attack4"
+              },
+              "placement": { "startFrame": 1674 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:60",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0034_typhoea_attack5"
+              },
+              "placement": { "startFrame": 1701 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:61",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0034_typhoea_attack1"
+              },
+              "placement": { "startFrame": 1743 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:62",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0034_typhoea_attack2"
+              },
+              "placement": { "startFrame": 1754 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:63",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0034_typhoea_attack3"
+              },
+              "placement": { "startFrame": 1767 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:64",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0034_typhoea_attack4"
+              },
+              "placement": { "startFrame": 1788 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:65",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0034_typhoea_attack5"
+              },
+              "placement": { "startFrame": 1815 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:66",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0034_typhoea_attack1"
+              },
+              "placement": { "startFrame": 1857 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:67",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0034_typhoea_attack2"
+              },
+              "placement": { "startFrame": 1868 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:68",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0034_typhoea_attack3"
+              },
+              "placement": { "startFrame": 1881 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:69",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0034_typhoea_attack4"
+              },
+              "placement": { "startFrame": 1902 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:70",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0034_typhoea_attack5"
+              },
+              "placement": { "startFrame": 1944 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:71",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "comboSkill",
+                "skillKey": "chr_0034_typhoea_combo_skill"
+              },
+              "placement": { "startFrame": 1968 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:72",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "battleSkill",
+                "skillKey": "chr_0034_typhoea_normal_skill_floating_start"
+              },
+              "placement": { "startFrame": 2109 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:73",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "enhancedBasicAttack",
+                "skillKey": "chr_0034_typhoea_floating_attack1"
+              },
+              "placement": { "startFrame": 2194 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:74",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "enhancedBasicAttack",
+                "skillKey": "chr_0034_typhoea_floating_attack2"
+              },
+              "placement": { "startFrame": 2261 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:75",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "ultimate",
+                "skillKey": "chr_0034_typhoea_ultimate_skillfloating"
+              },
+              "placement": { "startFrame": 2280 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:76",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "enhancedBasicAttack",
+                "skillKey": "chr_0034_typhoea_floating_attack1"
+              },
+              "placement": { "startFrame": 2363 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:77",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "enhancedBasicAttack",
+                "skillKey": "chr_0034_typhoea_floating_attack2"
+              },
+              "placement": { "startFrame": 2382 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:78",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "enhancedBasicAttack",
+                "skillKey": "chr_0034_typhoea_floating_attack3"
+              },
+              "placement": { "startFrame": 2401 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:79",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "enhancedBasicAttack",
+                "skillKey": "chr_0034_typhoea_floating_attack4"
+              },
+              "placement": { "startFrame": 2420 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:0:cast:80",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "enhancedBasicAttack",
+                "skillKey": "chr_0034_typhoea_floating_attack5"
+              },
+              "placement": { "startFrame": 2439 }
+            }
+          ]
+        },
+        {
+          "id": "legacy:sc_lps0edv:track:1:arcane",
+          "operator": {
+            "operatorSlug": "arcane",
+            "level": 90,
+            "promoted": true,
+            "potential": 0,
+            "trustLevel": 4,
+            "skillLevels": {
+              "basicAttack": 12,
+              "battleSkill": 12,
+              "comboSkill": 12,
+              "ultimate": 12
+            },
+            "talentStates": { "0": 2, "1": 2 }
+          },
+          "weapon": {
+            "weaponSlug": "wpn_funnel_0016",
+            "level": 90,
+            "tuned": true,
+            "potential": 0,
+            "traitLevels": [9, 9, 4]
+          },
+          "gears": {
+            "armor": { "gearSlug": "item_equip_t4_suit_usp02_body_03", "artificingLevels": [3, 3] },
+            "gloves": {
+              "gearSlug": "item_equip_t4_suit_usp02_hand_03",
+              "artificingLevels": [3, 3, 3]
+            },
+            "accessory1": {
+              "gearSlug": "item_equip_t4_suit_usp02_edc_04",
+              "artificingLevels": [3, 3]
+            },
+            "accessory2": {
+              "gearSlug": "item_equip_t4_suit_usp02_edc_03",
+              "artificingLevels": [3, 3, 3]
+            }
+          },
+          "initialState": { "ultimateEnergy": 0 },
+          "skillCasts": [
+            {
+              "id": "legacy:sc_lps0edv:track:1:cast:0",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "battleSkill",
+                "skillKey": "chr_0032_lizhiyan_normal_skill"
+              },
+              "placement": { "startFrame": 201 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:1:cast:1",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "comboSkill",
+                "skillKey": "chr_0032_lizhiyan_combo_skill"
+              },
+              "placement": { "startFrame": 237 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:1:cast:2",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "battleSkill",
+                "skillKey": "chr_0032_lizhiyan_normal_skill"
+              },
+              "placement": { "startFrame": 783 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:1:cast:3",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "comboSkill",
+                "skillKey": "chr_0032_lizhiyan_combo_skill"
+              },
+              "placement": { "startFrame": 819 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:1:cast:4",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "ultimate",
+                "skillKey": "chr_0032_lizhiyan_ultimate_skill"
+              },
+              "placement": { "startFrame": 984 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:1:cast:5",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "ultimate",
+                "skillKey": "chr_0032_lizhiyan_ultimate_skill2"
+              },
+              "placement": { "startFrame": 1236 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:1:cast:6",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "battleSkill",
+                "skillKey": "chr_0032_lizhiyan_normal_skill"
+              },
+              "placement": { "startFrame": 1446 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:1:cast:7",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "comboSkill",
+                "skillKey": "chr_0032_lizhiyan_combo_skill"
+              },
+              "placement": { "startFrame": 1467 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:1:cast:8",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "battleSkill",
+                "skillKey": "chr_0032_lizhiyan_normal_skill"
+              },
+              "placement": { "startFrame": 2013 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:1:cast:9",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "comboSkill",
+                "skillKey": "chr_0032_lizhiyan_combo_skill"
+              },
+              "placement": { "startFrame": 2034 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:1:cast:10",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "ultimate",
+                "skillKey": "chr_0032_lizhiyan_ultimate_skill"
+              },
+              "placement": { "startFrame": 2196 }
+            }
+          ]
+        },
+        {
+          "id": "legacy:sc_lps0edv:track:2:perlica",
+          "operator": {
+            "operatorSlug": "perlica",
+            "level": 90,
+            "promoted": true,
+            "potential": 5,
+            "trustLevel": 4,
+            "skillLevels": {
+              "basicAttack": 12,
+              "battleSkill": 12,
+              "comboSkill": 12,
+              "ultimate": 12
+            },
+            "talentStates": { "0": 2, "1": 1 }
+          },
+          "weapon": {
+            "weaponSlug": "wpn_funnel_0005",
+            "level": 90,
+            "tuned": true,
+            "potential": 5,
+            "traitLevels": [9, 9, 9]
+          },
+          "gears": {
+            "armor": {
+              "gearSlug": "item_equip_t4_suit_pulse_cryst01_body_01",
+              "artificingLevels": [3, 3, 3]
+            },
+            "gloves": {
+              "gearSlug": "item_equip_t4_suit_fire_natr01_hand_01",
+              "artificingLevels": [3, 3, 3]
+            },
+            "accessory1": {
+              "gearSlug": "item_equip_t4_parts_wuling01_edc_03",
+              "artificingLevels": [3, 3]
+            },
+            "accessory2": {
+              "gearSlug": "item_equip_t4_parts_wuling01_edc_03",
+              "artificingLevels": [3, 3]
+            }
+          },
+          "initialState": { "ultimateEnergy": 0 },
+          "skillCasts": [
+            {
+              "id": "legacy:sc_lps0edv:track:2:cast:0",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "comboSkill",
+                "skillKey": "chr_0004_pelica_combo_skill"
+              },
+              "placement": { "startFrame": 96 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:2:cast:1",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "comboSkill",
+                "skillKey": "chr_0004_pelica_combo_skill"
+              },
+              "placement": { "startFrame": 729 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:2:cast:2",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "ultimate",
+                "skillKey": "chr_0004_pelica_ultimate_skill"
+              },
+              "placement": { "startFrame": 882 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:2:cast:3",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "comboSkill",
+                "skillKey": "chr_0004_pelica_combo_skill"
+              },
+              "placement": { "startFrame": 1395 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:2:cast:4",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "comboSkill",
+                "skillKey": "chr_0004_pelica_combo_skill"
+              },
+              "placement": { "startFrame": 1971 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:2:cast:5",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "ultimate",
+                "skillKey": "chr_0004_pelica_ultimate_skill"
+              },
+              "placement": { "startFrame": 2052 }
+            }
+          ]
+        },
+        {
+          "id": "legacy:sc_lps0edv:track:3:gilberta",
+          "operator": {
+            "operatorSlug": "gilberta",
+            "level": 90,
+            "promoted": true,
+            "potential": 0,
+            "trustLevel": 4,
+            "skillLevels": {
+              "basicAttack": 12,
+              "battleSkill": 12,
+              "comboSkill": 12,
+              "ultimate": 12
+            },
+            "talentStates": { "0": 2, "1": 2 }
+          },
+          "weapon": {
+            "weaponSlug": "wpn_funnel_0011",
+            "level": 90,
+            "tuned": true,
+            "potential": 0,
+            "traitLevels": [9, 9, 4]
+          },
+          "gears": {
+            "armor": { "gearSlug": "item_equip_t4_suit_usp02_body_03", "artificingLevels": [3, 3] },
+            "gloves": {
+              "gearSlug": "item_equip_t4_suit_usp02_hand_03",
+              "artificingLevels": [3, 3, 3]
+            },
+            "accessory1": {
+              "gearSlug": "item_equip_t4_suit_usp02_edc_03",
+              "artificingLevels": [3, 3, 3]
+            },
+            "accessory2": {
+              "gearSlug": "item_equip_t4_suit_usp02_edc_03",
+              "artificingLevels": [3, 3, 3]
+            }
+          },
+          "initialState": { "ultimateEnergy": 0 },
+          "skillCasts": [
+            {
+              "id": "legacy:sc_lps0edv:track:3:cast:0",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "comboSkill",
+                "skillKey": "chr_0013_aglina_combo_skill"
+              },
+              "placement": { "startFrame": 123 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:3:cast:1",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "comboSkill",
+                "skillKey": "chr_0013_aglina_combo_skill"
+              },
+              "placement": { "startFrame": 756 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:3:cast:2",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "ultimate",
+                "skillKey": "chr_0013_aglina_ultimate_skill"
+              },
+              "placement": { "startFrame": 822 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:3:cast:3",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "comboSkill",
+                "skillKey": "chr_0013_aglina_combo_skill"
+              },
+              "placement": { "startFrame": 1422 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:3:cast:4",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "comboSkill",
+                "skillKey": "chr_0013_aglina_combo_skill"
+              },
+              "placement": { "startFrame": 1998 }
+            },
+            {
+              "id": "legacy:sc_lps0edv:track:3:cast:5",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "ultimate",
+                "skillKey": "chr_0013_aglina_ultimate_skill"
+              },
+              "placement": { "startFrame": 2115 }
+            }
+          ]
+        }
+      ],
+      "connections": [],
+      "enemy": {
+        "source": { "kind": "custom", "level": 90 },
+        "rank": "mob",
+        "editable": {
+          "hp": 100000,
+          "defense": 100,
+          "superArmor": 0,
+          "finisherMultiplier": 1,
+          "resistances": { "physical": 0, "heat": 0, "cryo": 0, "electric": 0, "nature": 0 },
+          "stagger": {
+            "maximum": 100000,
+            "knotThresholds": [],
+            "knotBreakDurationFrames": 60,
+            "brokenDurationFrames": 300,
+            "finisherSpRecovery": 25
+          }
+        },
+        "edited": [
+          "hp",
+          "defense",
+          "superArmor",
+          "finisherMultiplier",
+          "resistances",
+          "stagger.maximum",
+          "stagger.knotThresholds",
+          "stagger.knotBreakDurationFrames",
+          "stagger.brokenDurationFrames",
+          "stagger.finisherSpRecovery"
+        ]
+      },
+      "battle": {
+        "prepFrames": 150,
+        "durationFrames": 3600,
+        "simulationRange": { "endFrame": 2481 },
+        "resourceRules": {
+          "maxSp": 300,
+          "initialSp": 230,
+          "spRecoveryPerSecond": 8,
+          "defaultSkillSpCost": 100
+        },
+        "cycleBoundaries": [],
+        "controlSwitches": [],
+        "dodgeMarkers": [],
+        "externalEventMarkers": [],
+        "automaticControlSwitches": true
+      },
+      "mechanics": { "selections": [] },
+      "globalConfig": {},
+      "editor": {
+        "trackHeightWeights": [139, 140, 138, 140],
+        "prepExpanded": false,
+        "initialUltimateEnergyPreset": {
+          "mode": "custom",
+          "customByTrackId": {
+            "legacy:sc_lps0edv:track:0:typhoeus": 0,
+            "legacy:sc_lps0edv:track:1:arcane": 0,
+            "legacy:sc_lps0edv:track:2:perlica": 0,
+            "legacy:sc_lps0edv:track:3:gilberta": 0
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,1278 @@
+{
+  "timingMode": "preserve",
+  "finalSimulation": [
+    {
+      "scenarioId": "default_sc",
+      "path": "$.scenarios[0]",
+      "endFrame": 3600,
+      "status": "issues",
+      "availability": [
+        {
+          "frame": 48,
+          "sourceId": "legacy:default_sc:track:0:yvonne",
+          "skillId": "chr_0017_yvonne_attack4",
+          "reasons": ["skillInterruptUnavailable"],
+          "receiptSequences": [241],
+          "currentSkillId": "chr_0017_yvonne_attack3",
+          "currentCastId": "legacy:default_sc:track:0:cast:2"
+        },
+        {
+          "frame": 143,
+          "sourceId": "legacy:default_sc:track:0:yvonne",
+          "skillId": "chr_0017_yvonne_attack5",
+          "reasons": ["skillInterruptUnavailable"],
+          "receiptSequences": [476],
+          "currentSkillId": "chr_0017_yvonne_normal_skill",
+          "currentCastId": "legacy:default_sc:track:0:cast:5"
+        },
+        {
+          "frame": 266,
+          "sourceId": "legacy:default_sc:track:0:yvonne",
+          "skillId": "chr_0017_yvonne_power_attack",
+          "reasons": ["skillInterruptUnavailable"],
+          "receiptSequences": [734],
+          "currentSkillId": "chr_0017_yvonne_combo_skill",
+          "currentCastId": "legacy:default_sc:track:0:cast:7"
+        },
+        {
+          "frame": 327,
+          "sourceId": "legacy:default_sc:track:0:yvonne",
+          "skillId": "chr_0017_yvonne_attack1",
+          "reasons": ["skillInterruptUnavailable"],
+          "receiptSequences": [938],
+          "currentSkillId": "chr_0017_yvonne_power_attack",
+          "currentCastId": "legacy:default_sc:track:0:cast:8"
+        },
+        {
+          "frame": 375,
+          "sourceId": "legacy:default_sc:track:0:yvonne",
+          "skillId": "chr_0017_yvonne_attack4",
+          "reasons": ["skillInterruptUnavailable"],
+          "receiptSequences": [1189],
+          "currentSkillId": "chr_0017_yvonne_attack3",
+          "currentCastId": "legacy:default_sc:track:0:cast:11"
+        },
+        {
+          "frame": 435,
+          "sourceId": "legacy:default_sc:track:0:yvonne",
+          "skillId": "chr_0017_yvonne_attack1",
+          "reasons": ["skillInputUnknown", "skillInterruptUnknown"],
+          "receiptSequences": [1425, 1426],
+          "inputResolutionDetail": "current skill has conditional input actions",
+          "interruptionDetail": "current skill has conditional next-skill actions"
+        },
+        {
+          "frame": 483,
+          "sourceId": "legacy:default_sc:track:0:yvonne",
+          "skillId": "chr_0017_yvonne_attack4",
+          "reasons": ["skillInterruptUnavailable"],
+          "receiptSequences": [1604],
+          "currentSkillId": "chr_0017_yvonne_attack3",
+          "currentCastId": "legacy:default_sc:track:0:cast:16"
+        },
+        {
+          "frame": 544,
+          "sourceId": "legacy:default_sc:track:0:yvonne",
+          "skillId": "chr_0017_yvonne_attack1",
+          "reasons": ["skillInputUnknown", "skillInterruptUnknown"],
+          "receiptSequences": [1721, 1722],
+          "inputResolutionDetail": "current skill has conditional input actions",
+          "interruptionDetail": "current skill has conditional next-skill actions"
+        },
+        {
+          "frame": 592,
+          "sourceId": "legacy:default_sc:track:0:yvonne",
+          "skillId": "chr_0017_yvonne_attack4",
+          "reasons": ["skillInterruptUnavailable"],
+          "receiptSequences": [1898],
+          "currentSkillId": "chr_0017_yvonne_attack3",
+          "currentCastId": "legacy:default_sc:track:0:cast:21"
+        },
+        {
+          "frame": 720,
+          "sourceId": "legacy:default_sc:track:0:yvonne",
+          "skillId": "chr_0017_yvonne_attack4",
+          "reasons": ["skillInterruptUnavailable"],
+          "receiptSequences": [2218],
+          "currentSkillId": "chr_0017_yvonne_attack3",
+          "currentCastId": "legacy:default_sc:track:0:cast:26"
+        }
+      ],
+      "execution": [],
+      "comboWindow": [
+        {
+          "frame": 179,
+          "sourceId": "legacy:default_sc:track:0:yvonne",
+          "skillId": "chr_0017_yvonne_combo_skill",
+          "reasons": ["releaseOrderMismatch"],
+          "receiptSequences": [542]
+        },
+        {
+          "frame": 293,
+          "sourceId": "legacy:default_sc:track:3:mifu",
+          "skillId": "chr_0031_mifu_combo_skill",
+          "reasons": ["releaseOrderMismatch"],
+          "receiptSequences": [808]
+        }
+      ],
+      "dodges": [],
+      "rejectedInputs": []
+    }
+  ],
+  "issues": [
+    {
+      "path": "$.scenarios[0]",
+      "message": "最终整轴模拟存在诊断：可用性 10 项、执行 0 项、连携窗口 2 项、闪避 0 项、拒绝输入 0 项。请检查技能块和闪避标签的诊断，项目已保留供编辑。"
+    }
+  ],
+  "simulationIssues": [
+    {
+      "path": "$.scenarios[0]",
+      "message": "最终整轴模拟存在诊断：可用性 10 项、执行 0 项、连携窗口 2 项、闪避 0 项、拒绝输入 0 项。请检查技能块和闪避标签的诊断，项目已保留供编辑。"
+    }
+  ],
+  "presentationIssues": [],
+  "fatalIssues": [],
+  "times": [
+    {
+      "path": "scenarioList[0].data.prepDuration",
+      "sourceValue": 300,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 150,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.battleDuration",
+      "sourceValue": 7200,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 3600,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.systemConstants.staggerNodeDuration",
+      "sourceValue": 120,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 60,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.systemConstants.staggerBreakDuration",
+      "sourceValue": 600,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 300,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[0].duration",
+      "sourceValue": 34,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 17,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[0].logicalStartTime",
+      "sourceValue": 300,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 0,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[0].startTime",
+      "sourceValue": 300,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 0,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[1].duration",
+      "sourceValue": 30,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 15,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[1].logicalStartTime",
+      "sourceValue": 334,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 17,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[1].startTime",
+      "sourceValue": 334,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 17,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[2].duration",
+      "sourceValue": 32,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 16,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[2].logicalStartTime",
+      "sourceValue": 364,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 32,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[2].startTime",
+      "sourceValue": 364,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 32,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[3].duration",
+      "sourceValue": 50,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 25,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[3].logicalStartTime",
+      "sourceValue": 396,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 48,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[3].startTime",
+      "sourceValue": 396,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 48,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[4].duration",
+      "sourceValue": 70,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 35,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[4].logicalStartTime",
+      "sourceValue": 446,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 73,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[4].startTime",
+      "sourceValue": 446,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 73,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[5].duration",
+      "sourceValue": 68,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 34,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[5].logicalStartTime",
+      "sourceValue": 517,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 109,
+      "errorSeconds": 0.016666666666666607
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[5].startTime",
+      "sourceValue": 517,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 109,
+      "errorSeconds": 0.016666666666666607
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[6].duration",
+      "sourceValue": 70,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 35,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[6].logicalStartTime",
+      "sourceValue": 586,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 143,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[6].startTime",
+      "sourceValue": 586,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 143,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[7].duration",
+      "sourceValue": 38,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 19,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[7].logicalStartTime",
+      "sourceValue": 658,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 179,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[7].startTime",
+      "sourceValue": 658,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 179,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[8].duration",
+      "sourceValue": 90,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 45,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[8].logicalStartTime",
+      "sourceValue": 832,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 266,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[8].startTime",
+      "sourceValue": 832,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 266,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[9].duration",
+      "sourceValue": 34,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 17,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[9].logicalStartTime",
+      "sourceValue": 953,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 327,
+      "errorSeconds": 0.016666666666667496
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[9].startTime",
+      "sourceValue": 953,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 327,
+      "errorSeconds": 0.016666666666667496
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[10].duration",
+      "sourceValue": 30,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 15,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[10].logicalStartTime",
+      "sourceValue": 987,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 344,
+      "errorSeconds": 0.016666666666667496
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[10].startTime",
+      "sourceValue": 987,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 344,
+      "errorSeconds": 0.016666666666667496
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[11].duration",
+      "sourceValue": 32,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 16,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[11].logicalStartTime",
+      "sourceValue": 1017,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 359,
+      "errorSeconds": 0.016666666666667496
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[11].startTime",
+      "sourceValue": 1017,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 359,
+      "errorSeconds": 0.016666666666667496
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[12].duration",
+      "sourceValue": 50,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 25,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[12].logicalStartTime",
+      "sourceValue": 1049,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 375,
+      "errorSeconds": 0.016666666666667496
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[12].startTime",
+      "sourceValue": 1049,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 375,
+      "errorSeconds": 0.016666666666667496
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[13].duration",
+      "sourceValue": 70,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 35,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[13].logicalStartTime",
+      "sourceValue": 1099,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 400,
+      "errorSeconds": 0.016666666666667496
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[13].startTime",
+      "sourceValue": 1099,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 400,
+      "errorSeconds": 0.016666666666667496
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[14].duration",
+      "sourceValue": 34,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 17,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[14].logicalStartTime",
+      "sourceValue": 1170,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 435,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[14].startTime",
+      "sourceValue": 1170,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 435,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[15].duration",
+      "sourceValue": 30,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 15,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[15].logicalStartTime",
+      "sourceValue": 1204,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 452,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[15].startTime",
+      "sourceValue": 1204,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 452,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[16].duration",
+      "sourceValue": 32,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 16,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[16].logicalStartTime",
+      "sourceValue": 1234,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 467,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[16].startTime",
+      "sourceValue": 1234,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 467,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[17].duration",
+      "sourceValue": 50,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 25,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[17].logicalStartTime",
+      "sourceValue": 1266,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 483,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[17].startTime",
+      "sourceValue": 1266,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 483,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[18].duration",
+      "sourceValue": 70,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 35,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[18].logicalStartTime",
+      "sourceValue": 1316,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 508,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[18].startTime",
+      "sourceValue": 1316,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 508,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[19].duration",
+      "sourceValue": 34,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 17,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[19].logicalStartTime",
+      "sourceValue": 1387,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 544,
+      "errorSeconds": 0.01666666666666572
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[19].startTime",
+      "sourceValue": 1387,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 544,
+      "errorSeconds": 0.01666666666666572
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[20].duration",
+      "sourceValue": 30,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 15,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[20].logicalStartTime",
+      "sourceValue": 1421,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 561,
+      "errorSeconds": 0.01666666666666572
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[20].startTime",
+      "sourceValue": 1421,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 561,
+      "errorSeconds": 0.01666666666666572
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[21].duration",
+      "sourceValue": 32,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 16,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[21].logicalStartTime",
+      "sourceValue": 1451,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 576,
+      "errorSeconds": 0.01666666666666572
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[21].startTime",
+      "sourceValue": 1451,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 576,
+      "errorSeconds": 0.01666666666666572
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[22].duration",
+      "sourceValue": 50,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 25,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[22].logicalStartTime",
+      "sourceValue": 1483,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 592,
+      "errorSeconds": 0.016666666666669272
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[22].startTime",
+      "sourceValue": 1483,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 592,
+      "errorSeconds": 0.016666666666669272
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[23].duration",
+      "sourceValue": 70,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 35,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[23].logicalStartTime",
+      "sourceValue": 1533,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 617,
+      "errorSeconds": 0.01666666666666572
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[23].startTime",
+      "sourceValue": 1533,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 617,
+      "errorSeconds": 0.01666666666666572
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[24].duration",
+      "sourceValue": 34,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 17,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[24].logicalStartTime",
+      "sourceValue": 1644,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 672,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[24].startTime",
+      "sourceValue": 1644,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 672,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[25].duration",
+      "sourceValue": 30,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 15,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[25].logicalStartTime",
+      "sourceValue": 1678,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 689,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[25].startTime",
+      "sourceValue": 1678,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 689,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[26].duration",
+      "sourceValue": 32,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 16,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[26].logicalStartTime",
+      "sourceValue": 1708,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 704,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[26].startTime",
+      "sourceValue": 1708,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 704,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[27].duration",
+      "sourceValue": 50,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 25,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[27].logicalStartTime",
+      "sourceValue": 1740,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 720,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[27].startTime",
+      "sourceValue": 1740,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 720,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[28].duration",
+      "sourceValue": 70,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 35,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[28].logicalStartTime",
+      "sourceValue": 1790,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 745,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[0].actions[28].startTime",
+      "sourceValue": 1790,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 745,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[1].actions[0].duration",
+      "sourceValue": 246,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 123,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[1].actions[0].logicalStartTime",
+      "sourceValue": 300,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 0,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[1].actions[0].startTime",
+      "sourceValue": 300,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 0,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[1].actions[1].duration",
+      "sourceValue": 106,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 53,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[1].actions[1].logicalStartTime",
+      "sourceValue": 659,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 180,
+      "errorSeconds": 0.016666666666666607
+    },
+    {
+      "path": "scenarioList[0].data.tracks[1].actions[1].startTime",
+      "sourceValue": 664,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 182,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[2].actions[0].duration",
+      "sourceValue": 40,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 20,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[2].actions[0].logicalStartTime",
+      "sourceValue": 660,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 180,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[2].actions[0].startTime",
+      "sourceValue": 670,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 185,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[2].actions[1].duration",
+      "sourceValue": 120,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 60,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[2].actions[1].logicalStartTime",
+      "sourceValue": 711,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 206,
+      "errorSeconds": 0.016666666666666607
+    },
+    {
+      "path": "scenarioList[0].data.tracks[2].actions[1].startTime",
+      "sourceValue": 711,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 206,
+      "errorSeconds": 0.016666666666666607
+    },
+    {
+      "path": "scenarioList[0].data.tracks[3].actions[0].duration",
+      "sourceValue": 106,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 53,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[3].actions[0].logicalStartTime",
+      "sourceValue": 885,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 293,
+      "errorSeconds": 0.016666666666667496
+    },
+    {
+      "path": "scenarioList[0].data.tracks[3].actions[0].startTime",
+      "sourceValue": 885,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 293,
+      "errorSeconds": 0.016666666666667496
+    },
+    {
+      "path": "scenarioList[0].data.tracks[3].actions[1].duration",
+      "sourceValue": 74,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 37,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[3].actions[1].logicalStartTime",
+      "sourceValue": 1005,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 353,
+      "errorSeconds": 0.016666666666667496
+    },
+    {
+      "path": "scenarioList[0].data.tracks[3].actions[1].startTime",
+      "sourceValue": 1005,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 353,
+      "errorSeconds": 0.016666666666667496
+    },
+    {
+      "path": "scenarioList[0].data.tracks[3].actions[2].duration",
+      "sourceValue": 104,
+      "sourceFps": 60,
+      "sourceOrigin": 0,
+      "frame": 52,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[3].actions[2].logicalStartTime",
+      "sourceValue": 1080,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 390,
+      "errorSeconds": 0
+    },
+    {
+      "path": "scenarioList[0].data.tracks[3].actions[2].startTime",
+      "sourceValue": 1080,
+      "sourceFps": 60,
+      "sourceOrigin": 300,
+      "frame": 390,
+      "errorSeconds": 0
+    }
+  ],
+  "identityChanges": [
+    { "path": "scenarioList[0].data.tracks[0].id", "from": "yvonne", "to": "yvonne" },
+    { "path": "scenarioList[0].data.tracks[1].id", "from": "gilberta", "to": "gilberta" },
+    { "path": "scenarioList[0].data.tracks[2].id", "from": "estella", "to": "estella" },
+    { "path": "scenarioList[0].data.tracks[3].id", "from": "mifu", "to": "mifu" },
+    {
+      "path": "scenarioList[0].data.weapons[0].weaponSlug",
+      "from": "artzy-tyrannical",
+      "to": "wpn_pistol_0010"
+    },
+    {
+      "path": "scenarioList[0].data.weapons[1].weaponSlug",
+      "from": "delivery-guaranteed",
+      "to": "wpn_funnel_0011"
+    },
+    {
+      "path": "scenarioList[0].data.weapons[2].weaponSlug",
+      "from": "chimeric-justice",
+      "to": "wpn_lance_0004"
+    },
+    {
+      "path": "scenarioList[0].data.weapons[3].weaponSlug",
+      "from": "beacon-of-duty",
+      "to": "wpn_lance_0007"
+    },
+    {
+      "path": "scenarioList[0].data.weapons[4].weaponSlug",
+      "from": "golden-age",
+      "to": "wpn_lance_0016"
+    },
+    {
+      "path": "scenarioList[0].data.weapons[5].weaponSlug",
+      "from": "bedazzling-night-debut",
+      "to": "wpn_lance_0014"
+    },
+    {
+      "path": "scenarioList[0].data.weapons[6].weaponSlug",
+      "from": "blessing-of-lustrous-carmine",
+      "to": "wpn_lance_0015"
+    },
+    { "path": "scenarioList[0].data.weapons[7].weaponSlug", "from": "jet", "to": "wpn_lance_0011" },
+    {
+      "path": "scenarioList[0].data.weapons[8].weaponSlug",
+      "from": "mountain-bearer",
+      "to": "wpn_lance_0012"
+    },
+    {
+      "path": "scenarioList[0].data.weapons[9].weaponSlug",
+      "from": "valiant",
+      "to": "wpn_lance_0010"
+    },
+    {
+      "path": "scenarioList[0].data.weapons[10].weaponSlug",
+      "from": "jet",
+      "to": "wpn_lance_0011"
+    },
+    {
+      "path": "scenarioList[0].data.weapons[11].weaponSlug",
+      "from": "obj-razorhorn",
+      "to": "wpn_lance_0013"
+    },
+    {
+      "path": "scenarioList[0].data.weapons[12].weaponSlug",
+      "from": "chimeric-justice",
+      "to": "wpn_lance_0004"
+    },
+    {
+      "path": "scenarioList[0].data.weapons[13].weaponSlug",
+      "from": "obj-razorhorn",
+      "to": "wpn_lance_0013"
+    },
+    {
+      "path": "scenarioList[0].data.weapons[14].weaponSlug",
+      "from": "amaranthine-tassel",
+      "to": "wpn_claym_0017"
+    },
+    {
+      "path": "scenarioList[0].data.weapons[15].weaponSlug",
+      "from": "chimeric-justice",
+      "to": "wpn_lance_0004"
+    },
+    {
+      "path": "scenarioList[0].data.gears[0].gearPieceId",
+      "from": "mi-security-overalls-t1",
+      "to": "item_equip_t4_suit_criti01_body_03"
+    },
+    {
+      "path": "scenarioList[0].data.gears[1].gearPieceId",
+      "from": "mi-security-hands-ppe-t1",
+      "to": "item_equip_t4_suit_criti01_hand_03"
+    },
+    {
+      "path": "scenarioList[0].data.gears[2].gearPieceId",
+      "from": "mi-security-push-knife",
+      "to": "item_equip_t4_suit_criti01_edc_04"
+    },
+    {
+      "path": "scenarioList[0].data.gears[3].gearPieceId",
+      "from": "mi-security-toolkit",
+      "to": "item_equip_t4_suit_criti01_edc_03"
+    },
+    {
+      "path": "scenarioList[0].data.gears[4].gearPieceId",
+      "from": "mi-security-toolkit",
+      "to": "item_equip_t4_suit_criti01_edc_03"
+    },
+    {
+      "path": "scenarioList[0].data.gears[5].gearPieceId",
+      "from": "grizzled-edge-armor-t1",
+      "to": "item_equip_t4_suit_crush_fracture_body_02"
+    },
+    {
+      "path": "scenarioList[0].data.gears[6].gearPieceId",
+      "from": "grizzled-edge-armor",
+      "to": "item_equip_t4_suit_crush_fracture_body_01"
+    },
+    {
+      "path": "scenarioList[0].data.gears[7].gearPieceId",
+      "from": "grizzled-edge-gauntlets",
+      "to": "item_equip_t4_suit_crush_fracture_hand_01"
+    },
+    {
+      "path": "scenarioList[0].data.gears[8].gearPieceId",
+      "from": "grizzled-edge-push-knife",
+      "to": "item_equip_t4_suit_crush_fracture_edc_01"
+    },
+    {
+      "path": "scenarioList[0].data.gears[9].gearPieceId",
+      "from": "swordmancer-nav-beacon",
+      "to": "item_equip_t4_suit_phy01_edc_01"
+    },
+    {
+      "path": "scenarioList[0].data.gears[10].gearPieceId",
+      "from": "eternal-xiranite-light-armor",
+      "to": "item_equip_t4_suit_usp02_body_03"
+    },
+    {
+      "path": "scenarioList[0].data.gears[11].gearPieceId",
+      "from": "eternal-xiranite-wraps",
+      "to": "item_equip_t4_suit_usp02_hand_03"
+    },
+    {
+      "path": "scenarioList[0].data.gears[12].gearPieceId",
+      "from": "eternal-xiranite-auxiliary-arm",
+      "to": "item_equip_t4_suit_usp02_edc_03"
+    },
+    {
+      "path": "scenarioList[0].data.gears[13].gearPieceId",
+      "from": "redeemer-seal-t1",
+      "to": "item_equip_t4_parts_wuling01_edc_04"
+    },
+    {
+      "path": "scenarioList[0].data.gears[14].gearPieceId",
+      "from": "redeemer-seal",
+      "to": "item_equip_t4_parts_wuling01_edc_03"
+    },
+    {
+      "path": "scenarioList[0].data.gears[15].gearPieceId",
+      "from": "eternal-xiranite-light-armor",
+      "to": "item_equip_t4_suit_usp02_body_03"
+    },
+    {
+      "path": "scenarioList[0].data.gears[16].gearPieceId",
+      "from": "eternal-xiranite-gloves-t1",
+      "to": "item_equip_t4_suit_usp02_hand_02"
+    },
+    {
+      "path": "scenarioList[0].data.gears[17].gearPieceId",
+      "from": "eternal-xiranite-auxiliary-arm",
+      "to": "item_equip_t4_suit_usp02_edc_03"
+    },
+    {
+      "path": "scenarioList[0].data.gears[18].gearPieceId",
+      "from": "eternal-xiranite-auxiliary-arm",
+      "to": "item_equip_t4_suit_usp02_edc_03"
+    },
+    {
+      "path": "scenarioList[0].data.gears[19].gearPieceId",
+      "from": "eternal-xiranite-hands",
+      "to": "item_equip_t4_suit_usp02_hand_04"
+    },
+    {
+      "path": "scenarioList[0].data.gears[20].gearPieceId",
+      "from": "redeemer-seal",
+      "to": "item_equip_t4_parts_wuling01_edc_03"
+    },
+    {
+      "path": "scenarioList[0].data.gears[21].gearPieceId",
+      "from": "redeemer-armor",
+      "to": "item_equip_t4_parts_wuling01_body_02"
+    },
+    {
+      "path": "scenarioList[0].data.gears[22].gearPieceId",
+      "from": "redeemer-plates",
+      "to": "item_equip_t4_parts_wuling01_body_01"
+    },
+    {
+      "path": "scenarioList[0].data.gears[23].gearPieceId",
+      "from": "redeemer-armor",
+      "to": "item_equip_t4_parts_wuling01_body_02"
+    },
+    {
+      "path": "scenarioList[0].data.gears[24].gearPieceId",
+      "from": "rift-trekker-gloves",
+      "to": "item_equip_t4_parts_wuling02_hand_01"
+    },
+    {
+      "path": "scenarioList[0].data.gears[25].gearPieceId",
+      "from": "eternal-xiranite-light-armor",
+      "to": "item_equip_t4_suit_usp02_body_03"
+    },
+    {
+      "path": "scenarioList[0].data.gears[26].gearPieceId",
+      "from": "eternal-xiranite-wraps",
+      "to": "item_equip_t4_suit_usp02_hand_03"
+    },
+    {
+      "path": "scenarioList[0].data.gears[27].gearPieceId",
+      "from": "eternal-xiranite-auxiliary-arm",
+      "to": "item_equip_t4_suit_usp02_edc_03"
+    }
+  ],
+  "ignoredCustomizations": [],
+  "unresolvedSkills": [],
+  "sequenceExpansions": [],
+  "resourceAdjustments": [],
+  "timingAdjustments": [],
+  "skillFormAdjustments": [],
+  "controlSwitchAdjustments": [],
+  "dodgeMarkerAdjustments": [],
+  "retimingSimulationStats": {
+    "scenarioCount": 1,
+    "castCount": 36,
+    "candidateProbes": 0,
+    "simulationRuns": 1
+  },
+  "sourceActionCounts": [{ "id": "default_sc", "count": 36 }],
+  "limitations": [
+    "保留旧轴技能位置（换算为新版帧率），不修复重叠或不可接续；仍判断技能形态并补主控切换",
+    "旧轴默认第1轨道为主控，并在其他干员的普攻、强化普攻、下落攻击或处决开始时补主控切换标记",
+    "标准旧闪避块转换为同轨普通向前闪避标签；旧格式没有方向或极限闪避成功事实，因此不补成功收益",
+    "使用当前游戏定义重算；旧 hits、Buff、面板、伤害等快照不迁移",
+    "连接只支持可唯一对应技能块的 action-to-action 端点；未实现旧自定义行为、派生端点、继承状态、合约及非中性全局修正"
+  ]
+}

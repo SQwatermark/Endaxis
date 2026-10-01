@@ -1,0 +1,930 @@
+{
+  "kind": "EndaxisProject",
+  "schemaVersion": 1,
+  "createdWith": "Endaxis legacy importer",
+  "createdAt": "2026-10-01T00:00:00.000Z",
+  "fps": 30,
+  "activeScenarioId": "default_sc",
+  "definitionLibrary": { "operators": {}, "weapons": {}, "gears": {}, "gearSets": {} },
+  "scenarios": [
+    {
+      "id": "default_sc",
+      "name": "别汤赛决全56 16wDPS（循环等技力）",
+      "tracks": [
+        {
+          "id": "legacy:default_sc:track:0:xaihi",
+          "operator": {
+            "operatorSlug": "xaihi",
+            "level": 90,
+            "promoted": true,
+            "potential": 5,
+            "trustLevel": 4,
+            "skillLevels": {
+              "basicAttack": 12,
+              "battleSkill": 12,
+              "comboSkill": 12,
+              "ultimate": 12
+            },
+            "talentStates": { "0": 2, "1": 1 }
+          },
+          "weapon": {
+            "weaponSlug": "wpn_funnel_0008",
+            "level": 90,
+            "tuned": true,
+            "potential": 5,
+            "traitLevels": [9, 9, 9]
+          },
+          "gears": {
+            "armor": {
+              "gearSlug": "item_equip_t4_parts_wuling01_body_02",
+              "artificingLevels": [3, 3]
+            },
+            "gloves": {
+              "gearSlug": "item_equip_t4_parts_wuling02_hand_01",
+              "artificingLevels": [3, 3]
+            },
+            "accessory1": {
+              "gearSlug": "item_equip_t4_suit_atb01_edc_06",
+              "artificingLevels": [3, 3, 3]
+            },
+            "accessory2": {
+              "gearSlug": "item_equip_t4_suit_atb01_edc_06",
+              "artificingLevels": [3, 3, 3]
+            }
+          },
+          "initialState": { "ultimateEnergy": 0 },
+          "skillCasts": [
+            {
+              "id": "legacy:default_sc:track:0:cast:0",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "battleSkill",
+                "skillKey": "chr_0011_seraph_normal_skill"
+              },
+              "placement": { "startFrame": 0 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:1",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "comboSkill",
+                "skillKey": "chr_0011_seraph_combo_skill"
+              },
+              "placement": { "startFrame": 283 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:2",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "battleSkill",
+                "skillKey": "chr_0011_seraph_normal_skill"
+              },
+              "placement": { "startFrame": 849 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:3",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "comboSkill",
+                "skillKey": "chr_0011_seraph_combo_skill"
+              },
+              "placement": { "startFrame": 1146 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:4",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "ultimate",
+                "skillKey": "chr_0011_seraph_ultimate_skill"
+              },
+              "placement": { "startFrame": 1188 }
+            }
+          ]
+        },
+        {
+          "id": "legacy:default_sc:track:1:arcane",
+          "operator": {
+            "operatorSlug": "arcane",
+            "level": 90,
+            "promoted": true,
+            "potential": 5,
+            "trustLevel": 4,
+            "skillLevels": {
+              "basicAttack": 12,
+              "battleSkill": 12,
+              "comboSkill": 12,
+              "ultimate": 12
+            },
+            "talentStates": { "0": 2, "1": 2 }
+          },
+          "weapon": {
+            "weaponSlug": "wpn_funnel_0016",
+            "level": 90,
+            "tuned": true,
+            "potential": 5,
+            "traitLevels": [9, 9, 9]
+          },
+          "gears": {
+            "armor": { "gearSlug": "item_equip_t4_suit_usp02_body_03", "artificingLevels": [3, 3] },
+            "gloves": {
+              "gearSlug": "item_equip_t4_parts_wuling00_hand_03",
+              "artificingLevels": [3, 3, 3]
+            },
+            "accessory1": {
+              "gearSlug": "item_equip_t4_suit_usp02_edc_04",
+              "artificingLevels": [3, 3]
+            },
+            "accessory2": {
+              "gearSlug": "item_equip_t4_suit_usp02_edc_03",
+              "artificingLevels": [3, 3, 3]
+            }
+          },
+          "initialState": { "ultimateEnergy": 0 },
+          "skillCasts": [
+            {
+              "id": "legacy:default_sc:track:1:cast:0",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "comboSkill",
+                "skillKey": "chr_0032_lizhiyan_combo_skill"
+              },
+              "placement": { "startFrame": 55 }
+            },
+            {
+              "id": "legacy:default_sc:track:1:cast:1",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "comboSkill",
+                "skillKey": "chr_0032_lizhiyan_combo_skill"
+              },
+              "placement": { "startFrame": 722 }
+            },
+            {
+              "id": "legacy:default_sc:track:1:cast:2",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0032_lizhiyan_attack1"
+              },
+              "placement": { "startFrame": 1315 }
+            },
+            {
+              "id": "legacy:default_sc:track:1:cast:3",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0032_lizhiyan_attack2"
+              },
+              "placement": { "startFrame": 1328 }
+            },
+            {
+              "id": "legacy:default_sc:track:1:cast:4",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0032_lizhiyan_attack3"
+              },
+              "placement": { "startFrame": 1341 }
+            },
+            {
+              "id": "legacy:default_sc:track:1:cast:5",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0032_lizhiyan_attack4"
+              },
+              "placement": { "startFrame": 1393 }
+            },
+            {
+              "id": "legacy:default_sc:track:1:cast:6",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0032_lizhiyan_attack5"
+              },
+              "placement": { "startFrame": 1414 }
+            },
+            {
+              "id": "legacy:default_sc:track:1:cast:7",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "ultimate",
+                "skillKey": "chr_0032_lizhiyan_ultimate_skill"
+              },
+              "placement": { "startFrame": 1470 }
+            },
+            {
+              "id": "legacy:default_sc:track:1:cast:8",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "comboSkill",
+                "skillKey": "chr_0032_lizhiyan_combo_skill"
+              },
+              "placement": { "startFrame": 1522 }
+            },
+            {
+              "id": "legacy:default_sc:track:1:cast:9",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "plungingAttack",
+                "skillKey": "chr_0032_lizhiyan_plunging_attack_end"
+              },
+              "placement": { "startFrame": 1553 }
+            }
+          ]
+        },
+        {
+          "id": "legacy:default_sc:track:2:last-rite",
+          "operator": {
+            "operatorSlug": "last-rite",
+            "level": 90,
+            "promoted": true,
+            "potential": 5,
+            "trustLevel": 4,
+            "skillLevels": {
+              "basicAttack": 12,
+              "battleSkill": 12,
+              "comboSkill": 12,
+              "ultimate": 12
+            },
+            "talentStates": { "0": 2, "1": 2 }
+          },
+          "weapon": {
+            "weaponSlug": "wpn_claym_0013",
+            "level": 90,
+            "tuned": true,
+            "potential": 5,
+            "traitLevels": [9, 9, 9]
+          },
+          "gears": {
+            "armor": {
+              "gearSlug": "item_equip_t4_suit_atk02_body_04",
+              "artificingLevels": [3, 3, 3]
+            },
+            "gloves": {
+              "gearSlug": "item_equip_t4_suit_burst01_hand_01",
+              "artificingLevels": [3, 3, 3]
+            },
+            "accessory1": {
+              "gearSlug": "item_equip_t4_suit_burst01_edc_01",
+              "artificingLevels": [3, 3, 3]
+            },
+            "accessory2": {
+              "gearSlug": "item_equip_t4_suit_burst01_edc_01",
+              "artificingLevels": [3, 3, 3]
+            }
+          },
+          "initialState": { "ultimateEnergy": 0 },
+          "skillCasts": [
+            {
+              "id": "legacy:default_sc:track:2:cast:0",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0026_lastrite_attack1"
+              },
+              "placement": { "startFrame": 0 }
+            },
+            {
+              "id": "legacy:default_sc:track:2:cast:1",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0026_lastrite_attack2"
+              },
+              "placement": { "startFrame": 21 }
+            },
+            {
+              "id": "legacy:default_sc:track:2:cast:2",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0026_lastrite_attack3"
+              },
+              "placement": { "startFrame": 70 }
+            },
+            {
+              "id": "legacy:default_sc:track:2:cast:3",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0026_lastrite_attack4"
+              },
+              "placement": { "startFrame": 120 }
+            },
+            {
+              "id": "legacy:default_sc:track:2:cast:4",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "battleSkill",
+                "skillKey": "chr_0026_lastrite_normal_skill"
+              },
+              "placement": { "startFrame": 259 }
+            },
+            {
+              "id": "legacy:default_sc:track:2:cast:5",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "comboSkill",
+                "skillKey": "chr_0026_lastrite_combo_skill"
+              },
+              "placement": { "startFrame": 286 }
+            },
+            {
+              "id": "legacy:default_sc:track:2:cast:6",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0026_lastrite_attack1"
+              },
+              "placement": { "startFrame": 460 }
+            },
+            {
+              "id": "legacy:default_sc:track:2:cast:7",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0026_lastrite_attack2"
+              },
+              "placement": { "startFrame": 481 }
+            },
+            {
+              "id": "legacy:default_sc:track:2:cast:8",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0026_lastrite_attack3"
+              },
+              "placement": { "startFrame": 511 }
+            },
+            {
+              "id": "legacy:default_sc:track:2:cast:9",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0026_lastrite_attack4"
+              },
+              "placement": { "startFrame": 533 }
+            },
+            {
+              "id": "legacy:default_sc:track:2:cast:10",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0026_lastrite_attack1"
+              },
+              "placement": { "startFrame": 580 }
+            },
+            {
+              "id": "legacy:default_sc:track:2:cast:11",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0026_lastrite_attack2"
+              },
+              "placement": { "startFrame": 601 }
+            },
+            {
+              "id": "legacy:default_sc:track:2:cast:12",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0026_lastrite_attack3"
+              },
+              "placement": { "startFrame": 631 }
+            },
+            {
+              "id": "legacy:default_sc:track:2:cast:13",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0026_lastrite_attack4"
+              },
+              "placement": { "startFrame": 668 }
+            },
+            {
+              "id": "legacy:default_sc:track:2:cast:14",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0026_lastrite_attack1"
+              },
+              "placement": { "startFrame": 711 }
+            },
+            {
+              "id": "legacy:default_sc:track:2:cast:15",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0026_lastrite_attack2"
+              },
+              "placement": { "startFrame": 737 }
+            },
+            {
+              "id": "legacy:default_sc:track:2:cast:16",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0026_lastrite_attack3"
+              },
+              "placement": { "startFrame": 762 }
+            },
+            {
+              "id": "legacy:default_sc:track:2:cast:17",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0026_lastrite_attack4"
+              },
+              "placement": { "startFrame": 799 }
+            },
+            {
+              "id": "legacy:default_sc:track:2:cast:18",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0026_lastrite_attack1"
+              },
+              "placement": { "startFrame": 846 }
+            },
+            {
+              "id": "legacy:default_sc:track:2:cast:19",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0026_lastrite_attack2"
+              },
+              "placement": { "startFrame": 867 }
+            },
+            {
+              "id": "legacy:default_sc:track:2:cast:20",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0026_lastrite_attack3"
+              },
+              "placement": { "startFrame": 897 }
+            },
+            {
+              "id": "legacy:default_sc:track:2:cast:21",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0026_lastrite_attack4"
+              },
+              "placement": { "startFrame": 934 }
+            },
+            {
+              "id": "legacy:default_sc:track:2:cast:22",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "battleSkill",
+                "skillKey": "chr_0026_lastrite_normal_skill"
+              },
+              "placement": { "startFrame": 982 }
+            },
+            {
+              "id": "legacy:default_sc:track:2:cast:23",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "comboSkill",
+                "skillKey": "chr_0026_lastrite_combo_skill"
+              },
+              "placement": { "startFrame": 1149 }
+            },
+            {
+              "id": "legacy:default_sc:track:2:cast:24",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "battleSkill",
+                "skillKey": "chr_0026_lastrite_normal_skill"
+              },
+              "placement": { "startFrame": 1401 }
+            },
+            {
+              "id": "legacy:default_sc:track:2:cast:25",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "comboSkill",
+                "skillKey": "chr_0026_lastrite_combo_skill"
+              },
+              "placement": { "startFrame": 1420 }
+            },
+            {
+              "id": "legacy:default_sc:track:2:cast:26",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "ultimate",
+                "skillKey": "chr_0026_lastrite_ultimate_skill"
+              },
+              "placement": { "startFrame": 1633 }
+            },
+            {
+              "id": "legacy:default_sc:track:2:cast:27",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "comboSkill",
+                "skillKey": "chr_0026_lastrite_combo_skill"
+              },
+              "placement": { "startFrame": 1775 }
+            }
+          ]
+        },
+        {
+          "id": "legacy:default_sc:track:3:tangtang",
+          "operator": {
+            "operatorSlug": "tangtang",
+            "level": 90,
+            "promoted": true,
+            "potential": 5,
+            "trustLevel": 4,
+            "skillLevels": {
+              "basicAttack": 12,
+              "battleSkill": 12,
+              "comboSkill": 12,
+              "ultimate": 12
+            },
+            "talentStates": { "0": 2, "1": 2 }
+          },
+          "weapon": {
+            "weaponSlug": "wpn_pistol_0011",
+            "level": 90,
+            "tuned": true,
+            "potential": 5,
+            "traitLevels": [9, 9, 9]
+          },
+          "gears": {
+            "armor": {
+              "gearSlug": "item_equip_t4_suit_attri01_body_05",
+              "artificingLevels": [3, 3, 3]
+            },
+            "gloves": {
+              "gearSlug": "item_equip_t4_suit_criti01_hand_01",
+              "artificingLevels": [3, 3, 3]
+            },
+            "accessory1": {
+              "gearSlug": "item_equip_t4_suit_criti01_edc_02",
+              "artificingLevels": [3, 3, 3]
+            },
+            "accessory2": {
+              "gearSlug": "item_equip_t4_suit_criti01_edc_02",
+              "artificingLevels": [3, 3, 3]
+            }
+          },
+          "initialState": { "ultimateEnergy": 0 },
+          "skillCasts": [
+            {
+              "id": "legacy:default_sc:track:3:cast:0",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "battleSkill",
+                "skillKey": "chr_0027_tangtang_normal_skill"
+              },
+              "placement": { "startFrame": 0 }
+            },
+            {
+              "id": "legacy:default_sc:track:3:cast:1",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "comboSkill",
+                "skillKey": "chr_0027_tangtang_combo_skill"
+              },
+              "placement": { "startFrame": 52 }
+            },
+            {
+              "id": "legacy:default_sc:track:3:cast:2",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0027_tangtang_attack1"
+              },
+              "placement": { "startFrame": 169 }
+            },
+            {
+              "id": "legacy:default_sc:track:3:cast:3",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0027_tangtang_attack2"
+              },
+              "placement": { "startFrame": 177 }
+            },
+            {
+              "id": "legacy:default_sc:track:3:cast:4",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0027_tangtang_attack3"
+              },
+              "placement": { "startFrame": 196 }
+            },
+            {
+              "id": "legacy:default_sc:track:3:cast:5",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0027_tangtang_attack4"
+              },
+              "placement": { "startFrame": 223 }
+            },
+            {
+              "id": "legacy:default_sc:track:3:cast:6",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0027_tangtang_attack5"
+              },
+              "placement": { "startFrame": 248 }
+            },
+            {
+              "id": "legacy:default_sc:track:3:cast:7",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "comboSkill",
+                "skillKey": "chr_0027_tangtang_combo_skill"
+              },
+              "placement": { "startFrame": 301 }
+            },
+            {
+              "id": "legacy:default_sc:track:3:cast:8",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0027_tangtang_attack1"
+              },
+              "placement": { "startFrame": 329 }
+            },
+            {
+              "id": "legacy:default_sc:track:3:cast:9",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0027_tangtang_attack2"
+              },
+              "placement": { "startFrame": 337 }
+            },
+            {
+              "id": "legacy:default_sc:track:3:cast:10",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0027_tangtang_attack3"
+              },
+              "placement": { "startFrame": 356 }
+            },
+            {
+              "id": "legacy:default_sc:track:3:cast:11",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0027_tangtang_attack4"
+              },
+              "placement": { "startFrame": 398 }
+            },
+            {
+              "id": "legacy:default_sc:track:3:cast:12",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0027_tangtang_attack5"
+              },
+              "placement": { "startFrame": 423 }
+            },
+            {
+              "id": "legacy:default_sc:track:3:cast:13",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "battleSkill",
+                "skillKey": "chr_0027_tangtang_normal_skill"
+              },
+              "placement": { "startFrame": 669 }
+            },
+            {
+              "id": "legacy:default_sc:track:3:cast:14",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "comboSkill",
+                "skillKey": "chr_0027_tangtang_combo_skill"
+              },
+              "placement": { "startFrame": 719 }
+            },
+            {
+              "id": "legacy:default_sc:track:3:cast:15",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0027_tangtang_attack1"
+              },
+              "placement": { "startFrame": 998 }
+            },
+            {
+              "id": "legacy:default_sc:track:3:cast:16",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0027_tangtang_attack2"
+              },
+              "placement": { "startFrame": 1006 }
+            },
+            {
+              "id": "legacy:default_sc:track:3:cast:17",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0027_tangtang_attack3"
+              },
+              "placement": { "startFrame": 1025 }
+            },
+            {
+              "id": "legacy:default_sc:track:3:cast:18",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0027_tangtang_attack4"
+              },
+              "placement": { "startFrame": 1067 }
+            },
+            {
+              "id": "legacy:default_sc:track:3:cast:19",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0027_tangtang_attack5"
+              },
+              "placement": { "startFrame": 1107 }
+            },
+            {
+              "id": "legacy:default_sc:track:3:cast:20",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "comboSkill",
+                "skillKey": "chr_0027_tangtang_combo_skill"
+              },
+              "placement": { "startFrame": 1141 }
+            },
+            {
+              "id": "legacy:default_sc:track:3:cast:21",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0027_tangtang_attack2"
+              },
+              "placement": { "startFrame": 1180 }
+            },
+            {
+              "id": "legacy:default_sc:track:3:cast:22",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0027_tangtang_attack3"
+              },
+              "placement": { "startFrame": 1232 }
+            },
+            {
+              "id": "legacy:default_sc:track:3:cast:23",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0027_tangtang_attack1"
+              },
+              "placement": { "startFrame": 1232 }
+            },
+            {
+              "id": "legacy:default_sc:track:3:cast:24",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0027_tangtang_attack4"
+              },
+              "placement": { "startFrame": 1232 }
+            },
+            {
+              "id": "legacy:default_sc:track:3:cast:25",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0027_tangtang_attack5"
+              },
+              "placement": { "startFrame": 1233 }
+            },
+            {
+              "id": "legacy:default_sc:track:3:cast:26",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "finisher",
+                "skillKey": "chr_0027_tangtang_power_attack"
+              },
+              "placement": { "startFrame": 1271 }
+            },
+            {
+              "id": "legacy:default_sc:track:3:cast:27",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "battleSkill",
+                "skillKey": "chr_0027_tangtang_normal_skill"
+              },
+              "placement": { "startFrame": 1316 }
+            },
+            {
+              "id": "legacy:default_sc:track:3:cast:28",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "comboSkill",
+                "skillKey": "chr_0027_tangtang_combo_skill"
+              },
+              "placement": { "startFrame": 1518 }
+            },
+            {
+              "id": "legacy:default_sc:track:3:cast:29",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "ultimate",
+                "skillKey": "chr_0027_tangtang_ultimate_skill"
+              },
+              "placement": { "startFrame": 1551 }
+            },
+            {
+              "id": "legacy:default_sc:track:3:cast:30",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "battleSkill",
+                "skillKey": "chr_0027_tangtang_normal_skill"
+              },
+              "placement": { "startFrame": 1719 }
+            },
+            {
+              "id": "legacy:default_sc:track:3:cast:31",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "battleSkill",
+                "skillKey": "chr_0027_tangtang_normal_skill"
+              },
+              "placement": { "startFrame": 1772 }
+            }
+          ]
+        }
+      ],
+      "connections": [],
+      "enemy": {
+        "source": { "kind": "prefab", "enemyId": "eny-0082-hsbear", "level": 90 },
+        "rank": "boss",
+        "editable": {
+          "hp": 1100596,
+          "defense": 100,
+          "superArmor": 30,
+          "finisherMultiplier": 1,
+          "resistances": { "physical": 0, "heat": 0, "cryo": 0, "electric": 0, "nature": 0 },
+          "stagger": {
+            "maximum": 320,
+            "knotThresholds": [],
+            "knotBreakDurationFrames": 60,
+            "brokenDurationFrames": 270,
+            "finisherSpRecovery": 50
+          }
+        },
+        "edited": [
+          "hp",
+          "defense",
+          "superArmor",
+          "finisherMultiplier",
+          "resistances",
+          "stagger.maximum",
+          "stagger.knotThresholds",
+          "stagger.knotBreakDurationFrames",
+          "stagger.brokenDurationFrames",
+          "stagger.finisherSpRecovery"
+        ]
+      },
+      "battle": {
+        "prepFrames": 150,
+        "durationFrames": 3600,
+        "resourceRules": {
+          "maxSp": 300,
+          "initialSp": 200,
+          "spRecoveryPerSecond": 8,
+          "defaultSkillSpCost": 100
+        },
+        "cycleBoundaries": [],
+        "controlSwitches": [],
+        "dodgeMarkers": [],
+        "externalEventMarkers": [],
+        "automaticControlSwitches": true
+      },
+      "mechanics": { "selections": [] },
+      "globalConfig": {},
+      "editor": {
+        "trackHeightWeights": [1, 1, 1, 1],
+        "prepExpanded": false,
+        "initialUltimateEnergyPreset": {
+          "mode": "empty",
+          "customByTrackId": {
+            "legacy:default_sc:track:0:xaihi": 0,
+            "legacy:default_sc:track:1:arcane": 0,
+            "legacy:default_sc:track:2:last-rite": 0,
+            "legacy:default_sc:track:3:tangtang": 0
+          }
+        }
+      }
+    }
+  ]
+}

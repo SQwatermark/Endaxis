@@ -1,0 +1,573 @@
+{
+  "kind": "EndaxisProject",
+  "schemaVersion": 1,
+  "createdWith": "Endaxis legacy importer",
+  "createdAt": "2026-10-01T00:00:00.000Z",
+  "fps": 30,
+  "activeScenarioId": "default_sc",
+  "definitionLibrary": { "operators": {}, "weapons": {}, "gears": {}, "gearSets": {} },
+  "scenarios": [
+    {
+      "id": "default_sc",
+      "name": "猛击控制轴",
+      "tracks": [
+        {
+          "id": "legacy:default_sc:track:0:chen-qianyu",
+          "operator": {
+            "operatorSlug": "chen-qianyu",
+            "level": 90,
+            "promoted": true,
+            "potential": 5,
+            "trustLevel": 4,
+            "skillLevels": {
+              "basicAttack": 12,
+              "battleSkill": 12,
+              "comboSkill": 12,
+              "ultimate": 12
+            },
+            "talentStates": { "0": 2, "1": 2 }
+          },
+          "weapon": {
+            "weaponSlug": "wpn_sword_0005",
+            "level": 90,
+            "tuned": true,
+            "potential": 5,
+            "traitLevels": [9, 9, 9]
+          },
+          "gears": {
+            "armor": {
+              "gearSlug": "item_equip_t4_suit_phy01_body_02",
+              "artificingLevels": [3, 3, 3]
+            },
+            "gloves": {
+              "gearSlug": "item_equip_t4_suit_phy01_hand_02",
+              "artificingLevels": [3, 3, 3]
+            },
+            "accessory1": {
+              "gearSlug": "item_equip_t4_suit_phy01_edc_03",
+              "artificingLevels": [3, 3, 3]
+            },
+            "accessory2": {
+              "gearSlug": "item_equip_t4_suit_phy01_edc_03",
+              "artificingLevels": [3, 3, 3]
+            }
+          },
+          "initialState": { "ultimateEnergy": 0 },
+          "skillCasts": [
+            {
+              "id": "legacy:default_sc:track:0:cast:0",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0005_chen_attack1"
+              },
+              "placement": { "startFrame": 1 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:1",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0005_chen_attack2"
+              },
+              "placement": { "startFrame": 16 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:2",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0005_chen_attack3"
+              },
+              "placement": { "startFrame": 27 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:3",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0005_chen_attack4"
+              },
+              "placement": { "startFrame": 46 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:4",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0005_chen_attack5"
+              },
+              "placement": { "startFrame": 68 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:5",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "battleSkill",
+                "skillKey": "chr_0005_chen_normal_skill"
+              },
+              "placement": { "startFrame": 100 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:6",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "comboSkill",
+                "skillKey": "chr_0005_chen_combo_skill"
+              },
+              "placement": { "startFrame": 162 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:7",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0005_chen_attack1"
+              },
+              "placement": { "startFrame": 190 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:8",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0005_chen_attack2"
+              },
+              "placement": { "startFrame": 205 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:9",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0005_chen_attack3"
+              },
+              "placement": { "startFrame": 216 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:10",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0005_chen_attack4"
+              },
+              "placement": { "startFrame": 250 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:11",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0005_chen_attack5"
+              },
+              "placement": { "startFrame": 272 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:12",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0005_chen_attack1"
+              },
+              "placement": { "startFrame": 307 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:13",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0005_chen_attack2"
+              },
+              "placement": { "startFrame": 322 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:14",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0005_chen_attack3"
+              },
+              "placement": { "startFrame": 333 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:15",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0005_chen_attack4"
+              },
+              "placement": { "startFrame": 352 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:16",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0005_chen_attack5"
+              },
+              "placement": { "startFrame": 374 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:17",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0005_chen_attack1"
+              },
+              "placement": { "startFrame": 424 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:18",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0005_chen_attack2"
+              },
+              "placement": { "startFrame": 439 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:19",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0005_chen_attack3"
+              },
+              "placement": { "startFrame": 450 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:20",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0005_chen_attack4"
+              },
+              "placement": { "startFrame": 469 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:21",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0005_chen_attack5"
+              },
+              "placement": { "startFrame": 491 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:22",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0005_chen_attack1"
+              },
+              "placement": { "startFrame": 530 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:23",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0005_chen_attack2"
+              },
+              "placement": { "startFrame": 545 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:24",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0005_chen_attack3"
+              },
+              "placement": { "startFrame": 556 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:25",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0005_chen_attack4"
+              },
+              "placement": { "startFrame": 575 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:26",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0005_chen_attack5"
+              },
+              "placement": { "startFrame": 597 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:27",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "comboSkill",
+                "skillKey": "chr_0005_chen_combo_skill"
+              },
+              "placement": { "startFrame": 674 }
+            }
+          ]
+        },
+        {
+          "id": "legacy:default_sc:track:1:endministrator",
+          "operator": {
+            "operatorSlug": "endministrator",
+            "level": 90,
+            "promoted": true,
+            "potential": 3,
+            "trustLevel": 4,
+            "skillLevels": {
+              "basicAttack": 12,
+              "battleSkill": 12,
+              "comboSkill": 12,
+              "ultimate": 12
+            },
+            "talentStates": { "0": 2, "1": 2 }
+          },
+          "weapon": {
+            "weaponSlug": "wpn_sword_0021",
+            "level": 90,
+            "tuned": true,
+            "potential": 0,
+            "traitLevels": [9, 9, 4]
+          },
+          "gears": {
+            "armor": {
+              "gearSlug": "item_equip_t4_suit_attri01_body_01",
+              "artificingLevels": [3, 3, 3]
+            },
+            "gloves": {
+              "gearSlug": "item_equip_t4_suit_phy01_hand_02",
+              "artificingLevels": [3, 3, 3]
+            },
+            "accessory1": {
+              "gearSlug": "item_equip_t4_suit_phy01_edc_03",
+              "artificingLevels": [3, 3, 3]
+            },
+            "accessory2": {
+              "gearSlug": "item_equip_t4_suit_phy01_edc_03",
+              "artificingLevels": [3, 3, 3]
+            }
+          },
+          "initialState": { "ultimateEnergy": 0 },
+          "skillCasts": [
+            {
+              "id": "legacy:default_sc:track:1:cast:0",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "comboSkill",
+                "skillKey": "chr_0003_endminf_combo_skill"
+              },
+              "placement": { "startFrame": 217 }
+            },
+            {
+              "id": "legacy:default_sc:track:1:cast:1",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "comboSkill",
+                "skillKey": "chr_0003_endminf_combo_skill"
+              },
+              "placement": { "startFrame": 731 }
+            },
+            {
+              "id": "legacy:default_sc:track:1:cast:2",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "battleSkill",
+                "skillKey": "chr_0003_endminf_normal_skill"
+              },
+              "placement": { "startFrame": 776 }
+            }
+          ]
+        },
+        {
+          "id": "legacy:default_sc:track:2:estella",
+          "operator": {
+            "operatorSlug": "estella",
+            "level": 90,
+            "promoted": true,
+            "potential": 5,
+            "trustLevel": 4,
+            "skillLevels": {
+              "basicAttack": 12,
+              "battleSkill": 12,
+              "comboSkill": 12,
+              "ultimate": 12
+            },
+            "talentStates": { "0": 2, "1": 2 }
+          },
+          "weapon": {
+            "weaponSlug": "wpn_lance_0013",
+            "level": 90,
+            "tuned": true,
+            "potential": 5,
+            "traitLevels": [9, 9, 9]
+          },
+          "gears": {
+            "armor": {
+              "gearSlug": "item_equip_t4_suit_burst01_body_01",
+              "artificingLevels": [3, 3, 3]
+            },
+            "gloves": {
+              "gearSlug": "item_equip_t4_suit_usp02_hand_02",
+              "artificingLevels": [3, 3, 3]
+            },
+            "accessory1": {
+              "gearSlug": "item_equip_t4_suit_usp02_edc_03",
+              "artificingLevels": [3, 3, 3]
+            },
+            "accessory2": {
+              "gearSlug": "item_equip_t4_suit_usp02_edc_03",
+              "artificingLevels": [3, 3, 3]
+            }
+          },
+          "initialState": { "ultimateEnergy": 0 },
+          "skillCasts": [
+            {
+              "id": "legacy:default_sc:track:2:cast:0",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "battleSkill",
+                "skillKey": "chr_0021_whiten_normal_skill"
+              },
+              "placement": { "startFrame": 535 }
+            },
+            {
+              "id": "legacy:default_sc:track:2:cast:1",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "comboSkill",
+                "skillKey": "chr_0021_whiten_combo_skill"
+              },
+              "placement": { "startFrame": 635 }
+            }
+          ]
+        },
+        {
+          "id": "legacy:default_sc:track:3:akekuri",
+          "operator": {
+            "operatorSlug": "akekuri",
+            "level": 90,
+            "promoted": true,
+            "potential": 5,
+            "trustLevel": 4,
+            "skillLevels": {
+              "basicAttack": 12,
+              "battleSkill": 12,
+              "comboSkill": 12,
+              "ultimate": 12
+            },
+            "talentStates": { "0": 2, "1": 1 }
+          },
+          "weapon": {
+            "weaponSlug": "wpn_sword_0012",
+            "level": 90,
+            "tuned": true,
+            "potential": 0,
+            "traitLevels": [9, 9, 4]
+          },
+          "gears": {
+            "armor": {
+              "gearSlug": "item_equip_t4_suit_burst01_body_01",
+              "artificingLevels": [3, 3, 3]
+            },
+            "gloves": {
+              "gearSlug": "item_equip_t4_suit_atb01_hand_03",
+              "artificingLevels": [3, 3, 3]
+            },
+            "accessory1": {
+              "gearSlug": "item_equip_t4_parts_wuling01_edc_03",
+              "artificingLevels": [3, 3]
+            },
+            "accessory2": {
+              "gearSlug": "item_equip_t4_parts_wuling01_edc_03",
+              "artificingLevels": [3, 3]
+            }
+          },
+          "initialState": { "ultimateEnergy": 0 },
+          "skillCasts": [
+            {
+              "id": "legacy:default_sc:track:3:cast:0",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "battleSkill",
+                "skillKey": "chr_0019_karin_normal_skill"
+              },
+              "placement": { "startFrame": 0 }
+            },
+            {
+              "id": "legacy:default_sc:track:3:cast:1",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "comboSkill",
+                "skillKey": "chr_0019_karin_combo_skill"
+              },
+              "placement": { "startFrame": 659 }
+            }
+          ]
+        }
+      ],
+      "connections": [],
+      "enemy": {
+        "source": { "kind": "prefab", "enemyId": "eny-0051-rodin", "level": 90 },
+        "rank": "boss",
+        "editable": {
+          "hp": 2292909,
+          "defense": 100,
+          "superArmor": 30,
+          "finisherMultiplier": 1.5,
+          "resistances": { "physical": 0, "heat": 0, "cryo": 0, "electric": 0, "nature": 0 },
+          "stagger": {
+            "maximum": 280,
+            "knotThresholds": [0.5],
+            "knotBreakDurationFrames": 60,
+            "brokenDurationFrames": 300,
+            "finisherSpRecovery": 100
+          }
+        },
+        "edited": [
+          "hp",
+          "defense",
+          "superArmor",
+          "finisherMultiplier",
+          "resistances",
+          "stagger.maximum",
+          "stagger.knotThresholds",
+          "stagger.knotBreakDurationFrames",
+          "stagger.brokenDurationFrames",
+          "stagger.finisherSpRecovery"
+        ]
+      },
+      "battle": {
+        "prepFrames": 150,
+        "durationFrames": 900,
+        "resourceRules": {
+          "maxSp": 300,
+          "initialSp": 200,
+          "spRecoveryPerSecond": 8,
+          "defaultSkillSpCost": 100
+        },
+        "cycleBoundaries": [],
+        "controlSwitches": [],
+        "dodgeMarkers": [],
+        "externalEventMarkers": [],
+        "automaticControlSwitches": true
+      },
+      "mechanics": { "selections": [] },
+      "globalConfig": {},
+      "editor": {
+        "trackHeightWeights": [1, 1, 1, 1],
+        "prepExpanded": false,
+        "initialUltimateEnergyPreset": {
+          "mode": "empty",
+          "customByTrackId": {
+            "legacy:default_sc:track:0:chen-qianyu": 0,
+            "legacy:default_sc:track:1:endministrator": 0,
+            "legacy:default_sc:track:2:estella": 0,
+            "legacy:default_sc:track:3:akekuri": 0
+          }
+        }
+      }
+    }
+  ]
+}

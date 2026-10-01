@@ -1,0 +1,576 @@
+{
+  "kind": "EndaxisProject",
+  "schemaVersion": 1,
+  "createdWith": "Endaxis legacy importer",
+  "createdAt": "2026-10-01T00:00:00.000Z",
+  "fps": 30,
+  "activeScenarioId": "default_sc",
+  "definitionLibrary": { "operators": {}, "weapons": {}, "gears": {}, "gearSets": {} },
+  "scenarios": [
+    {
+      "id": "default_sc",
+      "name": "伊冯碎冰循化轴",
+      "tracks": [
+        {
+          "id": "legacy:default_sc:track:0:yvonne",
+          "operator": {
+            "operatorSlug": "yvonne",
+            "level": 90,
+            "promoted": true,
+            "potential": 0,
+            "trustLevel": 4,
+            "skillLevels": {
+              "basicAttack": 12,
+              "battleSkill": 12,
+              "comboSkill": 12,
+              "ultimate": 12
+            },
+            "talentStates": { "0": 2, "1": 2 }
+          },
+          "weapon": {
+            "weaponSlug": "wpn_pistol_0010",
+            "level": 90,
+            "tuned": true,
+            "potential": 0,
+            "traitLevels": [9, 9, 4]
+          },
+          "gears": {
+            "armor": {
+              "gearSlug": "item_equip_t4_suit_criti01_body_03",
+              "artificingLevels": [3, 3, 3]
+            },
+            "gloves": {
+              "gearSlug": "item_equip_t4_suit_criti01_hand_03",
+              "artificingLevels": [3, 3, 3]
+            },
+            "accessory1": {
+              "gearSlug": "item_equip_t4_suit_criti01_edc_03",
+              "artificingLevels": [3, 3, 3]
+            },
+            "accessory2": {
+              "gearSlug": "item_equip_t4_suit_criti01_edc_03",
+              "artificingLevels": [3, 3, 3]
+            }
+          },
+          "initialState": { "ultimateEnergy": 0 },
+          "skillCasts": [
+            {
+              "id": "legacy:default_sc:track:0:cast:0",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0017_yvonne_attack1"
+              },
+              "placement": { "startFrame": 0 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:1",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0017_yvonne_attack2"
+              },
+              "placement": { "startFrame": 17 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:2",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0017_yvonne_attack3"
+              },
+              "placement": { "startFrame": 32 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:3",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0017_yvonne_attack4"
+              },
+              "placement": { "startFrame": 48 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:4",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0017_yvonne_attack5"
+              },
+              "placement": { "startFrame": 73 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:5",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "battleSkill",
+                "skillKey": "chr_0017_yvonne_normal_skill"
+              },
+              "placement": { "startFrame": 109 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:6",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0017_yvonne_attack5"
+              },
+              "placement": { "startFrame": 143 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:7",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "comboSkill",
+                "skillKey": "chr_0017_yvonne_combo_skill"
+              },
+              "placement": { "startFrame": 179 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:8",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "finisher",
+                "skillKey": "chr_0017_yvonne_power_attack"
+              },
+              "placement": { "startFrame": 266 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:9",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0017_yvonne_attack1"
+              },
+              "placement": { "startFrame": 327 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:10",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0017_yvonne_attack2"
+              },
+              "placement": { "startFrame": 344 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:11",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0017_yvonne_attack3"
+              },
+              "placement": { "startFrame": 359 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:12",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0017_yvonne_attack4"
+              },
+              "placement": { "startFrame": 375 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:13",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0017_yvonne_attack5"
+              },
+              "placement": { "startFrame": 400 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:14",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0017_yvonne_attack1"
+              },
+              "placement": { "startFrame": 435 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:15",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0017_yvonne_attack2"
+              },
+              "placement": { "startFrame": 452 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:16",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0017_yvonne_attack3"
+              },
+              "placement": { "startFrame": 467 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:17",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0017_yvonne_attack4"
+              },
+              "placement": { "startFrame": 483 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:18",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0017_yvonne_attack5"
+              },
+              "placement": { "startFrame": 508 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:19",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0017_yvonne_attack1"
+              },
+              "placement": { "startFrame": 544 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:20",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0017_yvonne_attack2"
+              },
+              "placement": { "startFrame": 561 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:21",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0017_yvonne_attack3"
+              },
+              "placement": { "startFrame": 576 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:22",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0017_yvonne_attack4"
+              },
+              "placement": { "startFrame": 592 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:23",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0017_yvonne_attack5"
+              },
+              "placement": { "startFrame": 617 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:24",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0017_yvonne_attack1"
+              },
+              "placement": { "startFrame": 672 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:25",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0017_yvonne_attack2"
+              },
+              "placement": { "startFrame": 689 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:26",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0017_yvonne_attack3"
+              },
+              "placement": { "startFrame": 704 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:27",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0017_yvonne_attack4"
+              },
+              "placement": { "startFrame": 720 }
+            },
+            {
+              "id": "legacy:default_sc:track:0:cast:28",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "basicAttack",
+                "skillKey": "chr_0017_yvonne_attack5"
+              },
+              "placement": { "startFrame": 745 }
+            }
+          ]
+        },
+        {
+          "id": "legacy:default_sc:track:1:gilberta",
+          "operator": {
+            "operatorSlug": "gilberta",
+            "level": 90,
+            "promoted": true,
+            "potential": 0,
+            "trustLevel": 4,
+            "skillLevels": {
+              "basicAttack": 12,
+              "battleSkill": 12,
+              "comboSkill": 12,
+              "ultimate": 12
+            },
+            "talentStates": { "0": 2, "1": 2 }
+          },
+          "weapon": {
+            "weaponSlug": "wpn_funnel_0011",
+            "level": 90,
+            "tuned": true,
+            "potential": 0,
+            "traitLevels": [9, 9, 4]
+          },
+          "gears": {
+            "armor": { "gearSlug": "item_equip_t4_suit_usp02_body_03", "artificingLevels": [3, 3] },
+            "gloves": {
+              "gearSlug": "item_equip_t4_suit_usp02_hand_03",
+              "artificingLevels": [3, 3, 3]
+            },
+            "accessory1": {
+              "gearSlug": "item_equip_t4_suit_usp02_edc_03",
+              "artificingLevels": [3, 3, 3]
+            },
+            "accessory2": {
+              "gearSlug": "item_equip_t4_parts_wuling01_edc_03",
+              "artificingLevels": [3, 3]
+            }
+          },
+          "initialState": { "ultimateEnergy": 0 },
+          "skillCasts": [
+            {
+              "id": "legacy:default_sc:track:1:cast:0",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "battleSkill",
+                "skillKey": "chr_0013_aglina_normal_skill"
+              },
+              "placement": { "startFrame": 0 }
+            },
+            {
+              "id": "legacy:default_sc:track:1:cast:1",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "comboSkill",
+                "skillKey": "chr_0013_aglina_combo_skill"
+              },
+              "placement": { "startFrame": 182 }
+            }
+          ]
+        },
+        {
+          "id": "legacy:default_sc:track:2:estella",
+          "operator": {
+            "operatorSlug": "estella",
+            "level": 90,
+            "promoted": true,
+            "potential": 5,
+            "trustLevel": 4,
+            "skillLevels": {
+              "basicAttack": 12,
+              "battleSkill": 12,
+              "comboSkill": 12,
+              "ultimate": 12
+            },
+            "talentStates": { "0": 2, "1": 2 }
+          },
+          "weapon": {
+            "weaponSlug": "wpn_lance_0004",
+            "level": 90,
+            "tuned": true,
+            "potential": 5,
+            "traitLevels": [9, 9, 9]
+          },
+          "gears": {
+            "armor": { "gearSlug": "item_equip_t4_suit_usp02_body_03", "artificingLevels": [3, 3] },
+            "gloves": {
+              "gearSlug": "item_equip_t4_suit_usp02_hand_04",
+              "artificingLevels": [3, 3, 3]
+            },
+            "accessory1": {
+              "gearSlug": "item_equip_t4_suit_usp02_edc_03",
+              "artificingLevels": [3, 3, 3]
+            },
+            "accessory2": {
+              "gearSlug": "item_equip_t4_suit_usp02_edc_03",
+              "artificingLevels": [3, 3, 3]
+            }
+          },
+          "initialState": { "ultimateEnergy": 0 },
+          "skillCasts": [
+            {
+              "id": "legacy:default_sc:track:2:cast:0",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "comboSkill",
+                "skillKey": "chr_0021_whiten_combo_skill"
+              },
+              "placement": { "startFrame": 185 }
+            },
+            {
+              "id": "legacy:default_sc:track:2:cast:1",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "ultimate",
+                "skillKey": "chr_0021_whiten_ultimate_skill"
+              },
+              "placement": { "startFrame": 206 }
+            }
+          ]
+        },
+        {
+          "id": "legacy:default_sc:track:3:mifu",
+          "operator": {
+            "operatorSlug": "mifu",
+            "level": 90,
+            "promoted": true,
+            "potential": 0,
+            "trustLevel": 4,
+            "skillLevels": {
+              "basicAttack": 12,
+              "battleSkill": 12,
+              "comboSkill": 12,
+              "ultimate": 12
+            },
+            "talentStates": { "0": 2, "1": 2 }
+          },
+          "weapon": {
+            "weaponSlug": "wpn_claym_0017",
+            "level": 90,
+            "tuned": true,
+            "potential": 0,
+            "traitLevels": [9, 9, 4]
+          },
+          "gears": {
+            "armor": {
+              "gearSlug": "item_equip_t4_suit_crush_fracture_body_01",
+              "artificingLevels": [3, 3, 3]
+            },
+            "gloves": {
+              "gearSlug": "item_equip_t4_suit_crush_fracture_hand_01",
+              "artificingLevels": [3, 3, 3]
+            },
+            "accessory1": {
+              "gearSlug": "item_equip_t4_suit_crush_fracture_edc_01",
+              "artificingLevels": [3, 3, 3]
+            },
+            "accessory2": {
+              "gearSlug": "item_equip_t4_suit_phy01_edc_01",
+              "artificingLevels": [3, 3]
+            }
+          },
+          "initialState": { "ultimateEnergy": 0 },
+          "skillCasts": [
+            {
+              "id": "legacy:default_sc:track:3:cast:0",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "comboSkill",
+                "skillKey": "chr_0031_mifu_combo_skill"
+              },
+              "placement": { "startFrame": 293 }
+            },
+            {
+              "id": "legacy:default_sc:track:3:cast:1",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "battleSkill",
+                "skillKey": "chr_0031_mifu_normalskill_2"
+              },
+              "placement": { "startFrame": 353 }
+            },
+            {
+              "id": "legacy:default_sc:track:3:cast:2",
+              "source": {
+                "kind": "operatorSkill",
+                "skillGroupKey": "battleSkill",
+                "skillKey": "chr_0031_mifu_normalskill_3"
+              },
+              "placement": { "startFrame": 390 }
+            }
+          ]
+        }
+      ],
+      "connections": [],
+      "enemy": {
+        "source": { "kind": "custom", "level": 90 },
+        "rank": "mob",
+        "editable": {
+          "hp": 100000,
+          "defense": 100,
+          "superArmor": 0,
+          "finisherMultiplier": 1.5,
+          "resistances": { "physical": 0, "heat": 0, "cryo": 0, "electric": 0, "nature": 0 },
+          "stagger": {
+            "maximum": 100,
+            "knotThresholds": [],
+            "knotBreakDurationFrames": 60,
+            "brokenDurationFrames": 300,
+            "finisherSpRecovery": 25
+          }
+        },
+        "edited": [
+          "hp",
+          "defense",
+          "superArmor",
+          "finisherMultiplier",
+          "resistances",
+          "stagger.maximum",
+          "stagger.knotThresholds",
+          "stagger.knotBreakDurationFrames",
+          "stagger.brokenDurationFrames",
+          "stagger.finisherSpRecovery"
+        ]
+      },
+      "battle": {
+        "prepFrames": 150,
+        "durationFrames": 3600,
+        "resourceRules": {
+          "maxSp": 300,
+          "initialSp": 200,
+          "spRecoveryPerSecond": 8,
+          "defaultSkillSpCost": 100
+        },
+        "cycleBoundaries": [],
+        "controlSwitches": [],
+        "dodgeMarkers": [],
+        "externalEventMarkers": [],
+        "automaticControlSwitches": true
+      },
+      "mechanics": { "selections": [] },
+      "globalConfig": {},
+      "editor": {
+        "trackHeightWeights": [1, 1, 1, 1],
+        "prepExpanded": true,
+        "initialUltimateEnergyPreset": {
+          "mode": "empty",
+          "customByTrackId": {
+            "legacy:default_sc:track:0:yvonne": 0,
+            "legacy:default_sc:track:1:gilberta": 0,
+            "legacy:default_sc:track:2:estella": 0,
+            "legacy:default_sc:track:3:mifu": 0
+          }
+        }
+      }
+    }
+  ]
+}
