@@ -61,3 +61,22 @@ npm run verify:real-timeline-checkpoints -- '<项目JSON路径>' [方案序号] 
 ```sh
 npx tsc -p tools/performance/tsconfig.json
 ```
+
+## v3 重构前后对照
+
+`benchmark-compare-versions.mjs` 使用真实旧版 store 导入流程及原模拟 composable，对照现有生产 SSR 基线入口。对应分析见 [v3 前后对比报告](../../docs/research/pre-v3-performance-comparison.md)。原始公开存档仍只保存在本机，不随工具提交；工具要求其 SHA-256 与夹具清单一致。
+
+```sh
+# 真正重构提交 861bda8c 的直接父提交，独立工作树不会切换当前分支。
+git worktree add -b perf/pre-v3-13b6905c ../Endaxis-pre-v3 13b6905ca767579f018512de1f1fa646a375a0cc
+(cd ../Endaxis-pre-v3 && HUSKY=0 npm ci --ignore-scripts --no-audit --no-fund --cache /tmp/endaxis-npm-cache)
+node tools/performance/benchmark-compare-versions.mjs \
+  ../Endaxis-pre-v3 ../endaxis-real-samples ../endaxis-version-comparison
+```
+
+- 每轴分别运行旧版原生截止、旧版同截止、新版；每组独立 Node 进程，串行且按轴交替版本顺序。默认冷首跑一次、热身 3 次、正式 20 次。可用 `BENCH_REPETITIONS=1 BENCH_WARMUPS=0 BENCH_SMOKE=1` 做首轴烟测；这些低重复结果不能替代正式报告
+- 旧版同截止组只在适配器传给正式 composable 的 `simulationEndline` 引用中补截止：原结束线优先，否则准备期加配置战斗时长。不会回写存档。原生组保留原始无结束线行为，两组分别计量，不能称为完全未变输入的同一组
+- 旧版 store 的导入、数据初始化、配装/被动装配及 200 ms 的 watcher 稳定等待在计时外。只替换构建时的一个 import，捕获实际依赖后原样委托生产 composable；每轮新建 composable 强制重新编译、模拟、投影，不修改旧生产文件
+- 新版复用正式基线入口，禁用切面和结果缓存。两版不可变定义、旧版已装配的 store 数据保持正常寿命。没有强制 GC
+- 输出 `comparison.json`、每轴每版本 JSON 和本机 SSR bundle；JSON 不带本机输入路径或原始存档。旧版结果摘要涵盖正式投影及日志，并保留 Map/Set/非有限数；不声称序列化了含方法的完整状态实例
+- 时间上限是相同的，不意味着游戏规则、事件粒度、数据版本或结果投影相同。数字伤害与实际命中数必须一起检查；不能由版本耗时比推导等语义内核回归
