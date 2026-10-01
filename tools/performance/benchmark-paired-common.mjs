@@ -1,5 +1,13 @@
 /** 配对进程测量的顺序、暖态判定和统计；不接触生产状态。 */
 import { createHash } from 'node:crypto';
+import { posix, win32 } from 'node:path';
+
+/** Vite 的 importer 使用正斜杠，入口路径遵循宿主系统；只归一化当前平台的路径语法。 */
+export function matchesEntryImporter(importer, entry, platform = process.platform) {
+  if (importer === undefined) return false;
+  const paths = platform === 'win32' ? win32 : posix;
+  return paths.normalize(importer) === paths.normalize(entry);
+}
 
 export const DEFAULT_POLICY = Object.freeze({
   pairs: 6,

@@ -14,7 +14,12 @@ import {
 import { isBuiltin } from 'node:module';
 import { basename, dirname, isAbsolute, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { DEFAULT_POLICY, createSchedule, pairedInference } from './benchmark-paired-common.mjs';
+import {
+  DEFAULT_POLICY,
+  createSchedule,
+  pairedInference,
+  matchesEntryImporter,
+} from './benchmark-paired-common.mjs';
 
 const harnessRoot = realpathSync(resolve(dirname(fileURLToPath(import.meta.url)), '../..'));
 const entry = join(harnessRoot, 'tools/performance/benchmark-paired-runner.ts');
@@ -121,7 +126,7 @@ async function buildOne({ root, output, otherRoot }) {
         name: 'paired-production-source-boundary',
         enforce: 'pre',
         async resolveId(source, importer) {
-          if (importer === entry && source.startsWith('../../src/'))
+          if (matchesEntryImporter(importer, entry) && source.startsWith('../../src/'))
             return this.resolve(resolve(root, source.slice(6)), undefined, { skipSelf: true });
         },
         generateBundle() {

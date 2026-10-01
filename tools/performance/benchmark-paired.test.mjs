@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import {
   DEFAULT_POLICY,
+  matchesEntryImporter,
   createSchedule,
   exactDataSha256,
   pairedInference,
@@ -136,4 +137,34 @@ test('哈希保留有序回执、特殊数值与缺省值，不声称保存对�
     ),
   );
   assert.throws(() => exactDataSha256(() => 1), /不支持/);
+});
+
+test('入口识别兼容 Windows 的 Vite 正斜杠，不放宽不同根、卷、虚拟模块或 POSIX 反斜杠', () => {
+  const entry = String.raw`C:\Endaxis\tools\performance\benchmark-paired-runner.ts`;
+  assert.equal(
+    matchesEntryImporter('C:/Endaxis/tools/performance/benchmark-paired-runner.ts', entry, 'win32'),
+    true,
+  );
+  for (const foreign of [
+    'D:/Endaxis/tools/performance/benchmark-paired-runner.ts',
+    'C:/Endaxis-copy/tools/performance/benchmark-paired-runner.ts',
+    'C:/Endaxis/tools/performance/benchmark-paired-runner.ts?virtual',
+    undefined,
+  ])
+    assert.equal(matchesEntryImporter(foreign, entry, 'win32'), false);
+  const uncEntry = String.raw`\\server\share\Endaxis\runner.ts`;
+  assert.equal(matchesEntryImporter('//server/share/Endaxis/runner.ts', uncEntry, 'win32'), true);
+  assert.equal(matchesEntryImporter('//other/share/Endaxis/runner.ts', uncEntry, 'win32'), false);
+  assert.equal(
+    matchesEntryImporter('/repo/tools/runner.ts', '/repo/tools/runner.ts', 'linux'),
+    true,
+  );
+  assert.equal(
+    matchesEntryImporter('/other/tools/runner.ts', '/repo/tools/runner.ts', 'linux'),
+    false,
+  );
+  assert.equal(
+    matchesEntryImporter(String.raw`/repo/a\b/runner.ts`, '/repo/a/b/runner.ts', 'linux'),
+    false,
+  );
 });
