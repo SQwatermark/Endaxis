@@ -5655,6 +5655,25 @@
     "unset": "取消设置可选映射",
     "unsetPending": "应用后将移除此可选字段；取消则保留原映射"
   },
+  "conditionList": {
+    "source": "来源",
+    "orderHint": "条件按顺序短路求值；调整顺序可能改变副作用。",
+    "empty": "暂无条件",
+    "invalid": "条件列表无效",
+    "edit": "编辑列表",
+    "newCondition": "新增条件",
+    "choose": "请选择真或假",
+    "add": "添加条件",
+    "moveUp": "上移",
+    "moveDown": "下移",
+    "remove": "移除",
+    "moveUpLabel": "上移条件 {index}",
+    "moveDownLabel": "下移条件 {index}",
+    "removeLabel": "移除条件 {index}",
+    "applyLabel": "应用条件列表",
+    "cancelLabel": "取消条件列表",
+    "rejected": "修改未被接受。草稿已保留，请修正或取消。"
+  },
   "graphDataInput": {
     "group": "类型化数据输入",
     "unassigned": "未赋值",

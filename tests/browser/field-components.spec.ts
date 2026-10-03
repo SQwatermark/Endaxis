@@ -219,3 +219,218 @@ test('string operand literal draft survives catalog invalidation without publish
   await page.getByRole('button', { name: 'Available catalog' }).click();
   await expect(field.getByRole('button', { name: 'Apply', exact: true })).toBeEnabled();
 });
+
+const conditionTrue = { kind: 'constant', value: true };
+const conditionFalse = { kind: 'constant', value: false };
+const conditionReference = { kind: 'conditionNode', nodeId: 'shared' };
+const originalConditions = [conditionTrue, conditionReference, conditionFalse];
+
+async function expectConditions(page: Page, kind: 'all' | 'any', conditions: readonly unknown[]) {
+  await expect(page.getByTestId(`condition-${kind}-value`)).toHaveText(
+    JSON.stringify({ kind, conditions }),
+  );
+}
+
+function conditionList(page: Page, kind: 'all' | 'any') {
+  return page.getByTestId(`condition-${kind}`).locator('.condition-list');
+}
+
+test('empty any appends only explicit boolean choices in one undoable inspector transaction', async ({
+  page,
+}) => {
+  const inspector = page.getByTestId('condition-any');
+  const list = conditionList(page, 'any');
+  await expect(list).toHaveAttribute('data-condition-list');
+  await expect(list.locator('.condition-list__row')).toHaveCount(0);
+  await expect(inspector.locator('textarea')).toHaveCount(0);
+  await expectConditions(page, 'any', []);
+  await list.getByRole('button', { name: 'Edit list', exact: true }).click();
+  const add = list.getByRole('button', { name: 'Add condition', exact: true });
+  const choice = list.getByRole('combobox', { name: 'New condition', exact: true });
+  await expect(add).toBeDisabled();
+  await choose(page, choice, 'True');
+  await add.click();
+  await expect(add).toBeDisabled();
+  await choose(page, choice, 'False');
+  await add.click();
+  await expect(list.locator('.condition-list__row')).toHaveCount(2);
+  await expectConditions(page, 'any', []);
+  await expect(page.getByTestId('condition-commits')).toHaveText('0');
+  await list.getByRole('button', { name: 'Apply condition list', exact: true }).click();
+  await expectConditions(page, 'any', [conditionTrue, conditionFalse]);
+  await expect(page.getByTestId('condition-commits')).toHaveText('1');
+  await page.getByRole('button', { name: 'Undo condition graph' }).click();
+  await expectConditions(page, 'any', []);
+  await expect(page.getByRole('button', { name: 'Undo condition graph' })).toBeDisabled();
+  await page.getByRole('button', { name: 'Redo condition graph' }).click();
+  await expectConditions(page, 'any', [conditionTrue, conditionFalse]);
+  await expectConditions(page, 'all', originalConditions);
+});
+
+test('mixed all removes and reorders locally, then cancels or applies the whole list atomically', async ({
+  page,
+}) => {
+  const list = conditionList(page, 'all');
+  await expect(page.getByTestId('condition-all').locator('textarea')).toHaveCount(0);
+  await expect(list.locator('.condition-list__row')).toHaveCount(3);
+  for (const commit of [false, true]) {
+    await list.getByRole('button', { name: 'Edit list', exact: true }).click();
+    await list.getByRole('button', { name: 'Move condition 3 up', exact: true }).click();
+    await list.getByRole('button', { name: 'Remove condition 1', exact: true }).click();
+    await expect(list.locator('.condition-list__row')).toHaveCount(2);
+    await expectConditions(page, 'all', originalConditions);
+    await expect(page.getByTestId('condition-commits')).toHaveText('0');
+    await list
+      .getByRole('button', {
+        name: commit ? 'Apply condition list' : 'Cancel condition list',
+        exact: true,
+      })
+      .click();
+    if (!commit) {
+      await expect(list.locator('.condition-list__row')).toHaveCount(3);
+      await expectConditions(page, 'all', originalConditions);
+    }
+  }
+  await expectConditions(page, 'all', [conditionFalse, conditionReference]);
+  await expect(page.getByTestId('condition-commits')).toHaveText('1');
+  await expect(page.getByTestId('condition-shared')).toHaveText(
+    '{"type":"boolean","expression":{"kind":"combatActive"}}',
+  );
+  await expect(page.getByTestId('condition-other')).toHaveText(
+    '{"type":"boolean","expression":{"kind":"not","condition":{"kind":"conditionNode","nodeId":"shared"}}}',
+  );
+  await page.getByRole('button', { name: 'Undo condition graph' }).click();
+  await expectConditions(page, 'all', originalConditions);
+  await expect(page.getByRole('button', { name: 'Undo condition graph' })).toBeDisabled();
+  await page.getByRole('button', { name: 'Redo condition graph' }).click();
+  await expectConditions(page, 'all', [conditionFalse, conditionReference]);
+});
+
+test('rejected condition list retains its draft and cancel prevents a later host flush from committing', async ({
+  page,
+}) => {
+  const list = conditionList(page, 'all');
+  await page.getByRole('checkbox', { name: 'Reject condition commits' }).check();
+  await list.getByRole('button', { name: 'Edit list', exact: true }).click();
+  await list.getByRole('button', { name: 'Remove condition 2', exact: true }).click();
+  await list.getByRole('button', { name: 'Apply condition list', exact: true }).click();
+  await expectConditions(page, 'all', originalConditions);
+  await expect(list.locator('.condition-list__row')).toHaveCount(2);
+  await expect(
+    list.getByRole('button', { name: 'Apply condition list', exact: true }),
+  ).toBeVisible();
+  await expect(list.getByRole('alert')).toBeVisible();
+  await expect(page.getByTestId('condition-attempts')).toHaveText('1');
+  await expect(page.getByTestId('condition-commits')).toHaveText('0');
+  await list.getByRole('button', { name: 'Cancel condition list', exact: true }).click();
+  await expect(list.locator('.condition-list__row')).toHaveCount(3);
+  await expect(list.getByRole('alert')).toHaveCount(0);
+  await page.getByRole('checkbox', { name: 'Reject condition commits' }).uncheck();
+  await page.getByRole('button', { name: 'Apply inspector drafts' }).click();
+  await expectConditions(page, 'all', originalConditions);
+  await expect(page.getByTestId('condition-attempts')).toHaveText('1');
+  await expect(page.getByTestId('condition-commits')).toHaveText('0');
+  await expect(page.getByRole('button', { name: 'Undo condition graph' })).toBeDisabled();
+  await list.getByRole('button', { name: 'Edit list', exact: true }).click();
+  await expect(list.locator('.condition-list__row')).toHaveCount(3);
+});
+
+test('read-only condition inspector shows structured conditions and source navigation without mutation controls', async ({
+  page,
+}) => {
+  const inspector = page.getByTestId('condition-readonly');
+  await expect(inspector.locator('.condition-list__row')).toHaveCount(3);
+  await expect(inspector.locator('textarea')).toHaveCount(0);
+  await expect(inspector.getByRole('combobox')).toHaveCount(0);
+  await expect(
+    inspector.getByRole('button', {
+      name: /^(Edit list|Add condition|Remove condition \d+|Move condition \d+ (up|down)|Apply condition list|Cancel condition list)$/,
+    }),
+  ).toHaveCount(0);
+  await inspector
+    .locator('[data-input-path="conditions.1"] .typed-data-input')
+    .getByRole('button')
+    .click();
+  await expect(page.getByTestId('condition-located')).toHaveText('shared');
+  await expect(page.getByTestId('condition-commits')).toHaveText('0');
+});
+
+test('selection identity and readonly changes discard condition drafts before a later host flush', async ({
+  page,
+}) => {
+  const list = conditionList(page, 'all');
+  await expect(page.getByTestId('condition-shared-expression')).toHaveText('true');
+  await list.getByRole('button', { name: 'Edit list', exact: true }).click();
+  await list.getByRole('button', { name: 'Remove condition 2', exact: true }).click();
+  await expect(list.locator('.condition-list__row')).toHaveCount(2);
+  await page.getByRole('button', { name: 'Select alias condition node' }).click();
+  await expect(page.getByTestId('condition-selected-node')).toHaveText('alias');
+  await expect(page.getByTestId('condition-shared-expression')).toHaveText('true');
+  await expect(list.locator('.condition-list__row')).toHaveCount(3);
+  await expect(list.getByRole('button', { name: 'Edit list', exact: true })).toBeVisible();
+  await expect(list.getByRole('button', { name: 'Apply condition list', exact: true })).toHaveCount(
+    0,
+  );
+  await page.getByRole('button', { name: 'Apply inspector drafts' }).click();
+  await expect(page.getByTestId('condition-attempts')).toHaveText('0');
+
+  await page.getByRole('checkbox', { name: 'Reject condition commits' }).check();
+  await list.getByRole('button', { name: 'Edit list', exact: true }).click();
+  await list.getByRole('button', { name: 'Remove condition 2', exact: true }).click();
+  await list.getByRole('button', { name: 'Apply condition list', exact: true }).click();
+  await expect(list.getByRole('alert')).toBeVisible();
+  await expect(page.getByTestId('condition-attempts')).toHaveText('1');
+  await page.getByRole('checkbox', { name: 'Read-only condition inspector' }).check();
+  await expect(list.locator('.condition-list__row')).toHaveCount(3);
+  await expect(list.getByRole('button', { name: 'Edit list', exact: true })).toHaveCount(0);
+  await page.getByRole('checkbox', { name: 'Reject condition commits' }).uncheck();
+  await page.getByRole('checkbox', { name: 'Read-only condition inspector' }).uncheck();
+  await expect(list.getByRole('button', { name: 'Edit list', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Apply inspector drafts' }).click();
+  await expect(page.getByTestId('condition-attempts')).toHaveText('1');
+  await expect(page.getByTestId('condition-commits')).toHaveText('0');
+  await expectConditions(page, 'all', originalConditions);
+  await expect(page.getByTestId('condition-alias-value')).toHaveText(
+    JSON.stringify({ kind: 'all', conditions: originalConditions }),
+  );
+});
+
+test('list reorder resets an open index-addressed inline draft even when that slot retains its value', async ({
+  page,
+}) => {
+  const inspector = page.getByTestId('condition-all');
+  const first = inspector.locator('[data-input-path="conditions.0"] .typed-data-input');
+  await first.getByRole('button', { name: /^Edit .* inline value$/ }).click();
+  await choose(page, first.getByRole('combobox'), 'False');
+  await expectConditions(page, 'all', originalConditions);
+  // 第一项对象不变，只交换后两项；仅监听 input.value 无法清理这个旧草稿。
+  await page.getByRole('button', { name: 'Reorder all conditions externally' }).click();
+  await expect(page.getByTestId('condition-retained-slot')).toHaveText('true');
+  await expectConditions(page, 'all', [conditionTrue, conditionFalse, conditionReference]);
+  await expect(first.getByRole('combobox')).toHaveCount(0);
+  await expect(first.getByRole('button', { name: /^Apply .* inline value$/ })).toHaveCount(0);
+  await expect(first.locator('.typed-data-input__preview')).toHaveText('true');
+  await expect(page.getByTestId('condition-commits')).toHaveText('1');
+
+  // 重排后仍走真实引脚路径；取消断开保留来源，应用只替换当前消费者。
+  const linked = inspector.locator('[data-input-path="conditions.2"] .typed-data-input');
+  await linked.getByRole('button', { name: /^Edit .* inline value$/ }).click();
+  const applyInline = linked.getByRole('button', { name: /^Apply .* inline value$/ });
+  await expect(applyInline).toBeDisabled();
+  await choose(page, linked.getByRole('combobox'), 'False');
+  await linked.getByRole('button', { name: /^Cancel .* inline edit$/ }).click();
+  await expectConditions(page, 'all', [conditionTrue, conditionFalse, conditionReference]);
+  await linked.getByRole('button', { name: /^Edit .* inline value$/ }).click();
+  await choose(page, linked.getByRole('combobox'), 'True');
+  await applyInline.click();
+  await expectConditions(page, 'all', [conditionTrue, conditionFalse, conditionTrue]);
+  await expect(page.getByTestId('condition-commits')).toHaveText('2');
+  await expect(page.getByTestId('condition-shared')).toHaveText(
+    '{"type":"boolean","expression":{"kind":"combatActive"}}',
+  );
+  await page.getByRole('button', { name: 'Undo condition graph' }).click();
+  await expectConditions(page, 'all', [conditionTrue, conditionFalse, conditionReference]);
+  await page.getByRole('button', { name: 'Undo condition graph' }).click();
+  await expectConditions(page, 'all', originalConditions);
+  await expect(page.getByRole('button', { name: 'Undo condition graph' })).toBeDisabled();
+});

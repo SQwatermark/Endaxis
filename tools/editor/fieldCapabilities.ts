@@ -1,3 +1,4 @@
+import { isConditionListField } from '../../src/ui/field-editor/conditionListSchema.ts';
 import { resolveBlackboardMapping } from '../../src/ui/field-editor/blackboardMappingSchema.ts';
 import type { FieldSemantics } from '../../src/ui/field-editor/fieldSemantics.ts';
 import { isProtectedDefinitionIdentity } from '../../src/ui/definition-editor/definitionFieldRuntime.ts';
@@ -132,13 +133,16 @@ export function collectFieldCapabilities(
           aliases.includes('CombatCondition');
         const mapping = resolveBlackboardMapping(field);
         const stringOperand = aliases.includes('ActionStringOperand');
-        const availableControl = mapping
-          ? 'blackboardMapping'
-          : stringOperand
-            ? 'stringOperand'
-            : expressionInput
-              ? 'typedInput'
-              : undefined;
+        const conditionList = isConditionListField(field);
+        const availableControl = conditionList
+          ? 'conditionList'
+          : mapping
+            ? 'blackboardMapping'
+            : stringOperand
+              ? 'stringOperand'
+              : expressionInput
+                ? 'typedInput'
+                : undefined;
         const complex = !availableControl && (field.control === 'json' || expressionInput);
         const fallback = availableControl
           ? undefined
@@ -156,9 +160,11 @@ export function collectFieldCapabilities(
           ...(contextualChoice ? { contextualChoice } : {}),
           view: ['resource', 'sequence'].includes(field.control)
             ? 'navigation'
-            : complex
-              ? 'context-dependent'
-              : 'value',
+            : conditionList
+              ? 'structure'
+              : complex
+                ? 'context-dependent'
+                : 'value',
           edit: ['resource', 'sequence'].includes(field.control)
             ? 'none'
             : complex

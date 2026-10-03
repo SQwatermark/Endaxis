@@ -1,3 +1,4 @@
+import { dataNodeSchemas } from '../../src/ui/action-graph/actionNodeSchemas.generated.ts';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
@@ -186,4 +187,16 @@ test('exposes mixed level-value and operand inputs while leaving structured oper
   assert.ok(
     checkFieldCapabilityCoverage(rows, []).some(message => message.includes('unreviewed fallback')),
   );
+});
+
+test('condition arrays have typed structural editors but do not turn their containers into pins', () => {
+  const rows = collectFieldCapabilities({}, {}, dataNodeSchemas);
+  for (const kind of ['all', 'any']) {
+    const row = rows.find(row => row.key === `data/boolean:${kind}/conditions`)!;
+    assert.equal(row.control, 'conditionList');
+    assert.equal(row.view, 'structure');
+    assert.equal(row.edit, 'field');
+    assert.equal(row.connection, 'none');
+    assert.equal(row.fallback, undefined);
+  }
 });

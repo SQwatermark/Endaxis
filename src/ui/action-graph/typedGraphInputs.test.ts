@@ -115,3 +115,23 @@ it('preserves existing operands inside unmodeled container objects and explicit 
     'shallow.value',
   ]);
 });
+
+it('projects reordered condition-list items at their new indexed paths without duplicating nested inputs', () => {
+  const shared = { kind: 'conditionNode' as const, nodeId: 'shared' };
+  const inline = { kind: 'not' as const, condition: { kind: 'constant' as const, value: false } };
+  const conditions = [shared, inline, shared];
+  for (const kind of ['all', 'any'] as const) {
+    expect(dataTypedInputs({ type: 'boolean', expression: { kind, conditions: [] } })).toEqual([]);
+    const inputs = dataTypedInputs({
+      type: 'boolean',
+      expression: { kind, conditions: [inline, shared, shared] },
+    });
+    expect(inputs.map(input => [input.path, input.type, input.source])).toEqual([
+      [['conditions', '0'], 'boolean', null],
+      [['conditions', '1'], 'boolean', 'shared'],
+      [['conditions', '2'], 'boolean', 'shared'],
+    ]);
+    expect(inputs[0]?.value).toBe(inline);
+    expect(conditions).toEqual([shared, inline, shared]);
+  }
+});

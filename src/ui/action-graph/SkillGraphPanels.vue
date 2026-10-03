@@ -198,6 +198,7 @@ provide(blackboardNavigationKey, target => {
   <aside v-else-if="area === 'inspector'" class="inspector-panel">
     <fieldset style="border: 0; margin: 0; padding: 0; min-width: 0">
       <DataNodeInspector
+        :key="`${graphKey}:${selectedDataId}`"
         :reference-choices="referenceChoices"
         :blackboard-context="blackboardContext"
         :graph="graph"

@@ -5638,6 +5638,25 @@
     "unset": "Unset optional mapping",
     "unsetPending": "Apply will remove this optional field completely; Cancel preserves it"
   },
+  "conditionList": {
+    "source": "Source",
+    "orderHint": "Conditions are evaluated in order and short-circuit. Reordering can change side effects.",
+    "empty": "No conditions",
+    "invalid": "Invalid condition list",
+    "edit": "Edit list",
+    "newCondition": "New condition",
+    "choose": "Choose True or False",
+    "add": "Add condition",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "remove": "Remove",
+    "moveUpLabel": "Move condition {index} up",
+    "moveDownLabel": "Move condition {index} down",
+    "removeLabel": "Remove condition {index}",
+    "applyLabel": "Apply condition list",
+    "cancelLabel": "Cancel condition list",
+    "rejected": "The change was rejected. Your draft is still here; correct it or cancel."
+  },
   "graphDataInput": {
     "group": "Typed data inputs",
     "unassigned": "Unassigned",

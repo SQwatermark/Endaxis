@@ -18,6 +18,11 @@ const emit = defineEmits<{
   change: [path: readonly string[], source: string | null, constant?: number | boolean];
   locate: [id: string];
 }>();
+const inputOwner = computed(() =>
+  props.owner === 'action'
+    ? props.graph.nodes[props.nodeId]?.action
+    : props.graph.dataNodes?.[props.nodeId]?.expression,
+);
 const inputs = computed(() => {
   const action = props.graph.nodes[props.nodeId]?.action;
   const data = props.graph.dataNodes?.[props.nodeId];
@@ -48,6 +53,7 @@ function sourceLabel(id: string) {
       >
       <TypedDataInput
         :input="input"
+        :reset-key="inputOwner"
         :label="fieldName(input.path)"
         :readonly="readonly"
         :source-label="input.source === null ? undefined : sourceLabel(input.source)"

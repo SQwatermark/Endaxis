@@ -10,6 +10,7 @@ import {
 } from '@/application/editor/blackboardFieldContext';
 import { blackboardFieldContextKey } from '../field-editor/blackboardFieldContext';
 import BlackboardKeyField from '../field-editor/BlackboardKeyField.vue';
+import ConditionListField from '../field-editor/ConditionListField.vue';
 import BlackboardMappingField from '../field-editor/BlackboardMappingField.vue';
 import { resolveBlackboardMapping, validMappingDraft } from '../field-editor/blackboardMapping';
 import StringOperandField from '../field-editor/StringOperandField.vue';
@@ -127,7 +128,7 @@ function reset() {
   error.value = '';
   emit('pending', false);
 }
-watch(() => props.value, reset, { immediate: true });
+watch(() => [props.value, props.readonly], reset, { immediate: true });
 function change(key: string, value: string) {
   if (props.readonly) return;
   inputs.value[key] = value;
@@ -253,8 +254,17 @@ defineExpose({ apply });
         />
         <small v-if="!field.required">{{ t('actionGraphEditor.optional') }}</small>
       </span>
+      <ConditionListField
+        v-if="fieldEditor(field).control === 'conditionList'"
+        :value="readNodeField(value, field.path)"
+        :key="`${field.path.join('.')}:${resetSerial}`"
+        :editable="!readonly"
+        :label="fieldName(field.path, kind)"
+        @change="changeStructured(field, $event)"
+        @discard="discardStructured(field)"
+      />
       <BlackboardMappingField
-        v-if="fieldEditor(field).control === 'blackboardMapping'"
+        v-else-if="fieldEditor(field).control === 'blackboardMapping'"
         :value="readNodeField(value, field.path)"
         :key="`${field.path.join('.')}:${resetSerial}`"
         :descriptor="resolveBlackboardMapping(field)!"

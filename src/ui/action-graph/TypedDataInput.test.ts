@@ -9,6 +9,7 @@ async function mount(input: DataInput, readonly = false) {
   const props = shallowRef({
     input,
     readonly,
+    resetKey: {} as unknown,
     label: 'test',
     onConstant: (value: number | boolean) => changes.push(value),
   });
@@ -41,6 +42,10 @@ async function mount(input: DataInput, readonly = false) {
     state,
     changes,
     stop: () => app.unmount(),
+    async resetOwner(resetKey: unknown) {
+      props.value = { ...props.value, resetKey };
+      await nextTick();
+    },
     async accept(value: unknown) {
       props.value = { ...props.value, input: { ...input, source: null, value } };
       await nextTick();
@@ -102,6 +107,31 @@ it('readonly control cannot emit a mutation even when invoked programmatically',
     panel.state.start();
     panel.state.draft.value = '10';
     panel.state.apply();
+    expect(panel.changes).toEqual([]);
+  } finally {
+    panel.stop();
+  }
+});
+
+it('resets an indexed draft on owning-expression replacement even when its item reference is unchanged', async () => {
+  const value = { kind: 'conditionNode', nodeId: 'shared' };
+  const panel = await mount({
+    path: ['conditions', '0'],
+    type: 'boolean',
+    source: 'shared',
+    value,
+  });
+  try {
+    const owner = { kind: 'all', conditions: [value, value] };
+    await panel.resetOwner(owner);
+    panel.state.start();
+    panel.state.draft.value = 'false';
+    await panel.resetOwner(owner);
+    expect(panel.state.editing.value).toBe(true);
+    expect(panel.state.draft.value).toBe('false');
+    await panel.resetOwner({ ...owner, conditions: [...owner.conditions] });
+    expect(panel.state.editing.value).toBe(false);
+    expect(panel.state.draft.value).toBe('');
     expect(panel.changes).toEqual([]);
   } finally {
     panel.stop();

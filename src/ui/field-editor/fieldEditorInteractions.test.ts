@@ -7,7 +7,7 @@ import NodeInspectorFields from '../action-graph/NodeInspectorFields.vue';
 import ReferenceField from './ReferenceField.vue';
 import StringOperandField from './StringOperandField.vue';
 import { unknownBlackboardContext } from '@/application/editor/blackboardFieldContext';
-import { actionNodeSchemas } from '../action-graph/actionNodeSchemas.generated';
+import { actionNodeSchemas, dataNodeSchemas } from '../action-graph/actionNodeSchemas.generated';
 import { validReferenceDraft } from './referenceDraftValidation';
 import { referenceCatalog, referenceCandidate } from './referenceTestFixtures';
 import { referenceNavigationKey, type ReferenceNavigator } from './referenceNavigation';
@@ -653,5 +653,36 @@ it('the string child sends discard only for user cancellation, never a parent re
     expect(discards).toBe(1);
   } finally {
     f.stop();
+  }
+});
+
+it('discards a rejected structured proposal across readonly transitions before a later parent apply', async () => {
+  const field = dataNodeSchemas['boolean:all']!.fields[0]!;
+  const original = { kind: 'all', conditions: [] };
+  const proposals: unknown[] = [];
+  let accept = false;
+  const panel = await mountSetup(NodeInspectorFields, {
+    value: original,
+    kind: 'all',
+    fields: [field],
+    readonly: false,
+    applyValue: (value: unknown) => {
+      proposals.push(value);
+      return accept;
+    },
+  });
+  try {
+    panel.state.changeStructured(field, [{ kind: 'constant', value: false }]);
+    expect(panel.state.pending.value).toBe(true);
+    expect(proposals).toHaveLength(1);
+    await panel.update({ readonly: true });
+    await panel.update({ readonly: false });
+    accept = true;
+    expect(panel.state.apply()).toBe(true);
+    expect(proposals).toHaveLength(1);
+    expect(panel.state.pending.value).toBe(false);
+    expect(original.conditions).toEqual([]);
+  } finally {
+    panel.stop();
   }
 });

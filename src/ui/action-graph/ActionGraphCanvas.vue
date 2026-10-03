@@ -1652,6 +1652,7 @@ defineExpose({
           <TypedDataInput
             class="data-input-row__control"
             :input="input"
+            :reset-key="graph.dataNodes?.[node.id]?.expression"
             :label="`${node.title} ${input.path.join('.')}`"
             :readonly="readonly"
             @constant="emit('constantData', 'data', node.id, input.path, $event)"
@@ -1843,6 +1844,7 @@ defineExpose({
           <TypedDataInput
             class="data-input-row__control"
             :input="input"
+            :reset-key="graph.nodes[node.id]?.action"
             :label="`${node.title} ${input.path.join('.')}`"
             :readonly="readonly"
             @constant="emit('constantData', 'action', node.id, input.path, $event)"

@@ -134,12 +134,6 @@
       ]
     },
     {
-      "reason": "structured-editor-pending",
-      "phase": "P3",
-      "category": "condition-or-number-input",
-      "keys": ["data/boolean:all/conditions", "data/boolean:any/conditions"]
-    },
-    {
       "reason": "condition-editor-pending",
       "phase": "P4",
       "category": "definition-condition",

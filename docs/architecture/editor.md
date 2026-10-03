@@ -103,6 +103,8 @@ optional、union、array/record 和新建入口传递同一引用族，进入对
 
 数值/条件输入由 `typedGraphInputs` 将生成语义和当前值结合投影；optional 未赋值槽仍能发现，静态 number、string、BuildCondition 和写目标不因长得像表达式就获准接线。画布与检查器共享 `TypedDataInput`，展示来源并可导航；断开必须明确提交合法常量，取消保留旧线，不自动补 0/false。LevelValues 与数值操作数混合槽保留等级值编辑入口。`setGraphDataInput` 只修改一个消费者，来源不随断线删除，最终仍由原资源/技能验证与历史边界处理。
 
+`all` / `any` 的 `conditions` 使用共享 `ConditionListField` 编辑有序列表，逐项连接与常量替换仍交给数据引脚控件。追加前必须明确选择 true/false；增删和重排先留在本地草稿，Apply 一次提交，Cancel/Escape 清除本字段暂存。重复引用不合并、不重建来源；空列表保持原契约语义。接受的列表修改及所属表达式更换会失效按索引定位的内联草稿，防止重排后把旧输入写到新位置。图/节点身份变化和 readonly 切换也不允许重用旧暂存。该控件只识别正式 CombatCondition 数组，不改 BuildCondition 定义树或引入新求值规则。
+
 `application/editor` 负责不可变修改、草稿历史与项目提交；它不引用 Vue 组件、样式或界面翻译键。保存时继续使用领域校验，不能以表单校验代替完整定义校验。
 
 ### 只读、草稿与保存

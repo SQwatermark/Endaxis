@@ -4,6 +4,7 @@ import { renderToString } from 'vue/server-renderer';
 import { describe, expect, it } from 'vitest';
 import { i18n } from '../../i18n';
 import DefinitionField from '../definition-editor/DefinitionField.vue';
+import DataNodeInspector from '../action-graph/DataNodeInspector.vue';
 import NodeInspectorFields from '../action-graph/NodeInspectorFields.vue';
 import ReferenceField from './ReferenceField.vue';
 import { referenceCatalog, referenceCandidate } from './referenceTestFixtures';
@@ -194,3 +195,42 @@ it('renders string literal/read branches through the same control in node and de
     expect(html).toContain(typeof value === 'string' ? 'known' : 'runtimeBuff');
   }
 });
+
+it.each(['all', 'any'] as const)(
+  'renders %s empty and populated lists alongside item pins without JSON fallback',
+  async kind => {
+    for (const readonly of [true, false]) {
+      for (const conditions of [
+        [],
+        [
+          { kind: 'constant' as const, value: false },
+          { kind: 'conditionNode' as const, nodeId: 'source' },
+        ],
+      ]) {
+        const node = { type: 'boolean' as const, expression: { kind, conditions } };
+        const html = await render(DataNodeInspector, {
+          node,
+          nodeId: 'list',
+          graph: {
+            nodes: {},
+            dataNodes: {
+              list: node,
+              source: { type: 'boolean', expression: { kind: 'constant', value: true } },
+            },
+          },
+          readonly,
+          apply: () => false,
+        });
+        expect(html).toContain('data-condition-list');
+        expect(html).toContain('data-field-control="conditionList"');
+        expect(html).not.toContain('<textarea');
+        expect(html.includes(i18n.global.t('conditionList.edit'))).toBe(!readonly);
+        if (conditions.length) {
+          expect(html).toContain('data-input-path="conditions.0"');
+          expect(html).toContain('data-input-path="conditions.1"');
+          expect(html).toContain(`${i18n.global.t('conditionList.source')}: source`);
+        }
+      }
+    }
+  },
+);

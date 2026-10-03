@@ -1,5 +1,11 @@
 import { expect, it, vi } from 'vitest';
 import type { ActionGraphDefinition } from '../../../packages/game-data-contract/src/actionGraph';
+import type { CombatCondition } from '../../../packages/game-data-contract/src/conditions';
+import {
+  appendCondition,
+  moveCondition,
+  removeCondition,
+} from '../../ui/field-editor/conditionList';
 import { createGraphDataResolver, resolveGraphData } from '../action-graph/actionGraphData';
 import { extractGraphDataNodes } from '../action-graph/actionGraphDataNodes';
 import { validateActionGraphActions } from './validation/actionPrograms';
@@ -119,3 +125,84 @@ it('含副作用的条件拒绝增加消费者，纯黑板读取允许多个使�
   };
   expect(() => resolveGraphData(pure)).not.toThrow();
 });
+
+it.each(['all', 'any'] as const)(
+  '%s 列表增删保留读取及随机短路顺序，只有显式排序改变求值顺序',
+  kind => {
+    const graph = extractGraphDataNodes(sample());
+    const branch = graph.nodes.branch!.action;
+    if (branch.kind !== 'conditional' || branch.parameters.condition.kind !== 'conditionNode')
+      throw new Error('wrong fixture');
+    const id = branch.parameters.condition.nodeId;
+    const original = graph.dataNodes![id]!.expression;
+    if (original.kind !== 'all') throw new Error('wrong fixture');
+    const appended = appendCondition(original.conditions, kind === 'all');
+    const removed = removeCondition(appended, appended.length - 1);
+    const reordered = moveCondition(removed, 1, 0);
+    const empty = removeCondition(removeCondition(removed, 1), 0);
+
+    const compile = (conditions: readonly CombatCondition[]) => {
+      const changed: ActionGraphDefinition = {
+        ...graph,
+        dataNodes: {
+          ...graph.dataNodes,
+          [id]: { type: 'boolean', expression: { kind, conditions } },
+        },
+      };
+      const compilation = createActionGraphCompilation(changed, 1);
+      const entry = compilation.compileEntry({ $sequence: 'branch' }, 'cast');
+      compilation.finish();
+      const action = entry.graph.nodes.get('branch')!.action;
+      if (action.kind !== 'conditional') throw new Error('wrong compiled fixture');
+      return action.parameters.condition;
+    };
+
+    for (const conditions of [original.conditions, appended, removed, reordered, empty]) {
+      const events: string[] = [];
+      const blackboard = new ActionBlackboard({ count: kind === 'all' ? 0 : 1 });
+      const getNumber = blackboard.getNumber.bind(blackboard);
+      vi.spyOn(blackboard, 'getNumber').mockImplementation(key => {
+        events.push(`read:${key}`);
+        return getNumber(key);
+      });
+      const neutralSample = kind === 'all' ? 0.25 : 0.75;
+      const samples = new ExplicitProbabilitySampleSource([neutralSample, neutralSample]);
+      const nextSample = samples.nextProbabilitySample.bind(samples);
+      const sampleSpy = vi.spyOn(samples, 'nextProbabilitySample').mockImplementation(() => {
+        events.push('sample');
+        return nextSample();
+      });
+      const executor = new ActionBlackboardOperationExecutor(
+        { execute: vi.fn(() => false), evaluate: vi.fn(() => false) },
+        samples,
+      );
+      const condition = compile(conditions);
+      expect(events).toEqual([]);
+      expect(executor.evaluate(condition, { blackboard })).toBe(
+        conditions === empty ? kind === 'all' : kind === 'any',
+      );
+      expect(events).toEqual(
+        conditions === empty
+          ? []
+          : conditions === reordered
+            ? ['sample', 'read:count']
+            : ['read:count'],
+      );
+      expect(sampleSpy).toHaveBeenCalledTimes(conditions === reordered ? 1 : 0);
+
+      events.length = 0;
+      blackboard.assignDynamic('count', kind === 'all' ? 1 : 0);
+      expect(executor.evaluate(condition, { blackboard })).toBe(kind === 'all');
+      expect(events).toEqual(
+        conditions === empty
+          ? []
+          : conditions === reordered
+            ? ['sample', 'read:count']
+            : ['read:count', 'sample'],
+      );
+      expect(sampleSpy).toHaveBeenCalledTimes(
+        conditions === empty ? 0 : conditions === reordered ? 2 : 1,
+      );
+    }
+  },
+);

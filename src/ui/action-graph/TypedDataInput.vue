@@ -10,6 +10,8 @@ const props = defineProps<{
   label: string;
   readonly?: boolean;
   sourceLabel?: string;
+  /** The owning expression invalidates indexed drafts after structural list edits. */
+  resetKey?: unknown;
 }>();
 const emit = defineEmits<{
   constant: [value: number | boolean];
@@ -31,7 +33,7 @@ function reset() {
   editing.value = false;
   draft.value = '';
 }
-watch(() => [props.input.value, props.readonly], reset);
+watch(() => [props.input.value, props.readonly, props.resetKey], reset);
 function start() {
   if (props.readonly) return;
   draft.value = literal.value === undefined ? '' : String(literal.value);

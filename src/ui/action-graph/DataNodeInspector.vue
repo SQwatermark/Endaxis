@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { ActionGraphDefinition } from '../../../packages/game-data-contract/src/actionGraph';
 import type { BlackboardFieldContext } from '@/application/editor/blackboardFieldContext';
+import { isConditionListField } from '../field-editor/conditionListSchema';
 import GraphDataInputs from './GraphDataInputs.vue';
 import { dataTypedInputs } from './typedGraphInputs';
 import type { ReferenceChoices } from '../definition-editor/fieldInputConfig';
@@ -36,8 +37,11 @@ const fields = computed(
   () =>
     schema.value?.fields.filter(
       field =>
-        !dataTypedInputs(props.node).some(input => input.path.join('.') === field.path.join('.')) &&
-        !listDataInputs(readNodeField(props.node.expression, field.path)).length,
+        isConditionListField(field) ||
+        (!dataTypedInputs(props.node).some(
+          input => input.path.join('.') === field.path.join('.'),
+        ) &&
+          !listDataInputs(readNodeField(props.node.expression, field.path)).length),
     ) ?? [],
 );
 const choices = computed((): Readonly<Record<string, readonly string[]>> => {
@@ -66,6 +70,7 @@ defineExpose({ apply: () => form.value?.apply() ?? true });
       @locate="emit('locateData', $event)"
     />
     <NodeInspectorFields
+      :key="nodeId"
       :reference-choices="referenceChoices"
       :blackboard-context="blackboardContext"
       :readonly="readonly"

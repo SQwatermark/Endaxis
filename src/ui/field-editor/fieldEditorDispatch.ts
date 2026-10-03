@@ -1,3 +1,4 @@
+import { isConditionListField } from './conditionListSchema';
 import { resolveBlackboardMapping } from './blackboardMappingSchema';
 import type { NodeFieldSchema } from '../action-graph/nodeSchema';
 import type { DefinitionFieldSchema } from '../definition-editor/fieldSchema';
@@ -19,7 +20,8 @@ export interface FieldEditorResolution {
     | NodeFieldSchema['control']
     | 'reference'
     | 'stringOperand'
-    | 'blackboardMapping';
+    | 'blackboardMapping'
+    | 'conditionList';
   readonly semantic:
     | 'plain'
     | 'reference'
@@ -28,6 +30,7 @@ export interface FieldEditorResolution {
     | 'stringOperand'
     | 'valueOperand'
     | 'combatCondition'
+    | 'combatConditionList'
     | 'buildCondition'
     | 'graph'
     | 'tuple'
@@ -62,41 +65,46 @@ export function resolveFieldEditor(
   const boundary =
     ['graph', 'sequence', 'resource'].includes(baseControl) ||
     ['graph-reference-boundary', 'owned-resource-boundary'].includes(schema.fallback?.reason ?? '');
+  const conditionList = isConditionListField(schema);
   const semantic: FieldEditorResolution['semantic'] = context.protectedIdentity
     ? 'identity'
-    : tuple
-      ? 'tuple'
-      : has('ActionGraphReference') || baseControl === 'graph' || baseControl === 'sequence'
-        ? 'graph'
-        : has('ActionStringOperand')
-          ? 'stringOperand'
-          : has('ActionValueOperand') || baseControl === 'operand'
-            ? 'valueOperand'
-            : has('CombatCondition')
-              ? 'combatCondition'
-              : has('BuildCondition')
-                ? 'buildCondition'
-                : has('LevelValues') || baseControl === 'levelValues'
-                  ? 'levelValues'
-                  : has('GameplayTag')
-                    ? 'gameplayTag'
-                    : referenceKind
-                      ? 'reference'
-                      : 'plain';
+    : conditionList
+      ? 'combatConditionList'
+      : tuple
+        ? 'tuple'
+        : has('ActionGraphReference') || baseControl === 'graph' || baseControl === 'sequence'
+          ? 'graph'
+          : has('ActionStringOperand')
+            ? 'stringOperand'
+            : has('ActionValueOperand') || baseControl === 'operand'
+              ? 'valueOperand'
+              : has('CombatCondition')
+                ? 'combatCondition'
+                : has('BuildCondition')
+                  ? 'buildCondition'
+                  : has('LevelValues') || baseControl === 'levelValues'
+                    ? 'levelValues'
+                    : has('GameplayTag')
+                      ? 'gameplayTag'
+                      : referenceKind
+                        ? 'reference'
+                        : 'plain';
   const mapping = resolveBlackboardMapping(schema, name);
   const control =
-    mapping && !boundary
-      ? 'blackboardMapping'
-      : semantic === 'stringOperand' && !boundary && baseControl !== 'opaque'
-        ? 'stringOperand'
-        : baseControl === 'string' && referenceKind && !context.protectedIdentity
-          ? 'reference'
-          : baseControl;
-  const container = ['array', 'record', 'object', 'union'].includes(baseControl);
+    conditionList && !boundary
+      ? 'conditionList'
+      : mapping && !boundary
+        ? 'blackboardMapping'
+        : semantic === 'stringOperand' && !boundary && baseControl !== 'opaque'
+          ? 'stringOperand'
+          : baseControl === 'string' && referenceKind && !context.protectedIdentity
+            ? 'reference'
+            : baseControl;
+  const container = conditionList || ['array', 'record', 'object', 'union'].includes(baseControl);
   const intrinsicallyReadonly = boundary || ['opaque', 'condition', 'null'].includes(baseControl);
   const readonly =
     context.editable === false || Boolean(context.protectedIdentity) || intrinsicallyReadonly;
-  const fallback = ['stringOperand', 'blackboardMapping'].includes(control)
+  const fallback = ['stringOperand', 'blackboardMapping', 'conditionList'].includes(control)
     ? undefined
     : (schema.fallback?.reason ??
       (baseControl === 'opaque'
@@ -126,7 +134,7 @@ export function resolveFieldEditor(
             : 'value',
     edit: readonly
       ? 'none'
-      : ['stringOperand', 'blackboardMapping'].includes(control)
+      : ['stringOperand', 'blackboardMapping', 'conditionList'].includes(control)
         ? 'field'
         : container
           ? 'recursive'

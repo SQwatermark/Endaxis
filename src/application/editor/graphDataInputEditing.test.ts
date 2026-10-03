@@ -1,6 +1,12 @@
 import { expect, it } from 'vitest';
 import type { ActionGraphDefinition } from '../../../packages/game-data-contract/src/actionGraph';
+import type { CombatCondition } from '../../../packages/game-data-contract/src/conditions';
 import { actionTypedInputs, dataTypedInputs } from '../../ui/action-graph/typedGraphInputs';
+import {
+  appendCondition,
+  moveCondition,
+  removeCondition,
+} from '../../ui/field-editor/conditionList';
 import { setGraphDataInput } from './graphDataInputEditing';
 import { updateResourceGraph } from './actionGraphResourceEditing';
 import { DefinitionDraftSession } from './definitionDraftSession';
@@ -153,4 +159,140 @@ it('cycles and illegal macro parameter use are rejected without adding undo hist
     ),
   ).toThrow('recursive');
   expect(history.canUndo).toBe(false);
+});
+
+function conditionListFixture(kind: 'all' | 'any'): ActionGraphDefinition {
+  const graph = fixture();
+  return {
+    ...graph,
+    nodes: {
+      ...graph.nodes,
+      listConsumer: {
+        action: {
+          kind: 'conditional',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'list' } },
+          whenTrue: { $sequence: null },
+          whenFalse: { $sequence: null },
+        },
+        next: null,
+      },
+    },
+    dataNodes: {
+      ...graph.dataNodes,
+      list: {
+        type: 'boolean',
+        expression: {
+          kind,
+          conditions: [
+            { kind: 'conditionNode', nodeId: 'test' },
+            { kind: 'not', condition: { kind: 'constant', value: false } },
+            { kind: 'constant', value: true },
+            { kind: 'conditionNode', nodeId: 'test' },
+          ],
+        },
+      },
+      unused: { type: 'number', expression: { kind: 'constant', value: 19 } },
+    },
+  };
+}
+
+function conditionList(graph: ActionGraphDefinition) {
+  const expression = graph.dataNodes!.list!.expression;
+  if (expression.kind !== 'all' && expression.kind !== 'any') throw new Error('wrong fixture');
+  return expression;
+}
+
+function replaceConditionList(
+  graph: ActionGraphDefinition,
+  conditions: readonly CombatCondition[],
+): ActionGraphDefinition {
+  return {
+    ...graph,
+    dataNodes: {
+      ...graph.dataNodes,
+      list: { type: 'boolean', expression: { ...conditionList(graph), conditions } },
+    },
+  };
+}
+
+it.each(['all', 'any'] as const)(
+  '%s 列表暂存增删和排序，Apply 只产生一条历史并保留共享来源和导出顺序',
+  kind => {
+    const source = { actionGraph: { main: conditionListFixture(kind), macros: {} } };
+    const history = new DefinitionDraftSession(source, true);
+    const before = history.current;
+    const original = conditionList(before.actionGraph.main).conditions;
+    const appended = appendCondition(original, false);
+    const removed = removeCondition(appended, 0);
+    const reordered = moveCondition(removed, 3, 0);
+    expect(appended).toEqual([...original, { kind: 'constant', value: false }]);
+    expect(original).toHaveLength(4);
+    expect(reordered[0]).toBe(appended[4]);
+    expect(reordered[1]).toBe(original[1]);
+    expect(reordered[2]).toBe(original[2]);
+    expect(reordered[3]).toBe(original[3]);
+    expect(history.current).toBe(before);
+    expect(history.canUndo).toBe(false);
+
+    expect(
+      history.update(owner =>
+        updateResourceGraph(owner, { kind: 'main' }, graph =>
+          replaceConditionList(graph, reordered),
+        ),
+      ),
+    ).toBe(true);
+    const applied = history.current;
+    const changed = applied.actionGraph.main;
+    expect(conditionList(changed).conditions).toBe(reordered);
+    expect(changed.nodes).toBe(before.actionGraph.main.nodes);
+    for (const id of ['read', 'test', 'unused'])
+      expect(changed.dataNodes![id]).toBe(before.actionGraph.main.dataNodes![id]);
+    expect(input(changed, 'branch', 'parameters.condition').source).toBe('test');
+    expect(input(changed, 'second').source).toBe('read');
+    expect(conditionList(source.actionGraph.main).conditions).toHaveLength(4);
+
+    expect(history.undo()).toBe(true);
+    expect(history.current).toBe(before);
+    expect(history.undo()).toBe(false);
+    expect(history.redo()).toBe(true);
+    expect(history.current).toBe(applied);
+    expect(history.redo()).toBe(false);
+    const exported = history.exportDefinition();
+    expect(exported).not.toBe(applied);
+    const reopened = JSON.parse(JSON.stringify(exported));
+    expect(reopened).toEqual(applied);
+    expect(conditionList(reopened.actionGraph.main).conditions).toEqual(reordered);
+  },
+);
+
+it('拒绝越界列表操作和失效引用，失败不会新增历史或清空已有 redo', () => {
+  const history = new DefinitionDraftSession(
+    { actionGraph: { main: conditionListFixture('all'), macros: {} } },
+    true,
+  );
+  const apply = (change: (conditions: readonly CombatCondition[]) => readonly CombatCondition[]) =>
+    history.update(owner =>
+      updateResourceGraph(owner, { kind: 'main' }, graph =>
+        replaceConditionList(graph, change(conditionList(graph).conditions)),
+      ),
+    );
+  apply(conditions => appendCondition(conditions, true));
+  const applied = history.current;
+  expect(history.undo()).toBe(true);
+  const before = history.current;
+  const rejected = [
+    () => apply(conditions => removeCondition(conditions, -1)),
+    () => apply(conditions => moveCondition(conditions, 0, conditions.length)),
+    () => apply(conditions => [...conditions, { kind: 'conditionNode', nodeId: 'missing' }]),
+    () => apply(conditions => [...conditions, { kind: 'conditionNode', nodeId: 'list' }]),
+  ];
+  for (const change of rejected) {
+    expect(change).toThrow();
+    expect(history.current).toBe(before);
+    expect(history.canUndo).toBe(false);
+    expect(history.canRedo).toBe(true);
+  }
+  expect(history.redo()).toBe(true);
+  expect(history.current).toBe(applied);
+  expect(history.redo()).toBe(false);
 });

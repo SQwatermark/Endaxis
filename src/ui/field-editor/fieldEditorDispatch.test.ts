@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { DefinitionFieldSchema } from '../definition-editor/fieldSchema';
 import type { NodeFieldSchema } from '../action-graph/nodeSchema';
 import { resolveFieldEditor } from './fieldEditorDispatch';
-import { actionNodeSchemas } from '../action-graph/actionNodeSchemas.generated';
+import { actionNodeSchemas, dataNodeSchemas } from '../action-graph/actionNodeSchemas.generated';
 import { definitionSchemas } from '../definition-editor/definitionSchemas.generated';
 import { fieldSchemaForValue } from '../definition-editor/definitionFieldRuntime';
 
@@ -233,4 +233,45 @@ describe('shared field editor dispatch', () => {
     }
     expect(resolveFieldEditor({ kind: 'opaque' }).fallback).toBe('unsupported-type');
   });
+});
+
+it('dispatches both generated combat-condition lists without granting container pins or definition-tree editing', () => {
+  for (const kind of ['all', 'any']) {
+    const field = dataNodeSchemas[`boolean:${kind}`]!.fields[0]!;
+    expect(resolveFieldEditor(field)).toMatchObject({
+      control: 'conditionList',
+      semantic: 'combatConditionList',
+      view: 'structure',
+      edit: 'field',
+    });
+    expect(resolveFieldEditor(field).fallback).toBeUndefined();
+    expect(resolveFieldEditor(field, { editable: false })).toMatchObject({
+      control: 'conditionList',
+      edit: 'none',
+      readonly: true,
+    });
+    for (const alias of ['BuildCondition', 'ActionValueOperand'] as const)
+      expect(
+        resolveFieldEditor({
+          ...field,
+          semantics: { ...field.semantics!, arrayElement: { type: alias, aliases: [alias] } },
+        }).control,
+      ).toBe('json');
+    expect(
+      resolveFieldEditor({
+        ...field,
+        semantics: { type: 'readonly number[]', arrayElement: { type: 'number' } },
+      }).control,
+    ).toBe('json');
+  }
+  expect(
+    resolveFieldEditor({
+      kind: 'array',
+      element: { kind: 'condition' },
+      semantics: {
+        type: 'readonly CombatCondition[]',
+        arrayElement: { type: 'CombatCondition', aliases: ['CombatCondition'] },
+      },
+    }).control,
+  ).toBe('array');
 });
