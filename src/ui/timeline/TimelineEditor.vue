@@ -199,6 +199,8 @@ import { projectOpenFailureMessage } from './projectOpenFailureMessage';
 import { formatLegacyConversionReport } from './legacyConversionReport';
 import type { ProjectGameDataRepository } from '../../data/projectGameDataRepository';
 import { captureScenarioSimulationGameData } from '../../application/simulation/scenarioSimulationGameData';
+import { operatorReferenceChoices } from '../../application/editor/operatorReferenceChoices';
+import type { ReferenceChoices } from '../definition-editor/fieldInputConfig';
 import { resolveSkillTemplateDefinition } from '../../core/compiler/resolveSkillDefinition';
 import type { SkillDefinition, OperationType } from '../../core/game-data/operatorDefinition';
 import {
@@ -1997,6 +1999,7 @@ const selectedCastModel = computed(() => {
         operationType: castModel.operationType,
         label: timelineCastLabel(castModel, trackModel),
         currentDefinition,
+        operator,
         skillLevel,
       };
     }
@@ -2004,6 +2007,7 @@ const selectedCastModel = computed(() => {
   return null;
 });
 const skillGraphEditorTarget = shallowRef<{
+  readonly referenceChoices?: ReferenceChoices;
   readonly custom: boolean;
   readonly presentation?: import('../../core/project/graphPresentation').SkillGraphPresentation;
   readonly scenarioId: string;
@@ -2179,6 +2183,12 @@ function openSkillGraphEditor(): void {
   if (selected?.currentDefinition == null || isHistoricalSkillInput(selected.cast.id)) return;
   skillGraphEditorTarget.value = {
     custom: selected.cast.customDefinition !== undefined,
+    referenceChoices: selected.operator
+      ? operatorReferenceChoices(
+          selected.operator,
+          editorGameDataRepository.getCommonDefinitionSources(),
+        )
+      : undefined,
     scenarioId: scenario.value.id,
     castId: selected.cast.id,
     label: selected.label,
@@ -7790,6 +7800,7 @@ function setMobileGuideFrame(frame: number | null): void {
   <SkillGraphEditorDialog
     v-if="skillGraphEditorTarget !== null"
     :definition="skillGraphEditorTarget.definition"
+    :reference-choices="skillGraphEditorTarget.referenceChoices"
     :custom="skillGraphEditorTarget.custom"
     :label="skillGraphEditorTarget.label"
     :presentation="skillGraphEditorTarget.presentation"

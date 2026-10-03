@@ -5545,5 +5545,22 @@
       "fullyTuned": "满突破",
       "tuningUnavailable": "无法突破"
     }
+  },
+  "fieldReference": {
+    "unset": "选择引用",
+    "unresolved": "当前候选中未找到，保留原始值",
+    "empty": "暂无候选",
+    "contextUnknown": "缺少引用上下文"
+  },
+  "fieldFallback": {
+    "no-present-type": "契约没有可编辑的值",
+    "graph-reference-boundary": "通过图入口查看或编辑此引用",
+    "owned-resource-boundary": "请打开所属资源查看",
+    "depth-limit": "更深层的类型化字段尚未接入此表单",
+    "recursive-type": "此表单暂不展开递归类型",
+    "unsupported-type": "此类型尚未接入表单控件",
+    "structured-editor-pending": "结构化控件待接入，保留现有编辑与校验",
+    "tuple-editor-pending": "已保留固定元组槽位，此表单暂不支持编辑",
+    "condition-editor-pending": "请使用对应的条件或图编辑入口"
   }
 }

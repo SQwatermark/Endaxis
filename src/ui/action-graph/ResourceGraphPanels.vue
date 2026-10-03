@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { ReferenceChoices } from '../definition-editor/fieldInputConfig';
 import type { UnwrapNestedRefs } from 'vue';
 import { useI18n } from 'vue-i18n';
 import ActionGraphCanvas from './ActionGraphCanvas.vue';
@@ -16,6 +17,7 @@ import {
 } from '../../application/editor/actionGraphResourceEditing';
 
 defineProps<{
+  referenceChoices?: ReferenceChoices;
   area: 'canvas' | 'inspector';
   resourceGraphEditor: UnwrapNestedRefs<ReturnType<typeof useResourceGraphEditor>>;
   readonly: boolean;
@@ -79,6 +81,7 @@ const { t } = useI18n();
     class="ap-graph-inspector"
   >
     <DataNodeInspector
+      :reference-choices="referenceChoices"
       v-if="resourceGraphEditor.selectedData && resourceGraphEditor.selectedDataId"
       :key="`${resourceKey}:${resourceGraphEditor.graphKey}:${resourceGraphEditor.selectedDataId}`"
       :ref="
@@ -108,6 +111,7 @@ const { t } = useI18n();
       @pending="resourceGraphEditor.pending = $event"
     />
     <ActionNodeInspector
+      :reference-choices="referenceChoices"
       v-else-if="resourceGraphEditor.selectedNode && resourceGraphEditor.selectedId"
       :key="`${resourceKey}:${resourceGraphEditor.graphKey}:${resourceGraphEditor.selectedId}`"
       :ref="

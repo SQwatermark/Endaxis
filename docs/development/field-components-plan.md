@@ -1,6 +1,6 @@
 # 字段查看与编辑组件推进计划
 
-> 状态：推进中。P0 覆盖门禁与 P1 生成语义基础已验收，共享 UI 分派及后续控件尚未交付。本文区分计划与阶段记录，不是整体能力已完成的声明。完成一阶段后更新验收状态；稳定职责归入[编辑器架构](../architecture/editor.md)，已完成的迁移记录由 Git 保存。
+> 状态：推进中。P0 覆盖门禁与 P1 生成语义基础已验收；共享 UI 分派已实现并进入验收，真实浏览器验证受环境限制，P2 完整引用解析及后续控件仍待交付。本文区分计划与阶段记录，不是整体能力已完成的声明。完成一阶段后更新验收状态；稳定职责归入[编辑器架构](../architecture/editor.md)，已完成的迁移记录由 Git 保存。
 
 ## 目标与推进顺序
 
@@ -112,7 +112,7 @@ P2、P3 均依赖 P1；P4 中不涉及字符串数据流的工作可与 P3 并�
 
 **不做**：重新全库“统计文本框”后直接认领全部为缺陷；仅根据字段名推断封闭枚举。
 
-### P1：保留类型语义和统一分派（生成基础已验收；共享分派待接入，依赖 P0）
+### P1：保留类型语义和统一分派（共享分派已实现；浏览器验收待补，依赖 P0）
 
 **交付**：按 Details 的类型级控件/宿主布局分工，提供生成描述的公共语义部分、共享查看/编辑分派、两套表单适配层；首次接入保留原控件行为。
 
@@ -228,3 +228,23 @@ P2、P3 均依赖 P1；P4 中不涉及字符串数据流的工作可与 P3 并�
 验收：独立审查无剩余阻塞。`check:editor-nodes`、`check:definition-fields`、`check:field-capabilities`、`test:editor-schema`（13 项）、`type-check:game-data-contract`、`type-check:tools`、应用 `type-check`、`npm test -- --maxWorkers=1`（455 文件、3,832 通过、1 跳过）、`build`、修改文件 Prettier 与 `git diff --check` 通过。应用类型检查在默认约 2 GB 堆上遇到环境既有的 OOM，使用 `NODE_OPTIONS=--max-old-space-size=4096` 复跑通过；跳过项是未开启 `globalThis.gc` 的堆释放审计。构建仍有大 chunk 提示，本阶段未做加载性能基准。
 
 本阶段未运行浏览器交互验收、生产转换器导出或联网原始数据验收，不以静态/单元检查声称共享 UI 已交付。下一阶段共享分派与控件接入必须补浏览器验证。新增声明来源和语义使两个生成文件合计从约 384 KB 增至 792 KB；已限制原子类型展开并复用生成对象，仍需在后续 UI 接入时关注加载体积。
+
+## 第二阶段记录：共享分派与引用入口接通
+
+范围是 P1 UI 接入及避免回退所需的最小候选供应，不将完整 P2 ReferenceResolver 认领为完成。
+
+- `resolveFieldEditor` 为定义/节点两套 schema 给出相同的语义类别、控件、查看/编辑能力与明确后备；普通文本与受保护身份不误用资源选择器。旧字符串引用配置由纯字段名猜测收紧到已审核的正式契约声明文件；黑板读、写目标没有混入资源族
+- `DefinitionField`、`DefinitionValueCreator`、`NodeInspectorFields` 消费共享分派；生成 description 使用既有帮助入口。LevelValues 等父级 union 别名在分支选择后保留，tuple 仍按固定槽描述明确只读，没有伪装为同质数组或认领 P4 完成
+- 引用查看与编辑共用 `ReferenceField`，显示候选标签及原始 ID，区分未选、目录空、上下文缺失与当前候选中未找到。这里的“未找到”不是严格失效判定。空候选不退文本；旧值原样保留，不自动修复或选择首项
+- 修复 union/optional/array/record/creator 的引用族传递，record 新增值走同一选择器；union 待创建分支统一复用 Creator，取消不改父值，换 schema 清理旧草稿。对象子字段不继承父级引用族，因此动态 blackboardKey 保持自身语义
+- 节点检查器候选通过图面板和两个实际宿主供应；技能块宿主使用所选轨道的确切干员定义，技能候选复用现有绑定遍历，包含变体/替换并排除实体子技能命名空间。工作区补 skillGroup 候选。候选刷新不重置节点未提交草稿，拒绝提交仍保留输入，最终写入继续通过原命令/领域校验
+- 没有修改契约、生成 schema、游戏定义、存档格式、求值、数据引脚、撤销或保存机制。number/boolean 数据图照旧，未开放 string 数据引脚。静态资源选择不等于运行时连接
+- 同口径覆盖分母保持定义非根 2,113、动作 452、数据 152、string schema 429 / 去重声明 231；412 个明确后备及历史 57 个有值 JSON 责任项没有减少。此阶段关闭的是分派/创建传递缺陷，不能把它们算成 57 个结构化控件已补齐。两个生成文件保持 792,465 字节，未扩大生成元数据
+
+验收：独立审查无剩余代码阻塞。`check:editor-nodes`、`check:definition-fields`、`check:field-capabilities`、`test:editor-schema`（13 项）、`type-check:game-data-contract`、`type-check:tools`、应用 `type-check`（4 GB 堆）、`type-check:browser`、最终完整 `npm test -- --maxWorkers=1`（459 文件、3,862 通过、1 跳过）、`build`、修改文件 Prettier 与 `git diff --check` 通过。新增 30 项包括共享分派 9 项、真实模板 SSR 12 项、生产 setup/watchers 交互 6 项、候选上下文 3 项。初次完整运行读到了修改中的测试夹具/模块缓存并失败，修正装备来源 `skillId` 的误分派及夹具必填值后，冻结最终代码完整重跑通过；不将早期失败结果当作通过。
+
+构建仍有既有大 chunk 警告：本次 `TimelineEditor` 约 1,898.94 kB / gzip 460.67 kB，`AssetWorkspace` 414.46 kB / gzip 73.89 kB，`SkillGraphPanels` 336.22 kB / gzip 71.31 kB。未进行加载性能基准，也未声称体积优化。
+
+真实浏览器未通过验收：普通及审批启动 Chromium 都在 `socket()` 报 `Operation not permitted`；受支持云浏览器访问本地测试入口报 `ERR_BLOCKED_BY_CLIENT`，已停止该路径，未绕过限制。新增独立 `test:browser:fields` 的 8 个测试，测试发现、浏览器 TypeScript 和 harness 构建通过，**8 项实际浏览器断言尚未运行**。harness 覆盖三套真实组件的选择、空/缺候选、旧值保留、创建取消、optional 恢复和拒绝后的草稿；其中宿主撤销只是 fixture 不可变状态恢复，不冒充生产历史、保存重开或完整 E2E 验证。既有命令/历史/序列化回归包含在全套单测中，浏览器验收仍需在许可环境补跑。
+
+剩余边界与下一阶段：P2 仍需统一带 owner、来源、导航目标和严格匹配状态的 ReferenceResolver，完善局部/公共同名、歧义、跨 owner 和不可见诊断以及只读跳转；候选存在仅是 UI 状态，不能代替运行时身份校验。P3 才接 `ActionStringOperand` 黑板分支与读写模式；`applyBuff.buffId` 节点 JSON 后备仍保留，未声称 Buff 动态分支闭环完成。P4 的列表/查询/曲线/深层字段及 tuple 控件均保持原排期。

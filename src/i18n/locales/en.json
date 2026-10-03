@@ -5528,5 +5528,22 @@
       "fullyTuned": "Fully tuned",
       "tuningUnavailable": "Tuning unavailable"
     }
+  },
+  "fieldReference": {
+    "unset": "Choose a reference",
+    "unresolved": "Not found in the current candidates; the original value is preserved",
+    "empty": "No candidates available",
+    "contextUnknown": "Reference context is unavailable"
+  },
+  "fieldFallback": {
+    "no-present-type": "This contract has no editable value",
+    "graph-reference-boundary": "Edit or open the graph through its graph entry",
+    "owned-resource-boundary": "Open the owned resource to inspect it",
+    "depth-limit": "Deeper typed fields are not available in this form yet",
+    "recursive-type": "Recursive fields are not expanded in this form yet",
+    "unsupported-type": "This type is not supported by the form yet",
+    "structured-editor-pending": "Structured editor pending; the current control and validation are preserved",
+    "tuple-editor-pending": "Fixed tuple slots are preserved but cannot be edited in this form yet",
+    "condition-editor-pending": "Use the appropriate condition or graph editor"
   }
 }

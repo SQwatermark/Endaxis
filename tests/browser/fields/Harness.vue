@@ -1,0 +1,165 @@
+<script setup lang="ts">
+import { computed, ref, shallowRef } from 'vue';
+import DefinitionField from '../../../src/ui/definition-editor/DefinitionField.vue';
+import DefinitionValueCreator from '../../../src/ui/definition-editor/DefinitionValueCreator.vue';
+import NodeInspectorFields from '../../../src/ui/action-graph/NodeInspectorFields.vue';
+import type { DefinitionFieldSchema } from '../../../src/ui/definition-editor/fieldSchema';
+import type { NodeFieldSchema } from '../../../src/ui/action-graph/nodeSchema';
+
+// This host deliberately models state/history only, not the application's command history.
+const schemas = {
+  union: { kind: 'union', variants: [{ kind: 'string' }, { kind: 'null' }] },
+  optional: { kind: 'string', optional: true },
+  array: { kind: 'array', element: { kind: 'string' } },
+  record: { kind: 'record', value: { kind: 'string' } },
+} satisfies Record<string, DefinitionFieldSchema>;
+const state = shallowRef<Record<string, unknown>>({
+  union: 'stale-id',
+  optional: 'stale-id',
+  array: ['stale-id'],
+  record: { first: 'stale-id' },
+});
+const history: Record<string, unknown>[] = [];
+const commits = ref(0);
+const catalog = ref<'available' | 'empty' | 'unknown'>('available');
+const choices = computed(() =>
+  catalog.value === 'unknown'
+    ? undefined
+    : {
+        buff: catalog.value === 'empty' ? [] : [{ value: 'known', label: 'Known buff' }],
+      },
+);
+function replace(current: unknown, path: readonly (string | number)[], value: unknown): unknown {
+  if (!path.length) return value;
+  const [key, ...rest] = path;
+  if (Array.isArray(current)) {
+    const copy = [...current];
+    copy[Number(key)] = replace(copy[Number(key)], rest, value);
+    return copy;
+  }
+  const copy = { ...(current as Record<string, unknown>) };
+  if (!rest.length && value === undefined) delete copy[key!];
+  else copy[key!] = replace(copy[key!], rest, value);
+  return copy;
+}
+function change(path: readonly (string | number)[], value: unknown) {
+  history.push(state.value);
+  state.value = replace(state.value, path, value) as Record<string, unknown>;
+  commits.value++;
+}
+function undo() {
+  const previous = history.pop();
+  if (previous) state.value = previous;
+}
+const creatorOpen = ref(false);
+const created = shallowRef<unknown>(null);
+const creatorSchema: DefinitionFieldSchema = {
+  kind: 'union',
+  variants: [{ kind: 'string' }, { kind: 'null' }],
+};
+const node = shallowRef<unknown>({ buffId: 'stale-id', amount: 1 });
+const nodeCommits = ref(0);
+const rejectNode = ref(false);
+const pending = ref(false);
+const fields: NodeFieldSchema[] = [
+  {
+    path: ['buffId'],
+    label: 'buffId',
+    description: '',
+    type: 'string',
+    required: true,
+    control: 'string',
+    source: ['packages/game-data-contract/src/actions.ts:694:7'],
+  },
+  {
+    path: ['amount'],
+    label: 'amount',
+    description: '',
+    type: 'number',
+    required: true,
+    control: 'number',
+  },
+];
+function applyNode(value: unknown) {
+  if (rejectNode.value) return false;
+  node.value = value;
+  nodeCommits.value++;
+  return true;
+}
+</script>
+<template>
+  <main>
+    <h1>Real field components</h1>
+    <p>Fixture state/history only; this is not application command-history E2E coverage.</p>
+    <button @click="catalog = 'available'">Available catalog</button>
+    <button @click="catalog = 'empty'">Empty catalog</button>
+    <button @click="catalog = 'unknown'">Unknown catalog</button>
+    <button @click="undo">Host undo</button>
+    <output data-testid="state">{{ JSON.stringify(state) }}</output>
+    <output data-testid="commits">{{ commits }}</output>
+    <section v-for="(schema, name) in schemas" :key="name" :data-testid="name">
+      <h2>{{ name }}</h2>
+      <DefinitionField
+        :name="name"
+        :schema="schema"
+        :value="state[name]"
+        :path="[name]"
+        reference-kind="buff"
+        :reference-choices="choices"
+        editable
+        root
+        @change="change"
+      />
+    </section>
+    <section data-testid="creator">
+      <h2>Creator</h2>
+      <button @click="creatorOpen = true">Open creator</button>
+      <DefinitionValueCreator
+        v-if="creatorOpen"
+        :schema="creatorSchema"
+        editable
+        reference-kind="buff"
+        :reference-choices="choices"
+        @cancel="creatorOpen = false"
+        @create="
+          created = $event;
+          creatorOpen = false;
+        "
+      />
+      <output data-testid="created">{{ JSON.stringify(created) }}</output>
+    </section>
+    <section data-testid="node">
+      <h2>Node inspector</h2>
+      <label><input v-model="rejectNode" type="checkbox" />Reject node commits</label>
+      <NodeInspectorFields
+        :value="node"
+        kind="applyBuff"
+        :fields="fields"
+        :reference-choices="choices"
+        :apply-value="applyNode"
+        @pending="pending = $event"
+      />
+      <output data-testid="node-value">{{ JSON.stringify(node) }}</output>
+      <output data-testid="node-commits">{{ nodeCommits }}</output>
+      <output data-testid="node-pending">{{ pending }}</output>
+    </section>
+  </main>
+</template>
+<style>
+body {
+  margin: 20px;
+}
+main {
+  max-width: 700px;
+}
+section {
+  margin: 16px 0;
+}
+output {
+  display: block;
+  white-space: pre-wrap;
+}
+button {
+  margin: 4px;
+}
+</style>

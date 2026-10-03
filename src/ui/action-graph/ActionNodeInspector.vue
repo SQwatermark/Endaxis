@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { ReferenceChoices } from '../definition-editor/fieldInputConfig';
 /** 从契约生成的字段描述构建表单；特殊资源与控制流通过独立入口编辑。 */
 import { computed, ref } from 'vue';
 import { EaButton } from '@/design-system';
@@ -16,6 +17,7 @@ import { listDataInputs } from '../../core/action-graph/actionGraphDataNodes';
 import { containsActionGraph, containsGraphReference, readNodeField } from './nodeFieldValues';
 
 const props = defineProps<{
+  referenceChoices?: ReferenceChoices;
   nodeId: string;
   scopes?: readonly BlackboardScope[];
   scopeWarnings?: readonly string[];
@@ -73,6 +75,7 @@ defineExpose({ apply: () => form.value?.apply() ?? true });
     >
     <EditorHelp v-if="resourceFields.length" :text="t('actionGraphEditor.resourceHelp')" />
     <NodeInspectorFields
+      :reference-choices="referenceChoices"
       ref="form"
       :value="node.action"
       :kind="node.action.kind"

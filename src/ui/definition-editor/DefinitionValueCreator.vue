@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, shallowRef } from 'vue';
+import { computed, ref, shallowRef, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { EaButton, EaSelect, type EaSelectValue } from '@/design-system';
 import DefinitionField from './DefinitionField.vue';
@@ -11,6 +11,7 @@ const props = defineProps<{
   schema: DefinitionFieldSchema;
   editable: boolean;
   referenceChoices?: ReferenceChoices;
+  referenceKind?: keyof ReferenceChoices;
 }>();
 const emit = defineEmits<{ create: [value: unknown]; cancel: [] }>();
 const { t, te } = useI18n();
@@ -21,6 +22,13 @@ const index = ref(variants.value.length === 1 ? 0 : -1);
 const selected = computed(() => variants.value[index.value]);
 const value = shallowRef<unknown>(
   selected.value ? createDefinitionValueDraft(selected.value) : undefined,
+);
+watch(
+  () => props.schema,
+  () => {
+    index.value = variants.value.length === 1 ? 0 : -1;
+    value.value = selected.value ? createDefinitionValueDraft(selected.value) : undefined;
+  },
 );
 const complete = computed(
   () => selected.value && isCompleteDefinitionValue(selected.value, value.value),
@@ -86,6 +94,7 @@ function create() {
       :path="[]"
       :editable="editable"
       :reference-choices="referenceChoices"
+      :reference-kind="referenceKind"
       root
       hide-label
       @change="change"

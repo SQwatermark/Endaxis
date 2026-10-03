@@ -10,6 +10,9 @@ import {
   type EaSelectValue,
 } from '@/design-system';
 import EditorHelp from '../editor/EditorHelp.vue';
+import ReferenceField from '../field-editor/ReferenceField.vue';
+import { resolveFieldEditor } from '../field-editor/fieldEditorDispatch';
+import type { ReferenceChoices } from '../definition-editor/fieldInputConfig';
 import NodeLevelValues from './NodeLevelValues.vue';
 import type { NodeFieldSchema } from './nodeSchema';
 import { fieldName, fieldHelp, optionName } from './editorNodeText';
@@ -27,6 +30,7 @@ const props = defineProps<{
   kind: string;
   fields: readonly NodeFieldSchema[];
   choices?: Readonly<Record<string, readonly string[]>>;
+  referenceChoices?: ReferenceChoices;
   applyValue: (value: unknown) => boolean;
 }>();
 const emit = defineEmits<{ pending: [value: boolean] }>();
@@ -34,6 +38,9 @@ const { t } = useI18n();
 const inputs = ref<Record<string, string>>({});
 const pending = ref(false);
 const error = ref('');
+function fieldEditor(field: NodeFieldSchema) {
+  return resolveFieldEditor(field);
+}
 
 function reset() {
   inputs.value = Object.fromEntries(
@@ -97,16 +104,29 @@ defineExpose({ apply });
 
 <template>
   <form @submit.prevent="apply" @keydown.esc.prevent.stop="reset">
-    <div v-for="field in fields" :key="field.path.join('.')" class="node-field">
+    <div
+      v-for="field in fields"
+      :key="field.path.join('.')"
+      class="node-field"
+      :data-field-semantic="fieldEditor(field).semantic"
+      :data-field-control="fieldEditor(field).control"
+      :data-field-fallback="fieldEditor(field).fallback"
+    >
       <span>
         <span class="field-name"
           >{{ fieldName(field.path, kind)
-          }}<EditorHelp v-if="fieldHelp(field.path, kind)" :text="fieldHelp(field.path, kind)"
+          }}<EditorHelp
+            v-if="fieldHelp(field.path, kind) || field.description"
+            :text="fieldHelp(field.path, kind) || field.description"
         /></span>
+        <EditorHelp
+          v-if="fieldEditor(field).fallback"
+          :text="t(`fieldFallback.${fieldEditor(field).fallback}`)"
+        />
         <small v-if="!field.required">{{ t('actionGraphEditor.optional') }}</small>
       </span>
       <NodeLevelValues
-        v-if="field.control === 'levelValues'"
+        v-if="fieldEditor(field).control === 'levelValues'"
         :text="inputs[field.path.join('.')] ?? ''"
         :required="field.required"
         :label="fieldName(field.path, kind)"
@@ -115,7 +135,7 @@ defineExpose({ apply });
           apply();
         "
       />
-      <div v-else-if="field.control === 'multiselect'" class="field-options">
+      <div v-else-if="fieldEditor(field).control === 'multiselect'" class="field-options">
         <EaCheckbox
           v-for="option in field.options"
           :key="String(option)"
@@ -135,6 +155,15 @@ defineExpose({ apply });
           >{{ t('actionGraphEditor.unset') }}</EaButton
         >
       </div>
+      <ReferenceField
+        v-else-if="fieldEditor(field).control === 'reference'"
+        :value="inputs[field.path.join('.')]"
+        :label="fieldName(field.path, kind)"
+        :reference-kind="fieldEditor(field).referenceKind!"
+        :choices="referenceChoices?.[fieldEditor(field).referenceKind ?? '']"
+        :allow-unset="!field.required"
+        @change="selectValue(field.path.join('.'), $event)"
+      />
       <EaSelect
         v-else-if="choices?.[field.path.join('.')]"
         class="node-field__control"
@@ -145,26 +174,32 @@ defineExpose({ apply });
         @change="selectValue(field.path.join('.'), $event)"
       />
       <EaSelect
-        v-else-if="field.control === 'select' || field.control === 'boolean'"
+        v-else-if="
+          fieldEditor(field).control === 'select' || fieldEditor(field).control === 'boolean'
+        "
         class="node-field__control"
         :aria-label="fieldName(field.path, kind)"
         size="sm"
         :model-value="inputs[field.path.join('.')]"
         :options="[
           ...(!field.required ? [{ value: '', label: t('actionGraphEditor.unset') }] : []),
-          ...(field.control === 'boolean' ? [true, false] : (field.options ?? [])).map(option => ({
-            value: JSON.stringify(option),
-            label: optionName(option, field.type),
-          })),
+          ...(fieldEditor(field).control === 'boolean' ? [true, false] : (field.options ?? [])).map(
+            option => ({
+              value: JSON.stringify(option),
+              label: optionName(option, field.type),
+            }),
+          ),
         ]"
         @change="selectValue(field.path.join('.'), $event)"
       />
       <EaInput
-        v-else-if="field.control === 'number' || field.control === 'string'"
+        v-else-if="
+          fieldEditor(field).control === 'number' || fieldEditor(field).control === 'string'
+        "
         class="node-field__control"
         :aria-label="fieldName(field.path, kind)"
         size="sm"
-        :type="field.control === 'number' ? 'number' : 'text'"
+        :type="fieldEditor(field).control === 'number' ? 'number' : 'text'"
         step="any"
         :model-value="inputs[field.path.join('.')]"
         @input="change(field.path.join('.'), $event)"

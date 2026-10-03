@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { ReferenceChoices } from '../definition-editor/fieldInputConfig';
 import { toRefs, type UnwrapNestedRefs } from 'vue';
 import { EaButton, EaInput } from '@/design-system';
 import ActionGraphCanvas from './ActionGraphCanvas.vue';
@@ -11,6 +12,7 @@ import { blackboardScopeWarnings } from '../../application/editor/graphBlackboar
 import type { useSkillGraphEditor } from './useSkillGraphEditor';
 import type { GraphCanvasView } from './graphCanvasView';
 const props = defineProps<{
+  referenceChoices?: ReferenceChoices;
   area: 'tools' | 'canvas' | 'inspector' | 'timeline';
   toolTab?: string;
   canvasView?: GraphCanvasView;
@@ -187,6 +189,7 @@ const {
       style="border: 0; margin: 0; padding: 0; min-width: 0"
     >
       <DataNodeInspector
+        :reference-choices="referenceChoices"
         :ref="value => (editor.dataInspector = value as InstanceType<typeof DataNodeInspector>)"
         v-if="selectedDataNode && selectedDataId"
         :node="selectedDataNode"
@@ -217,6 +220,7 @@ const {
         @locate-target="focusNode(selectedConnection!.targetId)"
       />
       <ActionNodeInspector
+        :reference-choices="referenceChoices"
         :ref="value => (editor.inspector = value as InstanceType<typeof ActionNodeInspector>)"
         v-else-if="selectedNode && selectedId !== null"
         :key="`${graphKey}:${selectedId}`"

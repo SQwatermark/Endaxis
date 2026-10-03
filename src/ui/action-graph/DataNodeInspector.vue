@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { ReferenceChoices } from '../definition-editor/fieldInputConfig';
 /** 数据节点参数编辑；数据来源只能通过图上的数据引脚替换。 */
 import { computed, ref } from 'vue';
 import type { ActionGraphDataNode } from '../../../packages/game-data-contract/src/actionGraph';
@@ -10,6 +11,7 @@ import NodeInspector from './NodeInspector.vue';
 import type { BlackboardScope } from '../../application/editor/graphBlackboard';
 import NodeInspectorFields from './NodeInspectorFields.vue';
 const props = defineProps<{
+  referenceChoices?: ReferenceChoices;
   node: ActionGraphDataNode;
   nodeId: string;
   scopes?: readonly BlackboardScope[];
@@ -42,6 +44,7 @@ defineExpose({ apply: () => form.value?.apply() ?? true });
     :help="nodeHelp(node.expression.kind)"
   >
     <NodeInspectorFields
+      :reference-choices="referenceChoices"
       ref="form"
       :value="node.expression"
       :kind="node.expression.kind"

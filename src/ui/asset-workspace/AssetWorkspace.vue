@@ -297,6 +297,13 @@ const fieldPath = computed(() => [
   ...(field.value ? [field.value] : []),
 ]);
 const referenceChoices = computed(() => ({
+  skillGroup:
+    draft.value.edit.kind === 'operator'
+      ? draft.value.edit.definition.skillGroups.map(group => ({
+          value: group.key,
+          label: group.key,
+        }))
+      : [],
   skillSlot:
     draft.value.edit.kind === 'operator'
       ? (draft.value.edit.definition.skillSlots ?? []).map(slot => ({
@@ -307,11 +314,26 @@ const referenceChoices = computed(() => ({
   gearSet: props.assets.flatMap(asset =>
     asset.edit.kind === 'gearSet' ? [{ value: asset.edit.definition.slug, label: asset.name }] : [],
   ),
-  buff: resources.value
-    .filter(resource => resource.kind === 'buff')
-    .map(resource => ({ value: resource.definitionResource.identity, label: resource.name })),
+  buff: [
+    ...new Map([
+      ...props.assets.flatMap(asset =>
+        asset.edit.kind === 'buff'
+          ? [[asset.edit.id, { value: asset.edit.id, label: asset.name }] as const]
+          : [],
+      ),
+      ...resources.value
+        .filter(resource => resource.kind === 'buff')
+        .map(
+          resource =>
+            [
+              resource.definitionResource.identity,
+              { value: resource.definitionResource.identity, label: resource.name },
+            ] as const,
+        ),
+    ]).values(),
+  ],
   skill: resources.value
-    .filter(resource => resource.kind === 'skill')
+    .filter(resource => resource.definitionResource.kind === 'skill')
     .map(resource => ({ value: resource.definitionResource.identity, label: resource.name })),
   abilityEntity: resources.value
     .filter(resource => resource.kind === 'entity')
@@ -373,6 +395,7 @@ const graphEditor = useWorkspaceGraphEditor({
 const { skill: skillGraphEditor } = graphEditor;
 const graphPanelProps = computed(() => ({
   editor: graphEditor,
+  referenceChoices: referenceChoices.value,
   skill: !!graphSkill.value,
   readonly: !custom.value,
   resourceKey: `${activeKey.value}:${active.value.asset}`,
