@@ -4,7 +4,12 @@ import {
   analyzeGraphBlackboard,
   type BlackboardVariable,
 } from '../../application/editor/graphBlackboard';
-import { writeNodeField } from './nodeFieldValues';
+import {
+  createBlackboardFieldContext,
+  resolveBlackboardKey,
+} from '../../application/editor/blackboardFieldContext';
+import { setGraphDataInput } from '../../application/editor/graphDataInputEditing';
+import { actionTypedInputs, dataTypedInputs } from './typedGraphInputs';
 import type { EditorSelectionState } from '../editor/editorSelection';
 
 /** 所有资源图共用变量来源分析、可选变量及读写节点创建。 */
@@ -37,23 +42,26 @@ export function useGraphVariables(context: {
       return scope ? [scope] : [];
     });
   });
+  const blackboardContext = computed(() => {
+    const { selectedId, selectedDataId } = context.selection;
+    return createBlackboardFieldContext(
+      analysis.value,
+      selectedId.value
+        ? analysis.value.contexts.get(selectedId.value)
+        : selectedDataId.value
+          ? analysis.value.dataContexts.get(selectedDataId.value)
+          : undefined,
+    );
+  });
   const variableKeys = computed(() => {
     const id = context.selection.selectedDataId.value;
     const expression = id ? context.graph().dataNodes?.[id]?.expression : undefined;
-    const environments = id ? analysis.value.dataContexts.get(id) : undefined;
-    const keys = analysis.value.variables
-      .filter(variable =>
-        expression?.kind === 'parameter'
-          ? variable.layer === 'parameter'
-          : variable.layer !== 'parameter' &&
-            (!environments?.size ||
-              variable.scope === 'current' ||
-              environments.has(variable.scope)),
-      )
-      .map(variable => variable.key);
-    if (expression?.kind === 'blackboard') keys.push(expression.key);
-    if (expression?.kind === 'parameter') keys.push(expression.parameter);
-    return [...new Set(keys)];
+    return resolveBlackboardKey(blackboardContext.value, undefined, {
+      mode: expression?.kind === 'parameter' ? 'parameter' : 'read',
+      valueType: 'number',
+    })
+      .candidates.filter(candidate => candidate.selectable)
+      .map(candidate => candidate.key);
   });
   function resolve(identity: string) {
     return analysis.value.variables.find(
@@ -67,6 +75,12 @@ export function useGraphVariables(context: {
     target?: { owner: 'action' | 'data'; id: string; path: readonly string[] },
   ): { graph: ActionGraphDefinition; id: string } {
     if (write && variable.layer === 'parameter') throw new Error('宏输入参数只允许读取。');
+    const sourceContext = createBlackboardFieldContext(analysis.value, new Set([variable.scope]));
+    const source = resolveBlackboardKey(sourceContext, variable.key, {
+      mode: variable.layer === 'parameter' ? 'parameter' : write ? 'write' : 'read',
+      valueType: 'number',
+    });
+    if (source.state === 'typeMismatch') throw new Error('字符串黑板变量不能创建数值数据节点。');
     let index = 1;
     let id: string;
     const collection = write ? graph.nodes : (graph.dataNodes ?? {});
@@ -112,22 +126,22 @@ export function useGraphVariables(context: {
       target.owner === 'action'
         ? analysis.value.contexts.get(target.id)
         : analysis.value.dataContexts.get(target.id);
-    if (
-      variable.scope !== 'current' &&
-      environments?.size &&
-      [...environments].some(scope => scope !== variable.scope)
-    )
+    const destination = resolveBlackboardKey(
+      createBlackboardFieldContext(analysis.value, environments),
+      variable.key,
+      { mode: variable.layer === 'parameter' ? 'parameter' : 'read', valueType: 'number' },
+    );
+    if (!destination.valid || (!environments?.size && variable.scope !== 'current'))
       throw new Error('该变量来自另一局部调用环境，不能在这里自动创建同名读取。');
-    return {
-      id,
-      graph: writeNodeField(
-        next,
-        target.owner === 'action'
-          ? ['nodes', target.id, 'action', ...target.path]
-          : ['dataNodes', target.id, 'expression', ...target.path],
-        { kind: 'valueNode', nodeId: id },
-      ) as ActionGraphDefinition,
-    };
+    const action = target.owner === 'action' ? graph.nodes[target.id]?.action : undefined;
+    const data = target.owner === 'data' ? graph.dataNodes?.[target.id] : undefined;
+    const input = (action ? actionTypedInputs(action) : data ? dataTypedInputs(data) : []).find(
+      input =>
+        input.path.length === target.path.length &&
+        input.path.every((part, index) => part === target.path[index]),
+    );
+    if (!input || input.type !== 'number') throw new Error('变量读取只能连接正式数值输入。');
+    return { id, graph: setGraphDataInput(next, target.owner, target.id, input, id) };
   }
-  return { analysis, selectedScopes, variableKeys, resolve, createNode };
+  return { analysis, selectedScopes, variableKeys, blackboardContext, resolve, createNode };
 }

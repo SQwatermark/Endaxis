@@ -104,7 +104,12 @@ defineExpose({ resolve: (id: string) => props.analysis.variables.find(v => ident
         }}
       </p>
       <div v-for="id in detail.reads" :key="`r:${id}`">
-        <EaButton size="sm" @click="emit('locate', id, true)">
+        <EaButton
+          size="sm"
+          @click="
+            emit('locate', id, detail.readSites?.find(site => site.id === id)?.owner !== 'action')
+          "
+        >
           {{ t('actionGraphEditor.read') }} · {{ id }}
         </EaButton>
       </div>

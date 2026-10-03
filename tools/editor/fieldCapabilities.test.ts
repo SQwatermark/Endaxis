@@ -47,12 +47,6 @@ test('checks each reachable branch, including absent inputs, without guessing fr
       category: 'deep structure',
       keys: ['definition/fixture/optional/<1>'],
     },
-    {
-      reason: 'unassigned-input-editor-pending',
-      phase: 'P3',
-      category: 'missing expression',
-      keys: ['data/number:test/value'],
-    },
   ];
   assert.deepEqual(checkFieldCapabilityCoverage(rows, exceptions), []);
   assert.equal(
@@ -110,9 +104,8 @@ test('never grants string inputs numeric pins, and refuses opaque fields without
       message.includes('unexplained fallback'),
     ),
   );
-  assert.ok(
-    checkFieldCapabilityCoverage(rows, []).some(message => message.includes('unreviewed fallback')),
-  );
+  assert.equal(rows.find(row => row.surface === 'action')?.control, 'stringOperand');
+  assert.equal(rows.find(row => row.surface === 'action')?.fallback, undefined);
 });
 
 test('reports existing definition identity protection without treating a nested skill reference as an identity', () => {
@@ -144,7 +137,7 @@ test('reports existing definition identity protection without treating a nested 
   assert.equal(rows.find(row => row.key === 'definition/fixture/reference/skillId')?.edit, 'field');
 });
 
-test('keeps mixed level-value and operand inputs pending even when their current scalar control works', () => {
+test('exposes mixed level-value and operand inputs while leaving structured operand containers pending', () => {
   const rows = collectFieldCapabilities(
     {},
     {
@@ -186,10 +179,10 @@ test('keeps mixed level-value and operand inputs pending even when their current
     },
     {},
   );
-  assert.equal(rows[0]?.control, 'levelValues');
+  assert.equal(rows[0]?.control, 'typedInput');
   assert.equal(rows[0]?.connection, 'number-context');
   assert.equal(rows.find(row => row.path === 'operands')?.connection, 'none');
-  assert.equal(rows[0]?.fallback, 'unassigned-input-editor-pending');
+  assert.equal(rows[0]?.fallback, undefined);
   assert.ok(
     checkFieldCapabilityCoverage(rows, []).some(message => message.includes('unreviewed fallback')),
   );

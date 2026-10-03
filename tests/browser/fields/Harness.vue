@@ -4,6 +4,7 @@ import {
   referenceCatalog,
   referenceCandidate,
 } from '../../../src/ui/field-editor/referenceTestFixtures';
+import StringOperandField from '../../../src/ui/field-editor/StringOperandField.vue';
 import ReferenceField from '../../../src/ui/field-editor/ReferenceField.vue';
 import { referenceNavigationKey } from '../../../src/ui/field-editor/referenceNavigation';
 import type { ReferenceCatalog } from '../../../src/application/editor/referenceResolver';
@@ -13,6 +14,7 @@ import NodeInspectorFields from '../../../src/ui/action-graph/NodeInspectorField
 import type { DefinitionFieldSchema } from '../../../src/ui/definition-editor/fieldSchema';
 import type { NodeFieldSchema } from '../../../src/ui/action-graph/nodeSchema';
 
+const stringOperand = shallowRef<unknown>('known');
 // This host deliberately models state/history only, not the application's command history.
 const schemas = {
   union: { kind: 'union', variants: [{ kind: 'string' }, { kind: 'null' }] },
@@ -191,6 +193,19 @@ function applyNode(value: unknown) {
       <output data-testid="node-value">{{ JSON.stringify(node) }}</output>
       <output data-testid="node-commits">{{ nodeCommits }}</output>
       <output data-testid="node-pending">{{ pending }}</output>
+    </section>
+    <section data-testid="string-operand">
+      <h2>String operand</h2>
+      <StringOperandField
+        :value="stringOperand"
+        label="Dynamic Buff"
+        editable
+        required
+        reference-kind="buff"
+        :reference-choices="choices"
+        @change="stringOperand = $event"
+      />
+      <output data-testid="string-operand-value">{{ JSON.stringify(stringOperand) }}</output>
     </section>
   </main>
 </template>

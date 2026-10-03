@@ -11,6 +11,8 @@ export interface BlackboardScope {
   parent?: string;
   copiesParent: boolean;
   sharesEntity?: boolean;
+  /** Declaration node, for editor navigation only. */
+  nodeId?: string;
 }
 export interface BlackboardVariable {
   key: string;
@@ -20,6 +22,9 @@ export interface BlackboardVariable {
   requiredReads: string[];
   writes: string[];
   initial?: unknown;
+  /** Numeric entity assignments have a known type but no statically known initial value. */
+  assignedType?: 'number';
+  readSites?: { id: string; owner: 'action' | 'data' }[];
 }
 export function analyzeGraphBlackboard(
   graph: ActionGraphDefinition,
@@ -64,6 +69,7 @@ export function analyzeGraphBlackboard(
           child = `${scope}/${id}`;
           scopes.set(child, {
             id: child,
+            nodeId: id,
             parent: scope,
             label: p.scopeKey ?? id,
             initial: p.initialValues,
@@ -89,8 +95,11 @@ export function analyzeGraphBlackboard(
   for (const scope of scopes.values()) {
     for (const [key, value] of Object.entries(scope.initial))
       variable(scope.id, key, 'direct').initial = value;
-    for (const [key, value] of Object.entries(scope.entityInitial))
-      variable(scope.id, key, 'entity').initial = value;
+    for (const [key, value] of Object.entries(scope.entityInitial)) {
+      const item = variable(scope.id, key, 'entity');
+      if (value && typeof value === 'object' && 'kind' in value) item.assignedType = 'number';
+      else item.initial = value;
+    }
   }
   for (const key of parameters) variable('current', key, 'parameter');
   function visitData(id: string, scope: string) {
@@ -108,6 +117,7 @@ export function analyzeGraphBlackboard(
         e.kind === 'parameter' ? 'parameter' : e.key.startsWith('EntityBB_') ? 'entity' : 'direct',
       );
       item.reads.push(id);
+      (item.readSites ??= []).push({ id, owner: 'data' });
       if (e.kind === 'blackboard' && e.fallback === undefined) item.requiredReads.push(id);
     }
     for (const input of dataNodeInputs(node))
@@ -116,6 +126,34 @@ export function analyzeGraphBlackboard(
   for (const [id, environments] of contexts) {
     const action = graph.nodes[id]!.action;
     for (const scope of environments) {
+      function read(key: string, required = true) {
+        const item = variable(scope, key, key.startsWith('EntityBB_') ? 'entity' : 'direct');
+        if (!item.reads.includes(id)) item.reads.push(id);
+        (item.readSites ??= []).push({ id, owner: 'action' });
+        if (required && !item.requiredReads.includes(id)) item.requiredReads.push(id);
+      }
+      function visitInline(value: unknown) {
+        if (!value || typeof value !== 'object' || 'actionGraph' in value || '$sequence' in value)
+          return;
+        if ('blackboardKey' in value && typeof value.blackboardKey === 'string') {
+          read(value.blackboardKey);
+          return;
+        }
+        if (
+          'kind' in value &&
+          value.kind === 'blackboard' &&
+          'key' in value &&
+          typeof value.key === 'string'
+        ) {
+          read(value.key, !('fallback' in value));
+          return;
+        }
+        for (const child of Object.values(value)) visitInline(child);
+      }
+      visitInline(action);
+      if (action.kind === 'applyBuff')
+        for (const key of Object.values(action.parameters.copiedBlackboardAssignments ?? {}))
+          read(key);
       for (const input of listDataInputs(action))
         if (input.source !== null) visitData(input.source, scope);
       if (action.kind === 'modifyActionValue' || action.kind === 'calculateActionValue') {
@@ -130,6 +168,8 @@ export function analyzeGraphBlackboard(
         case 'storeCurrentTimelineFrame':
         case 'storeShieldValue':
         case 'readBuffStackCount':
+        case 'readBuffBlackboard':
+        case 'readAbilityEntityRemainingDuration':
         case 'readEventBuffBlackboard':
         case 'readCurrentBuffRemainingDuration':
         case 'readBuffRemainingDuration':
@@ -138,6 +178,13 @@ export function analyzeGraphBlackboard(
         case 'storeEventSpGainAmount':
           write(action.parameters.outputKey);
           write(action.parameters.realDeltaOutputKey);
+          break;
+        case 'storeSourceAttributeValue':
+        case 'storeEntityPropertyValue':
+          write(action.parameters.targetKey);
+          break;
+        case 'readSkillSettingData':
+          for (const item of action.parameters.items) write(item.storeKey);
           break;
         case 'storeEventHealValues':
           write(action.parameters.finalHealOutputKey);
@@ -159,7 +206,7 @@ export function blackboardScopeWarnings(
     const declarations = [...analysis.scopes.values()].filter(s =>
       Object.hasOwn(s.initial, variable.key),
     );
-    if (!declarations.length || declarations.some(s => s.id === 'current')) continue;
+    if (!declarations.length) continue;
     let scope = analysis.scopes.get(variable.scope);
     let accessible = false;
     while (scope) {

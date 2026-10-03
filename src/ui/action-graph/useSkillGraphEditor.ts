@@ -33,7 +33,8 @@ import {
   dataNodeInputs,
 } from '../../core/action-graph/actionGraphDataNodes';
 import { updateSkillGraph } from '../../application/editor/skillGraphCommands';
-import { writeNodeField } from './nodeFieldValues';
+import { actionTypedInputs, dataTypedInputs } from './typedGraphInputs';
+import { setGraphDataInput } from '../../application/editor/graphDataInputEditing';
 import DataNodeInspector from './DataNodeInspector.vue';
 import BlackboardPanel from './BlackboardPanel.vue';
 import { freezeGraphDocument } from '../../application/editor/immutableGraphDocument';
@@ -128,7 +129,7 @@ export function useSkillGraphEditor(document: SkillGraphDocument) {
         updateSkillGraph(skill, address.value, graph => {
           const used = [
             ...Object.values(graph.nodes).flatMap(node => listDataInputs(node.action)),
-            ...Object.values(graph.dataNodes ?? {}).flatMap(dataNodeInputs),
+            ...Object.values(graph.dataNodes ?? {}).flatMap(node => dataNodeInputs(node)),
           ].some(input => input.source === id);
           if (used) throw new Error('此数据节点仍有连线，请先从输入端断开，再删除节点。');
           const dataNodes = { ...graph.dataNodes };
@@ -145,47 +146,31 @@ export function useSkillGraphEditor(document: SkillGraphDocument) {
     path: readonly string[],
     source: string | null,
     constant?: number | boolean,
-  ) {
-    if (!canLeaveFields()) return;
-    edit(skill =>
-      updateSkillGraph(skill, address.value, graph => {
-        const target =
-          owner === 'action' ? graph.nodes[id]!.action : graph.dataNodes![id]!.expression;
+  ): boolean {
+    if (!canLeaveFields()) return false;
+    return edit(document =>
+      updateSkillGraph(document, address.value, current => {
+        const action = current.nodes[id]?.action;
+        const data = current.dataNodes?.[id];
         const input = (
-          owner === 'action' ? listDataInputs(target) : dataNodeInputs(graph.dataNodes![id]!)
-        ).find(input => JSON.stringify(input.path) === JSON.stringify(path));
+          owner === 'action'
+            ? action
+              ? actionTypedInputs(action)
+              : []
+            : data
+              ? dataTypedInputs(data)
+              : []
+        ).find(
+          item =>
+            item.path.length === path.length &&
+            item.path.every((part, index) => part === path[index]),
+        );
         if (!input) throw new Error('数据输入不存在');
-        const node = source === null ? null : graph.dataNodes?.[source];
-        if (source !== null && (!node || node.type !== input.type))
-          throw new Error('数据引脚类型不一致');
-        const value =
-          source === null
-            ? { kind: 'constant', value: constant ?? (input.type === 'boolean' ? false : 0) }
-            : { kind: input.type === 'boolean' ? 'conditionNode' : 'valueNode', nodeId: source };
-        const changed = writeNodeField(target, path, value);
-        return owner === 'action'
-          ? {
-              ...graph,
-              nodes: {
-                ...graph.nodes,
-                [id]: {
-                  ...graph.nodes[id]!,
-                  action: changed as (typeof graph.nodes)[string]['action'],
-                },
-              },
-            }
-          : {
-              ...graph,
-              dataNodes: {
-                ...graph.dataNodes,
-                [id]: { ...graph.dataNodes![id]!, expression: changed } as NonNullable<
-                  typeof graph.dataNodes
-                >[string],
-              },
-            };
+        return setGraphDataInput(current, owner, id, input, source, constant);
       }),
     );
   }
+
   const selectedNode = computed(() =>
     selectedId.value === null ? undefined : graph.value.nodes[selectedId.value],
   );
@@ -229,7 +214,7 @@ export function useSkillGraphEditor(document: SkillGraphDocument) {
         : t('actionGraphEditor.macroScope', { name: address.value.macroId }),
     selection: selection,
   });
-  const { analysis: blackboard, selectedScopes, variableKeys } = variables;
+  const { analysis: blackboard, selectedScopes, variableKeys, blackboardContext } = variables;
   function createVariable(
     variable: BlackboardVariable,
     write: boolean,
@@ -629,6 +614,7 @@ export function useSkillGraphEditor(document: SkillGraphDocument) {
     entryGroups,
     blackboardPanel,
     variableKeys,
+    blackboardContext,
     blackboard,
     createVariable,
     dropVariable,

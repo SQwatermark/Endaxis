@@ -30,9 +30,9 @@ describe('shared field editor dispatch', () => {
       field => field.path.at(-1) === 'buffId',
     )!;
     expect(resolveFieldEditor(dynamicBuff)).toMatchObject({
-      control: 'json',
+      control: 'stringOperand',
       referenceKind: 'buff',
-      fallback: 'structured-editor-pending',
+      edit: 'field',
     });
     expect(resolveFieldEditor(definitionSchemas.enemy.fields.levelHp)).toMatchObject({
       semantic: 'tuple',
@@ -175,13 +175,16 @@ describe('shared field editor dispatch', () => {
     ] as const) {
       const semantics = { type: alias, aliases: [alias] };
       expect(resolveFieldEditor({ ...node('json'), semantics })).toMatchObject({
-        control: 'json',
+        control: alias === 'ActionStringOperand' ? 'stringOperand' : 'json',
         semantic,
-        fallback: 'structured-editor-pending',
+        ...(alias === 'ActionStringOperand' ? {} : { fallback: 'structured-editor-pending' }),
       });
       expect(
         resolveFieldEditor({ kind: 'union', variants: [{ kind: 'number' }], semantics }),
-      ).toMatchObject({ control: 'union', semantic });
+      ).toMatchObject({
+        control: alias === 'ActionStringOperand' ? 'stringOperand' : 'union',
+        semantic,
+      });
     }
     expect(
       resolveFieldEditor({

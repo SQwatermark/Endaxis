@@ -1,3 +1,4 @@
+import { resolveBlackboardMapping } from '../../src/ui/field-editor/blackboardMappingSchema.ts';
 import type { FieldSemantics } from '../../src/ui/field-editor/fieldSemantics.ts';
 import { isProtectedDefinitionIdentity } from '../../src/ui/definition-editor/definitionFieldRuntime.ts';
 import type {
@@ -129,16 +130,26 @@ export function collectFieldCapabilities(
           field.control === 'operand' ||
           aliases.includes('ActionValueOperand') ||
           aliases.includes('CombatCondition');
-        const complex = field.control === 'json' || expressionInput;
-        const fallback =
-          field.fallback?.reason ??
-          (expressionInput ? 'unassigned-input-editor-pending' : undefined);
+        const mapping = resolveBlackboardMapping(field);
+        const stringOperand = aliases.includes('ActionStringOperand');
+        const availableControl = mapping
+          ? 'blackboardMapping'
+          : stringOperand
+            ? 'stringOperand'
+            : expressionInput
+              ? 'typedInput'
+              : undefined;
+        const complex = !availableControl && (field.control === 'json' || expressionInput);
+        const fallback = availableControl
+          ? undefined
+          : (field.fallback?.reason ??
+            (expressionInput ? 'unassigned-input-editor-pending' : undefined));
         rows.push({
           key: [surface, root, ...field.path].join('/'),
           surface,
           root,
           path: field.path.join('.'),
-          control: field.control,
+          control: availableControl ?? field.control,
           source: field.source ?? [],
           aliases,
           semantics: field.semantics,

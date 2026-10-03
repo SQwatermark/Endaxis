@@ -106,12 +106,46 @@ export interface DataInput {
   readonly source: string | null;
   readonly value: unknown;
 }
-export function dataNodeInputs(node: ActionGraphDataNode): readonly DataInput[] {
+/** Minimal structural schema accepted by core; generated UI schemas supply these aliases. */
+export interface DataInputSemantics {
+  readonly type?: string;
+  readonly aliases?: readonly string[];
+  readonly unionVariants?: readonly DataInputSemantics[];
+  readonly arrayElement?: DataInputSemantics;
+  readonly recordValue?: DataInputSemantics;
+  readonly tuple?: { readonly elements: readonly { readonly semantics: DataInputSemantics }[] };
+}
+export interface DataInputField {
+  readonly path: readonly string[];
+  readonly semantics?: DataInputSemantics;
+  readonly fallback?: { readonly reason: string };
+}
+/** Only contract aliases confer connectivity; a primitive number/string never does. */
+export function dataInputType(semantics?: DataInputSemantics): DataInput['type'] | null {
+  const aliases = semantics?.aliases ?? [];
+  if (aliases.includes('ActionValueOperand')) return 'number';
+  if (aliases.includes('CombatCondition')) return 'boolean';
+  const types = new Set(
+    semantics?.unionVariants?.flatMap(variant => {
+      const type = dataInputType(variant);
+      return type ? [type] : [];
+    }),
+  );
+  return types.size === 1 ? [...types][0]! : null;
+}
+export function dataNodeInputs(
+  node: ActionGraphDataNode,
+  fields?: readonly DataInputField[],
+): readonly DataInput[] {
   return listDataInputs(
     Object.fromEntries(Object.entries(node.expression).filter(([key]) => key !== 'kind')),
+    fields,
   );
 }
-export function listDataInputs(value: unknown): readonly DataInput[] {
+export function listDataInputs(
+  value: unknown,
+  fields?: readonly DataInputField[],
+): readonly DataInput[] {
   const inputs: DataInput[] = [];
   function visit(value: unknown, path: readonly string[]) {
     if (!value || typeof value !== 'object' || 'actionGraph' in value) return;
@@ -122,8 +156,90 @@ export function listDataInputs(value: unknown): readonly DataInput[] {
     }
     for (const [key, child] of Object.entries(value)) visit(child, [...path, key]);
   }
-  visit(value, []);
-  return inputs;
+  if (fields === undefined) {
+    visit(value, []);
+    return inputs;
+  }
+  // A declared optional slot exists even when no current expression can be inspected.
+  // Container slots only project existing entries; projection never invents a key or item.
+  function declared(current: unknown, path: readonly string[], semantics?: DataInputSemantics) {
+    const type = dataInputType(semantics);
+    if (type) {
+      inputs.push({
+        path,
+        type,
+        source:
+          current &&
+          typeof current === 'object' &&
+          'kind' in current &&
+          (current.kind === 'valueNode' || current.kind === 'conditionNode') &&
+          'nodeId' in current
+            ? String(current.nodeId)
+            : null,
+        value: current,
+      });
+      return;
+    }
+    if (Array.isArray(current)) {
+      current.forEach((item, index) =>
+        declared(
+          item,
+          [...path, String(index)],
+          semantics?.tuple?.elements[index]?.semantics ?? semantics?.arrayElement,
+        ),
+      );
+    } else if (current && typeof current === 'object' && semantics?.recordValue) {
+      for (const [key, item] of Object.entries(current))
+        declared(item, [...path, key], semantics.recordValue);
+    }
+  }
+  for (const field of fields) {
+    let current = value;
+    for (const key of field.path)
+      current =
+        current && typeof current === 'object'
+          ? (current as Record<string, unknown>)[key]
+          : undefined;
+    declared(current, field.path, field.semantics);
+  }
+  // Shape discovery is only a compatibility fallback for unmodeled descendants.
+  // An explicit non-connectable declaration wins even when malformed data happens
+  // to look like a numeric/condition expression (e.g. BuildCondition or string maps).
+  function unmodeled(field: DataInputField, path: readonly string[]): boolean {
+    let semantics = field.semantics;
+    let remaining = path.slice(field.path.length);
+    while (semantics) {
+      if (semantics.aliases?.length) return false;
+      if (!remaining.length) return false;
+      const [key, ...rest] = remaining;
+      const child =
+        semantics.recordValue ??
+        (/^(0|[1-9]\d*)$/.test(key!)
+          ? (semantics.tuple?.elements[Number(key)]?.semantics ?? semantics.arrayElement)
+          : undefined);
+      if (!child) {
+        // Object properties inside a generated container are not modeled yet. Keep
+        // their existing operands, but never scan through a declared scalar slot.
+        return (
+          semantics.type?.trimStart().startsWith('{') === true ||
+          field.fallback?.reason === 'depth-limit' ||
+          field.fallback?.reason === 'recursive-type'
+        );
+      }
+      semantics = child;
+      remaining = rest;
+    }
+    return field.fallback?.reason === 'depth-limit' || field.fallback?.reason === 'recursive-type';
+  }
+  const discovered: DataInput[] = [];
+  for (const input of listDataInputs(value)) {
+    if (inputs.some(declared => declared.path.every((key, i) => key === input.path[i]))) continue;
+    const enclosing = fields.filter(field => field.path.every((key, i) => key === input.path[i]));
+    // The most specific generated declaration controls its entire subtree.
+    const field = enclosing.sort((a, b) => b.path.length - a.path.length)[0];
+    if (!field || unmodeled(field, input.path)) discovered.push(input);
+  }
+  return [...inputs, ...discovered];
 }
 
 export function dataNodeHasEffects(graph: ActionGraphDefinition, id: string): boolean {

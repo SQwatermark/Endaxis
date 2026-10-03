@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { ReferenceChoices } from '../definition-editor/fieldInputConfig';
-import type { UnwrapNestedRefs } from 'vue';
+import { provide, type UnwrapNestedRefs } from 'vue';
+import { blackboardNavigationKey } from '../field-editor/blackboardFieldContext';
 import { useI18n } from 'vue-i18n';
 import ActionGraphCanvas from './ActionGraphCanvas.vue';
 import ActionNodeInspector from './ActionNodeInspector.vue';
@@ -16,7 +17,7 @@ import {
   updateResourceGraph,
 } from '../../application/editor/actionGraphResourceEditing';
 
-defineProps<{
+const props = defineProps<{
   referenceChoices?: ReferenceChoices;
   area: 'canvas' | 'inspector';
   resourceGraphEditor: UnwrapNestedRefs<ReturnType<typeof useResourceGraphEditor>>;
@@ -27,6 +28,9 @@ defineProps<{
   canvasView?: GraphCanvasView;
 }>();
 const { t } = useI18n();
+provide(blackboardNavigationKey, target => {
+  void props.resourceGraphEditor.locateVariable(target.id, target.owner === 'data');
+});
 </script>
 <template>
   <ActionGraphCanvas
@@ -75,13 +79,12 @@ const { t } = useI18n();
         )
     "
   />
-  <fieldset
-    v-else
-    :disabled="readonly && !resourceGraphEditor.selectedConnection"
-    class="ap-graph-inspector"
-  >
+  <fieldset v-else class="ap-graph-inspector">
     <DataNodeInspector
       :reference-choices="referenceChoices"
+      :blackboard-context="resourceGraphEditor.blackboardContext"
+      :graph="resourceGraphEditor.graph"
+      :readonly="readonly"
       v-if="resourceGraphEditor.selectedData && resourceGraphEditor.selectedDataId"
       :key="`${resourceKey}:${resourceGraphEditor.graphKey}:${resourceGraphEditor.selectedDataId}`"
       :ref="
@@ -108,10 +111,24 @@ const { t } = useI18n();
             })),
           )
       "
+      @change-data="
+        (path, source, constant) =>
+          resourceGraphEditor.connectData(
+            'data',
+            resourceGraphEditor.selectedDataId!,
+            path,
+            source,
+            constant,
+          )
+      "
+      @locate-data="id => resourceGraphEditor.locateVariable(id, true)"
       @pending="resourceGraphEditor.pending = $event"
     />
     <ActionNodeInspector
       :reference-choices="referenceChoices"
+      :blackboard-context="resourceGraphEditor.blackboardContext"
+      :graph="resourceGraphEditor.graph"
+      :readonly="readonly"
       v-else-if="resourceGraphEditor.selectedNode && resourceGraphEditor.selectedId"
       :key="`${resourceKey}:${resourceGraphEditor.graphKey}:${resourceGraphEditor.selectedId}`"
       :ref="
@@ -132,6 +149,17 @@ const { t } = useI18n();
             ),
           )
       "
+      @change-data="
+        (path, source, constant) =>
+          resourceGraphEditor.connectData(
+            'action',
+            resourceGraphEditor.selectedId!,
+            path,
+            source,
+            constant,
+          )
+      "
+      @locate-data="id => resourceGraphEditor.locateVariable(id, true)"
       @pending="resourceGraphEditor.pending = $event"
       @open-macro="resourceGraphEditor.changeGraph({ kind: 'macro', macroId: $event })"
     />

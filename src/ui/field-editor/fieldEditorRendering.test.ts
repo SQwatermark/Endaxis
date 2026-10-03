@@ -165,3 +165,32 @@ it('renders source, owner and read-only navigation without exposing a duplicate 
   expect(invisible).toContain('data-reference-state="invisible"');
   expect(invisible).not.toContain('reference-field__navigate');
 });
+
+it('renders string literal/read branches through the same control in node and definition surfaces', async () => {
+  const semantics = { type: 'ActionStringOperand', aliases: ['ActionStringOperand'] as const };
+  const schema: DefinitionFieldSchema = {
+    kind: 'union',
+    variants: [
+      { kind: 'string' },
+      { kind: 'object', fields: { blackboardKey: { kind: 'string' } } },
+    ],
+    semantics,
+  };
+  for (const value of ['known', { blackboardKey: 'runtimeBuff' }]) {
+    const html = await render(DefinitionField, {
+      name: 'buffId',
+      path: ['buffId'],
+      schema,
+      value,
+      editable: false,
+      referenceKind: 'buff',
+      referenceChoices: { buff: choices },
+    });
+    expect(html).toContain('data-field-control="stringOperand"');
+    expect(html).toContain(
+      `data-string-operand-mode="${typeof value === 'string' ? 'literal' : 'blackboard'}"`,
+    );
+    expect(html).not.toContain('definition-field__variant');
+    expect(html).toContain(typeof value === 'string' ? 'known' : 'runtimeBuff');
+  }
+});

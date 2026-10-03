@@ -1,6 +1,7 @@
 import { canSelectReference, type ReferenceChoices } from '@/application/editor/referenceResolver';
 import { fieldSchemaForValue } from '../definition-editor/definitionFieldRuntime';
 import type { DefinitionFieldSchema } from '../definition-editor/fieldSchema';
+import { validStringOperandDraft } from './stringOperandDraft';
 import { resolveFieldEditor } from './fieldEditorDispatch';
 
 /** Submit-time validation for new values; catalogs can change while a draft is open. */
@@ -15,6 +16,7 @@ export function validReferenceDraft(
   const editor = resolveFieldEditor(schema, { referenceKind, name });
   const family = editor.referenceKind;
   const shape = fieldSchemaForValue(schema, value, name);
+  if (editor.control === 'stringOperand') return validStringOperandDraft(value, family, choices);
   if (schema.kind === 'union') return validReferenceDraft(shape, value, choices, family, name);
   if (shape.kind === 'graph') return true;
   if (editor.control === 'reference')

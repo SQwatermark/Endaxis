@@ -32,7 +32,8 @@ import {
 import { listNodeCreations, nodeCreationGroup } from './nodeCreation';
 import { nodeName } from './editorNodeText';
 import { actionNodeTitle } from './nodePresentation';
-import { writeNodeField } from './nodeFieldValues';
+import { actionTypedInputs, dataTypedInputs } from './typedGraphInputs';
+import { setGraphDataInput } from '../../application/editor/graphDataInputEditing';
 import ActionGraphCanvas from './ActionGraphCanvas.vue';
 import ActionNodeInspector from './ActionNodeInspector.vue';
 import DataNodeInspector from './DataNodeInspector.vue';
@@ -92,7 +93,7 @@ export function useResourceGraphEditor(document: ResourceGraphDocument) {
         : t('actionGraphEditor.macroScope', { name: address.value.macroId }),
     selection: selection,
   });
-  const { analysis: blackboard, selectedScopes, variableKeys } = variables;
+  const { analysis: blackboard, selectedScopes, variableKeys, blackboardContext } = variables;
   const scopeWarnings = computed(() => blackboardScopeWarnings(blackboard.value));
   const entryGroups = computed<readonly GraphEntryGroup[]>(() => [
     {
@@ -257,7 +258,7 @@ export function useResourceGraphEditor(document: ResourceGraphDocument) {
       updateResourceGraph(owner, address.value, current => {
         const used = [
           ...Object.values(current.nodes).flatMap(node => listDataInputs(node.action)),
-          ...Object.values(current.dataNodes ?? {}).flatMap(dataNodeInputs),
+          ...Object.values(current.dataNodes ?? {}).flatMap(node => dataNodeInputs(node)),
         ].some(input => input.source === id);
         if (used) throw new Error(t('definitionEditor.dataNodeStillConnected'));
         const dataNodes = { ...current.dataNodes };
@@ -268,55 +269,36 @@ export function useResourceGraphEditor(document: ResourceGraphDocument) {
     if (changed) clearSelection();
   }
   function connectData(
-    targetKind: 'action' | 'data',
+    owner: 'action' | 'data',
     id: string,
     path: readonly string[],
     source: string | null,
     constant?: number | boolean,
-  ): void {
-    edit(owner =>
-      updateResourceGraph(owner, address.value, current => {
-        const target =
-          targetKind === 'action' ? current.nodes[id]?.action : current.dataNodes?.[id]?.expression;
-        if (!target) throw new Error('missing data target');
+  ): boolean {
+    if (!canLeaveFields()) return false;
+    return edit(document =>
+      updateResourceGraph(document, address.value, current => {
+        const action = current.nodes[id]?.action;
+        const data = current.dataNodes?.[id];
         const input = (
-          targetKind === 'action' ? listDataInputs(target) : dataNodeInputs(current.dataNodes![id]!)
+          owner === 'action'
+            ? action
+              ? actionTypedInputs(action)
+              : []
+            : data
+              ? dataTypedInputs(data)
+              : []
         ).find(
           item =>
             item.path.length === path.length &&
             item.path.every((part, index) => part === path[index]),
         );
-        if (!input) throw new Error('missing data input');
-        if (source !== null && current.dataNodes?.[source]?.type !== input.type)
-          throw new Error('data pin type mismatch');
-        const value =
-          source === null
-            ? { kind: 'constant', value: constant ?? (input.type === 'boolean' ? false : 0) }
-            : { kind: input.type === 'boolean' ? 'conditionNode' : 'valueNode', nodeId: source };
-        const changed = writeNodeField(target, path, value);
-        return targetKind === 'action'
-          ? {
-              ...current,
-              nodes: {
-                ...current.nodes,
-                [id]: {
-                  ...current.nodes[id]!,
-                  action: changed as (typeof current.nodes)[string]['action'],
-                },
-              },
-            }
-          : {
-              ...current,
-              dataNodes: {
-                ...current.dataNodes,
-                [id]: { ...current.dataNodes![id]!, expression: changed } as NonNullable<
-                  typeof current.dataNodes
-                >[string],
-              },
-            };
+        if (!input) throw new Error('数据输入不存在');
+        return setGraphDataInput(current, owner, id, input, source, constant);
       }),
     );
   }
+
   function disconnectInput(id: string): void {
     edit(owner => {
       let changed = owner;
@@ -370,6 +352,7 @@ export function useResourceGraphEditor(document: ResourceGraphDocument) {
     blackboard,
     selectedScopes,
     variableKeys,
+    blackboardContext,
     scopeWarnings,
     selectedNode,
     selectedData,

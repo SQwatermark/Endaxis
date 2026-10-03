@@ -2,6 +2,7 @@
 import { computed, ref, shallowRef, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { EaButton, EaSelect, type EaSelectValue } from '@/design-system';
+import { resolveFieldEditor } from '../field-editor/fieldEditorDispatch';
 import { validReferenceDraft } from '../field-editor/referenceDraftValidation';
 import DefinitionField from './DefinitionField.vue';
 import type { DefinitionFieldSchema } from './fieldSchema';
@@ -17,7 +18,9 @@ const props = defineProps<{
 const emit = defineEmits<{ create: [value: unknown]; cancel: [] }>();
 const { t, te } = useI18n();
 const variants = computed(() =>
-  props.schema.kind === 'union' ? props.schema.variants : [props.schema],
+  props.schema.kind === 'union' && resolveFieldEditor(props.schema).control !== 'stringOperand'
+    ? props.schema.variants
+    : [props.schema],
 );
 const index = ref(variants.value.length === 1 ? 0 : -1);
 const selected = computed(() => variants.value[index.value]);

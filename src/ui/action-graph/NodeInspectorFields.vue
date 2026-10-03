@@ -1,6 +1,19 @@
 <script setup lang="ts">
 import { canSelectReference } from '@/application/editor/referenceResolver';
-import { ref, watch } from 'vue';
+import { computed, provide, ref, watch } from 'vue';
+import type { BlackboardFieldContext } from '@/application/editor/blackboardFieldContext';
+import {
+  blackboardContextForField,
+  blackboardRequestForField,
+  resolveBlackboardKey,
+  unknownBlackboardContext,
+} from '@/application/editor/blackboardFieldContext';
+import { blackboardFieldContextKey } from '../field-editor/blackboardFieldContext';
+import BlackboardKeyField from '../field-editor/BlackboardKeyField.vue';
+import BlackboardMappingField from '../field-editor/BlackboardMappingField.vue';
+import { resolveBlackboardMapping, validMappingDraft } from '../field-editor/blackboardMapping';
+import StringOperandField from '../field-editor/StringOperandField.vue';
+import { validStringOperandDraft } from '../field-editor/stringOperandDraft';
 import { useI18n } from 'vue-i18n';
 import {
   EaButton,
@@ -28,22 +41,82 @@ import {
 
 const props = defineProps<{
   value: unknown;
+  readonly?: boolean;
+  blackboardContext?: BlackboardFieldContext;
   kind: string;
   fields: readonly NodeFieldSchema[];
   choices?: Readonly<Record<string, readonly string[]>>;
   referenceChoices?: ReferenceChoices;
   applyValue: (value: unknown) => boolean;
 }>();
+provide(
+  blackboardFieldContextKey,
+  computed(() => props.blackboardContext ?? unknownBlackboardContext()),
+);
 const emit = defineEmits<{ pending: [value: boolean] }>();
 const { t } = useI18n();
 const inputs = ref<Record<string, string>>({});
 const pending = ref(false);
+const resetSerial = ref(0);
 const error = ref('');
 function fieldEditor(field: NodeFieldSchema) {
   return resolveFieldEditor(field);
 }
 
+function levelText(field: NodeFieldSchema): string {
+  const value = structuredValue(field);
+  return value &&
+    typeof value === 'object' &&
+    'kind' in value &&
+    value.kind === 'constant' &&
+    'value' in value
+    ? JSON.stringify(value.value)
+    : (inputs.value[field.path.join('.')] ?? '');
+}
+function structuredValue(field: NodeFieldSchema): unknown {
+  const text = inputs.value[field.path.join('.')] ?? '';
+  try {
+    return text ? parseNodeField(text, field) : undefined;
+  } catch {
+    return readNodeField(props.value, field.path);
+  }
+}
+function blackboardRequest(field: NodeFieldSchema) {
+  const request = blackboardRequestForField(props.kind, field.path, field.source);
+  const fallbackText = inputs.value.fallback ?? '';
+  return request &&
+    props.kind === 'blackboard' &&
+    fallbackText.trim() !== '' &&
+    Number.isFinite(Number(fallbackText))
+    ? { ...request, fallback: Number(fallbackText) }
+    : request;
+}
+function fieldContext(field: NodeFieldSchema) {
+  return blackboardContextForField(
+    props.blackboardContext ?? unknownBlackboardContext(),
+    props.kind,
+    field.path,
+  );
+}
+function discardStructured(field: NodeFieldSchema) {
+  inputs.value[field.path.join('.')] = formatNodeField(
+    readNodeField(props.value, field.path),
+    field,
+  );
+  pending.value = props.fields.some(
+    item =>
+      inputs.value[item.path.join('.')] !==
+      formatNodeField(readNodeField(props.value, item.path), item),
+  );
+  error.value = '';
+  emit('pending', pending.value);
+}
+function changeStructured(field: NodeFieldSchema, value: unknown) {
+  change(field.path.join('.'), formatNodeField(value, field));
+  apply();
+}
 function reset() {
+  resetSerial.value++;
   inputs.value = Object.fromEntries(
     props.fields.map(field => [
       field.path.join('.'),
@@ -56,6 +129,7 @@ function reset() {
 }
 watch(() => props.value, reset, { immediate: true });
 function change(key: string, value: string) {
+  if (props.readonly) return;
   inputs.value[key] = value;
   pending.value = true;
   emit('pending', true);
@@ -76,7 +150,7 @@ function toggleOption(field: NodeFieldSchema, option: string | number | boolean,
   apply();
 }
 function apply(): boolean {
-  if (!pending.value) return true;
+  if (props.readonly || !pending.value) return true;
   try {
     let value = props.value;
     for (const field of props.fields) {
@@ -84,6 +158,43 @@ function apply(): boolean {
       if (text === formatNodeField(readNodeField(props.value, field.path), field)) continue;
       const parsed = parseNodeField(text, { ...field, label: fieldName(field.path, props.kind) });
       const editor = fieldEditor(field);
+      const mapping = resolveBlackboardMapping(field);
+      if (
+        mapping &&
+        !(parsed === undefined && !field.required) &&
+        !validMappingDraft(
+          parsed,
+          readNodeField(props.value, field.path),
+          mapping,
+          fieldContext(field),
+        )
+      ) {
+        error.value = t('actionGraphEditor.invalid');
+        return false;
+      }
+      const request = blackboardRequest(field);
+      if (
+        request &&
+        !(parsed === undefined && !field.required) &&
+        (typeof parsed !== 'string' ||
+          !resolveBlackboardKey(fieldContext(field), parsed, request).valid)
+      ) {
+        error.value = t('actionGraphEditor.invalid');
+        return false;
+      }
+      if (
+        editor.control === 'stringOperand' &&
+        !(parsed === undefined && !field.required) &&
+        !validStringOperandDraft(
+          parsed,
+          editor.referenceKind,
+          props.referenceChoices,
+          fieldContext(field),
+        )
+      ) {
+        error.value = t('fieldReference.invalid');
+        return false;
+      }
       if (
         editor.control === 'reference' &&
         !(parsed === undefined && !field.required) &&
@@ -142,18 +253,60 @@ defineExpose({ apply });
         />
         <small v-if="!field.required">{{ t('actionGraphEditor.optional') }}</small>
       </span>
-      <NodeLevelValues
-        v-if="fieldEditor(field).control === 'levelValues'"
-        :text="inputs[field.path.join('.')] ?? ''"
+      <BlackboardMappingField
+        v-if="fieldEditor(field).control === 'blackboardMapping'"
+        :value="readNodeField(value, field.path)"
+        :key="`${field.path.join('.')}:${resetSerial}`"
+        :descriptor="resolveBlackboardMapping(field)!"
         :required="field.required"
+        :editable="!readonly"
         :label="fieldName(field.path, kind)"
-        @change="
-          change(field.path.join('.'), $event);
-          apply();
-        "
+        @change="changeStructured(field, $event)"
+        @discard="discardStructured(field)"
       />
+      <BlackboardKeyField
+        v-else-if="blackboardRequest(field)"
+        :value="inputs[field.path.join('.')] ?? ''"
+        :label="fieldName(field.path, kind)"
+        :editable="!readonly"
+        :context="fieldContext(field)"
+        :mode="blackboardRequest(field)!.mode"
+        :value-type="blackboardRequest(field)!.valueType"
+        :fallback="blackboardRequest(field)!.fallback"
+        @draft-change="change(field.path.join('.'), $event)"
+        @change="selectValue(field.path.join('.'), $event)"
+      />
+      <StringOperandField
+        v-else-if="fieldEditor(field).control === 'stringOperand'"
+        :value="readNodeField(value, field.path)"
+        :key="`${field.path.join('.')}:${resetSerial}`"
+        :label="fieldName(field.path, kind)"
+        :editable="!readonly"
+        :required="field.required"
+        :reference-kind="fieldEditor(field).referenceKind"
+        :reference-choices="referenceChoices"
+        :blackboard-context="fieldContext(field)"
+        @change="changeStructured(field, $event)"
+        @discard="discardStructured(field)"
+      />
+      <fieldset
+        v-else-if="fieldEditor(field).control === 'levelValues'"
+        :disabled="readonly"
+        class="node-field__group"
+      >
+        <NodeLevelValues
+          :text="levelText(field)"
+          :required="field.required"
+          :label="fieldName(field.path, kind)"
+          @change="
+            change(field.path.join('.'), $event);
+            apply();
+          "
+        />
+      </fieldset>
       <div v-else-if="fieldEditor(field).control === 'multiselect'" class="field-options">
         <EaCheckbox
+          :disabled="readonly"
           v-for="option in field.options"
           :key="String(option)"
           class="field-options__checkbox"
@@ -163,6 +316,7 @@ defineExpose({ apply });
           {{ optionName(option, field.type) }}
         </EaCheckbox>
         <EaButton
+          :disabled="readonly"
           v-if="!field.required && inputs[field.path.join('.')]"
           size="sm"
           @click="
@@ -173,6 +327,7 @@ defineExpose({ apply });
         >
       </div>
       <ReferenceField
+        :disabled="readonly"
         v-else-if="fieldEditor(field).control === 'reference'"
         :value="inputs[field.path.join('.')]"
         :label="fieldName(field.path, kind)"
@@ -182,6 +337,7 @@ defineExpose({ apply });
         @change="selectValue(field.path.join('.'), $event)"
       />
       <EaSelect
+        :disabled="readonly"
         v-else-if="choices?.[field.path.join('.')]"
         class="node-field__control"
         :aria-label="fieldName(field.path, kind)"
@@ -191,6 +347,7 @@ defineExpose({ apply });
         @change="selectValue(field.path.join('.'), $event)"
       />
       <EaSelect
+        :disabled="readonly"
         v-else-if="
           fieldEditor(field).control === 'select' || fieldEditor(field).control === 'boolean'
         "
@@ -210,6 +367,7 @@ defineExpose({ apply });
         @change="selectValue(field.path.join('.'), $event)"
       />
       <EaInput
+        :disabled="readonly"
         v-else-if="
           fieldEditor(field).control === 'number' || fieldEditor(field).control === 'string'
         "
@@ -223,6 +381,7 @@ defineExpose({ apply });
         @blur="apply"
       />
       <EaTextarea
+        :disabled="readonly"
         v-else
         class="node-field__control node-field__textarea"
         :aria-label="fieldName(field.path, kind)"
@@ -248,6 +407,12 @@ defineExpose({ apply });
 </template>
 
 <style scoped>
+.node-field__group {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
 .node-field__control {
   width: 100%;
   min-width: 0;

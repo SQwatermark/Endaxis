@@ -1,4 +1,29 @@
 {
+  "blackboardField": {
+    "choose": "选择已知键",
+    "key": "黑板键",
+    "scope": "调用作用域",
+    "source": "来源",
+    "locate": "跳转到写入节点",
+    "externalBuff": "此键属于运行时查询的 Buff，不能把当前动作黑板当作它的所属黑板。",
+    "types": {
+      "number": "数值",
+      "string": "字符串",
+      "unknown": "类型未知",
+      "mixed": "混合类型"
+    },
+    "states": {
+      "fallback": "此键缺失或不是数值时，使用明确配置的数值回退。",
+      "unset": "请明确填写键，不会自动创建默认键。",
+      "valid": "已知且类型兼容的键",
+      "external": "外部提供的键，是否存在由运行时检查。",
+      "contextUnknown": "运行时所属对象或调用作用域未知，不推测为当前外层作用域。",
+      "outOfScope": "此键并非在每个调用作用域中都可见。",
+      "typeMismatch": "已知值类型与此输入不兼容。",
+      "readOnly": "宏参数只读，不能用作写入目标。",
+      "missingParameter": "请选择已声明的数值宏参数。"
+    }
+  },
   "editor": {
     "help": "说明",
     "backToAsset": "查看属性",
@@ -5570,5 +5595,88 @@
     "structured-editor-pending": "结构化控件待接入，保留现有编辑与校验",
     "tuple-editor-pending": "已保留固定元组槽位，此表单暂不支持编辑",
     "condition-editor-pending": "请使用对应的条件或图编辑入口"
+  },
+  "stringOperand": {
+    "mode": "输入方式",
+    "literal": "字面值",
+    "blackboard": "从黑板读取字符串",
+    "current": "已保存表达式",
+    "readHelp": "在每个使用点读取当前上下文。这是字符串键表达式，不是数值数据连线。"
+  },
+  "blackboardMapping": {
+    "edit": "编辑映射",
+    "replace": "替换无效映射",
+    "empty": "暂无映射",
+    "invalidMapping": "原映射无效，已保留原值",
+    "writeDestination": "写入目标键",
+    "copySource": "读取来源键（数值或字符串）",
+    "stringLiteral": "字符串字面值",
+    "value": "值",
+    "valueMode": "值类型",
+    "levels": "数值／逐级值",
+    "constant": "数值常量",
+    "readNumber": "从黑板读取数值",
+    "parameter": "数值宏参数",
+    "connection": "已有数值连接",
+    "keepConnection": "保留此连接；请在图中编辑连接，或明确选择替代值",
+    "useFallback": "使用明确的回退值",
+    "fallback": "回退值",
+    "strictRead": "严格读取：缺少键时报告错误",
+    "add": "添加映射",
+    "remove": "删除映射",
+    "apply": "应用映射",
+    "cancel": "取消",
+    "emptyKey": "目标键不能为空",
+    "unsafeKey": "无法安全编辑此目标键",
+    "duplicateKey": "目标键不能重复",
+    "invalidValue": "无效值；请选择支持的值类型修复",
+    "staleDraft": "映射已在其他位置变化，请取消后重新打开，避免覆盖新值",
+    "incompatibleSource": "来源键不在当前作用域、类型不匹配，或不是已声明的宏参数",
+    "destination": {
+      "childAction": "子动作黑板",
+      "childEntity": "子实体黑板",
+      "buff": "目标 Buff 黑板",
+      "abilityEntity": "新生成实体黑板",
+      "globalBuff": "新全局 Buff 黑板",
+      "macroArguments": "宏调用实参"
+    },
+    "destinationUnknown": {
+      "childAction": "这里声明新的子作用域初值，当前读取作用域不是写入目标",
+      "childEntity": "这里声明新的实体作用域初值，当前读取作用域不是写入目标",
+      "buff": "此表单尚无法证明目标 Buff 的键类型，目标上下文未知",
+      "abilityEntity": "此表单尚无法证明新实体的键类型，目标上下文未知",
+      "globalBuff": "此表单尚无法证明全局 Buff 的键类型，目标上下文未知",
+      "macroArguments": "实参名必须与目标宏声明完全一致；应用时由图校验器核对完整接口"
+    },
+    "applyRejected": "修改尚未被接受，草稿已保留，可修复后重试",
+    "chooseValue": "选择值类型并输入数值",
+    "argumentKey": "目标宏声明的参数名",
+    "fallbackRead": "来源缺失或不是数值时，使用明确的回退值",
+    "unset": "取消设置可选映射",
+    "unsetPending": "应用后将移除此可选字段；取消则保留原映射"
+  },
+  "graphDataInput": {
+    "group": "类型化数据输入",
+    "unassigned": "未赋值",
+    "levelValues": "等级值",
+    "expression": "内联表达式",
+    "literal": "{label} 内联常量",
+    "condition": "{label} 内联条件",
+    "applyLabel": "{label} 应用内联值",
+    "cancelLabel": "{label} 取消内联编辑",
+    "editLabel": "{label} 编辑内联值",
+    "apply": "应用",
+    "cancel": "取消",
+    "edit": "编辑",
+    "inline": "改为内联",
+    "true": "成立",
+    "false": "不成立",
+    "source": "来源：{id}",
+    "missingSource": "来源不存在 · {id}",
+    "sourceLabel": "{label} 连接来源",
+    "chooseSource": "连接兼容的数据节点",
+    "disconnectHelp": "请在输入旁选择“改为内联”，填写合法常量并应用；取消会保留原连线。",
+    "disconnectOutput": "请从需要断开的输入端选择内联值，原连接会保留至应用",
+    "disconnect": "选择内联值以断开"
   }
 }

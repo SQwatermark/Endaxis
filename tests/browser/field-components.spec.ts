@@ -173,3 +173,49 @@ test('creator keeps its reference draft but blocks apply after catalog refresh',
   await apply.click();
   await expect(page.getByTestId('created')).toHaveText('"known"');
 });
+
+test('string operand switch is atomic and cancellation preserves the literal', async ({ page }) => {
+  const field = page.getByTestId('string-operand');
+  await choose(page, field.getByRole('combobox').first(), 'Read string from blackboard');
+  await expect(page.getByTestId('string-operand-value')).toHaveText('"known"');
+  const input = field.locator('.blackboard-key-field input');
+  await input.fill('runtimeBuff');
+  await input.press('Tab');
+  await field.getByRole('button', { name: 'Discard' }).click();
+  await expect(field.locator('.string-operand')).toHaveAttribute(
+    'data-string-operand-mode',
+    'literal',
+  );
+  await expect(page.getByTestId('string-operand-value')).toHaveText('"known"');
+  await choose(page, field.getByRole('combobox').first(), 'Read string from blackboard');
+  await input.fill('runtimeBuff');
+  await input.press('Tab');
+  await field.getByRole('button', { name: 'Apply', exact: true }).click();
+  await expect(page.getByTestId('string-operand-value')).toHaveText(
+    '{"blackboardKey":"runtimeBuff"}',
+  );
+});
+
+test('string operand literal draft survives catalog invalidation without publishing', async ({
+  page,
+}) => {
+  const field = page.getByTestId('string-operand');
+  await choose(page, field.getByRole('combobox').first(), 'Read string from blackboard');
+  const input = field.locator('.blackboard-key-field input');
+  await input.fill('runtimeBuff');
+  await input.press('Tab');
+  await field.getByRole('button', { name: 'Apply', exact: true }).click();
+  await choose(page, field.getByRole('combobox').first(), 'Literal');
+  await choose(
+    page,
+    field.locator('.reference-field').getByRole('combobox'),
+    'Known buff · Project',
+  );
+  await page.getByRole('button', { name: 'Empty catalog' }).click();
+  await expect(field.getByRole('button', { name: 'Apply', exact: true })).toBeDisabled();
+  await expect(page.getByTestId('string-operand-value')).toHaveText(
+    '{"blackboardKey":"runtimeBuff"}',
+  );
+  await page.getByRole('button', { name: 'Available catalog' }).click();
+  await expect(field.getByRole('button', { name: 'Apply', exact: true })).toBeEnabled();
+});

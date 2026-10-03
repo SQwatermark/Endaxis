@@ -15,6 +15,9 @@ import { canSelectReference } from '@/application/editor/referenceResolver';
 import type { ReferenceChoices } from './fieldInputConfig';
 import { resolveFieldEditor } from '../field-editor/fieldEditorDispatch';
 import ReferenceField from '../field-editor/ReferenceField.vue';
+import BlackboardMappingField from '../field-editor/BlackboardMappingField.vue';
+import { resolveBlackboardMapping } from '../field-editor/blackboardMapping';
+import StringOperandField from '../field-editor/StringOperandField.vue';
 import EditorHelp from '../editor/EditorHelp.vue';
 import {
   editableDefault,
@@ -342,6 +345,28 @@ function switchVariant(chosen: EaSelectValue | EaSelectValue[]): void {
         @open-graph="emit('openGraph', $event)"
       />
     </template>
+    <BlackboardMappingField
+      v-else-if="editor.control === 'blackboardMapping'"
+      :value="value"
+      :descriptor="resolveBlackboardMapping(editorSchema, name)!"
+      :editable="!readonlyField"
+      :label="label"
+      @change="update"
+    />
+    <div v-else-if="editor.control === 'stringOperand'">
+      <span v-if="!hideLabel"
+        >{{ label }}<EditorHelp v-if="schema?.description" :text="schema.description"
+      /></span>
+      <StringOperandField
+        :value="value"
+        :label="label"
+        :editable="!readonlyField"
+        required
+        :reference-kind="referenceKind"
+        :reference-choices="referenceChoices"
+        @change="update"
+      />
+    </div>
     <label
       v-else-if="value === undefined"
       class="definition-field__missing"

@@ -61,3 +61,58 @@ it('变量读取只能接入其局部作用域，宏参数不能生成写入节�
     parameter: 'argument',
   });
 });
+
+it('isolated scope and numeric data inputs reject root-only, string and non-input targets', () => {
+  const graph: ActionGraphDefinition = {
+    nodes: {
+      scope: {
+        action: {
+          kind: 'withActionBlackboardScope',
+          parameters: { scopeKey: 'child', initialValues: { local: 1 }, inheritParent: false },
+          body: { $sequence: 'inside' },
+        },
+        next: null,
+      },
+      inside: {
+        action: {
+          kind: 'applyBuff',
+          parameters: {
+            buffId: 'existing',
+            target: 'caster',
+            count: { kind: 'constant', value: 1 },
+          },
+        },
+        next: null,
+      },
+    },
+  };
+  const selection = createEditorSelection();
+  selection.selectedId.value = 'inside';
+  const variables = useGraphVariables({
+    graph: () => graph,
+    roots: () => ['scope'],
+    parameters: () => [],
+    initial: () => ({ rootOnly: 1, stringOnly: 'buff' }),
+    label: () => 'skill',
+    selection,
+  });
+  const root = variables.analysis.value.variables.find(variable => variable.key === 'rootOnly')!;
+  const text = variables.analysis.value.variables.find(variable => variable.key === 'stringOnly')!;
+  const local = variables.analysis.value.variables.find(variable => variable.key === 'local')!;
+  expect(variables.variableKeys.value).toEqual(['local']);
+  expect(() =>
+    variables.createNode(graph, root, false, {
+      owner: 'action',
+      id: 'inside',
+      path: ['parameters', 'count'],
+    }),
+  ).toThrow('另一局部调用环境');
+  expect(() => variables.createNode(graph, text, false)).toThrow('字符串黑板变量');
+  expect(() =>
+    variables.createNode(graph, local, false, {
+      owner: 'action',
+      id: 'inside',
+      path: ['parameters', 'buffId'],
+    }),
+  ).toThrow('正式数值输入');
+});

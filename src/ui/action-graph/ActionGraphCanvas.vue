@@ -2,17 +2,15 @@
 /** 独立动作图画布。节点位置和视口只用于显示，所有程序修改都交给父级校验与提交。 */
 import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue';
 import * as dagre from '@dagrejs/dagre';
-import { EaButton, EaInput, EaSelect } from '@/design-system';
+import { EaButton, EaInput } from '@/design-system';
 import type { ActionGraphDefinition } from '../../../packages/game-data-contract/src/actionGraph';
 import type { GraphEntryGroup } from '../../application/editor/actionGraphEditing';
 import { actionNodeTitle, dataNodeTitle, compactDataSymbol } from './nodePresentation';
 import { listGraphPorts } from '../../application/editor/actionGraphEditing';
 import type { GraphPresentation } from '../../core/project/graphPresentation';
-import {
-  listDataInputs,
-  dataNodeInputs,
-  dataNodeHasEffects,
-} from '../../core/action-graph/actionGraphDataNodes';
+import { type DataInput, dataNodeHasEffects } from '../../core/action-graph/actionGraphDataNodes';
+import { actionTypedInputs, dataTypedInputs } from './typedGraphInputs';
+import TypedDataInput from './TypedDataInput.vue';
 import { fieldName } from './editorNodeText';
 import GraphNodeHeader from './GraphNodeHeader.vue';
 import { createGraphCanvasView, type GraphCanvasView } from './graphCanvasView';
@@ -191,11 +189,11 @@ const nodeMetadata = computed(() =>
       width: NODE_WIDTH,
       kind: node.action.kind,
       title,
-      dataInputs: listDataInputs(node.action),
+      dataInputs: actionTypedInputs(node.action),
       ports,
       height:
         HEADER_HEIGHT +
-        Math.max(1, ports.length, listDataInputs(node.action).length + 1) * PORT_HEIGHT +
+        Math.max(1, ports.length, actionTypedInputs(node.action).length + 1) * PORT_HEIGHT +
         12,
       isBranch: ports.length > 1,
       isCall: node.action.kind === 'callMacro' || node.action.kind === 'callResource',
@@ -205,7 +203,7 @@ const nodeMetadata = computed(() =>
 const nodeMetadataById = computed(() => new Map(nodeMetadata.value.map(node => [node.id, node])));
 const dataMetadata = computed(() =>
   Object.entries(props.graph.dataNodes ?? {}).map(([id, node]) => {
-    const inputs = dataNodeInputs(node);
+    const inputs = dataTypedInputs(node);
     const variable = node.expression.kind === 'blackboard' || node.expression.kind === 'parameter';
     const title = dataNodeTitle(node);
     const symbol = compactDataSymbol(node);
@@ -243,11 +241,7 @@ const dataModels = computed(() =>
     ...(positions.get(node.layoutId) ?? { x: 0, y: 0 }),
   })),
 );
-function dataInputPin(
-  owner: 'action' | 'data',
-  nodeId: string,
-  input: ReturnType<typeof listDataInputs>[number],
-): DataPin {
+function dataInputPin(owner: 'action' | 'data', nodeId: string, input: DataInput): DataPin {
   return {
     kind: 'data-input',
     owner,
@@ -1157,12 +1151,13 @@ function disconnectPin(pin: PendingConnection): void {
   if (props.readonly) return;
   if (!props.beforeInteraction()) return;
   if (pin.kind === 'data-input') {
-    emit('connectData', pin.owner, pin.nodeId, pin.path, null);
+    layoutError.value = t('graphDataInput.disconnectHelp');
+    locateDataInput(pin);
     cancelConnection();
     return;
   }
   if (pin.kind === 'data-output') {
-    layoutError.value = '请从需要断开的输入端断线；断线后使用默认常量';
+    layoutError.value = t('graphDataInput.disconnectOutput');
     return;
   }
   if (pin.kind === 'input') emit('disconnectInput', pin.nodeId);
@@ -1245,7 +1240,7 @@ function pinMenu(event: MouseEvent, pin: PendingConnection): void {
               pin.kind === 'input'
                 ? '断开全部输入连线'
                 : pin.kind === 'data-input'
-                  ? '断开并使用默认常量'
+                  ? t('graphDataInput.disconnect')
                   : '断开连线',
             run: () => disconnectPin(pin),
           },
@@ -1274,7 +1269,7 @@ function dataWireMenu(event: MouseEvent, edge: (typeof dataCurves.value)[number]
     { label: '定位目标节点', run: () => locateDataInput(edge.input) },
     ...(props.readonly
       ? []
-      : [{ label: '断开并使用默认常量', run: () => disconnectPin(edge.input) }]),
+      : [{ label: t('graphDataInput.disconnect'), run: () => disconnectPin(edge.input) }]),
   ]);
 }
 function dataMenu(event: MouseEvent, id: string) {
@@ -1654,29 +1649,18 @@ defineExpose({
             @contextmenu.prevent.stop="pinMenu($event, dataInputPin('data', node.id, input))"
           />
           <span v-if="!node.symbol">{{ fieldName(input.path) }}</span>
-          <EaInput
-            v-if="input.source === null && input.type === 'number'"
+          <TypedDataInput
             class="data-input-row__control"
-            size="sm"
-            :disabled="readonly"
-            type="number"
-            :model-value="(input.value as { value: number }).value"
-            :aria-label="`${node.title} ${input.path.join('.')} 常量`"
-            @pointerdown.stop
-            @change="emit('constantData', 'data', node.id, input.path, Number($event))"
-          />
-          <EaSelect
-            v-else-if="input.source === null"
-            class="data-input-row__control"
-            size="sm"
-            :disabled="readonly"
-            :model-value="String((input.value as { value: boolean }).value)"
-            :options="[
-              { value: 'true', label: '成立' },
-              { value: 'false', label: '不成立' },
-            ]"
-            @pointerdown.stop
-            @change="emit('constantData', 'data', node.id, input.path, $event === 'true')"
+            :input="input"
+            :label="`${node.title} ${input.path.join('.')}`"
+            :readonly="readonly"
+            @constant="emit('constantData', 'data', node.id, input.path, $event)"
+            @locate="
+              id => {
+                emit('selectData', id);
+                focusData(id);
+              }
+            "
           />
         </div>
       </article>
@@ -1856,28 +1840,18 @@ defineExpose({
             @contextmenu.prevent.stop="pinMenu($event, dataInputPin('action', node.id, input))"
           />
           <span>{{ dataInputLabel('action', node.id, input.path) }}</span>
-          <EaInput
-            v-if="input.source === null && input.type === 'number'"
+          <TypedDataInput
             class="data-input-row__control"
-            size="sm"
-            :disabled="readonly"
-            type="number"
-            :model-value="(input.value as { value: number }).value"
-            @pointerdown.stop
-            @change="emit('constantData', 'action', node.id, input.path, Number($event))"
-          />
-          <EaSelect
-            v-else-if="input.source === null"
-            class="data-input-row__control"
-            size="sm"
-            :disabled="readonly"
-            :model-value="String((input.value as { value: boolean }).value)"
-            :options="[
-              { value: 'true', label: '成立' },
-              { value: 'false', label: '不成立' },
-            ]"
-            @pointerdown.stop
-            @change="emit('constantData', 'action', node.id, input.path, $event === 'true')"
+            :input="input"
+            :label="`${node.title} ${input.path.join('.')}`"
+            :readonly="readonly"
+            @constant="emit('constantData', 'action', node.id, input.path, $event)"
+            @locate="
+              id => {
+                emit('selectData', id);
+                focusData(id);
+              }
+            "
           />
         </div>
       </article>

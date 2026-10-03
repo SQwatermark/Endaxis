@@ -1,3 +1,4 @@
+import { resolveBlackboardMapping } from './blackboardMappingSchema';
 import type { NodeFieldSchema } from '../action-graph/nodeSchema';
 import type { DefinitionFieldSchema } from '../definition-editor/fieldSchema';
 import { referenceKindForDeclaration } from '../definition-editor/fieldInputConfig';
@@ -13,7 +14,12 @@ export interface FieldEditorContext {
 }
 
 export interface FieldEditorResolution {
-  readonly control: DefinitionFieldSchema['kind'] | NodeFieldSchema['control'] | 'reference';
+  readonly control:
+    | DefinitionFieldSchema['kind']
+    | NodeFieldSchema['control']
+    | 'reference'
+    | 'stringOperand'
+    | 'blackboardMapping';
   readonly semantic:
     | 'plain'
     | 'reference'
@@ -77,29 +83,35 @@ export function resolveFieldEditor(
                     : referenceKind
                       ? 'reference'
                       : 'plain';
+  const mapping = resolveBlackboardMapping(schema, name);
   const control =
-    baseControl === 'string' && referenceKind && !context.protectedIdentity
-      ? 'reference'
-      : baseControl;
+    mapping && !boundary
+      ? 'blackboardMapping'
+      : semantic === 'stringOperand' && !boundary && baseControl !== 'opaque'
+        ? 'stringOperand'
+        : baseControl === 'string' && referenceKind && !context.protectedIdentity
+          ? 'reference'
+          : baseControl;
   const container = ['array', 'record', 'object', 'union'].includes(baseControl);
   const intrinsicallyReadonly = boundary || ['opaque', 'condition', 'null'].includes(baseControl);
   const readonly =
     context.editable === false || Boolean(context.protectedIdentity) || intrinsicallyReadonly;
-  const fallback =
-    schema.fallback?.reason ??
-    (baseControl === 'opaque'
-      ? tuple
-        ? 'tuple-editor-pending'
-        : 'unsupported-type'
-      : baseControl === 'condition'
-        ? 'condition-editor-pending'
-        : baseControl === 'json'
-          ? 'structured-editor-pending'
-          : boundary
-            ? baseControl === 'resource'
-              ? 'owned-resource-boundary'
-              : 'graph-reference-boundary'
-            : undefined);
+  const fallback = ['stringOperand', 'blackboardMapping'].includes(control)
+    ? undefined
+    : (schema.fallback?.reason ??
+      (baseControl === 'opaque'
+        ? tuple
+          ? 'tuple-editor-pending'
+          : 'unsupported-type'
+        : baseControl === 'condition'
+          ? 'condition-editor-pending'
+          : baseControl === 'json'
+            ? 'structured-editor-pending'
+            : boundary
+              ? baseControl === 'resource'
+                ? 'owned-resource-boundary'
+                : 'graph-reference-boundary'
+              : undefined));
   return {
     control,
     semantic,
@@ -114,11 +126,13 @@ export function resolveFieldEditor(
             : 'value',
     edit: readonly
       ? 'none'
-      : container
-        ? 'recursive'
-        : ['json', 'operand'].includes(baseControl)
-          ? 'json'
-          : 'field',
+      : ['stringOperand', 'blackboardMapping'].includes(control)
+        ? 'field'
+        : container
+          ? 'recursive'
+          : ['json', 'operand'].includes(baseControl)
+            ? 'json'
+            : 'field',
     ...(referenceKind === undefined ? {} : { referenceKind }),
     ...(fallback === undefined ? {} : { fallback }),
     readonly,

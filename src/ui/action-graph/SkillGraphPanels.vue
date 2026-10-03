@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { ReferenceChoices } from '../definition-editor/fieldInputConfig';
-import { toRefs, type UnwrapNestedRefs } from 'vue';
+import { nextTick, provide, toRefs, type UnwrapNestedRefs } from 'vue';
+import { blackboardNavigationKey } from '../field-editor/blackboardFieldContext';
 import { EaButton, EaInput } from '@/design-system';
 import ActionGraphCanvas from './ActionGraphCanvas.vue';
 import ActionNodeInspector from './ActionNodeInspector.vue';
@@ -50,6 +51,7 @@ const {
   resizeGesture,
   entryGroups,
   variableKeys,
+  blackboardContext,
   blackboard,
   dropVariable,
   timelineEntries,
@@ -87,6 +89,16 @@ const {
   cancelTimelineResize,
   resizeTimelineByKey,
 } = toRefs(props.editor);
+async function locateData(id: string) {
+  if (!props.editor.canLeaveFields()) return;
+  props.editor.selectData(id);
+  await nextTick();
+  props.editor.canvas?.focusData(id);
+}
+provide(blackboardNavigationKey, target => {
+  if (target.owner === 'action') void props.editor.focusNode(target.id);
+  else void locateData(target.id);
+});
 </script>
 <template>
   <aside v-if="area === 'tools'" class="resource-panel">
@@ -184,12 +196,12 @@ const {
     @select-connection="selectConnection"
   />
   <aside v-else-if="area === 'inspector'" class="inspector-panel">
-    <fieldset
-      :disabled="!editable && !selectedConnection && !selectedEntry"
-      style="border: 0; margin: 0; padding: 0; min-width: 0"
-    >
+    <fieldset style="border: 0; margin: 0; padding: 0; min-width: 0">
       <DataNodeInspector
         :reference-choices="referenceChoices"
+        :blackboard-context="blackboardContext"
+        :graph="graph"
+        :readonly="!editable"
         :ref="value => (editor.dataInspector = value as InstanceType<typeof DataNodeInspector>)"
         v-if="selectedDataNode && selectedDataId"
         :node="selectedDataNode"
@@ -198,6 +210,10 @@ const {
         :scope-warnings="blackboardScopeWarnings(blackboard)"
         :variable-keys="variableKeys"
         :apply="applyData"
+        @change-data="
+          (path, source, constant) => connectData('data', selectedDataId!, path, source, constant)
+        "
+        @locate-data="locateData"
         @pending="nodePending = $event"
       />
       <GraphConnectionInspector
@@ -221,6 +237,9 @@ const {
       />
       <ActionNodeInspector
         :reference-choices="referenceChoices"
+        :blackboard-context="blackboardContext"
+        :graph="graph"
+        :readonly="!editable"
         :ref="value => (editor.inspector = value as InstanceType<typeof ActionNodeInspector>)"
         v-else-if="selectedNode && selectedId !== null"
         :key="`${graphKey}:${selectedId}`"
@@ -229,6 +248,10 @@ const {
         :scope-warnings="blackboardScopeWarnings(blackboard)"
         :node="selectedNode"
         :apply-action="applyAction"
+        @change-data="
+          (path, source, constant) => connectData('action', selectedId!, path, source, constant)
+        "
+        @locate-data="locateData"
         @pending="nodePending = $event"
         @open-macro="changeGraph({ kind: 'macro', macroId: $event })"
       />

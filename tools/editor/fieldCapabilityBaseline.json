@@ -136,129 +136,8 @@
     {
       "reason": "structured-editor-pending",
       "phase": "P3",
-      "category": "blackboard-mapping",
-      "observedJsonAtAudit": true,
-      "keys": [
-        "action/applyBuff/parameters/copiedBlackboardAssignments",
-        "action/applyBuff/parameters/stringBlackboardAssignments",
-        "action/spawnAbilityEntity/parameters/stringBlackboardAssignments",
-        "action/withActionBlackboardScope/parameters/entityInitialValues",
-        "action/withActionBlackboardScope/parameters/initialValues"
-      ]
-    },
-    {
-      "reason": "structured-editor-pending",
-      "phase": "P3",
       "category": "condition-or-number-input",
-      "keys": [
-        "action/applyElementalReaction/parameters/durationSeconds",
-        "action/conditional/parameters/condition",
-        "action/jumpTimeline/parameters/condition",
-        "data/boolean:all/conditions",
-        "data/boolean:any/conditions",
-        "data/boolean:buffIdStackCompare/value",
-        "data/boolean:not/condition"
-      ]
-    },
-    {
-      "reason": "unassigned-input-editor-pending",
-      "phase": "P3",
-      "category": "number-input-without-active-expression",
-      "keys": [
-        "action/adjustSkillCooldown/parameters/value",
-        "action/applyBuff/parameters/count",
-        "action/applyKnockDown/parameters/duration",
-        "action/applyPhysicalInfliction/parameters/damageMultiplier",
-        "action/applyPhysicalInfliction/parameters/duration",
-        "action/applyPhysicalInfliction/parameters/height",
-        "action/calculateActionValue/parameters/left",
-        "action/calculateActionValue/parameters/right",
-        "action/changeResourceByActionValue/parameters/amount",
-        "action/changeResourceByActionValue/parameters/coefficient",
-        "action/createAbilityEntityTimedMarker/parameters/durationSeconds",
-        "action/createGlobalBuff/parameters/count",
-        "action/createSpatialPointTargets/parameters/count",
-        "action/createTimedMarker/parameters/durationSeconds",
-        "action/dealDamage/parameters/attackScale",
-        "action/dealDamage/parameters/calculationAddition",
-        "action/dealDamage/parameters/stagger",
-        "action/dealDamage/parameters/staggerMultiplier",
-        "action/dealFixedDamage/parameters/stagger",
-        "action/dealFixedDamage/parameters/staggerMultiplier",
-        "action/dealFixedDamage/parameters/value",
-        "action/dealStagger/parameters/value",
-        "action/dealStagger/parameters/valueMultiplier",
-        "action/finishBuffsById/parameters/count",
-        "action/finishBuffsByTag/parameters/count",
-        "action/heal/parameters/addition",
-        "action/heal/parameters/amount",
-        "action/heal/parameters/multiplier",
-        "action/modifyActionValue/parameters/value",
-        "action/overrideMultiDashLimit/parameters/dashCount",
-        "action/pickContextTarget/parameters/index",
-        "action/recoverDashEnergy/parameters/amount",
-        "action/repeatByActionValue/parameters/count",
-        "action/setAbilityEntityRemainingDuration/parameters/value",
-        "action/setCharacterPassiveUiValue/parameters/value",
-        "action/setCurrentBuffRemainingDuration/parameters/value",
-        "action/setGlobalCooldown/parameters/durationSeconds",
-        "action/setHealthFloor/parameters/value",
-        "action/showComboRingQte/parameters/activeDurationSeconds",
-        "action/showComboRingQte/parameters/earlyDurationSeconds",
-        "action/spawnAbilityEntity/parameters/overrideDurationSeconds",
-        "action/startTimeDilation/parameters/durationSeconds",
-        "action/startTimeDilation/parameters/influenceSkillCooldownSeconds",
-        "action/startUltimateTimeDilation/parameters/targetScale",
-        "action/storeEntityPropertyValue/parameters/base",
-        "action/storeEntityPropertyValue/parameters/divisor",
-        "action/storeEntityPropertyValue/parameters/multiplier",
-        "action/storeSourceAttributeValue/parameters/base",
-        "action/storeSourceAttributeValue/parameters/divisor",
-        "action/storeSourceAttributeValue/parameters/multiplier",
-        "action/switch/parameters/choice",
-        "data/boolean:abilityEntityRemainingDurationCompare/value",
-        "data/boolean:actionValueCompare/left",
-        "data/boolean:actionValueCompare/right",
-        "data/boolean:buffBlackboardValueCompare/value",
-        "data/boolean:buffStackCompare/value",
-        "data/boolean:buffTagIdCountCompare/value",
-        "data/boolean:cameraToTargetAngleCompare/value",
-        "data/boolean:contextTargetBuffIdStackCompare/value",
-        "data/boolean:contextTargetBuffStackCompare/value",
-        "data/boolean:currentBuffStackCompare/value",
-        "data/boolean:enemySuperArmorCompare/value",
-        "data/boolean:eventConsumedBuffLayerCompare/value",
-        "data/boolean:eventTargetBuffCountCompare/value",
-        "data/boolean:healthCompare/value",
-        "data/boolean:poiseCompare/value",
-        "data/boolean:probability/probability"
-      ]
-    },
-    {
-      "reason": "structured-editor-pending",
-      "phase": "P3",
-      "category": "numeric-blackboard-or-macro-mapping",
-      "keys": [
-        "action/applyBuff/parameters/blackboardAssignments",
-        "action/callMacro/arguments",
-        "action/createGlobalBuff/parameters/blackboardAssignments",
-        "action/spawnAbilityEntity/parameters/blackboardAssignments",
-        "action/withActionBlackboardScope/parameters/entityAssignments"
-      ]
-    },
-    {
-      "reason": "structured-editor-pending",
-      "phase": "P3",
-      "category": "string-operand",
-      "observedJsonAtAudit": true,
-      "keys": [
-        "action/applyBuff/parameters/buffId",
-        "action/castSkillDuringAction/parameters/skillId",
-        "action/createAbilityEntityTimedMarker/parameters/markerId",
-        "action/createTimedMarker/parameters/markerId",
-        "data/boolean:abilityEntityTimedMarkerPresent/markerId",
-        "data/boolean:timedMarkerPresent/markerId"
-      ]
+      "keys": ["data/boolean:all/conditions", "data/boolean:any/conditions"]
     },
     {
       "reason": "condition-editor-pending",
@@ -567,5 +446,17 @@
       ]
     }
   ],
-  "resolvedObservedJsonPositions": []
+  "resolvedObservedJsonPositions": [
+    "action/applyBuff/parameters/buffId",
+    "action/applyBuff/parameters/copiedBlackboardAssignments",
+    "action/applyBuff/parameters/stringBlackboardAssignments",
+    "action/castSkillDuringAction/parameters/skillId",
+    "action/createAbilityEntityTimedMarker/parameters/markerId",
+    "action/createTimedMarker/parameters/markerId",
+    "action/spawnAbilityEntity/parameters/stringBlackboardAssignments",
+    "action/withActionBlackboardScope/parameters/entityInitialValues",
+    "action/withActionBlackboardScope/parameters/initialValues",
+    "data/boolean:abilityEntityTimedMarkerPresent/markerId",
+    "data/boolean:timedMarkerPresent/markerId"
+  ]
 }

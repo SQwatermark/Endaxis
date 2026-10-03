@@ -73,14 +73,14 @@ const definitionSchemaPart_74ceba95c0fd01a6 = {
     },
   ],
 } as const;
-const definitionSchemaPart_72a8057bda75340c = {
+const definitionSchemaPart_e908ef8870f5b916 = {
   kind: 'object',
   fields: {
     kind: {
       kind: 'enum',
       options: ['enemyDefeated'],
       semantics: { type: '"enemyDefeated"' },
-      source: ['packages/game-data-contract/src/actions.ts:1775:7'],
+      source: ['packages/game-data-contract/src/actions.ts:1770:7'],
       description: '触发器种类判别值。',
     },
     scope: {
@@ -90,21 +90,21 @@ const definitionSchemaPart_72a8057bda75340c = {
         type: '"team" | "operator"',
         unionVariants: [{ type: '"team"' }, { type: '"operator"' }],
       },
-      source: ['packages/game-data-contract/src/actions.ts:1777:7'],
+      source: ['packages/game-data-contract/src/actions.ts:1772:7'],
       description: '检查当前干员还是全队来源。',
     },
   },
   semantics: { type: '{ kind: "enemyDefeated"; scope: "team" | "operator"; }' },
-  source: ['packages/game-data-contract/src/actions.ts:1803:3'],
+  source: ['packages/game-data-contract/src/actions.ts:1798:3'],
 } as const;
-const definitionSchemaPart_2926199b3a558573 = {
+const definitionSchemaPart_09c6b1502060c2a5 = {
   kind: 'object',
   fields: {
     kind: {
       kind: 'enum',
       options: ['enemyDefeated'],
       semantics: { type: '"enemyDefeated"' },
-      source: ['packages/game-data-contract/src/actions.ts:1775:7'],
+      source: ['packages/game-data-contract/src/actions.ts:1770:7'],
       description: '触发器种类判别值。',
     },
     scope: {
@@ -114,7 +114,7 @@ const definitionSchemaPart_2926199b3a558573 = {
         type: '"team" | "operator"',
         unionVariants: [{ type: '"team"' }, { type: '"operator"' }],
       },
-      source: ['packages/game-data-contract/src/actions.ts:1777:7'],
+      source: ['packages/game-data-contract/src/actions.ts:1772:7'],
       description: '检查当前干员还是全队来源。',
     },
   },
@@ -146,17 +146,17 @@ const definitionSchemaPart_c951359d881535e2 = {
     description: '此窗口允许请求的原生技能 ID。',
   },
 } as const;
-const definitionSchemaPart_35136d17033cfe3e = {
+const definitionSchemaPart_db5f54ae2a57eb4c = {
   startFrame: {
     kind: 'number',
     semantics: { type: 'number' },
-    source: ['packages/game-data-contract/src/actions.ts:1648:3'],
+    source: ['packages/game-data-contract/src/actions.ts:1643:3'],
     description: '相对宿主开始时刻的起始帧。',
   },
   endFrame: {
     kind: 'number',
     semantics: { type: 'number | undefined', optional: true },
-    source: ['packages/game-data-contract/src/actions.ts:1650:3'],
+    source: ['packages/game-data-contract/src/actions.ts:1645:3'],
     optional: true,
     description: '仅有状态动作需要；到达该帧时对已经开始的序列调用结束生命周期。',
   },
@@ -164,7 +164,7 @@ const definitionSchemaPart_35136d17033cfe3e = {
     kind: 'opaque',
     fallback: { reason: 'graph-reference-boundary' },
     semantics: { type: 'ActionGraphReference', aliases: ['ActionGraphReference'] },
-    source: ['packages/game-data-contract/src/actions.ts:1652:3'],
+    source: ['packages/game-data-contract/src/actions.ts:1647:3'],
     description: '到达起始帧时执行或启动的动作序列。',
   },
 } as const;
@@ -453,14 +453,14 @@ const definitionSchemaPart_b837dd8537ab8594 = {
     },
   ],
 } as const;
-const definitionSchemaPart_0f2a3fa2f5056a77 = {
+const definitionSchemaPart_fa0a13cdc00e31b4 = {
   kind: 'object',
   fields: {
     kind: {
       kind: 'enum',
       options: ['operatorHealed'],
       semantics: { type: '"operatorHealed"' },
-      source: ['packages/game-data-contract/src/actions.ts:1698:7'],
+      source: ['packages/game-data-contract/src/actions.ts:1693:7'],
       description: '触发器种类判别值。',
     },
     role: {
@@ -471,22 +471,22 @@ const definitionSchemaPart_0f2a3fa2f5056a77 = {
         optional: true,
         unionVariants: [{ type: '"source"' }, { type: '"target"' }],
       },
-      source: ['packages/game-data-contract/src/actions.ts:1700:7'],
+      source: ['packages/game-data-contract/src/actions.ts:1695:7'],
       optional: true,
       description: '只监听治疗来源或受治疗者；省略时两者都可触发。',
     },
   },
   semantics: { type: '{ kind: "operatorHealed"; role?: "source" | "target" | undefined; }' },
-  source: ['packages/game-data-contract/src/actions.ts:1803:3'],
+  source: ['packages/game-data-contract/src/actions.ts:1798:3'],
 } as const;
-const definitionSchemaPart_12c24fb21823cd52 = {
+const definitionSchemaPart_0d9bd98aea23294d = {
   kind: 'object',
   fields: {
     kind: {
       kind: 'enum',
       options: ['operatorHealed'],
       semantics: { type: '"operatorHealed"' },
-      source: ['packages/game-data-contract/src/actions.ts:1698:7'],
+      source: ['packages/game-data-contract/src/actions.ts:1693:7'],
       description: '触发器种类判别值。',
     },
     role: {
@@ -497,7 +497,7 @@ const definitionSchemaPart_12c24fb21823cd52 = {
         optional: true,
         unionVariants: [{ type: '"source"' }, { type: '"target"' }],
       },
-      source: ['packages/game-data-contract/src/actions.ts:1700:7'],
+      source: ['packages/game-data-contract/src/actions.ts:1695:7'],
       optional: true,
       description: '只监听治疗来源或受治疗者；省略时两者都可触发。',
     },
@@ -577,7 +577,7 @@ const definitionSchemaPart_1f8929e2584cbdcf = {
   source: ['packages/game-data-contract/src/buffs.ts:618:3'],
   description: '固定修正值或从 Buff 黑板读取的值。',
 } as const;
-const definitionSchemaPart_f2c1c2d6347cd0d3 = {
+const definitionSchemaPart_34d192d0b9e5a680 = {
   kind: 'array',
   element: {
     kind: 'enum',
@@ -591,7 +591,7 @@ const definitionSchemaPart_f2c1c2d6347cd0d3 = {
         { type: '"fracture"' },
       ],
     },
-    source: ['packages/game-data-contract/src/actions.ts:1759:7'],
+    source: ['packages/game-data-contract/src/actions.ts:1754:7'],
   },
   semantics: {
     type: 'readonly ("crush" | "airborne" | "knockDown" | "fracture")[]',
@@ -605,7 +605,7 @@ const definitionSchemaPart_f2c1c2d6347cd0d3 = {
       ],
     },
   },
-  source: ['packages/game-data-contract/src/actions.ts:1759:7'],
+  source: ['packages/game-data-contract/src/actions.ts:1754:7'],
 } as const;
 const definitionSchemaPart_ae1b4b358bbcba44 = {
   kind: 'union',
@@ -785,14 +785,14 @@ const definitionSchemaPart_e786188468846aab = {
   },
   source: ['packages/game-data-contract/src/buffs.ts:726:3'],
 } as const;
-const definitionSchemaPart_0fee93b4fc499ca3 = {
+const definitionSchemaPart_d6060c97ff0b6b57 = {
   kind: 'object',
   fields: {
     kind: {
       kind: 'enum',
       options: ['buffConsumed'],
       semantics: { type: '"buffConsumed"' },
-      source: ['packages/game-data-contract/src/actions.ts:1715:7'],
+      source: ['packages/game-data-contract/src/actions.ts:1710:7'],
       description: '触发器种类判别值。',
     },
     buffIds: {
@@ -800,20 +800,20 @@ const definitionSchemaPart_0fee93b4fc499ca3 = {
       element: {
         kind: 'string',
         semantics: { type: 'string' },
-        source: ['packages/game-data-contract/src/actions.ts:1717:7'],
+        source: ['packages/game-data-contract/src/actions.ts:1712:7'],
       },
       semantics: {
         type: 'readonly string[] | undefined',
         arrayElement: { type: 'string' },
         optional: true,
       },
-      source: ['packages/game-data-contract/src/actions.ts:1717:7'],
+      source: ['packages/game-data-contract/src/actions.ts:1712:7'],
       optional: true,
       description: '任一匹配即可触发的 Buff ID。',
     },
   },
   semantics: { type: '{ kind: "buffConsumed"; buffIds?: readonly string[] | undefined; }' },
-  source: ['packages/game-data-contract/src/actions.ts:1803:3'],
+  source: ['packages/game-data-contract/src/actions.ts:1798:3'],
 } as const;
 const definitionSchemaPart_90855f34ff01a57b = {
   kind: 'union',
@@ -846,14 +846,14 @@ const definitionSchemaPart_90855f34ff01a57b = {
   optional: true,
   description: '在创建/叠层前登记的同 ID 添加冷却；后续被叠层策略拒绝也不撤销，使用普通战斗时间。',
 } as const;
-const definitionSchemaPart_d0995301d8c099d2 = {
+const definitionSchemaPart_b6b9ebff4ca48ffd = {
   kind: 'object',
   fields: {
     kind: {
       kind: 'enum',
       options: ['buffConsumed'],
       semantics: { type: '"buffConsumed"' },
-      source: ['packages/game-data-contract/src/actions.ts:1715:7'],
+      source: ['packages/game-data-contract/src/actions.ts:1710:7'],
       description: '触发器种类判别值。',
     },
     buffIds: {
@@ -861,14 +861,14 @@ const definitionSchemaPart_d0995301d8c099d2 = {
       element: {
         kind: 'string',
         semantics: { type: 'string' },
-        source: ['packages/game-data-contract/src/actions.ts:1717:7'],
+        source: ['packages/game-data-contract/src/actions.ts:1712:7'],
       },
       semantics: {
         type: 'readonly string[] | undefined',
         arrayElement: { type: 'string' },
         optional: true,
       },
-      source: ['packages/game-data-contract/src/actions.ts:1717:7'],
+      source: ['packages/game-data-contract/src/actions.ts:1712:7'],
       optional: true,
       description: '任一匹配即可触发的 Buff ID。',
     },
@@ -938,14 +938,14 @@ const definitionSchemaPart_d3dd6357b1df4217 = {
   optional: true,
   description: '普通 Buff 的持续秒数；不填表示无限持续。定时成长型 Buff 用它表示自动加层周期。',
 } as const;
-const definitionSchemaPart_218b612d30ed4c94 = {
+const definitionSchemaPart_528d803174d5e9e9 = {
   kind: 'object',
   fields: {
     kind: {
       kind: 'enum',
       options: ['abilityEvent'],
       semantics: { type: '"abilityEvent"' },
-      source: ['packages/game-data-contract/src/actions.ts:1686:7'],
+      source: ['packages/game-data-contract/src/actions.ts:1681:7'],
       description: '直接监听能力系统事件。',
     },
     event: {
@@ -959,23 +959,23 @@ const definitionSchemaPart_218b612d30ed4c94 = {
           { type: '"addedBuff"' },
         ],
       },
-      source: ['packages/game-data-contract/src/actions.ts:1688:7'],
+      source: ['packages/game-data-contract/src/actions.ts:1683:7'],
       description: '允许直接订阅的能力事件。',
     },
   },
   semantics: {
     type: '{ kind: "abilityEvent"; event: "beforeAddedBuff" | "outputBuff" | "addedBuff"; }',
   },
-  source: ['packages/game-data-contract/src/actions.ts:1803:3'],
+  source: ['packages/game-data-contract/src/actions.ts:1798:3'],
 } as const;
-const definitionSchemaPart_5367e9a1d094813d = {
+const definitionSchemaPart_778b335d48e0cb5d = {
   kind: 'object',
   fields: {
     kind: {
       kind: 'enum',
       options: ['abilityEvent'],
       semantics: { type: '"abilityEvent"' },
-      source: ['packages/game-data-contract/src/actions.ts:1686:7'],
+      source: ['packages/game-data-contract/src/actions.ts:1681:7'],
       description: '直接监听能力系统事件。',
     },
     event: {
@@ -989,7 +989,7 @@ const definitionSchemaPart_5367e9a1d094813d = {
           { type: '"addedBuff"' },
         ],
       },
-      source: ['packages/game-data-contract/src/actions.ts:1688:7'],
+      source: ['packages/game-data-contract/src/actions.ts:1683:7'],
       description: '允许直接订阅的能力事件。',
     },
   },
@@ -1065,7 +1065,7 @@ const definitionSchemaPart_dd2d48f93137078f = {
   semantics: { type: 'SkillAllowedNextWindow' },
   source: ['packages/game-data-contract/src/skills.ts:325:5'],
 } as const;
-const definitionSchemaPart_3afc1977190567f8 = {
+const definitionSchemaPart_a93a5de537849245 = {
   kind: 'array',
   element: {
     kind: 'enum',
@@ -1080,7 +1080,7 @@ const definitionSchemaPart_3afc1977190567f8 = {
         { type: '"nature"' },
       ],
     },
-    source: ['packages/game-data-contract/src/actions.ts:1751:7'],
+    source: ['packages/game-data-contract/src/actions.ts:1746:7'],
   },
   semantics: {
     type: 'readonly ("physical" | "heat" | "cryo" | "electric" | "nature")[]',
@@ -1095,28 +1095,28 @@ const definitionSchemaPart_3afc1977190567f8 = {
       ],
     },
   },
-  source: ['packages/game-data-contract/src/actions.ts:1751:7'],
+  source: ['packages/game-data-contract/src/actions.ts:1746:7'],
 } as const;
-const definitionSchemaPart_90652a40a100168d = {
+const definitionSchemaPart_a06af490901715f4 = {
   kind: 'object',
-  fields: definitionSchemaPart_35136d17033cfe3e,
+  fields: definitionSchemaPart_db5f54ae2a57eb4c,
   semantics: { type: 'ScheduledSequenceDefinition' },
   source: ['packages/game-data-contract/src/skills.ts:44:3'],
 } as const;
-const definitionSchemaPart_750861f8ec3eabfd = {
+const definitionSchemaPart_a49205ae3c764ad2 = {
   kind: 'object',
   fields: {
     kind: {
       kind: 'enum',
       options: ['skillHit'],
       semantics: { type: '"skillHit"' },
-      source: ['packages/game-data-contract/src/actions.ts:1766:7'],
+      source: ['packages/game-data-contract/src/actions.ts:1761:7'],
       description: '触发器种类判别值。',
     },
     skillKey: {
       kind: 'string',
       semantics: { type: 'string' },
-      source: ['packages/game-data-contract/src/actions.ts:1768:7'],
+      source: ['packages/game-data-contract/src/actions.ts:1763:7'],
       description: '要匹配的执行技能。',
     },
     scope: {
@@ -1126,27 +1126,27 @@ const definitionSchemaPart_750861f8ec3eabfd = {
         type: '"team" | "operator"',
         unionVariants: [{ type: '"team"' }, { type: '"operator"' }],
       },
-      source: ['packages/game-data-contract/src/actions.ts:1770:7'],
+      source: ['packages/game-data-contract/src/actions.ts:1765:7'],
       description: '检查当前干员还是全队来源。',
     },
   },
   semantics: { type: '{ kind: "skillHit"; skillKey: string; scope: "team" | "operator"; }' },
-  source: ['packages/game-data-contract/src/actions.ts:1803:3'],
+  source: ['packages/game-data-contract/src/actions.ts:1798:3'],
 } as const;
-const definitionSchemaPart_c171ae40a38a35f7 = {
+const definitionSchemaPart_2615f33168748abe = {
   kind: 'object',
   fields: {
     kind: {
       kind: 'enum',
       options: ['skillHit'],
       semantics: { type: '"skillHit"' },
-      source: ['packages/game-data-contract/src/actions.ts:1766:7'],
+      source: ['packages/game-data-contract/src/actions.ts:1761:7'],
       description: '触发器种类判别值。',
     },
     skillKey: {
       kind: 'string',
       semantics: { type: 'string' },
-      source: ['packages/game-data-contract/src/actions.ts:1768:7'],
+      source: ['packages/game-data-contract/src/actions.ts:1763:7'],
       description: '要匹配的执行技能。',
     },
     scope: {
@@ -1156,18 +1156,18 @@ const definitionSchemaPart_c171ae40a38a35f7 = {
         type: '"team" | "operator"',
         unionVariants: [{ type: '"team"' }, { type: '"operator"' }],
       },
-      source: ['packages/game-data-contract/src/actions.ts:1770:7'],
+      source: ['packages/game-data-contract/src/actions.ts:1765:7'],
       description: '检查当前干员还是全队来源。',
     },
   },
   semantics: { type: '{ kind: "skillHit"; skillKey: string; scope: "team" | "operator"; }' },
   source: ['packages/game-data-contract/src/equipment.ts:109:9'],
 } as const;
-const definitionSchemaPart_298ae6d926ea4bb3 = {
+const definitionSchemaPart_25d1337c4d94d6ee = {
   kind: 'object',
-  fields: definitionSchemaPart_35136d17033cfe3e,
+  fields: definitionSchemaPart_db5f54ae2a57eb4c,
   semantics: { type: 'ScheduledSequenceDefinition' },
-  source: ['packages/game-data-contract/src/actions.ts:1807:3'],
+  source: ['packages/game-data-contract/src/actions.ts:1802:3'],
 } as const;
 const definitionSchemaPart_0a9c733c7258e10e = {
   kind: 'record',
@@ -1496,12 +1496,12 @@ const definitionSchemaPart_c0d4bb8ae5047bcb = {
   source: ['packages/game-data-contract/src/buffs.ts:609:3'],
   description: '指定属性名称，或在应用时按持有者选择主属性、副属性或全部四维。',
 } as const;
-const definitionSchemaPart_26148747a4f47538 = {
+const definitionSchemaPart_2a78376690f2676a = {
   kind: {
     kind: 'enum',
     options: ['spGained'],
     semantics: { type: '"spGained"' },
-    source: ['packages/game-data-contract/src/actions.ts:1732:7'],
+    source: ['packages/game-data-contract/src/actions.ts:1727:7'],
     description: '触发器种类判别值。',
   },
   source: {
@@ -1517,7 +1517,7 @@ const definitionSchemaPart_26148747a4f47538 = {
         { type: '"skill"' },
       ],
     },
-    source: ['packages/game-data-contract/src/actions.ts:1734:7'],
+    source: ['packages/game-data-contract/src/actions.ts:1729:7'],
     optional: true,
     description: '只监听指定的技力来源。',
   },
@@ -1529,7 +1529,7 @@ const definitionSchemaPart_26148747a4f47538 = {
       optional: true,
       unionVariants: [{ type: '"gain"' }, { type: '"refund"' }],
     },
-    source: ['packages/game-data-contract/src/actions.ts:1736:7'],
+    source: ['packages/game-data-contract/src/actions.ts:1731:7'],
     optional: true,
     description: '只监听正常获取或返还。',
   },
@@ -1665,9 +1665,9 @@ const definitionSchemaPart_38c022b612b019d6 = {
   optional: true,
   description: '仅两种高优先级模式读取此值决定启用顺序；Stack 使用剩余寿命与实例编号选择替换项。',
 } as const;
-const definitionSchemaPart_cdaf552ed133334b = {
+const definitionSchemaPart_372daf15f4884d97 = {
   kind: 'array',
-  element: definitionSchemaPart_90652a40a100168d,
+  element: definitionSchemaPart_a06af490901715f4,
   semantics: {
     type: 'readonly ScheduledSequenceDefinition[]',
     arrayElement: { type: 'ScheduledSequenceDefinition' },
@@ -1675,14 +1675,14 @@ const definitionSchemaPart_cdaf552ed133334b = {
   source: ['packages/game-data-contract/src/skills.ts:44:3'],
   description: '按技能局部帧安排的动作序列。',
 } as const;
-const definitionSchemaPart_d99a8f55200549ca = {
+const definitionSchemaPart_a9a772ea32598b9c = {
   kind: 'array',
-  element: definitionSchemaPart_298ae6d926ea4bb3,
+  element: definitionSchemaPart_25d1337c4d94d6ee,
   semantics: {
     type: 'readonly ScheduledSequenceDefinition[]',
     arrayElement: { type: 'ScheduledSequenceDefinition' },
   },
-  source: ['packages/game-data-contract/src/actions.ts:1807:3'],
+  source: ['packages/game-data-contract/src/actions.ts:1802:3'],
   description: '相对事件时刻调度的动作序列。',
 } as const;
 const definitionSchemaPart_7a7767ce498ce0b3 = {
@@ -2092,7 +2092,7 @@ const definitionSchemaPart_0e46df2295fd8cae = {
     description: '单个加成值或按等级排列的加成值。',
   },
 } as const;
-const definitionSchemaPart_9ea85d6dc36477f8 = {
+const definitionSchemaPart_985f817a124200e4 = {
   kind: 'enum',
   options: [
     'normalAttack',
@@ -2113,7 +2113,7 @@ const definitionSchemaPart_9ea85d6dc36477f8 = {
     'natureAbnormal',
   ],
   semantics: definitionSchemaPart_1fbfd66386e805e7,
-  source: ['packages/game-data-contract/src/actions.ts:1743:7'],
+  source: ['packages/game-data-contract/src/actions.ts:1738:7'],
   description: '要匹配的伤害标签。',
 } as const;
 const definitionSchemaPart_3c7d15f38886628b = {
@@ -2281,17 +2281,17 @@ const definitionSchemaPart_ecdba3f9c4a783c4 = {
   },
   source: ['packages/game-data-contract/src/buildModifiers.ts:110:5'],
 } as const;
-const definitionSchemaPart_4dbbea9c4657eaa9 = {
+const definitionSchemaPart_ff02e5f7f518d655 = {
   kind: 'object',
-  fields: definitionSchemaPart_26148747a4f47538,
+  fields: definitionSchemaPart_2a78376690f2676a,
   semantics: {
     type: '{ kind: "spGained"; source?: "normalAttack" | "powerAttack" | "default" | "skill" | undefined; gainKind?: "gain" | "refund" | undefined; }',
   },
-  source: ['packages/game-data-contract/src/actions.ts:1803:3'],
+  source: ['packages/game-data-contract/src/actions.ts:1798:3'],
 } as const;
-const definitionSchemaPart_17a7892e2ee8dc38 = {
+const definitionSchemaPart_cb10ab0155d51dba = {
   kind: 'object',
-  fields: definitionSchemaPart_26148747a4f47538,
+  fields: definitionSchemaPart_2a78376690f2676a,
   semantics: {
     type: '{ kind: "spGained"; source?: "normalAttack" | "powerAttack" | "default" | "skill" | undefined; gainKind?: "gain" | "refund" | undefined; }',
   },
@@ -3130,15 +3130,15 @@ const definitionSchemaPart_80f4f449ae048403 = {
     description: '单个数值或按等级排列的数值。',
   },
 } as const;
-const definitionSchemaPart_be074f6cf3d27817 = {
+const definitionSchemaPart_131dc623d8e7a828 = {
   kind: {
     kind: 'enum',
     options: ['damageTagHit'],
     semantics: { type: '"damageTagHit"' },
-    source: ['packages/game-data-contract/src/actions.ts:1741:7'],
+    source: ['packages/game-data-contract/src/actions.ts:1736:7'],
     description: '触发器种类判别值。',
   },
-  tag: definitionSchemaPart_9ea85d6dc36477f8,
+  tag: definitionSchemaPart_985f817a124200e4,
   scope: {
     kind: 'enum',
     options: ['team', 'operator'],
@@ -3146,7 +3146,7 @@ const definitionSchemaPart_be074f6cf3d27817 = {
       type: '"team" | "operator"',
       unionVariants: [{ type: '"team"' }, { type: '"operator"' }],
     },
-    source: ['packages/game-data-contract/src/actions.ts:1745:7'],
+    source: ['packages/game-data-contract/src/actions.ts:1740:7'],
     description: '检查当前干员还是全队来源。',
   },
 } as const;
@@ -3719,13 +3719,13 @@ const definitionSchemaPart_75dd75420a56d16f = {
     description: '右操作数。',
   },
 } as const;
-const definitionSchemaPart_83f3d5f261c77256 = {
+const definitionSchemaPart_e193ef53584a19c4 = {
   kind: 'union',
   variants: [
     {
       kind: 'enum',
       options: ['crush', 'airborne', 'knockDown', 'fracture'],
-      source: ['packages/game-data-contract/src/actions.ts:1759:7'],
+      source: ['packages/game-data-contract/src/actions.ts:1754:7'],
       semantics: {
         type: '"crush" | "airborne" | "knockDown" | "fracture"',
         unionVariants: [
@@ -3736,10 +3736,10 @@ const definitionSchemaPart_83f3d5f261c77256 = {
         ],
       },
     },
-    definitionSchemaPart_f2c1c2d6347cd0d3,
+    definitionSchemaPart_34d192d0b9e5a680,
   ],
   semantics: definitionSchemaPart_74ceba95c0fd01a6,
-  source: ['packages/game-data-contract/src/actions.ts:1759:7'],
+  source: ['packages/game-data-contract/src/actions.ts:1754:7'],
   description: '任一匹配即可成立的物理异常。',
 } as const;
 const definitionSchemaPart_86fa484f5b2cbd2f = {
@@ -3961,13 +3961,13 @@ const definitionSchemaPart_e9e2fdda559e9722 = {
     },
   ],
 } as const;
-const definitionSchemaPart_db44b49abd423d20 = {
+const definitionSchemaPart_168b2eab0fd3cf52 = {
   kind: 'union',
   variants: [
     {
       kind: 'enum',
       options: ['physical', 'heat', 'cryo', 'electric', 'nature'],
-      source: ['packages/game-data-contract/src/actions.ts:1751:7'],
+      source: ['packages/game-data-contract/src/actions.ts:1746:7'],
       semantics: {
         type: '"physical" | "heat" | "cryo" | "electric" | "nature"',
         unionVariants: [
@@ -3979,10 +3979,10 @@ const definitionSchemaPart_db44b49abd423d20 = {
         ],
       },
     },
-    definitionSchemaPart_3afc1977190567f8,
+    definitionSchemaPart_a93a5de537849245,
   ],
   semantics: definitionSchemaPart_b837dd8537ab8594,
-  source: ['packages/game-data-contract/src/actions.ts:1751:7'],
+  source: ['packages/game-data-contract/src/actions.ts:1746:7'],
   description: '任一匹配即可成立的元素。',
 } as const;
 const definitionSchemaPart_7c792d4267e47622 = {
@@ -3993,17 +3993,17 @@ const definitionSchemaPart_7c792d4267e47622 = {
   },
   source: ['packages/game-data-contract/src/buffs.ts:643:3'],
 } as const;
-const definitionSchemaPart_4f61d41a397da93b = {
+const definitionSchemaPart_b9d44e4279e6133c = {
   kind: 'object',
-  fields: definitionSchemaPart_be074f6cf3d27817,
+  fields: definitionSchemaPart_131dc623d8e7a828,
   semantics: {
     type: '{ kind: "damageTagHit"; tag: "normalAttack" | "normalAttackLastCombo" | "powerAttack" | "normalSkill" | "comboSkill" | "ultimateSkill" | "plungingAttack" | "dashAttack" | "fireBurst" | ... 6 more ... | "natureAbnormal"; scope: "team" | "operator"; }',
   },
-  source: ['packages/game-data-contract/src/actions.ts:1803:3'],
+  source: ['packages/game-data-contract/src/actions.ts:1798:3'],
 } as const;
-const definitionSchemaPart_5ad02da626376a16 = {
+const definitionSchemaPart_45a4a575c30b47af = {
   kind: 'object',
-  fields: definitionSchemaPart_be074f6cf3d27817,
+  fields: definitionSchemaPart_131dc623d8e7a828,
   semantics: {
     type: '{ kind: "damageTagHit"; tag: "normalAttack" | "normalAttackLastCombo" | "powerAttack" | "normalSkill" | "comboSkill" | "ultimateSkill" | "plungingAttack" | "dashAttack" | "fireBurst" | ... 6 more ... | "natureAbnormal"; scope: "team" | "operator"; }',
   },
@@ -4222,15 +4222,15 @@ const definitionSchemaPart_aa62cfcc30ce7eef = {
   },
   conditions: definitionSchemaPart_17beb0dc76f7e650,
 } as const;
-const definitionSchemaPart_392b9e5ab3b5a97a = {
+const definitionSchemaPart_d940d256033a9d70 = {
   kind: {
     kind: 'enum',
     options: ['physicalInflictionApplied'],
     semantics: { type: '"physicalInflictionApplied"' },
-    source: ['packages/game-data-contract/src/actions.ts:1757:7'],
+    source: ['packages/game-data-contract/src/actions.ts:1752:7'],
     description: '指定范围内成功施加一种物理异常。',
   },
-  types: definitionSchemaPart_83f3d5f261c77256,
+  types: definitionSchemaPart_e193ef53584a19c4,
   scope: {
     kind: 'enum',
     options: ['team', 'operator'],
@@ -4238,7 +4238,7 @@ const definitionSchemaPart_392b9e5ab3b5a97a = {
       type: '"team" | "operator"',
       unionVariants: [{ type: '"team"' }, { type: '"operator"' }],
     },
-    source: ['packages/game-data-contract/src/actions.ts:1761:7'],
+    source: ['packages/game-data-contract/src/actions.ts:1756:7'],
     description: '检查当前干员还是全队来源。',
   },
 } as const;
@@ -4339,15 +4339,15 @@ const definitionSchemaPart_f439a0842b4fb58e = {
   },
   abilityEvent: definitionSchemaPart_30e779885a60386e,
 } as const;
-const definitionSchemaPart_3278e24820aa590e = {
+const definitionSchemaPart_d50b3af05eca555f = {
   kind: {
     kind: 'enum',
     options: ['elementalInflictionApplied'],
     semantics: { type: '"elementalInflictionApplied"' },
-    source: ['packages/game-data-contract/src/actions.ts:1749:7'],
+    source: ['packages/game-data-contract/src/actions.ts:1744:7'],
     description: '指定范围内成功施加一种元素附着。',
   },
-  elements: definitionSchemaPart_db44b49abd423d20,
+  elements: definitionSchemaPart_168b2eab0fd3cf52,
   scope: {
     kind: 'enum',
     options: ['team', 'operator'],
@@ -4355,7 +4355,7 @@ const definitionSchemaPart_3278e24820aa590e = {
       type: '"team" | "operator"',
       unionVariants: [{ type: '"team"' }, { type: '"operator"' }],
     },
-    source: ['packages/game-data-contract/src/actions.ts:1753:7'],
+    source: ['packages/game-data-contract/src/actions.ts:1748:7'],
     description: '检查当前干员还是全队来源。',
   },
 } as const;
@@ -4515,17 +4515,17 @@ const definitionSchemaPart_2bb238d7194f87ab = {
     { type: '{ readonly kind: "any"; readonly conditions: readonly DamageModifierCondition[]; }' },
   ],
 } as const;
-const definitionSchemaPart_ad1fac34b29debce = {
+const definitionSchemaPart_00276e4cc8821ccb = {
   kind: 'object',
-  fields: definitionSchemaPart_392b9e5ab3b5a97a,
+  fields: definitionSchemaPart_d940d256033a9d70,
   semantics: {
     type: '{ kind: "physicalInflictionApplied"; types: "crush" | "airborne" | "knockDown" | "fracture" | readonly ("crush" | "airborne" | "knockDown" | "fracture")[]; scope: "team" | "operator"; }',
   },
-  source: ['packages/game-data-contract/src/actions.ts:1803:3'],
+  source: ['packages/game-data-contract/src/actions.ts:1798:3'],
 } as const;
-const definitionSchemaPart_d5b56c77bf3e2bbc = {
+const definitionSchemaPart_d9fbd4a4aff896b1 = {
   kind: 'object',
-  fields: definitionSchemaPart_392b9e5ab3b5a97a,
+  fields: definitionSchemaPart_d940d256033a9d70,
   semantics: {
     type: '{ kind: "physicalInflictionApplied"; types: "crush" | "airborne" | "knockDown" | "fracture" | readonly ("crush" | "airborne" | "knockDown" | "fracture")[]; scope: "team" | "operator"; }',
   },
@@ -4614,17 +4614,17 @@ const definitionSchemaPart_3d769933ac636992 = {
   },
   source: ['packages/game-data-contract/src/equipment.ts:130:3'],
 } as const;
-const definitionSchemaPart_93ad583f3dfacab8 = {
+const definitionSchemaPart_5cebfe7586a9cc39 = {
   kind: 'object',
-  fields: definitionSchemaPart_3278e24820aa590e,
+  fields: definitionSchemaPart_d50b3af05eca555f,
   semantics: {
     type: '{ kind: "elementalInflictionApplied"; elements: "physical" | "heat" | "cryo" | "electric" | "nature" | readonly ("physical" | "heat" | "cryo" | "electric" | "nature")[]; scope: "team" | "operator"; }',
   },
-  source: ['packages/game-data-contract/src/actions.ts:1803:3'],
+  source: ['packages/game-data-contract/src/actions.ts:1798:3'],
 } as const;
-const definitionSchemaPart_499b5a345e454d29 = {
+const definitionSchemaPart_a769edf2b424873a = {
   kind: 'object',
-  fields: definitionSchemaPart_3278e24820aa590e,
+  fields: definitionSchemaPart_d50b3af05eca555f,
   semantics: {
     type: '{ kind: "elementalInflictionApplied"; elements: "physical" | "heat" | "cryo" | "electric" | "nature" | readonly ("physical" | "heat" | "cryo" | "electric" | "nature")[]; scope: "team" | "operator"; }',
   },
@@ -5915,10 +5915,10 @@ const definitionSchemaPart_e50c7e4ef46080b8 = {
   optional: true,
   description: 'Buff 启用期间参与治疗计算的条件和数值处理器。',
 } as const;
-const definitionSchemaPart_8d18eb47fbf1caf3 = {
+const definitionSchemaPart_6d1b615e5d44a4ea = {
   kind: 'union',
   variants: [
-    definitionSchemaPart_218b612d30ed4c94,
+    definitionSchemaPart_528d803174d5e9e9,
     {
       kind: 'object',
       fields: {
@@ -5926,14 +5926,14 @@ const definitionSchemaPart_8d18eb47fbf1caf3 = {
           kind: 'enum',
           options: ['operatorHit'],
           semantics: { type: '"operatorHit"' },
-          source: ['packages/game-data-contract/src/actions.ts:1693:7'],
+          source: ['packages/game-data-contract/src/actions.ts:1688:7'],
           description: '触发器种类判别值。',
         },
       },
       semantics: { type: '{ kind: "operatorHit"; }' },
-      source: ['packages/game-data-contract/src/actions.ts:1803:3'],
+      source: ['packages/game-data-contract/src/actions.ts:1798:3'],
     },
-    definitionSchemaPart_0f2a3fa2f5056a77,
+    definitionSchemaPart_fa0a13cdc00e31b4,
     {
       kind: 'object',
       fields: {
@@ -5941,12 +5941,12 @@ const definitionSchemaPart_8d18eb47fbf1caf3 = {
           kind: 'enum',
           options: ['buffApplied'],
           semantics: { type: '"buffApplied"' },
-          source: ['packages/game-data-contract/src/actions.ts:1705:7'],
+          source: ['packages/game-data-contract/src/actions.ts:1700:7'],
           description: '触发器种类判别值。',
         },
       },
       semantics: { type: '{ kind: "buffApplied"; }' },
-      source: ['packages/game-data-contract/src/actions.ts:1803:3'],
+      source: ['packages/game-data-contract/src/actions.ts:1798:3'],
     },
     {
       kind: 'object',
@@ -5955,14 +5955,14 @@ const definitionSchemaPart_8d18eb47fbf1caf3 = {
           kind: 'enum',
           options: ['buffOutput'],
           semantics: { type: '"buffOutput"' },
-          source: ['packages/game-data-contract/src/actions.ts:1710:7'],
+          source: ['packages/game-data-contract/src/actions.ts:1705:7'],
           description: '触发器种类判别值。',
         },
       },
       semantics: { type: '{ kind: "buffOutput"; }' },
-      source: ['packages/game-data-contract/src/actions.ts:1803:3'],
+      source: ['packages/game-data-contract/src/actions.ts:1798:3'],
     },
-    definitionSchemaPart_0fee93b4fc499ca3,
+    definitionSchemaPart_d6060c97ff0b6b57,
     {
       kind: 'object',
       fields: {
@@ -5970,12 +5970,12 @@ const definitionSchemaPart_8d18eb47fbf1caf3 = {
           kind: 'enum',
           options: ['airborneOutput'],
           semantics: { type: '"airborneOutput"' },
-          source: ['packages/game-data-contract/src/actions.ts:1722:7'],
+          source: ['packages/game-data-contract/src/actions.ts:1717:7'],
           description: '触发器种类判别值。',
         },
       },
       semantics: { type: '{ kind: "airborneOutput"; }' },
-      source: ['packages/game-data-contract/src/actions.ts:1803:3'],
+      source: ['packages/game-data-contract/src/actions.ts:1798:3'],
     },
     {
       kind: 'object',
@@ -5984,28 +5984,28 @@ const definitionSchemaPart_8d18eb47fbf1caf3 = {
           kind: 'enum',
           options: ['knockDownOutput'],
           semantics: { type: '"knockDownOutput"' },
-          source: ['packages/game-data-contract/src/actions.ts:1727:7'],
+          source: ['packages/game-data-contract/src/actions.ts:1722:7'],
           description: '触发器种类判别值。',
         },
       },
       semantics: { type: '{ kind: "knockDownOutput"; }' },
-      source: ['packages/game-data-contract/src/actions.ts:1803:3'],
+      source: ['packages/game-data-contract/src/actions.ts:1798:3'],
     },
-    definitionSchemaPart_4dbbea9c4657eaa9,
-    definitionSchemaPart_4f61d41a397da93b,
-    definitionSchemaPart_93ad583f3dfacab8,
-    definitionSchemaPart_ad1fac34b29debce,
-    definitionSchemaPart_750861f8ec3eabfd,
-    definitionSchemaPart_72a8057bda75340c,
+    definitionSchemaPart_ff02e5f7f518d655,
+    definitionSchemaPart_b9d44e4279e6133c,
+    definitionSchemaPart_5cebfe7586a9cc39,
+    definitionSchemaPart_00276e4cc8821ccb,
+    definitionSchemaPart_a49205ae3c764ad2,
+    definitionSchemaPart_e908ef8870f5b916,
   ],
   semantics: definitionSchemaPart_c24c076d22fda201,
-  source: ['packages/game-data-contract/src/actions.ts:1803:3'],
+  source: ['packages/game-data-contract/src/actions.ts:1798:3'],
   description: '要监听的战斗事件及其筛选参数。',
 } as const;
-const definitionSchemaPart_1d66a364dc3fe582 = {
+const definitionSchemaPart_2c640cab00812569 = {
   kind: 'union',
   variants: [
-    definitionSchemaPart_5367e9a1d094813d,
+    definitionSchemaPart_778b335d48e0cb5d,
     {
       kind: 'object',
       fields: {
@@ -6013,14 +6013,14 @@ const definitionSchemaPart_1d66a364dc3fe582 = {
           kind: 'enum',
           options: ['operatorHit'],
           semantics: { type: '"operatorHit"' },
-          source: ['packages/game-data-contract/src/actions.ts:1693:7'],
+          source: ['packages/game-data-contract/src/actions.ts:1688:7'],
           description: '触发器种类判别值。',
         },
       },
       semantics: { type: '{ kind: "operatorHit"; }' },
       source: ['packages/game-data-contract/src/equipment.ts:109:9'],
     },
-    definitionSchemaPart_12c24fb21823cd52,
+    definitionSchemaPart_0d9bd98aea23294d,
     {
       kind: 'object',
       fields: {
@@ -6028,7 +6028,7 @@ const definitionSchemaPart_1d66a364dc3fe582 = {
           kind: 'enum',
           options: ['buffApplied'],
           semantics: { type: '"buffApplied"' },
-          source: ['packages/game-data-contract/src/actions.ts:1705:7'],
+          source: ['packages/game-data-contract/src/actions.ts:1700:7'],
           description: '触发器种类判别值。',
         },
       },
@@ -6042,14 +6042,14 @@ const definitionSchemaPart_1d66a364dc3fe582 = {
           kind: 'enum',
           options: ['buffOutput'],
           semantics: { type: '"buffOutput"' },
-          source: ['packages/game-data-contract/src/actions.ts:1710:7'],
+          source: ['packages/game-data-contract/src/actions.ts:1705:7'],
           description: '触发器种类判别值。',
         },
       },
       semantics: { type: '{ kind: "buffOutput"; }' },
       source: ['packages/game-data-contract/src/equipment.ts:109:9'],
     },
-    definitionSchemaPart_d0995301d8c099d2,
+    definitionSchemaPart_b6b9ebff4ca48ffd,
     {
       kind: 'object',
       fields: {
@@ -6057,7 +6057,7 @@ const definitionSchemaPart_1d66a364dc3fe582 = {
           kind: 'enum',
           options: ['airborneOutput'],
           semantics: { type: '"airborneOutput"' },
-          source: ['packages/game-data-contract/src/actions.ts:1722:7'],
+          source: ['packages/game-data-contract/src/actions.ts:1717:7'],
           description: '触发器种类判别值。',
         },
       },
@@ -6071,25 +6071,25 @@ const definitionSchemaPart_1d66a364dc3fe582 = {
           kind: 'enum',
           options: ['knockDownOutput'],
           semantics: { type: '"knockDownOutput"' },
-          source: ['packages/game-data-contract/src/actions.ts:1727:7'],
+          source: ['packages/game-data-contract/src/actions.ts:1722:7'],
           description: '触发器种类判别值。',
         },
       },
       semantics: { type: '{ kind: "knockDownOutput"; }' },
       source: ['packages/game-data-contract/src/equipment.ts:109:9'],
     },
-    definitionSchemaPart_17a7892e2ee8dc38,
-    definitionSchemaPart_5ad02da626376a16,
-    definitionSchemaPart_499b5a345e454d29,
-    definitionSchemaPart_d5b56c77bf3e2bbc,
-    definitionSchemaPart_c171ae40a38a35f7,
-    definitionSchemaPart_2926199b3a558573,
+    definitionSchemaPart_cb10ab0155d51dba,
+    definitionSchemaPart_45a4a575c30b47af,
+    definitionSchemaPart_a769edf2b424873a,
+    definitionSchemaPart_d9fbd4a4aff896b1,
+    definitionSchemaPart_2615f33168748abe,
+    definitionSchemaPart_09c6b1502060c2a5,
   ],
   semantics: definitionSchemaPart_c24c076d22fda201,
   source: ['packages/game-data-contract/src/equipment.ts:109:9'],
   description: '监听一项语义战斗事件。',
 } as const;
-const definitionSchemaPart_06a2e6e305cf32e1 = {
+const definitionSchemaPart_71e31c00f6d9eb5b = {
   key: {
     kind: 'string',
     semantics: { type: 'string' },
@@ -6122,7 +6122,7 @@ const definitionSchemaPart_06a2e6e305cf32e1 = {
     source: ['packages/game-data-contract/src/equipment.ts:101:3'],
     description: '条件成立时执行的动作序列。',
   },
-  event: definitionSchemaPart_1d66a364dc3fe582,
+  event: definitionSchemaPart_2c640cab00812569,
   abilityEvent: {
     kind: 'opaque',
     fallback: { reason: 'no-present-type' },
@@ -6132,22 +6132,22 @@ const definitionSchemaPart_06a2e6e305cf32e1 = {
     description: '使用语义战斗事件时不能同时监听能力事件。',
   },
 } as const;
-const definitionSchemaPart_3d44860bd5c6757b = {
+const definitionSchemaPart_aa64d43912873719 = {
   kind: 'object',
-  fields: definitionSchemaPart_06a2e6e305cf32e1,
+  fields: definitionSchemaPart_71e31c00f6d9eb5b,
   semantics: {
     type: 'EquipmentEventHandlerDefinitionBase & { readonly event: CombatEventTrigger; readonly abilityEvent?: undefined; }',
   },
   source: ['packages/game-data-contract/src/equipment.ts:130:3'],
 } as const;
-const definitionSchemaPart_bedb92dea5ebb9fc = {
+const definitionSchemaPart_e479248b5a10b82e = {
   key: {
     kind: 'string',
     semantics: { type: 'string' },
-    source: ['packages/game-data-contract/src/actions.ts:1801:3'],
+    source: ['packages/game-data-contract/src/actions.ts:1796:3'],
     description: '事件响应在当前技能中的唯一名称。',
   },
-  event: definitionSchemaPart_8d18eb47fbf1caf3,
+  event: definitionSchemaPart_6d1b615e5d44a4ea,
   condition: {
     kind: 'condition',
     fallback: { reason: 'condition-editor-pending' },
@@ -6156,21 +6156,21 @@ const definitionSchemaPart_bedb92dea5ebb9fc = {
       aliases: ['CombatCondition'],
       optional: true,
     },
-    source: ['packages/game-data-contract/src/actions.ts:1805:3'],
+    source: ['packages/game-data-contract/src/actions.ts:1800:3'],
     optional: true,
     description: '事件发生后还需满足的条件。',
   },
-  scheduledSequences: definitionSchemaPart_d99a8f55200549ca,
+  scheduledSequences: definitionSchemaPart_a9a772ea32598b9c,
 } as const;
-const definitionSchemaPart_c8b84a9a0c52e0c7 = {
+const definitionSchemaPart_fca8b2a637710219 = {
   kind: 'object',
-  fields: definitionSchemaPart_bedb92dea5ebb9fc,
+  fields: definitionSchemaPart_e479248b5a10b82e,
   semantics: { type: 'CombatEventHandlerDefinition' },
   source: ['packages/game-data-contract/src/skills.ts:358:3'],
 } as const;
-const definitionSchemaPart_cf74b711d3a2885d = {
+const definitionSchemaPart_6baf5250ce182ba6 = {
   kind: 'array',
-  element: definitionSchemaPart_c8b84a9a0c52e0c7,
+  element: definitionSchemaPart_fca8b2a637710219,
   semantics: {
     type: 'readonly CombatEventHandlerDefinition[] | undefined',
     arrayElement: { type: 'CombatEventHandlerDefinition' },
@@ -6180,9 +6180,9 @@ const definitionSchemaPart_cf74b711d3a2885d = {
   optional: true,
   description: '技能启用期间注册的战斗事件响应。',
 } as const;
-const definitionSchemaPart_72428411c8cd2887 = {
+const definitionSchemaPart_0f8ee24b0cf03b20 = {
   kind: 'union',
-  variants: [definitionSchemaPart_3d44860bd5c6757b, definitionSchemaPart_3d769933ac636992],
+  variants: [definitionSchemaPart_aa64d43912873719, definitionSchemaPart_3d769933ac636992],
   semantics: {
     type: 'EquipmentEventHandlerDefinition',
     unionVariants: [
@@ -6222,9 +6222,9 @@ const definitionSchemaPart_59523b4e5e07bd03 = {
   semantics: definitionSchemaPart_956d2e0ef56cf605,
   source: ['packages/game-data-contract/src/equipment.ts:184:3'],
 } as const;
-const definitionSchemaPart_eb5d3815ccbe1b2f = {
+const definitionSchemaPart_7e98bec885925c4a = {
   kind: 'array',
-  element: definitionSchemaPart_72428411c8cd2887,
+  element: definitionSchemaPart_0f8ee24b0cf03b20,
   semantics: {
     type: 'readonly EquipmentEventHandlerDefinition[] | undefined',
     arrayElement: {
@@ -8127,7 +8127,7 @@ export const definitionSchemas = {
         description: '当前武器词条或套装效果自己的程序图；不按原生 ID 跨对象共享。',
       },
       modifiers: definitionSchemaPart_58975cbd1d457ed9,
-      eventHandlers: definitionSchemaPart_eb5d3815ccbe1b2f,
+      eventHandlers: definitionSchemaPart_7e98bec885925c4a,
       blackboard: definitionSchemaPart_278d3e397df130ba,
       enableSequence: {
         kind: 'opaque',
@@ -8602,9 +8602,9 @@ export const definitionSchemas = {
             description: '原生 `CastData.startCdFrame`；配置消耗时编译器要求此字段存在。',
           },
           switchToBuffCast: definitionSchemaPart_41bc5c5fe4d502e9,
-          eventHandlers: definitionSchemaPart_cf74b711d3a2885d,
+          eventHandlers: definitionSchemaPart_6baf5250ce182ba6,
           blackboard: definitionSchemaPart_f4a857f6c7282a2a,
-          scheduledSequences: definitionSchemaPart_cdaf552ed133334b,
+          scheduledSequences: definitionSchemaPart_372daf15f4884d97,
           skillType: {
             kind: 'enum',
             options: [
@@ -8752,9 +8752,9 @@ export const definitionSchemas = {
             description: '原生 `CastData.startCdFrame`；配置消耗时编译器要求此字段存在。',
           },
           switchToBuffCast: definitionSchemaPart_41bc5c5fe4d502e9,
-          eventHandlers: definitionSchemaPart_cf74b711d3a2885d,
+          eventHandlers: definitionSchemaPart_6baf5250ce182ba6,
           blackboard: definitionSchemaPart_f4a857f6c7282a2a,
-          scheduledSequences: definitionSchemaPart_cdaf552ed133334b,
+          scheduledSequences: definitionSchemaPart_372daf15f4884d97,
           skillType: {
             kind: 'enum',
             options: ['dodge'],
@@ -9259,7 +9259,7 @@ export const definitionSchemas = {
             kind: 'array',
             element: {
               kind: 'object',
-              fields: definitionSchemaPart_35136d17033cfe3e,
+              fields: definitionSchemaPart_db5f54ae2a57eb4c,
               semantics: { type: 'ScheduledSequenceDefinition' },
               source: ['packages/game-data-contract/src/buffs.ts:143:3'],
             },
@@ -9910,7 +9910,7 @@ export const definitionSchemas = {
         description: '该技能自己的扣费和冷却设置。',
       },
       blackboard: definitionSchemaPart_f4a857f6c7282a2a,
-      scheduledSequences: definitionSchemaPart_cdaf552ed133334b,
+      scheduledSequences: definitionSchemaPart_372daf15f4884d97,
     },
     semantics: { type: 'AbilityEntityChildSkillDefinition' },
     source: ['packages/game-data-contract/src/skills.ts:63:1'],
@@ -10990,7 +10990,7 @@ export const definitionSchemas = {
               variants: [
                 {
                   kind: 'object',
-                  fields: definitionSchemaPart_26148747a4f47538,
+                  fields: definitionSchemaPart_2a78376690f2676a,
                   semantics: {
                     type: '{ kind: "spGained"; source?: "normalAttack" | "powerAttack" | "default" | "skill" | undefined; gainKind?: "gain" | "refund" | undefined; }',
                   },
@@ -11003,13 +11003,13 @@ export const definitionSchemas = {
                       kind: 'enum',
                       options: ['skillHit'],
                       semantics: { type: '"skillHit"' },
-                      source: ['packages/game-data-contract/src/actions.ts:1766:7'],
+                      source: ['packages/game-data-contract/src/actions.ts:1761:7'],
                       description: '触发器种类判别值。',
                     },
                     skillKey: {
                       kind: 'string',
                       semantics: { type: 'string' },
-                      source: ['packages/game-data-contract/src/actions.ts:1768:7'],
+                      source: ['packages/game-data-contract/src/actions.ts:1763:7'],
                       description: '要匹配的执行技能。',
                     },
                     scope: {
@@ -11019,7 +11019,7 @@ export const definitionSchemas = {
                         type: '"team" | "operator"',
                         unionVariants: [{ type: '"team"' }, { type: '"operator"' }],
                       },
-                      source: ['packages/game-data-contract/src/actions.ts:1770:7'],
+                      source: ['packages/game-data-contract/src/actions.ts:1765:7'],
                       description: '检查当前干员还是全队来源。',
                     },
                   },
@@ -11257,7 +11257,7 @@ export const definitionSchemas = {
         description: '当前武器词条或套装效果自己的程序图；不按原生 ID 跨对象共享。',
       },
       modifiers: definitionSchemaPart_58975cbd1d457ed9,
-      eventHandlers: definitionSchemaPart_eb5d3815ccbe1b2f,
+      eventHandlers: definitionSchemaPart_7e98bec885925c4a,
       blackboard: definitionSchemaPart_278d3e397df130ba,
       enableSequence: {
         kind: 'opaque',
