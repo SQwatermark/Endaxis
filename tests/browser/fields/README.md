@@ -14,7 +14,9 @@ Optional environment variables:
 
 Coverage includes union/optional/array/record reference identity, empty and absent
 catalogs, unresolved values, creator cancellation and fresh drafts, optional draft
-restoration, rejected node submissions, and Escape discard. Host undo checks only
+restoration, rejected node submissions, and Escape discard. P2 adds strict catalog
+fixtures, duplicate/invisible identity diagnostics, read-only target navigation,
+and submit-time revalidation that retains stale creator drafts. Host undo checks only
 immutable state round-tripping in this fixture. It is **not** application command
 history, persistence, or full end-to-end undo verification.
 

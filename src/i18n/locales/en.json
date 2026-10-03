@@ -5530,6 +5530,14 @@
     }
   },
   "fieldReference": {
+    "valid": "Reference resolved",
+    "invalid": "Reference not found; the original value is preserved",
+    "ambiguous": "Multiple visible targets share this ID; select a unique reference",
+    "invisible": "Reference exists outside the current owner scope",
+    "source": "Source",
+    "owner": "Owner",
+    "readOnly": "Read-only target",
+    "openTarget": "Open target",
     "unset": "Choose a reference",
     "unresolved": "Not found in the current candidates; the original value is preserved",
     "empty": "No candidates available",

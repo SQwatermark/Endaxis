@@ -1,40 +1,72 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, inject } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { EaSelect, type EaSelectValue } from '@/design-system';
-import type { FieldChoice } from '../definition-editor/fieldInputConfig';
+import { EaButton, EaSelect, type EaSelectValue } from '@/design-system';
+import {
+  resolveReference,
+  type ReferenceCandidate,
+  type ReferenceCatalog,
+} from '@/application/editor/referenceResolver';
+import { referenceNavigationKey } from './referenceNavigation';
 
-/** 同一引用在查看、缺值与创建入口保持身份；候选缺失不能退为任意文本。 */
+/** Serialized values remain raw IDs; selection identities are source-qualified. */
 const props = defineProps<{
   value?: string;
   label: string;
   referenceKind: string;
-  choices?: readonly FieldChoice[];
+  choices?: ReferenceCatalog;
   disabled?: boolean;
   allowUnset?: boolean;
 }>();
 const emit = defineEmits<{ change: [value: string] }>();
 const { t } = useI18n();
-const selected = computed(() => props.choices?.find(choice => choice.value === props.value));
-const state = computed(() => {
-  if (!props.value) return 'unset';
-  if (props.choices === undefined) return 'contextUnknown';
-  return selected.value ? 'listed' : 'unresolved';
-});
-const catalogState = computed(() =>
-  props.choices === undefined ? 'contextUnknown' : props.choices.length ? 'available' : 'empty',
+const navigate = inject(referenceNavigationKey, undefined);
+const resolution = computed(() =>
+  resolveReference(props.referenceKind, props.value, props.choices),
 );
+const selected = computed(() => resolution.value.selected);
+const state = computed(() => resolution.value.state);
+const catalogState = computed(() => resolution.value.catalogState);
+const key = (candidate: ReferenceCandidate) =>
+  JSON.stringify([candidate.source.id, candidate.identity]);
+const modelValue = computed(() =>
+  selected.value ? key(selected.value) : props.value ? 'unresolved' : '',
+);
+function candidateLabel(candidate: ReferenceCandidate) {
+  return [
+    candidate.label,
+    candidate.source.label,
+    candidate.owner,
+    !candidate.writable ? t('fieldReference.readOnly') : undefined,
+  ]
+    .filter(Boolean)
+    .join(' · ');
+}
 const options = computed(() => [
   { value: '', label: t('fieldReference.unset'), disabled: !props.allowUnset },
   ...(props.value && !selected.value
-    ? [{ value: props.value, label: props.value, disabled: true }]
+    ? [{ value: 'unresolved', label: props.value, disabled: true }]
     : []),
-  ...(props.choices ?? []),
+  ...resolution.value.candidates.map(candidate => ({
+    value: key(candidate),
+    label: candidateLabel(candidate),
+    disabled: !candidate.selectable,
+  })),
 ]);
 function change(value: EaSelectValue | EaSelectValue[]) {
   if (props.disabled || typeof value !== 'string') return;
-  if ((value === '' && props.allowUnset) || props.choices?.some(choice => choice.value === value))
-    emit('change', value);
+  if (value === '' && props.allowUnset) {
+    emit('change', '');
+    return;
+  }
+  const candidate = resolution.value.candidates.find(
+    candidate => key(candidate) === value && candidate.selectable,
+  );
+  if (candidate) emit('change', candidate.value);
+}
+const canNavigate = computed(() => Boolean(navigate && selected.value?.target));
+async function openTarget() {
+  if (selected.value?.target && navigate) await navigate(selected.value.target);
 }
 </script>
 
@@ -46,7 +78,7 @@ function change(value: EaSelectValue | EaSelectValue[]) {
     :data-reference-catalog="catalogState"
   >
     <EaSelect
-      :model-value="value ?? ''"
+      :model-value="modelValue"
       :aria-label="label"
       :disabled="disabled"
       :options="options"
@@ -54,8 +86,20 @@ function change(value: EaSelectValue | EaSelectValue[]) {
       @change="change"
     />
     <small v-if="value" class="reference-field__identity">{{ value }}</small>
-    <small v-if="state === 'unresolved'">{{ t('fieldReference.unresolved') }}</small>
-    <small v-if="catalogState !== 'available'">{{ t(`fieldReference.${catalogState}`) }}</small>
+    <small role="status">{{ t(`fieldReference.${state}`) }}</small>
+    <small v-if="selected" class="reference-field__source">
+      {{ t('fieldReference.source') }}: {{ selected.source.label }}
+      <template v-if="selected.owner">
+        · {{ t('fieldReference.owner') }}: {{ selected.owner }}</template
+      >
+      <template v-if="!selected.writable"> · {{ t('fieldReference.readOnly') }}</template>
+    </small>
+    <small v-if="catalogState !== 'available' && catalogState !== state">{{
+      t(`fieldReference.${catalogState}`)
+    }}</small>
+    <EaButton v-if="canNavigate" class="reference-field__navigate" size="sm" @click="openTarget">
+      {{ t('fieldReference.openTarget') }}
+    </EaButton>
   </div>
 </template>
 

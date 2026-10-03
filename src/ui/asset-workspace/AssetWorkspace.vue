@@ -1,8 +1,15 @@
 <script setup lang="ts">
-import { computed, markRaw, onBeforeUnmount, reactive, ref, toRaw, type Raw } from 'vue';
+import { computed, provide, markRaw, onBeforeUnmount, reactive, ref, toRaw, type Raw } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { EaButton, EaCloseButton, EaInput } from '@/design-system';
 import { ElConfigProvider } from 'element-plus';
+import {
+  workspaceReferenceChoices,
+  type WorkspaceReferenceAsset,
+} from './workspaceReferenceChoices';
+import { referenceNavigationKey } from '../field-editor/referenceNavigation';
+import type { ReferenceNavigationTarget } from '../../application/editor/referenceResolver';
+import type { CommonDefinitionSource } from '../../core/game-data/gameDataRepository';
 import AssetCatalogBrowser from './AssetCatalogBrowser.vue';
 import ResourceTools from './ResourceTools.vue';
 import WorkspaceIcon from './WorkspaceIcon.vue';
@@ -49,6 +56,8 @@ import {
 const props = defineProps<{
   assets: readonly WorkspaceAssetSource[];
   initialAsset: string;
+  initialReference?: ReferenceNavigationTarget;
+  sharedSources?: readonly CommonDefinitionSource[];
   saveAsset: (request: WorkspaceAssetSave) => void | Promise<void>;
 }>();
 const emit = defineEmits<{ close: [] }>();
@@ -296,49 +305,31 @@ const fieldPath = computed(() => [
   ...selected.value.definitionResource.path,
   ...(field.value ? [field.value] : []),
 ]);
-const referenceChoices = computed(() => ({
-  skillGroup:
-    draft.value.edit.kind === 'operator'
-      ? draft.value.edit.definition.skillGroups.map(group => ({
-          value: group.key,
-          label: group.key,
-        }))
-      : [],
-  skillSlot:
-    draft.value.edit.kind === 'operator'
-      ? (draft.value.edit.definition.skillSlots ?? []).map(slot => ({
-          value: slot.key,
-          label: slot.key,
-        }))
-      : [],
-  gearSet: props.assets.flatMap(asset =>
-    asset.edit.kind === 'gearSet' ? [{ value: asset.edit.definition.slug, label: asset.name }] : [],
+const referenceAssets = computed<readonly WorkspaceReferenceAsset[]>(() => {
+  void revision.value;
+  const entries = new Map<string, WorkspaceReferenceAsset>(
+    props.assets.map(asset => [asset.id, asset]),
+  );
+  for (const doc of documents.value)
+    entries.set(doc.key, {
+      ...doc.session.source,
+      id: doc.key,
+      edit: doc.session.current.edit,
+      name: doc.session.current.name,
+      custom: doc.session.history.editable,
+      catalogId: doc.session.targetId,
+      published: props.assets.some(asset => asset.id === doc.key),
+    });
+  return [...entries.values()];
+});
+const referenceChoices = computed(() =>
+  workspaceReferenceChoices(
+    referenceAssets.value.find(asset => asset.id === activeKey.value)!,
+    referenceAssets.value,
+    props.sharedSources,
+    new Map(resources.value.map(resource => [resource.id, resource.name])),
   ),
-  buff: [
-    ...new Map([
-      ...props.assets.flatMap(asset =>
-        asset.edit.kind === 'buff'
-          ? [[asset.edit.id, { value: asset.edit.id, label: asset.name }] as const]
-          : [],
-      ),
-      ...resources.value
-        .filter(resource => resource.kind === 'buff')
-        .map(
-          resource =>
-            [
-              resource.definitionResource.identity,
-              { value: resource.definitionResource.identity, label: resource.name },
-            ] as const,
-        ),
-    ]).values(),
-  ],
-  skill: resources.value
-    .filter(resource => resource.definitionResource.kind === 'skill')
-    .map(resource => ({ value: resource.definitionResource.identity, label: resource.name })),
-  abilityEntity: resources.value
-    .filter(resource => resource.kind === 'entity')
-    .map(resource => ({ value: resource.definitionResource.identity, label: resource.name })),
-}));
+);
 const path = computed(() =>
   workspaceResourcePath(byId.value, selected.value.id).map(id => byId.value.get(id)!),
 );
@@ -433,7 +424,7 @@ async function selectDocument(key: string) {
   if (!canLeaveGraphFields()) return;
   activate(key);
 }
-async function openSource(id: string) {
+async function openSource(id: string, record = true) {
   if (!canLeaveGraphFields()) return;
   let doc = documents.value.find(item => item.key === id);
   if (!doc) {
@@ -447,9 +438,28 @@ async function openSource(id: string) {
     };
     documents.value.push(doc);
   }
-  activate(id);
+  activate(id, record);
   if (!browserPinned.value) browserVisible.value = false;
 }
+async function navigateReference(target: ReferenceNavigationTarget) {
+  if (!canLeaveGraphFields()) return;
+  const source = referenceAssets.value.find(asset => asset.id === target.assetId);
+  if (!source) return;
+  const id = JSON.stringify(target.resourcePath);
+  if (
+    !describeWorkspaceResources(source.edit, resource => resource.identity).some(
+      resource => resource.id === id,
+    )
+  )
+    return;
+  // Record only the final target so Back returns straight to the referring field/graph.
+  await openSource(target.assetId, false);
+  active.value.asset = id;
+  reconcileView();
+  if (target.page) applyPage(target.page);
+  recordNavigation();
+}
+provide(referenceNavigationKey, navigateReference);
 async function open(id: string, page?: string) {
   if (!canLeaveGraphFields()) return;
   if (!byId.value.has(id)) return;
@@ -615,7 +625,9 @@ function dismissAssetBrowser(event: PointerEvent) {
   )
     browserVisible.value = false;
 }
-openSource(props.initialAsset);
+openSource(props.initialAsset).then(() => {
+  if (props.initialReference) return navigateReference(props.initialReference);
+});
 browserVisible.value = true;
 </script>
 

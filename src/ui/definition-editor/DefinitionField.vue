@@ -11,6 +11,7 @@ import {
   type EaSelectValue,
 } from '@/design-system';
 import type { DefinitionFieldSchema } from './fieldSchema';
+import { canSelectReference } from '@/application/editor/referenceResolver';
 import type { ReferenceChoices } from './fieldInputConfig';
 import { resolveFieldEditor } from '../field-editor/fieldEditorDispatch';
 import ReferenceField from '../field-editor/ReferenceField.vue';
@@ -241,8 +242,10 @@ function addArrayEntry() {
 function newEntryValue(schema: DefinitionFieldSchema): unknown {
   if (schema.kind === 'string')
     return entryEditor(schema).control === 'reference' &&
-      !props.referenceChoices?.[entryEditor(schema).referenceKind ?? '']?.some(
-        choice => choice.value === newItemValue.value,
+      !canSelectReference(
+        entryEditor(schema).referenceKind ?? '',
+        newItemValue.value,
+        props.referenceChoices?.[entryEditor(schema).referenceKind ?? ''],
       )
       ? undefined
       : newItemValue.value;

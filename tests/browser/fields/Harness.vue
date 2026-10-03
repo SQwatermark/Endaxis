@@ -1,5 +1,12 @@
 <script setup lang="ts">
-import { computed, ref, shallowRef } from 'vue';
+import { computed, provide, ref, shallowRef } from 'vue';
+import {
+  referenceCatalog,
+  referenceCandidate,
+} from '../../../src/ui/field-editor/referenceTestFixtures';
+import ReferenceField from '../../../src/ui/field-editor/ReferenceField.vue';
+import { referenceNavigationKey } from '../../../src/ui/field-editor/referenceNavigation';
+import type { ReferenceCatalog } from '../../../src/application/editor/referenceResolver';
 import DefinitionField from '../../../src/ui/definition-editor/DefinitionField.vue';
 import DefinitionValueCreator from '../../../src/ui/definition-editor/DefinitionValueCreator.vue';
 import NodeInspectorFields from '../../../src/ui/action-graph/NodeInspectorFields.vue';
@@ -26,9 +33,38 @@ const choices = computed(() =>
   catalog.value === 'unknown'
     ? undefined
     : {
-        buff: catalog.value === 'empty' ? [] : [{ value: 'known', label: 'Known buff' }],
+        buff: referenceCatalog('buff', catalog.value === 'empty' ? [] : ['known']),
       },
 );
+const scopeMode = ref<'valid' | 'collision' | 'invisible'>('valid');
+const visits = ref(0);
+provide(referenceNavigationKey, () => {
+  visits.value++;
+});
+const scopedChoices = computed<ReferenceCatalog>(() => {
+  const candidate = referenceCandidate('known', 'buff', {
+    owner: 'owner-a',
+    scope: 'owner',
+    writable: false,
+    target: { assetId: 'builtin', resourcePath: ['buffs', 0] },
+  });
+  return {
+    family: 'buff',
+    complete: true,
+    owner: scopeMode.value === 'invisible' ? 'owner-b' : 'owner-a',
+    candidates:
+      scopeMode.value === 'collision'
+        ? [
+            candidate,
+            {
+              ...candidate,
+              identity: 'builtin:known',
+              source: { id: 'builtin', label: 'Built-in', kind: 'builtin' },
+            },
+          ]
+        : [candidate],
+  };
+});
 function replace(current: unknown, path: readonly (string | number)[], value: unknown): unknown {
   if (!path.length) return value;
   const [key, ...rest] = path;
@@ -110,6 +146,19 @@ function applyNode(value: unknown) {
         root
         @change="change"
       />
+    </section>
+    <section data-testid="scoped-reference">
+      <button @click="scopeMode = 'valid'">Unique target</button>
+      <button @click="scopeMode = 'collision'">Duplicate target</button>
+      <button @click="scopeMode = 'invisible'">Invisible target</button>
+      <ReferenceField
+        label="Read-only buff"
+        reference-kind="buff"
+        value="known"
+        :choices="scopedChoices"
+        disabled
+      />
+      <output data-testid="navigation-count">{{ visits }}</output>
     </section>
     <section data-testid="creator">
       <h2>Creator</h2>

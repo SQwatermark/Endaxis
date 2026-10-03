@@ -34,11 +34,7 @@ export const REFERENCE_FIELD_KIND: Readonly<
   buffIds: 'buff',
 };
 
-export interface FieldChoice {
-  readonly value: string;
-  readonly label: string;
-}
-export type ReferenceChoices = Readonly<Record<string, readonly FieldChoice[]>>;
+export type { ReferenceChoices } from '../../application/editor/referenceResolver';
 
 /** Legacy plain-string references are scoped to their formal contract declarations.
  * A coincidentally named property in an imported/custom schema is ordinary text.

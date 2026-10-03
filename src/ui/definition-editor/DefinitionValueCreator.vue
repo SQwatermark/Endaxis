@@ -2,6 +2,7 @@
 import { computed, ref, shallowRef, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { EaButton, EaSelect, type EaSelectValue } from '@/design-system';
+import { validReferenceDraft } from '../field-editor/referenceDraftValidation';
 import DefinitionField from './DefinitionField.vue';
 import type { DefinitionFieldSchema } from './fieldSchema';
 import type { ReferenceChoices } from './fieldInputConfig';
@@ -31,7 +32,10 @@ watch(
   },
 );
 const complete = computed(
-  () => selected.value && isCompleteDefinitionValue(selected.value, value.value),
+  () =>
+    selected.value &&
+    isCompleteDefinitionValue(selected.value, value.value) &&
+    validReferenceDraft(selected.value, value.value, props.referenceChoices, props.referenceKind),
 );
 function label(schema: DefinitionFieldSchema) {
   const kind =

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { canSelectReference } from '@/application/editor/referenceResolver';
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import {
@@ -82,6 +83,22 @@ function apply(): boolean {
       const text = inputs.value[field.path.join('.')] ?? '';
       if (text === formatNodeField(readNodeField(props.value, field.path), field)) continue;
       const parsed = parseNodeField(text, { ...field, label: fieldName(field.path, props.kind) });
+      const editor = fieldEditor(field);
+      if (
+        editor.control === 'reference' &&
+        !(parsed === undefined && !field.required) &&
+        !(
+          typeof parsed === 'string' &&
+          canSelectReference(
+            editor.referenceKind ?? '',
+            parsed,
+            props.referenceChoices?.[editor.referenceKind ?? ''],
+          )
+        )
+      ) {
+        error.value = t('fieldReference.invalid');
+        return false;
+      }
       if (containsActionGraph(parsed) || containsGraphReference(parsed)) {
         error.value = t('actionGraphEditor.invalid');
         return false;

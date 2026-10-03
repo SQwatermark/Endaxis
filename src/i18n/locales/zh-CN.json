@@ -5547,6 +5547,14 @@
     }
   },
   "fieldReference": {
+    "valid": "引用已解析",
+    "invalid": "未找到引用；保留原始值",
+    "ambiguous": "多个可见目标使用此 ID；请选择唯一引用",
+    "invisible": "引用位于当前所有者作用域之外",
+    "source": "来源",
+    "owner": "所有者",
+    "readOnly": "只读目标",
+    "openTarget": "打开目标",
     "unset": "选择引用",
     "unresolved": "当前候选中未找到，保留原始值",
     "empty": "暂无候选",
