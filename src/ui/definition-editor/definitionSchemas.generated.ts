@@ -3488,12 +3488,13 @@ export const definitionSchemas = {
               },
             ],
             optional: true,
-            description: '成功添加后在接收者上创建的同 ID 再次添加冷却；使用普通战斗时间计时。',
+            description:
+              '在创建/叠层前登记的同 ID 添加冷却；后续被叠层策略拒绝也不撤销，使用普通战斗时间。',
           },
           ignoreAddingCooldown: {
             kind: 'boolean',
             optional: true,
-            description: '是否跳过已有添加冷却的拦截；成功添加后仍会创建新的添加冷却。',
+            description: '只跳过已有冷却检查，仍在创建/叠层前登记本次冷却。',
           },
           triggerIntervalSeconds: {
             kind: 'union',
@@ -3748,12 +3749,13 @@ export const definitionSchemas = {
               },
             ],
             optional: true,
-            description: '成功添加后在接收者上创建的同 ID 再次添加冷却；使用普通战斗时间计时。',
+            description:
+              '在创建/叠层前登记的同 ID 添加冷却；后续被叠层策略拒绝也不撤销，使用普通战斗时间。',
           },
           ignoreAddingCooldown: {
             kind: 'boolean',
             optional: true,
-            description: '是否跳过已有添加冷却的拦截；成功添加后仍会创建新的添加冷却。',
+            description: '只跳过已有冷却检查，仍在创建/叠层前登记本次冷却。',
           },
           triggerIntervalSeconds: {
             kind: 'union',
