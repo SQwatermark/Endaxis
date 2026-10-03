@@ -2,101 +2,235 @@
 import type { ActionGraphStep } from '../../../packages/game-data-contract/src/actionGraph.ts';
 import type { ActionNodeSchema, DataNodeSchema } from './nodeSchema.ts';
 
-const actionSchemaPart_d1636631faeb7f6d = {
-  path: ['parameters', 'staggerOnlyWhenCasterControlled'],
-  label: 'staggerOnlyWhenCasterControlled',
-  description: '原生 Poise 单元 onlyEnableForMainChar；生命伤害仍正常结算。',
-  type: 'boolean',
+const actionSchemaPart_f49bdafe0a2efd47 = {
+  type: 'LevelValues | ActionValueOperand | undefined',
+  optional: true,
+  unionVariants: [
+    { type: 'LevelValues', aliases: ['LevelValues'] },
+    { type: 'ActionValueOperand', aliases: ['ActionValueOperand'] },
+  ],
+} as const;
+const actionSchemaPart_726a48383a9b568f = {
+  type: '"always" | "successAndInterrupted" | "success" | "interrupted"',
+  unionVariants: [
+    { type: '"always"' },
+    { type: '"successAndInterrupted"' },
+    { type: '"success"' },
+    { type: '"interrupted"' },
+  ],
+} as const;
+const actionSchemaPart_29ed4eefc4c61701 = {
+  type: 'Omit<BuffDefinitionProperties, "damageModifiers"> & { readonly actionGraph?: ActionGraphResourceDefinition | undefined; ... 7 more ...; presentation?: CombatBuffPresentation | undefined; } & { ...; }',
+} as const;
+const actionSchemaPart_2c81191c7f7e34fe = {
+  type: 'TimeScaleCurveDefinition',
+  unionVariants: [
+    { type: '{ readonly kind: "named"; readonly key: string; }' },
+    { type: '{ readonly kind: "inline"; readonly keys: readonly TimeScaleCurveKeyDefinition[]; }' },
+  ],
+} as const;
+const actionSchemaPart_0f38ab070df3ee7c = {
+  type: '"normalAttack" | "powerAttack" | "default" | "skill" | undefined',
+  optional: true,
+  unionVariants: [
+    { type: '"normalAttack"' },
+    { type: '"powerAttack"' },
+    { type: '"default"' },
+    { type: '"skill"' },
+  ],
+} as const;
+const actionSchemaPart_18bb1cc60c393635 = {
+  type: 'readonly ("enemy" | "caster" | "controlled")[]',
+  arrayElement: {
+    type: '"enemy" | "caster" | "controlled"',
+    unionVariants: [{ type: '"enemy"' }, { type: '"caster"' }, { type: '"controlled"' }],
+  },
+} as const;
+const actionSchemaPart_3c77b2f22bee7868 = {
+  path: ['key'],
+  label: 'key',
+  description: '仅当其他定义需要引用此步骤时提供。',
+  type: 'string',
   required: false,
-  control: 'boolean',
+  control: 'string',
+  semantics: { type: 'string | undefined', optional: true },
+  source: ['packages/game-data-contract/src/actions.ts:1577:3'],
 } as const;
-const actionSchemaPart_4eda6c224d74fb65 = {
-  path: ['parameters', 'damageType'],
-  label: 'damageType',
-  description: '本次生命伤害的类型。',
-  type: 'DamageType',
-  required: true,
-  control: 'select',
-  options: ['physical', 'heat', 'cryo', 'electric', 'nature', 'true', 'lifeDrain', 'ether'],
-} as const;
-const actionSchemaPart_1b0a537a4e7044ff = {
-  path: ['parameters', 'features'],
-  label: 'features',
-  description: '原生伤害位中与技能分类无关的行为特征。',
-  type: 'readonly DamageFeature[]',
+const actionSchemaPart_06351afab9547629 = {
+  path: ['parameters', 'scopeKey'],
+  label: 'scopeKey',
+  description: '',
+  type: 'string',
   required: false,
-  control: 'multiselect',
-  options: [
-    'canBreakWeakness',
-    'crush',
-    'airborne',
-    'knockDown',
-    'shatter',
-    'dot',
-    'remainArea',
-    'talentDamage',
-    'physicalInfliction',
+  control: 'string',
+  semantics: { type: 'string | undefined', optional: true },
+  source: ['packages/game-data-contract/src/actionGraph.ts:15:11'],
+} as const;
+const actionSchemaPart_aa4e38c35c211674 = {
+  type: 'HealCalculationAttribute',
+  unionVariants: [
+    {
+      type: '"strength" | "agility" | "intellect" | "will"',
+      unionVariants: [
+        { type: '"strength"' },
+        { type: '"agility"' },
+        { type: '"intellect"' },
+        { type: '"will"' },
+      ],
+    },
+    { type: '"maxHealth"' },
   ],
 } as const;
-const actionSchemaPart_072ac943acb3b102 = {
-  path: ['parameters', 'target'],
-  label: 'target',
-  description: '要查找 Buff 的对象。',
-  type: 'BuffSingleTarget',
-  required: true,
-  control: 'select',
-  options: [
-    'eventSource',
-    'eventTarget',
-    'enemy',
-    'caster',
-    'buffOwner',
-    'buffSource',
-    'controlledOperator',
-    'currentAbilityEntity',
-    'currentTarget',
-    'actionInputTarget',
+const actionSchemaPart_1764e1f29d45469e = {
+  type: 'AbilityEntityTargetQuery',
+  unionVariants: [
+    { type: '{ readonly kind: "current"; }' },
+    {
+      type: '{ readonly kind: "ownerSpawned"; readonly abilityEntityIds?: readonly string[] | undefined; }',
+    },
+    { type: '{ readonly kind: "context"; readonly contextKey: string; }' },
   ],
 } as const;
-const actionSchemaPart_edf7fd41d97a1bb4 = {
-  path: ['parameters', 'tags'],
-  label: 'tags',
-  description: '本次伤害携带的技能和爆发分类标签。',
-  type: 'readonly DamageTag[]',
-  required: true,
-  control: 'multiselect',
-  options: [
-    'normalAttack',
-    'normalAttackLastCombo',
-    'powerAttack',
-    'normalSkill',
-    'comboSkill',
-    'ultimateSkill',
-    'plungingAttack',
-    'dashAttack',
-    'fireBurst',
-    'electricBurst',
-    'cryoBurst',
-    'natureBurst',
-    'fireAbnormal',
-    'electricAbnormal',
-    'cryoAbnormal',
-    'natureAbnormal',
+const actionSchemaPart_e8015229e9523ae4 = {
+  type: 'SkillBuffDefinition',
+  unionVariants: [actionSchemaPart_29ed4eefc4c61701, { type: 'StaticBuffDefinition' }],
+} as const;
+const actionSchemaPart_3b098870902a8933 = {
+  type: '"physical" | "heat" | "cryo" | "electric" | "nature" | "true" | "lifeDrain" | "ether"',
+  unionVariants: [
+    { type: '"physical"' },
+    { type: '"heat"' },
+    { type: '"cryo"' },
+    { type: '"electric"' },
+    { type: '"nature"' },
+    { type: '"true"' },
+    { type: '"lifeDrain"' },
+    { type: '"ether"' },
   ],
+} as const;
+const actionSchemaPart_03625a4c3c299b20 = {
+  type: 'readonly AbilityEntityTargetQuery[] | undefined',
+  arrayElement: actionSchemaPart_1764e1f29d45469e,
+  optional: true,
+} as const;
+const actionSchemaPart_6b396502298caff2 = {
+  type: '"canBreakWeakness" | "crush" | "airborne" | "knockDown" | "shatter" | "dot" | "remainArea" | "talentDamage" | "physicalInfliction"',
+  unionVariants: [
+    { type: '"canBreakWeakness"' },
+    { type: '"crush"' },
+    { type: '"airborne"' },
+    { type: '"knockDown"' },
+    { type: '"shatter"' },
+    { type: '"dot"' },
+    { type: '"remainArea"' },
+    { type: '"talentDamage"' },
+    { type: '"physicalInfliction"' },
+  ],
+} as const;
+const actionSchemaPart_9b7a517bcc21b17b = {
+  type: 'LevelValues | ActionValueOperand',
+  unionVariants: [
+    {
+      type: 'LevelValues | ActionValueOperand',
+      unionVariants: [
+        { type: 'LevelValues', aliases: ['LevelValues'] },
+        { type: 'ActionValueOperand', aliases: ['ActionValueOperand'] },
+      ],
+    },
+    {
+      type: 'LevelValues | ActionValueOperand',
+      unionVariants: [
+        { type: 'LevelValues', aliases: ['LevelValues'] },
+        { type: 'ActionValueOperand', aliases: ['ActionValueOperand'] },
+      ],
+    },
+  ],
+} as const;
+const actionSchemaPart_0b4542d8ad93756a = {
+  type: '"eventSource" | "eventTarget" | "enemy" | "caster" | "buffOwner" | "buffSource" | "controlledOperator" | "currentAbilityEntity" | "currentTarget" | "actionInputTarget"',
+  unionVariants: [
+    { type: '"eventSource"' },
+    { type: '"eventTarget"' },
+    { type: '"enemy"' },
+    { type: '"caster"' },
+    { type: '"buffOwner"' },
+    { type: '"buffSource"' },
+    { type: '"controlledOperator"' },
+    { type: '"currentAbilityEntity"' },
+    { type: '"currentTarget"' },
+    { type: '"actionInputTarget"' },
+  ],
+} as const;
+const actionSchemaPart_fbd9797e964a589d = {
+  type: '"enemy" | "caster" | "buffOwner" | "buffSource" | "controlledOperator" | "currentTarget" | "actionInputTarget" | "lowestHealthRatioOperator" | "lowestHealthRatioOperatorExceptControlled"',
+  unionVariants: [
+    { type: '"enemy"' },
+    { type: '"caster"' },
+    { type: '"buffOwner"' },
+    { type: '"buffSource"' },
+    { type: '"controlledOperator"' },
+    { type: '"currentTarget"' },
+    { type: '"actionInputTarget"' },
+    { type: '"lowestHealthRatioOperator"' },
+    { type: '"lowestHealthRatioOperatorExceptControlled"' },
+  ],
+} as const;
+const actionSchemaPart_63543b616519f1b6 = {
+  type: 'readonly ("canBreakWeakness" | "crush" | "airborne" | "knockDown" | "shatter" | "dot" | "remainArea" | "talentDamage" | "physicalInfliction")[] | undefined',
+  arrayElement: actionSchemaPart_6b396502298caff2,
+  optional: true,
+} as const;
+const actionSchemaPart_1fbfd66386e805e7 = {
+  type: '"normalAttack" | "normalAttackLastCombo" | "powerAttack" | "normalSkill" | "comboSkill" | "ultimateSkill" | "plungingAttack" | "dashAttack" | "fireBurst" | "electricBurst" | ... 5 more ... | "natureAbnormal"',
+  unionVariants: [
+    { type: '"normalAttack"' },
+    { type: '"normalAttackLastCombo"' },
+    { type: '"powerAttack"' },
+    { type: '"normalSkill"' },
+    { type: '"comboSkill"' },
+    { type: '"ultimateSkill"' },
+    { type: '"plungingAttack"' },
+    { type: '"dashAttack"' },
+    { type: '"fireBurst"' },
+    { type: '"electricBurst"' },
+    { type: '"cryoBurst"' },
+    { type: '"natureBurst"' },
+    { type: '"fireAbnormal"' },
+    { type: '"electricAbnormal"' },
+    { type: '"cryoAbnormal"' },
+    { type: '"natureAbnormal"' },
+  ],
+} as const;
+const actionSchemaPart_39148600bef476a7 = {
+  type: '"eventSource" | "eventTarget" | "enemy" | "caster" | "buffOwner" | "buffSource" | "controlledOperator" | "currentAbilityEntity" | "currentTarget" | "actionInputTarget" | "party" | "partyExceptCaster" | "partyExceptCasterAndSameCharacterType" | "casterAndControlledOperator" | "casterAndLowestHealthRatioOperatorExcept...',
+  unionVariants: [
+    { type: '"eventSource"' },
+    { type: '"eventTarget"' },
+    { type: '"enemy"' },
+    { type: '"caster"' },
+    { type: '"buffOwner"' },
+    { type: '"buffSource"' },
+    { type: '"controlledOperator"' },
+    { type: '"currentAbilityEntity"' },
+    { type: '"currentTarget"' },
+    { type: '"actionInputTarget"' },
+    { type: '"party"' },
+    { type: '"partyExceptCaster"' },
+    { type: '"partyExceptCasterAndSameCharacterType"' },
+    { type: '"casterAndControlledOperator"' },
+    { type: '"casterAndLowestHealthRatioOperatorExceptCaster"' },
+  ],
+} as const;
+const actionSchemaPart_696ddc5ee252e88d = {
+  type: 'readonly ("normalAttack" | "normalAttackLastCombo" | "powerAttack" | "normalSkill" | "comboSkill" | "ultimateSkill" | "plungingAttack" | "dashAttack" | "fireBurst" | "electricBurst" | ... 5 more ... | "natureAbnormal")[]',
+  arrayElement: actionSchemaPart_1fbfd66386e805e7,
 } as const;
 export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionNodeSchema>> = {
   outputKnockDown: {
     kind: 'outputKnockDown',
     description: '报告一次对固定目标成功输出击倒；木桩模型不保存倒地控制状态。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'target'],
         label: 'target',
@@ -105,6 +239,11 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: true,
         control: 'select',
         options: ['enemy', 'caster'],
+        semantics: {
+          type: '"enemy" | "caster"',
+          unionVariants: [{ type: '"enemy"' }, { type: '"caster"' }],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:568:5'],
       },
     ],
   },
@@ -112,14 +251,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'triggerSpellBurst',
     description: 'Buff 触发周期中的原生 TriggerSpellBurstEventAction。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'burstType'],
         label: 'burstType',
@@ -128,6 +260,16 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: true,
         control: 'select',
         options: ['Fire', 'Pulse', 'Cryst', 'Natural'],
+        semantics: {
+          type: '"Fire" | "Pulse" | "Cryst" | "Natural"',
+          unionVariants: [
+            { type: '"Fire"' },
+            { type: '"Pulse"' },
+            { type: '"Cryst"' },
+            { type: '"Natural"' },
+          ],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:442:5'],
       },
     ],
   },
@@ -135,14 +277,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'mergeContextTargets',
     description: '合并稳定目标身份并覆盖写入 Context 目标组；空 sources 用于初始化空组。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'saveToContextKey'],
         label: 'saveToContextKey',
@@ -150,6 +285,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'string',
         required: true,
         control: 'string',
+        semantics: { type: 'string' },
+        source: ['packages/game-data-contract/src/actions.ts:256:5'],
       },
       {
         path: ['parameters', 'sources'],
@@ -158,6 +295,23 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: "readonly ( | { /** 加入一个按身份解析的单体目标。 */ readonly kind: 'target'; /** 要加入的对象身份。 */ readonly target: 'caster' | 'enemy' | 'eventTarget' | 'eventSource' | 'buffSource' | 'currentTarget'; } | { /** 加入一个已有动作目标组。 */ readonly kind: 'context'; /** 已有目标组的动作环境键。 */ readonly contextKey: string; } /** 原生 SourceFinder：先选动作来源/宿主，再查询其单层 AbilitySystem.source。 */ | { /** 读取能力系统来源。 */ readonly kind: 'abilitySystemSource'; /** 从动作来源或动作宿主的能力系统读取。 */ readonly owner: 'actionSource' | 'actionOwner'; } )[]",
         required: true,
         control: 'json',
+        semantics: {
+          type: 'readonly ({ readonly kind: "target"; readonly target: "eventSource" | "eventTarget" | "enemy" | "caster" | "buffSource" | "currentTarget"; } | { readonly kind: "context"; readonly contextKey: string; } | { ...; })[]',
+          arrayElement: {
+            type: '{ readonly kind: "target"; readonly target: "eventSource" | "eventTarget" | "enemy" | "caster" | "buffSource" | "currentTarget"; } | { readonly kind: "context"; readonly contextKey: string; } | { ...; }',
+            unionVariants: [
+              {
+                type: '{ readonly kind: "target"; readonly target: "eventSource" | "eventTarget" | "enemy" | "caster" | "buffSource" | "currentTarget"; }',
+              },
+              { type: '{ readonly kind: "context"; readonly contextKey: string; }' },
+              {
+                type: '{ readonly kind: "abilitySystemSource"; readonly owner: "actionSource" | "actionOwner"; }',
+              },
+            ],
+          },
+        },
+        source: ['packages/game-data-contract/src/actions.ts:258:5'],
+        fallback: { reason: 'structured-editor-pending' },
       },
     ],
   },
@@ -165,14 +319,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'findUnfinishedProjectileTargets',
     description: '查询未结束的投射物。生成器必须先证明空间范围在固定木桩模型中覆盖这些候选。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'saveToContextKey'],
         label: 'saveToContextKey',
@@ -180,6 +327,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'string',
         required: true,
         control: 'string',
+        semantics: { type: 'string' },
+        source: ['packages/game-data-contract/src/actions.ts:284:5'],
       },
     ],
   },
@@ -187,14 +336,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'findCharacterTeamTargets',
     description: '查询当前队伍并把当时的实例身份快照覆盖写入 Context；后续消费者不得重新选人。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'saveToContextKey'],
         label: 'saveToContextKey',
@@ -202,6 +344,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'string',
         required: true,
         control: 'string',
+        semantics: { type: 'string' },
+        source: ['packages/game-data-contract/src/actions.ts:289:5'],
       },
       {
         path: ['parameters', 'selection'],
@@ -210,6 +354,18 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: "| { /** 队伍选择种类判别值。 */ readonly kind: 'allOperators'; } /** 选择当前主控干员。 */ | { /** 队伍选择种类判别值。 */ readonly kind: 'controlledOperator'; } | { /** 选择生命比例最低的干员。 */ readonly kind: 'lowestHealthRatioOperator'; /** 在优先级筛选之前排除既有 Context 中保存的稳定身份。 */ readonly excludedContextKey?: string; /** 在优先级筛选之前排除当前技能施术者。 */ readonly excludeCaster?: true; /** 在 forEach Context 内排除当前迭代的干员目标。 */ readonly excludeCurrentTarget?: true; }",
         required: true,
         control: 'json',
+        semantics: {
+          type: '{ readonly kind: "allOperators"; } | { readonly kind: "controlledOperator"; } | { readonly kind: "lowestHealthRatioOperator"; readonly excludedContextKey?: string | undefined; readonly excludeCaster?: true | undefined; readonly excludeCurrentTarget?: true | undefined; }',
+          unionVariants: [
+            { type: '{ readonly kind: "allOperators"; }' },
+            { type: '{ readonly kind: "controlledOperator"; }' },
+            {
+              type: '{ readonly kind: "lowestHealthRatioOperator"; readonly excludedContextKey?: string | undefined; readonly excludeCaster?: true | undefined; readonly excludeCurrentTarget?: true | undefined; }',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:291:5'],
+        fallback: { reason: 'structured-editor-pending' },
       },
     ],
   },
@@ -217,14 +373,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'createSpatialPointTargets',
     description: '在零空间模型中只保存随机空间点的数量与稳定临时身份，不保存坐标。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'saveToContextKey'],
         label: 'saveToContextKey',
@@ -232,6 +381,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'string',
         required: true,
         control: 'string',
+        semantics: { type: 'string' },
+        source: ['packages/game-data-contract/src/actions.ts:316:5'],
       },
       {
         path: ['parameters', 'count'],
@@ -240,6 +391,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'ActionValueOperand',
         required: true,
         control: 'operand',
+        semantics: { type: 'ActionValueOperand', aliases: ['ActionValueOperand'] },
+        source: ['packages/game-data-contract/src/actions.ts:318:5'],
       },
     ],
   },
@@ -247,14 +400,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'findOwnerSpawnedAbilityEntities',
     description: '按 owner 与生成期已解析的实体身份查询，并保存为本次释放的 Context 目标组。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'saveToContextKey'],
         label: 'saveToContextKey',
@@ -262,6 +408,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'string',
         required: true,
         control: 'string',
+        semantics: { type: 'string' },
+        source: ['packages/game-data-contract/src/actions.ts:323:5'],
       },
       {
         path: ['parameters', 'abilityEntityIds'],
@@ -270,6 +418,13 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'readonly string[]',
         required: false,
         control: 'json',
+        semantics: {
+          type: 'readonly string[] | undefined',
+          arrayElement: { type: 'string' },
+          optional: true,
+        },
+        source: ['packages/game-data-contract/src/actions.ts:325:5'],
+        fallback: { reason: 'structured-editor-pending' },
       },
       {
         path: ['parameters', 'ownerContextKey'],
@@ -278,6 +433,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'string',
         required: false,
         control: 'string',
+        semantics: { type: 'string | undefined', optional: true },
+        source: ['packages/game-data-contract/src/actions.ts:327:5'],
       },
       {
         path: ['parameters', 'maxTargets'],
@@ -286,6 +443,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'number',
         required: false,
         control: 'number',
+        semantics: { type: 'number | undefined', optional: true },
+        source: ['packages/game-data-contract/src/actions.ts:329:5'],
       },
       {
         path: ['parameters', 'sameSourceSkillCast'],
@@ -294,6 +453,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'boolean',
         required: false,
         control: 'boolean',
+        semantics: { type: 'boolean | undefined', optional: true },
+        source: ['packages/game-data-contract/src/actions.ts:331:5'],
       },
       {
         path: ['parameters', 'saveCountToBlackboardKey'],
@@ -302,6 +463,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'string',
         required: false,
         control: 'string',
+        semantics: { type: 'string | undefined', optional: true },
+        source: ['packages/game-data-contract/src/actions.ts:333:5'],
       },
       {
         path: ['parameters', 'circularOrder'],
@@ -310,6 +473,12 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: '{ /** 保存下一次环形查询起点的动作黑板键。 */ indexBlackboardKey: string; /** 排序后希望保留的目标数。 */ desiredCount: number; /** 保留原生符号语义：非负递减，负值递增。 */ reverseFlag: number; }',
         required: false,
         control: 'json',
+        semantics: {
+          type: '{ indexBlackboardKey: string; desiredCount: number; reverseFlag: number; } | undefined',
+          optional: true,
+        },
+        source: ['packages/game-data-contract/src/actions.ts:335:5'],
+        fallback: { reason: 'structured-editor-pending' },
       },
     ],
   },
@@ -317,14 +486,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'pickContextTarget',
     description: '从既有 Context 目标组按运行时索引选出一个稳定句柄，覆盖写入新组。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'sourceContextKey'],
         label: 'sourceContextKey',
@@ -332,6 +494,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'string',
         required: true,
         control: 'string',
+        semantics: { type: 'string' },
+        source: ['packages/game-data-contract/src/actions.ts:347:5'],
       },
       {
         path: ['parameters', 'saveToContextKey'],
@@ -340,6 +504,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'string',
         required: true,
         control: 'string',
+        semantics: { type: 'string' },
+        source: ['packages/game-data-contract/src/actions.ts:349:5'],
       },
       {
         path: ['parameters', 'index'],
@@ -348,6 +514,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'ActionValueOperand',
         required: true,
         control: 'operand',
+        semantics: { type: 'ActionValueOperand', aliases: ['ActionValueOperand'] },
+        source: ['packages/game-data-contract/src/actions.ts:351:5'],
       },
     ],
   },
@@ -356,14 +524,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     description:
       '对 Context 中的稳定目标句柄逐一同步执行；唯一木桩/施法者已被静态证明时，\n也可直接保留原生 ForEach 的即时生命周期与“忽略子序列返回值”边界。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'contextKey'],
         label: 'contextKey',
@@ -371,6 +532,11 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'string',
         required: false,
         control: 'string',
+        semantics: { type: 'string' },
+        source: [
+          'packages/game-data-contract/src/actions.ts:360:9',
+          'packages/game-data-contract/src/actions.ts:366:9',
+        ],
       },
       {
         path: ['parameters', 'target'],
@@ -380,6 +546,14 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: false,
         control: 'select',
         options: ['enemy', 'caster'],
+        semantics: {
+          type: '"enemy" | "caster"',
+          unionVariants: [{ type: '"enemy"' }, { type: '"caster"' }],
+        },
+        source: [
+          'packages/game-data-contract/src/actions.ts:362:9',
+          'packages/game-data-contract/src/actions.ts:368:9',
+        ],
       },
       {
         path: ['body'],
@@ -388,6 +562,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'ActionGraphReference',
         required: true,
         control: 'sequence',
+        semantics: { type: 'ActionGraphReference', aliases: ['ActionGraphReference'] },
+        source: ['packages/game-data-contract/src/actions.ts:1625:21'],
       },
     ],
   },
@@ -395,14 +571,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'readAbilityEntityRemainingDuration',
     description: '读取当前 Context 迭代目标的能力实体剩余时长到动作黑板。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'outputKey'],
         label: 'outputKey',
@@ -410,6 +579,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'string',
         required: true,
         control: 'string',
+        semantics: { type: 'string' },
+        source: ['packages/game-data-contract/src/actions.ts:373:5'],
       },
     ],
   },
@@ -417,14 +588,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'setAbilityEntityRemainingDuration',
     description: '将当前 Context 迭代目标的能力实体剩余时长赋为一个明确数值。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'value'],
         label: 'value',
@@ -432,63 +596,31 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'ActionValueOperand',
         required: true,
         control: 'operand',
+        semantics: { type: 'ActionValueOperand', aliases: ['ActionValueOperand'] },
+        source: ['packages/game-data-contract/src/actions.ts:378:5'],
       },
     ],
   },
   finishCurrentAbilityEntity: {
     kind: 'finishCurrentAbilityEntity',
     description: '结束当前 Context 迭代目标所指向的能力实体。',
-    fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
-    ],
+    fields: [actionSchemaPart_3c77b2f22bee7868],
   },
   finishActionOwnerAbilityEntity: {
     kind: 'finishActionOwnerAbilityEntity',
     description: '结束当前能力实体子技能的 ActionOwner，不受内层 forEach 当前目标覆盖。',
-    fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
-    ],
+    fields: [actionSchemaPart_3c77b2f22bee7868],
   },
   finishCurrentAbilityEntityWhenSourceDies: {
     kind: 'finishCurrentAbilityEntityWhenSourceDies',
     description: '仅在当前能力实体的来源已经死亡时结束该实体。',
-    fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
-    ],
+    fields: [actionSchemaPart_3c77b2f22bee7868],
   },
   startCurrentAbilityEntityChildSkill: {
     kind: 'startCurrentAbilityEntityChildSkill',
     description: '在当前 Context 迭代目标所指向的既有能力实体上启动一个无施法子技能。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'childSkill'],
         label: 'childSkill',
@@ -496,6 +628,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'AbilityEntityChildSkillDefinition',
         required: true,
         control: 'resource',
+        semantics: { type: 'AbilityEntityChildSkillDefinition' },
+        source: ['packages/game-data-contract/src/actions.ts:389:5'],
       },
     ],
   },
@@ -503,14 +637,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'startCurrentAbilityEntityChildSkillById',
     description: '在当前 Context 能力实体自己的模板中按原生 Skill ID 启动具名子技能。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'childSkillId'],
         label: 'childSkillId',
@@ -518,6 +645,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'string',
         required: true,
         control: 'string',
+        semantics: { type: 'string' },
+        source: ['packages/game-data-contract/src/actions.ts:394:5'],
       },
     ],
   },
@@ -525,14 +654,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'spawnAbilityEntity',
     description: '在零空间模型中生成一个有独立身份、生命周期和实体黑板的逻辑能力实体。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'abilityEntityId'],
         label: 'abilityEntityId',
@@ -540,6 +662,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'string',
         required: true,
         control: 'string',
+        semantics: { type: 'string' },
+        source: ['packages/game-data-contract/src/actions.ts:399:5'],
       },
       {
         path: ['parameters', 'definition'],
@@ -548,6 +672,9 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'AbilityEntityDefinition',
         required: false,
         control: 'json',
+        semantics: { type: 'AbilityEntityDefinition | undefined', optional: true },
+        source: ['packages/game-data-contract/src/actions.ts:401:5'],
+        fallback: { reason: 'structured-editor-pending' },
       },
       {
         path: ['parameters', 'inheritActionBlackboard'],
@@ -556,6 +683,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'boolean',
         required: false,
         control: 'boolean',
+        semantics: { type: 'boolean | undefined', optional: true },
+        source: ['packages/game-data-contract/src/actions.ts:403:5'],
       },
       {
         path: ['parameters', 'inheritSourceSkillCastInfo'],
@@ -565,6 +694,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'boolean',
         required: false,
         control: 'boolean',
+        semantics: { type: 'boolean | undefined', optional: true },
+        source: ['packages/game-data-contract/src/actions.ts:405:5'],
       },
       {
         path: ['parameters', 'childSkillId'],
@@ -573,6 +704,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'string',
         required: false,
         control: 'string',
+        semantics: { type: 'string | undefined', optional: true },
+        source: ['packages/game-data-contract/src/actions.ts:407:5'],
       },
       {
         path: ['parameters', 'source'],
@@ -583,6 +716,12 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: false,
         control: 'select',
         options: ['caster', 'currentAbilityEntity'],
+        semantics: {
+          type: '"caster" | "currentAbilityEntity" | undefined',
+          optional: true,
+          unionVariants: [{ type: '"caster"' }, { type: '"currentAbilityEntity"' }],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:412:5'],
       },
       {
         path: ['parameters', 'target'],
@@ -592,6 +731,18 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: false,
         control: 'select',
         options: ['enemy', 'caster', 'currentAbilityEntity'],
+        semantics: {
+          type: '"enemy" | "caster" | "currentAbilityEntity" | undefined',
+          optional: true,
+          unionVariants: [
+            {
+              type: '"enemy" | "caster"',
+              unionVariants: [{ type: '"enemy"' }, { type: '"caster"' }],
+            },
+            { type: '"currentAbilityEntity"' },
+          ],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:414:5'],
       },
       {
         path: ['parameters', 'overrideDurationSeconds'],
@@ -600,6 +751,12 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'ActionValueOperand',
         required: false,
         control: 'operand',
+        semantics: {
+          type: 'ActionValueOperand | undefined',
+          aliases: ['ActionValueOperand'],
+          optional: true,
+        },
+        source: ['packages/game-data-contract/src/actions.ts:416:5'],
       },
       {
         path: ['parameters', 'saveToContextKey'],
@@ -608,6 +765,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'string',
         required: false,
         control: 'string',
+        semantics: { type: 'string | undefined', optional: true },
+        source: ['packages/game-data-contract/src/actions.ts:418:5'],
       },
       {
         path: ['parameters', 'dieWhenSourceDies'],
@@ -616,6 +775,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'boolean',
         required: true,
         control: 'boolean',
+        semantics: { type: 'boolean' },
+        source: ['packages/game-data-contract/src/actions.ts:420:5'],
       },
       {
         path: ['parameters', 'finishByAction'],
@@ -624,6 +785,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'boolean',
         required: false,
         control: 'boolean',
+        semantics: { type: 'boolean | undefined', optional: true },
+        source: ['packages/game-data-contract/src/actions.ts:422:5'],
       },
       {
         path: ['parameters', 'blackboardAssignments'],
@@ -632,6 +795,13 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'Readonly<Record<string, ActionValueOperand>>',
         required: false,
         control: 'json',
+        semantics: {
+          type: 'Readonly<Record<string, ActionValueOperand>> | undefined',
+          recordValue: { type: 'ActionValueOperand', aliases: ['ActionValueOperand'] },
+          optional: true,
+        },
+        source: ['packages/game-data-contract/src/actions.ts:424:5'],
+        fallback: { reason: 'structured-editor-pending' },
       },
       {
         path: ['parameters', 'stringBlackboardAssignments'],
@@ -640,6 +810,13 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'Readonly<Record<string, string>>',
         required: false,
         control: 'json',
+        semantics: {
+          type: 'Readonly<Record<string, string>> | undefined',
+          recordValue: { type: 'string' },
+          optional: true,
+        },
+        source: ['packages/game-data-contract/src/actions.ts:426:5'],
+        fallback: { reason: 'structured-editor-pending' },
       },
     ],
   },
@@ -647,14 +824,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'applyElementalInfliction',
     description: '为目标增加一层元素附着并触发相应事件。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'inverseReaction'],
         label: 'inverseReaction',
@@ -662,6 +832,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'boolean',
         required: false,
         control: 'boolean',
+        semantics: { type: 'boolean | undefined', optional: true },
+        source: ['packages/game-data-contract/src/actions.ts:431:5'],
       },
       {
         path: ['parameters', 'element'],
@@ -671,6 +843,16 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: true,
         control: 'select',
         options: ['heat', 'cryo', 'electric', 'nature'],
+        semantics: {
+          type: '"heat" | "cryo" | "electric" | "nature"',
+          unionVariants: [
+            { type: '"heat"' },
+            { type: '"cryo"' },
+            { type: '"electric"' },
+            { type: '"nature"' },
+          ],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:433:5'],
       },
       {
         path: ['parameters', 'isExtra'],
@@ -679,6 +861,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'boolean',
         required: true,
         control: 'boolean',
+        semantics: { type: 'boolean' },
+        source: ['packages/game-data-contract/src/actions.ts:435:5'],
       },
       {
         path: ['parameters', 'target'],
@@ -689,6 +873,12 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: false,
         control: 'select',
         options: ['enemy', 'buffOwner'],
+        semantics: {
+          type: '"enemy" | "buffOwner" | undefined',
+          optional: true,
+          unionVariants: [{ type: '"enemy"' }, { type: '"buffOwner"' }],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:437:5'],
       },
     ],
   },
@@ -696,14 +886,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'triggerCustomAbilityEvent',
     description: '在施放者 AbilitySystem 上同步发布一个已命名的原生自定义事件。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'eventName'],
         label: 'eventName',
@@ -711,6 +894,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'string',
         required: true,
         control: 'string',
+        semantics: { type: 'string' },
+        source: ['packages/game-data-contract/src/actions.ts:447:5'],
       },
       {
         path: ['parameters', 'eventParam'],
@@ -719,6 +904,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'number',
         required: true,
         control: 'number',
+        semantics: { type: 'number' },
+        source: ['packages/game-data-contract/src/actions.ts:449:5'],
       },
       {
         path: ['parameters', 'target'],
@@ -728,6 +915,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: true,
         control: 'select',
         options: ['caster'],
+        semantics: { type: '"caster"' },
+        source: ['packages/game-data-contract/src/actions.ts:451:5'],
       },
       {
         path: ['parameters', 'source'],
@@ -737,6 +926,12 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: false,
         control: 'select',
         options: ['caster', 'currentAbilityEntity'],
+        semantics: {
+          type: '"caster" | "currentAbilityEntity" | undefined',
+          optional: true,
+          unionVariants: [{ type: '"caster"' }, { type: '"currentAbilityEntity"' }],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:453:5'],
       },
     ],
   },
@@ -744,14 +939,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'castSkillDuringAction',
     description: '原生 CastSkill：动作栈返回后覆盖写入 AbilitySystem 的单槽延迟施放请求。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'skillId'],
         label: 'skillId',
@@ -760,6 +948,9 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'ActionStringOperand',
         required: true,
         control: 'json',
+        semantics: { type: 'ActionStringOperand', aliases: ['ActionStringOperand'] },
+        source: ['packages/game-data-contract/src/actions.ts:458:5'],
+        fallback: { reason: 'structured-editor-pending' },
       },
       {
         path: ['parameters', 'target'],
@@ -769,6 +960,16 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: true,
         control: 'select',
         options: ['enemy', 'caster', 'actionInputTarget', 'context'],
+        semantics: {
+          type: '"enemy" | "caster" | "actionInputTarget" | "context"',
+          unionVariants: [
+            { type: '"caster"' },
+            { type: '"enemy"' },
+            { type: '"actionInputTarget"' },
+            { type: '"context"' },
+          ],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:460:5'],
       },
       {
         path: ['parameters', 'targetContextKey'],
@@ -777,6 +978,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'string',
         required: false,
         control: 'string',
+        semantics: { type: 'string | undefined', optional: true },
+        source: ['packages/game-data-contract/src/actions.ts:462:5'],
       },
       {
         path: ['parameters', 'skipApplyCost'],
@@ -785,6 +988,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'boolean',
         required: true,
         control: 'boolean',
+        semantics: { type: 'boolean' },
+        source: ['packages/game-data-contract/src/actions.ts:464:5'],
       },
       {
         path: ['parameters', 'inheritSourceSkillCastInfo'],
@@ -793,6 +998,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'boolean',
         required: true,
         control: 'boolean',
+        semantics: { type: 'boolean' },
+        source: ['packages/game-data-contract/src/actions.ts:466:5'],
       },
       {
         path: ['parameters', 'interruptCurrentSkillOnlyWhenTargetCastable'],
@@ -801,6 +1008,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'boolean',
         required: false,
         control: 'boolean',
+        semantics: { type: 'boolean | undefined', optional: true },
+        source: ['packages/game-data-contract/src/actions.ts:468:5'],
       },
     ],
   },
@@ -808,14 +1017,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'applyKnockDown',
     description: '普通根倒地动作；破防与状态 Buff 由公共目录解析，不等同于输出一次成功事件。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'target'],
         label: 'target',
@@ -824,6 +1026,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: true,
         control: 'select',
         options: ['enemy'],
+        semantics: { type: '"enemy"' },
+        source: ['packages/game-data-contract/src/actions.ts:473:5'],
       },
       {
         path: ['parameters', 'duration'],
@@ -832,6 +1036,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'ActionValueOperand',
         required: true,
         control: 'operand',
+        semantics: { type: 'ActionValueOperand', aliases: ['ActionValueOperand'] },
+        source: ['packages/game-data-contract/src/actions.ts:475:5'],
       },
       {
         path: ['parameters', 'force'],
@@ -840,6 +1046,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'boolean',
         required: true,
         control: 'boolean',
+        semantics: { type: 'boolean' },
+        source: ['packages/game-data-contract/src/actions.ts:477:5'],
       },
       {
         path: ['parameters', 'isExtra'],
@@ -848,6 +1056,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'boolean',
         required: true,
         control: 'boolean',
+        semantics: { type: 'boolean' },
+        source: ['packages/game-data-contract/src/actions.ts:479:5'],
       },
       {
         path: ['parameters', 'targetFilter'],
@@ -857,6 +1067,11 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: true,
         control: 'select',
         options: ['aliveOnly', 'skipAll'],
+        semantics: {
+          type: '"aliveOnly" | "skipAll"',
+          unionVariants: [{ type: '"aliveOnly"' }, { type: '"skipAll"' }],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:481:5'],
       },
       {
         path: ['parameters', 'returnWhen'],
@@ -866,6 +1081,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: true,
         control: 'select',
         options: ['always', 'successAndInterrupted', 'success', 'interrupted'],
+        semantics: actionSchemaPart_726a48383a9b568f,
+        source: ['packages/game-data-contract/src/actions.ts:483:5'],
       },
     ],
   },
@@ -874,14 +1091,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     description:
       '对固定敌人执行物理异常入口。公共 Buff 蓝图随使用点内联，运行时按目标当前层数\n选择首次破防或后续异常链，不把公共 Buff 变成可编辑的项目级钻石依赖。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'target'],
         label: 'target',
@@ -890,6 +1100,11 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: true,
         control: 'select',
         options: ['enemy'],
+        semantics: {
+          type: "'enemy'",
+          unionVariants: [{ type: '"enemy"' }, { type: '"enemy"' }, { type: '"enemy"' }],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:491:5'],
       },
       {
         path: ['parameters', 'isExtra'],
@@ -898,6 +1113,11 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'boolean',
         required: true,
         control: 'boolean',
+        semantics: {
+          type: 'boolean',
+          unionVariants: [{ type: 'boolean' }, { type: 'boolean' }, { type: 'boolean' }],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:493:5'],
       },
       {
         path: ['parameters', 'noGuardBuffId'],
@@ -906,6 +1126,11 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'string',
         required: true,
         control: 'string',
+        semantics: {
+          type: 'string',
+          unionVariants: [{ type: 'string' }, { type: 'string' }, { type: 'string' }],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:495:5'],
       },
       {
         path: ['parameters', 'noGuardDefinition'],
@@ -914,6 +1139,15 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'SkillBuffDefinition',
         required: true,
         control: 'resource',
+        semantics: {
+          type: 'SkillBuffDefinition',
+          unionVariants: [
+            actionSchemaPart_e8015229e9523ae4,
+            actionSchemaPart_e8015229e9523ae4,
+            actionSchemaPart_e8015229e9523ae4,
+          ],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:497:5'],
       },
       {
         path: ['parameters', 'type'],
@@ -923,6 +1157,15 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: true,
         control: 'select',
         options: ['fracture', 'crush', 'airborne'],
+        semantics: {
+          type: "'fracture' | 'crush' | 'airborne'",
+          unionVariants: [{ type: '"fracture"' }, { type: '"crush"' }, { type: '"airborne"' }],
+        },
+        source: [
+          'packages/game-data-contract/src/actions.ts:501:9',
+          'packages/game-data-contract/src/actions.ts:509:9',
+          'packages/game-data-contract/src/actions.ts:521:9',
+        ],
       },
       {
         path: ['parameters', 'fractureBuffId'],
@@ -931,6 +1174,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'string',
         required: false,
         control: 'string',
+        semantics: { type: 'string' },
+        source: ['packages/game-data-contract/src/actions.ts:503:9'],
       },
       {
         path: ['parameters', 'fractureDefinition'],
@@ -939,6 +1184,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'SkillBuffDefinition',
         required: false,
         control: 'resource',
+        semantics: actionSchemaPart_e8015229e9523ae4,
+        source: ['packages/game-data-contract/src/actions.ts:505:9'],
       },
       {
         path: ['parameters', 'crushedBuffId'],
@@ -947,6 +1194,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'string',
         required: false,
         control: 'string',
+        semantics: { type: 'string' },
+        source: ['packages/game-data-contract/src/actions.ts:511:9'],
       },
       {
         path: ['parameters', 'crushedDefinition'],
@@ -955,6 +1204,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'SkillBuffDefinition',
         required: false,
         control: 'resource',
+        semantics: actionSchemaPart_e8015229e9523ae4,
+        source: ['packages/game-data-contract/src/actions.ts:513:9'],
       },
       {
         path: ['parameters', 'damageMultiplier'],
@@ -963,6 +1214,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'ActionValueOperand',
         required: false,
         control: 'operand',
+        semantics: { type: 'ActionValueOperand', aliases: ['ActionValueOperand'] },
+        source: ['packages/game-data-contract/src/actions.ts:515:9'],
       },
       {
         path: ['parameters', 'ignoreHitEffect'],
@@ -971,6 +1224,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'boolean',
         required: false,
         control: 'boolean',
+        semantics: { type: 'boolean' },
+        source: ['packages/game-data-contract/src/actions.ts:517:9'],
       },
       {
         path: ['parameters', 'airborneBuffId'],
@@ -979,6 +1234,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'string',
         required: false,
         control: 'string',
+        semantics: { type: 'string' },
+        source: ['packages/game-data-contract/src/actions.ts:523:9'],
       },
       {
         path: ['parameters', 'airborneDefinition'],
@@ -987,6 +1244,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'SkillBuffDefinition',
         required: false,
         control: 'resource',
+        semantics: actionSchemaPart_e8015229e9523ae4,
+        source: ['packages/game-data-contract/src/actions.ts:525:9'],
       },
       {
         path: ['parameters', 'duration'],
@@ -995,6 +1254,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'ActionValueOperand',
         required: false,
         control: 'operand',
+        semantics: { type: 'ActionValueOperand', aliases: ['ActionValueOperand'] },
+        source: ['packages/game-data-contract/src/actions.ts:527:9'],
       },
       {
         path: ['parameters', 'height'],
@@ -1003,6 +1264,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'ActionValueOperand',
         required: false,
         control: 'operand',
+        semantics: { type: 'ActionValueOperand', aliases: ['ActionValueOperand'] },
+        source: ['packages/game-data-contract/src/actions.ts:529:9'],
       },
       {
         path: ['parameters', 'speedFactorMultiplier'],
@@ -1011,6 +1274,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'number',
         required: false,
         control: 'number',
+        semantics: { type: 'number' },
+        source: ['packages/game-data-contract/src/actions.ts:531:9'],
       },
       {
         path: ['parameters', 'force'],
@@ -1019,6 +1284,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'boolean',
         required: false,
         control: 'boolean',
+        semantics: { type: 'boolean' },
+        source: ['packages/game-data-contract/src/actions.ts:533:9'],
       },
       {
         path: ['parameters', 'targetFilter'],
@@ -1028,6 +1295,11 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: false,
         control: 'select',
         options: ['aliveOnly', 'skipAll'],
+        semantics: {
+          type: '"aliveOnly" | "skipAll"',
+          unionVariants: [{ type: '"aliveOnly"' }, { type: '"skipAll"' }],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:535:9'],
       },
       {
         path: ['parameters', 'returnWhen'],
@@ -1037,6 +1309,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: false,
         control: 'select',
         options: ['always', 'successAndInterrupted', 'success', 'interrupted'],
+        semantics: actionSchemaPart_726a48383a9b568f,
+        source: ['packages/game-data-contract/src/actions.ts:537:9'],
       },
     ],
   },
@@ -1044,14 +1318,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'applyElementalReaction',
     description: '在目标身上创建一个有持续时间和效果系数的复合元素反应。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'reaction'],
         label: 'reaction',
@@ -1060,6 +1327,11 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: true,
         control: 'select',
         options: ['electrification', 'corrosion'],
+        semantics: {
+          type: '"electrification" | "corrosion"',
+          unionVariants: [{ type: '"electrification"' }, { type: '"corrosion"' }],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:543:5'],
       },
       {
         path: ['parameters', 'target'],
@@ -1069,6 +1341,11 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: true,
         control: 'select',
         options: ['enemy', 'caster'],
+        semantics: {
+          type: '"enemy" | "caster"',
+          unionVariants: [{ type: '"enemy"' }, { type: '"caster"' }],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:545:5'],
       },
       {
         path: ['parameters', 'durationSeconds'],
@@ -1077,6 +1354,15 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'number | ActionValueOperand',
         required: true,
         control: 'json',
+        semantics: {
+          type: 'number | ActionValueOperand',
+          unionVariants: [
+            { type: 'number' },
+            { type: 'ActionValueOperand', aliases: ['ActionValueOperand'] },
+          ],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:547:5'],
+        fallback: { reason: 'structured-editor-pending' },
       },
       {
         path: ['parameters', 'durationMultiplier'],
@@ -1085,6 +1371,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'number',
         required: false,
         control: 'number',
+        semantics: { type: 'number | undefined', optional: true },
+        source: ['packages/game-data-contract/src/actions.ts:549:5'],
       },
       {
         path: ['parameters', 'effectiveness'],
@@ -1093,6 +1381,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'number',
         required: true,
         control: 'number',
+        semantics: { type: 'number' },
+        source: ['packages/game-data-contract/src/actions.ts:551:5'],
       },
     ],
   },
@@ -1100,14 +1390,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'consumeElementalReaction',
     description: '从目标身上移除一个复合元素反应。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'reaction'],
         label: 'reaction',
@@ -1116,6 +1399,11 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: true,
         control: 'select',
         options: ['electrification', 'corrosion'],
+        semantics: {
+          type: '"electrification" | "corrosion"',
+          unionVariants: [{ type: '"electrification"' }, { type: '"corrosion"' }],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:556:5'],
       },
       {
         path: ['parameters', 'target'],
@@ -1125,6 +1413,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: true,
         control: 'select',
         options: ['enemy'],
+        semantics: { type: '"enemy"' },
+        source: ['packages/game-data-contract/src/actions.ts:558:5'],
       },
     ],
   },
@@ -1132,14 +1422,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'outputAirborne',
     description: '报告一次对固定目标成功输出浮空；木桩模型不保存位移、朝向或控制状态。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'target'],
         label: 'target',
@@ -1148,6 +1431,11 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: true,
         control: 'select',
         options: ['enemy', 'caster'],
+        semantics: {
+          type: '"enemy" | "caster"',
+          unionVariants: [{ type: '"enemy"' }, { type: '"caster"' }],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:563:5'],
       },
     ],
   },
@@ -1155,15 +1443,18 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'dealDamage',
     description: '造成一次按攻击力或属性计算的伤害。',
     fields: [
+      actionSchemaPart_3c77b2f22bee7868,
       {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
+        path: ['parameters', 'damageType'],
+        label: 'damageType',
+        description: '本次生命伤害的类型。',
+        type: 'DamageType',
+        required: true,
+        control: 'select',
+        options: ['physical', 'heat', 'cryo', 'electric', 'nature', 'true', 'lifeDrain', 'ether'],
+        semantics: actionSchemaPart_3b098870902a8933,
+        source: ['packages/game-data-contract/src/actions.ts:93:3'],
       },
-      actionSchemaPart_4eda6c224d74fb65,
       {
         path: ['parameters', 'calculation'],
         label: 'calculation',
@@ -1172,6 +1463,16 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: false,
         control: 'select',
         options: ['standard', 'breakingAttack', 'attribute'],
+        semantics: {
+          type: '"standard" | "breakingAttack" | "attribute" | undefined',
+          optional: true,
+          unionVariants: [
+            { type: '"standard"' },
+            { type: '"breakingAttack"' },
+            { type: '"attribute"' },
+          ],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:95:3'],
       },
       {
         path: ['parameters', 'attackScale'],
@@ -1180,6 +1481,14 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'LevelValues | ActionValueOperand',
         required: true,
         control: 'levelValues',
+        semantics: {
+          type: 'LevelValues | ActionValueOperand',
+          unionVariants: [
+            { type: 'LevelValues', aliases: ['LevelValues'] },
+            { type: 'ActionValueOperand', aliases: ['ActionValueOperand'] },
+          ],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:97:3'],
       },
       {
         path: ['parameters', 'takeAttackSnapshot'],
@@ -1188,6 +1497,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'boolean',
         required: false,
         control: 'boolean',
+        semantics: { type: 'boolean | undefined', optional: true },
+        source: ['packages/game-data-contract/src/actions.ts:99:3'],
       },
       {
         path: ['parameters', 'calculationMultiplier'],
@@ -1196,6 +1507,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'LevelValues',
         required: false,
         control: 'levelValues',
+        semantics: { type: 'LevelValues | undefined', aliases: ['LevelValues'], optional: true },
+        source: ['packages/game-data-contract/src/actions.ts:101:3'],
       },
       {
         path: ['parameters', 'calculationAttribute'],
@@ -1204,6 +1517,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'string',
         required: false,
         control: 'string',
+        semantics: { type: 'string | undefined', optional: true },
+        source: ['packages/game-data-contract/src/actions.ts:103:3'],
       },
       {
         path: ['parameters', 'calculationAddition'],
@@ -1212,8 +1527,37 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'LevelValues | ActionValueOperand',
         required: false,
         control: 'levelValues',
+        semantics: actionSchemaPart_f49bdafe0a2efd47,
+        source: ['packages/game-data-contract/src/actions.ts:105:3'],
       },
-      actionSchemaPart_edf7fd41d97a1bb4,
+      {
+        path: ['parameters', 'tags'],
+        label: 'tags',
+        description: '本次伤害携带的技能和爆发分类标签。',
+        type: 'readonly DamageTag[]',
+        required: true,
+        control: 'multiselect',
+        options: [
+          'normalAttack',
+          'normalAttackLastCombo',
+          'powerAttack',
+          'normalSkill',
+          'comboSkill',
+          'ultimateSkill',
+          'plungingAttack',
+          'dashAttack',
+          'fireBurst',
+          'electricBurst',
+          'cryoBurst',
+          'natureBurst',
+          'fireAbnormal',
+          'electricAbnormal',
+          'cryoAbnormal',
+          'natureAbnormal',
+        ],
+        semantics: actionSchemaPart_696ddc5ee252e88d,
+        source: ['packages/game-data-contract/src/actions.ts:107:3'],
+      },
       {
         path: ['parameters', 'gameplayTags'],
         label: 'gameplayTags',
@@ -1222,8 +1566,35 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'readonly GameplayTag[]',
         required: false,
         control: 'json',
+        semantics: {
+          type: 'readonly string[] | undefined',
+          arrayElement: { type: 'string', aliases: ['GameplayTag'] },
+          optional: true,
+        },
+        source: ['packages/game-data-contract/src/actions.ts:109:3'],
+        fallback: { reason: 'structured-editor-pending' },
       },
-      actionSchemaPart_1b0a537a4e7044ff,
+      {
+        path: ['parameters', 'features'],
+        label: 'features',
+        description: '原生伤害位中与技能分类无关的行为特征。',
+        type: 'readonly DamageFeature[]',
+        required: false,
+        control: 'multiselect',
+        options: [
+          'canBreakWeakness',
+          'crush',
+          'airborne',
+          'knockDown',
+          'shatter',
+          'dot',
+          'remainArea',
+          'talentDamage',
+          'physicalInfliction',
+        ],
+        semantics: actionSchemaPart_63543b616519f1b6,
+        source: ['packages/game-data-contract/src/actions.ts:111:3'],
+      },
       {
         path: ['parameters', 'stagger'],
         label: 'stagger',
@@ -1231,6 +1602,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'LevelValues | ActionValueOperand',
         required: false,
         control: 'levelValues',
+        semantics: actionSchemaPart_f49bdafe0a2efd47,
+        source: ['packages/game-data-contract/src/actions.ts:113:3'],
       },
       {
         path: ['parameters', 'staggerMultiplier'],
@@ -1239,8 +1612,19 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'LevelValues | ActionValueOperand',
         required: false,
         control: 'levelValues',
+        semantics: actionSchemaPart_f49bdafe0a2efd47,
+        source: ['packages/game-data-contract/src/actions.ts:115:3'],
       },
-      actionSchemaPart_d1636631faeb7f6d,
+      {
+        path: ['parameters', 'staggerOnlyWhenCasterControlled'],
+        label: 'staggerOnlyWhenCasterControlled',
+        description: '原生 Poise 单元 onlyEnableForMainChar；生命伤害仍正常结算。',
+        type: 'boolean',
+        required: false,
+        control: 'boolean',
+        semantics: { type: 'boolean | undefined', optional: true },
+        source: ['packages/game-data-contract/src/actions.ts:117:3'],
+      },
       {
         path: ['parameters', 'attackScalePerStatusStack'],
         label: 'attackScalePerStatusStack',
@@ -1248,6 +1632,12 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: '{ /** 要读取层数的状态键。 */ statusKey: string; /** 状态所属对象。 */ target: CombatTarget; /** 每层额外提供的攻击倍率。 */ coefficient: LevelValues; }',
         required: false,
         control: 'json',
+        semantics: {
+          type: '{ statusKey: string; target: "enemy" | "caster"; coefficient: LevelValues; } | undefined',
+          optional: true,
+        },
+        source: ['packages/game-data-contract/src/actions.ts:119:3'],
+        fallback: { reason: 'structured-editor-pending' },
       },
       {
         path: ['parameters', 'instantAttributeModifiers'],
@@ -1256,6 +1646,15 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'readonly { /** 修改攻击方还是目标方。 */ targetSide: DamageModifierSide; /** 要修改的原生属性。 */ attribute: string; /** 写入的属性公式槽。 */ slot: AttributeModifierSlot; /** 写入的数值。 */ value: ActionValueOperand; /** 读取构筑属性还是当前运行时属性。 */ attributeTiming: AttributeModifierTiming; }[]',
         required: false,
         control: 'json',
+        semantics: {
+          type: 'readonly { targetSide: "defender" | "attacker"; attribute: string; slot: "addition" | "multiplier" | "finalAddition" | "finalMultiplier" | "baseAddition" | "baseMultiplier" | "baseFinalAddition" | "baseFinalMultiplier"; value: ActionValueOperand; attributeTiming: "deck" | "runtime"; }[] | undefined',
+          arrayElement: {
+            type: '{ targetSide: "defender" | "attacker"; attribute: string; slot: "addition" | "multiplier" | "finalAddition" | "finalMultiplier" | "baseAddition" | "baseMultiplier" | "baseFinalAddition" | "baseFinalMultiplier"; value: ActionValueOperand; attributeTiming: "deck" | "runtime"; }',
+          },
+          optional: true,
+        },
+        source: ['packages/game-data-contract/src/actions.ts:128:3'],
+        fallback: { reason: 'structured-editor-pending' },
       },
       {
         path: ['parameters', 'instantDamageScaleModifiers'],
@@ -1264,6 +1663,15 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'readonly { /** 修改攻击方还是目标方。 */ side: DamageScaleSide; /** 写入的伤害倍率区间。 */ zone: DamageScaleZone; /** 加入该区间的数值。 */ addition: ActionValueOperand; }[]',
         required: false,
         control: 'json',
+        semantics: {
+          type: 'readonly { side: "defender" | "attacker"; zone: "product" | "normal" | "abnormalAndBurst" | "enhanced" | "combo" | "vulnerable" | "race"; addition: ActionValueOperand; }[] | undefined',
+          arrayElement: {
+            type: '{ side: "defender" | "attacker"; zone: "product" | "normal" | "abnormalAndBurst" | "enhanced" | "combo" | "vulnerable" | "race"; addition: ActionValueOperand; }',
+          },
+          optional: true,
+        },
+        source: ['packages/game-data-contract/src/actions.ts:141:3'],
+        fallback: { reason: 'structured-editor-pending' },
       },
     ],
   },
@@ -1271,15 +1679,18 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'dealFixedDamage',
     description: '造成一次使用固定基础值的伤害。',
     fields: [
+      actionSchemaPart_3c77b2f22bee7868,
       {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
+        path: ['parameters', 'damageType'],
+        label: 'damageType',
+        description: '本次生命伤害的类型。',
+        type: 'DamageType',
+        required: true,
+        control: 'select',
+        options: ['physical', 'heat', 'cryo', 'electric', 'nature', 'true', 'lifeDrain', 'ether'],
+        semantics: actionSchemaPart_3b098870902a8933,
+        source: ['packages/game-data-contract/src/actions.ts:157:3'],
       },
-      actionSchemaPart_4eda6c224d74fb65,
       {
         path: ['parameters', 'value'],
         label: 'value',
@@ -1287,9 +1698,64 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'LevelValues | ActionValueOperand',
         required: true,
         control: 'levelValues',
+        semantics: {
+          type: 'LevelValues | ActionValueOperand',
+          unionVariants: [
+            { type: 'LevelValues', aliases: ['LevelValues'] },
+            { type: 'ActionValueOperand', aliases: ['ActionValueOperand'] },
+          ],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:159:3'],
       },
-      actionSchemaPart_edf7fd41d97a1bb4,
-      actionSchemaPart_1b0a537a4e7044ff,
+      {
+        path: ['parameters', 'tags'],
+        label: 'tags',
+        description: '本次伤害携带的技能和爆发分类标签。',
+        type: 'readonly DamageTag[]',
+        required: true,
+        control: 'multiselect',
+        options: [
+          'normalAttack',
+          'normalAttackLastCombo',
+          'powerAttack',
+          'normalSkill',
+          'comboSkill',
+          'ultimateSkill',
+          'plungingAttack',
+          'dashAttack',
+          'fireBurst',
+          'electricBurst',
+          'cryoBurst',
+          'natureBurst',
+          'fireAbnormal',
+          'electricAbnormal',
+          'cryoAbnormal',
+          'natureAbnormal',
+        ],
+        semantics: actionSchemaPart_696ddc5ee252e88d,
+        source: ['packages/game-data-contract/src/actions.ts:161:3'],
+      },
+      {
+        path: ['parameters', 'features'],
+        label: 'features',
+        description: '原生伤害位中与技能分类无关的行为特征。',
+        type: 'readonly DamageFeature[]',
+        required: false,
+        control: 'multiselect',
+        options: [
+          'canBreakWeakness',
+          'crush',
+          'airborne',
+          'knockDown',
+          'shatter',
+          'dot',
+          'remainArea',
+          'talentDamage',
+          'physicalInfliction',
+        ],
+        semantics: actionSchemaPart_63543b616519f1b6,
+        source: ['packages/game-data-contract/src/actions.ts:163:3'],
+      },
       {
         path: ['parameters', 'stagger'],
         label: 'stagger',
@@ -1297,6 +1763,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'LevelValues | ActionValueOperand',
         required: false,
         control: 'levelValues',
+        semantics: actionSchemaPart_f49bdafe0a2efd47,
+        source: ['packages/game-data-contract/src/actions.ts:165:3'],
       },
       {
         path: ['parameters', 'staggerMultiplier'],
@@ -1305,22 +1773,26 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'LevelValues | ActionValueOperand',
         required: false,
         control: 'levelValues',
+        semantics: actionSchemaPart_f49bdafe0a2efd47,
+        source: ['packages/game-data-contract/src/actions.ts:167:3'],
       },
-      actionSchemaPart_d1636631faeb7f6d,
+      {
+        path: ['parameters', 'staggerOnlyWhenCasterControlled'],
+        label: 'staggerOnlyWhenCasterControlled',
+        description: '原生 Poise 单元 onlyEnableForMainChar；生命伤害仍正常结算。',
+        type: 'boolean',
+        required: false,
+        control: 'boolean',
+        semantics: { type: 'boolean | undefined', optional: true },
+        source: ['packages/game-data-contract/src/actions.ts:169:3'],
+      },
     ],
   },
   dealStagger: {
     kind: 'dealStagger',
     description: '不伴随生命伤害的独立失衡单元；数值仍会经过来源与目标的失衡倍率。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'value'],
         label: 'value',
@@ -1328,6 +1800,14 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'LevelValues | ActionValueOperand',
         required: true,
         control: 'levelValues',
+        semantics: {
+          type: 'LevelValues | ActionValueOperand',
+          unionVariants: [
+            { type: 'LevelValues', aliases: ['LevelValues'] },
+            { type: 'ActionValueOperand', aliases: ['ActionValueOperand'] },
+          ],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:577:5'],
       },
       {
         path: ['parameters', 'valueMultiplier'],
@@ -1336,6 +1816,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'LevelValues | ActionValueOperand',
         required: false,
         control: 'levelValues',
+        semantics: actionSchemaPart_f49bdafe0a2efd47,
+        source: ['packages/game-data-contract/src/actions.ts:579:5'],
       },
       {
         path: ['parameters', 'features'],
@@ -1355,6 +1837,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
           'talentDamage',
           'physicalInfliction',
         ],
+        semantics: actionSchemaPart_63543b616519f1b6,
+        source: ['packages/game-data-contract/src/actions.ts:581:5'],
       },
     ],
   },
@@ -1362,14 +1846,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'heal',
     description: '按施法者属性计算，并写入干员生命账本的普通治疗。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'target'],
         label: 'target',
@@ -1389,6 +1866,19 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
           'lowestHealthRatioOperator',
           'lowestHealthRatioOperatorExceptControlled',
         ],
+        semantics: {
+          type: "'contextTarget' | Exclude<HealTarget, 'contextTarget'>",
+          unionVariants: [
+            { type: '"contextTarget"' },
+            { type: '"contextTarget"' },
+            actionSchemaPart_fbd9797e964a589d,
+            actionSchemaPart_fbd9797e964a589d,
+          ],
+        },
+        source: [
+          'packages/game-data-contract/src/actions.ts:65:7',
+          'packages/game-data-contract/src/actions.ts:71:7',
+        ],
       },
       {
         path: ['parameters', 'contextKey'],
@@ -1397,6 +1887,11 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'string',
         required: false,
         control: 'string',
+        semantics: { type: 'string', unionVariants: [{ type: 'string' }, { type: 'string' }] },
+        source: [
+          'packages/game-data-contract/src/actions.ts:67:7',
+          'packages/game-data-contract/src/actions.ts:73:7',
+        ],
       },
       {
         path: ['parameters', 'source'],
@@ -1406,6 +1901,16 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: false,
         control: 'select',
         options: ['buffOwner'],
+        semantics: {
+          type: "'buffOwner'",
+          unionVariants: [
+            { type: '"buffOwner" | undefined', optional: true },
+            { type: '"buffOwner" | undefined', optional: true },
+            { type: '"buffOwner" | undefined', optional: true },
+            { type: '"buffOwner" | undefined', optional: true },
+          ],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:586:5'],
       },
       {
         path: ['parameters', 'alwaysNext'],
@@ -1414,6 +1919,16 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'boolean',
         required: false,
         control: 'boolean',
+        semantics: {
+          type: 'boolean',
+          unionVariants: [
+            { type: 'boolean | undefined', optional: true },
+            { type: 'boolean | undefined', optional: true },
+            { type: 'boolean | undefined', optional: true },
+            { type: 'boolean | undefined', optional: true },
+          ],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:588:5'],
       },
       {
         path: ['parameters', 'tags'],
@@ -1422,6 +1937,29 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'readonly GameplayTag[]',
         required: true,
         control: 'json',
+        semantics: {
+          type: 'readonly GameplayTag[]',
+          unionVariants: [
+            {
+              type: 'readonly string[]',
+              arrayElement: { type: 'string', aliases: ['GameplayTag'] },
+            },
+            {
+              type: 'readonly string[]',
+              arrayElement: { type: 'string', aliases: ['GameplayTag'] },
+            },
+            {
+              type: 'readonly string[]',
+              arrayElement: { type: 'string', aliases: ['GameplayTag'] },
+            },
+            {
+              type: 'readonly string[]',
+              arrayElement: { type: 'string', aliases: ['GameplayTag'] },
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:590:5'],
+        fallback: { reason: 'structured-editor-pending' },
       },
       {
         path: ['parameters', 'attribute'],
@@ -1431,6 +1969,14 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: false,
         control: 'select',
         options: ['strength', 'agility', 'intellect', 'will', 'maxHealth'],
+        semantics: {
+          type: 'HealCalculationAttribute',
+          unionVariants: [actionSchemaPart_aa4e38c35c211674, actionSchemaPart_aa4e38c35c211674],
+        },
+        source: [
+          'packages/game-data-contract/src/actions.ts:595:11',
+          'packages/game-data-contract/src/actions.ts:610:11',
+        ],
       },
       {
         path: ['parameters', 'attributeSource'],
@@ -1440,6 +1986,14 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: false,
         control: 'select',
         options: ['target'],
+        semantics: {
+          type: "'target'",
+          unionVariants: [
+            { type: '"target" | undefined', optional: true },
+            { type: '"target" | undefined', optional: true },
+          ],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:597:11'],
       },
       {
         path: ['parameters', 'multiplier'],
@@ -1448,6 +2002,11 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'LevelValues | ActionValueOperand',
         required: false,
         control: 'levelValues',
+        semantics: actionSchemaPart_9b7a517bcc21b17b,
+        source: [
+          'packages/game-data-contract/src/actions.ts:599:11',
+          'packages/game-data-contract/src/actions.ts:612:11',
+        ],
       },
       {
         path: ['parameters', 'addition'],
@@ -1456,6 +2015,11 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'LevelValues | ActionValueOperand',
         required: false,
         control: 'levelValues',
+        semantics: actionSchemaPart_9b7a517bcc21b17b,
+        source: [
+          'packages/game-data-contract/src/actions.ts:601:11',
+          'packages/game-data-contract/src/actions.ts:614:11',
+        ],
       },
       {
         path: ['parameters', 'amount'],
@@ -1464,6 +2028,11 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'LevelValues | ActionValueOperand',
         required: false,
         control: 'levelValues',
+        semantics: actionSchemaPart_9b7a517bcc21b17b,
+        source: [
+          'packages/game-data-contract/src/actions.ts:603:11',
+          'packages/game-data-contract/src/actions.ts:608:11',
+        ],
       },
     ],
   },
@@ -1471,14 +2040,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'applyBuff',
     description: '按目标、来源和黑板赋值创建一个或多个 Buff 实例。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'buffId'],
         label: 'buffId',
@@ -1486,6 +2048,12 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: '| string | { /** 运行时读取 Buff ID 的动作黑板键。 */ readonly blackboardKey: string; }',
         required: true,
         control: 'json',
+        semantics: {
+          type: 'string | { readonly blackboardKey: string; }',
+          unionVariants: [{ type: 'string' }, { type: '{ readonly blackboardKey: string; }' }],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:620:5'],
+        fallback: { reason: 'structured-editor-pending' },
       },
       {
         path: ['parameters', 'target'],
@@ -1511,6 +2079,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
           'casterAndControlledOperator',
           'casterAndLowestHealthRatioOperatorExceptCaster',
         ],
+        semantics: actionSchemaPart_39148600bef476a7,
+        source: ['packages/game-data-contract/src/actions.ts:627:5'],
       },
       {
         path: ['parameters', 'count'],
@@ -1520,6 +2090,12 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'ActionValueOperand',
         required: false,
         control: 'operand',
+        semantics: {
+          type: 'ActionValueOperand | undefined',
+          aliases: ['ActionValueOperand'],
+          optional: true,
+        },
+        source: ['packages/game-data-contract/src/actions.ts:629:5'],
       },
       {
         path: ['parameters', 'source'],
@@ -1537,6 +2113,19 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
           'buffSource',
           'currentAbilityEntity',
         ],
+        semantics: {
+          type: '"eventSource" | "enemy" | "caster" | "buffOwner" | "buffSource" | "currentAbilityEntity" | undefined',
+          optional: true,
+          unionVariants: [
+            { type: '"eventSource"' },
+            { type: '"enemy"' },
+            { type: '"caster"' },
+            { type: '"buffOwner"' },
+            { type: '"buffSource"' },
+            { type: '"currentAbilityEntity"' },
+          ],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:634:5'],
       },
       {
         path: ['parameters', 'sourceContextKey'],
@@ -1545,6 +2134,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'string',
         required: false,
         control: 'string',
+        semantics: { type: 'string | undefined', optional: true },
+        source: ['packages/game-data-contract/src/actions.ts:636:5'],
       },
       {
         path: ['parameters', 'iconDurationSource'],
@@ -1554,6 +2145,16 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: "| { /** 图标时长来源判别值。 */ readonly kind: 'actionOwnerAbilityEntity'; } | { /** 使用动作宿主上的一个定时标记。 */ readonly kind: 'actionOwnerTimedMarker'; /** 定时标记 ID。 */ readonly markerId: string; }",
         required: false,
         control: 'json',
+        semantics: {
+          type: '{ readonly kind: "actionOwnerAbilityEntity"; } | { readonly kind: "actionOwnerTimedMarker"; readonly markerId: string; } | undefined',
+          optional: true,
+          unionVariants: [
+            { type: '{ readonly kind: "actionOwnerAbilityEntity"; }' },
+            { type: '{ readonly kind: "actionOwnerTimedMarker"; readonly markerId: string; }' },
+          ],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:641:5'],
+        fallback: { reason: 'structured-editor-pending' },
       },
       {
         path: ['parameters', 'blackboardAssignments'],
@@ -1563,6 +2164,19 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'Readonly<Record<string, LevelValues | ActionValueOperand>>',
         required: false,
         control: 'json',
+        semantics: {
+          type: 'Readonly<Record<string, LevelValues | ActionValueOperand>> | undefined',
+          recordValue: {
+            type: 'LevelValues | ActionValueOperand',
+            unionVariants: [
+              { type: 'LevelValues', aliases: ['LevelValues'] },
+              { type: 'ActionValueOperand', aliases: ['ActionValueOperand'] },
+            ],
+          },
+          optional: true,
+        },
+        source: ['packages/game-data-contract/src/actions.ts:657:5'],
+        fallback: { reason: 'structured-editor-pending' },
       },
       {
         path: ['parameters', 'stringBlackboardAssignments'],
@@ -1571,6 +2185,13 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'Readonly<Record<string, string>>',
         required: false,
         control: 'json',
+        semantics: {
+          type: 'Readonly<Record<string, string>> | undefined',
+          recordValue: { type: 'string' },
+          optional: true,
+        },
+        source: ['packages/game-data-contract/src/actions.ts:659:5'],
+        fallback: { reason: 'structured-editor-pending' },
       },
       {
         path: ['parameters', 'copiedBlackboardAssignments'],
@@ -1580,6 +2201,13 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'Readonly<Record<string, string>>',
         required: false,
         control: 'json',
+        semantics: {
+          type: 'Readonly<Record<string, string>> | undefined',
+          recordValue: { type: 'string' },
+          optional: true,
+        },
+        source: ['packages/game-data-contract/src/actions.ts:664:5'],
+        fallback: { reason: 'structured-editor-pending' },
       },
       {
         path: ['parameters', 'keywordEnhancements'],
@@ -1589,6 +2217,15 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: "readonly { /** 任一加入时触发强化的普通 Buff ID。 */ triggerBuffIds: readonly string[]; /** 对关键词值执行赋值、加算或乘算。 */ operation: 'assign' | 'add' | 'multiply'; /** 从当前动作黑板或常量读取的运算值。 */ value: ActionValueOperand; }[]",
         required: false,
         control: 'json',
+        semantics: {
+          type: 'readonly { triggerBuffIds: readonly string[]; operation: "assign" | "add" | "multiply"; value: ActionValueOperand; }[] | undefined',
+          arrayElement: {
+            type: '{ triggerBuffIds: readonly string[]; operation: "assign" | "add" | "multiply"; value: ActionValueOperand; }',
+          },
+          optional: true,
+        },
+        source: ['packages/game-data-contract/src/actions.ts:669:5'],
+        fallback: { reason: 'structured-editor-pending' },
       },
       {
         path: ['parameters', 'inheritSourceSkillCastInfo'],
@@ -1597,6 +2234,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'boolean',
         required: false,
         control: 'boolean',
+        semantics: { type: 'boolean | undefined', optional: true },
+        source: ['packages/game-data-contract/src/actions.ts:678:5'],
       },
       {
         path: ['parameters', 'isExtra'],
@@ -1606,6 +2245,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'boolean',
         required: false,
         control: 'boolean',
+        semantics: { type: 'boolean | undefined', optional: true },
+        source: ['packages/game-data-contract/src/actions.ts:680:5'],
       },
       {
         path: ['parameters', 'finishByAction'],
@@ -1614,6 +2255,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'boolean',
         required: false,
         control: 'boolean',
+        semantics: { type: 'boolean | undefined', optional: true },
+        source: ['packages/game-data-contract/src/actions.ts:682:5'],
       },
       {
         path: ['parameters', 'onActionEndFinishBuffs'],
@@ -1622,6 +2265,12 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: '{ target: BuffApplicationTarget; buffIds: readonly string[]; }',
         required: false,
         control: 'json',
+        semantics: {
+          type: '{ target: "eventSource" | "eventTarget" | "enemy" | "caster" | "buffOwner" | "buffSource" | "controlledOperator" | "currentAbilityEntity" | "currentTarget" | "actionInputTarget" | ... 4 more ... | "casterAndLowestHealthRatioOperatorExceptCaster"; buffIds: readonly string[]; } | undefined',
+          optional: true,
+        },
+        source: ['packages/game-data-contract/src/actions.ts:684:5'],
+        fallback: { reason: 'structured-editor-pending' },
       },
       {
         path: ['parameters', 'onActionEndBuffs'],
@@ -1631,6 +2280,15 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'readonly { /** 余效 Buff ID。 */ buffId: string; /** 接收余效 Buff 的目标。 */ target: BuffApplicationTarget; /** 余效 Buff 的来源对象。 */ source?: BuffApplicationSource; /** 从当前动作黑板计算并传给余效 Buff 的数值。 */ blackboardAssignments?: Readonly<Record<string, ActionValueOperand>>; /** 直接传给余效 Buff 的字符串值。 */ stringBlackboardAssignments?: Readonly<Record<string, string>>; /** 是否把当前施法身份传给余效 Buff。 */ inheritSourceSkillCastInfo?: boolean; }[]',
         required: false,
         control: 'json',
+        semantics: {
+          type: 'readonly { buffId: string; target: "eventSource" | "eventTarget" | "enemy" | "caster" | "buffOwner" | "buffSource" | "controlledOperator" | "currentAbilityEntity" | "currentTarget" | ... 5 more ... | "casterAndLowestHealthRatioOperatorExceptCaster"; source?: "eventSource" | ... 5 more ... | undefined; blackboardAssi...',
+          arrayElement: {
+            type: '{ buffId: string; target: "eventSource" | "eventTarget" | "enemy" | "caster" | "buffOwner" | "buffSource" | "controlledOperator" | "currentAbilityEntity" | "currentTarget" | "actionInputTarget" | ... 4 more ... | "casterAndLowestHealthRatioOperatorExceptCaster"; source?: "eventSource" | ... 5 more ... | undefined; b...',
+          },
+          optional: true,
+        },
+        source: ['packages/game-data-contract/src/actions.ts:692:5'],
+        fallback: { reason: 'structured-editor-pending' },
       },
       {
         path: ['parameters', 'inheritToNextSkillIds'],
@@ -1640,6 +2298,13 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'readonly string[]',
         required: false,
         control: 'json',
+        semantics: {
+          type: 'readonly string[] | undefined',
+          arrayElement: { type: 'string' },
+          optional: true,
+        },
+        source: ['packages/game-data-contract/src/actions.ts:710:5'],
+        fallback: { reason: 'structured-editor-pending' },
       },
       {
         path: ['parameters', 'asChildBuff'],
@@ -1648,6 +2313,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'boolean',
         required: false,
         control: 'boolean',
+        semantics: { type: 'boolean | undefined', optional: true },
+        source: ['packages/game-data-contract/src/actions.ts:712:5'],
       },
       {
         path: ['parameters', 'lifetimeOwner'],
@@ -1657,6 +2324,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: false,
         control: 'select',
         options: ['currentCastSkill'],
+        semantics: { type: '"currentCastSkill" | undefined', optional: true },
+        source: ['packages/game-data-contract/src/actions.ts:714:5'],
       },
       {
         path: ['parameters', 'durationSeconds'],
@@ -1665,6 +2334,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'number',
         required: false,
         control: 'number',
+        semantics: { type: 'number | undefined', optional: true },
+        source: ['packages/game-data-contract/src/actions.ts:716:5'],
       },
       {
         path: ['parameters', 'effectiveness'],
@@ -1673,6 +2344,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'number',
         required: false,
         control: 'number',
+        semantics: { type: 'number | undefined', optional: true },
+        source: ['packages/game-data-contract/src/actions.ts:718:5'],
       },
     ],
   },
@@ -1680,14 +2353,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'createGlobalBuff',
     description: '创建一个独立的战斗级 GlobalBuff 实例，并把其子 Buff 投影到当前固定队伍。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'globalBuffId'],
         label: 'globalBuffId',
@@ -1695,6 +2361,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'string',
         required: true,
         control: 'string',
+        semantics: { type: 'string' },
+        source: ['packages/game-data-contract/src/actions.ts:723:5'],
       },
       {
         path: ['parameters', 'definition'],
@@ -1703,6 +2371,9 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'SkillGlobalBuffDefinition',
         required: true,
         control: 'json',
+        semantics: { type: 'SkillGlobalBuffDefinition' },
+        source: ['packages/game-data-contract/src/actions.ts:725:5'],
+        fallback: { reason: 'structured-editor-pending' },
       },
       {
         path: ['parameters', 'count'],
@@ -1711,6 +2382,12 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'ActionValueOperand',
         required: false,
         control: 'operand',
+        semantics: {
+          type: 'ActionValueOperand | undefined',
+          aliases: ['ActionValueOperand'],
+          optional: true,
+        },
+        source: ['packages/game-data-contract/src/actions.ts:727:5'],
       },
       {
         path: ['parameters', 'source'],
@@ -1728,6 +2405,25 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
           'currentAbilityEntity',
           'battle',
         ],
+        semantics: {
+          type: '"eventSource" | "enemy" | "caster" | "buffOwner" | "buffSource" | "currentAbilityEntity" | "battle" | undefined',
+          optional: true,
+          unionVariants: [
+            {
+              type: '"eventSource" | "enemy" | "caster" | "buffOwner" | "buffSource" | "currentAbilityEntity"',
+              unionVariants: [
+                { type: '"eventSource"' },
+                { type: '"enemy"' },
+                { type: '"caster"' },
+                { type: '"buffOwner"' },
+                { type: '"buffSource"' },
+                { type: '"currentAbilityEntity"' },
+              ],
+            },
+            { type: '"battle"' },
+          ],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:729:5'],
       },
       {
         path: ['parameters', 'blackboardAssignments'],
@@ -1736,6 +2432,13 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'Readonly<Record<string, ActionValueOperand>>',
         required: false,
         control: 'json',
+        semantics: {
+          type: 'Readonly<Record<string, ActionValueOperand>> | undefined',
+          recordValue: { type: 'ActionValueOperand', aliases: ['ActionValueOperand'] },
+          optional: true,
+        },
+        source: ['packages/game-data-contract/src/actions.ts:731:5'],
+        fallback: { reason: 'structured-editor-pending' },
       },
       {
         path: ['parameters', 'finishByAction'],
@@ -1744,6 +2447,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'boolean',
         required: false,
         control: 'boolean',
+        semantics: { type: 'boolean | undefined', optional: true },
+        source: ['packages/game-data-contract/src/actions.ts:733:5'],
       },
     ],
   },
@@ -1751,14 +2456,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'finishParentGlobalBuff',
     description: '只结束当前子 Buff 精确关联的那个父 GlobalBuff 实例。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'reason'],
         label: 'reason',
@@ -1767,6 +2465,11 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: true,
         control: 'select',
         options: ['early', 'other'],
+        semantics: {
+          type: '"early" | "other"',
+          unionVariants: [{ type: '"early"' }, { type: '"other"' }],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:738:5'],
       },
     ],
   },
@@ -1774,14 +2477,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'finishGlobalBuffsById',
     description: '按原生 GlobalBuffId 结束当前战斗中所有同名父实例。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'globalBuffIds'],
         label: 'globalBuffIds',
@@ -1789,6 +2485,9 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'readonly string[]',
         required: true,
         control: 'json',
+        semantics: { type: 'readonly string[]', arrayElement: { type: 'string' } },
+        source: ['packages/game-data-contract/src/actions.ts:743:5'],
+        fallback: { reason: 'structured-editor-pending' },
       },
       {
         path: ['parameters', 'reason'],
@@ -1798,6 +2497,11 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: true,
         control: 'select',
         options: ['early', 'other'],
+        semantics: {
+          type: '"early" | "other"',
+          unionVariants: [{ type: '"early"' }, { type: '"other"' }],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:745:5'],
       },
     ],
   },
@@ -1805,14 +2509,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'readSkillSettingData',
     description: '从版本化 SkillSetting 的四列值按运行时列号读取，并写入当前动作黑板。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'items'],
         label: 'items',
@@ -1820,6 +2517,14 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: "readonly { /** SkillSetting 中固定四列数值。 */ values: readonly number[]; /** 从 1 开始的列号。 */ column: ActionValueOperand; /** 保存结果的动作黑板键。 */ storeKey: string; /** 根据目标对象的强化层数进一步修正读取结果。 */ enhance?: { /** 读取强化层数的对象。 */ target: 'caster' | 'buffOwner' | 'buffSource'; /** 按层数应用的线性或饱和公式。 */ formula: | { /** 每层按固定系数线性增加。 */ readonly kind: 'linear'; /** 线性公式系数。 */ readonly paramA: number; } | { /** 增幅随层数逐渐趋近上限。 */ readonly kind: 'saturating'; /** 饱和公式的强度系数。 */ readonly paramA: number; /** 饱和公式的衰减系数。 */ readonly paramB: number; }; }; }[]",
         required: true,
         control: 'json',
+        semantics: {
+          type: 'readonly { values: readonly number[]; column: ActionValueOperand; storeKey: string; enhance?: { target: "caster" | "buffOwner" | "buffSource"; formula: { readonly kind: "linear"; readonly paramA: number; } | { ...; }; } | undefined; }[]',
+          arrayElement: {
+            type: '{ values: readonly number[]; column: ActionValueOperand; storeKey: string; enhance?: { target: "caster" | "buffOwner" | "buffSource"; formula: { readonly kind: "linear"; readonly paramA: number; } | { ...; }; } | undefined; }',
+          },
+        },
+        source: ['packages/game-data-contract/src/actions.ts:750:5'],
+        fallback: { reason: 'structured-editor-pending' },
       },
     ],
   },
@@ -1827,15 +2532,29 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'readBuffBlackboard',
     description: '按原生 ID 或标签查询目标的首个有效 Buff，并把其数值黑板写入当前动作黑板。',
     fields: [
+      actionSchemaPart_3c77b2f22bee7868,
       {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
+        path: ['parameters', 'target'],
+        label: 'target',
+        description: '要查找 Buff 的对象。',
+        type: 'BuffSingleTarget',
+        required: true,
+        control: 'select',
+        options: [
+          'eventSource',
+          'eventTarget',
+          'enemy',
+          'caster',
+          'buffOwner',
+          'buffSource',
+          'controlledOperator',
+          'currentAbilityEntity',
+          'currentTarget',
+          'actionInputTarget',
+        ],
+        semantics: actionSchemaPart_0b4542d8ad93756a,
+        source: ['packages/game-data-contract/src/actions.ts:783:5'],
       },
-      actionSchemaPart_072ac943acb3b102,
       {
         path: ['parameters', 'query'],
         label: 'query',
@@ -1843,6 +2562,17 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: "| { /** 按 Buff ID 查找。 */ kind: 'id'; /** 任一匹配即可选中的 Buff ID。 */ buffIds: readonly string[]; } | { /** 按 Buff 标签查找。 */ kind: 'tag'; /** 标签集合匹配方式。 */ tagQueryType: GameplayTagQueryType; /** 参与匹配的 Buff 标签。 */ buffTags: readonly GameplayTag[]; }",
         required: true,
         control: 'json',
+        semantics: {
+          type: '{ kind: "id"; buffIds: readonly string[]; } | { kind: "tag"; tagQueryType: "hasAny" | "hasAll" | "exceptAny" | "exceptAll"; buffTags: readonly string[]; }',
+          unionVariants: [
+            { type: '{ kind: "id"; buffIds: readonly string[]; }' },
+            {
+              type: '{ kind: "tag"; tagQueryType: "hasAny" | "hasAll" | "exceptAny" | "exceptAll"; buffTags: readonly string[]; }',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:785:5'],
+        fallback: { reason: 'structured-editor-pending' },
       },
       {
         path: ['parameters', 'desiredKey'],
@@ -1851,6 +2581,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'string',
         required: true,
         control: 'string',
+        semantics: { type: 'string' },
+        source: ['packages/game-data-contract/src/actions.ts:801:5'],
       },
       {
         path: ['parameters', 'outputKey'],
@@ -1859,6 +2591,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'string',
         required: true,
         control: 'string',
+        semantics: { type: 'string' },
+        source: ['packages/game-data-contract/src/actions.ts:803:5'],
       },
     ],
   },
@@ -1866,14 +2600,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'readEventBuffBlackboard',
     description: '原生 Target + Context 查询：先要求动作输入目标存在，再读取事件 Buff 的实时黑板。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'desiredKey'],
         label: 'desiredKey',
@@ -1881,6 +2608,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'string',
         required: true,
         control: 'string',
+        semantics: { type: 'string' },
+        source: ['packages/game-data-contract/src/actions.ts:808:5'],
       },
       {
         path: ['parameters', 'outputKey'],
@@ -1889,6 +2618,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'string',
         required: true,
         control: 'string',
+        semantics: { type: 'string' },
+        source: ['packages/game-data-contract/src/actions.ts:810:5'],
       },
     ],
   },
@@ -1896,14 +2627,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'readCurrentBuffRemainingDuration',
     description: '把当前生命周期环境中有限时长 Buff 的剩余秒数写入动作黑板；无限时长写入 0。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'outputKey'],
         label: 'outputKey',
@@ -1911,6 +2635,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'string',
         required: true,
         control: 'string',
+        semantics: { type: 'string' },
+        source: ['packages/game-data-contract/src/actions.ts:815:5'],
       },
     ],
   },
@@ -1918,15 +2644,29 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'readBuffRemainingDuration',
     description: '按 ID 读取目标首个有效 Buff 的剩余秒数；无限时长写入 0。',
     fields: [
+      actionSchemaPart_3c77b2f22bee7868,
       {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
+        path: ['parameters', 'target'],
+        label: 'target',
+        description: '要查找 Buff 的对象。',
+        type: 'BuffSingleTarget',
+        required: true,
+        control: 'select',
+        options: [
+          'eventSource',
+          'eventTarget',
+          'enemy',
+          'caster',
+          'buffOwner',
+          'buffSource',
+          'controlledOperator',
+          'currentAbilityEntity',
+          'currentTarget',
+          'actionInputTarget',
+        ],
+        semantics: actionSchemaPart_0b4542d8ad93756a,
+        source: ['packages/game-data-contract/src/actions.ts:820:5'],
       },
-      actionSchemaPart_072ac943acb3b102,
       {
         path: ['parameters', 'buffIds'],
         label: 'buffIds',
@@ -1934,6 +2674,9 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'readonly string[]',
         required: true,
         control: 'json',
+        semantics: { type: 'readonly string[]', arrayElement: { type: 'string' } },
+        source: ['packages/game-data-contract/src/actions.ts:822:5'],
+        fallback: { reason: 'structured-editor-pending' },
       },
       {
         path: ['parameters', 'outputKey'],
@@ -1942,6 +2685,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'string',
         required: true,
         control: 'string',
+        semantics: { type: 'string' },
+        source: ['packages/game-data-contract/src/actions.ts:824:5'],
       },
     ],
   },
@@ -1949,14 +2694,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'setCurrentBuffRemainingDuration',
     description: '直接修改当前生命周期环境中有限时长 Buff 的剩余秒数。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'target'],
         label: 'target',
@@ -1976,6 +2714,23 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
           'currentTarget',
           'actionInputTarget',
         ],
+        semantics: {
+          type: '"eventSource" | "eventTarget" | "enemy" | "caster" | "buffOwner" | "buffSource" | "controlledOperator" | "currentAbilityEntity" | "currentTarget" | "actionInputTarget" | undefined',
+          optional: true,
+          unionVariants: [
+            { type: '"eventSource"' },
+            { type: '"eventTarget"' },
+            { type: '"enemy"' },
+            { type: '"caster"' },
+            { type: '"buffOwner"' },
+            { type: '"buffSource"' },
+            { type: '"controlledOperator"' },
+            { type: '"currentAbilityEntity"' },
+            { type: '"currentTarget"' },
+            { type: '"actionInputTarget"' },
+          ],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:829:5'],
       },
       {
         path: ['parameters', 'operation'],
@@ -1985,6 +2740,11 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: true,
         control: 'select',
         options: ['assign', 'add', 'multiply'],
+        semantics: {
+          type: '"assign" | "add" | "multiply"',
+          unionVariants: [{ type: '"assign"' }, { type: '"add"' }, { type: '"multiply"' }],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:831:5'],
       },
       {
         path: ['parameters', 'value'],
@@ -1993,50 +2753,27 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'ActionValueOperand',
         required: true,
         control: 'operand',
+        semantics: { type: 'ActionValueOperand', aliases: ['ActionValueOperand'] },
+        source: ['packages/game-data-contract/src/actions.ts:833:5'],
       },
     ],
   },
   refreshCurrentBuffAttributeModifiers: {
     kind: 'refreshCurrentBuffAttributeModifiers',
     description: '按当前 Buff 黑板重新解析并替换已注册的属性修正值。',
-    fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
-    ],
+    fields: [actionSchemaPart_3c77b2f22bee7868],
   },
   skillAffix: {
     kind: 'skillAffix',
     description:
       '记录当前处理技能的附着编号并监听其直接结束；不改变 Buff 普通来源。尚不包含派生对象引用延寿。',
-    fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
-    ],
+    fields: [actionSchemaPart_3c77b2f22bee7868],
   },
   readBuffStackCount: {
     kind: 'readBuffStackCount',
     description: '查询匹配 Buff 的累计强化层数或实例数，并写入当前技能实例的动作黑板。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'target'],
         label: 'target',
@@ -2056,6 +2793,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
           'currentTarget',
           'actionInputTarget',
         ],
+        semantics: actionSchemaPart_0b4542d8ad93756a,
+        source: ['packages/game-data-contract/src/actions.ts:842:5'],
       },
       {
         path: ['parameters', 'outputKey'],
@@ -2064,6 +2803,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'string',
         required: true,
         control: 'string',
+        semantics: { type: 'string' },
+        source: ['packages/game-data-contract/src/actions.ts:844:5'],
       },
       {
         path: ['parameters', 'query'],
@@ -2072,6 +2813,18 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: "| { /** 按 Buff ID 统计。 */ kind: 'id'; /** 任一匹配即可计入的 Buff ID。 */ buffIds: readonly string[]; } | { /** 统计当前正在执行生命周期动作的 Buff。 */ kind: 'environment'; } | { /** 按 Buff 标签统计。 */ kind: 'tag'; /** 标签集合匹配方式。 */ tagQueryType: GameplayTagQueryType; /** 参与匹配的 Buff 标签。 */ buffTags: readonly GameplayTag[]; }",
         required: true,
         control: 'json',
+        semantics: {
+          type: '{ kind: "id"; buffIds: readonly string[]; } | { kind: "environment"; } | { kind: "tag"; tagQueryType: "hasAny" | "hasAll" | "exceptAny" | "exceptAll"; buffTags: readonly string[]; }',
+          unionVariants: [
+            { type: '{ kind: "id"; buffIds: readonly string[]; }' },
+            { type: '{ kind: "environment"; }' },
+            {
+              type: '{ kind: "tag"; tagQueryType: "hasAny" | "hasAll" | "exceptAny" | "exceptAll"; buffTags: readonly string[]; }',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:846:5'],
+        fallback: { reason: 'structured-editor-pending' },
       },
       {
         path: ['parameters', 'sameSourceSkillCast'],
@@ -2080,6 +2833,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'boolean',
         required: false,
         control: 'boolean',
+        semantics: { type: 'boolean | undefined', optional: true },
+        source: ['packages/game-data-contract/src/actions.ts:866:5'],
       },
       {
         path: ['parameters', 'countType'],
@@ -2089,6 +2844,12 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: false,
         control: 'select',
         options: ['enhance', 'instance'],
+        semantics: {
+          type: '"enhance" | "instance" | undefined',
+          optional: true,
+          unionVariants: [{ type: '"enhance"' }, { type: '"instance"' }],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:868:5'],
       },
     ],
   },
@@ -2096,14 +2857,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'finishBuffsByTag',
     description: '按原生标签查询结束目标身上的匹配 Buff；count 缺省时结束全部。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'target'],
         label: 'target',
@@ -2121,6 +2875,20 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
           'currentAbilityEntity',
           'currentTarget',
         ],
+        semantics: {
+          type: '"eventSource" | "eventTarget" | "enemy" | "caster" | "buffOwner" | "buffSource" | "currentAbilityEntity" | "currentTarget"',
+          unionVariants: [
+            { type: '"eventSource"' },
+            { type: '"eventTarget"' },
+            { type: '"enemy"' },
+            { type: '"caster"' },
+            { type: '"buffOwner"' },
+            { type: '"buffSource"' },
+            { type: '"currentAbilityEntity"' },
+            { type: '"currentTarget"' },
+          ],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:873:5'],
       },
       {
         path: ['parameters', 'tagQueryType'],
@@ -2130,6 +2898,16 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: true,
         control: 'select',
         options: ['hasAny', 'hasAll', 'exceptAny', 'exceptAll'],
+        semantics: {
+          type: '"hasAny" | "hasAll" | "exceptAny" | "exceptAll"',
+          unionVariants: [
+            { type: '"hasAny"' },
+            { type: '"hasAll"' },
+            { type: '"exceptAny"' },
+            { type: '"exceptAll"' },
+          ],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:875:5'],
       },
       {
         path: ['parameters', 'buffTags'],
@@ -2138,6 +2916,12 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'readonly GameplayTag[]',
         required: true,
         control: 'json',
+        semantics: {
+          type: 'readonly string[]',
+          arrayElement: { type: 'string', aliases: ['GameplayTag'] },
+        },
+        source: ['packages/game-data-contract/src/actions.ts:877:5'],
+        fallback: { reason: 'structured-editor-pending' },
       },
       {
         path: ['parameters', 'reason'],
@@ -2147,6 +2931,11 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: true,
         control: 'select',
         options: ['early', 'other', 'absorbed'],
+        semantics: {
+          type: '"early" | "other" | "absorbed"',
+          unionVariants: [{ type: '"early"' }, { type: '"absorbed"' }, { type: '"other"' }],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:879:5'],
       },
       {
         path: ['parameters', 'count'],
@@ -2155,6 +2944,12 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'ActionValueOperand',
         required: false,
         control: 'operand',
+        semantics: {
+          type: 'ActionValueOperand | undefined',
+          aliases: ['ActionValueOperand'],
+          optional: true,
+        },
+        source: ['packages/game-data-contract/src/actions.ts:881:5'],
       },
     ],
   },
@@ -2162,14 +2957,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'finishBuffsById',
     description: '按 Buff 定义身份结束目标身上的匹配实例；count 缺省时结束全部。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'target'],
         label: 'target',
@@ -2194,6 +2982,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
           'casterAndControlledOperator',
           'casterAndLowestHealthRatioOperatorExceptCaster',
         ],
+        semantics: actionSchemaPart_39148600bef476a7,
+        source: ['packages/game-data-contract/src/actions.ts:886:5'],
       },
       {
         path: ['parameters', 'buffIds'],
@@ -2202,6 +2992,9 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'readonly string[]',
         required: true,
         control: 'json',
+        semantics: { type: 'readonly string[]', arrayElement: { type: 'string' } },
+        source: ['packages/game-data-contract/src/actions.ts:888:5'],
+        fallback: { reason: 'structured-editor-pending' },
       },
       {
         path: ['parameters', 'reason'],
@@ -2211,6 +3004,11 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: true,
         control: 'select',
         options: ['early', 'other', 'absorbed'],
+        semantics: {
+          type: '"early" | "other" | "absorbed"',
+          unionVariants: [{ type: '"early"' }, { type: '"absorbed"' }, { type: '"other"' }],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:890:5'],
       },
       {
         path: ['parameters', 'count'],
@@ -2219,6 +3017,12 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'ActionValueOperand',
         required: false,
         control: 'operand',
+        semantics: {
+          type: 'ActionValueOperand | undefined',
+          aliases: ['ActionValueOperand'],
+          optional: true,
+        },
+        source: ['packages/game-data-contract/src/actions.ts:892:5'],
       },
     ],
   },
@@ -2226,14 +3030,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'finishCurrentBuff',
     description: '结束当前正在执行生命周期或事件响应的 Buff 实例。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'reason'],
         label: 'reason',
@@ -2242,6 +3039,11 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: true,
         control: 'select',
         options: ['early', 'other', 'absorbed'],
+        semantics: {
+          type: '"early" | "other" | "absorbed"',
+          unionVariants: [{ type: '"early"' }, { type: '"absorbed"' }, { type: '"other"' }],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:897:5'],
       },
       {
         path: ['parameters', 'finishSource'],
@@ -2251,6 +3053,11 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: true,
         control: 'select',
         options: ['actionSource', 'actionOwner'],
+        semantics: {
+          type: '"actionSource" | "actionOwner"',
+          unionVariants: [{ type: '"actionSource"' }, { type: '"actionOwner"' }],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:899:5'],
       },
     ],
   },
@@ -2258,14 +3065,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'setCurrentBuffTimePaused',
     description: '设置当前正在执行事件响应的 Buff 实例是否暂停计时。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'paused'],
         label: 'paused',
@@ -2273,6 +3073,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'boolean',
         required: true,
         control: 'boolean',
+        semantics: { type: 'boolean' },
+        source: ['packages/game-data-contract/src/actions.ts:904:5'],
       },
     ],
   },
@@ -2280,14 +3082,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'igniteBuffs',
     description: '以原生点燃类型同步触发目标身上所有匹配响应；来源与接收目标保持独立。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'target'],
         label: 'target',
@@ -2307,6 +3102,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
           'currentTarget',
           'actionInputTarget',
         ],
+        semantics: actionSchemaPart_0b4542d8ad93756a,
+        source: ['packages/game-data-contract/src/actions.ts:909:5'],
       },
       {
         path: ['parameters', 'source'],
@@ -2328,6 +3125,11 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
           'actionInputTarget',
           'currentBuffSource',
         ],
+        semantics: {
+          type: '"eventSource" | "eventTarget" | "enemy" | "caster" | "buffOwner" | "buffSource" | "controlledOperator" | "currentAbilityEntity" | "currentTarget" | "actionInputTarget" | "currentBuffSource"',
+          unionVariants: [actionSchemaPart_0b4542d8ad93756a, { type: '"currentBuffSource"' }],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:911:5'],
       },
       {
         path: ['parameters', 'igniteType'],
@@ -2336,6 +3138,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'string',
         required: true,
         control: 'string',
+        semantics: { type: 'string' },
+        source: ['packages/game-data-contract/src/actions.ts:913:5'],
       },
     ],
   },
@@ -2343,14 +3147,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'adjustSkillCooldown',
     description: '按原生技能筛选立即修改当前冷却；比例基数是配置的基础冷却时长，绝对值单位为秒。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'target'],
         label: 'target',
@@ -2359,6 +3156,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: true,
         control: 'select',
         options: ['caster'],
+        semantics: { type: '"caster"' },
+        source: ['packages/game-data-contract/src/actions.ts:918:5'],
       },
       {
         path: ['parameters', 'skill'],
@@ -2367,6 +3166,17 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: "| { /** 按技能分类选择。 */ readonly kind: 'type'; /** 目标技能分类。 */ readonly skillType: SkillType; } | { /** 按原生技能 ID 选择。 */ readonly kind: 'id'; /** 目标技能 ID。 */ readonly skillId: string; }",
         required: true,
         control: 'json',
+        semantics: {
+          type: '{ readonly kind: "type"; readonly skillType: "comboSkill" | "plungingAttack" | "basicAttack" | "battleSkill" | "ultimate" | "finisher" | "dodge"; } | { readonly kind: "id"; readonly skillId: string; }',
+          unionVariants: [
+            {
+              type: '{ readonly kind: "type"; readonly skillType: "comboSkill" | "plungingAttack" | "basicAttack" | "battleSkill" | "ultimate" | "finisher" | "dodge"; }',
+            },
+            { type: '{ readonly kind: "id"; readonly skillId: string; }' },
+          ],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:920:5'],
+        fallback: { reason: 'structured-editor-pending' },
       },
       {
         path: ['parameters', 'operation'],
@@ -2376,6 +3186,11 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: true,
         control: 'select',
         options: ['reduce', 'set'],
+        semantics: {
+          type: '"reduce" | "set"',
+          unionVariants: [{ type: '"reduce"' }, { type: '"set"' }],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:934:5'],
       },
       {
         path: ['parameters', 'basis'],
@@ -2385,6 +3200,11 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: true,
         control: 'select',
         options: ['baseDurationRatio', 'absoluteSeconds'],
+        semantics: {
+          type: '"baseDurationRatio" | "absoluteSeconds"',
+          unionVariants: [{ type: '"baseDurationRatio"' }, { type: '"absoluteSeconds"' }],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:936:5'],
       },
       {
         path: ['parameters', 'value'],
@@ -2393,6 +3213,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'ActionValueOperand',
         required: true,
         control: 'operand',
+        semantics: { type: 'ActionValueOperand', aliases: ['ActionValueOperand'] },
+        source: ['packages/game-data-contract/src/actions.ts:938:5'],
       },
     ],
   },
@@ -2400,14 +3222,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'holdBuffsById',
     description: '在当前调度区间存续期间禁止施法者身上已匹配的 Buff 结束。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'target'],
         label: 'target',
@@ -2416,6 +3231,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: true,
         control: 'select',
         options: ['caster'],
+        semantics: { type: '"caster"' },
+        source: ['packages/game-data-contract/src/actions.ts:943:5'],
       },
       {
         path: ['parameters', 'buffIds'],
@@ -2424,6 +3241,9 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'readonly string[]',
         required: true,
         control: 'json',
+        semantics: { type: 'readonly string[]', arrayElement: { type: 'string' } },
+        source: ['packages/game-data-contract/src/actions.ts:945:5'],
+        fallback: { reason: 'structured-editor-pending' },
       },
     ],
   },
@@ -2432,14 +3252,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     description:
       '从当前技能的结束清理集合摘下目标身上的首个同 ID Buff，并在技能转场时转交同一实例。\n该步骤不创建、刷新或复制 Buff；白名单使用原生 Skill ID。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'target'],
         label: 'target',
@@ -2448,6 +3261,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: true,
         control: 'select',
         options: ['caster'],
+        semantics: { type: '"caster"' },
+        source: ['packages/game-data-contract/src/actions.ts:953:5'],
       },
       {
         path: ['parameters', 'buffId'],
@@ -2456,6 +3271,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'string',
         required: true,
         control: 'string',
+        semantics: { type: 'string' },
+        source: ['packages/game-data-contract/src/actions.ts:955:5'],
       },
       {
         path: ['parameters', 'inheritToNextSkillIds'],
@@ -2464,6 +3281,9 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'readonly string[]',
         required: true,
         control: 'json',
+        semantics: { type: 'readonly string[]', arrayElement: { type: 'string' } },
+        source: ['packages/game-data-contract/src/actions.ts:957:5'],
+        fallback: { reason: 'structured-editor-pending' },
       },
       {
         path: ['parameters', 'finishByAction'],
@@ -2472,6 +3292,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'boolean',
         required: true,
         control: 'boolean',
+        semantics: { type: 'boolean' },
+        source: ['packages/game-data-contract/src/actions.ts:959:5'],
       },
       {
         path: ['parameters', 'finishWithNextSkillIfNotInherited'],
@@ -2480,6 +3302,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'boolean',
         required: true,
         control: 'boolean',
+        semantics: { type: 'boolean' },
+        source: ['packages/game-data-contract/src/actions.ts:961:5'],
       },
     ],
   },
@@ -2487,14 +3311,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'restrictUltimateEnergyRecovery',
     description: '在动作存续期间只允许带指定标签的正向终结技能量回复；多个实例按原生语义取并集。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'target'],
         label: 'target',
@@ -2503,6 +3320,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: true,
         control: 'select',
         options: ['caster'],
+        semantics: { type: '"caster"' },
+        source: ['packages/game-data-contract/src/actions.ts:966:5'],
       },
       {
         path: ['parameters', 'allowedRecoveryTags'],
@@ -2511,6 +3330,12 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'readonly GameplayTag[]',
         required: true,
         control: 'json',
+        semantics: {
+          type: 'readonly string[]',
+          arrayElement: { type: 'string', aliases: ['GameplayTag'] },
+        },
+        source: ['packages/game-data-contract/src/actions.ts:968:5'],
+        fallback: { reason: 'structured-editor-pending' },
       },
       {
         path: ['parameters', 'clearUltimateEnergyOnEnd'],
@@ -2519,6 +3344,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'boolean',
         required: true,
         control: 'boolean',
+        semantics: { type: 'boolean' },
+        source: ['packages/game-data-contract/src/actions.ts:970:5'],
       },
     ],
   },
@@ -2526,14 +3353,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'setGlobalCooldown',
     description: '设置角色的战斗级冷却：同角色/ID 刷新剩余秒数，不受角色时间膨胀或动作结束影响。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'target'],
         label: 'target',
@@ -2542,6 +3362,11 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: true,
         control: 'select',
         options: ['caster', 'buffOwner', 'buffSource'],
+        semantics: {
+          type: '"caster" | "buffOwner" | "buffSource"',
+          unionVariants: [{ type: '"caster"' }, { type: '"buffOwner"' }, { type: '"buffSource"' }],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:975:5'],
       },
       {
         path: ['parameters', 'markerId'],
@@ -2550,6 +3375,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'string',
         required: true,
         control: 'string',
+        semantics: { type: 'string' },
+        source: ['packages/game-data-contract/src/actions.ts:977:5'],
       },
       {
         path: ['parameters', 'durationSeconds'],
@@ -2558,6 +3385,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'ActionValueOperand',
         required: true,
         control: 'operand',
+        semantics: { type: 'ActionValueOperand', aliases: ['ActionValueOperand'] },
+        source: ['packages/game-data-contract/src/actions.ts:979:5'],
       },
     ],
   },
@@ -2565,14 +3394,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'createTimedMarker',
     description: '在目标能力系统上创建定时标记；同 ID 标记不会互相覆盖。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'target'],
         label: 'target',
@@ -2581,6 +3403,17 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: true,
         control: 'select',
         options: ['eventTarget', 'enemy', 'caster', 'buffOwner', 'buffSource'],
+        semantics: {
+          type: '"eventTarget" | "enemy" | "caster" | "buffOwner" | "buffSource"',
+          unionVariants: [
+            { type: '"eventTarget"' },
+            { type: '"enemy"' },
+            { type: '"caster"' },
+            { type: '"buffOwner"' },
+            { type: '"buffSource"' },
+          ],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:984:5'],
       },
       {
         path: ['parameters', 'markerId'],
@@ -2589,6 +3422,9 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'ActionStringOperand',
         required: true,
         control: 'json',
+        semantics: { type: 'ActionStringOperand', aliases: ['ActionStringOperand'] },
+        source: ['packages/game-data-contract/src/actions.ts:986:5'],
+        fallback: { reason: 'structured-editor-pending' },
       },
       {
         path: ['parameters', 'durationSeconds'],
@@ -2597,6 +3433,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'ActionValueOperand',
         required: true,
         control: 'operand',
+        semantics: { type: 'ActionValueOperand', aliases: ['ActionValueOperand'] },
+        source: ['packages/game-data-contract/src/actions.ts:988:5'],
       },
       {
         path: ['parameters', 'autoFinishByAction'],
@@ -2605,6 +3443,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'boolean',
         required: true,
         control: 'boolean',
+        semantics: { type: 'boolean' },
+        source: ['packages/game-data-contract/src/actions.ts:990:5'],
       },
       {
         path: ['parameters', 'timeDomain'],
@@ -2615,6 +3455,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: false,
         control: 'select',
         options: ['globalScaled'],
+        semantics: { type: '"globalScaled" | undefined', optional: true },
+        source: ['packages/game-data-contract/src/actions.ts:992:5'],
       },
     ],
   },
@@ -2622,14 +3464,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'createAbilityEntityTimedMarker',
     description: '在当前能力实体上创建定时标记；每个标记显式选择共享战斗或实体自身时钟。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'markerId'],
         label: 'markerId',
@@ -2637,6 +3472,9 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'ActionStringOperand',
         required: true,
         control: 'json',
+        semantics: { type: 'ActionStringOperand', aliases: ['ActionStringOperand'] },
+        source: ['packages/game-data-contract/src/actions.ts:997:5'],
+        fallback: { reason: 'structured-editor-pending' },
       },
       {
         path: ['parameters', 'durationSeconds'],
@@ -2645,6 +3483,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'ActionValueOperand',
         required: true,
         control: 'operand',
+        semantics: { type: 'ActionValueOperand', aliases: ['ActionValueOperand'] },
+        source: ['packages/game-data-contract/src/actions.ts:999:5'],
       },
       {
         path: ['parameters', 'autoFinishByAction'],
@@ -2653,6 +3493,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'boolean',
         required: true,
         control: 'boolean',
+        semantics: { type: 'boolean' },
+        source: ['packages/game-data-contract/src/actions.ts:1001:5'],
       },
       {
         path: ['parameters', 'timeDomain'],
@@ -2662,6 +3504,11 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: true,
         control: 'select',
         options: ['global', 'self'],
+        semantics: {
+          type: '"global" | "self"',
+          unionVariants: [{ type: '"global"' }, { type: '"self"' }],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:1003:5'],
       },
     ],
   },
@@ -2669,14 +3516,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'startTimeDilation',
     description: '创建普通全局或实体时间膨胀实例；终结技专用时间动作另行建模。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'scope'],
         label: 'scope',
@@ -2685,6 +3525,14 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: true,
         control: 'select',
         options: ['global', 'entity'],
+        semantics: {
+          type: "'global' | 'entity'",
+          unionVariants: [{ type: '"global"' }, { type: '"entity"' }],
+        },
+        source: [
+          'packages/game-data-contract/src/actions.ts:1009:9',
+          'packages/game-data-contract/src/actions.ts:1029:9',
+        ],
       },
       {
         path: ['parameters', 'durationSeconds'],
@@ -2693,6 +3541,17 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'ActionValueOperand',
         required: true,
         control: 'operand',
+        semantics: {
+          type: 'ActionValueOperand',
+          unionVariants: [
+            { type: 'ActionValueOperand', aliases: ['ActionValueOperand'] },
+            { type: 'ActionValueOperand', aliases: ['ActionValueOperand'] },
+          ],
+        },
+        source: [
+          'packages/game-data-contract/src/actions.ts:1011:9',
+          'packages/game-data-contract/src/actions.ts:1031:9',
+        ],
       },
       {
         path: ['parameters', 'slot'],
@@ -2701,6 +3560,17 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'GameplayTag',
         required: true,
         control: 'string',
+        semantics: {
+          type: 'GameplayTag',
+          unionVariants: [
+            { type: 'string', aliases: ['GameplayTag'] },
+            { type: 'string', aliases: ['GameplayTag'] },
+          ],
+        },
+        source: [
+          'packages/game-data-contract/src/actions.ts:1013:9',
+          'packages/game-data-contract/src/actions.ts:1033:9',
+        ],
       },
       {
         path: ['parameters', 'priority'],
@@ -2709,6 +3579,11 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'number',
         required: true,
         control: 'number',
+        semantics: { type: 'number', unionVariants: [{ type: 'number' }, { type: 'number' }] },
+        source: [
+          'packages/game-data-contract/src/actions.ts:1015:9',
+          'packages/game-data-contract/src/actions.ts:1035:9',
+        ],
       },
       {
         path: ['parameters', 'curve'],
@@ -2717,6 +3592,15 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'TimeScaleCurveDefinition',
         required: true,
         control: 'json',
+        semantics: {
+          type: 'TimeScaleCurveDefinition',
+          unionVariants: [actionSchemaPart_2c81191c7f7e34fe, actionSchemaPart_2c81191c7f7e34fe],
+        },
+        source: [
+          'packages/game-data-contract/src/actions.ts:1017:9',
+          'packages/game-data-contract/src/actions.ts:1037:9',
+        ],
+        fallback: { reason: 'structured-editor-pending' },
       },
       {
         path: ['parameters', 'finishByAction'],
@@ -2725,6 +3609,11 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'boolean',
         required: true,
         control: 'boolean',
+        semantics: { type: 'boolean', unionVariants: [{ type: 'boolean' }, { type: 'boolean' }] },
+        source: [
+          'packages/game-data-contract/src/actions.ts:1019:9',
+          'packages/game-data-contract/src/actions.ts:1039:9',
+        ],
       },
       {
         path: ['parameters', 'ignoredTargets'],
@@ -2734,6 +3623,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: false,
         control: 'multiselect',
         options: ['enemy', 'caster', 'controlled'],
+        semantics: actionSchemaPart_18bb1cc60c393635,
+        source: ['packages/game-data-contract/src/actions.ts:1021:9'],
       },
       {
         path: ['parameters', 'ignoredAbilityEntityTargets'],
@@ -2742,6 +3633,9 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'readonly AbilityEntityTargetQuery[]',
         required: false,
         control: 'json',
+        semantics: actionSchemaPart_03625a4c3c299b20,
+        source: ['packages/game-data-contract/src/actions.ts:1023:9'],
+        fallback: { reason: 'structured-editor-pending' },
       },
       {
         path: ['parameters', 'influenceSkillCooldownSeconds'],
@@ -2750,6 +3644,12 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'ActionValueOperand',
         required: false,
         control: 'operand',
+        semantics: {
+          type: 'ActionValueOperand | undefined',
+          aliases: ['ActionValueOperand'],
+          optional: true,
+        },
+        source: ['packages/game-data-contract/src/actions.ts:1025:9'],
       },
       {
         path: ['parameters', 'targets'],
@@ -2759,6 +3659,19 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: false,
         control: 'multiselect',
         options: ['enemy', 'caster', 'buffOwner', 'controlled'],
+        semantics: {
+          type: 'readonly ("enemy" | "caster" | "buffOwner" | "controlled")[]',
+          arrayElement: {
+            type: '"enemy" | "caster" | "buffOwner" | "controlled"',
+            unionVariants: [
+              { type: '"enemy"' },
+              { type: '"caster"' },
+              { type: '"buffOwner"' },
+              { type: '"controlled"' },
+            ],
+          },
+        },
+        source: ['packages/game-data-contract/src/actions.ts:1041:9'],
       },
       {
         path: ['parameters', 'abilityEntityTargets'],
@@ -2767,6 +3680,9 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'readonly AbilityEntityTargetQuery[]',
         required: false,
         control: 'json',
+        semantics: actionSchemaPart_03625a4c3c299b20,
+        source: ['packages/game-data-contract/src/actions.ts:1043:9'],
+        fallback: { reason: 'structured-editor-pending' },
       },
       {
         path: ['parameters', 'ignoreSlotCheck'],
@@ -2775,6 +3691,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'boolean',
         required: false,
         control: 'boolean',
+        semantics: { type: 'boolean | undefined', optional: true },
+        source: ['packages/game-data-contract/src/actions.ts:1045:9'],
       },
     ],
   },
@@ -2782,14 +3700,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'startUltimateTimeDilation',
     description: '终结技专用恒定全局时间倍率；实例随承载动作结束，施法者自动忽略。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'priority'],
         label: 'priority',
@@ -2797,6 +3708,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'number',
         required: true,
         control: 'number',
+        semantics: { type: 'number' },
+        source: ['packages/game-data-contract/src/actions.ts:1050:5'],
       },
       {
         path: ['parameters', 'targetScale'],
@@ -2805,6 +3718,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'ActionValueOperand',
         required: true,
         control: 'operand',
+        semantics: { type: 'ActionValueOperand', aliases: ['ActionValueOperand'] },
+        source: ['packages/game-data-contract/src/actions.ts:1052:5'],
       },
       {
         path: ['parameters', 'ignoredTargets'],
@@ -2814,6 +3729,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: true,
         control: 'multiselect',
         options: ['enemy', 'caster', 'controlled'],
+        semantics: actionSchemaPart_18bb1cc60c393635,
+        source: ['packages/game-data-contract/src/actions.ts:1054:5'],
       },
       {
         path: ['parameters', 'ignoredAbilityEntityTargets'],
@@ -2822,6 +3739,9 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'readonly AbilityEntityTargetQuery[]',
         required: false,
         control: 'json',
+        semantics: actionSchemaPart_03625a4c3c299b20,
+        source: ['packages/game-data-contract/src/actions.ts:1056:5'],
+        fallback: { reason: 'structured-editor-pending' },
       },
     ],
   },
@@ -2829,14 +3749,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'hideUi',
     description: '原生 HideUIAction；区间生命周期独立于时间膨胀，不代表全部操作不可用。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'onlyBlockInput'],
         label: 'onlyBlockInput',
@@ -2844,6 +3757,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'boolean',
         required: true,
         control: 'boolean',
+        semantics: { type: 'boolean' },
+        source: ['packages/game-data-contract/src/actions.ts:1061:5'],
       },
     ],
   },
@@ -2851,14 +3766,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'setIgnoreGlobalTimeScale',
     description: '在动作区间内切换目标能力实体是否忽略全局时间倍率。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'abilityEntityTargets'],
         label: 'abilityEntityTargets',
@@ -2866,6 +3774,12 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'readonly AbilityEntityTargetQuery[]',
         required: true,
         control: 'json',
+        semantics: {
+          type: 'readonly AbilityEntityTargetQuery[]',
+          arrayElement: actionSchemaPart_1764e1f29d45469e,
+        },
+        source: ['packages/game-data-contract/src/actions.ts:1066:5'],
+        fallback: { reason: 'structured-editor-pending' },
       },
       {
         path: ['parameters', 'ignore'],
@@ -2874,6 +3788,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'boolean',
         required: true,
         control: 'boolean',
+        semantics: { type: 'boolean' },
+        source: ['packages/game-data-contract/src/actions.ts:1068:5'],
       },
       {
         path: ['parameters', 'revertOnEnd'],
@@ -2882,6 +3798,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'boolean',
         required: true,
         control: 'boolean',
+        semantics: { type: 'boolean' },
+        source: ['packages/game-data-contract/src/actions.ts:1070:5'],
       },
     ],
   },
@@ -2889,14 +3807,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'storeCurrentTimelineFrame',
     description: '修改当前技能实例的动作黑板；不得用于跨技能持久状态。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'outputKey'],
         label: 'outputKey',
@@ -2904,6 +3815,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'string',
         required: true,
         control: 'string',
+        semantics: { type: 'string' },
+        source: ['packages/game-data-contract/src/actions.ts:1075:5'],
       },
     ],
   },
@@ -2911,14 +3824,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'storeEventSpGainAmount',
     description: '读取当前 spGained 语义事件，分别保存原生 Value 与 RealDelta。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'outputKey'],
         label: 'outputKey',
@@ -2926,6 +3832,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'string',
         required: false,
         control: 'string',
+        semantics: { type: 'string | undefined', optional: true },
+        source: ['packages/game-data-contract/src/actions.ts:1080:5'],
       },
       {
         path: ['parameters', 'realDeltaOutputKey'],
@@ -2934,6 +3842,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'string',
         required: false,
         control: 'string',
+        semantics: { type: 'string | undefined', optional: true },
+        source: ['packages/game-data-contract/src/actions.ts:1082:5'],
       },
     ],
   },
@@ -2941,14 +3851,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'storeEventHealValues',
     description: '从当前成功治疗事件保存修正后请求值和生命账本实际变化值。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'finalHealOutputKey'],
         label: 'finalHealOutputKey',
@@ -2956,6 +3859,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'string',
         required: false,
         control: 'string',
+        semantics: { type: 'string | undefined', optional: true },
+        source: ['packages/game-data-contract/src/actions.ts:1087:5'],
       },
       {
         path: ['parameters', 'realHealOutputKey'],
@@ -2964,6 +3869,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'string',
         required: false,
         control: 'string',
+        semantics: { type: 'string | undefined', optional: true },
+        source: ['packages/game-data-contract/src/actions.ts:1089:5'],
       },
     ],
   },
@@ -2971,14 +3878,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'storeShieldValue',
     description: '先解析目标；新增值读取147事件，当前值读取目标实时有限护盾。缺目标/事件成功不写。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'target'],
         label: 'target',
@@ -2987,6 +3887,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: true,
         control: 'select',
         options: ['actionOwner'],
+        semantics: { type: '"actionOwner"' },
+        source: ['packages/game-data-contract/src/actions.ts:1094:5'],
       },
       {
         path: ['parameters', 'value'],
@@ -2996,6 +3898,11 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: true,
         control: 'select',
         options: ['current', 'gained'],
+        semantics: {
+          type: '"current" | "gained"',
+          unionVariants: [{ type: '"gained"' }, { type: '"current"' }],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:1096:5'],
       },
       {
         path: ['parameters', 'outputKey'],
@@ -3004,6 +3911,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'string',
         required: true,
         control: 'string',
+        semantics: { type: 'string' },
+        source: ['packages/game-data-contract/src/actions.ts:1098:5'],
       },
     ],
   },
@@ -3011,14 +3920,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'modifyActionValue',
     description: '修改当前动作黑板中的一个数值。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'key'],
         label: 'key',
@@ -3026,6 +3928,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'string',
         required: true,
         control: 'string',
+        semantics: { type: 'string' },
+        source: ['packages/game-data-contract/src/actions.ts:1103:5'],
       },
       {
         path: ['parameters', 'operation'],
@@ -3035,6 +3939,19 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: true,
         control: 'select',
         options: ['assign', 'add', 'multiply', 'divide', 'floor', 'ceil', 'roundToInt'],
+        semantics: {
+          type: '"assign" | "add" | "multiply" | "divide" | "floor" | "ceil" | "roundToInt"',
+          unionVariants: [
+            { type: '"assign"' },
+            { type: '"add"' },
+            { type: '"multiply"' },
+            { type: '"divide"' },
+            { type: '"floor"' },
+            { type: '"ceil"' },
+            { type: '"roundToInt"' },
+          ],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:1105:5'],
       },
       {
         path: ['parameters', 'value'],
@@ -3043,6 +3960,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'ActionValueOperand',
         required: true,
         control: 'operand',
+        semantics: { type: 'ActionValueOperand', aliases: ['ActionValueOperand'] },
+        source: ['packages/game-data-contract/src/actions.ts:1107:5'],
       },
     ],
   },
@@ -3050,14 +3969,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'calculateActionValue',
     description: '计算两个动作黑板操作数，并将单精度结果写入当前技能实例。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'key'],
         label: 'key',
@@ -3065,6 +3977,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'string',
         required: true,
         control: 'string',
+        semantics: { type: 'string' },
+        source: ['packages/game-data-contract/src/actions.ts:1112:5'],
       },
       {
         path: ['parameters', 'operation'],
@@ -3074,6 +3988,11 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: true,
         control: 'select',
         options: ['add', 'multiply', 'divide'],
+        semantics: {
+          type: '"add" | "multiply" | "divide"',
+          unionVariants: [{ type: '"add"' }, { type: '"multiply"' }, { type: '"divide"' }],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:1114:5'],
       },
       {
         path: ['parameters', 'left'],
@@ -3082,6 +4001,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'ActionValueOperand',
         required: true,
         control: 'operand',
+        semantics: { type: 'ActionValueOperand', aliases: ['ActionValueOperand'] },
+        source: ['packages/game-data-contract/src/actions.ts:1116:5'],
       },
       {
         path: ['parameters', 'right'],
@@ -3090,6 +4011,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'ActionValueOperand',
         required: true,
         control: 'operand',
+        semantics: { type: 'ActionValueOperand', aliases: ['ActionValueOperand'] },
+        source: ['packages/game-data-contract/src/actions.ts:1118:5'],
       },
     ],
   },
@@ -3097,14 +4020,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'storeSourceAttributeValue',
     description: '按原生 StoreAttributeValue 语义读取动作来源实体的动态非转化属性。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'attribute'],
         label: 'attribute',
@@ -3112,6 +4028,15 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: "| { /** 读取指定名称的属性。 */ kind: 'specific'; /** 原生属性名称。 */ key: string; } | { /** 读取来源对象的主属性、副属性或全部四维。 */ kind: 'main' | 'secondary' | 'all'; }",
         required: true,
         control: 'json',
+        semantics: {
+          type: '{ kind: "specific"; key: string; } | { kind: "all" | "main" | "secondary"; }',
+          unionVariants: [
+            { type: '{ kind: "specific"; key: string; }' },
+            { type: '{ kind: "all" | "main" | "secondary"; }' },
+          ],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:1123:5'],
+        fallback: { reason: 'structured-editor-pending' },
       },
       {
         path: ['parameters', 'stage'],
@@ -3121,6 +4046,11 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: true,
         control: 'select',
         options: ['armedNonConverted', 'finalNonConverted'],
+        semantics: {
+          type: '"armedNonConverted" | "finalNonConverted"',
+          unionVariants: [{ type: '"armedNonConverted"' }, { type: '"finalNonConverted"' }],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:1135:5'],
       },
       {
         path: ['parameters', 'useFloor'],
@@ -3129,6 +4059,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'boolean',
         required: true,
         control: 'boolean',
+        semantics: { type: 'boolean' },
+        source: ['packages/game-data-contract/src/actions.ts:1137:5'],
       },
       {
         path: ['parameters', 'divisor'],
@@ -3137,6 +4069,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'ActionValueOperand',
         required: true,
         control: 'operand',
+        semantics: { type: 'ActionValueOperand', aliases: ['ActionValueOperand'] },
+        source: ['packages/game-data-contract/src/actions.ts:1139:5'],
       },
       {
         path: ['parameters', 'multiplier'],
@@ -3145,6 +4079,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'ActionValueOperand',
         required: true,
         control: 'operand',
+        semantics: { type: 'ActionValueOperand', aliases: ['ActionValueOperand'] },
+        source: ['packages/game-data-contract/src/actions.ts:1141:5'],
       },
       {
         path: ['parameters', 'base'],
@@ -3153,6 +4089,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'ActionValueOperand',
         required: true,
         control: 'operand',
+        semantics: { type: 'ActionValueOperand', aliases: ['ActionValueOperand'] },
+        source: ['packages/game-data-contract/src/actions.ts:1143:5'],
       },
       {
         path: ['parameters', 'targetKey'],
@@ -3161,6 +4099,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'string',
         required: true,
         control: 'string',
+        semantics: { type: 'string' },
+        source: ['packages/game-data-contract/src/actions.ts:1145:5'],
       },
     ],
   },
@@ -3168,14 +4108,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'storeEntityPropertyValue',
     description: '按原生 StoreEntityProperty 读取当前动作所有者的战斗生命/失衡账本。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'target'],
         label: 'target',
@@ -3184,6 +4117,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: true,
         control: 'select',
         options: ['actionOwner'],
+        semantics: { type: '"actionOwner"' },
+        source: ['packages/game-data-contract/src/actions.ts:1150:5'],
       },
       {
         path: ['parameters', 'property'],
@@ -3193,6 +4128,15 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: true,
         control: 'select',
         options: ['maxHealth', 'currentHealth', 'currentPoise'],
+        semantics: {
+          type: '"maxHealth" | "currentHealth" | "currentPoise"',
+          unionVariants: [
+            { type: '"currentHealth"' },
+            { type: '"maxHealth"' },
+            { type: '"currentPoise"' },
+          ],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:1152:5'],
       },
       {
         path: ['parameters', 'useFloor'],
@@ -3201,6 +4145,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'boolean',
         required: true,
         control: 'boolean',
+        semantics: { type: 'boolean' },
+        source: ['packages/game-data-contract/src/actions.ts:1154:5'],
       },
       {
         path: ['parameters', 'divisor'],
@@ -3209,6 +4155,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'ActionValueOperand',
         required: true,
         control: 'operand',
+        semantics: { type: 'ActionValueOperand', aliases: ['ActionValueOperand'] },
+        source: ['packages/game-data-contract/src/actions.ts:1156:5'],
       },
       {
         path: ['parameters', 'multiplier'],
@@ -3217,6 +4165,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'ActionValueOperand',
         required: true,
         control: 'operand',
+        semantics: { type: 'ActionValueOperand', aliases: ['ActionValueOperand'] },
+        source: ['packages/game-data-contract/src/actions.ts:1158:5'],
       },
       {
         path: ['parameters', 'base'],
@@ -3225,6 +4175,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'ActionValueOperand',
         required: true,
         control: 'operand',
+        semantics: { type: 'ActionValueOperand', aliases: ['ActionValueOperand'] },
+        source: ['packages/game-data-contract/src/actions.ts:1160:5'],
       },
       {
         path: ['parameters', 'targetKey'],
@@ -3233,6 +4185,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'string',
         required: true,
         control: 'string',
+        semantics: { type: 'string' },
+        source: ['packages/game-data-contract/src/actions.ts:1162:5'],
       },
     ],
   },
@@ -3240,14 +4194,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'setHealthFloor',
     description: '在动作寿命内为当前动作所有者注册生命下限；动作结束时移除同一原生句柄。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'target'],
         label: 'target',
@@ -3256,6 +4203,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: true,
         control: 'select',
         options: ['actionOwner'],
+        semantics: { type: '"actionOwner"' },
+        source: ['packages/game-data-contract/src/actions.ts:1167:5'],
       },
       {
         path: ['parameters', 'mode'],
@@ -3265,6 +4214,11 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: true,
         control: 'select',
         options: ['absolute', 'maxHealthRatio'],
+        semantics: {
+          type: '"absolute" | "maxHealthRatio"',
+          unionVariants: [{ type: '"absolute"' }, { type: '"maxHealthRatio"' }],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:1169:5'],
       },
       {
         path: ['parameters', 'value'],
@@ -3273,6 +4227,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'ActionValueOperand',
         required: true,
         control: 'operand',
+        semantics: { type: 'ActionValueOperand', aliases: ['ActionValueOperand'] },
+        source: ['packages/game-data-contract/src/actions.ts:1171:5'],
       },
     ],
   },
@@ -3280,14 +4236,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'changeResource',
     description: '按技能或养成等级解析固定数值后增减战斗资源。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'resource'],
         label: 'resource',
@@ -3296,6 +4245,11 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: true,
         control: 'select',
         options: ['sp', 'ultimateEnergy'],
+        semantics: {
+          type: '"sp" | "ultimateEnergy"',
+          unionVariants: [{ type: '"sp"' }, { type: '"ultimateEnergy"' }],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:1176:5'],
       },
       {
         path: ['parameters', 'amount'],
@@ -3304,6 +4258,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'LevelValues',
         required: true,
         control: 'levelValues',
+        semantics: { type: 'LevelValues', aliases: ['LevelValues'] },
+        source: ['packages/game-data-contract/src/actions.ts:1178:5'],
       },
       {
         path: ['parameters', 'coefficient'],
@@ -3312,6 +4268,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'LevelValues',
         required: false,
         control: 'levelValues',
+        semantics: { type: 'LevelValues | undefined', aliases: ['LevelValues'], optional: true },
+        source: ['packages/game-data-contract/src/actions.ts:1180:5'],
       },
       {
         path: ['parameters', 'recipient'],
@@ -3321,6 +4279,11 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: true,
         control: 'select',
         options: ['caster', 'team'],
+        semantics: {
+          type: '"caster" | "team"',
+          unionVariants: [{ type: '"caster"' }, { type: '"team"' }],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:1182:5'],
       },
       {
         path: ['parameters', 'spGainKind'],
@@ -3330,6 +4293,12 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: false,
         control: 'select',
         options: ['gain', 'refund'],
+        semantics: {
+          type: '"gain" | "refund" | undefined',
+          optional: true,
+          unionVariants: [{ type: '"gain"' }, { type: '"refund"' }],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:1184:5'],
       },
       {
         path: ['parameters', 'spGainSource'],
@@ -3339,6 +4308,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: false,
         control: 'select',
         options: ['normalAttack', 'powerAttack', 'default', 'skill'],
+        semantics: actionSchemaPart_0f38ab070df3ee7c,
+        source: ['packages/game-data-contract/src/actions.ts:1186:5'],
       },
       {
         path: ['parameters', 'isPercentValue'],
@@ -3347,6 +4318,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'boolean',
         required: false,
         control: 'boolean',
+        semantics: { type: 'boolean | undefined', optional: true },
+        source: ['packages/game-data-contract/src/actions.ts:1188:5'],
       },
       {
         path: ['parameters', 'ultimateRecoveryTag'],
@@ -3355,6 +4328,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'GameplayTag',
         required: false,
         control: 'string',
+        semantics: { type: 'string | undefined', aliases: ['GameplayTag'], optional: true },
+        source: ['packages/game-data-contract/src/actions.ts:1190:5'],
       },
       {
         path: ['parameters', 'ignoreUltimateEnergyGainMultiplier'],
@@ -3363,6 +4338,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'boolean',
         required: false,
         control: 'boolean',
+        semantics: { type: 'boolean | undefined', optional: true },
+        source: ['packages/game-data-contract/src/actions.ts:1192:5'],
       },
     ],
   },
@@ -3370,14 +4347,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'changeResourceByActionValue',
     description: '执行时从当前技能动作黑板读取数值，再交给同一资源账本处理。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'resource'],
         label: 'resource',
@@ -3386,6 +4356,11 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: true,
         control: 'select',
         options: ['sp', 'ultimateEnergy'],
+        semantics: {
+          type: '"sp" | "ultimateEnergy"',
+          unionVariants: [{ type: '"sp"' }, { type: '"ultimateEnergy"' }],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:1197:5'],
       },
       {
         path: ['parameters', 'amount'],
@@ -3394,6 +4369,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'ActionValueOperand',
         required: true,
         control: 'operand',
+        semantics: { type: 'ActionValueOperand', aliases: ['ActionValueOperand'] },
+        source: ['packages/game-data-contract/src/actions.ts:1199:5'],
       },
       {
         path: ['parameters', 'coefficient'],
@@ -3402,6 +4379,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'LevelValues | ActionValueOperand',
         required: false,
         control: 'levelValues',
+        semantics: actionSchemaPart_f49bdafe0a2efd47,
+        source: ['packages/game-data-contract/src/actions.ts:1201:5'],
       },
       {
         path: ['parameters', 'recipient'],
@@ -3411,6 +4390,11 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: true,
         control: 'select',
         options: ['caster', 'team'],
+        semantics: {
+          type: '"caster" | "team"',
+          unionVariants: [{ type: '"caster"' }, { type: '"team"' }],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:1203:5'],
       },
       {
         path: ['parameters', 'spGainKind'],
@@ -3420,6 +4404,12 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: false,
         control: 'select',
         options: ['gain', 'refund'],
+        semantics: {
+          type: '"gain" | "refund" | undefined',
+          optional: true,
+          unionVariants: [{ type: '"gain"' }, { type: '"refund"' }],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:1205:5'],
       },
       {
         path: ['parameters', 'spGainSource'],
@@ -3429,6 +4419,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: false,
         control: 'select',
         options: ['normalAttack', 'powerAttack', 'default', 'skill'],
+        semantics: actionSchemaPart_0f38ab070df3ee7c,
+        source: ['packages/game-data-contract/src/actions.ts:1207:5'],
       },
       {
         path: ['parameters', 'isPercentValue'],
@@ -3437,6 +4429,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'boolean',
         required: false,
         control: 'boolean',
+        semantics: { type: 'boolean | undefined', optional: true },
+        source: ['packages/game-data-contract/src/actions.ts:1209:5'],
       },
       {
         path: ['parameters', 'ultimateRecoveryTag'],
@@ -3445,6 +4439,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'GameplayTag',
         required: false,
         control: 'string',
+        semantics: { type: 'string | undefined', aliases: ['GameplayTag'], optional: true },
+        source: ['packages/game-data-contract/src/actions.ts:1211:5'],
       },
       {
         path: ['parameters', 'ignoreUltimateEnergyGainMultiplier'],
@@ -3453,6 +4449,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'boolean',
         required: false,
         control: 'boolean',
+        semantics: { type: 'boolean | undefined', optional: true },
+        source: ['packages/game-data-contract/src/actions.ts:1213:5'],
       },
     ],
   },
@@ -3460,14 +4458,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'recoverDashEnergy',
     description: '返还 PlayerController 持有的全队共享闪避体力。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'amount'],
         label: 'amount',
@@ -3475,6 +4466,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'ActionValueOperand',
         required: true,
         control: 'operand',
+        semantics: { type: 'ActionValueOperand', aliases: ['ActionValueOperand'] },
+        source: ['packages/game-data-contract/src/actions.ts:1218:5'],
       },
       {
         path: ['parameters', 'canRecoverWhenOverdraft'],
@@ -3483,35 +4476,21 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'boolean',
         required: true,
         control: 'boolean',
+        semantics: { type: 'boolean' },
+        source: ['packages/game-data-contract/src/actions.ts:1220:5'],
       },
     ],
   },
   recordPerfectDodge: {
     kind: 'recordPerfectDodge',
     description: '记录一次极限闪避成功，并发布原生 OnPerfectDodge 能力事件。',
-    fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
-    ],
+    fields: [actionSchemaPart_3c77b2f22bee7868],
   },
   gainSquadUltimateEnergyFromSkillCost: {
     kind: 'gainSquadUltimateEnergyFromSkillCost',
     description: '按本次技能费用为全队生成终结技能量。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'coefficient'],
         label: 'coefficient',
@@ -3519,6 +4498,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'LevelValues',
         required: true,
         control: 'levelValues',
+        semantics: { type: 'LevelValues', aliases: ['LevelValues'] },
+        source: ['packages/game-data-contract/src/actions.ts:1227:5'],
       },
     ],
   },
@@ -3526,14 +4507,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'gainFinisherSp',
     description: '按固定系数为全队生成处决技力。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'factor'],
         label: 'factor',
@@ -3541,6 +4515,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'number',
         required: true,
         control: 'number',
+        semantics: { type: 'number' },
+        source: ['packages/game-data-contract/src/actions.ts:1232:5'],
       },
       {
         path: ['parameters', 'recipient'],
@@ -3550,6 +4526,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: true,
         control: 'select',
         options: ['team'],
+        semantics: { type: '"team"' },
+        source: ['packages/game-data-contract/src/actions.ts:1234:5'],
       },
     ],
   },
@@ -3557,14 +4535,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'applyStatus',
     description: '创建或增加一个兼容的语义战斗状态。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'statusKey'],
         label: 'statusKey',
@@ -3572,6 +4543,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'string',
         required: true,
         control: 'string',
+        semantics: { type: 'string' },
+        source: ['packages/game-data-contract/src/actions.ts:1239:5'],
       },
       {
         path: ['parameters', 'target'],
@@ -3581,6 +4554,11 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: true,
         control: 'select',
         options: ['enemy', 'caster'],
+        semantics: {
+          type: '"enemy" | "caster"',
+          unionVariants: [{ type: '"enemy"' }, { type: '"caster"' }],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:1241:5'],
       },
       {
         path: ['parameters', 'durationFrames'],
@@ -3589,6 +4567,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'LevelValues',
         required: false,
         control: 'levelValues',
+        semantics: { type: 'LevelValues | undefined', aliases: ['LevelValues'], optional: true },
+        source: ['packages/game-data-contract/src/actions.ts:1243:5'],
       },
       {
         path: ['parameters', 'stacks'],
@@ -3597,6 +4577,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'number',
         required: false,
         control: 'number',
+        semantics: { type: 'number | undefined', optional: true },
+        source: ['packages/game-data-contract/src/actions.ts:1245:5'],
       },
       {
         path: ['parameters', 'maxStacks'],
@@ -3605,6 +4587,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'number',
         required: false,
         control: 'number',
+        semantics: { type: 'number | undefined', optional: true },
+        source: ['packages/game-data-contract/src/actions.ts:1247:5'],
       },
       {
         path: ['parameters', 'modifiers'],
@@ -3613,6 +4597,27 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'readonly StatusModifierDefinition[]',
         required: false,
         control: 'json',
+        semantics: {
+          type: 'readonly StatusModifierDefinition[] | undefined',
+          arrayElement: {
+            type: 'StatusModifierDefinition',
+            unionVariants: [
+              { type: '{ kind: "attackPercent"; value: LevelValues; }' },
+              {
+                type: '{ kind: "susceptibility"; damageTypes: readonly ("physical" | "heat" | "cryo" | "electric" | "nature" | "true" | "lifeDrain" | "ether")[]; value: LevelValues; attributeScaling?: { ...; } | undefined; cap?: LevelValues | undefined; }',
+              },
+              { type: '{ kind: "slowed"; }' },
+              { type: '{ kind: "blockResourceGain"; resource: "sp" | "ultimateEnergy"; }' },
+              {
+                type: '{ kind: "resourceCostMultiplier"; resource: "sp" | "ultimateEnergy"; value: number; }',
+              },
+              { type: '{ kind: "skillCooldownMultiplier"; skillKey: string; value: number; }' },
+            ],
+          },
+          optional: true,
+        },
+        source: ['packages/game-data-contract/src/actions.ts:1249:5'],
+        fallback: { reason: 'structured-editor-pending' },
       },
     ],
   },
@@ -3620,14 +4625,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'consumeStatus',
     description: '从一个语义战斗状态中消费层数。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'statusKey'],
         label: 'statusKey',
@@ -3635,6 +4633,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'string',
         required: true,
         control: 'string',
+        semantics: { type: 'string' },
+        source: ['packages/game-data-contract/src/actions.ts:1254:5'],
       },
       {
         path: ['parameters', 'target'],
@@ -3644,6 +4644,11 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: true,
         control: 'select',
         options: ['enemy', 'caster'],
+        semantics: {
+          type: '"enemy" | "caster"',
+          unionVariants: [{ type: '"enemy"' }, { type: '"caster"' }],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:1256:5'],
       },
       {
         path: ['parameters', 'stacks'],
@@ -3652,6 +4657,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'number',
         required: false,
         control: 'number',
+        semantics: { type: 'number | undefined', optional: true },
+        source: ['packages/game-data-contract/src/actions.ts:1258:5'],
       },
     ],
   },
@@ -3659,14 +4666,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'jumpTimeline',
     description: '在所在调度区间内持续检查条件，首次通过时把宿主局部时间轴推进到目的帧。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'destinationFrame'],
         label: 'destinationFrame',
@@ -3674,6 +4674,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'number',
         required: true,
         control: 'number',
+        semantics: { type: 'number' },
+        source: ['packages/game-data-contract/src/actions.ts:1263:5'],
       },
       {
         path: ['parameters', 'condition'],
@@ -3682,36 +4684,27 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'CombatCondition',
         required: false,
         control: 'json',
+        semantics: {
+          type: 'CombatCondition | undefined',
+          aliases: ['CombatCondition'],
+          optional: true,
+        },
+        source: ['packages/game-data-contract/src/actions.ts:1265:5'],
+        fallback: { reason: 'structured-editor-pending' },
       },
     ],
   },
   finishTimeline: {
     kind: 'finishTimeline',
     description: '立即结束当前宿主技能时间轴；只承接原生 InterruptCurSkillAction。',
-    fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
-    ],
+    fields: [actionSchemaPart_3c77b2f22bee7868],
   },
   reachSkillOperableBoundary: {
     kind: 'reachSkillOperableBoundary',
     description:
       '原生 AllowNextSkillAction 到达当前有序连段的下一技能窗口。\n生成器保留此事实，使条件分支实际执行时决定技能块边界。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'skillIds'],
         label: 'skillIds',
@@ -3719,49 +4712,27 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'readonly string[]',
         required: true,
         control: 'json',
+        semantics: { type: 'readonly string[]', arrayElement: { type: 'string' } },
+        source: ['packages/game-data-contract/src/actions.ts:1275:5'],
+        fallback: { reason: 'structured-editor-pending' },
       },
     ],
   },
   markCurrentSkillCanDash: {
     kind: 'markCurrentSkillCanDash',
     description: '把当前技能的本次施放标为可由 Dash 输入打断。',
-    fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
-    ],
+    fields: [actionSchemaPart_3c77b2f22bee7868],
   },
   markCurrentSkillCanInterrupt: {
     kind: 'markCurrentSkillCanInterrupt',
     description: '标记执行该动作的技能施放可中断，对应原生 MarkCanInterrupt。',
-    fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
-    ],
+    fields: [actionSchemaPart_3c77b2f22bee7868],
   },
   conditional: {
     kind: 'conditional',
     description: '按条件选择真假分支。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'condition'],
         label: 'condition',
@@ -3769,6 +4740,9 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'CombatCondition',
         required: true,
         control: 'json',
+        semantics: { type: 'CombatCondition', aliases: ['CombatCondition'] },
+        source: ['packages/game-data-contract/src/actions.ts:1284:5'],
+        fallback: { reason: 'structured-editor-pending' },
       },
       {
         path: ['parameters', 'alwaysNext'],
@@ -3777,6 +4751,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'boolean',
         required: false,
         control: 'boolean',
+        semantics: { type: 'boolean | undefined', optional: true },
+        source: ['packages/game-data-contract/src/actions.ts:1286:5'],
       },
       {
         path: ['whenTrue'],
@@ -3785,6 +4761,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'ActionGraphReference',
         required: true,
         control: 'sequence',
+        semantics: { type: 'ActionGraphReference', aliases: ['ActionGraphReference'] },
+        source: ['packages/game-data-contract/src/actions.ts:1585:7'],
       },
       {
         path: ['whenFalse'],
@@ -3793,6 +4771,12 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'ActionGraphReference',
         required: false,
         control: 'sequence',
+        semantics: {
+          type: 'ActionGraphReference | undefined',
+          aliases: ['ActionGraphReference'],
+          optional: true,
+        },
+        source: ['packages/game-data-contract/src/actions.ts:1587:7'],
       },
     ],
   },
@@ -3800,14 +4784,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'switch',
     description: '原生 Switch：choice 求值一次，与各候选按 float32 差值容差 1e-5f 顺序匹配。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'choice'],
         label: 'choice',
@@ -3815,6 +4792,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'ActionValueOperand',
         required: true,
         control: 'operand',
+        semantics: { type: 'ActionValueOperand', aliases: ['ActionValueOperand'] },
+        source: ['packages/game-data-contract/src/actions.ts:1291:5'],
       },
       {
         path: ['parameters', 'alwaysNext'],
@@ -3823,6 +4802,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'boolean',
         required: true,
         control: 'boolean',
+        semantics: { type: 'boolean' },
+        source: ['packages/game-data-contract/src/actions.ts:1293:5'],
       },
       {
         path: ['options'],
@@ -3831,6 +4812,12 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'readonly ActionSwitchOptionDefinition[]',
         required: true,
         control: 'json',
+        semantics: {
+          type: 'readonly ActionSwitchOptionDefinition[]',
+          arrayElement: { type: 'ActionSwitchOptionDefinition' },
+        },
+        source: ['packages/game-data-contract/src/actions.ts:1592:9'],
+        fallback: { reason: 'structured-editor-pending' },
       },
     ],
   },
@@ -3838,14 +4825,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'repeatEachTick',
     description: '在承载调度区间内逐 Tick 驱动 body；可保留原生 Channeling 的扫描与单目标门槛。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'nativeChanneling'],
         label: 'nativeChanneling',
@@ -3853,6 +4833,12 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: '{ /** 是否每个模拟帧执行。 */ executeEachFrame: boolean; /** 整体触发间隔秒数。 */ triggerIntervalSeconds: number; /** 每个目标最多触发次数。 */ maxCountPerTarget: number; /** 同一目标再次触发前等待的秒数。 */ targetTriggerIntervalSeconds: number; }',
         required: false,
         control: 'json',
+        semantics: {
+          type: '{ executeEachFrame: boolean; triggerIntervalSeconds: number; maxCountPerTarget: number; targetTriggerIntervalSeconds: number; } | undefined',
+          optional: true,
+        },
+        source: ['packages/game-data-contract/src/actions.ts:1325:5'],
+        fallback: { reason: 'structured-editor-pending' },
       },
       {
         path: ['parameters', 'nativeExecuteInterval'],
@@ -3862,6 +4848,12 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: '{ executeEachFrame: boolean; intervalSeconds: number; }',
         required: false,
         control: 'json',
+        semantics: {
+          type: '{ executeEachFrame: boolean; intervalSeconds: number; } | undefined',
+          optional: true,
+        },
+        source: ['packages/game-data-contract/src/actions.ts:1337:5'],
+        fallback: { reason: 'structured-editor-pending' },
       },
       {
         path: ['parameters', 'nativeTickInterval'],
@@ -3870,6 +4862,12 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: '{ /** 是否每个模拟帧执行。 */ executeEachFrame: boolean; /** 两次触发之间的秒数。 */ intervalSeconds: number; }',
         required: false,
         control: 'json',
+        semantics: {
+          type: '{ executeEachFrame: boolean; intervalSeconds: number; } | undefined',
+          optional: true,
+        },
+        source: ['packages/game-data-contract/src/actions.ts:1341:5'],
+        fallback: { reason: 'structured-editor-pending' },
       },
       {
         path: ['body'],
@@ -3878,6 +4876,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'ActionGraphReference',
         required: true,
         control: 'sequence',
+        semantics: { type: 'ActionGraphReference', aliases: ['ActionGraphReference'] },
+        source: ['packages/game-data-contract/src/actions.ts:1607:15'],
       },
     ],
   },
@@ -3885,14 +4885,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'repeatByActionValue',
     description: '按动作黑板或常量次数同步执行独立 body；每次都创建新的子步骤实例。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'count'],
         label: 'count',
@@ -3900,6 +4893,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'ActionValueOperand',
         required: true,
         control: 'operand',
+        semantics: { type: 'ActionValueOperand', aliases: ['ActionValueOperand'] },
+        source: ['packages/game-data-contract/src/actions.ts:1351:5'],
       },
       {
         path: ['body'],
@@ -3908,6 +4903,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'ActionGraphReference',
         required: true,
         control: 'sequence',
+        semantics: { type: 'ActionGraphReference', aliases: ['ActionGraphReference'] },
+        source: ['packages/game-data-contract/src/actions.ts:1612:17'],
       },
     ],
   },
@@ -3915,14 +4912,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'launchProjectile',
     description: '发射一个独立投射物；所有事件回调共享这一个对象的寿命和实体黑板。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'source'],
         label: 'source',
@@ -3931,6 +4921,12 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: false,
         control: 'select',
         options: ['actionSource', 'actionOwner'],
+        semantics: {
+          type: '"actionSource" | "actionOwner" | undefined',
+          optional: true,
+          unionVariants: [{ type: '"actionSource"' }, { type: '"actionOwner"' }],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:1356:5'],
       },
       {
         path: ['parameters', 'syncTimeScale'],
@@ -3939,6 +4935,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'boolean',
         required: false,
         control: 'boolean',
+        semantics: { type: 'boolean | undefined', optional: true },
+        source: ['packages/game-data-contract/src/actions.ts:1358:5'],
       },
       {
         path: ['parameters', 'finish'],
@@ -3947,6 +4945,19 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: "| number | 'firstTickReach' /** 零空间落地近似：首个投射物 Tick 执行阻挡回调并结束飞行。 */ | 'firstTickBlock' | { reachAfterTicks: number; maxDurationSeconds: number; /** false 表示到达只触发回调，仍等待命中上限或寿命到期才结束。 */ finishOnReach?: boolean; }",
         required: true,
         control: 'json',
+        semantics: {
+          type: 'number | { reachAfterTicks: number; maxDurationSeconds: number; finishOnReach?: boolean | undefined; } | "firstTickReach" | "firstTickBlock"',
+          unionVariants: [
+            { type: 'number' },
+            { type: '"firstTickReach"' },
+            { type: '"firstTickBlock"' },
+            {
+              type: '{ reachAfterTicks: number; maxDurationSeconds: number; finishOnReach?: boolean | undefined; }',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:1360:5'],
+        fallback: { reason: 'structured-editor-pending' },
       },
       {
         path: ['parameters', 'recycleDelaySeconds'],
@@ -3955,6 +4966,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'number',
         required: false,
         control: 'number',
+        semantics: { type: 'number | undefined', optional: true },
+        source: ['packages/game-data-contract/src/actions.ts:1372:5'],
       },
       {
         path: ['parameters', 'hit'],
@@ -3963,6 +4976,12 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: "{ /** 到达时直接命中发射目标，不执行碰撞阵营过滤。 */ onReach?: boolean; /** 发射时锁定的到达目标；省略时为敌人。 */ target?: 'controlledOperator' | 'allOperators' | 'currentTarget'; finishOnHit: boolean; hitTagFilter?: { tagQueryType: GameplayTagQueryType; tags: readonly GameplayTag[] }; retryRejectedHit?: boolean; }",
         required: false,
         control: 'json',
+        semantics: {
+          type: '{ onReach?: boolean | undefined; target?: "controlledOperator" | "currentTarget" | "allOperators" | undefined; finishOnHit: boolean; hitTagFilter?: { tagQueryType: "hasAny" | "hasAll" | "exceptAny" | "exceptAll"; tags: readonly string[]; } | undefined; retryRejectedHit?: boolean | undefined; } | undefined',
+          optional: true,
+        },
+        source: ['packages/game-data-contract/src/actions.ts:1374:5'],
+        fallback: { reason: 'structured-editor-pending' },
       },
       {
         path: ['callbacks'],
@@ -3971,6 +4990,13 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: "readonly { event: 'hit' | 'block' | 'reach' | 'finish'; skill: AbilityEntityChildSkillDefinition; }[]",
         required: true,
         control: 'resource',
+        semantics: {
+          type: 'readonly { event: "hit" | "block" | "reach" | "finish"; skill: AbilityEntityChildSkillDefinition; }[]',
+          arrayElement: {
+            type: '{ event: "hit" | "block" | "reach" | "finish"; skill: AbilityEntityChildSkillDefinition; }',
+          },
+        },
+        source: ['packages/game-data-contract/src/actions.ts:1617:19'],
       },
     ],
   },
@@ -3978,14 +5004,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'setContextFlag',
     description: '在动作环境中设置一个标志。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'flag'],
         label: 'flag',
@@ -3993,6 +5012,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'string',
         required: true,
         control: 'string',
+        semantics: { type: 'string' },
+        source: ['packages/game-data-contract/src/actions.ts:1387:5'],
       },
       {
         path: ['parameters', 'value'],
@@ -4001,6 +5022,12 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'boolean | number | string',
         required: true,
         control: 'json',
+        semantics: {
+          type: 'string | number | boolean',
+          unionVariants: [{ type: 'boolean' }, { type: 'number' }, { type: 'string' }],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:1389:5'],
+        fallback: { reason: 'structured-editor-pending' },
       },
       {
         path: ['parameters', 'target'],
@@ -4010,6 +5037,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: true,
         control: 'select',
         options: ['caster'],
+        semantics: { type: '"caster"' },
+        source: ['packages/game-data-contract/src/actions.ts:1391:5'],
       },
     ],
   },
@@ -4017,14 +5046,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'openComboWindow',
     description: '为当前干员开启固定五秒的连携候选；下一段技能身份随候选进入场景级队列。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'nextSkillKey'],
         label: 'nextSkillKey',
@@ -4032,6 +5054,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'string',
         required: false,
         control: 'string',
+        semantics: { type: 'string' },
+        source: ['packages/game-data-contract/src/actions.ts:1397:9'],
       },
       {
         path: ['parameters', 'nextSkillKeyFromSlot'],
@@ -4041,6 +5065,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: false,
         control: 'select',
         options: ['comboSkill'],
+        semantics: { type: '"comboSkill"' },
+        source: ['packages/game-data-contract/src/actions.ts:1402:9'],
       },
       {
         path: ['parameters', 'ownerContextKey'],
@@ -4049,6 +5075,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'string',
         required: false,
         control: 'string',
+        semantics: { type: 'string | undefined', optional: true },
+        source: ['packages/game-data-contract/src/actions.ts:1404:9'],
       },
     ],
   },
@@ -4056,14 +5084,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'showComboRingQte',
     description: '原生 ShowComboRingQte：在当前连携剩余时间上登记提示段与有效输入段。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'earlyDurationSeconds'],
         label: 'earlyDurationSeconds',
@@ -4071,6 +5092,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'ActionValueOperand',
         required: true,
         control: 'operand',
+        semantics: { type: 'ActionValueOperand', aliases: ['ActionValueOperand'] },
+        source: ['packages/game-data-contract/src/actions.ts:1409:5'],
       },
       {
         path: ['parameters', 'activeDurationSeconds'],
@@ -4079,6 +5102,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'ActionValueOperand',
         required: true,
         control: 'operand',
+        semantics: { type: 'ActionValueOperand', aliases: ['ActionValueOperand'] },
+        source: ['packages/game-data-contract/src/actions.ts:1411:5'],
       },
     ],
   },
@@ -4086,14 +5111,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'changeSkillSlot',
     description: '切换原生技能槽后续选择的技能；当前已启动的释放不受影响。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'skillSlotKey'],
         label: 'skillSlotKey',
@@ -4101,6 +5119,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'string',
         required: true,
         control: 'string',
+        semantics: { type: 'string' },
+        source: ['packages/game-data-contract/src/actions.ts:1416:5'],
       },
       {
         path: ['parameters', 'targetSkillKey'],
@@ -4109,6 +5129,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'string',
         required: true,
         control: 'string',
+        semantics: { type: 'string' },
+        source: ['packages/game-data-contract/src/actions.ts:1418:5'],
       },
       {
         path: ['parameters', 'inheritOriginSkillCooldownProgress'],
@@ -4117,6 +5139,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'boolean',
         required: false,
         control: 'boolean',
+        semantics: { type: 'boolean | undefined', optional: true },
+        source: ['packages/game-data-contract/src/actions.ts:1420:5'],
       },
       {
         path: ['parameters', 'lifetime'],
@@ -4126,6 +5150,12 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: false,
         control: 'select',
         options: ['infinite', 'finishByAction'],
+        semantics: {
+          type: '"infinite" | "finishByAction" | undefined',
+          optional: true,
+          unionVariants: [{ type: '"infinite"' }, { type: '"finishByAction"' }],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:1422:5'],
       },
       {
         path: ['parameters', 'revertedSkillKey'],
@@ -4134,6 +5164,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'string',
         required: false,
         control: 'string',
+        semantics: { type: 'string | undefined', optional: true },
+        source: ['packages/game-data-contract/src/actions.ts:1424:5'],
       },
     ],
   },
@@ -4141,14 +5173,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'overrideBasicAttackMapping',
     description: 'Buff 动作有效期间覆盖普攻命令；结束时只移除本次注册。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'skillId'],
         label: 'skillId',
@@ -4156,6 +5181,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'string',
         required: true,
         control: 'string',
+        semantics: { type: 'string' },
+        source: ['packages/game-data-contract/src/actions.ts:1429:5'],
       },
     ],
   },
@@ -4163,14 +5190,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'overrideMultiDashLimit',
     description: '动作有效期间覆盖当前干员可连续执行的 Dash 次数；负数表示无限。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'dashCount'],
         label: 'dashCount',
@@ -4178,6 +5198,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'ActionValueOperand',
         required: true,
         control: 'operand',
+        semantics: { type: 'ActionValueOperand', aliases: ['ActionValueOperand'] },
+        source: ['packages/game-data-contract/src/actions.ts:1434:5'],
       },
     ],
   },
@@ -4185,14 +5207,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'changePlayerActionMode',
     description: 'SwitchModeAction：只改变后续玩家操作的原生路由，结束时恢复同层上一模式。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'modeId'],
         label: 'modeId',
@@ -4200,6 +5215,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'string',
         required: true,
         control: 'string',
+        semantics: { type: 'string' },
+        source: ['packages/game-data-contract/src/actions.ts:1439:5'],
       },
       {
         path: ['parameters', 'lifetime'],
@@ -4209,6 +5226,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: true,
         control: 'select',
         options: ['finishByAction'],
+        semantics: { type: '"finishByAction"' },
+        source: ['packages/game-data-contract/src/actions.ts:1441:5'],
       },
     ],
   },
@@ -4216,14 +5235,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'changeNativeSkillType',
     description: 'ChangeSkillType：原地改写既有技能实例的原生分类，不替换技能槽。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'targetSkillKey'],
         label: 'targetSkillKey',
@@ -4231,6 +5243,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'string',
         required: true,
         control: 'string',
+        semantics: { type: 'string' },
+        source: ['packages/game-data-contract/src/actions.ts:1446:5'],
       },
       {
         path: ['parameters', 'nativeSkillType'],
@@ -4250,6 +5264,21 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
           'attachSkill',
           'extraActiveSkill',
         ],
+        semantics: {
+          type: '"normalSkill" | "comboSkill" | "ultimateSkill" | "dodge" | "breakingAttack" | "passiveSkill" | "attack" | "attachSkill" | "extraActiveSkill"',
+          unionVariants: [
+            { type: '"normalSkill"' },
+            { type: '"comboSkill"' },
+            { type: '"ultimateSkill"' },
+            { type: '"dodge"' },
+            { type: '"breakingAttack"' },
+            { type: '"passiveSkill"' },
+            { type: '"attack"' },
+            { type: '"attachSkill"' },
+            { type: '"extraActiveSkill"' },
+          ],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:1448:5'],
       },
     ],
   },
@@ -4257,14 +5286,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'setCharacterPassiveUiValue',
     description: '原生 NotifyCharPassiveUIAction：更新角色专属 HUD 数值，不修改伤害状态。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'target'],
         label: 'target',
@@ -4273,6 +5295,11 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: true,
         control: 'select',
         options: ['enemy', 'caster'],
+        semantics: {
+          type: '"enemy" | "caster"',
+          unionVariants: [{ type: '"enemy"' }, { type: '"caster"' }],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:1453:5'],
       },
       {
         path: ['parameters', 'value'],
@@ -4281,36 +5308,22 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'ActionValueOperand',
         required: true,
         control: 'operand',
+        semantics: { type: 'ActionValueOperand', aliases: ['ActionValueOperand'] },
+        source: ['packages/game-data-contract/src/actions.ts:1455:5'],
       },
     ],
   },
   inheritSkillCastInfoForBasicAttack: {
     kind: 'inheritSkillCastInfoForBasicAttack',
     description: 'Buff 有效期内把其来源施法身份注册为后续普通攻击的施法身份。',
-    fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
-    ],
+    fields: [actionSchemaPart_3c77b2f22bee7868],
   },
   listenForCombatEvents: {
     kind: 'listenForCombatEvents',
     description:
       '在所在调度项的有效区间内监听战斗事件。\n调度项开始时注册，结束或技能中断时注销；响应序列在事件派发过程中同步执行。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['parameters', 'responses'],
         label: 'responses',
@@ -4318,6 +5331,12 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'readonly CombatEventResponseDefinition[]',
         required: true,
         control: 'json',
+        semantics: {
+          type: 'readonly CombatEventResponseDefinition[]',
+          arrayElement: { type: 'CombatEventResponseDefinition' },
+        },
+        source: ['packages/game-data-contract/src/actions.ts:1465:5'],
+        fallback: { reason: 'structured-editor-pending' },
       },
     ],
   },
@@ -4332,6 +5351,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'string',
         required: true,
         control: 'string',
+        semantics: { type: 'string' },
+        source: ['packages/game-data-contract/src/actionGraph.ts:24:3'],
       },
       {
         path: ['arguments'],
@@ -4341,6 +5362,13 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'Readonly<Record<string, ActionValueOperand>>',
         required: false,
         control: 'json',
+        semantics: {
+          type: 'Readonly<Record<string, ActionValueOperand>> | undefined',
+          recordValue: { type: 'ActionValueOperand', aliases: ['ActionValueOperand'] },
+          optional: true,
+        },
+        source: ['packages/game-data-contract/src/actionGraph.ts:27:3'],
+        fallback: { reason: 'structured-editor-pending' },
       },
     ],
   },
@@ -4355,6 +5383,10 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: '{ /** 被调用的原生资源 ID。 */ readonly id: string; readonly actionGraph: ActionGraphResourceDefinition; readonly entry: ActionGraphReference; }',
         required: true,
         control: 'resource',
+        semantics: {
+          type: '{ readonly id: string; readonly actionGraph: ActionGraphResourceDefinition; readonly entry: ActionGraphReference; }',
+        },
+        source: ['packages/game-data-contract/src/actionGraph.ts:40:3'],
       },
     ],
   },
@@ -4362,14 +5394,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
     kind: 'once',
     description: '同一个技能释放实例内共享的只执行一次作用域。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['body'],
         label: 'body',
@@ -4377,29 +5402,17 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'ActionGraphReference',
         required: true,
         control: 'sequence',
+        semantics: { type: 'ActionGraphReference', aliases: ['ActionGraphReference'] },
+        source: ['packages/game-data-contract/src/actions.ts:1597:11'],
       },
-      {
-        path: ['parameters', 'scopeKey'],
-        label: 'scopeKey',
-        description: '',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_06351afab9547629,
     ],
   },
   withActionBlackboardScope: {
     kind: 'withActionBlackboardScope',
     description: '在一次原生子 SkillData 调用的 direct blackboard 中执行 body。',
     fields: [
-      {
-        path: ['key'],
-        label: 'key',
-        description: '仅当其他定义需要引用此步骤时提供。',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_3c77b2f22bee7868,
       {
         path: ['body'],
         label: 'body',
@@ -4407,6 +5420,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'ActionGraphReference',
         required: true,
         control: 'sequence',
+        semantics: { type: 'ActionGraphReference', aliases: ['ActionGraphReference'] },
+        source: ['packages/game-data-contract/src/actions.ts:1602:13'],
       },
       {
         path: ['parameters', 'alwaysNext'],
@@ -4415,6 +5430,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'boolean',
         required: false,
         control: 'boolean',
+        semantics: { type: 'boolean | undefined', optional: true },
+        source: ['packages/game-data-contract/src/actions.ts:1307:5'],
       },
       {
         path: ['parameters', 'lifetime'],
@@ -4424,6 +5441,12 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         required: false,
         control: 'select',
         options: ['parent', 'execution'],
+        semantics: {
+          type: '"parent" | "execution" | undefined',
+          optional: true,
+          unionVariants: [{ type: '"parent"' }, { type: '"execution"' }],
+        },
+        source: ['packages/game-data-contract/src/actions.ts:1305:5'],
       },
       {
         path: ['parameters', 'shareParentBlackboard'],
@@ -4433,6 +5456,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'boolean',
         required: false,
         control: 'boolean',
+        semantics: { type: 'boolean | undefined', optional: true },
+        source: ['packages/game-data-contract/src/actions.ts:1312:5'],
       },
       {
         path: ['parameters', 'initialValues'],
@@ -4441,6 +5466,12 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'Readonly<Record<string, LevelValues>>',
         required: true,
         control: 'json',
+        semantics: {
+          type: 'Readonly<Record<string, LevelValues>>',
+          recordValue: { type: 'LevelValues', aliases: ['LevelValues'] },
+        },
+        source: ['packages/game-data-contract/src/actions.ts:1314:5'],
+        fallback: { reason: 'structured-editor-pending' },
       },
       {
         path: ['parameters', 'inheritParent'],
@@ -4449,6 +5480,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'boolean',
         required: true,
         control: 'boolean',
+        semantics: { type: 'boolean' },
+        source: ['packages/game-data-contract/src/actions.ts:1316:5'],
       },
       {
         path: ['parameters', 'entityInitialValues'],
@@ -4457,6 +5490,13 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'Readonly<Record<string, LevelValues>>',
         required: false,
         control: 'json',
+        semantics: {
+          type: 'Readonly<Record<string, LevelValues>> | undefined',
+          recordValue: { type: 'LevelValues', aliases: ['LevelValues'] },
+          optional: true,
+        },
+        source: ['packages/game-data-contract/src/actions.ts:1318:5'],
+        fallback: { reason: 'structured-editor-pending' },
       },
       {
         path: ['parameters', 'entityAssignments'],
@@ -4465,15 +5505,15 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], ActionN
         type: 'Readonly<Record<string, ActionValueOperand>>',
         required: false,
         control: 'json',
+        semantics: {
+          type: 'Readonly<Record<string, ActionValueOperand>> | undefined',
+          recordValue: { type: 'ActionValueOperand', aliases: ['ActionValueOperand'] },
+          optional: true,
+        },
+        source: ['packages/game-data-contract/src/actions.ts:1320:5'],
+        fallback: { reason: 'structured-editor-pending' },
       },
-      {
-        path: ['parameters', 'scopeKey'],
-        label: 'scopeKey',
-        description: '',
-        type: 'string',
-        required: false,
-        control: 'string',
-      },
+      actionSchemaPart_06351afab9547629,
     ],
   },
 };
@@ -4488,6 +5528,10 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'string',
         required: true,
         control: 'string',
+        semantics: {
+          type: 'string',
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:48:7'],
       },
     ],
   },
@@ -4501,6 +5545,10 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'boolean',
         required: true,
         control: 'boolean',
+        semantics: {
+          type: 'boolean',
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:55:7'],
       },
     ],
   },
@@ -4527,6 +5575,18 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         required: true,
         control: 'select',
         options: ['caster', 'buffOwner'],
+        semantics: {
+          type: '"caster" | "buffOwner"',
+          unionVariants: [
+            {
+              type: '"caster"',
+            },
+            {
+              type: '"buffOwner"',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:77:7'],
       },
       {
         path: ['characterTypes'],
@@ -4536,6 +5596,30 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         required: true,
         control: 'multiselect',
         options: ['physical', 'heat', 'cryo', 'electric', 'nature'],
+        semantics: {
+          type: 'readonly ("physical" | "heat" | "cryo" | "electric" | "nature")[]',
+          arrayElement: {
+            type: '"physical" | "heat" | "cryo" | "electric" | "nature"',
+            unionVariants: [
+              {
+                type: '"physical"',
+              },
+              {
+                type: '"heat"',
+              },
+              {
+                type: '"cryo"',
+              },
+              {
+                type: '"electric"',
+              },
+              {
+                type: '"nature"',
+              },
+            ],
+          },
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:79:7'],
       },
     ],
   },
@@ -4550,6 +5634,21 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         required: true,
         control: 'select',
         options: ['eventTarget', 'caster', 'buffOwner'],
+        semantics: {
+          type: '"eventTarget" | "caster" | "buffOwner"',
+          unionVariants: [
+            {
+              type: '"caster"',
+            },
+            {
+              type: '"buffOwner"',
+            },
+            {
+              type: '"eventTarget"',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:86:7'],
       },
       {
         path: ['roles'],
@@ -4559,6 +5658,33 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         required: true,
         control: 'multiselect',
         options: ['guard', 'caster', 'defender', 'vanguard', 'supporter', 'striker'],
+        semantics: {
+          type: 'readonly ("guard" | "caster" | "defender" | "vanguard" | "supporter" | "striker")[]',
+          arrayElement: {
+            type: '"guard" | "caster" | "defender" | "vanguard" | "supporter" | "striker"',
+            unionVariants: [
+              {
+                type: '"guard"',
+              },
+              {
+                type: '"caster"',
+              },
+              {
+                type: '"defender"',
+              },
+              {
+                type: '"vanguard"',
+              },
+              {
+                type: '"supporter"',
+              },
+              {
+                type: '"striker"',
+              },
+            ],
+          },
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:88:7'],
       },
     ],
   },
@@ -4573,6 +5699,24 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         required: true,
         control: 'multiselect',
         options: ['mob', 'elite', 'boss'],
+        semantics: {
+          type: 'readonly ("mob" | "elite" | "boss")[]',
+          arrayElement: {
+            type: '"mob" | "elite" | "boss"',
+            unionVariants: [
+              {
+                type: '"mob"',
+              },
+              {
+                type: '"elite"',
+              },
+              {
+                type: '"boss"',
+              },
+            ],
+          },
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:95:7'],
       },
     ],
   },
@@ -4587,6 +5731,30 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         required: true,
         control: 'select',
         options: ['equal', 'notEqual', 'greater', 'greaterOrEqual', 'less', 'lessOrEqual'],
+        semantics: {
+          type: '"equal" | "notEqual" | "greater" | "greaterOrEqual" | "less" | "lessOrEqual"',
+          unionVariants: [
+            {
+              type: '"equal"',
+            },
+            {
+              type: '"notEqual"',
+            },
+            {
+              type: '"greater"',
+            },
+            {
+              type: '"greaterOrEqual"',
+            },
+            {
+              type: '"less"',
+            },
+            {
+              type: '"lessOrEqual"',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:101:7'],
       },
       {
         path: ['value'],
@@ -4595,6 +5763,11 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'ActionValueOperand',
         required: true,
         control: 'operand',
+        semantics: {
+          type: 'ActionValueOperand',
+          aliases: ['ActionValueOperand'],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:103:7'],
       },
     ],
   },
@@ -4609,6 +5782,30 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         required: true,
         control: 'select',
         options: ['equal', 'notEqual', 'greater', 'greaterOrEqual', 'less', 'lessOrEqual'],
+        semantics: {
+          type: '"equal" | "notEqual" | "greater" | "greaterOrEqual" | "less" | "lessOrEqual"',
+          unionVariants: [
+            {
+              type: '"equal"',
+            },
+            {
+              type: '"notEqual"',
+            },
+            {
+              type: '"greater"',
+            },
+            {
+              type: '"greaterOrEqual"',
+            },
+            {
+              type: '"less"',
+            },
+            {
+              type: '"lessOrEqual"',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:109:7'],
       },
       {
         path: ['value'],
@@ -4617,6 +5814,11 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'ActionValueOperand',
         required: true,
         control: 'operand',
+        semantics: {
+          type: 'ActionValueOperand',
+          aliases: ['ActionValueOperand'],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:111:7'],
       },
     ],
   },
@@ -4630,6 +5832,10 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'string',
         required: true,
         control: 'string',
+        semantics: {
+          type: 'string',
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:117:7'],
       },
     ],
   },
@@ -4644,6 +5850,18 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         required: true,
         control: 'select',
         options: ['enemy', 'caster'],
+        semantics: {
+          type: '"enemy" | "caster"',
+          unionVariants: [
+            {
+              type: '"enemy"',
+            },
+            {
+              type: '"caster"',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:123:7'],
       },
     ],
   },
@@ -4669,6 +5887,26 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
           'lowestHealthRatioOperatorExceptControlled',
           'contextTarget',
         ],
+        semantics: {
+          type: '"enemy" | "caster" | "buffOwner" | "buffSource" | "controlledOperator" | "currentTarget" | "actionInputTarget" | "lowestHealthRatioOperator" | "lowestHealthRatioOperatorExceptControlled" | "contextTarget"',
+          unionVariants: [
+            {
+              type: '"enemy" | "caster"',
+              unionVariants: [
+                {
+                  type: '"enemy"',
+                },
+                {
+                  type: '"caster"',
+                },
+              ],
+            },
+            {
+              type: '"enemy" | "caster" | "buffOwner" | "buffSource" | "controlledOperator" | "currentTarget" | "actionInputTarget" | "lowestHealthRatioOperator" | "lowestHealthRatioOperatorExceptControlled" | "contextTarget"',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:129:7'],
       },
       {
         path: ['contextKey'],
@@ -4677,6 +5915,11 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'string',
         required: false,
         control: 'string',
+        semantics: {
+          type: 'string | undefined',
+          optional: true,
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:131:7'],
       },
       {
         path: ['valueType'],
@@ -4686,6 +5929,18 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         required: true,
         control: 'select',
         options: ['current', 'ratio'],
+        semantics: {
+          type: '"current" | "ratio"',
+          unionVariants: [
+            {
+              type: '"current"',
+            },
+            {
+              type: '"ratio"',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:133:7'],
       },
       {
         path: ['operator'],
@@ -4695,6 +5950,30 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         required: true,
         control: 'select',
         options: ['equal', 'notEqual', 'greater', 'greaterOrEqual', 'less', 'lessOrEqual'],
+        semantics: {
+          type: '"equal" | "notEqual" | "greater" | "greaterOrEqual" | "less" | "lessOrEqual"',
+          unionVariants: [
+            {
+              type: '"equal"',
+            },
+            {
+              type: '"notEqual"',
+            },
+            {
+              type: '"greater"',
+            },
+            {
+              type: '"greaterOrEqual"',
+            },
+            {
+              type: '"less"',
+            },
+            {
+              type: '"lessOrEqual"',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:135:7'],
       },
       {
         path: ['value'],
@@ -4703,6 +5982,11 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'ActionValueOperand',
         required: true,
         control: 'operand',
+        semantics: {
+          type: 'ActionValueOperand',
+          aliases: ['ActionValueOperand'],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:137:7'],
       },
     ],
   },
@@ -4717,6 +6001,18 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         required: true,
         control: 'select',
         options: ['enemy', 'caster'],
+        semantics: {
+          type: '"enemy" | "caster"',
+          unionVariants: [
+            {
+              type: '"enemy"',
+            },
+            {
+              type: '"caster"',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:143:7'],
       },
       {
         path: ['returnValueIfMissing'],
@@ -4725,6 +6021,10 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'boolean',
         required: true,
         control: 'boolean',
+        semantics: {
+          type: 'boolean',
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:145:7'],
       },
       {
         path: ['operator'],
@@ -4734,6 +6034,30 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         required: true,
         control: 'select',
         options: ['equal', 'notEqual', 'greater', 'greaterOrEqual', 'less', 'lessOrEqual'],
+        semantics: {
+          type: '"equal" | "notEqual" | "greater" | "greaterOrEqual" | "less" | "lessOrEqual"',
+          unionVariants: [
+            {
+              type: '"equal"',
+            },
+            {
+              type: '"notEqual"',
+            },
+            {
+              type: '"greater"',
+            },
+            {
+              type: '"greaterOrEqual"',
+            },
+            {
+              type: '"less"',
+            },
+            {
+              type: '"lessOrEqual"',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:147:7'],
       },
       {
         path: ['value'],
@@ -4742,6 +6066,11 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'ActionValueOperand',
         required: true,
         control: 'operand',
+        semantics: {
+          type: 'ActionValueOperand',
+          aliases: ['ActionValueOperand'],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:149:7'],
       },
     ],
   },
@@ -4755,6 +6084,10 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'string',
         required: true,
         control: 'string',
+        semantics: {
+          type: 'string',
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:155:7'],
       },
       {
         path: ['value'],
@@ -4763,6 +6096,24 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'boolean | number | string',
         required: true,
         control: 'json',
+        semantics: {
+          type: 'string | number | boolean',
+          unionVariants: [
+            {
+              type: 'boolean',
+            },
+            {
+              type: 'number',
+            },
+            {
+              type: 'string',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:157:7'],
+        fallback: {
+          reason: 'structured-editor-pending',
+        },
       },
     ],
   },
@@ -4776,6 +6127,11 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'ActionValueOperand',
         required: true,
         control: 'operand',
+        semantics: {
+          type: 'ActionValueOperand',
+          aliases: ['ActionValueOperand'],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:163:7'],
       },
       {
         path: ['operator'],
@@ -4785,6 +6141,30 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         required: true,
         control: 'select',
         options: ['equal', 'notEqual', 'greater', 'greaterOrEqual', 'less', 'lessOrEqual'],
+        semantics: {
+          type: '"equal" | "notEqual" | "greater" | "greaterOrEqual" | "less" | "lessOrEqual"',
+          unionVariants: [
+            {
+              type: '"equal"',
+            },
+            {
+              type: '"notEqual"',
+            },
+            {
+              type: '"greater"',
+            },
+            {
+              type: '"greaterOrEqual"',
+            },
+            {
+              type: '"less"',
+            },
+            {
+              type: '"lessOrEqual"',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:165:7'],
       },
       {
         path: ['right'],
@@ -4793,6 +6173,11 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'ActionValueOperand',
         required: true,
         control: 'operand',
+        semantics: {
+          type: 'ActionValueOperand',
+          aliases: ['ActionValueOperand'],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:167:7'],
       },
     ],
   },
@@ -4819,6 +6204,50 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
           'currentTarget',
           'actionInputTarget',
         ],
+        semantics: {
+          type: 'BuffConditionTarget',
+          unionVariants: [
+            {
+              type: '"eventSource" | "eventTarget" | "enemy" | "caster" | "buffOwner" | "buffSource" | "controlledOperator" | "currentAbilityEntity" | "currentTarget" | "actionInputTarget"',
+              unionVariants: [
+                {
+                  type: '"eventSource"',
+                },
+                {
+                  type: '"eventTarget"',
+                },
+                {
+                  type: '"enemy"',
+                },
+                {
+                  type: '"caster"',
+                },
+                {
+                  type: '"buffOwner"',
+                },
+                {
+                  type: '"buffSource"',
+                },
+                {
+                  type: '"controlledOperator"',
+                },
+                {
+                  type: '"currentAbilityEntity"',
+                },
+                {
+                  type: '"currentTarget"',
+                },
+                {
+                  type: '"actionInputTarget"',
+                },
+              ],
+            },
+            {
+              type: '"actionInputTarget"',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:173:7'],
       },
       {
         path: ['query'],
@@ -4827,6 +6256,21 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: "| { /** 按 Buff ID 查找。 */ kind: 'id'; /** 任一匹配即可选中的 Buff ID。 */ buffIds: readonly string[]; } | { /** 按 Buff 标签查找。 */ kind: 'tag'; /** 标签集合匹配方式。 */ tagQueryType: GameplayTagQueryType; /** 参与匹配的 Buff 标签。 */ buffTags: readonly GameplayTag[]; }",
         required: true,
         control: 'json',
+        semantics: {
+          type: '{ kind: "id"; buffIds: readonly string[]; } | { kind: "tag"; tagQueryType: "hasAny" | "hasAll" | "exceptAny" | "exceptAll"; buffTags: readonly string[]; }',
+          unionVariants: [
+            {
+              type: '{ kind: "id"; buffIds: readonly string[]; }',
+            },
+            {
+              type: '{ kind: "tag"; tagQueryType: "hasAny" | "hasAll" | "exceptAny" | "exceptAll"; buffTags: readonly string[]; }',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:175:7'],
+        fallback: {
+          reason: 'structured-editor-pending',
+        },
       },
       {
         path: ['desiredKey'],
@@ -4835,6 +6279,10 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'string',
         required: true,
         control: 'string',
+        semantics: {
+          type: 'string',
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:191:7'],
       },
       {
         path: ['outputKey'],
@@ -4843,6 +6291,10 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'string',
         required: true,
         control: 'string',
+        semantics: {
+          type: 'string',
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:193:7'],
       },
       {
         path: ['operator'],
@@ -4852,6 +6304,30 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         required: true,
         control: 'select',
         options: ['equal', 'notEqual', 'greater', 'greaterOrEqual', 'less', 'lessOrEqual'],
+        semantics: {
+          type: '"equal" | "notEqual" | "greater" | "greaterOrEqual" | "less" | "lessOrEqual"',
+          unionVariants: [
+            {
+              type: '"equal"',
+            },
+            {
+              type: '"notEqual"',
+            },
+            {
+              type: '"greater"',
+            },
+            {
+              type: '"greaterOrEqual"',
+            },
+            {
+              type: '"less"',
+            },
+            {
+              type: '"lessOrEqual"',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:195:7'],
       },
       {
         path: ['value'],
@@ -4860,6 +6336,11 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'ActionValueOperand',
         required: true,
         control: 'operand',
+        semantics: {
+          type: 'ActionValueOperand',
+          aliases: ['ActionValueOperand'],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:197:7'],
       },
     ],
   },
@@ -4873,6 +6354,11 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'ActionValueOperand',
         required: true,
         control: 'operand',
+        semantics: {
+          type: 'ActionValueOperand',
+          aliases: ['ActionValueOperand'],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:203:7'],
       },
     ],
   },
@@ -4886,6 +6372,10 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'boolean',
         required: true,
         control: 'boolean',
+        semantics: {
+          type: 'boolean',
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:209:7'],
       },
     ],
   },
@@ -4900,6 +6390,30 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         required: true,
         control: 'select',
         options: ['equal', 'notEqual', 'greater', 'greaterOrEqual', 'less', 'lessOrEqual'],
+        semantics: {
+          type: '"equal" | "notEqual" | "greater" | "greaterOrEqual" | "less" | "lessOrEqual"',
+          unionVariants: [
+            {
+              type: '"equal"',
+            },
+            {
+              type: '"notEqual"',
+            },
+            {
+              type: '"greater"',
+            },
+            {
+              type: '"greaterOrEqual"',
+            },
+            {
+              type: '"less"',
+            },
+            {
+              type: '"lessOrEqual"',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:215:7'],
       },
       {
         path: ['value'],
@@ -4908,6 +6422,10 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'number',
         required: true,
         control: 'number',
+        semantics: {
+          type: 'number',
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:217:7'],
       },
     ],
   },
@@ -4921,6 +6439,10 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'string',
         required: true,
         control: 'string',
+        semantics: {
+          type: 'string',
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:223:7'],
       },
       {
         path: ['operator'],
@@ -4930,6 +6452,30 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         required: true,
         control: 'select',
         options: ['equal', 'notEqual', 'greater', 'greaterOrEqual', 'less', 'lessOrEqual'],
+        semantics: {
+          type: '"equal" | "notEqual" | "greater" | "greaterOrEqual" | "less" | "lessOrEqual"',
+          unionVariants: [
+            {
+              type: '"equal"',
+            },
+            {
+              type: '"notEqual"',
+            },
+            {
+              type: '"greater"',
+            },
+            {
+              type: '"greaterOrEqual"',
+            },
+            {
+              type: '"less"',
+            },
+            {
+              type: '"lessOrEqual"',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:225:7'],
       },
       {
         path: ['value'],
@@ -4938,6 +6484,10 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'number',
         required: true,
         control: 'number',
+        semantics: {
+          type: 'number',
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:227:7'],
       },
       {
         path: ['outputKey'],
@@ -4946,6 +6496,11 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'string',
         required: false,
         control: 'string',
+        semantics: {
+          type: 'string | undefined',
+          optional: true,
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:229:7'],
       },
     ],
   },
@@ -4959,6 +6514,10 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'string',
         required: true,
         control: 'string',
+        semantics: {
+          type: 'string',
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:235:7'],
       },
       {
         path: ['objectTypes'],
@@ -4967,6 +6526,68 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'CombatObjectTypeSelection',
         required: true,
         control: 'json',
+        semantics: {
+          type: 'CombatObjectTypeSelection',
+          unionVariants: [
+            {
+              type: 'readonly ("enemy" | "invalid" | "character" | "interactive" | "projectile" | "factoryRegion" | "npc" | "abilityEntity" | "cinematicEntity" | "remoteFactoryEntity" | "creature" | "godEntity" | "enemyPart" | "socialBuilding")[]',
+              arrayElement: {
+                type: '"enemy" | "invalid" | "character" | "interactive" | "projectile" | "factoryRegion" | "npc" | "abilityEntity" | "cinematicEntity" | "remoteFactoryEntity" | "creature" | "godEntity" | "enemyPart" | "socialBuilding"',
+                unionVariants: [
+                  {
+                    type: '"enemy"',
+                  },
+                  {
+                    type: '"invalid"',
+                  },
+                  {
+                    type: '"character"',
+                  },
+                  {
+                    type: '"interactive"',
+                  },
+                  {
+                    type: '"projectile"',
+                  },
+                  {
+                    type: '"factoryRegion"',
+                  },
+                  {
+                    type: '"npc"',
+                  },
+                  {
+                    type: '"abilityEntity"',
+                  },
+                  {
+                    type: '"cinematicEntity"',
+                  },
+                  {
+                    type: '"remoteFactoryEntity"',
+                  },
+                  {
+                    type: '"creature"',
+                  },
+                  {
+                    type: '"godEntity"',
+                  },
+                  {
+                    type: '"enemyPart"',
+                  },
+                  {
+                    type: '"socialBuilding"',
+                  },
+                ],
+              },
+            },
+            {
+              type: '"all"',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:237:7'],
+        fallback: {
+          reason: 'structured-editor-pending',
+        },
       },
     ],
   },
@@ -4980,6 +6601,68 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'CombatObjectTypeSelection',
         required: true,
         control: 'json',
+        semantics: {
+          type: 'CombatObjectTypeSelection',
+          unionVariants: [
+            {
+              type: 'readonly ("enemy" | "invalid" | "character" | "interactive" | "projectile" | "factoryRegion" | "npc" | "abilityEntity" | "cinematicEntity" | "remoteFactoryEntity" | "creature" | "godEntity" | "enemyPart" | "socialBuilding")[]',
+              arrayElement: {
+                type: '"enemy" | "invalid" | "character" | "interactive" | "projectile" | "factoryRegion" | "npc" | "abilityEntity" | "cinematicEntity" | "remoteFactoryEntity" | "creature" | "godEntity" | "enemyPart" | "socialBuilding"',
+                unionVariants: [
+                  {
+                    type: '"enemy"',
+                  },
+                  {
+                    type: '"invalid"',
+                  },
+                  {
+                    type: '"character"',
+                  },
+                  {
+                    type: '"interactive"',
+                  },
+                  {
+                    type: '"projectile"',
+                  },
+                  {
+                    type: '"factoryRegion"',
+                  },
+                  {
+                    type: '"npc"',
+                  },
+                  {
+                    type: '"abilityEntity"',
+                  },
+                  {
+                    type: '"cinematicEntity"',
+                  },
+                  {
+                    type: '"remoteFactoryEntity"',
+                  },
+                  {
+                    type: '"creature"',
+                  },
+                  {
+                    type: '"godEntity"',
+                  },
+                  {
+                    type: '"enemyPart"',
+                  },
+                  {
+                    type: '"socialBuilding"',
+                  },
+                ],
+              },
+            },
+            {
+              type: '"all"',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:243:7'],
+        fallback: {
+          reason: 'structured-editor-pending',
+        },
       },
     ],
   },
@@ -4994,6 +6677,21 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         required: true,
         control: 'select',
         options: ['controlledOperator', 'actionSource', 'actionOwner'],
+        semantics: {
+          type: '"controlledOperator" | "actionSource" | "actionOwner"',
+          unionVariants: [
+            {
+              type: '"actionSource"',
+            },
+            {
+              type: '"actionOwner"',
+            },
+            {
+              type: '"controlledOperator"',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:249:7'],
       },
       {
         path: ['operator'],
@@ -5003,6 +6701,18 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         required: true,
         control: 'select',
         options: ['equal', 'notEqual'],
+        semantics: {
+          type: '"equal" | "notEqual"',
+          unionVariants: [
+            {
+              type: '"equal"',
+            },
+            {
+              type: '"notEqual"',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:251:7'],
       },
     ],
   },
@@ -5016,6 +6726,10 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'string',
         required: true,
         control: 'string',
+        semantics: {
+          type: 'string',
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:257:7'],
       },
       {
         path: ['other'],
@@ -5025,6 +6739,21 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         required: true,
         control: 'select',
         options: ['controlledOperator', 'actionSource', 'actionOwner'],
+        semantics: {
+          type: '"controlledOperator" | "actionSource" | "actionOwner"',
+          unionVariants: [
+            {
+              type: '"actionSource"',
+            },
+            {
+              type: '"actionOwner"',
+            },
+            {
+              type: '"controlledOperator"',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:259:7'],
       },
       {
         path: ['operator'],
@@ -5034,6 +6763,18 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         required: true,
         control: 'select',
         options: ['equal', 'notEqual'],
+        semantics: {
+          type: '"equal" | "notEqual"',
+          unionVariants: [
+            {
+              type: '"equal"',
+            },
+            {
+              type: '"notEqual"',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:261:7'],
       },
     ],
   },
@@ -5047,6 +6788,10 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'string',
         required: true,
         control: 'string',
+        semantics: {
+          type: 'string',
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:267:7'],
       },
       {
         path: ['tagQueryType'],
@@ -5056,6 +6801,24 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         required: true,
         control: 'select',
         options: ['hasAny', 'hasAll', 'exceptAny', 'exceptAll'],
+        semantics: {
+          type: '"hasAny" | "hasAll" | "exceptAny" | "exceptAll"',
+          unionVariants: [
+            {
+              type: '"hasAny"',
+            },
+            {
+              type: '"hasAll"',
+            },
+            {
+              type: '"exceptAny"',
+            },
+            {
+              type: '"exceptAll"',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:269:7'],
       },
       {
         path: ['tags'],
@@ -5064,6 +6827,17 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'readonly GameplayTag[]',
         required: true,
         control: 'json',
+        semantics: {
+          type: 'readonly string[]',
+          arrayElement: {
+            type: 'string',
+            aliases: ['GameplayTag'],
+          },
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:271:7'],
+        fallback: {
+          reason: 'structured-editor-pending',
+        },
       },
     ],
   },
@@ -5077,6 +6851,10 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'string',
         required: true,
         control: 'string',
+        semantics: {
+          type: 'string',
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:277:7'],
       },
       {
         path: ['tagQueryType'],
@@ -5086,6 +6864,24 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         required: true,
         control: 'select',
         options: ['hasAny', 'hasAll', 'exceptAny', 'exceptAll'],
+        semantics: {
+          type: '"hasAny" | "hasAll" | "exceptAny" | "exceptAll"',
+          unionVariants: [
+            {
+              type: '"hasAny"',
+            },
+            {
+              type: '"hasAll"',
+            },
+            {
+              type: '"exceptAny"',
+            },
+            {
+              type: '"exceptAll"',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:279:7'],
       },
       {
         path: ['buffTags'],
@@ -5094,6 +6890,17 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'readonly GameplayTag[]',
         required: true,
         control: 'json',
+        semantics: {
+          type: 'readonly string[]',
+          arrayElement: {
+            type: 'string',
+            aliases: ['GameplayTag'],
+          },
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:281:7'],
+        fallback: {
+          reason: 'structured-editor-pending',
+        },
       },
       {
         path: ['operator'],
@@ -5103,6 +6910,30 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         required: true,
         control: 'select',
         options: ['equal', 'notEqual', 'greater', 'greaterOrEqual', 'less', 'lessOrEqual'],
+        semantics: {
+          type: '"equal" | "notEqual" | "greater" | "greaterOrEqual" | "less" | "lessOrEqual"',
+          unionVariants: [
+            {
+              type: '"equal"',
+            },
+            {
+              type: '"notEqual"',
+            },
+            {
+              type: '"greater"',
+            },
+            {
+              type: '"greaterOrEqual"',
+            },
+            {
+              type: '"less"',
+            },
+            {
+              type: '"lessOrEqual"',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:283:7'],
       },
       {
         path: ['value'],
@@ -5111,6 +6942,11 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'ActionValueOperand',
         required: true,
         control: 'operand',
+        semantics: {
+          type: 'ActionValueOperand',
+          aliases: ['ActionValueOperand'],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:285:7'],
       },
     ],
   },
@@ -5124,6 +6960,10 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'string',
         required: true,
         control: 'string',
+        semantics: {
+          type: 'string',
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:291:7'],
       },
       {
         path: ['buffIds'],
@@ -5132,6 +6972,16 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'readonly string[]',
         required: true,
         control: 'json',
+        semantics: {
+          type: 'readonly string[]',
+          arrayElement: {
+            type: 'string',
+          },
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:293:7'],
+        fallback: {
+          reason: 'structured-editor-pending',
+        },
       },
       {
         path: ['operator'],
@@ -5141,6 +6991,30 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         required: true,
         control: 'select',
         options: ['equal', 'notEqual', 'greater', 'greaterOrEqual', 'less', 'lessOrEqual'],
+        semantics: {
+          type: '"equal" | "notEqual" | "greater" | "greaterOrEqual" | "less" | "lessOrEqual"',
+          unionVariants: [
+            {
+              type: '"equal"',
+            },
+            {
+              type: '"notEqual"',
+            },
+            {
+              type: '"greater"',
+            },
+            {
+              type: '"greaterOrEqual"',
+            },
+            {
+              type: '"less"',
+            },
+            {
+              type: '"lessOrEqual"',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:295:7'],
       },
       {
         path: ['value'],
@@ -5149,6 +7023,11 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'ActionValueOperand',
         required: true,
         control: 'operand',
+        semantics: {
+          type: 'ActionValueOperand',
+          aliases: ['ActionValueOperand'],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:297:7'],
       },
     ],
   },
@@ -5163,6 +7042,30 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         required: true,
         control: 'select',
         options: ['equal', 'notEqual', 'greater', 'greaterOrEqual', 'less', 'lessOrEqual'],
+        semantics: {
+          type: '"equal" | "notEqual" | "greater" | "greaterOrEqual" | "less" | "lessOrEqual"',
+          unionVariants: [
+            {
+              type: '"equal"',
+            },
+            {
+              type: '"notEqual"',
+            },
+            {
+              type: '"greater"',
+            },
+            {
+              type: '"greaterOrEqual"',
+            },
+            {
+              type: '"less"',
+            },
+            {
+              type: '"lessOrEqual"',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:303:7'],
       },
       {
         path: ['value'],
@@ -5171,6 +7074,11 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'ActionValueOperand',
         required: true,
         control: 'operand',
+        semantics: {
+          type: 'ActionValueOperand',
+          aliases: ['ActionValueOperand'],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:305:7'],
       },
       {
         path: ['outputKey'],
@@ -5179,6 +7087,11 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'string',
         required: false,
         control: 'string',
+        semantics: {
+          type: 'string | undefined',
+          optional: true,
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:307:7'],
       },
     ],
   },
@@ -5192,6 +7105,10 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'string',
         required: true,
         control: 'string',
+        semantics: {
+          type: 'string',
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:313:7'],
       },
       {
         path: ['target'],
@@ -5201,6 +7118,18 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         required: true,
         control: 'select',
         options: ['enemy', 'caster'],
+        semantics: {
+          type: '"enemy" | "caster"',
+          unionVariants: [
+            {
+              type: '"enemy"',
+            },
+            {
+              type: '"caster"',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:315:7'],
       },
       {
         path: ['minimumStacks'],
@@ -5209,6 +7138,11 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'number',
         required: false,
         control: 'number',
+        semantics: {
+          type: 'number | undefined',
+          optional: true,
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:317:7'],
       },
     ],
   },
@@ -5223,6 +7157,30 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         required: true,
         control: 'select',
         options: ['equal', 'notEqual', 'greater', 'greaterOrEqual', 'less', 'lessOrEqual'],
+        semantics: {
+          type: '"equal" | "notEqual" | "greater" | "greaterOrEqual" | "less" | "lessOrEqual"',
+          unionVariants: [
+            {
+              type: '"equal"',
+            },
+            {
+              type: '"notEqual"',
+            },
+            {
+              type: '"greater"',
+            },
+            {
+              type: '"greaterOrEqual"',
+            },
+            {
+              type: '"less"',
+            },
+            {
+              type: '"lessOrEqual"',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:323:7'],
       },
       {
         path: ['value'],
@@ -5231,6 +7189,11 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'ActionValueOperand',
         required: true,
         control: 'operand',
+        semantics: {
+          type: 'ActionValueOperand',
+          aliases: ['ActionValueOperand'],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:325:7'],
       },
     ],
   },
@@ -5256,6 +7219,50 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
           'currentTarget',
           'actionInputTarget',
         ],
+        semantics: {
+          type: 'BuffConditionTarget',
+          unionVariants: [
+            {
+              type: '"eventSource" | "eventTarget" | "enemy" | "caster" | "buffOwner" | "buffSource" | "controlledOperator" | "currentAbilityEntity" | "currentTarget" | "actionInputTarget"',
+              unionVariants: [
+                {
+                  type: '"eventSource"',
+                },
+                {
+                  type: '"eventTarget"',
+                },
+                {
+                  type: '"enemy"',
+                },
+                {
+                  type: '"caster"',
+                },
+                {
+                  type: '"buffOwner"',
+                },
+                {
+                  type: '"buffSource"',
+                },
+                {
+                  type: '"controlledOperator"',
+                },
+                {
+                  type: '"currentAbilityEntity"',
+                },
+                {
+                  type: '"currentTarget"',
+                },
+                {
+                  type: '"actionInputTarget"',
+                },
+              ],
+            },
+            {
+              type: '"actionInputTarget"',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:331:7'],
       },
       {
         path: ['tagQueryType'],
@@ -5265,6 +7272,24 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         required: true,
         control: 'select',
         options: ['hasAny', 'hasAll', 'exceptAny', 'exceptAll'],
+        semantics: {
+          type: '"hasAny" | "hasAll" | "exceptAny" | "exceptAll"',
+          unionVariants: [
+            {
+              type: '"hasAny"',
+            },
+            {
+              type: '"hasAll"',
+            },
+            {
+              type: '"exceptAny"',
+            },
+            {
+              type: '"exceptAll"',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:333:7'],
       },
       {
         path: ['buffTags'],
@@ -5273,6 +7298,17 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'readonly GameplayTag[]',
         required: true,
         control: 'json',
+        semantics: {
+          type: 'readonly string[]',
+          arrayElement: {
+            type: 'string',
+            aliases: ['GameplayTag'],
+          },
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:335:7'],
+        fallback: {
+          reason: 'structured-editor-pending',
+        },
       },
       {
         path: ['sameSourceSkillCast'],
@@ -5281,6 +7317,11 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'boolean',
         required: false,
         control: 'boolean',
+        semantics: {
+          type: 'boolean | undefined',
+          optional: true,
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:337:7'],
       },
       {
         path: ['operator'],
@@ -5290,6 +7331,30 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         required: true,
         control: 'select',
         options: ['equal', 'notEqual', 'greater', 'greaterOrEqual', 'less', 'lessOrEqual'],
+        semantics: {
+          type: '"equal" | "notEqual" | "greater" | "greaterOrEqual" | "less" | "lessOrEqual"',
+          unionVariants: [
+            {
+              type: '"equal"',
+            },
+            {
+              type: '"notEqual"',
+            },
+            {
+              type: '"greater"',
+            },
+            {
+              type: '"greaterOrEqual"',
+            },
+            {
+              type: '"less"',
+            },
+            {
+              type: '"lessOrEqual"',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:339:7'],
       },
       {
         path: ['value'],
@@ -5298,6 +7363,11 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'ActionValueOperand',
         required: true,
         control: 'operand',
+        semantics: {
+          type: 'ActionValueOperand',
+          aliases: ['ActionValueOperand'],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:341:7'],
       },
     ],
   },
@@ -5323,6 +7393,50 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
           'currentTarget',
           'actionInputTarget',
         ],
+        semantics: {
+          type: 'BuffConditionTarget',
+          unionVariants: [
+            {
+              type: '"eventSource" | "eventTarget" | "enemy" | "caster" | "buffOwner" | "buffSource" | "controlledOperator" | "currentAbilityEntity" | "currentTarget" | "actionInputTarget"',
+              unionVariants: [
+                {
+                  type: '"eventSource"',
+                },
+                {
+                  type: '"eventTarget"',
+                },
+                {
+                  type: '"enemy"',
+                },
+                {
+                  type: '"caster"',
+                },
+                {
+                  type: '"buffOwner"',
+                },
+                {
+                  type: '"buffSource"',
+                },
+                {
+                  type: '"controlledOperator"',
+                },
+                {
+                  type: '"currentAbilityEntity"',
+                },
+                {
+                  type: '"currentTarget"',
+                },
+                {
+                  type: '"actionInputTarget"',
+                },
+              ],
+            },
+            {
+              type: '"actionInputTarget"',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:347:7'],
       },
       {
         path: ['tagQueryType'],
@@ -5332,6 +7446,24 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         required: true,
         control: 'select',
         options: ['hasAny', 'hasAll', 'exceptAny', 'exceptAll'],
+        semantics: {
+          type: '"hasAny" | "hasAll" | "exceptAny" | "exceptAll"',
+          unionVariants: [
+            {
+              type: '"hasAny"',
+            },
+            {
+              type: '"hasAll"',
+            },
+            {
+              type: '"exceptAny"',
+            },
+            {
+              type: '"exceptAll"',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:349:7'],
       },
       {
         path: ['buffTags'],
@@ -5340,6 +7472,17 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'readonly GameplayTag[]',
         required: true,
         control: 'json',
+        semantics: {
+          type: 'readonly string[]',
+          arrayElement: {
+            type: 'string',
+            aliases: ['GameplayTag'],
+          },
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:351:7'],
+        fallback: {
+          reason: 'structured-editor-pending',
+        },
       },
       {
         path: ['operator'],
@@ -5349,6 +7492,30 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         required: true,
         control: 'select',
         options: ['equal', 'notEqual', 'greater', 'greaterOrEqual', 'less', 'lessOrEqual'],
+        semantics: {
+          type: '"equal" | "notEqual" | "greater" | "greaterOrEqual" | "less" | "lessOrEqual"',
+          unionVariants: [
+            {
+              type: '"equal"',
+            },
+            {
+              type: '"notEqual"',
+            },
+            {
+              type: '"greater"',
+            },
+            {
+              type: '"greaterOrEqual"',
+            },
+            {
+              type: '"less"',
+            },
+            {
+              type: '"lessOrEqual"',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:353:7'],
       },
       {
         path: ['value'],
@@ -5357,6 +7524,11 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'ActionValueOperand',
         required: true,
         control: 'operand',
+        semantics: {
+          type: 'ActionValueOperand',
+          aliases: ['ActionValueOperand'],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:355:7'],
       },
     ],
   },
@@ -5382,6 +7554,50 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
           'currentTarget',
           'actionInputTarget',
         ],
+        semantics: {
+          type: 'BuffConditionTarget',
+          unionVariants: [
+            {
+              type: '"eventSource" | "eventTarget" | "enemy" | "caster" | "buffOwner" | "buffSource" | "controlledOperator" | "currentAbilityEntity" | "currentTarget" | "actionInputTarget"',
+              unionVariants: [
+                {
+                  type: '"eventSource"',
+                },
+                {
+                  type: '"eventTarget"',
+                },
+                {
+                  type: '"enemy"',
+                },
+                {
+                  type: '"caster"',
+                },
+                {
+                  type: '"buffOwner"',
+                },
+                {
+                  type: '"buffSource"',
+                },
+                {
+                  type: '"controlledOperator"',
+                },
+                {
+                  type: '"currentAbilityEntity"',
+                },
+                {
+                  type: '"currentTarget"',
+                },
+                {
+                  type: '"actionInputTarget"',
+                },
+              ],
+            },
+            {
+              type: '"actionInputTarget"',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:361:7'],
       },
       {
         path: ['tagQueryType'],
@@ -5391,6 +7607,24 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         required: true,
         control: 'select',
         options: ['hasAny', 'hasAll', 'exceptAny', 'exceptAll'],
+        semantics: {
+          type: '"hasAny" | "hasAll" | "exceptAny" | "exceptAll"',
+          unionVariants: [
+            {
+              type: '"hasAny"',
+            },
+            {
+              type: '"hasAll"',
+            },
+            {
+              type: '"exceptAny"',
+            },
+            {
+              type: '"exceptAll"',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:363:7'],
       },
       {
         path: ['tags'],
@@ -5399,6 +7633,17 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'readonly GameplayTag[]',
         required: true,
         control: 'json',
+        semantics: {
+          type: 'readonly string[]',
+          arrayElement: {
+            type: 'string',
+            aliases: ['GameplayTag'],
+          },
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:365:7'],
+        fallback: {
+          reason: 'structured-editor-pending',
+        },
       },
     ],
   },
@@ -5424,6 +7669,50 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
           'currentTarget',
           'actionInputTarget',
         ],
+        semantics: {
+          type: 'BuffConditionTarget',
+          unionVariants: [
+            {
+              type: '"eventSource" | "eventTarget" | "enemy" | "caster" | "buffOwner" | "buffSource" | "controlledOperator" | "currentAbilityEntity" | "currentTarget" | "actionInputTarget"',
+              unionVariants: [
+                {
+                  type: '"eventSource"',
+                },
+                {
+                  type: '"eventTarget"',
+                },
+                {
+                  type: '"enemy"',
+                },
+                {
+                  type: '"caster"',
+                },
+                {
+                  type: '"buffOwner"',
+                },
+                {
+                  type: '"buffSource"',
+                },
+                {
+                  type: '"controlledOperator"',
+                },
+                {
+                  type: '"currentAbilityEntity"',
+                },
+                {
+                  type: '"currentTarget"',
+                },
+                {
+                  type: '"actionInputTarget"',
+                },
+              ],
+            },
+            {
+              type: '"actionInputTarget"',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:371:7'],
       },
       {
         path: ['buffIds'],
@@ -5432,6 +7721,16 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'readonly string[]',
         required: true,
         control: 'json',
+        semantics: {
+          type: 'readonly string[]',
+          arrayElement: {
+            type: 'string',
+          },
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:373:7'],
+        fallback: {
+          reason: 'structured-editor-pending',
+        },
       },
       {
         path: ['sameSourceSkillCast'],
@@ -5440,6 +7739,11 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'boolean',
         required: false,
         control: 'boolean',
+        semantics: {
+          type: 'boolean | undefined',
+          optional: true,
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:375:7'],
       },
       {
         path: ['operator'],
@@ -5449,6 +7753,30 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         required: true,
         control: 'select',
         options: ['equal', 'notEqual', 'greater', 'greaterOrEqual', 'less', 'lessOrEqual'],
+        semantics: {
+          type: '"equal" | "notEqual" | "greater" | "greaterOrEqual" | "less" | "lessOrEqual"',
+          unionVariants: [
+            {
+              type: '"equal"',
+            },
+            {
+              type: '"notEqual"',
+            },
+            {
+              type: '"greater"',
+            },
+            {
+              type: '"greaterOrEqual"',
+            },
+            {
+              type: '"less"',
+            },
+            {
+              type: '"lessOrEqual"',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:377:7'],
       },
       {
         path: ['value'],
@@ -5457,6 +7785,22 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'number | ActionValueOperand',
         required: true,
         control: 'json',
+        semantics: {
+          type: 'number | ActionValueOperand',
+          unionVariants: [
+            {
+              type: 'number',
+            },
+            {
+              type: 'ActionValueOperand',
+              aliases: ['ActionValueOperand'],
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:379:7'],
+        fallback: {
+          reason: 'structured-editor-pending',
+        },
       },
     ],
   },
@@ -5471,6 +7815,21 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         required: true,
         control: 'select',
         options: ['caster', 'buffOwner', 'buffSource'],
+        semantics: {
+          type: '"caster" | "buffOwner" | "buffSource"',
+          unionVariants: [
+            {
+              type: '"caster"',
+            },
+            {
+              type: '"buffOwner"',
+            },
+            {
+              type: '"buffSource"',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:385:7'],
       },
       {
         path: ['markerId'],
@@ -5479,6 +7838,10 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'string',
         required: true,
         control: 'string',
+        semantics: {
+          type: 'string',
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:387:7'],
       },
     ],
   },
@@ -5501,6 +7864,27 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         required: true,
         control: 'select',
         options: ['eventTarget', 'enemy', 'caster', 'buffOwner', 'buffSource'],
+        semantics: {
+          type: '"eventTarget" | "enemy" | "caster" | "buffOwner" | "buffSource"',
+          unionVariants: [
+            {
+              type: '"eventTarget"',
+            },
+            {
+              type: '"enemy"',
+            },
+            {
+              type: '"caster"',
+            },
+            {
+              type: '"buffOwner"',
+            },
+            {
+              type: '"buffSource"',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:401:7'],
       },
       {
         path: ['markerId'],
@@ -5509,6 +7893,14 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'ActionStringOperand',
         required: true,
         control: 'json',
+        semantics: {
+          type: 'ActionStringOperand',
+          aliases: ['ActionStringOperand'],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:403:7'],
+        fallback: {
+          reason: 'structured-editor-pending',
+        },
       },
     ],
   },
@@ -5522,6 +7914,14 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'ActionStringOperand',
         required: true,
         control: 'json',
+        semantics: {
+          type: 'ActionStringOperand',
+          aliases: ['ActionStringOperand'],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:409:7'],
+        fallback: {
+          reason: 'structured-editor-pending',
+        },
       },
       {
         path: ['contextKey'],
@@ -5530,6 +7930,11 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'string',
         required: false,
         control: 'string',
+        semantics: {
+          type: 'string | undefined',
+          optional: true,
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:411:7'],
       },
     ],
   },
@@ -5544,6 +7949,27 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         required: true,
         control: 'select',
         options: ['hasAny', 'hasAll', 'exceptAny', 'exceptAll', 'exact'],
+        semantics: {
+          type: '"hasAny" | "hasAll" | "exceptAny" | "exceptAll" | "exact"',
+          unionVariants: [
+            {
+              type: '"hasAny"',
+            },
+            {
+              type: '"hasAll"',
+            },
+            {
+              type: '"exceptAny"',
+            },
+            {
+              type: '"exceptAll"',
+            },
+            {
+              type: '"exact"',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:417:7'],
       },
       {
         path: ['tags'],
@@ -5570,6 +7996,63 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
           'cryoAbnormal',
           'natureAbnormal',
         ],
+        semantics: {
+          type: 'readonly ("normalAttack" | "normalAttackLastCombo" | "powerAttack" | "normalSkill" | "comboSkill" | "ultimateSkill" | "plungingAttack" | "dashAttack" | "fireBurst" | "electricBurst" | ... 5 more ... | "natureAbnormal")[]',
+          arrayElement: {
+            type: '"normalAttack" | "normalAttackLastCombo" | "powerAttack" | "normalSkill" | "comboSkill" | "ultimateSkill" | "plungingAttack" | "dashAttack" | "fireBurst" | "electricBurst" | ... 5 more ... | "natureAbnormal"',
+            unionVariants: [
+              {
+                type: '"normalAttack"',
+              },
+              {
+                type: '"normalAttackLastCombo"',
+              },
+              {
+                type: '"powerAttack"',
+              },
+              {
+                type: '"normalSkill"',
+              },
+              {
+                type: '"comboSkill"',
+              },
+              {
+                type: '"ultimateSkill"',
+              },
+              {
+                type: '"plungingAttack"',
+              },
+              {
+                type: '"dashAttack"',
+              },
+              {
+                type: '"fireBurst"',
+              },
+              {
+                type: '"electricBurst"',
+              },
+              {
+                type: '"cryoBurst"',
+              },
+              {
+                type: '"natureBurst"',
+              },
+              {
+                type: '"fireAbnormal"',
+              },
+              {
+                type: '"electricAbnormal"',
+              },
+              {
+                type: '"cryoAbnormal"',
+              },
+              {
+                type: '"natureAbnormal"',
+              },
+            ],
+          },
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:419:7'],
       },
     ],
   },
@@ -5584,6 +8067,27 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         required: true,
         control: 'select',
         options: ['hasAny', 'hasAll', 'exceptAny', 'exceptAll', 'exact'],
+        semantics: {
+          type: '"hasAny" | "hasAll" | "exceptAny" | "exceptAll" | "exact"',
+          unionVariants: [
+            {
+              type: '"hasAny"',
+            },
+            {
+              type: '"hasAll"',
+            },
+            {
+              type: '"exceptAny"',
+            },
+            {
+              type: '"exceptAll"',
+            },
+            {
+              type: '"exact"',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:425:7'],
       },
       {
         path: ['tags'],
@@ -5592,6 +8096,17 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'readonly GameplayTag[]',
         required: true,
         control: 'json',
+        semantics: {
+          type: 'readonly string[]',
+          arrayElement: {
+            type: 'string',
+            aliases: ['GameplayTag'],
+          },
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:427:7'],
+        fallback: {
+          reason: 'structured-editor-pending',
+        },
       },
     ],
   },
@@ -5606,6 +8121,27 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         required: true,
         control: 'select',
         options: ['hasAny', 'hasAll', 'exceptAny', 'exceptAll', 'exact'],
+        semantics: {
+          type: '"hasAny" | "hasAll" | "exceptAny" | "exceptAll" | "exact"',
+          unionVariants: [
+            {
+              type: '"hasAny"',
+            },
+            {
+              type: '"hasAll"',
+            },
+            {
+              type: '"exceptAny"',
+            },
+            {
+              type: '"exceptAll"',
+            },
+            {
+              type: '"exact"',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:433:7'],
       },
       {
         path: ['features'],
@@ -5625,6 +8161,42 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
           'talentDamage',
           'physicalInfliction',
         ],
+        semantics: {
+          type: 'readonly ("canBreakWeakness" | "crush" | "airborne" | "knockDown" | "shatter" | "dot" | "remainArea" | "talentDamage" | "physicalInfliction")[]',
+          arrayElement: {
+            type: '"canBreakWeakness" | "crush" | "airborne" | "knockDown" | "shatter" | "dot" | "remainArea" | "talentDamage" | "physicalInfliction"',
+            unionVariants: [
+              {
+                type: '"canBreakWeakness"',
+              },
+              {
+                type: '"crush"',
+              },
+              {
+                type: '"airborne"',
+              },
+              {
+                type: '"knockDown"',
+              },
+              {
+                type: '"shatter"',
+              },
+              {
+                type: '"dot"',
+              },
+              {
+                type: '"remainArea"',
+              },
+              {
+                type: '"talentDamage"',
+              },
+              {
+                type: '"physicalInfliction"',
+              },
+            ],
+          },
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:435:7'],
       },
     ],
   },
@@ -5639,6 +8211,39 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         required: true,
         control: 'multiselect',
         options: ['physical', 'heat', 'cryo', 'electric', 'nature', 'true', 'lifeDrain', 'ether'],
+        semantics: {
+          type: 'readonly ("physical" | "heat" | "cryo" | "electric" | "nature" | "true" | "lifeDrain" | "ether")[]',
+          arrayElement: {
+            type: '"physical" | "heat" | "cryo" | "electric" | "nature" | "true" | "lifeDrain" | "ether"',
+            unionVariants: [
+              {
+                type: '"physical"',
+              },
+              {
+                type: '"heat"',
+              },
+              {
+                type: '"cryo"',
+              },
+              {
+                type: '"electric"',
+              },
+              {
+                type: '"nature"',
+              },
+              {
+                type: '"true"',
+              },
+              {
+                type: '"lifeDrain"',
+              },
+              {
+                type: '"ether"',
+              },
+            ],
+          },
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:441:7'],
       },
     ],
   },
@@ -5653,6 +8258,27 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         required: true,
         control: 'multiselect',
         options: ['heat', 'cryo', 'electric', 'nature'],
+        semantics: {
+          type: 'readonly ("heat" | "cryo" | "electric" | "nature")[]',
+          arrayElement: {
+            type: '"heat" | "cryo" | "electric" | "nature"',
+            unionVariants: [
+              {
+                type: '"heat"',
+              },
+              {
+                type: '"cryo"',
+              },
+              {
+                type: '"electric"',
+              },
+              {
+                type: '"nature"',
+              },
+            ],
+          },
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:447:7'],
       },
       {
         path: ['outputKey'],
@@ -5661,6 +8287,11 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'string',
         required: false,
         control: 'string',
+        semantics: {
+          type: 'string | undefined',
+          optional: true,
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:449:7'],
       },
     ],
   },
@@ -5675,6 +8306,27 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         required: true,
         control: 'multiselect',
         options: ['crush', 'airborne', 'knockDown', 'fracture'],
+        semantics: {
+          type: 'readonly ("crush" | "airborne" | "knockDown" | "fracture")[]',
+          arrayElement: {
+            type: '"crush" | "airborne" | "knockDown" | "fracture"',
+            unionVariants: [
+              {
+                type: '"airborne"',
+              },
+              {
+                type: '"knockDown"',
+              },
+              {
+                type: '"fracture"',
+              },
+              {
+                type: '"crush"',
+              },
+            ],
+          },
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:455:7'],
       },
       {
         path: ['outputKey'],
@@ -5683,6 +8335,11 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'string',
         required: false,
         control: 'string',
+        semantics: {
+          type: 'string | undefined',
+          optional: true,
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:457:7'],
       },
     ],
   },
@@ -5705,6 +8362,36 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
           'finisher',
           'dodge',
         ],
+        semantics: {
+          type: 'readonly ("comboSkill" | "plungingAttack" | "basicAttack" | "battleSkill" | "ultimate" | "finisher" | "dodge")[]',
+          arrayElement: {
+            type: '"comboSkill" | "plungingAttack" | "basicAttack" | "battleSkill" | "ultimate" | "finisher" | "dodge"',
+            unionVariants: [
+              {
+                type: '"comboSkill"',
+              },
+              {
+                type: '"plungingAttack"',
+              },
+              {
+                type: '"basicAttack"',
+              },
+              {
+                type: '"battleSkill"',
+              },
+              {
+                type: '"ultimate"',
+              },
+              {
+                type: '"finisher"',
+              },
+              {
+                type: '"dodge"',
+              },
+            ],
+          },
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:463:7'],
       },
     ],
   },
@@ -5718,6 +8405,10 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'string',
         required: true,
         control: 'string',
+        semantics: {
+          type: 'string',
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:469:7'],
       },
       {
         path: ['outputKey'],
@@ -5726,6 +8417,11 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'string',
         required: false,
         control: 'string',
+        semantics: {
+          type: 'string | undefined',
+          optional: true,
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:471:7'],
       },
     ],
   },
@@ -5740,6 +8436,18 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         required: true,
         control: 'select',
         options: ['caster', 'buffOwner'],
+        semantics: {
+          type: '"caster" | "buffOwner"',
+          unionVariants: [
+            {
+              type: '"caster"',
+            },
+            {
+              type: '"buffOwner"',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:477:7'],
       },
       {
         path: ['skillTypes'],
@@ -5757,6 +8465,36 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
           'finisher',
           'dodge',
         ],
+        semantics: {
+          type: 'readonly ("comboSkill" | "plungingAttack" | "basicAttack" | "battleSkill" | "ultimate" | "finisher" | "dodge")[]',
+          arrayElement: {
+            type: '"comboSkill" | "plungingAttack" | "basicAttack" | "battleSkill" | "ultimate" | "finisher" | "dodge"',
+            unionVariants: [
+              {
+                type: '"comboSkill"',
+              },
+              {
+                type: '"plungingAttack"',
+              },
+              {
+                type: '"basicAttack"',
+              },
+              {
+                type: '"battleSkill"',
+              },
+              {
+                type: '"ultimate"',
+              },
+              {
+                type: '"finisher"',
+              },
+              {
+                type: '"dodge"',
+              },
+            ],
+          },
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:479:7'],
       },
     ],
   },
@@ -5779,6 +8517,36 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
           'finisher',
           'dodge',
         ],
+        semantics: {
+          type: 'readonly ("comboSkill" | "plungingAttack" | "basicAttack" | "battleSkill" | "ultimate" | "finisher" | "dodge")[]',
+          arrayElement: {
+            type: '"comboSkill" | "plungingAttack" | "basicAttack" | "battleSkill" | "ultimate" | "finisher" | "dodge"',
+            unionVariants: [
+              {
+                type: '"comboSkill"',
+              },
+              {
+                type: '"plungingAttack"',
+              },
+              {
+                type: '"basicAttack"',
+              },
+              {
+                type: '"battleSkill"',
+              },
+              {
+                type: '"ultimate"',
+              },
+              {
+                type: '"finisher"',
+              },
+              {
+                type: '"dodge"',
+              },
+            ],
+          },
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:485:7'],
       },
     ],
   },
@@ -5792,6 +8560,10 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'string',
         required: true,
         control: 'string',
+        semantics: {
+          type: 'string',
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:491:7'],
       },
       {
         path: ['child'],
@@ -5801,6 +8573,10 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         required: true,
         control: 'select',
         options: ['eventTarget'],
+        semantics: {
+          type: '"eventTarget"',
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:493:7'],
       },
     ],
   },
@@ -5814,6 +8590,16 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'readonly string[]',
         required: true,
         control: 'json',
+        semantics: {
+          type: 'readonly string[]',
+          arrayElement: {
+            type: 'string',
+          },
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:499:7'],
+        fallback: {
+          reason: 'structured-editor-pending',
+        },
       },
     ],
   },
@@ -5831,6 +8617,16 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'readonly string[]',
         required: true,
         control: 'json',
+        semantics: {
+          type: 'readonly string[]',
+          arrayElement: {
+            type: 'string',
+          },
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:510:7'],
+        fallback: {
+          reason: 'structured-editor-pending',
+        },
       },
       {
         path: ['buffIdOutputKey'],
@@ -5839,6 +8635,11 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'string',
         required: false,
         control: 'string',
+        semantics: {
+          type: 'string | undefined',
+          optional: true,
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:512:7'],
       },
     ],
   },
@@ -5857,6 +8658,24 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         required: true,
         control: 'select',
         options: ['hasAny', 'hasAll', 'exceptAny', 'exceptAll'],
+        semantics: {
+          type: '"hasAny" | "hasAll" | "exceptAny" | "exceptAll"',
+          unionVariants: [
+            {
+              type: '"hasAny"',
+            },
+            {
+              type: '"hasAll"',
+            },
+            {
+              type: '"exceptAny"',
+            },
+            {
+              type: '"exceptAll"',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:523:7'],
       },
       {
         path: ['buffTags'],
@@ -5865,6 +8684,17 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'readonly GameplayTag[]',
         required: true,
         control: 'json',
+        semantics: {
+          type: 'readonly string[]',
+          arrayElement: {
+            type: 'string',
+            aliases: ['GameplayTag'],
+          },
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:525:7'],
+        fallback: {
+          reason: 'structured-editor-pending',
+        },
       },
       {
         path: ['buffIdOutputKey'],
@@ -5873,6 +8703,11 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'string',
         required: false,
         control: 'string',
+        semantics: {
+          type: 'string | undefined',
+          optional: true,
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:527:7'],
       },
     ],
   },
@@ -5887,6 +8722,24 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         required: true,
         control: 'select',
         options: ['hasAny', 'hasAll', 'exceptAny', 'exceptAll'],
+        semantics: {
+          type: '"hasAny" | "hasAll" | "exceptAny" | "exceptAll"',
+          unionVariants: [
+            {
+              type: '"hasAny"',
+            },
+            {
+              type: '"hasAll"',
+            },
+            {
+              type: '"exceptAny"',
+            },
+            {
+              type: '"exceptAll"',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:533:7'],
       },
       {
         path: ['buffTags'],
@@ -5895,6 +8748,17 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'readonly GameplayTag[]',
         required: true,
         control: 'json',
+        semantics: {
+          type: 'readonly string[]',
+          arrayElement: {
+            type: 'string',
+            aliases: ['GameplayTag'],
+          },
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:535:7'],
+        fallback: {
+          reason: 'structured-editor-pending',
+        },
       },
       {
         path: ['operator'],
@@ -5904,6 +8768,30 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         required: true,
         control: 'select',
         options: ['equal', 'notEqual', 'greater', 'greaterOrEqual', 'less', 'lessOrEqual'],
+        semantics: {
+          type: '"equal" | "notEqual" | "greater" | "greaterOrEqual" | "less" | "lessOrEqual"',
+          unionVariants: [
+            {
+              type: '"equal"',
+            },
+            {
+              type: '"notEqual"',
+            },
+            {
+              type: '"greater"',
+            },
+            {
+              type: '"greaterOrEqual"',
+            },
+            {
+              type: '"less"',
+            },
+            {
+              type: '"lessOrEqual"',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:537:7'],
       },
       {
         path: ['value'],
@@ -5912,6 +8800,11 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'ActionValueOperand',
         required: true,
         control: 'operand',
+        semantics: {
+          type: 'ActionValueOperand',
+          aliases: ['ActionValueOperand'],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:539:7'],
       },
     ],
   },
@@ -5926,6 +8819,24 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         required: true,
         control: 'select',
         options: ['hasAny', 'hasAll', 'exceptAny', 'exceptAll'],
+        semantics: {
+          type: '"hasAny" | "hasAll" | "exceptAny" | "exceptAll"',
+          unionVariants: [
+            {
+              type: '"hasAny"',
+            },
+            {
+              type: '"hasAll"',
+            },
+            {
+              type: '"exceptAny"',
+            },
+            {
+              type: '"exceptAll"',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:545:7'],
       },
       {
         path: ['tags'],
@@ -5934,6 +8845,17 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'readonly GameplayTag[]',
         required: true,
         control: 'json',
+        semantics: {
+          type: 'readonly string[]',
+          arrayElement: {
+            type: 'string',
+            aliases: ['GameplayTag'],
+          },
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:547:7'],
+        fallback: {
+          reason: 'structured-editor-pending',
+        },
       },
     ],
   },
@@ -5948,6 +8870,28 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         required: false,
         control: 'multiselect',
         options: ['normalAttack', 'powerAttack', 'default', 'skill'],
+        semantics: {
+          type: 'readonly ("normalAttack" | "powerAttack" | "default" | "skill")[] | undefined',
+          arrayElement: {
+            type: '"normalAttack" | "powerAttack" | "default" | "skill"',
+            unionVariants: [
+              {
+                type: '"normalAttack"',
+              },
+              {
+                type: '"powerAttack"',
+              },
+              {
+                type: '"default"',
+              },
+              {
+                type: '"skill"',
+              },
+            ],
+          },
+          optional: true,
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:553:7'],
       },
       {
         path: ['gainKinds'],
@@ -5957,6 +8901,22 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         required: false,
         control: 'multiselect',
         options: ['gain', 'refund'],
+        semantics: {
+          type: 'readonly ("gain" | "refund")[] | undefined',
+          arrayElement: {
+            type: '"gain" | "refund"',
+            unionVariants: [
+              {
+                type: '"gain"',
+              },
+              {
+                type: '"refund"',
+              },
+            ],
+          },
+          optional: true,
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:555:7'],
       },
     ],
   },
@@ -5971,6 +8931,30 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         required: true,
         control: 'select',
         options: ['equal', 'notEqual', 'greater', 'greaterOrEqual', 'less', 'lessOrEqual'],
+        semantics: {
+          type: '"equal" | "notEqual" | "greater" | "greaterOrEqual" | "less" | "lessOrEqual"',
+          unionVariants: [
+            {
+              type: '"equal"',
+            },
+            {
+              type: '"notEqual"',
+            },
+            {
+              type: '"greater"',
+            },
+            {
+              type: '"greaterOrEqual"',
+            },
+            {
+              type: '"less"',
+            },
+            {
+              type: '"lessOrEqual"',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:561:7'],
       },
       {
         path: ['value'],
@@ -5979,6 +8963,11 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'ActionValueOperand',
         required: true,
         control: 'operand',
+        semantics: {
+          type: 'ActionValueOperand',
+          aliases: ['ActionValueOperand'],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:563:7'],
       },
       {
         path: ['outputKey'],
@@ -5987,6 +8976,11 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'string',
         required: false,
         control: 'string',
+        semantics: {
+          type: 'string | undefined',
+          optional: true,
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:565:7'],
       },
     ],
   },
@@ -6001,6 +8995,18 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         required: true,
         control: 'select',
         options: ['equal', 'notEqual'],
+        semantics: {
+          type: '"equal" | "notEqual"',
+          unionVariants: [
+            {
+              type: '"equal"',
+            },
+            {
+              type: '"notEqual"',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:571:7'],
       },
     ],
   },
@@ -6015,6 +9021,18 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         required: true,
         control: 'select',
         options: ['equal', 'notEqual'],
+        semantics: {
+          type: '"equal" | "notEqual"',
+          unionVariants: [
+            {
+              type: '"equal"',
+            },
+            {
+              type: '"notEqual"',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:577:7'],
       },
     ],
   },
@@ -6028,6 +9046,11 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'string',
         required: false,
         control: 'string',
+        semantics: {
+          type: 'string | undefined',
+          optional: true,
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:583:7'],
       },
       {
         path: ['finalHealKey'],
@@ -6036,6 +9059,11 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'string',
         required: false,
         control: 'string',
+        semantics: {
+          type: 'string | undefined',
+          optional: true,
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:585:7'],
       },
       {
         path: ['realHealKey'],
@@ -6044,6 +9072,11 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'string',
         required: false,
         control: 'string',
+        semantics: {
+          type: 'string | undefined',
+          optional: true,
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:587:7'],
       },
     ],
   },
@@ -6073,6 +9106,17 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'readonly string[]',
         required: false,
         control: 'json',
+        semantics: {
+          type: 'readonly string[] | undefined',
+          arrayElement: {
+            type: 'string',
+          },
+          optional: true,
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:613:7'],
+        fallback: {
+          reason: 'structured-editor-pending',
+        },
       },
       {
         path: ['sameSourceSkillCast'],
@@ -6081,6 +9125,11 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'boolean',
         required: false,
         control: 'boolean',
+        semantics: {
+          type: 'boolean | undefined',
+          optional: true,
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:615:7'],
       },
     ],
   },
@@ -6094,6 +9143,58 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'DamageElement | readonly DamageElement[]',
         required: true,
         control: 'json',
+        semantics: {
+          type: '"physical" | "heat" | "cryo" | "electric" | "nature" | readonly ("physical" | "heat" | "cryo" | "electric" | "nature")[]',
+          unionVariants: [
+            {
+              type: '"physical" | "heat" | "cryo" | "electric" | "nature"',
+              unionVariants: [
+                {
+                  type: '"physical"',
+                },
+                {
+                  type: '"heat"',
+                },
+                {
+                  type: '"cryo"',
+                },
+                {
+                  type: '"electric"',
+                },
+                {
+                  type: '"nature"',
+                },
+              ],
+            },
+            {
+              type: 'readonly ("physical" | "heat" | "cryo" | "electric" | "nature")[]',
+              arrayElement: {
+                type: '"physical" | "heat" | "cryo" | "electric" | "nature"',
+                unionVariants: [
+                  {
+                    type: '"physical"',
+                  },
+                  {
+                    type: '"heat"',
+                  },
+                  {
+                    type: '"cryo"',
+                  },
+                  {
+                    type: '"electric"',
+                  },
+                  {
+                    type: '"nature"',
+                  },
+                ],
+              },
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:621:7'],
+        fallback: {
+          reason: 'structured-editor-pending',
+        },
       },
       {
         path: ['minimumStacks'],
@@ -6102,6 +9203,11 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'number',
         required: false,
         control: 'number',
+        semantics: {
+          type: 'number | undefined',
+          optional: true,
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:623:7'],
       },
     ],
   },
@@ -6116,6 +9222,18 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         required: true,
         control: 'select',
         options: ['electrification', 'corrosion'],
+        semantics: {
+          type: '"electrification" | "corrosion"',
+          unionVariants: [
+            {
+              type: '"electrification"',
+            },
+            {
+              type: '"corrosion"',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:629:7'],
       },
       {
         path: ['minimumLevel'],
@@ -6124,6 +9242,11 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'number',
         required: false,
         control: 'number',
+        semantics: {
+          type: 'number | undefined',
+          optional: true,
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:631:7'],
       },
     ],
   },
@@ -6137,6 +9260,14 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'CombatCondition',
         required: true,
         control: 'json',
+        semantics: {
+          type: 'CombatCondition',
+          aliases: ['CombatCondition'],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:637:7'],
+        fallback: {
+          reason: 'structured-editor-pending',
+        },
       },
     ],
   },
@@ -6150,6 +9281,17 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'readonly CombatCondition[]',
         required: true,
         control: 'json',
+        semantics: {
+          type: 'readonly CombatCondition[]',
+          arrayElement: {
+            type: 'CombatCondition',
+            aliases: ['CombatCondition'],
+          },
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:643:7'],
+        fallback: {
+          reason: 'structured-editor-pending',
+        },
       },
     ],
   },
@@ -6163,6 +9305,17 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'readonly CombatCondition[]',
         required: true,
         control: 'json',
+        semantics: {
+          type: 'readonly CombatCondition[]',
+          arrayElement: {
+            type: 'CombatCondition',
+            aliases: ['CombatCondition'],
+          },
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:649:7'],
+        fallback: {
+          reason: 'structured-editor-pending',
+        },
       },
     ],
   },
@@ -6177,6 +9330,24 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         required: true,
         control: 'select',
         options: ['strength', 'agility', 'intellect', 'will'],
+        semantics: {
+          type: '"strength" | "agility" | "intellect" | "will"',
+          unionVariants: [
+            {
+              type: '"strength"',
+            },
+            {
+              type: '"agility"',
+            },
+            {
+              type: '"intellect"',
+            },
+            {
+              type: '"will"',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:655:7'],
       },
       {
         path: ['operator'],
@@ -6186,6 +9357,30 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         required: true,
         control: 'select',
         options: ['equal', 'notEqual', 'greater', 'greaterOrEqual', 'less', 'lessOrEqual'],
+        semantics: {
+          type: '"equal" | "notEqual" | "greater" | "greaterOrEqual" | "less" | "lessOrEqual"',
+          unionVariants: [
+            {
+              type: '"equal"',
+            },
+            {
+              type: '"notEqual"',
+            },
+            {
+              type: '"greater"',
+            },
+            {
+              type: '"greaterOrEqual"',
+            },
+            {
+              type: '"less"',
+            },
+            {
+              type: '"lessOrEqual"',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:657:7'],
       },
       {
         path: ['right'],
@@ -6195,6 +9390,24 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         required: true,
         control: 'select',
         options: ['strength', 'agility', 'intellect', 'will'],
+        semantics: {
+          type: '"strength" | "agility" | "intellect" | "will"',
+          unionVariants: [
+            {
+              type: '"strength"',
+            },
+            {
+              type: '"agility"',
+            },
+            {
+              type: '"intellect"',
+            },
+            {
+              type: '"will"',
+            },
+          ],
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:659:7'],
       },
     ],
   },
@@ -6208,6 +9421,10 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'string',
         required: true,
         control: 'string',
+        semantics: {
+          type: 'string',
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:747:7'],
       },
     ],
   },
@@ -6221,6 +9438,10 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'string',
         required: true,
         control: 'string',
+        semantics: {
+          type: 'string',
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:753:7'],
       },
       {
         path: ['fallback'],
@@ -6229,6 +9450,11 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'number',
         required: false,
         control: 'number',
+        semantics: {
+          type: 'number | undefined',
+          optional: true,
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:755:7'],
       },
     ],
   },
@@ -6242,6 +9468,10 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'number',
         required: true,
         control: 'number',
+        semantics: {
+          type: 'number',
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:761:7'],
       },
     ],
   },
@@ -6255,6 +9485,10 @@ export const dataNodeSchemas: Readonly<Record<string, DataNodeSchema>> = {
         type: 'string',
         required: true,
         control: 'string',
+        semantics: {
+          type: 'string',
+        },
+        source: ['packages/game-data-contract/src/conditions.ts:767:7'],
       },
     ],
   },

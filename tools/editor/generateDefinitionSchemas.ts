@@ -6,6 +6,11 @@ import * as prettier from 'prettier';
 import ts from 'typescript';
 import type { DefinitionFieldSchema } from '../../src/ui/definition-editor/fieldSchema.ts';
 import { renderSharedSchemaObjects } from './renderSharedSchemaObjects.ts';
+import { createFieldSemanticExtractor, type FieldTypeContext } from './fieldSemantics.ts';
+import type {
+  FieldFallbackReason,
+  FieldSemanticMetadata,
+} from '../../src/ui/field-editor/fieldSemantics.ts';
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
 const contract = resolve(root, 'packages/game-data-contract/src');
@@ -56,16 +61,6 @@ function typeOf(file: string, name: string): ts.Type {
   return checker.getDeclaredTypeOfSymbol(symbol);
 }
 
-function doc(symbol: ts.Symbol | undefined): string | undefined {
-  const text =
-    symbol &&
-    ts
-      .displayPartsToString(symbol.getDocumentationComment(checker))
-      .replaceAll('\r\n', '\n')
-      .trim();
-  return text || undefined;
-}
-
 function branches(type: ts.Type): readonly ts.Type[] {
   return type.isUnion() ? type.types.flatMap(branches) : [type];
 }
@@ -78,81 +73,148 @@ function literalValue(type: ts.Type): string | number {
   return type.value;
 }
 
-function describe(type: ts.Type, seen: ReadonlySet<ts.Type>, depth: number): DefinitionFieldSchema {
-  // 条件是独立的表达式结构；不能把几十种分支当作普通下拉框编辑。
-  // TypeScript 会在可选属性上展开 aliasSymbol，但 typeToString 仍保留契约名称。
-  const typeName = checker.typeToString(type);
-  if (/^(CombatCondition|BuildCondition)(?: \| (?:undefined|null))*$/.test(typeName))
-    return { kind: 'condition', ...(typeName.includes('undefined') ? { optional: true } : {}) };
-  const nullable = branches(type).filter(
-    part => (part.flags & (ts.TypeFlags.Undefined | ts.TypeFlags.Never)) === 0,
+/** 两个生成器在同一声明上下文中提取语义；本函数亦供自包含契约夹具使用。 */
+export function describeDefinitionType(
+  type: ts.Type,
+  typeChecker: ts.TypeChecker = checker,
+  symbol?: ts.Symbol,
+  sourceRoot = root,
+): DefinitionFieldSchema {
+  const extractor = createFieldSemanticExtractor(typeChecker, sourceRoot);
+  const fallback = (reason: FieldFallbackReason): FieldSemanticMetadata['fallback'] => ({ reason });
+
+  function describe(
+    input: FieldTypeContext,
+    seen: ReadonlySet<ts.Type>,
+    depth: number,
+  ): DefinitionFieldSchema {
+    const { type } = input;
+    const metadata = extractor.metadata(input);
+    const nullable = branches(type).filter(
+      part => (part.flags & (ts.TypeFlags.Undefined | ts.TypeFlags.Never)) === 0,
+    );
+    const optional = branches(type).some(part => (part.flags & ts.TypeFlags.Undefined) !== 0);
+    const field = (shape: DefinitionFieldSchema): DefinitionFieldSchema => ({
+      ...shape,
+      ...metadata,
+      ...(optional ? { optional: true } : {}),
+    });
+    // 条件是独立表达式，不把分支当作普通下拉框；从声明追踪可选 alias。
+    if (
+      /^(CombatCondition|BuildCondition)(?: \| (?:undefined|null))*$/.test(
+        typeChecker.typeToString(type),
+      )
+    )
+      return field({ kind: 'condition', fallback: fallback('condition-editor-pending') });
+    if (!nullable.length) return field({ kind: 'opaque', fallback: fallback('no-present-type') });
+    if (nullable.length > 1) {
+      const literals: ts.Type[] = nullable.filter(
+        part => part.isStringLiteral() || part.isNumberLiteral(),
+      );
+      if (literals.length === nullable.length)
+        return field({ kind: 'enum', options: literals.map(literalValue) });
+      if (nullable.every(part => (part.flags & ts.TypeFlags.BooleanLike) !== 0))
+        return field({ kind: 'boolean' });
+      const others = nullable.filter(part => !literals.includes(part));
+      return field({
+        kind: 'union',
+        variants: [
+          ...(literals.length
+            ? [
+                {
+                  kind: 'enum' as const,
+                  options: literals.map(literalValue),
+                  source: input.source,
+                  semantics: {
+                    type: literals.map(part => typeChecker.typeToString(part)).join(' | '),
+                    unionVariants: literals.map(part =>
+                      extractor.semantics(extractor.branch(input, part)),
+                    ),
+                  },
+                },
+              ]
+            : []),
+          ...others.map(part => describe(extractor.branch(input, part), seen, depth)),
+        ],
+      });
+    }
+    const current = nullable[0]!;
+    if ((current.flags & ts.TypeFlags.Null) !== 0) return field({ kind: 'null' });
+    if (current.isStringLiteral() || current.isNumberLiteral())
+      return field({ kind: 'enum', options: [literalValue(current)] });
+    if ((current.flags & ts.TypeFlags.NumberLike) !== 0) return field({ kind: 'number' });
+    if ((current.flags & ts.TypeFlags.StringLike) !== 0) return field({ kind: 'string' });
+    if ((current.flags & ts.TypeFlags.BooleanLike) !== 0) return field({ kind: 'boolean' });
+    if (
+      current.flags &
+        (ts.TypeFlags.Any |
+          ts.TypeFlags.Unknown |
+          ts.TypeFlags.BigIntLike |
+          ts.TypeFlags.ESSymbolLike |
+          ts.TypeFlags.TypeParameter) ||
+      typeChecker.getSignaturesOfType(current, ts.SignatureKind.Call).length ||
+      typeChecker.getSignaturesOfType(current, ts.SignatureKind.Construct).length
+    )
+      return field({ kind: 'opaque', fallback: fallback('unsupported-type') });
+    const name = current.aliasSymbol?.name ?? current.getSymbol()?.name;
+    if (name === 'ActionGraphResourceDefinition' || name === 'ActionGraphDefinition')
+      return field({ kind: 'graph' });
+    if (name === 'ActionGraphReference')
+      return field({ kind: 'opaque', fallback: fallback('graph-reference-boundary') });
+    if (depth > 0 && typeChecker.getPropertyOfType(current, 'actionGraph'))
+      return field({ kind: 'opaque', fallback: fallback('owned-resource-boundary') });
+    if (seen.has(current)) return field({ kind: 'opaque', fallback: fallback('recursive-type') });
+    if (seen.size >= 16) return field({ kind: 'opaque', fallback: fallback('depth-limit') });
+    const nested = new Set(seen).add(current);
+    // tuple 的逐槽类型与长度留在共享语义中；旧表单尚未支持，不能伪装成同质数组。
+    if (typeChecker.isTupleType(current))
+      return field({ kind: 'opaque', fallback: fallback('tuple-editor-pending') });
+    if (typeChecker.isArrayType(current)) {
+      const element = typeChecker.getTypeArguments(current as ts.TypeReference)[0];
+      return field({
+        kind: 'array',
+        element: element
+          ? describe(extractor.element(input, element), nested, depth)
+          : {
+              kind: 'opaque',
+              ...metadata,
+              fallback: fallback('no-present-type'),
+            },
+      });
+    }
+    const index = typeChecker.getIndexTypeOfType(current, ts.IndexKind.String);
+    if (index)
+      return field({
+        kind: 'record',
+        value: describe(extractor.recordValue(input, index), nested, depth + 1),
+      });
+    if (depth >= 3) return field({ kind: 'opaque', fallback: fallback('depth-limit') });
+    const fields: Record<string, DefinitionFieldSchema> = {};
+    for (const property of typeChecker.getPropertiesOfType(current)) {
+      // 映射属性可能无独立声明，继承最近可定位声明；不能跳过其类型。
+      const propertyType = typeChecker.getTypeOfSymbol(property);
+      const childContext = extractor.context(propertyType, property, input.source);
+      const child =
+        property.name === 'actionGraph'
+          ? { kind: 'graph' as const, ...extractor.metadata(childContext) }
+          : describe(childContext, nested, depth + 1);
+      const description = ts
+        .displayPartsToString(property.getDocumentationComment(typeChecker))
+        .replaceAll('\r\n', '\n')
+        .trim();
+      fields[property.name] = {
+        ...child,
+        ...(property.flags & ts.SymbolFlags.Optional ? { optional: true } : {}),
+        ...(description ? { description } : {}),
+      };
+    }
+    return field({ kind: 'object', fields });
+  }
+  return describe(
+    extractor.context(type, symbol ?? type.aliasSymbol ?? type.getSymbol()),
+    new Set(),
+    0,
   );
-  if (!nullable.length) return { kind: 'opaque' };
-  const optional = branches(type).some(part => (part.flags & ts.TypeFlags.Undefined) !== 0);
-  const field = (shape: DefinitionFieldSchema): DefinitionFieldSchema =>
-    optional ? { ...shape, optional: true } : shape;
-  if (nullable.length > 1) {
-    const literals: ts.Type[] = nullable.filter(part => part.isStringLiteral() || part.isNumberLiteral());
-    if (literals.length === nullable.length)
-      return field({ kind: 'enum', options: literals.map(literalValue) });
-    if (nullable.every(part => (part.flags & ts.TypeFlags.BooleanLike) !== 0))
-      return field({ kind: 'boolean' });
-    const others = nullable.filter(part => !literals.includes(part));
-    return field({
-      kind: 'union',
-      variants: [
-        ...(literals.length
-          ? [
-              {
-                kind: 'enum' as const,
-                options: literals.map(literalValue),
-              },
-            ]
-          : []),
-        ...others.map(part => describe(part, seen, depth)),
-      ],
-    });
-  }
-  const current = nullable[0]!;
-  if ((current.flags & ts.TypeFlags.Null) !== 0) return field({ kind: 'null' });
-  if (current.isStringLiteral() || current.isNumberLiteral())
-    return field({ kind: 'enum', options: [literalValue(current)] });
-  if ((current.flags & ts.TypeFlags.NumberLike) !== 0) return field({ kind: 'number' });
-  if ((current.flags & ts.TypeFlags.StringLike) !== 0) return field({ kind: 'string' });
-  if ((current.flags & ts.TypeFlags.BooleanLike) !== 0) return field({ kind: 'boolean' });
-  const name = current.aliasSymbol?.name ?? current.getSymbol()?.name;
-  if (name === 'ActionGraphResourceDefinition' || name === 'ActionGraphDefinition')
-    return field({ kind: 'graph' });
-  if (name === 'ActionGraphReference') return field({ kind: 'opaque' });
-  if (depth > 0 && checker.getPropertyOfType(current, 'actionGraph'))
-    return field({ kind: 'opaque' });
-  // 深层独立资源通过对象导航单独打开；这里不把整个游戏数据契约反复内联到每个字段。
-  if (checker.isArrayType(current) || checker.isTupleType(current)) {
-    const element = checker.getTypeArguments(current as ts.TypeReference)[0];
-    return field({
-      kind: 'array',
-      element: element ? describe(element, seen, depth) : { kind: 'opaque' },
-    });
-  }
-  const index = checker.getIndexTypeOfType(current, ts.IndexKind.String);
-  if (index) return field({ kind: 'record', value: describe(index, seen, depth + 1) });
-  if (depth >= 3 || seen.has(current)) return field({ kind: 'opaque' });
-  const nested = new Set(seen).add(current);
-  const fields: Record<string, DefinitionFieldSchema> = {};
-  for (const property of checker.getPropertiesOfType(current)) {
-    // 映射类型的属性可能没有独立声明节点，仍有完整类型，不能直接跳过。
-    const propertyType = checker.getTypeOfSymbol(property);
-    const child =
-      property.name === 'actionGraph'
-        ? ({ kind: 'graph' } as const)
-        : describe(propertyType, nested, depth + 1);
-    fields[property.name] = {
-      ...child,
-      ...(property.flags & ts.SymbolFlags.Optional ? { optional: true } : {}),
-      ...(doc(property) ? { description: doc(property) } : {}),
-    };
-  }
-  return field({ kind: 'object', fields });
 }
 
 export async function generateDefinitionSchemas(check = false): Promise<void> {
@@ -168,7 +230,7 @@ export async function generateDefinitionSchemas(check = false): Promise<void> {
   const catalog = Object.fromEntries(
     Object.entries(sources).map(([kind, [file, name]]) => [
       kind,
-      describe(typeOf(file, name), new Set(), 0),
+      describeDefinitionType(typeOf(file, name)),
     ]),
   );
   const rendered = renderSharedSchemaObjects(catalog, 'definitionSchemaPart');

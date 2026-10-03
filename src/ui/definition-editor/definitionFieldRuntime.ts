@@ -1,5 +1,10 @@
 import type { DefinitionFieldSchema } from './fieldSchema';
 
+/** 已有资产的身份字段只读；创建身份使用资源创建流程。 */
+export function isProtectedDefinitionIdentity(name: string, rootField: boolean): boolean {
+  return name === 'key' || (rootField && ['slug', 'gameId', 'skillId'].includes(name));
+}
+
 /** 空图只建立资源边界；执行节点和连线由图编辑器添加。 */
 export function emptyDefinitionActionGraph() {
   return { main: { nodes: {} }, macros: {} };
@@ -148,7 +153,7 @@ export function assertEditableDefinitionField(
     if (schema.kind === 'object') {
       if (typeof key !== 'string' || !Object.hasOwn(schema.fields, key))
         throw new Error(`unknown definition field '${String(key)}'`);
-      if (key === 'key' || (index === 0 && ['slug', 'gameId', 'skillId'].includes(key)))
+      if (isProtectedDefinitionIdentity(key, index === 0))
         throw new Error(`definition identity '${key}' is read-only`);
       schema = schema.fields[key]!;
       value =

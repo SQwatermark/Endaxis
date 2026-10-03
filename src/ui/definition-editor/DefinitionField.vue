@@ -16,6 +16,7 @@ import {
   editableDefault,
   emptyDefinitionActionGraph,
   fieldSchemaForValue,
+  isProtectedDefinitionIdentity,
 } from './definitionFieldRuntime';
 import DefinitionValueCreator from './DefinitionValueCreator.vue';
 
@@ -65,10 +66,7 @@ const creatingEntry = ref(false);
 const creatingValue = ref(false);
 const needsForm = (schema: DefinitionFieldSchema) => ['object', 'union'].includes(schema.kind);
 const readonlyField = computed(
-  () =>
-    !props.editable ||
-    props.name === 'key' ||
-    (props.path.length === 1 && ['slug', 'gameId', 'skillId'].includes(props.name)),
+  () => !props.editable || isProtectedDefinitionIdentity(props.name, props.path.length === 1),
 );
 // 禁用只移除有效数据，当前表单仍保留草稿，重新启用时恢复。
 const optionalEnabled = ref(props.value !== undefined);

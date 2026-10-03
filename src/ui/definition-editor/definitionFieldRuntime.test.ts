@@ -171,6 +171,19 @@ describe('definition field command boundary', () => {
       ),
     ).toThrow(/read-only/);
   });
+  it('keeps fixed tuples readonly until slot-aware editing is available', () => {
+    const levelHp = [100, 200, 300, 400, 500, 600];
+    const enemy = { levelHp };
+    expect(() =>
+      assertEditableDefinitionField(definitionSchemas.enemy, enemy, ['levelHp'], [...levelHp, 700]),
+    ).toThrow(/cannot be changed/);
+    expect(() =>
+      assertEditableDefinitionField(definitionSchemas.enemy, enemy, ['levelHp', 0], 120),
+    ).toThrow(/unsupported/);
+    expect(() =>
+      assertEditableDefinitionField(definitionSchemas.enemy, enemy, ['levelHp'], levelHp),
+    ).not.toThrow();
+  });
   it('creates an optional empty graph without allowing arbitrary graph replacement', () => {
     const schema = {
       kind: 'object',
