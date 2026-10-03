@@ -200,3 +200,49 @@ test('condition arrays have typed structural editors but do not turn their conta
     assert.equal(row.fallback, undefined);
   }
 });
+
+test('typed string collections close only homogeneous formal tag/reference gaps without granting container pins', () => {
+  const source = ['packages/game-data-contract/src/actions.ts:1:1'];
+  const base = {
+    path: ['parameters', 'buffIds'],
+    label: '',
+    description: '',
+    required: false,
+    type: 'readonly string[]',
+    control: 'json' as const,
+    source,
+    fallback: { reason: 'structured-editor-pending' as const },
+  };
+  const [row] = collectFieldCapabilities(
+    {},
+    {
+      fixture: {
+        description: '',
+        fields: [
+          { ...base, semantics: { type: 'readonly string[]', arrayElement: { type: 'string' } } },
+        ],
+      },
+    },
+    {},
+  );
+  assert.equal(row?.control, 'stringCollection');
+  assert.equal(row?.fallback, undefined);
+  assert.equal(row?.connection, 'none');
+  const [plain] = collectFieldCapabilities(
+    {},
+    {
+      fixture: {
+        description: '',
+        fields: [
+          {
+            ...base,
+            source: ['custom/actions.ts:1:1'],
+            semantics: { type: 'readonly string[]', arrayElement: { type: 'string' } },
+          },
+        ],
+      },
+    },
+    {},
+  );
+  assert.equal(plain?.fallback, 'structured-editor-pending');
+});

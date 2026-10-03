@@ -86,9 +86,12 @@ describe('shared reference rendering', () => {
         referenceKind: 'buff',
         referenceChoices: { buff: referenceCatalog('buff', []) },
       });
-      expect(html.match(/data-reference-kind="buff"/g)).toHaveLength(2);
+      expect(html.match(/data-reference-kind="buff"/g)).toHaveLength(
+        schema.kind === 'array' ? 1 : 2,
+      );
       expect(html).toContain('data-reference-state="invalid"');
-      expect(html).toContain('data-reference-state="unset"');
+      if (schema.kind === 'record') expect(html).toContain('data-reference-state="unset"');
+      else expect(html).toContain('data-string-collection');
     },
   );
 
@@ -234,3 +237,83 @@ it.each(['all', 'any'] as const)(
     }
   },
 );
+
+it('renders every generated typed collection with readonly structure and no JSON editor', async () => {
+  const { actionNodeSchemas, dataNodeSchemas } =
+    await import('../action-graph/actionNodeSchemas.generated');
+  const { stringCollectionDescriptor } = await import('./stringCollectionSchema');
+  const { writeNodeField } = await import('../action-graph/nodeFieldValues');
+  let covered = 0;
+  for (const [kind, schema] of [
+    ...Object.entries(actionNodeSchemas),
+    ...Object.entries(dataNodeSchemas),
+  ]) {
+    for (const field of schema.fields) {
+      const descriptor = stringCollectionDescriptor(field);
+      if (!descriptor) continue;
+      const item = descriptor.kind === 'gameplayTag' ? 'Custom/Tag' : 'stale';
+      const html = await render(NodeInspectorFields, {
+        kind,
+        fields: [field],
+        value: writeNodeField({}, field.path, [item, item]),
+        readonly: true,
+        applyValue: () => false,
+      });
+      expect(html).toContain('data-string-collection');
+      expect(html).not.toContain('ea-textarea');
+      expect(
+        html.match(
+          new RegExp(
+            descriptor.kind === 'gameplayTag' ? 'data-gameplay-tag' : 'data-reference-kind=',
+            'g',
+          ),
+        ),
+      ).toHaveLength(2);
+      covered++;
+    }
+  }
+  expect(covered).toBe(25);
+});
+it('shows malformed imported collection entries without crashing or exposing an editor', async () => {
+  const { default: StringCollectionField } = await import('./StringCollectionField.vue');
+  const html = await render(StringCollectionField, {
+    kind: 'gameplayTag',
+    value: ['A/B', 42],
+    label: 'Tags',
+    editable: false,
+  });
+  expect(html).toContain('A/B');
+  expect(html).toContain('42');
+  expect(html).toContain('role="alert"');
+  expect(html).not.toContain('ea-input');
+});
+it('retains visible labels and description help for definition tag and collection controls', async () => {
+  for (const [schema, value] of [
+    [
+      {
+        kind: 'string',
+        description: 'Tag description',
+        semantics: { type: 'GameplayTag', aliases: ['GameplayTag'] },
+      },
+      'Custom/Tag',
+    ],
+    [
+      {
+        kind: 'array',
+        description: 'Tag description',
+        element: { kind: 'string', semantics: { type: 'GameplayTag', aliases: ['GameplayTag'] } },
+      },
+      ['Custom/Tag'],
+    ],
+  ] as const) {
+    const html = await render(DefinitionField, {
+      name: 'Readable label',
+      path: ['tags'],
+      schema,
+      value,
+      editable: false,
+    });
+    expect(html).toMatch(/<span[^>]*>Readable label/);
+    expect(html).toContain('Tag description');
+  }
+});

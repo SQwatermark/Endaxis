@@ -13,6 +13,7 @@ import DefinitionValueCreator from '../../../src/ui/definition-editor/Definition
 import NodeInspectorFields from '../../../src/ui/action-graph/NodeInspectorFields.vue';
 import type { DefinitionFieldSchema } from '../../../src/ui/definition-editor/fieldSchema';
 import type { NodeFieldSchema } from '../../../src/ui/action-graph/nodeSchema';
+import StringCollectionHarness from './StringCollectionHarness.vue';
 import ConditionListHarness from './ConditionListHarness.vue';
 
 const stringOperand = shallowRef<unknown>('known');
@@ -209,6 +210,7 @@ function applyNode(value: unknown) {
       <output data-testid="string-operand-value">{{ JSON.stringify(stringOperand) }}</output>
     </section>
     <ConditionListHarness />
+    <StringCollectionHarness />
   </main>
 </template>
 <style>

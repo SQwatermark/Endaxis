@@ -34,7 +34,10 @@ for (const name of ['union', 'optional', 'array', 'record']) {
       await expect(page.getByTestId('commits')).toHaveText('0');
     }
     await page.getByRole('button', { name: 'Available catalog' }).click();
+    if (name === 'array')
+      await field.getByRole('button', { name: 'Edit list', exact: true }).click();
     await choose(page, reference.getByRole('combobox'), 'Known buff · Project');
+    if (name === 'array') await field.getByRole('button', { name: 'Apply', exact: true }).click();
     await expect(reference).toHaveAttribute('data-reference-state', 'valid');
     await expect(page.getByTestId('commits')).toHaveText('1');
     await page.getByRole('button', { name: 'Host undo' }).click();
@@ -433,4 +436,43 @@ test('list reorder resets an open index-addressed inline draft even when that sl
   await page.getByRole('button', { name: 'Undo condition graph' }).click();
   await expectConditions(page, 'all', originalConditions);
   await expect(page.getByRole('button', { name: 'Undo condition graph' })).toBeDisabled();
+});
+
+test('tag collection custom paths preserve duplicates, cancel, and real history undo/redo', async ({
+  page,
+}) => {
+  const panel = page.getByTestId('tag-collection');
+  const state = panel.getByTestId('tag-state');
+  await expect(state).toContainText('"tags":["Custom/One","Custom/One"]');
+  await panel.getByRole('button', { name: 'Edit list', exact: true }).click();
+  const custom = panel.getByRole('textbox', { name: 'Custom tag path', exact: true }).last();
+  await custom.fill('Custom/Two');
+  await panel.getByRole('button', { name: 'Use tag', exact: true }).last().click();
+  await panel.getByRole('button', { name: 'Add', exact: true }).click();
+  await expect(state).not.toContainText('Custom/Two');
+  await panel.getByRole('button', { name: 'Cancel', exact: true }).click();
+  await expect(state).not.toContainText('Custom/Two');
+  await panel.getByRole('button', { name: 'Edit list', exact: true }).click();
+  await panel.getByRole('button', { name: 'Set empty list', exact: true }).click();
+  await panel.getByRole('button', { name: 'Apply', exact: true }).click();
+  await expect(state).toContainText('"tags":[]');
+  await panel.getByRole('button', { name: 'Undo tags', exact: true }).click();
+  await expect(state).toContainText('"tags":["Custom/One","Custom/One"]');
+  await panel.getByRole('button', { name: 'Redo tags', exact: true }).click();
+  await expect(state).toContainText('"tags":[]');
+});
+
+test('tag collection Escape and readonly transitions discard local staged values', async ({
+  page,
+}) => {
+  const panel = page.getByTestId('tag-collection');
+  await panel.getByRole('button', { name: 'Edit list', exact: true }).click();
+  await panel.getByRole('button', { name: 'Set empty list', exact: true }).click();
+  await panel.locator('[data-string-collection]').press('Escape');
+  await expect(panel.getByTestId('tag-state')).toContainText('Custom/One');
+  await panel.getByRole('button', { name: 'Edit list', exact: true }).click();
+  await panel.getByRole('button', { name: 'Set empty list', exact: true }).click();
+  await panel.getByRole('button', { name: 'Toggle tags readonly', exact: true }).click();
+  await expect(panel.getByRole('button', { name: 'Apply', exact: true })).toHaveCount(0);
+  await expect(panel.getByTestId('tag-state')).toContainText('Custom/One');
 });

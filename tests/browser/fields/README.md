@@ -30,3 +30,10 @@ process-singleton `socket()` with `Operation not permitted`. Its supported cloud
 browser separately blocked the loopback harness URL with `ERR_BLOCKED_BY_CLIENT`.
 Do not treat those infrastructure failures as a passing browser result; run the
 suite in an authorized browser-capable environment.
+
+P4.1 adds typed string collections and custom GameplayTag path search. The array
+fixture now stages edits before Apply. The tag fixture tests duplicate retention,
+empty-list versus cancel, Escape, readonly transitions, and real
+`DefinitionDraftSession` undo/redo. It is still a component harness, not full
+application persistence. These additional browser assertions remain unexecuted
+in the restricted authoring environment.

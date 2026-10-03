@@ -133,9 +133,9 @@ describe('shared field editor dispatch', () => {
     ] as const) {
       const parent = resolveFieldEditor({ ...schema, source }, { name: 'buffId' });
       expect(parent).toMatchObject({
-        control: schema.kind,
+        control: schema.kind === 'array' ? 'stringCollection' : schema.kind,
         referenceKind: 'buff',
-        edit: 'recursive',
+        edit: schema.kind === 'array' ? 'field' : 'recursive',
       });
       expect(
         resolveFieldEditor(variants[0]!, { referenceKind: parent.referenceKind }).control,
@@ -161,7 +161,7 @@ describe('shared field editor dispatch', () => {
         },
         { name: 'skillKeys' },
       ),
-    ).toMatchObject({ control: 'array', referenceKind: 'skill' });
+    ).toMatchObject({ control: 'stringCollection', referenceKind: 'skill' });
   });
 
   it('recognizes aliases while preserving existing controls and runtime boundaries', () => {

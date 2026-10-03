@@ -686,3 +686,162 @@ it('discards a rejected structured proposal across readonly transitions before a
     panel.stop();
   }
 });
+
+it('typed collections apply through real history once, preserving siblings and duplicate order on reopen', async () => {
+  const { DefinitionDraftSession } = await import('@/application/editor/definitionDraftSession');
+  const { updateResourceGraph } = await import('@/application/editor/actionGraphResourceEditing');
+  const graph = {
+    nodes: {
+      finish: {
+        action: {
+          kind: 'finishBuffsById' as const,
+          parameters: {
+            target: 'caster' as const,
+            reason: 'other' as const,
+            buffIds: ['known', 'stale', 'known'],
+          },
+        },
+        next: null,
+      },
+    },
+  };
+  const history = new DefinitionDraftSession({ actionGraph: { main: graph, macros: {} } }, true);
+  const before = history.current;
+  const field = actionNodeSchemas.finishBuffsById.fields.find(f => f.path.at(-1) === 'buffIds')!;
+  const f = await mountSetup(NodeInspectorFields, {
+    kind: 'finishBuffsById',
+    value: graph.nodes.finish.action,
+    fields: [field],
+    referenceChoices: candidates,
+    applyValue: (action: typeof graph.nodes.finish.action) =>
+      history.update(owner =>
+        updateResourceGraph(owner, { kind: 'main' }, graph => ({
+          ...graph,
+          nodes: { ...graph.nodes, finish: { ...graph.nodes.finish!, action } },
+        })),
+      ),
+  });
+  try {
+    f.state.changeStructured(field, ['stale', 'known', 'known', 'known']);
+    expect(history.current.actionGraph.main.nodes.finish!.action.parameters).toEqual({
+      target: 'caster',
+      reason: 'other',
+      buffIds: ['stale', 'known', 'known', 'known'],
+    });
+    const applied = history.current;
+    expect(history.undo()).toBe(true);
+    expect(history.current).toBe(before);
+    expect(history.undo()).toBe(false);
+    expect(history.redo()).toBe(true);
+    expect(history.current).toBe(applied);
+    expect(JSON.parse(JSON.stringify(history.exportDefinition()))).toEqual(applied);
+    await f.update({ value: applied.actionGraph.main.nodes.finish!.action });
+    f.state.changeStructured(field, ['unknown-new']);
+    expect(history.current).toBe(applied);
+    expect(f.state.error.value).not.toBe('');
+    f.state.discardStructured(field);
+    expect(f.state.pending.value).toBe(false);
+    expect(history.undo()).toBe(true);
+    expect(history.current).toBe(before);
+  } finally {
+    f.stop();
+  }
+});
+it('cannot use an enclosing entity catalog when an owner override is persisted or pending', async () => {
+  const attempts: unknown[] = [];
+  const fields = actionNodeSchemas.findOwnerSpawnedAbilityEntities.fields;
+  const ids = fields.find(f => f.path.at(-1) === 'abilityEntityIds')!;
+  const f = await mountSetup(NodeInspectorFields, {
+    kind: 'findOwnerSpawnedAbilityEntities',
+    value: { kind: 'findOwnerSpawnedAbilityEntities', parameters: { saveToContextKey: 'targets' } },
+    fields,
+    referenceChoices: { abilityEntity: referenceCatalog('abilityEntity') },
+    applyValue: (value: unknown) => {
+      attempts.push(value);
+      return true;
+    },
+  });
+  try {
+    f.state.change('parameters.ownerContextKey', 'another-owner');
+    expect(f.state.collectionChoices(ids)).toBeUndefined();
+    f.state.changeStructured(ids, ['known']);
+    expect(attempts).toEqual([]);
+    await f.update({
+      value: {
+        kind: 'findOwnerSpawnedAbilityEntities',
+        parameters: { saveToContextKey: 'targets', ownerContextKey: 'other' },
+      },
+    });
+    expect(f.state.collectionChoices(ids)).toBeUndefined();
+  } finally {
+    f.stop();
+  }
+});
+it('tag creation checks semantic syntax and updated reference collections before emitting', async () => {
+  const { definitionSchemas } = await import('../definition-editor/definitionSchemas.generated');
+  const created: unknown[] = [];
+  const f = await mountSetup(DefinitionValueCreator, {
+    schema: definitionSchemas.abilityEntity.fields.bornTags,
+    editable: true,
+    onCreate: (value: unknown) => created.push(value),
+  });
+  try {
+    f.state.change([], ['Custom/Tag', 'Custom/Tag']);
+    expect(f.state.complete.value).toBe(true);
+    f.state.create();
+    expect(created).toEqual([['Custom/Tag', 'Custom/Tag']]);
+    f.state.change([], ['Custom//Tag']);
+    expect(f.state.complete.value).toBe(false);
+    f.state.create();
+    expect(created).toHaveLength(1);
+  } finally {
+    f.stop();
+  }
+});
+it('optional tag leaves unset through the original parser and required leaves still reject empty', async () => {
+  const attempts: unknown[] = [];
+  const optional = actionNodeSchemas.changeResource.fields.find(
+    f => f.path.at(-1) === 'ultimateRecoveryTag',
+  )!;
+  const f = await mountSetup(NodeInspectorFields, {
+    kind: 'changeResource',
+    value: { parameters: { ultimateRecoveryTag: 'Custom/Tag' } },
+    fields: [optional],
+    applyValue: (value: unknown) => {
+      attempts.push(value);
+      return true;
+    },
+  });
+  try {
+    f.state.selectValue('parameters.ultimateRecoveryTag', '');
+    expect(attempts).toEqual([{ parameters: {} }]);
+  } finally {
+    f.stop();
+  }
+});
+it('scalar tags bound suggestions and reset custom drafts on readonly changes', async () => {
+  const { default: GameplayTagField } = await import('./GameplayTagField.vue');
+  const changes: unknown[] = [];
+  const f = await mountSetup(GameplayTagField, {
+    value: 'Custom/Old',
+    label: 'Tag',
+    disabled: false,
+    allowUnset: true,
+    onChange: (value: unknown) => changes.push(value),
+  });
+  try {
+    f.state.text.value = '';
+    expect(f.state.options.value.length).toBeLessThanOrEqual(51);
+    f.state.text.value = 'Custom/New';
+    await f.update({ disabled: true });
+    expect(f.state.text.value).toBe('Custom/Old');
+    f.state.apply();
+    f.state.unset();
+    expect(changes).toEqual([]);
+    await f.update({ disabled: false });
+    f.state.unset();
+    expect(changes).toEqual(['']);
+  } finally {
+    f.stop();
+  }
+});

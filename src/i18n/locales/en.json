@@ -5680,5 +5680,18 @@
     "disconnectHelp": "Choose “Use inline” beside the input, enter a valid constant, and apply. Cancel keeps the existing connection.",
     "disconnectOutput": "Choose an inline value at the consumer input. The connection remains until you apply it.",
     "disconnect": "Choose inline value to disconnect"
+  },
+  "stringCollection": {
+    "orderHint": "Order and duplicate entries are preserved.",
+    "empty": "Empty list",
+    "edit": "Edit list",
+    "newEntry": "New entry",
+    "setEmpty": "Set empty list",
+    "invalid": "The list contains an invalid new entry.",
+    "rejected": "The change was rejected. Your draft is retained.",
+    "customTag": "Custom tag path",
+    "useTag": "Use tag",
+    "invalidTag": "Enter a readable tag path with nonempty segments.",
+    "refineSearch": "Showing the first 50 of {count} matches. Refine the path to search further."
   }
 }

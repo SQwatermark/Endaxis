@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import StringCollectionField from '../field-editor/StringCollectionField.vue';
+import GameplayTagField from '../field-editor/GameplayTagField.vue';
+import { stringCollectionDescriptor } from '../field-editor/stringCollectionSchema';
 import { computed, ref, shallowRef, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import {
@@ -345,6 +348,32 @@ function switchVariant(chosen: EaSelectValue | EaSelectValue[]): void {
         @open-graph="emit('openGraph', $event)"
       />
     </template>
+    <div v-else-if="editor.control === 'stringCollection'">
+      <span v-if="!hideLabel"
+        >{{ label }}<EditorHelp v-if="schema?.description" :text="schema.description"
+      /></span>
+      <StringCollectionField
+        :value="value"
+        :editable="!readonlyField"
+        required
+        :label="label"
+        :kind="stringCollectionDescriptor(editorSchema, name, referenceKind)!.kind"
+        :reference-kind="referenceKind"
+        :reference-choices="referenceChoices"
+        @change="update"
+      />
+    </div>
+    <div v-else-if="editor.control === 'gameplayTag'">
+      <span v-if="!hideLabel"
+        >{{ label }}<EditorHelp v-if="schema?.description" :text="schema.description"
+      /></span>
+      <GameplayTagField
+        :value="value as string | undefined"
+        :label="label"
+        :disabled="readonlyField"
+        @change="update"
+      />
+    </div>
     <BlackboardMappingField
       v-else-if="editor.control === 'blackboardMapping'"
       :value="value"

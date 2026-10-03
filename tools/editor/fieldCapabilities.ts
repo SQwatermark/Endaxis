@@ -1,3 +1,4 @@
+import { stringCollectionDescriptor } from '../../src/ui/field-editor/stringCollectionSchema.ts';
 import { isConditionListField } from '../../src/ui/field-editor/conditionListSchema.ts';
 import { resolveBlackboardMapping } from '../../src/ui/field-editor/blackboardMappingSchema.ts';
 import type { FieldSemantics } from '../../src/ui/field-editor/fieldSemantics.ts';
@@ -96,9 +97,6 @@ export function collectFieldCapabilities(
       connection: 'none',
       ...(protectedIdentity ? { restriction: 'identity-readonly' as const } : {}),
       ...(schema.fallback ? { fallback: schema.fallback.reason } : {}),
-      ...(schema.kind === 'string' && aliases.includes('GameplayTag')
-        ? { fallback: 'semantic-text-pending' }
-        : {}),
     });
     if (schema.kind === 'object')
       for (const [name, child] of Object.entries(schema.fields))
@@ -134,15 +132,21 @@ export function collectFieldCapabilities(
         const mapping = resolveBlackboardMapping(field);
         const stringOperand = aliases.includes('ActionStringOperand');
         const conditionList = isConditionListField(field);
-        const availableControl = conditionList
-          ? 'conditionList'
-          : mapping
-            ? 'blackboardMapping'
-            : stringOperand
-              ? 'stringOperand'
-              : expressionInput
-                ? 'typedInput'
-                : undefined;
+        const collection = stringCollectionDescriptor(field);
+        const tag = field.control === 'string' && aliases.includes('GameplayTag');
+        const availableControl = collection
+          ? 'stringCollection'
+          : tag
+            ? 'gameplayTag'
+            : conditionList
+              ? 'conditionList'
+              : mapping
+                ? 'blackboardMapping'
+                : stringOperand
+                  ? 'stringOperand'
+                  : expressionInput
+                    ? 'typedInput'
+                    : undefined;
         const complex = !availableControl && (field.control === 'json' || expressionInput);
         const fallback = availableControl
           ? undefined
@@ -172,9 +176,6 @@ export function collectFieldCapabilities(
               : 'field',
           connection: nodeConnection(field),
           ...(fallback ? { fallback } : {}),
-          ...(field.control === 'string' && aliases.includes('GameplayTag')
-            ? { fallback: 'semantic-text-pending' }
-            : {}),
         });
       }
   }

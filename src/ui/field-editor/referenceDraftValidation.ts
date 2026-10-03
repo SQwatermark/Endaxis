@@ -1,3 +1,5 @@
+import { stringCollectionDescriptor } from './stringCollectionSchema';
+import { validCollectionEntry, validStringCollection } from './stringCollection';
 import { canSelectReference, type ReferenceChoices } from '@/application/editor/referenceResolver';
 import { fieldSchemaForValue } from '../definition-editor/definitionFieldRuntime';
 import type { DefinitionFieldSchema } from '../definition-editor/fieldSchema';
@@ -15,6 +17,9 @@ export function validReferenceDraft(
   if (value === undefined && schema.optional) return true;
   const editor = resolveFieldEditor(schema, { referenceKind, name });
   const family = editor.referenceKind;
+  const collection = stringCollectionDescriptor(schema, name, family);
+  if (collection) return validStringCollection(value, undefined, collection.kind, family, choices);
+  if (editor.control === 'gameplayTag') return validCollectionEntry(value, 'gameplayTag');
   const shape = fieldSchemaForValue(schema, value, name);
   if (editor.control === 'stringOperand') return validStringOperandDraft(value, family, choices);
   if (schema.kind === 'union') return validReferenceDraft(shape, value, choices, family, name);

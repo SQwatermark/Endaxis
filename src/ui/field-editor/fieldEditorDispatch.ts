@@ -1,3 +1,4 @@
+import { stringCollectionDescriptor } from './stringCollectionSchema';
 import { isConditionListField } from './conditionListSchema';
 import { resolveBlackboardMapping } from './blackboardMappingSchema';
 import type { NodeFieldSchema } from '../action-graph/nodeSchema';
@@ -21,7 +22,9 @@ export interface FieldEditorResolution {
     | 'reference'
     | 'stringOperand'
     | 'blackboardMapping'
-    | 'conditionList';
+    | 'conditionList'
+    | 'stringCollection'
+    | 'gameplayTag';
   readonly semantic:
     | 'plain'
     | 'reference'
@@ -90,21 +93,32 @@ export function resolveFieldEditor(
                         ? 'reference'
                         : 'plain';
   const mapping = resolveBlackboardMapping(schema, name);
+  const collection = stringCollectionDescriptor(schema, name, referenceKind);
   const control =
-    conditionList && !boundary
-      ? 'conditionList'
-      : mapping && !boundary
-        ? 'blackboardMapping'
-        : semantic === 'stringOperand' && !boundary && baseControl !== 'opaque'
-          ? 'stringOperand'
-          : baseControl === 'string' && referenceKind && !context.protectedIdentity
-            ? 'reference'
-            : baseControl;
+    collection && !boundary
+      ? 'stringCollection'
+      : semantic === 'gameplayTag' && baseControl === 'string'
+        ? 'gameplayTag'
+        : conditionList && !boundary
+          ? 'conditionList'
+          : mapping && !boundary
+            ? 'blackboardMapping'
+            : semantic === 'stringOperand' && !boundary && baseControl !== 'opaque'
+              ? 'stringOperand'
+              : baseControl === 'string' && referenceKind && !context.protectedIdentity
+                ? 'reference'
+                : baseControl;
   const container = conditionList || ['array', 'record', 'object', 'union'].includes(baseControl);
   const intrinsicallyReadonly = boundary || ['opaque', 'condition', 'null'].includes(baseControl);
   const readonly =
     context.editable === false || Boolean(context.protectedIdentity) || intrinsicallyReadonly;
-  const fallback = ['stringOperand', 'blackboardMapping', 'conditionList'].includes(control)
+  const fallback = [
+    'stringOperand',
+    'blackboardMapping',
+    'conditionList',
+    'stringCollection',
+    'gameplayTag',
+  ].includes(control)
     ? undefined
     : (schema.fallback?.reason ??
       (baseControl === 'opaque'
@@ -134,7 +148,13 @@ export function resolveFieldEditor(
             : 'value',
     edit: readonly
       ? 'none'
-      : ['stringOperand', 'blackboardMapping', 'conditionList'].includes(control)
+      : [
+            'stringOperand',
+            'blackboardMapping',
+            'conditionList',
+            'stringCollection',
+            'gameplayTag',
+          ].includes(control)
         ? 'field'
         : container
           ? 'recursive'

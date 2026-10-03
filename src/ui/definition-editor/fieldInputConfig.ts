@@ -1,6 +1,9 @@
 /** 只有契约仍使用普通字符串、无法由类型得知引用类别的位置才在编辑层声明。 */
 export const REFERENCE_FIELD_KIND: Readonly<
-  Record<string, 'gearSet' | 'buff' | 'skillGroup' | 'skillSlot' | 'skill' | 'abilityEntity'>
+  Record<
+    string,
+    'gearSet' | 'buff' | 'skillGroup' | 'skillSlot' | 'skill' | 'abilityEntity' | 'globalBuff'
+  >
 > = {
   gearSetSlug: 'gearSet',
   buffId: 'buff',
@@ -32,6 +35,9 @@ export const REFERENCE_FIELD_KIND: Readonly<
   abilityEntityId: 'abilityEntity',
   skillKeys: 'skill',
   buffIds: 'buff',
+  inheritToNextSkillIds: 'skill',
+  abilityEntityIds: 'abilityEntity',
+  globalBuffIds: 'globalBuff',
 };
 
 export type { ReferenceChoices } from '../../application/editor/referenceResolver';
@@ -72,6 +78,9 @@ const REFERENCE_DECLARATION_FILES: Readonly<Record<string, readonly string[]>> =
   abilityEntityId: ['actions', 'operators'],
   skillKeys: ['skills'],
   buffIds: ['actions', 'operators', 'conditions', 'modifiers'],
+  inheritToNextSkillIds: ['actions'],
+  abilityEntityIds: ['actions', 'skills', 'conditions'],
+  globalBuffIds: ['actions'],
 };
 
 export function referenceKindForDeclaration(

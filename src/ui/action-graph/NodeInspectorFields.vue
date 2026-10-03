@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import StringCollectionField from '../field-editor/StringCollectionField.vue';
+import GameplayTagField from '../field-editor/GameplayTagField.vue';
+import { stringCollectionDescriptor } from '../field-editor/stringCollectionSchema';
+import { validStringCollection, validCollectionEntry } from '../field-editor/stringCollection';
 import { canSelectReference } from '@/application/editor/referenceResolver';
 import { computed, provide, ref, watch } from 'vue';
 import type { BlackboardFieldContext } from '@/application/editor/blackboardFieldContext';
@@ -64,6 +68,17 @@ function fieldEditor(field: NodeFieldSchema) {
   return resolveFieldEditor(field);
 }
 
+function collectionChoices(field: NodeFieldSchema) {
+  const descriptor = stringCollectionDescriptor(field);
+  if (
+    descriptor?.referenceKind === 'abilityEntity' &&
+    props.kind === 'findOwnerSpawnedAbilityEntities' &&
+    (readNodeField(props.value, ['parameters', 'ownerContextKey']) ||
+      inputs.value['parameters.ownerContextKey']?.trim())
+  )
+    return undefined;
+  return props.referenceChoices;
+}
 function levelText(field: NodeFieldSchema): string {
   const value = structuredValue(field);
   return value &&
@@ -159,6 +174,29 @@ function apply(): boolean {
       if (text === formatNodeField(readNodeField(props.value, field.path), field)) continue;
       const parsed = parseNodeField(text, { ...field, label: fieldName(field.path, props.kind) });
       const editor = fieldEditor(field);
+      const collection = stringCollectionDescriptor(field);
+      if (
+        collection &&
+        !(parsed === undefined && !field.required) &&
+        !validStringCollection(
+          parsed,
+          readNodeField(props.value, field.path),
+          collection.kind,
+          collection.referenceKind,
+          collectionChoices(field),
+        )
+      ) {
+        error.value = t('stringCollection.invalid');
+        return false;
+      }
+      if (
+        editor.control === 'gameplayTag' &&
+        !(parsed === undefined && !field.required) &&
+        !validCollectionEntry(parsed, 'gameplayTag')
+      ) {
+        error.value = t('stringCollection.invalidTag');
+        return false;
+      }
       const mapping = resolveBlackboardMapping(field);
       if (
         mapping &&
@@ -254,8 +292,30 @@ defineExpose({ apply });
         />
         <small v-if="!field.required">{{ t('actionGraphEditor.optional') }}</small>
       </span>
+      <StringCollectionField
+        v-if="fieldEditor(field).control === 'stringCollection'"
+        :key="`${field.path.join('.')}:${resetSerial}`"
+        :value="readNodeField(value, field.path)"
+        :editable="!readonly"
+        :required="field.required"
+        :label="fieldName(field.path, kind)"
+        :kind="stringCollectionDescriptor(field)!.kind"
+        :reference-kind="stringCollectionDescriptor(field)!.referenceKind"
+        :reference-choices="collectionChoices(field)"
+        @change="changeStructured(field, $event)"
+        @discard="discardStructured(field)"
+      />
+      <GameplayTagField
+        v-else-if="fieldEditor(field).control === 'gameplayTag'"
+        :key="`${field.path.join('.')}:${resetSerial}`"
+        :allow-unset="!field.required"
+        :value="inputs[field.path.join('.')]"
+        :disabled="readonly"
+        :label="fieldName(field.path, kind)"
+        @change="selectValue(field.path.join('.'), $event)"
+      />
       <ConditionListField
-        v-if="fieldEditor(field).control === 'conditionList'"
+        v-else-if="fieldEditor(field).control === 'conditionList'"
         :value="readNodeField(value, field.path)"
         :key="`${field.path.join('.')}:${resetSerial}`"
         :editable="!readonly"

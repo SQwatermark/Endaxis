@@ -5697,5 +5697,18 @@
     "disconnectHelp": "请在输入旁选择“改为内联”，填写合法常量并应用；取消会保留原连线。",
     "disconnectOutput": "请从需要断开的输入端选择内联值，原连接会保留至应用",
     "disconnect": "选择内联值以断开"
+  },
+  "stringCollection": {
+    "orderHint": "保留顺序和重复项；不会自动去重。",
+    "empty": "空列表",
+    "edit": "编辑列表",
+    "newEntry": "新增项",
+    "setEmpty": "设为空列表",
+    "invalid": "列表包含无效的新条目。",
+    "rejected": "修改被拒绝，草稿已保留。",
+    "customTag": "自定义标签路径",
+    "useTag": "使用标签",
+    "invalidTag": "请输入各级非空的可读标签路径。",
+    "refineSearch": "显示 {count} 个匹配中的前 50 个，请输入更完整路径继续筛选。"
   }
 }

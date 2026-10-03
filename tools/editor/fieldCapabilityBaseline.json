@@ -316,45 +316,6 @@
       ]
     },
     {
-      "reason": "structured-editor-pending",
-      "phase": "P4",
-      "category": "gameplay-tag-collection",
-      "observedJsonAtAudit": true,
-      "keys": [
-        "action/finishBuffsByTag/parameters/buffTags",
-        "action/heal/parameters/tags",
-        "action/restrictUltimateEnergyRecovery/parameters/allowedRecoveryTags",
-        "data/boolean:buffStackCompare/buffTags",
-        "data/boolean:buffTagIdCountCompare/buffTags",
-        "data/boolean:contextTargetBuffStackCompare/buffTags",
-        "data/boolean:contextTargetEntityTagMatch/tags",
-        "data/boolean:entityTagMatch/tags",
-        "data/boolean:eventBuffTagsMatch/buffTags",
-        "data/boolean:eventDamageGameplayTagsMatch/tags",
-        "data/boolean:eventHealTagsMatch/tags"
-      ]
-    },
-    {
-      "reason": "semantic-text-pending",
-      "phase": "P4",
-      "category": "gameplay-tag-text",
-      "keys": [
-        "action/changeResource/parameters/ultimateRecoveryTag",
-        "action/changeResourceByActionValue/parameters/ultimateRecoveryTag",
-        "action/startTimeDilation/parameters/slot",
-        "definition/abilityEntity/bornTags/[]",
-        "definition/buff/<0>/applyTags/[]",
-        "definition/buff/<0>/damageModifiers/[]/condition/<0>/tags/[]",
-        "definition/buff/<0>/extendTags/[]",
-        "definition/buff/<0>/healModifiers/[]/condition/<2>/tags/[]",
-        "definition/buff/<1>/applyTags/[]",
-        "definition/buff/<1>/damageModifiers/[]/condition/<0>/tags/[]",
-        "definition/buff/<1>/extendTags/[]",
-        "definition/buff/<1>/healModifiers/[]/condition/<2>/tags/[]",
-        "definition/operator/abilityEntityDefinitions/{}/bornTags/[]"
-      ]
-    },
-    {
       "reason": "recursive-type",
       "phase": "P4",
       "category": "recursive-type",
@@ -374,21 +335,7 @@
       "phase": "P4",
       "category": "reference-list",
       "observedJsonAtAudit": true,
-      "keys": [
-        "action/applyBuff/parameters/inheritToNextSkillIds",
-        "action/findOwnerSpawnedAbilityEntities/parameters/abilityEntityIds",
-        "action/finishBuffsById/parameters/buffIds",
-        "action/finishGlobalBuffsById/parameters/globalBuffIds",
-        "action/holdBuffsById/parameters/buffIds",
-        "action/inheritBuffById/parameters/inheritToNextSkillIds",
-        "action/reachSkillOperableBoundary/parameters/skillIds",
-        "action/readBuffRemainingDuration/parameters/buffIds",
-        "data/boolean:buffIdStackCompare/buffIds",
-        "data/boolean:contextTargetBuffIdStackCompare/buffIds",
-        "data/boolean:eventBuffIdMatch/buffIds",
-        "data/boolean:eventSkillIdIn/skillIds",
-        "data/boolean:ownerSpawnedAbilityEntityPresent/abilityEntityIds"
-      ]
+      "keys": ["action/finishGlobalBuffsById/parameters/globalBuffIds"]
     },
     {
       "reason": "structured-editor-pending",
@@ -399,7 +346,6 @@
         "action/applyBuff/parameters/onActionEndBuffs",
         "action/applyStatus/parameters/modifiers",
         "action/dealDamage/parameters/attackScalePerStatusStack",
-        "action/dealDamage/parameters/gameplayTags",
         "action/dealDamage/parameters/instantAttributeModifiers",
         "action/dealDamage/parameters/instantDamageScaleModifiers",
         "action/listenForCombatEvents/parameters/responses",
@@ -407,8 +353,7 @@
         "action/setContextFlag/parameters/value",
         "action/switch/options",
         "data/boolean:contextFlagEquals/value",
-        "data/boolean:elementalInflictionPresent/elements",
-        "data/boolean:eventTargetBuffCountCompare/buffTags"
+        "data/boolean:elementalInflictionPresent/elements"
       ]
     },
     {
@@ -451,6 +396,29 @@
     "action/withActionBlackboardScope/parameters/entityInitialValues",
     "action/withActionBlackboardScope/parameters/initialValues",
     "data/boolean:abilityEntityTimedMarkerPresent/markerId",
-    "data/boolean:timedMarkerPresent/markerId"
+    "data/boolean:timedMarkerPresent/markerId",
+    "action/finishBuffsByTag/parameters/buffTags",
+    "action/heal/parameters/tags",
+    "action/restrictUltimateEnergyRecovery/parameters/allowedRecoveryTags",
+    "data/boolean:buffStackCompare/buffTags",
+    "data/boolean:buffTagIdCountCompare/buffTags",
+    "data/boolean:contextTargetBuffStackCompare/buffTags",
+    "data/boolean:contextTargetEntityTagMatch/tags",
+    "data/boolean:entityTagMatch/tags",
+    "data/boolean:eventBuffTagsMatch/buffTags",
+    "data/boolean:eventDamageGameplayTagsMatch/tags",
+    "data/boolean:eventHealTagsMatch/tags",
+    "action/applyBuff/parameters/inheritToNextSkillIds",
+    "action/findOwnerSpawnedAbilityEntities/parameters/abilityEntityIds",
+    "action/finishBuffsById/parameters/buffIds",
+    "action/holdBuffsById/parameters/buffIds",
+    "action/inheritBuffById/parameters/inheritToNextSkillIds",
+    "action/reachSkillOperableBoundary/parameters/skillIds",
+    "action/readBuffRemainingDuration/parameters/buffIds",
+    "data/boolean:buffIdStackCompare/buffIds",
+    "data/boolean:contextTargetBuffIdStackCompare/buffIds",
+    "data/boolean:eventBuffIdMatch/buffIds",
+    "data/boolean:eventSkillIdIn/skillIds",
+    "data/boolean:ownerSpawnedAbilityEntityPresent/abilityEntityIds"
   ]
 }
