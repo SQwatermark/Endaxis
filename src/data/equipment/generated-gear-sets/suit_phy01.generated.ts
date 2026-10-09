@@ -3,7 +3,7 @@ import type { GearSetDefinition } from '../../../core/game-data/equipmentDefinit
 
 const definition = {
   slug: 'suit_phy01',
-  iconPath: '/equipment/phy01/item_equip_t4_suit_phy01_edc_04.webp',
+  icon: 'endaxis:equipment/phy01/item_equip_t4_suit_phy01_edc_04',
   modifiers: [{ kind: 'panelStat', stat: 'staggerDamagePercent', value: 0.2 }],
   actionGraph: {
     main: {

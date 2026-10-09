@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { resolveImage } from '../../imageResources';
 import type { BuffDisplayName } from './buffDisplayName';
 import {
   type OperatorPassiveUiTimelineSegment,
@@ -32,7 +33,6 @@ import type { BuffDetailTarget } from './buffDetail';
 import {
   DEFAULT_GAME_ICON_PATH,
   getElementalReactionIconPath,
-  getIconAssetPath,
   getSpellBurstIconPath,
 } from '../../gameAssetPaths';
 import { frameToCondensedTimelinePx } from '../timelineGeometry';
@@ -214,9 +214,7 @@ const markers = computed(() =>
         : undefined;
     const icon =
       marker.kind === 'attachmentTrigger'
-        ? (attachment?.presentation?.iconPath ??
-          getIconAssetPath(attachment?.presentation?.iconId) ??
-          DEFAULT_GAME_ICON_PATH)
+        ? (resolveImage(attachment?.presentation?.icon) ?? DEFAULT_GAME_ICON_PATH)
         : marker.kind === 'burst'
           ? (getSpellBurstIconPath(marker.burstType) ?? DEFAULT_GAME_ICON_PATH)
           : (getElementalReactionIconPath(marker.reaction) ?? DEFAULT_GAME_ICON_PATH);
@@ -259,10 +257,7 @@ const damageHits = computed(() =>
     return {
       sequence: entry.sequence,
       standaloneIcon: standalone
-        ? ((buff && props.icon?.(buff)) ??
-          buff?.iconPath ??
-          getIconAssetPath(buff?.iconId) ??
-          DEFAULT_GAME_ICON_PATH)
+        ? ((buff && props.icon?.(buff)) ?? resolveImage(buff?.icon) ?? DEFAULT_GAME_ICON_PATH)
         : undefined,
       x: pointX(entry.frame),
       top:
@@ -309,9 +304,9 @@ const buffs = computed(() =>
         ].join(' / ')
       : baseTitle;
     const icon =
-      (isPhysicalStatusRowBuff(buff) ? buff.iconPath : props.icon?.(buff)) ??
-      buff.iconPath ??
-      getIconAssetPath(buff.iconId);
+      (isPhysicalStatusRowBuff(buff) ? resolveImage(buff.icon) : props.icon?.(buff)) ??
+      resolveImage(buff.icon) ??
+      resolveImage(buff.icon);
     return {
       ...buff,
       isAttachment: props.attachmentBuffIds?.has(buff.buffId) ?? false,
@@ -379,9 +374,11 @@ const buffs = computed(() =>
             ...(member.stackingType === undefined ? {} : { stackingType: member.stackingType }),
             ...(member.parentBuffId === undefined ? {} : { parentBuffId: member.parentBuffId }),
             icon:
-              (isPhysicalStatusRowBuff(member) ? member.iconPath : props.icon?.(member)) ??
-              member.iconPath ??
-              getIconAssetPath(member.iconId),
+              (isPhysicalStatusRowBuff(member)
+                ? resolveImage(member.icon)
+                : props.icon?.(member)) ??
+              resolveImage(member.icon) ??
+              resolveImage(member.icon),
             ...(memberModifierSummary === undefined
               ? {}
               : { modifierSummary: memberModifierSummary }),
@@ -484,7 +481,7 @@ const lastHitBuffOverflow = computed(() => lastHitSummary.value.overflow);
           @keydown.enter.stop.prevent="emit('open-entity-detail', segment, t(segment.nameKey))"
           @keydown.space.stop.prevent="emit('open-entity-detail', segment, t(segment.nameKey))"
         >
-          <img :src="segment.icon" class="anomaly-icon" alt="" />
+          <img :src="resolveImage(segment.icon)" class="anomaly-icon" alt="" />
           <span v-if="segment.entities.length > 1" class="anomaly-stacks">{{
             segment.entities.length
           }}</span>

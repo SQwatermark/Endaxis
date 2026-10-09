@@ -3,7 +3,7 @@ import type { GearSetDefinition } from '../../../core/game-data/equipmentDefinit
 
 const definition = {
   slug: 'suit_crush_fracture',
-  iconPath: '/equipment/crush_fracture/item_equip_t4_suit_crush_fracture_edc_01.webp',
+  icon: 'endaxis:equipment/crush_fracture/item_equip_t4_suit_crush_fracture_edc_01',
   modifiers: [{ kind: 'panelStat', stat: 'attackPercent', value: 0.08 }],
   actionGraph: {
     main: {
@@ -243,8 +243,7 @@ const definition = {
       maxTriggerCount: 1,
       presentation: {
         visible: true,
-        iconId: 'icon_battle_physical_dmg_up',
-        iconPath: '/icons/icon_battle_physical_dmg_up.webp',
+        icon: 'endaxis:icons/icon_battle_physical_dmg_up',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
         showInSquadIcon: true,

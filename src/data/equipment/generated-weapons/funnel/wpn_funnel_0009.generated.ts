@@ -172,7 +172,7 @@ const definition = {
     },
   ],
   assetSlug: 'wpn_funnel_0009',
-  iconPath: '/weapons/funnel/wpn_funnel_0009.webp',
+  icon: 'endaxis:weapons/funnel/wpn_funnel_0009',
   buffDefinitions: {
     buff_wpn_funnel_0009_magic_up_combo: {
       stackingType: 'refresh',
@@ -184,8 +184,7 @@ const definition = {
       maxTriggerCount: 1,
       presentation: {
         visible: true,
-        iconId: 'icon_battle_spell_up',
-        iconPath: '/icons/icon_battle_spell_up.webp',
+        icon: 'endaxis:icons/icon_battle_spell_up',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
         showInSquadIcon: true,
@@ -241,8 +240,7 @@ const definition = {
       maxTriggerCount: 1,
       presentation: {
         visible: true,
-        iconId: 'icon_battle_spell_up',
-        iconPath: '/icons/icon_battle_spell_up.webp',
+        icon: 'endaxis:icons/icon_battle_spell_up',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
         showInSquadIcon: true,

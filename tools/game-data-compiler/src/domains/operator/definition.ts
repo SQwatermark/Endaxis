@@ -1,3 +1,4 @@
+import { imageRefFromPath } from '../../compiler/publication/imageResources.ts';
 import { abilityEntityPresentations } from '../../../config/abilityEntityPresentations.ts';
 import type {
   ComboSkillConditionDefinition,
@@ -23,8 +24,7 @@ import {
   compileOperatorPotentialDefinition,
 } from './progressionDefinition.ts';
 import type { CompiledOperatorActiveSkillRuntimeDefinitionSource } from './activeSkillRuntimeDefinition.ts';
-import { operatorSkillIconName } from './iconNames.ts';
-import { defaultOperatorSkillIconPath } from '../../../../../packages/game-data-contract/src/skillIconPaths.ts';
+import { operatorSkillIconName, defaultOperatorSkillIconName } from './iconNames.ts';
 import type { CompiledAbilityEntityTemplateCatalogSource } from '../../compiler/abilities/abilityEntityCatalog.ts';
 import { compileAbilityEntityTemplateCatalogSource } from '../../compiler/abilities/abilityEntityCatalog.ts';
 import { compileAbilityEntityDefinitionSource } from '../../compiler/abilities/abilityEntityDefinition.ts';
@@ -52,7 +52,6 @@ import { collectCombatInvisibleBuffClosureIds } from '../../compiler/buffs/comba
 import { collectBuffRuntimeClosure } from '../../compiler/buffs/buffReferenceClosure.ts';
 import { collectNativeActionNodes } from '../../source/controlFlow.ts';
 import { parseGlobalBuffTemplateCatalogSource } from '../../source/globalBuffTemplate.ts';
-import { createPhysicalInflictionDefinitionHydrator } from '../../compiler/actions/physicalInflictionHydration.ts';
 import {
   compileTargetGroupAbilityEntityQuerySource,
   compileTargetReferenceAbilityEntityQuerySource,
@@ -705,17 +704,16 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
   );
   const blocked = buffClosure.diagnostics.filter(item => item.status === 'blocked');
   if (blocked.length) throw new Error(`operator Buff closure blocked: ${JSON.stringify(blocked)}`);
-  const hydrate = createPhysicalInflictionDefinitionHydrator(buffClosure.definitions);
   const runtimeDefinitions = new Map(
     [...compiledDefinitions].map(([key, definition]) => [
       key,
-      hydrate(stripSkillGroupCompilationEvidence(definition)),
+      stripSkillGroupCompilationEvidence(definition),
     ]),
   );
   let dodgeSkill: OperatorDefinition['dodgeSkill'];
   if (input.dodgeSkill !== undefined) {
-    const { element, ...definition } = hydrate(
-      stripSkillGroupCompilationEvidence(input.dodgeSkill.definition),
+    const { element, ...definition } = stripSkillGroupCompilationEvidence(
+      input.dodgeSkill.definition,
     );
     if (element !== undefined) throw new Error('dodge skill must not declare an element');
     dodgeSkill = { ...definition, skillType: 'dodge', nativeSkillType: 'dodge' };
@@ -785,22 +783,15 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
     if (nativeSkillType === undefined) {
       throw new Error(`skill '${key}' has no native SkillType initialization evidence`);
     }
-    const { iconName, ...skillDefinition } = definition;
-    const defaultIcon = defaultOperatorSkillIconPath(
-      foundation.identity.slug,
-      foundation.character.weaponType,
-      identity.skillType,
-    );
+    const { nativeIconId, ...skillDefinition } = definition;
+    const iconName = nativeIconId ? operatorSkillIconName(nativeIconId) : undefined;
+    const defaultIcon = defaultOperatorSkillIconName(identity.skillType);
     definitions.set(key, {
       ...skillDefinition,
       ...(iconName &&
-      iconName !==
-        defaultIcon
-          .split('/')
-          .at(-1)!
-          .replace(/\.webp$/, '') &&
+      iconName !== defaultIcon &&
       !['basicAttack', 'plungingAttack', 'finisher'].includes(identity.skillType)
-        ? { iconName }
+        ? { icon: imageRefFromPath(`/operators/${foundation.identity.slug}/${iconName}.webp`) }
         : {}),
       ...identity,
       skillType: identity.skillType,
@@ -808,7 +799,7 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
     });
   }
   const abilityEntityDefinitions = Object.fromEntries(
-    Object.entries(hydrate(compiledAbilityEntityDefinitions)).map(([id, definition]) => [
+    Object.entries(compiledAbilityEntityDefinitions).map(([id, definition]) => [
       id,
       {
         ...definition,
@@ -914,15 +905,17 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
                 native.skillIds.includes(visibleSkillKeys[0]!),
               );
               const nativeIcon = nativeGroup?.conditionIcons?.[conditionId];
-              const iconName = nativeIcon
-                ? operatorSkillIconName(
-                    nativeIcon
-                      .split('/')
-                      .at(-1)!
-                      .replace(/\.webp$/, ''),
-                  )
-                : undefined;
-              return { ...variant, ...(iconName ? { iconName } : {}) };
+              const iconName = nativeIcon ? operatorSkillIconName(nativeIcon) : undefined;
+              return {
+                ...variant,
+                ...(iconName
+                  ? {
+                      icon: imageRefFromPath(
+                        `/operators/${foundation.identity.slug}/${iconName}.webp`,
+                      ),
+                    }
+                  : {}),
+              };
             }),
           }),
     } satisfies SkillGroupDefinition;
@@ -957,22 +950,20 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
   }
   for (const [id, definition] of Object.entries(buffClosure.definitions)) {
     const replacements = skillSlotReplacements.get(id);
-    const hydratedDefinition = assignGeneratedDamageStepKeys(
-      hydrate(
-        replacements === undefined
-          ? definition
-          : { ...definition, skillSlotReplacements: replacements },
-      ),
+    const keyedDefinition = assignGeneratedDamageStepKeys(
+      replacements === undefined
+        ? definition
+        : { ...definition, skillSlotReplacements: replacements },
       id,
     );
     if ([...privateBuffCharacterIds].some(characterId => id.startsWith(`buff_${characterId}_`)))
-      privateBuffs[id] = hydratedDefinition;
+      privateBuffs[id] = keyedDefinition;
     else if (id.startsWith('buff_chr_')) {
       throw new Error(`foreign operator Buff ownership is not established: ${id}`);
     } else {
       // 物理/元素反应等系统 Buff 不使用 buff_common_ 前缀，但与角色私有 Buff 一样
       // 由稳定身份决定归属；旧统一链接器也把所有非 buff_chr_* 定义放入共享目录。
-      commonBuffs[id] = hydratedDefinition;
+      commonBuffs[id] = keyedDefinition;
     }
   }
   const operator: OperatorDefinition = {

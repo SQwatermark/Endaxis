@@ -3,7 +3,7 @@ import type { GearSetDefinition } from '../../../core/game-data/equipmentDefinit
 
 const definition = {
   slug: 'suit_spellburst',
-  iconPath: '/equipment/spellburst/item_equip_t4_suit_spellburst_edc_01.webp',
+  icon: 'endaxis:equipment/spellburst/item_equip_t4_suit_spellburst_edc_01',
   modifiers: [
     { kind: 'damageScale', target: 'heat', slot: 'baseAddition', value: 0.16 },
     { kind: 'damageScale', target: 'electric', slot: 'baseAddition', value: 0.16 },
@@ -129,8 +129,7 @@ const definition = {
       maxTriggerCount: 1,
       presentation: {
         visible: true,
-        iconId: 'icon_battle_physical_infliction_up',
-        iconPath: '/icons/icon_battle_physical_infliction_up.webp',
+        icon: 'endaxis:icons/icon_battle_physical_infliction_up',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
         showInSquadIcon: true,

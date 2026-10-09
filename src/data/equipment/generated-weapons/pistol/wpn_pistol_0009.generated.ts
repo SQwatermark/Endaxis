@@ -415,7 +415,7 @@ const definition = {
     },
   ],
   assetSlug: 'wpn_pistol_0009',
-  iconPath: '/weapons/pistol/wpn_pistol_0009.webp',
+  icon: 'endaxis:weapons/pistol/wpn_pistol_0009',
   buffDefinitions: {
     buff_wpn_pistol_0009_cd: {
       stackingType: 'unique',
@@ -441,8 +441,7 @@ const definition = {
       maxTriggerCount: 1,
       presentation: {
         visible: true,
-        iconId: 'icon_battle_cryst_taken_up',
-        iconPath: '/icons/icon_battle_cryst_taken_up.webp',
+        icon: 'endaxis:icons/icon_battle_cryst_taken_up',
         showInHeadBarCommon: true,
         showInHeadBarAttached: false,
         showInSquadIcon: false,
@@ -511,8 +510,7 @@ const definition = {
       maxTriggerCount: 1,
       presentation: {
         visible: true,
-        iconId: 'icon_battle_fire_taken_up',
-        iconPath: '/icons/icon_battle_fire_taken_up.webp',
+        icon: 'endaxis:icons/icon_battle_fire_taken_up',
         showInHeadBarCommon: true,
         showInHeadBarAttached: false,
         showInSquadIcon: false,
@@ -581,8 +579,7 @@ const definition = {
       maxTriggerCount: 1,
       presentation: {
         visible: true,
-        iconId: 'icon_battle_nature_taken_up',
-        iconPath: '/icons/icon_battle_nature_taken_up.webp',
+        icon: 'endaxis:icons/icon_battle_nature_taken_up',
         showInHeadBarCommon: true,
         showInHeadBarAttached: false,
         showInSquadIcon: false,
@@ -651,8 +648,7 @@ const definition = {
       maxTriggerCount: 1,
       presentation: {
         visible: true,
-        iconId: 'icon_battle_pulse_taken_up',
-        iconPath: '/icons/icon_battle_pulse_taken_up.webp',
+        icon: 'endaxis:icons/icon_battle_pulse_taken_up',
         showInHeadBarCommon: true,
         showInHeadBarAttached: false,
         showInSquadIcon: false,

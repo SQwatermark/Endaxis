@@ -3622,8 +3622,7 @@ describe('StandardPlayerDamageEnvironment', () => {
           attributeModifiers: [{ attribute: 'Atk', slot: 'baseMultiplier', value: 0.1 }],
           presentation: {
             visible: true,
-            iconId: 'icon_battle_buff_atk_up',
-            iconPath: '/icons/icon_battle_buff_atk_up.webp',
+            icon: 'endaxis:icons/icon_battle_buff_atk_up',
             showInSquadIcon: true,
             showProgressInHpBar: true,
             showProgressInNormalSkillButton: true,
@@ -3642,7 +3641,7 @@ describe('StandardPlayerDamageEnvironment', () => {
               buffId: 'buff:operator-visible:child',
               presentation: {
                 visible: true,
-                iconPath: '/icons/icon_battle_buff_child.webp',
+                icon: 'endaxis:icons/icon_battle_buff_child',
               },
             },
           ],
@@ -3662,8 +3661,7 @@ describe('StandardPlayerDamageEnvironment', () => {
         simpleModifierSlot: 'baseMultiplier',
         simpleModifierValue: 0.1,
         visible: true,
-        iconId: 'icon_battle_buff_atk_up',
-        iconPath: '/icons/icon_battle_buff_atk_up.webp',
+        icon: 'endaxis:icons/icon_battle_buff_atk_up',
         showInSquadIcon: true,
         showProgressInHpBar: true,
         showProgressInNormalSkillButton: true,
@@ -3683,7 +3681,7 @@ describe('StandardPlayerDamageEnvironment', () => {
         parentBuffId: 'buff:operator-visible',
         instanceId: 1,
         sourceActionId: 'buff:operator-visible',
-        iconPath: '/icons/icon_battle_buff_child.webp',
+        icon: 'endaxis:icons/icon_battle_buff_child',
       },
     });
     for (let frame = 0; frame < 3; frame += 1) {

@@ -522,8 +522,7 @@ export function validateBuffDefinition(
           for (const key of Object.keys(presentationRecord)) {
             if (
               ![
-                'iconId',
-                'iconPath',
+                'icon',
                 'visible',
                 'showInHeadBarCommon',
                 'showInHeadBarAttached',
@@ -547,15 +546,10 @@ export function validateBuffDefinition(
               push(out, `${path}.presentation.${key}`, 'unknown Buff presentation field');
             }
           }
-          if (presentationRecord.iconPath !== undefined) {
-            requireString(presentationRecord, 'iconPath', `${path}.presentation`, out);
+          if (presentationRecord.icon !== undefined) {
+            requireString(presentationRecord, 'icon', `${path}.presentation`, out);
           }
-          for (const key of [
-            'iconId',
-            'iconStyleInSquad',
-            'abnormalColorType',
-            'charHpBarVfxType',
-          ]) {
+          for (const key of ['iconStyleInSquad', 'abnormalColorType', 'charHpBarVfxType']) {
             if (presentationRecord[key] !== undefined) {
               requireString(presentationRecord, key, `${path}.presentation`, out);
             }

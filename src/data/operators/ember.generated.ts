@@ -839,10 +839,11 @@ export const emberChr_0009_azrila_normal_skillActionGraph = {
         },
         next: 'conditional_16',
       },
-      applyKnockDown_18: {
+      applyPhysicalInfliction_18: {
         action: {
-          kind: 'applyKnockDown',
+          kind: 'applyPhysicalInfliction',
           parameters: {
+            type: 'knockDown',
             target: 'enemy',
             duration: { kind: 'constant', value: 1.5 },
             force: false,
@@ -870,7 +871,7 @@ export const emberChr_0009_azrila_normal_skillActionGraph = {
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_16' }, alwaysNext: true },
           whenTrue: { $sequence: 'applyBuff_12' },
         },
-        next: 'applyKnockDown_18',
+        next: 'applyPhysicalInfliction_18',
       },
     },
     dataNodes: {
@@ -1339,10 +1340,11 @@ export const emberChr_0009_azrila_combo_skillActionGraph = {
         },
         next: 'heal_13',
       },
-      applyKnockDown_15: {
+      applyPhysicalInfliction_15: {
         action: {
-          kind: 'applyKnockDown',
+          kind: 'applyPhysicalInfliction',
           parameters: {
+            type: 'knockDown',
             target: 'enemy',
             duration: { kind: 'constant', value: 1.5 },
             force: false,
@@ -1375,7 +1377,7 @@ export const emberChr_0009_azrila_combo_skillActionGraph = {
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_21' }, alwaysNext: true },
           whenTrue: { $sequence: 'applyBuff_5' },
         },
-        next: 'applyKnockDown_15',
+        next: 'applyPhysicalInfliction_15',
       },
     },
     dataNodes: {
@@ -1718,8 +1720,7 @@ const emberBuff2: SkillBuffDefinition = {
   durationSeconds: { blackboardKey: 'duration' },
   presentation: {
     visible: true,
-    iconId: 'icon_battle_affix_shelter',
-    iconPath: '/icons/icon_battle_affix_shelter.webp',
+    icon: 'endaxis:icons/icon_battle_affix_shelter',
     showInHeadBarCommon: false,
     showInHeadBarAttached: false,
     showInSquadIcon: false,
@@ -1794,8 +1795,7 @@ const emberBuff4: SkillBuffDefinition = {
   durationSeconds: { blackboardKey: 'duration' },
   presentation: {
     visible: true,
-    iconId: 'icon_battle_buff_atk_up',
-    iconPath: '/icons/icon_battle_buff_atk_up.webp',
+    icon: 'endaxis:icons/icon_battle_buff_atk_up',
     showInHeadBarCommon: false,
     showInHeadBarAttached: false,
     showInSquadIcon: true,
@@ -1834,8 +1834,7 @@ const emberBuff5: SkillBuffDefinition = {
   maxStackCount: 0,
   presentation: {
     visible: true,
-    iconId: 'icon_battle_buff_atk_up',
-    iconPath: '/icons/icon_battle_buff_atk_up.webp',
+    icon: 'endaxis:icons/icon_battle_buff_atk_up',
     showInHeadBarCommon: false,
     showInHeadBarAttached: false,
     showInSquadIcon: true,
@@ -1922,8 +1921,7 @@ const emberBuff6: SkillBuffDefinition = {
   durationSeconds: { blackboardKey: 'duration' },
   presentation: {
     visible: true,
-    iconId: 'icon_battle_shield',
-    iconPath: '/icons/icon_battle_shield.webp',
+    icon: 'endaxis:icons/icon_battle_shield',
     showInHeadBarCommon: false,
     showInHeadBarAttached: false,
     showInSquadIcon: true,

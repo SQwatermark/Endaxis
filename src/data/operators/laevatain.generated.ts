@@ -2590,7 +2590,7 @@ export const laevatainChr_0016_laevat_normal_skill_during_ult: SkillDefinition =
     { startFrame: 0, endFrame: 115, sequence: { $sequence: 'applyBuff_33' } },
   ],
   costs: [{ resource: 'sp', value: 100 }],
-  iconName: 'battle 02',
+  icon: 'endaxis:operators/laevatain/battle_02',
   skillType: 'battleSkill',
   levelSource: 'battleSkill',
   nativeSkillType: 'normalSkill',
@@ -3760,8 +3760,7 @@ const laevatainBuff10: SkillBuffDefinition = {
   durationSeconds: { blackboardKey: 'ignore_fire_resist_duration' },
   presentation: {
     visible: true,
-    iconId: 'icon_battle_laevat_potential_1',
-    iconPath: '/icons/icon_battle_laevat_potential_1.webp',
+    icon: 'endaxis:icons/icon_battle_laevat_potential_1',
     showInHeadBarCommon: false,
     showInHeadBarAttached: false,
     showInSquadIcon: true,
@@ -4645,8 +4644,7 @@ const laevatainBuff18: SkillBuffDefinition = {
   maxTriggerCount: 1,
   presentation: {
     visible: true,
-    iconId: 'icon_battle_buff_atk_up',
-    iconPath: '/icons/icon_battle_buff_atk_up.webp',
+    icon: 'endaxis:icons/icon_battle_buff_atk_up',
     showInHeadBarCommon: false,
     showInHeadBarAttached: false,
     showInSquadIcon: false,
@@ -4895,8 +4893,7 @@ const laevatainBuff21: SkillBuffDefinition = {
   durationSeconds: { blackboardKey: 'duration' },
   presentation: {
     visible: true,
-    iconId: 'icon_battle_buff_atk_up',
-    iconPath: '/icons/icon_battle_buff_atk_up.webp',
+    icon: 'endaxis:icons/icon_battle_buff_atk_up',
     showInHeadBarCommon: false,
     showInHeadBarAttached: false,
     showInSquadIcon: false,

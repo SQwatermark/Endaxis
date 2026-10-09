@@ -1,3 +1,7 @@
+import {
+  PHYSICAL_NO_GUARD_BUFF,
+  PHYSICAL_INFLICTION_BUFFS,
+} from '../../mechanics/physicalInfliction';
 import { CHARACTER_INFLICTION_BUFFS } from '../infliction/characterInfliction';
 import { valueInputBlackboardKey, stringInputExpression } from '../../compiler/compiledGraphData';
 import type { CompiledCondition } from '../../compiler/compiledGraphData.ts';
@@ -427,6 +431,8 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
       return true;
     }
     if (step.kind === 'applyPhysicalInfliction') {
+      if (step.parameters.type === 'knockDown')
+        return this.dependencies.delegate.execute(step, context);
       if (context?.skillCastInfo === undefined) {
         throw new Error('applyPhysicalInfliction requires a skill runtime context');
       }
@@ -439,7 +445,7 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
       if (step.parameters.type === 'airborne' && step.parameters.targetFilter === 'skipAll') {
         return step.parameters.returnWhen === 'always';
       }
-      const noGuardCount = target.getCountByIds([step.parameters.noGuardBuffId]);
+      const noGuardCount = target.getCountByIds([PHYSICAL_NO_GUARD_BUFF]);
       const hasNoGuard = noGuardCount > 0;
       const entersPhysicalInfliction =
         hasNoGuard || (step.parameters.type === 'airborne' && step.parameters.force);
@@ -473,8 +479,7 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
           : {};
       const request: BuffApplicationRequest = !entersPhysicalInfliction
         ? {
-            buffId: step.parameters.noGuardBuffId,
-            definition: step.parameters.noGuardDefinition,
+            buffId: PHYSICAL_NO_GUARD_BUFF,
             sourceId: this.dependencies.sourceId,
             ...(this.dependencies.sourceActionId === undefined
               ? {}
@@ -484,8 +489,7 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
           }
         : step.parameters.type === 'crush'
           ? {
-              buffId: step.parameters.crushedBuffId,
-              definition: step.parameters.crushedDefinition,
+              buffId: PHYSICAL_INFLICTION_BUFFS.crush,
               sourceId: this.dependencies.sourceId,
               ...(this.dependencies.sourceActionId === undefined
                 ? {}
@@ -495,8 +499,7 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
             }
           : step.parameters.type === 'fracture'
             ? {
-                buffId: step.parameters.fractureBuffId,
-                definition: step.parameters.fractureDefinition,
+                buffId: PHYSICAL_INFLICTION_BUFFS.fracture,
                 sourceId: this.dependencies.sourceId,
                 ...(this.dependencies.sourceActionId === undefined
                   ? {}
@@ -505,8 +508,7 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
                 skillCastInfo: context.skillCastInfo,
               }
             : {
-                buffId: step.parameters.airborneBuffId,
-                definition: step.parameters.airborneDefinition,
+                buffId: PHYSICAL_INFLICTION_BUFFS.airborne,
                 sourceId: this.dependencies.sourceId,
                 ...(this.dependencies.sourceActionId === undefined
                   ? {}
@@ -514,8 +516,15 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
                 blackboardValues: {},
                 skillCastInfo: context.skillCastInfo,
               };
+      const definition = this.dependencies.resolveBuffDefinition?.(request.buffId);
+      if (definition === undefined)
+        throw new Error(
+          `physical infliction Buff '${request.buffId}' is missing from the definition repository`,
+        );
       const applied = target.apply({
         ...request,
+        definition,
+        definitionOwnerId: this.dependencies.definitionOwnerId ?? this.dependencies.sourceId,
         physicalInflictionType: step.parameters.type,
         producedBy: operationProducer(context, {
           ownerId: this.dependencies.sourceId,

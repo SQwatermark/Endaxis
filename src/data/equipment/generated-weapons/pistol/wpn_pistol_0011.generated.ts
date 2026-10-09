@@ -161,7 +161,7 @@ const definition = {
     },
   ],
   assetSlug: 'wpn_pistol_0011',
-  iconPath: '/weapons/pistol/wpn_pistol_0011.webp',
+  icon: 'endaxis:weapons/pistol/wpn_pistol_0011',
   buffDefinitions: {
     buff_wpn_pistol_0011_valid: {
       stackingType: 'stack',
@@ -173,8 +173,7 @@ const definition = {
       maxTriggerCount: 1,
       presentation: {
         visible: true,
-        iconId: 'icon_battle_cryst_dmg_up',
-        iconPath: '/icons/icon_battle_cryst_dmg_up.webp',
+        icon: 'endaxis:icons/icon_battle_cryst_dmg_up',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
         showInSquadIcon: true,
@@ -215,8 +214,7 @@ const definition = {
       maxTriggerCount: 1,
       presentation: {
         visible: true,
-        iconId: 'icon_battle_spell_taken_up',
-        iconPath: '/icons/icon_battle_spell_taken_up.webp',
+        icon: 'endaxis:icons/icon_battle_spell_taken_up',
         showInHeadBarCommon: true,
         showInHeadBarAttached: false,
         showInSquadIcon: false,

@@ -1,3 +1,4 @@
+import { imageRefFromPath } from '../publication/imageResources.ts';
 import { isPresentationOnlyActionSequence } from '../skills/skillPresentationTargets.ts';
 import { projectGameplayTags } from '../combatProjectionCommon.ts';
 import {
@@ -770,7 +771,7 @@ export function compileBuffRuntimeDefinitionSource(
             ...compilePresentation(source.presentation),
             ...(buffPresentationIcons[source.graph.buffId]
               ? {
-                  iconPath: buffPresentationIcons[source.graph.buffId],
+                  icon: buffPresentationIcons[source.graph.buffId]!,
                   visible: true,
                   showInSquadIcon: true,
                 }
@@ -2955,7 +2956,7 @@ function compilePresentation(source: BuffPresentationSource): CompiledBuffPresen
     visible: source.hasIcon,
     ...(source.spritePath === ''
       ? {}
-      : { iconId: source.spritePath, iconPath: `/icons/${source.spritePath}.webp` }),
+      : { icon: imageRefFromPath(`/icons/${source.spritePath}.webp`) }),
     showInHeadBarCommon: source.showInHeadBarCommon,
     showInHeadBarAttached: source.showInHeadBarAttached,
     showInSquadIcon: source.showInSquadIcon,

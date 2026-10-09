@@ -43,6 +43,7 @@ export interface NativeOperatorSkillGroupSource {
   readonly skillGroupId: string;
   /** 当前 metadata 未保存枚举成员名，因此保留原生整数身份。 */
   readonly nativeGroupType: number;
+  /** 条件 ID 对应的原生图标 ID，不在来源解析阶段构造资源路径。 */
   readonly conditionIcons?: Readonly<Record<string, string>>;
   readonly skillIds: readonly string[];
 }
@@ -142,7 +143,7 @@ export function parseNativeOperatorSkillGroupSources(
         [1, 2].flatMap(index => {
           const condition = group[`conditionId${index}`];
           const icon = group[`conditionIcon${index}`];
-          return condition && icon ? [[String(condition), `/icons/${icon}.webp`]] : [];
+          return condition && icon ? [[String(condition), String(icon)]] : [];
         }),
       ),
     };

@@ -151,7 +151,7 @@ const definition = {
     },
   ],
   assetSlug: 'wpn_lance_0011',
-  iconPath: '/weapons/lance/wpn_lance_0011.webp',
+  icon: 'endaxis:weapons/lance/wpn_lance_0011',
   buffDefinitions: {
     buff_wpn_lance_0011_combo_magic_up: {
       stackingType: 'refresh',
@@ -163,8 +163,7 @@ const definition = {
       maxTriggerCount: 1,
       presentation: {
         visible: true,
-        iconId: 'icon_battle_spell_up',
-        iconPath: '/icons/icon_battle_spell_up.webp',
+        icon: 'endaxis:icons/icon_battle_spell_up',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
         showInSquadIcon: true,
@@ -220,8 +219,7 @@ const definition = {
       maxTriggerCount: 1,
       presentation: {
         visible: true,
-        iconId: 'icon_battle_spell_up',
-        iconPath: '/icons/icon_battle_spell_up.webp',
+        icon: 'endaxis:icons/icon_battle_spell_up',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
         showInSquadIcon: true,

@@ -3,7 +3,7 @@ import type { GearSetDefinition } from '../../../core/game-data/equipmentDefinit
 
 const definition = {
   slug: 'suit_combo_cd01',
-  iconPath: '/equipment/combo_cd01/item_equip_t4_suit_combo_cd01_body_01.webp',
+  icon: 'endaxis:equipment/combo_cd01/item_equip_t4_suit_combo_cd01_body_01',
   modifiers: [{ kind: 'skillCooldownMultiplier', skillTypes: 'comboSkill', value: 0.85 }],
   actionGraph: {
     main: {
@@ -93,8 +93,7 @@ const definition = {
       maxTriggerCount: 1,
       presentation: {
         visible: true,
-        iconId: 'icon_battle_buff_atk_up',
-        iconPath: '/icons/icon_battle_buff_atk_up.webp',
+        icon: 'endaxis:icons/icon_battle_buff_atk_up',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
         showInSquadIcon: true,

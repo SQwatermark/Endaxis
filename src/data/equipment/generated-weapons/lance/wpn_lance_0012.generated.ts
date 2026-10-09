@@ -242,7 +242,7 @@ const definition = {
     },
   ],
   assetSlug: 'wpn_lance_0012',
-  iconPath: '/weapons/lance/wpn_lance_0012.webp',
+  icon: 'endaxis:weapons/lance/wpn_lance_0012',
   buffDefinitions: {
     buff_wpn_lance_0012_attribute: {
       stackingType: 'refresh',
@@ -251,8 +251,7 @@ const definition = {
       durationSeconds: { blackboardKey: 'duration' },
       presentation: {
         visible: true,
-        iconId: 'icon_battle_primary_attribute_all_up',
-        iconPath: '/icons/icon_battle_primary_attribute_all_up.webp',
+        icon: 'endaxis:icons/icon_battle_primary_attribute_all_up',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
         showInSquadIcon: true,
@@ -289,8 +288,7 @@ const definition = {
       durationSeconds: { blackboardKey: 'duration' },
       presentation: {
         visible: true,
-        iconId: 'icon_battle_primary_attribute_all_up',
-        iconPath: '/icons/icon_battle_primary_attribute_all_up.webp',
+        icon: 'endaxis:icons/icon_battle_primary_attribute_all_up',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
         showInSquadIcon: true,

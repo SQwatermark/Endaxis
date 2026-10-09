@@ -376,7 +376,7 @@ describe('BuffDefinitionOperationTarget', () => {
     const firstDefinition = {
       stackingType: 'refresh',
       durationSeconds: 5,
-      presentation: { iconPath: '/icons/buffs/shared.webp' },
+      presentation: { icon: 'endaxis:icons/buffs/shared' },
     } as const;
     const secondDefinition = { stackingType: 'refresh', durationSeconds: 9 } as const;
     target.apply({
@@ -396,7 +396,7 @@ describe('BuffDefinitionOperationTarget', () => {
     expect(container.buffs).toHaveLength(1);
     expect(instance.definition.durationSeconds).toBe(5);
     expect(instance.definition.presentation).toEqual({
-      iconPath: '/icons/buffs/shared.webp',
+      icon: 'endaxis:icons/buffs/shared',
     });
     expect(instance.remainingDuration).toBe(9);
     // 展示元数据跟随最终运行时定义，但不会污染只负责战斗语义的外部定义编译器输入。

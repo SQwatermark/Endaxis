@@ -155,7 +155,7 @@ export interface WeaponDefinition {
   /** 仅用于定位图标/本地化等展示资源；资源复用不得改变 slug 身份。 */
   readonly assetSlug?: string;
   /** 与语言无关的展示资源；名称和描述仍由 locale family 按需解析。 */
-  readonly iconPath?: string;
+  readonly icon?: import('./images.ts').ImageRef;
   /** 武器星级。 */
   readonly rarity: WeaponRarity;
   /** 可装备这把武器的干员武器类型。 */
@@ -195,7 +195,7 @@ export interface GearDefinition {
   /** 仅用于定位图标/本地化等展示资源；共用 iconId 不得改变 slug 身份。 */
   readonly assetSlug?: string;
   /** 与语言无关的展示资源；名称和描述仍由 locale family 按需解析。 */
-  readonly iconPath?: string;
+  readonly icon?: import('./images.ts').ImageRef;
   /** 这件装备占用的槽位。 */
   readonly slotType: GearSlotType;
   /** 可以穿戴这件装备的最低干员等级。 */
@@ -222,5 +222,5 @@ export interface GearSetDefinition extends EquipmentContributionDefinition {
   /** 缺少本地化资源时可使用的套装名称。 */
   readonly displayName?: string;
   /** 套装效果在时间轴上的展示图标；独立于效果自身的原生图标。 */
-  readonly iconPath?: string;
+  readonly icon?: import('./images.ts').ImageRef;
 }

@@ -14,12 +14,16 @@ describe('干员展示形态', () => {
     );
     expect(new Set(bindings.map(({ skill }) => skill.skillType)).size).toBe(3);
     for (const binding of bindings) {
-      expect(binding.skill.iconName).toBeUndefined();
+      expect(binding.skill.icon).toBeUndefined();
       expect(
         resolveOperatorSkillIcon(
           {
             ...binding,
-            skill: { ...binding.skill, iconName: 'battle 02', useSkillGroupIcon: true },
+            skill: {
+              ...binding.skill,
+              icon: 'endaxis:operators/alesh/battle_02',
+              useSkillGroupIcon: true,
+            },
           },
           null,
           alesh,

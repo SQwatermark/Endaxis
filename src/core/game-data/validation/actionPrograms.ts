@@ -68,7 +68,7 @@ import {
 import { validateCombatCondition } from './combatConditions';
 import { validateGraphDataReferences } from '../../action-graph/actionGraphData';
 import type { ActionGraphDefinition } from '../../../../packages/game-data-contract/src/actionGraph';
-import { validateBuffApplication, validateBuffDefinition } from './buffApplication';
+import { validateBuffApplication } from './buffApplication';
 import { NATIVE_SKILL_TYPES_SET, COMBAT_RESOURCES_SET } from './definitionValues';
 
 const STEP_KINDS = new Set<string>(COMBAT_STEP_KINDS);
@@ -937,26 +937,6 @@ function validateCombatStep(
         push(out, `${path}.parameters.target`, "expected 'enemy' or 'buffOwner'");
       }
       break;
-    case 'applyKnockDown':
-      if (parameters.target !== 'enemy') push(out, `${path}.parameters.target`, "expected 'enemy'");
-      validateActionValueOperand(parameters.duration, `${path}.parameters.duration`, out);
-      requireBoolean(parameters, 'force', `${path}.parameters`, out);
-      requireBoolean(parameters, 'isExtra', `${path}.parameters`, out);
-      requireEnum(
-        parameters,
-        'targetFilter',
-        new Set(['aliveOnly', 'skipAll']),
-        `${path}.parameters`,
-        out,
-      );
-      requireEnum(
-        parameters,
-        'returnWhen',
-        new Set(['always', 'successAndInterrupted', 'success', 'interrupted']),
-        `${path}.parameters`,
-        out,
-      );
-      break;
     case 'triggerSpellBurst':
       requireEnum(
         parameters,
@@ -1404,27 +1384,19 @@ function validateCombatStep(
       if (
         parameters.type !== 'fracture' &&
         parameters.type !== 'crush' &&
-        parameters.type !== 'airborne'
+        parameters.type !== 'airborne' &&
+        parameters.type !== 'knockDown'
       ) {
-        push(out, `${path}.parameters.type`, "expected 'fracture', 'crush', or 'airborne'");
+        push(
+          out,
+          `${path}.parameters.type`,
+          "expected 'fracture', 'crush', 'airborne', or 'knockDown'",
+        );
       }
       if (parameters.target !== 'enemy') {
         push(out, `${path}.parameters.target`, "expected 'enemy'");
       }
       requireBoolean(parameters, 'isExtra', `${path}.parameters`, out);
-      const noGuardBuffId = requireString(parameters, 'noGuardBuffId', `${path}.parameters`, out);
-      const statusBuffId =
-        parameters.type === 'crush'
-          ? requireString(parameters, 'crushedBuffId', `${path}.parameters`, out)
-          : parameters.type === 'airborne'
-            ? requireString(parameters, 'airborneBuffId', `${path}.parameters`, out)
-            : requireString(parameters, 'fractureBuffId', `${path}.parameters`, out);
-      const statusDefinitionKey =
-        parameters.type === 'crush'
-          ? 'crushedDefinition'
-          : parameters.type === 'airborne'
-            ? 'airborneDefinition'
-            : 'fractureDefinition';
       if (parameters.type === 'crush') {
         validateActionValueOperand(
           parameters.damageMultiplier,
@@ -1433,10 +1405,12 @@ function validateCombatStep(
         );
         requireBoolean(parameters, 'ignoreHitEffect', `${path}.parameters`, out);
       }
-      if (parameters.type === 'airborne') {
+      if (parameters.type === 'airborne' || parameters.type === 'knockDown') {
         validateActionValueOperand(parameters.duration, `${path}.parameters.duration`, out);
-        validateActionValueOperand(parameters.height, `${path}.parameters.height`, out);
-        requireFiniteNumber(parameters, 'speedFactorMultiplier', `${path}.parameters`, out);
+        if (parameters.type === 'airborne') {
+          validateActionValueOperand(parameters.height, `${path}.parameters.height`, out);
+          requireFiniteNumber(parameters, 'speedFactorMultiplier', `${path}.parameters`, out);
+        }
         requireBoolean(parameters, 'force', `${path}.parameters`, out);
         requireEnum(
           parameters,
@@ -1452,27 +1426,6 @@ function validateCombatStep(
           `${path}.parameters`,
           out,
         );
-      }
-      for (const [definitionKey, buffId] of [
-        ['noGuardDefinition', noGuardBuffId],
-        [statusDefinitionKey, statusBuffId],
-      ] as const) {
-        if (buffId === null) continue;
-        if (parameters[definitionKey] !== undefined)
-          validateBuffDefinition(
-            parameters[definitionKey],
-            buffId,
-            `${path}.parameters.${definitionKey}`,
-            out,
-            {
-              action: validateActionGraphReference,
-              scheduled: validateScheduledSequence,
-              graph: (value, path, issues) =>
-                issues.push(...validateActionGraphActions(value, path)),
-              contexts: (value, path, entries, issues) =>
-                validateActionGraphContexts(value, path, entries, issues),
-            },
-          );
       }
       break;
     }

@@ -7,6 +7,6 @@ export interface ContingencyContractTagDefinition {
   readonly keyId: string;
   readonly lockIds: readonly string[];
   readonly romanNumSuffix: string;
-  readonly iconPath: string;
+  readonly icon: import('./images.ts').ImageRef;
   readonly blackboard: Readonly<Record<string, number>>;
 }

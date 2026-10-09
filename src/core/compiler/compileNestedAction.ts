@@ -12,11 +12,7 @@ import {
 } from './compileProgramDefinitions';
 
 export type NestedActionKind =
-  | 'startCurrentAbilityEntityChildSkill'
-  | 'launchProjectile'
-  | 'spawnAbilityEntity'
-  | 'applyBuff'
-  | 'applyPhysicalInfliction';
+  'startCurrentAbilityEntityChildSkill' | 'launchProjectile' | 'spawnAbilityEntity' | 'applyBuff';
 export function isNestedAction<Step extends { kind: CombatStepKind }>(
   step: Step,
 ): step is Extract<Step, { kind: NestedActionKind }> {
@@ -24,8 +20,7 @@ export function isNestedAction<Step extends { kind: CombatStepKind }>(
     step.kind === 'startCurrentAbilityEntityChildSkill' ||
     step.kind === 'launchProjectile' ||
     step.kind === 'spawnAbilityEntity' ||
-    step.kind === 'applyBuff' ||
-    step.kind === 'applyPhysicalInfliction'
+    step.kind === 'applyBuff'
   );
 }
 export function compileNestedAction(
@@ -122,57 +117,6 @@ export function compileNestedAction(
                   ]),
                 ),
               }),
-        },
-      };
-    }
-
-    case 'applyPhysicalInfliction': {
-      const { noGuardDefinition, ...parameters } = step.parameters;
-      const resolvedNoGuard = definitions.buff(
-        noGuardDefinition,
-        `${path}.parameters.noGuardDefinition`,
-      );
-      if (parameters.type === 'crush') {
-        const { crushedDefinition, ...crushParameters } = parameters;
-        return {
-          ...keyed,
-          kind: step.kind,
-          parameters: {
-            ...crushParameters,
-            noGuardDefinition: resolvedNoGuard,
-            crushedDefinition: definitions.buff(
-              crushedDefinition,
-              `${path}.parameters.crushedDefinition`,
-            ),
-          },
-        };
-      }
-      if (parameters.type === 'airborne') {
-        const { airborneDefinition, ...airborneParameters } = parameters;
-        return {
-          ...keyed,
-          kind: step.kind,
-          parameters: {
-            ...airborneParameters,
-            noGuardDefinition: resolvedNoGuard,
-            airborneDefinition: definitions.buff(
-              airborneDefinition,
-              `${path}.parameters.airborneDefinition`,
-            ),
-          },
-        };
-      }
-      const { fractureDefinition, ...fractureParameters } = parameters;
-      return {
-        ...keyed,
-        kind: step.kind,
-        parameters: {
-          ...fractureParameters,
-          noGuardDefinition: resolvedNoGuard,
-          fractureDefinition: definitions.buff(
-            fractureDefinition,
-            `${path}.parameters.fractureDefinition`,
-          ),
         },
       };
     }

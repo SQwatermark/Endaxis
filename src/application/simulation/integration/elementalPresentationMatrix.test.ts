@@ -235,7 +235,7 @@ it.each(compoundStatusFactories.factories)(
       { frame: head.endFrame, kind: 'attachmentTrigger', element: factory.incomingElement },
     ]);
     expect(segments.filter(s => attachmentIds.has(s.buffId))).toHaveLength(1);
-    expect(Boolean(tail.iconPath || tail.iconId)).toBe(true);
+    expect(Boolean(tail.icon)).toBe(true);
     expect(resolveBuffDisplayName(tail.buffId, { te: () => true, t: key => key })).toMatch(
       /^effects.name\./,
     );

@@ -169,7 +169,7 @@ const definition = {
     },
   ],
   assetSlug: 'wpn_sword_0013',
-  iconPath: '/weapons/sword/wpn_sword_0013.webp',
+  icon: 'endaxis:weapons/sword/wpn_sword_0013',
   buffDefinitions: {
     buff_wpn_sword_0013_atk_up: {
       stackingType: 'highPriority',
@@ -181,8 +181,7 @@ const definition = {
       maxTriggerCount: 1,
       presentation: {
         visible: true,
-        iconId: 'icon_battle_buff_atk_up',
-        iconPath: '/icons/icon_battle_buff_atk_up.webp',
+        icon: 'endaxis:icons/icon_battle_buff_atk_up',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
         showInSquadIcon: true,

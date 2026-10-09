@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import ImageReferenceField from '../field-editor/ImageReferenceField.vue';
 import { spawnDefinitionResources } from '../field-editor/spawnDefinitionSchema';
 import { graphSequenceBoundaries } from '../field-editor/graphSequenceContainerSchema';
 import type { ActionGraphDefinition } from '../../../packages/game-data-contract/src/actionGraph';
@@ -471,6 +472,14 @@ defineExpose({ apply });
         :reference-choices="collectionChoices(field)"
         @change="changeStructured(field, $event)"
         @discard="discardStructured(field)"
+      />
+      <ImageReferenceField
+        v-else-if="fieldEditor(field).control === 'image'"
+        :value="displayedValue(field)"
+        :readonly="readonly"
+        :optional="field.valueSchema.optional"
+        :label="fieldName(field.path, kind)"
+        @change="changeStructured(field, $event)"
       />
       <GameplayTagField
         v-else-if="fieldEditor(field).control === 'gameplayTag'"

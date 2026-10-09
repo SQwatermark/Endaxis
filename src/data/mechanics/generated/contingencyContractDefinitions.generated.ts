@@ -17,8 +17,7 @@ const commonBuff1: SkillBuffDefinition = {
   maxStackCount: 1,
   presentation: {
     visible: true,
-    iconId: 'icon_battle_atb_down',
-    iconPath: '/icons/icon_battle_atb_down.webp',
+    icon: 'endaxis:icons/icon_battle_atb_down',
     showInHeadBarCommon: false,
     showInHeadBarAttached: false,
     showInSquadIcon: true,
@@ -278,8 +277,7 @@ const commonBuff5: SkillBuffDefinition = {
   durationSeconds: { blackboardKey: 'duration' },
   presentation: {
     visible: true,
-    iconId: 'icon_battle_cryst_dmg_down',
-    iconPath: '/icons/icon_battle_cryst_dmg_down.webp',
+    icon: 'endaxis:icons/icon_battle_cryst_dmg_down',
     showInHeadBarCommon: false,
     showInHeadBarAttached: false,
     showInSquadIcon: true,
@@ -518,8 +516,7 @@ const commonBuff7: SkillBuffDefinition = {
   durationSeconds: { blackboardKey: 'duration' },
   presentation: {
     visible: true,
-    iconId: 'icon_battle_fire_dmg_down',
-    iconPath: '/icons/icon_battle_fire_dmg_down.webp',
+    icon: 'endaxis:icons/icon_battle_fire_dmg_down',
     showInHeadBarCommon: false,
     showInHeadBarAttached: false,
     showInSquadIcon: true,
@@ -1415,8 +1412,7 @@ const commonBuff17: SkillBuffDefinition = {
   durationSeconds: { blackboardKey: 'duration' },
   presentation: {
     visible: true,
-    iconId: 'icon_battle_natural_dmg_down',
-    iconPath: '/icons/icon_battle_natural_dmg_down.webp',
+    icon: 'endaxis:icons/icon_battle_natural_dmg_down',
     showInHeadBarCommon: false,
     showInHeadBarAttached: false,
     showInSquadIcon: true,
@@ -1668,8 +1664,7 @@ const commonBuff20: SkillBuffDefinition = {
   durationSeconds: { blackboardKey: 'duration' },
   presentation: {
     visible: true,
-    iconId: 'icon_battle_buff_chr_no_lastcombo_stop_atb_recove',
-    iconPath: '/icons/icon_battle_buff_chr_no_lastcombo_stop_atb_recove.webp',
+    icon: 'endaxis:icons/icon_battle_buff_chr_no_lastcombo_stop_atb_recove',
     showInHeadBarCommon: false,
     showInHeadBarAttached: false,
     showInSquadIcon: true,
@@ -1962,8 +1957,7 @@ const commonBuff25: SkillBuffDefinition = {
   durationSeconds: { blackboardKey: 'duration' },
   presentation: {
     visible: true,
-    iconId: 'icon_battle_physical_dmg_down',
-    iconPath: '/icons/icon_battle_physical_dmg_down.webp',
+    icon: 'endaxis:icons/icon_battle_physical_dmg_down',
     showInHeadBarCommon: false,
     showInHeadBarAttached: false,
     showInSquadIcon: true,
@@ -2170,8 +2164,7 @@ const commonBuff28: SkillBuffDefinition = {
   durationSeconds: { blackboardKey: 'duration' },
   presentation: {
     visible: true,
-    iconId: 'icon_battle_pulse_dmg_down',
-    iconPath: '/icons/icon_battle_pulse_dmg_down.webp',
+    icon: 'endaxis:icons/icon_battle_pulse_dmg_down',
     showInHeadBarCommon: false,
     showInHeadBarAttached: false,
     showInSquadIcon: true,
@@ -4449,8 +4442,7 @@ const commonBuff50: SkillBuffDefinition = {
   durationSeconds: { blackboardKey: 'duration' },
   presentation: {
     visible: true,
-    iconId: 'icon_battle_eny_resist_inflict_cryst',
-    iconPath: '/icons/icon_battle_eny_resist_inflict_cryst.webp',
+    icon: 'endaxis:icons/icon_battle_eny_resist_inflict_cryst',
     showInHeadBarCommon: true,
     showInHeadBarAttached: false,
     showInSquadIcon: false,
@@ -4488,8 +4480,7 @@ const commonBuff51: SkillBuffDefinition = {
   durationSeconds: { blackboardKey: 'duration' },
   presentation: {
     visible: true,
-    iconId: 'icon_battle_eny_resist_inflict_fire',
-    iconPath: '/icons/icon_battle_eny_resist_inflict_fire.webp',
+    icon: 'endaxis:icons/icon_battle_eny_resist_inflict_fire',
     showInHeadBarCommon: true,
     showInHeadBarAttached: false,
     showInSquadIcon: false,
@@ -4527,8 +4518,7 @@ const commonBuff52: SkillBuffDefinition = {
   durationSeconds: { blackboardKey: 'duration' },
   presentation: {
     visible: true,
-    iconId: 'icon_battle_eny_resist_inflict_natural',
-    iconPath: '/icons/icon_battle_eny_resist_inflict_natural.webp',
+    icon: 'endaxis:icons/icon_battle_eny_resist_inflict_natural',
     showInHeadBarCommon: true,
     showInHeadBarAttached: false,
     showInSquadIcon: false,
@@ -4566,8 +4556,7 @@ const commonBuff53: SkillBuffDefinition = {
   durationSeconds: { blackboardKey: 'duration' },
   presentation: {
     visible: true,
-    iconId: 'icon_battle_eny_resist_inflict_phy',
-    iconPath: '/icons/icon_battle_eny_resist_inflict_phy.webp',
+    icon: 'endaxis:icons/icon_battle_eny_resist_inflict_phy',
     showInHeadBarCommon: true,
     showInHeadBarAttached: false,
     showInSquadIcon: false,
@@ -4605,8 +4594,7 @@ const commonBuff54: SkillBuffDefinition = {
   durationSeconds: { blackboardKey: 'duration' },
   presentation: {
     visible: true,
-    iconId: 'icon_battle_eny_resist_inflict_pulse',
-    iconPath: '/icons/icon_battle_eny_resist_inflict_pulse.webp',
+    icon: 'endaxis:icons/icon_battle_eny_resist_inflict_pulse',
     showInHeadBarCommon: true,
     showInHeadBarAttached: false,
     showInSquadIcon: false,
@@ -4706,8 +4694,7 @@ const commonBuff55: SkillBuffDefinition = {
   durationSeconds: { blackboardKey: 'duration' },
   presentation: {
     visible: true,
-    iconId: 'icon_energy_fusion_cryst',
-    iconPath: '/icons/icon_energy_fusion_cryst.webp',
+    icon: 'endaxis:icons/icon_energy_fusion_cryst',
     showInHeadBarCommon: false,
     showInHeadBarAttached: true,
     showInSquadIcon: true,
@@ -4806,8 +4793,7 @@ const commonBuff56: SkillBuffDefinition = {
   maxTriggerCount: 1,
   presentation: {
     visible: true,
-    iconId: 'icon_battle_frozen',
-    iconPath: '/icons/icon_battle_frozen.webp',
+    icon: 'endaxis:icons/icon_battle_frozen',
     showInHeadBarCommon: true,
     showInHeadBarAttached: false,
     showInSquadIcon: true,
@@ -4960,7 +4946,7 @@ export const contingencyContractTagDefinitions = Object.freeze<
     keyId: '',
     lockIds: [],
     romanNumSuffix: 'Ⅰ',
-    iconPath: '/contingency_contract/1/icon_activity_contract_tag_302.webp',
+    icon: 'endaxis:contingency_contract/1/icon_activity_contract_tag_302',
     blackboard: {
       attr: 0.9,
     },
@@ -4973,7 +4959,7 @@ export const contingencyContractTagDefinitions = Object.freeze<
     keyId: '',
     lockIds: [],
     romanNumSuffix: 'Ⅱ',
-    iconPath: '/contingency_contract/1/icon_activity_contract_tag_303.webp',
+    icon: 'endaxis:contingency_contract/1/icon_activity_contract_tag_303',
     blackboard: {
       attr: 0.8,
     },
@@ -4986,7 +4972,7 @@ export const contingencyContractTagDefinitions = Object.freeze<
     keyId: '',
     lockIds: [],
     romanNumSuffix: 'Ⅲ',
-    iconPath: '/contingency_contract/1/icon_activity_contract_tag_304.webp',
+    icon: 'endaxis:contingency_contract/1/icon_activity_contract_tag_304',
     blackboard: {
       attr: 0.6,
     },
@@ -4999,7 +4985,7 @@ export const contingencyContractTagDefinitions = Object.freeze<
     keyId: '',
     lockIds: [],
     romanNumSuffix: 'Ⅰ',
-    iconPath: '/contingency_contract/1/icon_activity_contract_tag_101.webp',
+    icon: 'endaxis:contingency_contract/1/icon_activity_contract_tag_101',
     blackboard: {
       dmg_up: 0.3,
     },
@@ -5012,7 +4998,7 @@ export const contingencyContractTagDefinitions = Object.freeze<
     keyId: '',
     lockIds: [],
     romanNumSuffix: 'Ⅱ',
-    iconPath: '/contingency_contract/1/icon_activity_contract_tag_102.webp',
+    icon: 'endaxis:contingency_contract/1/icon_activity_contract_tag_102',
     blackboard: {
       dmg_up: 0.8,
     },
@@ -5025,7 +5011,7 @@ export const contingencyContractTagDefinitions = Object.freeze<
     keyId: '',
     lockIds: [],
     romanNumSuffix: 'Ⅰ',
-    iconPath: '/contingency_contract/1/icon_activity_contract_tag_111_2.webp',
+    icon: 'endaxis:contingency_contract/1/icon_activity_contract_tag_111_2',
     blackboard: {
       time: -100,
     },
@@ -5038,7 +5024,7 @@ export const contingencyContractTagDefinitions = Object.freeze<
     keyId: '',
     lockIds: [],
     romanNumSuffix: 'Ⅱ',
-    iconPath: '/contingency_contract/1/icon_activity_contract_tag_112_2.webp',
+    icon: 'endaxis:contingency_contract/1/icon_activity_contract_tag_112_2',
     blackboard: {
       time: -200,
     },
@@ -5051,7 +5037,7 @@ export const contingencyContractTagDefinitions = Object.freeze<
     keyId: '',
     lockIds: [],
     romanNumSuffix: 'Ⅲ',
-    iconPath: '/contingency_contract/1/icon_activity_contract_tag_301.webp',
+    icon: 'endaxis:contingency_contract/1/icon_activity_contract_tag_301',
     blackboard: {
       time: -300,
     },
@@ -5064,7 +5050,7 @@ export const contingencyContractTagDefinitions = Object.freeze<
     keyId: '',
     lockIds: [],
     romanNumSuffix: 'Ⅰ',
-    iconPath: '/contingency_contract/1/icon_activity_contract_tag_114.webp',
+    icon: 'endaxis:contingency_contract/1/icon_activity_contract_tag_114',
     blackboard: {
       hp_up: 1.5,
     },
@@ -5077,7 +5063,7 @@ export const contingencyContractTagDefinitions = Object.freeze<
     keyId: '',
     lockIds: [],
     romanNumSuffix: 'Ⅱ',
-    iconPath: '/contingency_contract/1/icon_activity_contract_tag_115.webp',
+    icon: 'endaxis:contingency_contract/1/icon_activity_contract_tag_115',
     blackboard: {
       hp_up: 2,
     },
@@ -5090,7 +5076,7 @@ export const contingencyContractTagDefinitions = Object.freeze<
     keyId: '',
     lockIds: [],
     romanNumSuffix: 'Ⅲ',
-    iconPath: '/contingency_contract/1/icon_activity_contract_tag_116.webp',
+    icon: 'endaxis:contingency_contract/1/icon_activity_contract_tag_116',
     blackboard: {
       hp_up: 3,
     },
@@ -5103,7 +5089,7 @@ export const contingencyContractTagDefinitions = Object.freeze<
     keyId: '',
     lockIds: [],
     romanNumSuffix: 'Ⅰ',
-    iconPath: '/contingency_contract/1/icon_activity_contract_tag_122.webp',
+    icon: 'endaxis:contingency_contract/1/icon_activity_contract_tag_122',
     blackboard: {
       dmg_scale: -0.45,
     },
@@ -5116,7 +5102,7 @@ export const contingencyContractTagDefinitions = Object.freeze<
     keyId: '',
     lockIds: [],
     romanNumSuffix: 'Ⅱ',
-    iconPath: '/contingency_contract/1/icon_activity_contract_tag_123.webp',
+    icon: 'endaxis:contingency_contract/1/icon_activity_contract_tag_123',
     blackboard: {
       dmg_scale: -0.9,
     },
@@ -5129,7 +5115,7 @@ export const contingencyContractTagDefinitions = Object.freeze<
     keyId: '',
     lockIds: [],
     romanNumSuffix: 'Ⅰ',
-    iconPath: '/contingency_contract/1/icon_activity_contract_tag_117.webp',
+    icon: 'endaxis:contingency_contract/1/icon_activity_contract_tag_117',
     blackboard: {
       dmg_scale: 0.5,
     },
@@ -5142,7 +5128,7 @@ export const contingencyContractTagDefinitions = Object.freeze<
     keyId: '',
     lockIds: [],
     romanNumSuffix: 'Ⅱ',
-    iconPath: '/contingency_contract/1/icon_activity_contract_tag_118.webp',
+    icon: 'endaxis:contingency_contract/1/icon_activity_contract_tag_118',
     blackboard: {
       dmg_scale: 1,
     },
@@ -5155,7 +5141,7 @@ export const contingencyContractTagDefinitions = Object.freeze<
     keyId: '',
     lockIds: [],
     romanNumSuffix: '',
-    iconPath: '/contingency_contract/1/icon_activity_contract_tag_103.webp',
+    icon: 'endaxis:contingency_contract/1/icon_activity_contract_tag_103',
     blackboard: {
       ratio: -0.5,
     },
@@ -5168,7 +5154,7 @@ export const contingencyContractTagDefinitions = Object.freeze<
     keyId: '',
     lockIds: [],
     romanNumSuffix: '',
-    iconPath: '/contingency_contract/1/icon_activity_contract_tag_104.webp',
+    icon: 'endaxis:contingency_contract/1/icon_activity_contract_tag_104',
     blackboard: {},
   },
   {
@@ -5179,7 +5165,7 @@ export const contingencyContractTagDefinitions = Object.freeze<
     keyId: '',
     lockIds: [],
     romanNumSuffix: 'Ⅰ',
-    iconPath: '/contingency_contract/1/icon_activity_contract_tag_107.webp',
+    icon: 'endaxis:contingency_contract/1/icon_activity_contract_tag_107',
     blackboard: {
       num: -2,
     },
@@ -5192,7 +5178,7 @@ export const contingencyContractTagDefinitions = Object.freeze<
     keyId: '',
     lockIds: [],
     romanNumSuffix: 'Ⅱ',
-    iconPath: '/contingency_contract/1/icon_activity_contract_tag_108.webp',
+    icon: 'endaxis:contingency_contract/1/icon_activity_contract_tag_108',
     blackboard: {
       num: -3,
     },
@@ -5205,7 +5191,7 @@ export const contingencyContractTagDefinitions = Object.freeze<
     keyId: '',
     lockIds: [],
     romanNumSuffix: 'Ⅰ',
-    iconPath: '/contingency_contract/1/icon_activity_contract_tag_207.webp',
+    icon: 'endaxis:contingency_contract/1/icon_activity_contract_tag_207',
     blackboard: {
       dmg_scale_per_layer: -0.5,
     },
@@ -5218,7 +5204,7 @@ export const contingencyContractTagDefinitions = Object.freeze<
     keyId: '',
     lockIds: [],
     romanNumSuffix: 'Ⅱ',
-    iconPath: '/contingency_contract/1/icon_activity_contract_tag_208.webp',
+    icon: 'endaxis:contingency_contract/1/icon_activity_contract_tag_208',
     blackboard: {
       dmg_scale_per_layer: -1,
     },
@@ -5231,7 +5217,7 @@ export const contingencyContractTagDefinitions = Object.freeze<
     keyId: '',
     lockIds: [],
     romanNumSuffix: '',
-    iconPath: '/contingency_contract/1/icon_activity_contract_tag_124.webp',
+    icon: 'endaxis:contingency_contract/1/icon_activity_contract_tag_124',
     blackboard: {
       duration: 5,
     },
@@ -5244,7 +5230,7 @@ export const contingencyContractTagDefinitions = Object.freeze<
     keyId: '',
     lockIds: [],
     romanNumSuffix: '',
-    iconPath: '/contingency_contract/1/icon_activity_contract_tag_136.webp',
+    icon: 'endaxis:contingency_contract/1/icon_activity_contract_tag_136',
     blackboard: {
       speedup_scale: 2,
       dmg_scale: 0.25,
@@ -5258,7 +5244,7 @@ export const contingencyContractTagDefinitions = Object.freeze<
     keyId: '',
     lockIds: [],
     romanNumSuffix: '',
-    iconPath: '/contingency_contract/1/icon_activity_contract_tag_209.webp',
+    icon: 'endaxis:contingency_contract/1/icon_activity_contract_tag_209',
     blackboard: {
       dmg_scale: -0.7,
     },
@@ -5271,7 +5257,7 @@ export const contingencyContractTagDefinitions = Object.freeze<
     keyId: '',
     lockIds: [],
     romanNumSuffix: '',
-    iconPath: '/contingency_contract/1/icon_activity_contract_tag_312.webp',
+    icon: 'endaxis:contingency_contract/1/icon_activity_contract_tag_312',
     blackboard: {
       ratio: -1,
       duration: 12,
@@ -5285,7 +5271,7 @@ export const contingencyContractTagDefinitions = Object.freeze<
     keyId: '',
     lockIds: [],
     romanNumSuffix: '',
-    iconPath: '/contingency_contract/1/icon_activity_contract_tag_307.webp',
+    icon: 'endaxis:contingency_contract/1/icon_activity_contract_tag_307',
     blackboard: {
       chr_heal_ratio: 0.1,
       eny_heal_ratio: 0.08,
@@ -5300,7 +5286,7 @@ export const contingencyContractTagDefinitions = Object.freeze<
     keyId: '',
     lockIds: [],
     romanNumSuffix: '',
-    iconPath: '/contingency_contract/1/icon_activity_contract_tag_127.webp',
+    icon: 'endaxis:contingency_contract/1/icon_activity_contract_tag_127',
     blackboard: {
       hp_down_ratio: 0.5,
       hp_down_ratio_melee: 0.3,
@@ -5314,7 +5300,7 @@ export const contingencyContractTagDefinitions = Object.freeze<
     keyId: 'key2',
     lockIds: [],
     romanNumSuffix: '',
-    iconPath: '/contingency_contract/1/icon_activity_contract_tag_201.webp',
+    icon: 'endaxis:contingency_contract/1/icon_activity_contract_tag_201',
     blackboard: {
       cd_scale: 0.4,
       dmg_scale: -0.6,
@@ -5328,7 +5314,7 @@ export const contingencyContractTagDefinitions = Object.freeze<
     keyId: 'key2',
     lockIds: [],
     romanNumSuffix: '',
-    iconPath: '/contingency_contract/1/icon_activity_contract_tag_306.webp',
+    icon: 'endaxis:contingency_contract/1/icon_activity_contract_tag_306',
     blackboard: {
       dmg_up: 1,
       dmg_scale: -0.6,
@@ -5342,7 +5328,7 @@ export const contingencyContractTagDefinitions = Object.freeze<
     keyId: '',
     lockIds: ['key2'],
     romanNumSuffix: '',
-    iconPath: '/contingency_contract/1/icon_activity_contract_tag_308.webp',
+    icon: 'endaxis:contingency_contract/1/icon_activity_contract_tag_308',
     blackboard: {
       dmg_scale: -0.1,
     },
@@ -5355,7 +5341,7 @@ export const contingencyContractTagDefinitions = Object.freeze<
     keyId: '',
     lockIds: ['key2'],
     romanNumSuffix: '',
-    iconPath: '/contingency_contract/1/icon_activity_contract_tag_125.webp',
+    icon: 'endaxis:contingency_contract/1/icon_activity_contract_tag_125',
     blackboard: {},
   },
   {
@@ -5366,7 +5352,7 @@ export const contingencyContractTagDefinitions = Object.freeze<
     keyId: '',
     lockIds: ['key2'],
     romanNumSuffix: 'Ⅰ',
-    iconPath: '/contingency_contract/1/icon_activity_contract_tag_129.webp',
+    icon: 'endaxis:contingency_contract/1/icon_activity_contract_tag_129',
     blackboard: {
       atk_scale: 0.02,
     },
@@ -5379,7 +5365,7 @@ export const contingencyContractTagDefinitions = Object.freeze<
     keyId: '',
     lockIds: ['key2'],
     romanNumSuffix: 'Ⅱ',
-    iconPath: '/contingency_contract/1/icon_activity_contract_tag_130.webp',
+    icon: 'endaxis:contingency_contract/1/icon_activity_contract_tag_130',
     blackboard: {
       atk_scale: 0.05,
     },
@@ -5392,7 +5378,7 @@ export const contingencyContractTagDefinitions = Object.freeze<
     keyId: '',
     lockIds: ['key2'],
     romanNumSuffix: 'Ⅰ',
-    iconPath: '/contingency_contract/1/icon_activity_contract_tag_203.webp',
+    icon: 'endaxis:contingency_contract/1/icon_activity_contract_tag_203',
     blackboard: {
       times: 2,
     },
@@ -5405,7 +5391,7 @@ export const contingencyContractTagDefinitions = Object.freeze<
     keyId: '',
     lockIds: ['key2'],
     romanNumSuffix: 'Ⅱ',
-    iconPath: '/contingency_contract/1/icon_activity_contract_tag_204.webp',
+    icon: 'endaxis:contingency_contract/1/icon_activity_contract_tag_204',
     blackboard: {
       times: 1,
     },
@@ -5418,7 +5404,7 @@ export const contingencyContractTagDefinitions = Object.freeze<
     keyId: '',
     lockIds: ['key2'],
     romanNumSuffix: 'Ⅰ',
-    iconPath: '/contingency_contract/1/icon_activity_contract_tag_205.webp',
+    icon: 'endaxis:contingency_contract/1/icon_activity_contract_tag_205',
     blackboard: {
       times: 2,
     },
@@ -5431,7 +5417,7 @@ export const contingencyContractTagDefinitions = Object.freeze<
     keyId: '',
     lockIds: ['key2'],
     romanNumSuffix: 'Ⅱ',
-    iconPath: '/contingency_contract/1/icon_activity_contract_tag_206.webp',
+    icon: 'endaxis:contingency_contract/1/icon_activity_contract_tag_206',
     blackboard: {
       times: 1,
     },
@@ -5444,7 +5430,7 @@ export const contingencyContractTagDefinitions = Object.freeze<
     keyId: '',
     lockIds: ['key2'],
     romanNumSuffix: '',
-    iconPath: '/contingency_contract/1/icon_activity_contract_tag_132.webp',
+    icon: 'endaxis:contingency_contract/1/icon_activity_contract_tag_132',
     blackboard: {
       duration: 15,
     },
@@ -5457,7 +5443,7 @@ export const contingencyContractTagDefinitions = Object.freeze<
     keyId: '',
     lockIds: ['key2'],
     romanNumSuffix: '',
-    iconPath: '/contingency_contract/1/icon_activity_contract_tag_135.webp',
+    icon: 'endaxis:contingency_contract/1/icon_activity_contract_tag_135',
     blackboard: {},
   },
   {
@@ -5468,7 +5454,7 @@ export const contingencyContractTagDefinitions = Object.freeze<
     keyId: '',
     lockIds: ['key2'],
     romanNumSuffix: '',
-    iconPath: '/contingency_contract/1/icon_activity_contract_tag_133.webp',
+    icon: 'endaxis:contingency_contract/1/icon_activity_contract_tag_133',
     blackboard: {
       duration: 15,
     },
@@ -5481,7 +5467,7 @@ export const contingencyContractTagDefinitions = Object.freeze<
     keyId: '',
     lockIds: ['key2'],
     romanNumSuffix: '',
-    iconPath: '/contingency_contract/1/icon_activity_contract_tag_134.webp',
+    icon: 'endaxis:contingency_contract/1/icon_activity_contract_tag_134',
     blackboard: {
       duration: 15,
     },
@@ -5494,7 +5480,7 @@ export const contingencyContractTagDefinitions = Object.freeze<
     keyId: '',
     lockIds: ['key2'],
     romanNumSuffix: '',
-    iconPath: '/contingency_contract/1/icon_activity_contract_tag_210.webp',
+    icon: 'endaxis:contingency_contract/1/icon_activity_contract_tag_210',
     blackboard: {
       duration: 15,
     },
@@ -5507,7 +5493,7 @@ export const contingencyContractTagDefinitions = Object.freeze<
     keyId: '',
     lockIds: ['key2'],
     romanNumSuffix: 'Ⅰ',
-    iconPath: '/contingency_contract/1/icon_activity_contract_tag_119.webp',
+    icon: 'endaxis:contingency_contract/1/icon_activity_contract_tag_119',
     blackboard: {
       hp_ratio: 0.05,
     },
@@ -5520,7 +5506,7 @@ export const contingencyContractTagDefinitions = Object.freeze<
     keyId: '',
     lockIds: ['key2'],
     romanNumSuffix: 'Ⅱ',
-    iconPath: '/contingency_contract/1/icon_activity_contract_tag_120.webp',
+    icon: 'endaxis:contingency_contract/1/icon_activity_contract_tag_120',
     blackboard: {
       hp_ratio: 0.15,
     },
@@ -5533,7 +5519,7 @@ export const contingencyContractTagDefinitions = Object.freeze<
     keyId: '',
     lockIds: ['key2'],
     romanNumSuffix: 'Ⅰ',
-    iconPath: '/contingency_contract/1/icon_activity_contract_tag_310.webp',
+    icon: 'endaxis:contingency_contract/1/icon_activity_contract_tag_310',
     blackboard: {},
   },
   {
@@ -5544,7 +5530,7 @@ export const contingencyContractTagDefinitions = Object.freeze<
     keyId: '',
     lockIds: ['key2'],
     romanNumSuffix: 'Ⅱ',
-    iconPath: '/contingency_contract/1/icon_activity_contract_tag_311.webp',
+    icon: 'endaxis:contingency_contract/1/icon_activity_contract_tag_311',
     blackboard: {},
   },
 ]);

@@ -2085,8 +2085,7 @@ const aleshBuff2: SkillBuffDefinition = {
   durationSeconds: { blackboardKey: 'duration' },
   presentation: {
     visible: true,
-    iconId: 'icon_battle_buff_atk_up',
-    iconPath: '/icons/icon_battle_buff_atk_up.webp',
+    icon: 'endaxis:icons/icon_battle_buff_atk_up',
     showInHeadBarCommon: false,
     showInHeadBarAttached: false,
     showInSquadIcon: true,

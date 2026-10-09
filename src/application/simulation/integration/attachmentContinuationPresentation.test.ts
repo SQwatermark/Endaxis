@@ -132,6 +132,6 @@ it.each(['repeat', 'convert', 'consume'])(
     expect(segments.map(segment => segment.layers)).toEqual([1, 2]);
     expect(segments[0]!.endFrame).toBe(segments[1]!.startFrame);
     expect([...projectAttachmentContinuations(segments, ids)]).toEqual([segments[0]]);
-    expect(segments.every(segment => Boolean(segment.iconId || segment.iconPath))).toBe(true);
+    expect(segments.every(segment => Boolean(segment.icon))).toBe(true);
   },
 );

@@ -90,7 +90,7 @@ const definition = {
     },
   ],
   assetSlug: 'wpn_pistol_0005',
-  iconPath: '/weapons/pistol/wpn_pistol_0005.webp',
+  icon: 'endaxis:weapons/pistol/wpn_pistol_0005',
   buffDefinitions: {
     buff_wpn_pistol_0005: {
       stackingType: 'unique',
@@ -312,8 +312,7 @@ const definition = {
       maxTriggerCount: 1,
       presentation: {
         visible: true,
-        iconId: 'icon_battle_buff_atk_up',
-        iconPath: '/icons/icon_battle_buff_atk_up.webp',
+        icon: 'endaxis:icons/icon_battle_buff_atk_up',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
         showInSquadIcon: true,

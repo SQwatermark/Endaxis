@@ -68,6 +68,7 @@
         "definition/gearSet/eventHandlers/[]/<0>/abilityEvent",
         "definition/gearSet/eventHandlers/[]/<1>/event",
         "definition/skill/<1>/levelSource",
+        "definition/skill/<1>/element",
         "definition/weaponTrait/eventHandlers/[]/<0>/abilityEvent",
         "definition/weaponTrait/eventHandlers/[]/<1>/event",
         "definition/buff/<0>/damageModifiers/[]/condition",

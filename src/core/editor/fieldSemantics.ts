@@ -49,6 +49,7 @@ export function sameFieldDeclaration(
 
 /** 只标记正式契约中已存在的类型，不以字段名或当前值推断领域含义。 */
 export type FieldSemanticAlias =
+  | 'ImageRef'
   | 'TimeScaleCurveDefinition'
   | 'GameplayTag'
   | 'ActionStringOperand'

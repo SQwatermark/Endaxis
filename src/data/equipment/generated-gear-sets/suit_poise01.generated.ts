@@ -3,7 +3,7 @@ import type { GearSetDefinition } from '../../../core/game-data/equipmentDefinit
 
 const definition = {
   slug: 'suit_poise01',
-  iconPath: '/equipment/poise01/item_equip_t4_suit_poise01_edc_02.webp',
+  icon: 'endaxis:equipment/poise01/item_equip_t4_suit_poise01_edc_02',
   modifiers: [{ kind: 'panelStat', stat: 'attackPercent', value: 0.08 }],
   actionGraph: {
     main: {
@@ -134,8 +134,7 @@ const definition = {
       durationSeconds: { blackboardKey: 'duration' },
       presentation: {
         visible: true,
-        iconId: 'icon_battle_buff_atk_up',
-        iconPath: '/icons/icon_battle_buff_atk_up.webp',
+        icon: 'endaxis:icons/icon_battle_buff_atk_up',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
         showInSquadIcon: true,
@@ -173,8 +172,7 @@ const definition = {
       durationSeconds: { blackboardKey: 'duration' },
       presentation: {
         visible: true,
-        iconId: 'icon_battle_buff_atk_up',
-        iconPath: '/icons/icon_battle_buff_atk_up.webp',
+        icon: 'endaxis:icons/icon_battle_buff_atk_up',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
         showInSquadIcon: true,

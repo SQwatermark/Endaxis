@@ -101,7 +101,7 @@ export type AbilityEntityDefinitionNumber =
 export interface AbilityEntityDefinition {
   /** 实体存在期间的干员状态图标；直接由该实体造成的伤害显示在状态下方。 */
   readonly presentation?: {
-    readonly icon: string;
+    readonly icon: import('./images.ts').ImageRef;
     readonly nameKey: string;
     readonly placement?: 'operator' | 'enemy';
     /** 用本实体施加的 Buff 承载直接伤害展示，不另画实体状态条。 */
@@ -368,8 +368,8 @@ export interface SkillDefinitionProperties extends SkillActionProgramDefinition 
 
 /** 闪避不参与技能养成；其他干员技能必须明确等级来源。 */
 export type SkillDefinition = SkillDefinitionProperties & {
-  /** 干员目录内的图标文件名，不含扩展名；普攻、下落攻击和处决始终使用武器类型图标。 */
-  iconName?: string;
+  /** 非默认图标的资源引用；普攻、下落攻击和处决始终使用武器类型图标。 */
+  icon?: import('./images.ts').ImageRef;
   /** 允许生效的技能组条件图标覆盖自身图标；默认关闭。 */
   useSkillGroupIcon?: boolean;
 } & (
@@ -467,8 +467,8 @@ export interface RoutedSkillReplacementDefinition {
 
 /** 同一技能组根据养成条件切换的展示形态，不产生新的释放身份。 */
 export interface SkillPresentationVariantDefinition {
-  /** 此形态的干员图标文件名，不含目录和扩展名；省略沿用默认图标。 */
-  iconName?: string;
+  /** 此形态的图片资源引用；省略沿用默认图标。 */
+  icon?: import('./images.ts').ImageRef;
   /** 展示形态在技能组中的唯一名称。 */
   key: string;
   /** 最终构筑满足此条件时选用该展示形态。 */

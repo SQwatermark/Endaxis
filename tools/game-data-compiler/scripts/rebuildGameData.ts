@@ -84,6 +84,7 @@ const GAME_DATA_PUBLISH_DIRECTORY_OUTPUTS = [
   // project defaults. Replacing the roots removes stale, no-longer-referenced game icons.
   'public/equipment',
   'public/consumables',
+  'public/contingency_contract',
   'public/enemies',
   'public/icons',
   'public/operators',
@@ -91,6 +92,7 @@ const GAME_DATA_PUBLISH_DIRECTORY_OUTPUTS = [
 ] as const;
 
 const GAME_DATA_PUBLISH_FILE_OUTPUTS = [
+  'src/imageCatalog.generated.ts',
   ...OPERATOR_DEFINITION_OUTPUTS,
   'src/data/combat/gameplayTagCatalog.generated.ts',
   'src/data/combat/gameplayTagPredefine.generated.ts',
@@ -177,7 +179,7 @@ export const GAME_DATA_REBUILD_BOUNDARIES = [
   },
   {
     id: 'icons',
-    outputs: [],
+    outputs: ['src/imageCatalog.generated.ts'],
     blocker:
       '完整候选可在隔离 public 根按引用导出并发布 WebP，项目占位图明确复制为 kept-local；不能把混有自有 UI 的整个 public 目录登记为游戏派生目录。',
   },

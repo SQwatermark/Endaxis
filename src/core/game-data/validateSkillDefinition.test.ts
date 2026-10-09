@@ -257,10 +257,6 @@ describe('validateSkillDefinition', () => {
         type: 'fracture',
         target: 'enemy',
         isExtra: false,
-        noGuardBuffId: 'buff_physical_no_guard',
-        noGuardDefinition: { stackingType: 'unlimited' },
-        fractureBuffId: 'buff_physical_fracture',
-        fractureDefinition: { stackingType: 'refresh' },
       },
     };
     const definition = skillWithSteps([step]);
@@ -440,8 +436,7 @@ describe('validateSkillDefinition', () => {
     const definition: Record<string, unknown> = {
       stackingType: 'refresh',
       presentation: {
-        iconId: 'icon_battle_buff_atk_up',
-        iconPath: '/icons/buffs/example.webp',
+        icon: 'endaxis:icons/buffs/example',
         visible: true,
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
@@ -458,9 +453,9 @@ describe('validateSkillDefinition', () => {
     };
     expect(validateBuff(definition)).toEqual([]);
 
-    definition.presentation = { iconPath: '', color: '#fff' };
+    definition.presentation = { icon: '', color: '#fff' };
     const issues = validateBuff(definition);
-    expect(issues.some(issue => issue.path.endsWith('.presentation.iconPath'))).toBe(true);
+    expect(issues.some(issue => issue.path.endsWith('.presentation.icon'))).toBe(true);
     expect(issues.some(issue => issue.path.endsWith('.presentation.color'))).toBe(true);
   });
 

@@ -597,10 +597,11 @@ export const perlicaChr_0004_pelica_power_attackActionGraph = {
         action: { kind: 'gainFinisherSp', parameters: { factor: 1, recipient: 'team' } },
         next: null,
       },
-      applyKnockDown_2: {
+      applyPhysicalInfliction_2: {
         action: {
-          kind: 'applyKnockDown',
+          kind: 'applyPhysicalInfliction',
           parameters: {
+            type: 'knockDown',
             target: 'enemy',
             duration: { kind: 'constant', value: 1.5 },
             force: true,
@@ -615,7 +616,7 @@ export const perlicaChr_0004_pelica_power_attackActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' }, alwaysNext: true },
-          whenTrue: { $sequence: 'applyKnockDown_2' },
+          whenTrue: { $sequence: 'applyPhysicalInfliction_2' },
         },
         next: null,
       },
@@ -1318,8 +1319,7 @@ const perlicaBuff2: SkillBuffDefinition = {
   durationSeconds: { blackboardKey: 'atk_duration' },
   presentation: {
     visible: true,
-    iconId: 'icon_battle_buff_atk_up',
-    iconPath: '/icons/icon_battle_buff_atk_up.webp',
+    icon: 'endaxis:icons/icon_battle_buff_atk_up',
     showInHeadBarCommon: false,
     showInHeadBarAttached: false,
     showInSquadIcon: true,

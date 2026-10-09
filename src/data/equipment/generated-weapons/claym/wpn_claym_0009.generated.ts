@@ -91,7 +91,7 @@ const definition = {
     },
   ],
   assetSlug: 'wpn_claym_0009',
-  iconPath: '/weapons/claym/wpn_claym_0009.webp',
+  icon: 'endaxis:weapons/claym/wpn_claym_0009',
   buffDefinitions: {
     buff_wpn_claym_0009: {
       stackingType: 'refresh',
@@ -103,8 +103,7 @@ const definition = {
       maxTriggerCount: 1,
       presentation: {
         visible: true,
-        iconId: 'icon_battle_buff_atk_up',
-        iconPath: '/icons/icon_battle_buff_atk_up.webp',
+        icon: 'endaxis:icons/icon_battle_buff_atk_up',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
         showInSquadIcon: true,

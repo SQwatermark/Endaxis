@@ -14,6 +14,7 @@ const schema_18ab763e1525 = { unionVariants: [{}, {}, {}, {}, {}] } as const;
 const schema_c050dbdc6077 = { kind: 'boolean', optional: true } as const;
 const schema_2362f19158a2 = { aliases: ['ActionValueOperand'] } as const;
 const schema_7329f095dce4 = ['caster', 'buffOwner', 'buffSource'] as const;
+const schema_294f4546275b = { reason: 'owned-resource-boundary' } as const;
 const schema_edf9bfdbb37b = { kind: 'enum', options: ['caster'] } as const;
 const schema_43d88f577f05 = { unionVariants: [{}, {}, {}, {}, {}, {}] } as const;
 const schema_bc6e5aef9dfe = { unionVariants: [{}, {}, {}, {}, {}, {}, {}] } as const;
@@ -34,7 +35,6 @@ const schema_4e5bce87a840 = 'SkillGlobalBuffChildDefinition.blackboardAssignment
 const schema_dd9fd5d55c81 = 'CombatStepParameters.applyBuff.blackboardAssignments';
 const schema_d09e9bd69613 = { kind: 'string', semantics: { aliases: ['GameplayTag'] } } as const;
 const schema_a844eee3972a = ['eventTarget', 'enemy', 'caster', 'buffOwner', 'buffSource'] as const;
-const schema_94fe019e1dee = ['always', 'successAndInterrupted', 'success', 'interrupted'] as const;
 const schema_22ea2dbb5037 = 'CombatStepParameters.createGlobalBuff.blackboardAssignments';
 const schema_e3650958b9f0 = 'CombatStepParameters.withActionBlackboardScope.initialValues';
 const schema_06a8f700f476 = {
@@ -46,10 +46,6 @@ const schema_ec67f614acd4 = 'CombatStepParameters.spawnAbilityEntity.blackboardA
 const schema_4ef6f4abac78 = {
   kind: 'condition',
   semantics: { aliases: ['CombatCondition'] },
-} as const;
-const schema_1f21df9328c5 = {
-  kind: 'opaque',
-  fallback: { reason: 'owned-resource-boundary' },
 } as const;
 const schema_2959ca794991 = 'CombatStepParameters.withActionBlackboardScope.entityAssignments';
 const schema_233480cbfdbf = [
@@ -250,12 +246,6 @@ const schema_b1aeccc3ce43 = {
   kind: 'enum',
   options: ['physical', 'heat', 'cryo', 'electric', 'nature'],
   semantics: schema_18ab763e1525,
-} as const;
-const schema_076d6bffef90 = {
-  valueSchema: { kind: 'boolean' },
-  path: ['parameters', 'isExtra'],
-  description: '是否作为额外物理异常传播到事件上下文。',
-  control: 'boolean',
 } as const;
 const schema_8f8b15b20898 = {
   kind: 'array',
@@ -474,12 +464,6 @@ const schema_2c67f6ac2ba6 = {
   description: '要增减的资源。',
   control: 'select',
   options: ['sp', 'ultimateEnergy'],
-} as const;
-const schema_fbbd46e7617e = {
-  kind: 'union',
-  variants: [schema_1f21df9328c5, schema_1f21df9328c5],
-  semantics: schema_4107b248d073,
-  optional: true,
 } as const;
 const schema_8e50c2339861 = {
   valueSchema: schema_0297e4084967,
@@ -883,7 +867,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], NodeSch
       {
         valueSchema: schema_51b338af8c07,
         path: schema_09e06842e83c,
-        description: '接收击倒的对象。',
+        description: '接收倒地的对象。',
         control: 'select',
         options: ['enemy', 'caster'],
       },
@@ -1257,7 +1241,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], NodeSch
     fields: [
       schema_b5bd846f4492,
       {
-        valueSchema: schema_1f21df9328c5,
+        valueSchema: { kind: 'opaque', fallback: schema_294f4546275b },
         path: ['parameters', 'childSkill'],
         description: '要启动的无施法子技能。',
         control: 'resource',
@@ -1291,7 +1275,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], NodeSch
             presentation: {
               kind: 'object',
               fields: {
-                icon: { kind: 'string' },
+                icon: { kind: 'string', semantics: { aliases: ['ImageRef'] } },
                 nameKey: { kind: 'string' },
                 placement: {
                   kind: 'enum',
@@ -1378,7 +1362,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], NodeSch
             },
             childSkill: {
               kind: 'opaque',
-              fallback: { reason: 'owned-resource-boundary' },
+              fallback: schema_294f4546275b,
               declaration: 'AbilityEntityDefinition.childSkill',
               optional: true,
               description: '该模板只使用一个子技能时的简写定义。',
@@ -1387,7 +1371,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], NodeSch
               kind: 'record',
               value: {
                 kind: 'opaque',
-                fallback: { reason: 'owned-resource-boundary' },
+                fallback: schema_294f4546275b,
                 declaration: 'AbilityEntityDefinition.childSkills',
               },
               semantics: { recordValue: {} },
@@ -1399,7 +1383,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], NodeSch
               kind: 'array',
               element: {
                 kind: 'opaque',
-                fallback: { reason: 'owned-resource-boundary' },
+                fallback: schema_294f4546275b,
                 declaration: 'AbilityEntityDefinition.passiveSkills',
               },
               semantics: { arrayElement: {} },
@@ -1733,49 +1717,6 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], NodeSch
       },
     ],
   },
-  applyKnockDown: {
-    fields: [
-      schema_b5bd846f4492,
-      {
-        valueSchema: { kind: 'enum', options: ['enemy'] },
-        path: schema_09e06842e83c,
-        description: '当前只支持对固定敌人施加倒地。',
-        control: 'select',
-        options: ['enemy'],
-      },
-      {
-        valueSchema: schema_f6c653f1b7f1,
-        path: ['parameters', 'duration'],
-        description: '倒地持续秒数。',
-        control: 'operand',
-      },
-      {
-        valueSchema: { kind: 'boolean' },
-        path: ['parameters', 'force'],
-        description: '是否强制覆盖目标当前控制状态。',
-        control: 'boolean',
-      },
-      schema_076d6bffef90,
-      {
-        valueSchema: {
-          kind: 'enum',
-          options: ['aliveOnly', 'skipAll'],
-          semantics: schema_4107b248d073,
-        },
-        path: ['parameters', 'targetFilter'],
-        description: '原生 AllValid/OnlyAlive 都只选存活目标；OnlyDead 实际跳过全部目标。',
-        control: 'select',
-        options: ['aliveOnly', 'skipAll'],
-      },
-      {
-        valueSchema: { kind: 'enum', options: schema_94fe019e1dee, semantics: schema_36938d66df11 },
-        path: ['parameters', 'returnWhen'],
-        description: '动作根据成功和打断结果返回的时机。',
-        control: 'select',
-        options: schema_94fe019e1dee,
-      },
-    ],
-  },
   applyPhysicalInfliction: {
     fields: [
       schema_b5bd846f4492,
@@ -1786,65 +1727,67 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], NodeSch
         control: 'select',
         options: ['enemy'],
       },
-      schema_076d6bffef90,
       {
-        valueSchema: { kind: 'string' },
-        path: ['parameters', 'noGuardBuffId'],
-        description: '目标首次进入破防时使用的 Buff ID。',
-        control: 'string',
-      },
-      {
-        valueSchema: {
-          kind: 'union',
-          variants: [schema_1f21df9328c5, schema_1f21df9328c5],
-          semantics: schema_4107b248d073,
-        },
-        path: ['parameters', 'noGuardDefinition'],
-        description: '首次破防 Buff 的完整定义。',
-        control: 'resource',
+        valueSchema: { kind: 'boolean' },
+        path: ['parameters', 'isExtra'],
+        description: '是否作为额外物理异常传播到事件上下文。',
+        control: 'boolean',
       },
       {
         valueSchema: {
           kind: 'union',
           variants: [
+            { kind: 'enum', options: ['knockDown'] },
             { kind: 'enum', options: ['fracture'] },
             { kind: 'enum', options: ['crush'] },
             { kind: 'enum', options: ['airborne'] },
           ],
         },
         path: ['parameters', 'type'],
-        description: '破裂。\n粉碎。\n击飞。',
+        description: '倒地；运行时保留独立的控制状态、免疫与返回结果处理。\n碎甲。\n猛击。\n击飞。',
         control: 'select',
-        options: ['fracture', 'crush', 'airborne'],
+        options: ['knockDown', 'fracture', 'crush', 'airborne'],
       },
       {
-        valueSchema: schema_48ee081b11c3,
-        path: ['parameters', 'fractureBuffId'],
-        description: '破裂 Buff ID。',
-        control: 'string',
+        valueSchema: schema_28677639bc94,
+        path: ['parameters', 'duration'],
+        description: '击飞持续秒数。',
+        control: 'operand',
       },
       {
-        valueSchema: schema_fbbd46e7617e,
-        path: ['parameters', 'fractureDefinition'],
-        description: '破裂 Buff 定义。',
-        control: 'resource',
+        valueSchema: schema_c050dbdc6077,
+        path: ['parameters', 'force'],
+        description: '是否强制覆盖目标当前控制状态。',
+        control: 'boolean',
       },
       {
-        valueSchema: schema_48ee081b11c3,
-        path: ['parameters', 'crushedBuffId'],
-        description: '粉碎 Buff ID。',
-        control: 'string',
+        valueSchema: {
+          kind: 'enum',
+          options: ['aliveOnly', 'skipAll'],
+          semantics: schema_4107b248d073,
+          optional: true,
+        },
+        path: ['parameters', 'targetFilter'],
+        description: '原生 AllValid/OnlyAlive 都只选存活目标；OnlyDead 实际跳过全部目标。',
+        control: 'select',
+        options: ['aliveOnly', 'skipAll'],
       },
       {
-        valueSchema: schema_fbbd46e7617e,
-        path: ['parameters', 'crushedDefinition'],
-        description: '粉碎 Buff 定义。',
-        control: 'resource',
+        valueSchema: {
+          kind: 'enum',
+          options: ['always', 'successAndInterrupted', 'success', 'interrupted'],
+          semantics: schema_36938d66df11,
+          optional: true,
+        },
+        path: ['parameters', 'returnWhen'],
+        description: '动作根据成功和打断结果返回的时机。',
+        control: 'select',
+        options: ['always', 'successAndInterrupted', 'success', 'interrupted'],
       },
       {
         valueSchema: schema_28677639bc94,
         path: ['parameters', 'damageMultiplier'],
-        description: '粉碎伤害倍率。',
+        description: '猛击伤害倍率。',
         control: 'operand',
       },
       {
@@ -1852,24 +1795,6 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], NodeSch
         path: ['parameters', 'ignoreHitEffect'],
         description: '是否跳过命中特效。',
         control: 'boolean',
-      },
-      {
-        valueSchema: schema_48ee081b11c3,
-        path: ['parameters', 'airborneBuffId'],
-        description: '击飞 Buff ID。',
-        control: 'string',
-      },
-      {
-        valueSchema: schema_fbbd46e7617e,
-        path: ['parameters', 'airborneDefinition'],
-        description: '击飞 Buff 定义。',
-        control: 'resource',
-      },
-      {
-        valueSchema: schema_28677639bc94,
-        path: ['parameters', 'duration'],
-        description: '击飞持续秒数。',
-        control: 'operand',
       },
       {
         valueSchema: schema_28677639bc94,
@@ -1882,36 +1807,6 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], NodeSch
         path: ['parameters', 'speedFactorMultiplier'],
         description: '原生移动速度系数。',
         control: 'number',
-      },
-      {
-        valueSchema: schema_c050dbdc6077,
-        path: ['parameters', 'force'],
-        description: '是否强制覆盖目标当前控制状态。',
-        control: 'boolean',
-      },
-      {
-        valueSchema: {
-          kind: 'enum',
-          options: ['aliveOnly', 'skipAll'],
-          semantics: schema_4107b248d073,
-          optional: true,
-        },
-        path: ['parameters', 'targetFilter'],
-        description: '原生 AllValid/OnlyAlive 都只选存活目标；OnlyDead 实际跳过全部目标。',
-        control: 'select',
-        options: ['aliveOnly', 'skipAll'],
-      },
-      {
-        valueSchema: {
-          kind: 'enum',
-          options: schema_94fe019e1dee,
-          semantics: schema_36938d66df11,
-          optional: true,
-        },
-        path: ['parameters', 'returnWhen'],
-        description: '动作根据成功和打断结果返回的时机。',
-        control: 'select',
-        options: schema_94fe019e1dee,
       },
     ],
   },
@@ -4439,7 +4334,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], NodeSch
                 options: ['hit', 'block', 'reach', 'finish'],
                 semantics: schema_36938d66df11,
               },
-              skill: schema_1f21df9328c5,
+              skill: { kind: 'opaque', fallback: schema_294f4546275b },
             },
           },
           semantics: { arrayElement: {} },
@@ -4963,7 +4858,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], NodeSch
   callResource: {
     fields: [
       {
-        valueSchema: schema_1f21df9328c5,
+        valueSchema: { kind: 'opaque', fallback: schema_294f4546275b },
         path: ['resource'],
         description: '',
         control: 'resource',

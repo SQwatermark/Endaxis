@@ -49,7 +49,7 @@ import {
   type AbilityEntityTargetQuery,
   type SkillTriggerScope,
 } from './skills.ts';
-import { type SkillBuffDefinition, type SkillGlobalBuffDefinition } from './buffs.ts';
+import { type SkillGlobalBuffDefinition } from './buffs.ts';
 import type {
   AttributeModifierSlot,
   AttributeModifierTiming,
@@ -488,51 +488,32 @@ export interface CombatStepParameters {
     /** 目标技能不可施放时保留当前技能；省略表示旧版无条件消费延迟请求。 */
     interruptCurrentSkillOnlyWhenTargetCastable?: boolean;
   };
-  /** 普通根倒地动作；破防与状态 Buff 由公共目录解析，不等同于输出一次成功事件。 */
-  applyKnockDown: {
-    /** 当前只支持对固定敌人施加倒地。 */
-    target: 'enemy';
-    /** 倒地持续秒数。 */
-    duration: ActionValueOperand;
-    /** 是否强制覆盖目标当前控制状态。 */
-    force: boolean;
-    /** 是否作为额外物理异常传播到事件上下文。 */
-    isExtra: boolean;
-    /** 原生 AllValid/OnlyAlive 都只选存活目标；OnlyDead 实际跳过全部目标。 */
-    targetFilter: 'aliveOnly' | 'skipAll';
-    /** 动作根据成功和打断结果返回的时机。 */
-    returnWhen: 'always' | 'successAndInterrupted' | 'success' | 'interrupted';
-  };
   /**
-   * 对固定敌人执行物理异常入口。公共 Buff 蓝图随使用点内联，运行时按目标当前层数
-   * 选择首次破防或后续异常链，不把公共 Buff 变成可编辑的项目级钻石依赖。
+   * 对固定敌人执行物理异常入口，按当前层数选择首次破防或后续异常链。
+   * Buff 身份按异常类型固定选择；完整定义由公共 Buff 目录提供。
    */
   applyPhysicalInfliction: {
     /** 当前只支持对固定敌人施加物理异常。 */
     target: 'enemy';
     /** 是否作为额外物理异常传播到事件上下文。 */
     isExtra: boolean;
-    /** 目标首次进入破防时使用的 Buff ID。 */
-    noGuardBuffId: string;
-    /** 首次破防 Buff 的完整定义。 */
-    noGuardDefinition: SkillBuffDefinition;
   } & (
     | {
-        /** 破裂。 */
-        type: 'fracture';
-        /** 破裂 Buff ID。 */
-        fractureBuffId: string;
-        /** 破裂 Buff 定义。 */
-        fractureDefinition: SkillBuffDefinition;
+        /** 倒地；运行时保留独立的控制状态、免疫与返回结果处理。 */
+        type: 'knockDown';
+        duration: ActionValueOperand;
+        force: boolean;
+        targetFilter: 'aliveOnly' | 'skipAll';
+        returnWhen: 'always' | 'successAndInterrupted' | 'success' | 'interrupted';
       }
     | {
-        /** 粉碎。 */
+        /** 碎甲。 */
+        type: 'fracture';
+      }
+    | {
+        /** 猛击。 */
         type: 'crush';
-        /** 粉碎 Buff ID。 */
-        crushedBuffId: string;
-        /** 粉碎 Buff 定义。 */
-        crushedDefinition: SkillBuffDefinition;
-        /** 粉碎伤害倍率。 */
+        /** 猛击伤害倍率。 */
         damageMultiplier: ActionValueOperand;
         /** 是否跳过命中特效。 */
         ignoreHitEffect: boolean;
@@ -540,10 +521,6 @@ export interface CombatStepParameters {
     | {
         /** 击飞。 */
         type: 'airborne';
-        /** 击飞 Buff ID。 */
-        airborneBuffId: string;
-        /** 击飞 Buff 定义。 */
-        airborneDefinition: SkillBuffDefinition;
         /** 击飞持续秒数。 */
         duration: ActionValueOperand;
         /** 原生击飞高度。 */
@@ -583,9 +560,9 @@ export interface CombatStepParameters {
     /** 接收击飞的对象。 */
     target: CombatTarget;
   };
-  /** 报告一次对固定目标成功输出击倒；木桩模型不保存倒地控制状态。 */
+  /** 报告一次对固定目标成功输出倒地；木桩模型不保存倒地控制状态。 */
   outputKnockDown: {
-    /** 接收击倒的对象。 */
+    /** 接收倒地的对象。 */
     target: CombatTarget;
   };
   /** 造成一次按攻击力或属性计算的伤害。 */
@@ -1514,7 +1491,6 @@ export const COMBAT_STEP_KINDS = [
   'triggerCustomAbilityEvent',
   'castSkillDuringAction',
   'applyPhysicalInfliction',
-  'applyKnockDown',
   'applyElementalReaction',
   'consumeElementalReaction',
   'outputAirborne',
@@ -1748,7 +1724,7 @@ export type CombatEventTrigger =
       /** 触发器种类判别值。 */
       kind: 'airborneOutput';
     }
-  /** 成功输出击倒。 */
+  /** 成功输出倒地。 */
   | {
       /** 触发器种类判别值。 */
       kind: 'knockDownOutput';

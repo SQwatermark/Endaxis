@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { resolveImage } from '../../imageResources';
 /** 展示时间轴上某一段干员专属战斗界面状态；数据直接来自已经完成的模拟投影。 */
 import { EaDialog } from '@/design-system';
 import { computed } from 'vue';
@@ -83,7 +84,7 @@ function seconds(frames: number): string {
           <span class="passive-detail__preview">
             <img
               v-if="segment.kind === 'abilityEntityCount'"
-              :src="segment.icon"
+              :src="resolveImage(segment.icon)"
               alt=""
               width="44"
               height="44"

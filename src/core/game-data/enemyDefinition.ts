@@ -28,7 +28,7 @@ export interface EnemyStaggerDefinition {
  */
 export interface EnemyDefinition {
   readonly id: string;
-  readonly iconPath?: string;
+  readonly icon?: import('../../../packages/game-data-contract/src/images').ImageRef;
   readonly tier: EnemyTier;
   /** 原生战斗等级；独立于五档展示 tier，供 CheckEnemyRank 等战斗规则读取。 */
   readonly rank: EnemyRank;

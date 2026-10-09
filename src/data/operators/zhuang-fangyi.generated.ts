@@ -3881,8 +3881,7 @@ const zhuangFangyiBuff1: SkillBuffDefinition = {
   maxStackCount: 1,
   presentation: {
     visible: true,
-    iconId: 'icon_battle_buff_atk_up',
-    iconPath: '/icons/icon_battle_buff_atk_up.webp',
+    icon: 'endaxis:icons/icon_battle_buff_atk_up',
     showInHeadBarCommon: false,
     showInHeadBarAttached: false,
     showInSquadIcon: true,
@@ -5043,8 +5042,7 @@ const zhuangFangyiBuff14: SkillBuffDefinition = {
   durationSeconds: { blackboardKey: 'duration' },
   presentation: {
     visible: true,
-    iconId: 'icon_battle_buff_atk_up',
-    iconPath: '/icons/icon_battle_buff_atk_up.webp',
+    icon: 'endaxis:icons/icon_battle_buff_atk_up',
     showInHeadBarCommon: false,
     showInHeadBarAttached: false,
     showInSquadIcon: false,
@@ -5106,8 +5104,7 @@ const zhuangFangyiBuff15: SkillBuffDefinition = {
   maxStackCount: 0,
   presentation: {
     visible: true,
-    iconId: 'icon_battle_zhuangfy_debuff_01',
-    iconPath: '/icons/icon_battle_zhuangfy_debuff_01.webp',
+    icon: 'endaxis:icons/icon_battle_zhuangfy_debuff_01',
     showInHeadBarCommon: false,
     showInHeadBarAttached: false,
     showInSquadIcon: true,

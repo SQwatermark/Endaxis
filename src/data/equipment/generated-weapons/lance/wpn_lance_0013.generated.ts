@@ -125,7 +125,7 @@ const definition = {
     },
   ],
   assetSlug: 'wpn_lance_0013',
-  iconPath: '/weapons/lance/wpn_lance_0013.webp',
+  icon: 'endaxis:weapons/lance/wpn_lance_0013',
   buffDefinitions: {
     buff_wpn_lance_0013_atk_up: {
       stackingType: 'stack',
@@ -137,8 +137,7 @@ const definition = {
       maxTriggerCount: 1,
       presentation: {
         visible: true,
-        iconId: 'icon_battle_buff_atk_up',
-        iconPath: '/icons/icon_battle_buff_atk_up.webp',
+        icon: 'endaxis:icons/icon_battle_buff_atk_up',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
         showInSquadIcon: true,

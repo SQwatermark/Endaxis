@@ -160,31 +160,9 @@ export interface ResolvedCombatStepParameters {
   limitMovementGait: CompiledStepParameters['limitMovementGait'];
   applyCharacterInfliction: CompiledStepParameters['applyCharacterInfliction'];
   applyElementalInfliction: CompiledStepParameters['applyElementalInfliction'];
-  applyKnockDown: CompiledStepParameters['applyKnockDown'];
   triggerSpellBurst: CompiledStepParameters['triggerSpellBurst'];
   triggerCustomAbilityEvent: CompiledStepParameters['triggerCustomAbilityEvent'];
-  applyPhysicalInfliction:
-    | (Omit<
-        Extract<CompiledStepParameters['applyPhysicalInfliction'], { type: 'fracture' }>,
-        'noGuardDefinition' | 'fractureDefinition'
-      > & {
-        readonly noGuardDefinition: ResolvedSkillBuffDefinition;
-        readonly fractureDefinition: ResolvedSkillBuffDefinition;
-      })
-    | (Omit<
-        Extract<CompiledStepParameters['applyPhysicalInfliction'], { type: 'crush' }>,
-        'noGuardDefinition' | 'crushedDefinition'
-      > & {
-        readonly noGuardDefinition: ResolvedSkillBuffDefinition;
-        readonly crushedDefinition: ResolvedSkillBuffDefinition;
-      })
-    | (Omit<
-        Extract<CompiledStepParameters['applyPhysicalInfliction'], { type: 'airborne' }>,
-        'noGuardDefinition' | 'airborneDefinition'
-      > & {
-        readonly noGuardDefinition: ResolvedSkillBuffDefinition;
-        readonly airborneDefinition: ResolvedSkillBuffDefinition;
-      });
+  applyPhysicalInfliction: CompiledStepParameters['applyPhysicalInfliction'];
   applyElementalReaction: CompiledStepParameters['applyElementalReaction'];
   consumeElementalReaction: CompiledStepParameters['consumeElementalReaction'];
   outputAirborne: CompiledStepParameters['outputAirborne'];
@@ -433,7 +411,6 @@ export const COMBAT_STEP_EXECUTION_ROUTES = {
   triggerCustomAbilityEvent: 'operation',
   castSkillDuringAction: 'operation',
   applyPhysicalInfliction: 'operation',
-  applyKnockDown: 'operation',
   applyElementalReaction: 'operation',
   consumeElementalReaction: 'operation',
   outputAirborne: 'operation',

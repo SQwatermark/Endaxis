@@ -78,7 +78,7 @@ const LEAF_ACTION_KINDS = [
   'limitMovementGait',
   'applyCharacterInfliction',
   'applyElementalInfliction',
-  'applyKnockDown',
+  'applyPhysicalInfliction',
   'triggerSpellBurst',
   'triggerCustomAbilityEvent',
   'castSkillDuringAction',
@@ -567,7 +567,7 @@ export function compileLeafAction(
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'applyCharacterInfliction':
     case 'applyElementalInfliction':
-    case 'applyKnockDown':
+    case 'applyPhysicalInfliction':
     case 'triggerSpellBurst':
     case 'triggerCustomAbilityEvent':
     case 'castSkillDuringAction':

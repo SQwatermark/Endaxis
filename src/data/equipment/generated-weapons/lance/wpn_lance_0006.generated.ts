@@ -155,7 +155,7 @@ const definition = {
     },
   ],
   assetSlug: 'wpn_lance_0006',
-  iconPath: '/weapons/lance/wpn_lance_0006.webp',
+  icon: 'endaxis:weapons/lance/wpn_lance_0006',
   buffDefinitions: {
     buff_wpn_lance_0006_exist: {
       stackingType: 'stack',
@@ -167,8 +167,7 @@ const definition = {
       maxTriggerCount: 1,
       presentation: {
         visible: true,
-        iconId: 'icon_battle_weapon_atk_skill_ready',
-        iconPath: '/icons/icon_battle_weapon_atk_skill_ready.webp',
+        icon: 'endaxis:icons/icon_battle_weapon_atk_skill_ready',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
         showInSquadIcon: true,

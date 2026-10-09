@@ -73,8 +73,7 @@ export interface BuffTimelineSegment {
   readonly simpleModifierAttribute?: string;
   readonly simpleModifierSlot?: string;
   readonly simpleModifierValue?: number;
-  readonly iconId?: string;
-  readonly iconPath?: string;
+  readonly icon?: string;
   readonly showInHeadBarCommon?: boolean;
   readonly showInHeadBarAttached?: boolean;
   readonly showInSquadIcon?: boolean;
@@ -607,9 +606,7 @@ export function projectBuffIconTimelineMetadata(
     endFrame,
     data =>
       data.visible !== false &&
-      (data.visible === true ||
-        optionalString(data, 'iconPath') !== undefined ||
-        optionalString(data, 'iconId') !== undefined),
+      (data.visible === true || optionalString(data, 'icon') !== undefined),
   );
 }
 
@@ -783,8 +780,7 @@ function projectBuffSegments(
       !(
         entry.event === 'BuffPresentationStarted' &&
         data.visible !== false &&
-        (optionalString(data, 'iconPath') !== undefined ||
-          optionalString(data, 'iconId') !== undefined)
+        optionalString(data, 'icon') !== undefined
       )
     )
       continue;
@@ -859,12 +855,7 @@ function projectBuffSegments(
       ...copyOptionalBoolean(data, 'hasFiniteLifetime'),
       placement: presentationPlacement(data),
       ...(modifierFact ?? {}),
-      ...(optionalString(data, 'iconId') === undefined
-        ? {}
-        : { iconId: optionalString(data, 'iconId') }),
-      ...(optionalString(data, 'iconPath') === undefined
-        ? {}
-        : { iconPath: optionalString(data, 'iconPath') }),
+      ...(optionalString(data, 'icon') === undefined ? {} : { icon: optionalString(data, 'icon') }),
       ...copyOptionalBoolean(data, 'showInHeadBarCommon'),
       ...copyOptionalBoolean(data, 'showInHeadBarAttached'),
       ...copyOptionalBoolean(data, 'showInSquadIcon'),

@@ -67,16 +67,6 @@ const schema_4d4ef7cf5451 = {
   kind: 'number',
   description: '原生 SkillData.exclusiveFrame；只在需要读取当前技能可中断状态时参与运行时判断。',
 } as const;
-const schema_04620bcedd77 = {
-  kind: 'string',
-  optional: true,
-  description: '与语言无关的展示资源；名称和描述仍由 locale family 按需解析。',
-} as const;
-const schema_f8fc68191629 = {
-  kind: 'string',
-  optional: true,
-  description: '干员目录内的图标文件名，不含扩展名；普攻、下落攻击和处决始终使用武器类型图标。',
-} as const;
 const schema_a7c632da5929 = [
   'comboSkill',
   'plungingAttack',
@@ -153,6 +143,12 @@ const schema_e458b6c303c5 = [
     fields: { blackboardKey: { kind: 'string', description: '读取数值的 Buff 黑板键。' } },
   },
 ] as const;
+const schema_1f8380bd8e96 = {
+  kind: 'string',
+  semantics: { aliases: ['ImageRef'] },
+  optional: true,
+  description: '非默认图标的资源引用；普攻、下落攻击和处决始终使用武器类型图标。',
+} as const;
 const schema_4589467e4874 = {
   kind: 'enum',
   options: ['healer', 'receiver'],
@@ -182,6 +178,12 @@ const schema_ceffc9c43558 = {
   options: ['sourceSkillCast'],
   optional: true,
   description: '启用时记录创建该 Buff 的技能施放编号，供 SkillAffix 条件匹配同一次施放。',
+} as const;
+const schema_3071f7706f71 = {
+  kind: 'string',
+  semantics: { aliases: ['ImageRef'] },
+  optional: true,
+  description: '与语言无关的展示资源；名称和描述仍由 locale family 按需解析。',
 } as const;
 const schema_63d51aa6a56e = {
   kind: 'object',
@@ -1039,14 +1041,18 @@ const schema_f15fd9ff6614 = {
   semantics: schema_140af2d9bf58,
   description: '按顺序执行的治疗处理器。',
 } as const;
-const schema_84f4eaf6ec0e = {
+const schema_b034c8a9493a = {
   nameKey: {
     kind: 'string',
     optional: true,
     description: '此 Buff 的显示名称翻译键；仅供界面使用。',
   },
-  iconId: { kind: 'string', optional: true, description: '游戏资源中的图标 ID。' },
-  iconPath: { kind: 'string', optional: true, description: '已导出图标的资源路径。' },
+  icon: {
+    kind: 'string',
+    semantics: { aliases: ['ImageRef'] },
+    optional: true,
+    description: '内置图片资源引用。',
+  },
   visible: { kind: 'boolean', optional: true, description: '是否允许界面显示这个 Buff。' },
   showInHeadBarCommon: {
     kind: 'boolean',
@@ -1127,11 +1133,28 @@ const schema_84f4eaf6ec0e = {
     description: '多个 Buff 图标同时出现时的排序设置。',
   },
 } as const;
-const schema_66813ff77e4f = {
+const schema_468ea0e8eb03 = {
   kind: 'object',
-  fields: schema_84f4eaf6ec0e,
+  fields: schema_b034c8a9493a,
   optional: true,
   description: 'Buff 自身的图标、颜色、排序位置和进度条等显示设置。\n不参与战斗计算的显示信息。',
+} as const;
+const schema_608a2392c7f2 = {
+  kind: 'array',
+  element: {
+    kind: 'object',
+    fields: {
+      buffId: { kind: 'string', referenceKind: 'buff', description: '子 Buff ID。' },
+      presentation: {
+        kind: 'object',
+        fields: schema_b034c8a9493a,
+        description: '子 Buff 的显示规则。',
+      },
+    },
+  },
+  semantics: { arrayElement: {} },
+  optional: true,
+  description: '跟随本体同时出现和消失的额外显示图标；它们没有独立战斗效果和生命周期。',
 } as const;
 const schema_a2f7c7d1976f = {
   kind: 'array',
@@ -1230,23 +1253,6 @@ const schema_a2f7c7d1976f = {
   },
   semantics: schema_140af2d9bf58,
   description: '条件成立时按顺序执行的伤害处理器。',
-} as const;
-const schema_33ac911479b6 = {
-  kind: 'array',
-  element: {
-    kind: 'object',
-    fields: {
-      buffId: { kind: 'string', referenceKind: 'buff', description: '子 Buff ID。' },
-      presentation: {
-        kind: 'object',
-        fields: schema_84f4eaf6ec0e,
-        description: '子 Buff 的显示规则。',
-      },
-    },
-  },
-  semantics: { arrayElement: {} },
-  optional: true,
-  description: '跟随本体同时出现和消失的额外显示图标；它们没有独立战斗效果和生命周期。',
 } as const;
 const schema_72ecafe1082d = {
   kind: 'array',
@@ -1360,11 +1366,11 @@ const schema_72ecafe1082d = {
   optional: true,
   description: 'Buff 启用时创建的护盾；护盾的数值、吸收范围、次数和销毁行为由条目配置。',
 } as const;
-const schema_d8c018e8d611 = {
+const schema_5125744bc6a5 = {
   presentation: {
     kind: 'object',
     fields: {
-      icon: { kind: 'string' },
+      icon: { kind: 'string', semantics: { aliases: ['ImageRef'] } },
       nameKey: { kind: 'string' },
       placement: schema_09fb5d26cbd4,
       damageDisplayBuffId: {
@@ -1886,7 +1892,7 @@ const schema_191bca465db9 = {
   optional: true,
   description: '技能启用期间注册的战斗事件响应。',
 } as const;
-const schema_4482e17f20a4 = {
+const schema_6f66b7366478 = {
   placementPolicy: {
     kind: 'object',
     fields: schema_f29775915ce0,
@@ -1976,10 +1982,11 @@ const schema_4482e17f20a4 = {
     element: {
       kind: 'object',
       fields: {
-        iconName: {
+        icon: {
           kind: 'string',
+          semantics: { aliases: ['ImageRef'] },
           optional: true,
-          description: '此形态的干员图标文件名，不含目录和扩展名；省略沿用默认图标。',
+          description: '此形态的图片资源引用；省略沿用默认图标。',
         },
         key: { kind: 'string', description: '展示形态在技能组中的唯一名称。' },
         condition: {
@@ -2233,7 +2240,7 @@ export const definitionSchemas = {
       },
       skillGroups: {
         kind: 'array',
-        element: { kind: 'object', fields: schema_4482e17f20a4 },
+        element: { kind: 'object', fields: schema_6f66b7366478 },
         semantics: { arrayElement: {} },
         description: '干员技能库的操作组集合；不包含切人、闪避、跳跃。组成员配置操作段的目标技能。',
       },
@@ -2373,7 +2380,7 @@ export const definitionSchemas = {
       },
       abilityEntityDefinitions: {
         kind: 'record',
-        value: { kind: 'object', fields: schema_d8c018e8d611 },
+        value: { kind: 'object', fields: schema_5125744bc6a5 },
         semantics: { recordValue: {} },
         optional: true,
         description: '干员级能力实体蓝图；子技能按引用它的技能等级编译。',
@@ -2489,7 +2496,11 @@ export const definitionSchemas = {
               placement: schema_09fb5d26cbd4,
               kind: { kind: 'enum', options: ['abilityEntityCount'] },
               abilityEntityId: { kind: 'string', referenceKind: 'abilityEntity' },
-              icon: { kind: 'string', description: '图标资源路径。' },
+              icon: {
+                kind: 'string',
+                semantics: { aliases: ['ImageRef'] },
+                description: '图标资源路径。',
+              },
               nameKey: { kind: 'string', description: '实体显示名称的 i18n 键。' },
             },
           },
@@ -2621,7 +2632,7 @@ export const definitionSchemas = {
         optional: true,
         description: '仅用于定位图标/本地化等展示资源；资源复用不得改变 slug 身份。',
       },
-      iconPath: schema_04620bcedd77,
+      icon: schema_3071f7706f71,
       rarity: {
         kind: 'enum',
         options: [4, 5, 6, 3],
@@ -2673,7 +2684,7 @@ export const definitionSchemas = {
         optional: true,
         description: '仅用于定位图标/本地化等展示资源；共用 iconId 不得改变 slug 身份。',
       },
-      iconPath: schema_04620bcedd77,
+      icon: schema_3071f7706f71,
       slotType: {
         kind: 'enum',
         options: ['armor', 'gloves', 'accessory'],
@@ -2717,8 +2728,9 @@ export const definitionSchemas = {
         optional: true,
         description: '缺少本地化资源时可使用的套装名称。',
       },
-      iconPath: {
+      icon: {
         kind: 'string',
+        semantics: { aliases: ['ImageRef'] },
         optional: true,
         description: '套装效果在时间轴上的展示图标；独立于效果自身的原生图标。',
       },
@@ -2734,7 +2746,7 @@ export const definitionSchemas = {
     kind: 'object',
     fields: {
       id: { kind: 'string' },
-      iconPath: { kind: 'string' },
+      icon: { kind: 'string', semantics: { aliases: ['ImageRef'] } },
       rarity: { kind: 'number' },
       kind: { kind: 'enum', options: ['operatorBuff'] },
       durationSeconds: { kind: 'number' },
@@ -2764,7 +2776,7 @@ export const definitionSchemas = {
     kind: 'object',
     fields: {
       id: { kind: 'string' },
-      iconPath: { kind: 'string', optional: true },
+      icon: { kind: 'string', semantics: { aliases: ['ImageRef'] }, optional: true },
       tier: {
         kind: 'enum',
         options: ['elite', 'boss', 'normal', 'advanced', 'leader'],
@@ -2855,7 +2867,7 @@ export const definitionSchemas = {
       keyId: { kind: 'string' },
       lockIds: { kind: 'array', element: { kind: 'string' }, semantics: { arrayElement: {} } },
       romanNumSuffix: { kind: 'string' },
-      iconPath: { kind: 'string' },
+      icon: { kind: 'string', semantics: { aliases: ['ImageRef'] } },
       blackboard: { kind: 'record', value: { kind: 'number' }, semantics: { recordValue: {} } },
     },
   },
@@ -2891,7 +2903,7 @@ export const definitionSchemas = {
           eventHandlers: schema_191bca465db9,
           blackboard: schema_dcc3197d8b15,
           scheduledSequences: schema_3c8414c0c980,
-          iconName: schema_f8fc68191629,
+          icon: schema_1f8380bd8e96,
           useSkillGroupIcon: {
             kind: 'boolean',
             optional: true,
@@ -2954,7 +2966,7 @@ export const definitionSchemas = {
           eventHandlers: schema_191bca465db9,
           blackboard: schema_dcc3197d8b15,
           scheduledSequences: schema_3c8414c0c980,
-          iconName: schema_f8fc68191629,
+          icon: schema_1f8380bd8e96,
           useSkillGroupIcon: {
             kind: 'boolean',
             optional: true,
@@ -2968,7 +2980,7 @@ export const definitionSchemas = {
     ],
     semantics: schema_4107b248d073,
   },
-  skillGroup: { kind: 'object', fields: schema_4482e17f20a4 },
+  skillGroup: { kind: 'object', fields: schema_6f66b7366478 },
   skillGroupVariant: { kind: 'object', fields: schema_59ae2ded5e63 },
   buff: {
     kind: 'union',
@@ -2978,8 +2990,8 @@ export const definitionSchemas = {
         fields: {
           blackboard: schema_392f51ba723b,
           affixSkillCastIdentity: schema_ceffc9c43558,
-          presentation: schema_66813ff77e4f,
-          childPresentations: schema_33ac911479b6,
+          presentation: schema_468ea0e8eb03,
+          childPresentations: schema_608a2392c7f2,
           timeClock: schema_dfe7358daaf2,
           applyTags: schema_8b88c642c1c1,
           ignoreTagImmune: {
@@ -3060,8 +3072,8 @@ export const definitionSchemas = {
         fields: {
           blackboard: schema_392f51ba723b,
           affixSkillCastIdentity: schema_ceffc9c43558,
-          presentation: schema_66813ff77e4f,
-          childPresentations: schema_33ac911479b6,
+          presentation: schema_468ea0e8eb03,
+          childPresentations: schema_608a2392c7f2,
           timeClock: schema_dfe7358daaf2,
           applyTags: schema_8b88c642c1c1,
           ignoreTagImmune: {
@@ -3377,7 +3389,7 @@ export const definitionSchemas = {
     ],
     semantics: schema_4107b248d073,
   },
-  abilityEntity: { kind: 'object', fields: schema_d8c018e8d611 },
+  abilityEntity: { kind: 'object', fields: schema_5125744bc6a5 },
   abilityEntityChildSkill: {
     kind: 'object',
     fields: {

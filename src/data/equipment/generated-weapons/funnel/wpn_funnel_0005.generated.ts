@@ -94,7 +94,7 @@ const definition = {
     },
   ],
   assetSlug: 'wpn_funnel_0005',
-  iconPath: '/weapons/funnel/wpn_funnel_0005.webp',
+  icon: 'endaxis:weapons/funnel/wpn_funnel_0005',
   buffDefinitions: {
     buff_wpn_funnel_0005_atk_up: {
       stackingType: 'highPriority',
@@ -106,8 +106,7 @@ const definition = {
       maxTriggerCount: 1,
       presentation: {
         visible: true,
-        iconId: 'icon_battle_buff_atk_up',
-        iconPath: '/icons/icon_battle_buff_atk_up.webp',
+        icon: 'endaxis:icons/icon_battle_buff_atk_up',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
         showInSquadIcon: true,

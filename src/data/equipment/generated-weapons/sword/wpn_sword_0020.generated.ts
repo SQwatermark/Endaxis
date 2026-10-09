@@ -116,7 +116,7 @@ const definition = {
     },
   ],
   assetSlug: 'wpn_sword_0020',
-  iconPath: '/weapons/sword/wpn_sword_0020.webp',
+  icon: 'endaxis:weapons/sword/wpn_sword_0020',
   buffDefinitions: {
     buff_wpn_sword_0020_cryst: {
       stackingType: 'highPriority',
@@ -128,8 +128,7 @@ const definition = {
       maxTriggerCount: 1,
       presentation: {
         visible: true,
-        iconId: 'icon_battle_cryst_taken_up',
-        iconPath: '/icons/icon_battle_cryst_taken_up.webp',
+        icon: 'endaxis:icons/icon_battle_cryst_taken_up',
         showInHeadBarCommon: true,
         showInHeadBarAttached: false,
         showInSquadIcon: false,

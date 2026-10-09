@@ -160,7 +160,7 @@ const definition = {
     },
   ],
   assetSlug: 'wpn_sword_0021',
-  iconPath: '/weapons/sword/wpn_sword_0021.webp',
+  icon: 'endaxis:weapons/sword/wpn_sword_0021',
   buffDefinitions: {
     buff_wpn_sword_0021_exist: {
       stackingType: 'overwriteDuration',
@@ -172,8 +172,7 @@ const definition = {
       maxTriggerCount: 1,
       presentation: {
         visible: true,
-        iconId: 'icon_battle_weapon_atk_skill_ready',
-        iconPath: '/icons/icon_battle_weapon_atk_skill_ready.webp',
+        icon: 'endaxis:icons/icon_battle_weapon_atk_skill_ready',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
         showInSquadIcon: true,

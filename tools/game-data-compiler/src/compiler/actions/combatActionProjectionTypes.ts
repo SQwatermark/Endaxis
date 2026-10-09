@@ -265,7 +265,6 @@ type HealParameters = (
 
 export type CompiledBuffStepSource =
   | import('../intermediateDefinitions.ts').ActionGraphResourceCall
-  | Step<'applyKnockDown'>
   | Step<'applyPhysicalInfliction'>
   | Step<'findCharacterTeamTargets'>
   | Step<'findUnfinishedProjectileTargets'>

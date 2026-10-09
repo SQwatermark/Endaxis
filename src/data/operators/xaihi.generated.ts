@@ -2171,8 +2171,7 @@ const xaihiBuff9: SkillBuffDefinition = {
   durationSeconds: { blackboardKey: 'duration' },
   presentation: {
     visible: true,
-    iconId: 'icon_battle_cryst_taken_up',
-    iconPath: '/icons/icon_battle_cryst_taken_up.webp',
+    icon: 'endaxis:icons/icon_battle_cryst_taken_up',
     showInHeadBarCommon: true,
     showInHeadBarAttached: false,
     showInSquadIcon: false,
@@ -2224,8 +2223,7 @@ const xaihiBuff10: SkillBuffDefinition = {
   durationSeconds: { blackboardKey: 'duration' },
   presentation: {
     visible: true,
-    iconId: 'icon_battle_affix_cryst_enhance',
-    iconPath: '/icons/icon_battle_affix_cryst_enhance.webp',
+    icon: 'endaxis:icons/icon_battle_affix_cryst_enhance',
     showInHeadBarCommon: true,
     showInHeadBarAttached: false,
     showInSquadIcon: true,
@@ -2263,8 +2261,7 @@ const xaihiBuff11: SkillBuffDefinition = {
   durationSeconds: { blackboardKey: 'duration' },
   presentation: {
     visible: true,
-    iconId: 'icon_battle_affix_natural_enhance',
-    iconPath: '/icons/icon_battle_affix_natural_enhance.webp',
+    icon: 'endaxis:icons/icon_battle_affix_natural_enhance',
     showInHeadBarCommon: true,
     showInHeadBarAttached: false,
     showInSquadIcon: true,
@@ -2310,7 +2307,7 @@ export const xaihi: OperatorDefinition = {
   passiveUi: {
     kind: 'abilityEntityCount',
     abilityEntityId: 'abilityentity_chr_0011_seraph_normal_skill',
-    icon: '/operators/xaihi/battle 01.webp',
+    icon: 'endaxis:operators/xaihi/battle_01',
     nameKey: 'effects.name.auxiliaryCrystal',
   },
   skillGroups: [

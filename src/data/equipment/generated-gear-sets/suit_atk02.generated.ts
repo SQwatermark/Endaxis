@@ -3,7 +3,7 @@ import type { GearSetDefinition } from '../../../core/game-data/equipmentDefinit
 
 const definition = {
   slug: 'suit_atk02',
-  iconPath: '/equipment/atk02/item_equip_t4_suit_atk02_edc_04.webp',
+  icon: 'endaxis:equipment/atk02/item_equip_t4_suit_atk02_edc_04',
   modifiers: [{ kind: 'panelStat', stat: 'attackPercent', value: 0.15 }],
   actionGraph: {
     main: {
@@ -78,8 +78,7 @@ const definition = {
       maxTriggerCount: 1,
       presentation: {
         visible: true,
-        iconId: 'icon_battle_buff_atk_up',
-        iconPath: '/icons/icon_battle_buff_atk_up.webp',
+        icon: 'endaxis:icons/icon_battle_buff_atk_up',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
         showInSquadIcon: true,

@@ -1,3 +1,4 @@
+import { imageRefFromPath } from '../../compiler/publication/imageResources.ts';
 import type { ContingencyContractTagDefinition } from '../../../../../packages/game-data-contract/src/mechanics.ts';
 import {
   requireArray,
@@ -125,7 +126,7 @@ export function compileContingencyContractTagDefinitions(
         keyId: entry.keyId,
         lockIds: entry.lockIds,
         romanNumSuffix: tag.romanNumSuffix,
-        iconPath: `/contingency_contract/1/${tag.icon}.webp`,
+        icon: imageRefFromPath(`/contingency_contract/1/${tag.icon}.webp`),
         blackboard,
       };
     }),

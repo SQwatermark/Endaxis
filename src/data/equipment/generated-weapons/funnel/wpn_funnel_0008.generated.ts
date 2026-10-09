@@ -80,7 +80,7 @@ const definition = {
     },
   ],
   assetSlug: 'wpn_funnel_0010',
-  iconPath: '/weapons/funnel/wpn_funnel_0010.webp',
+  icon: 'endaxis:weapons/funnel/wpn_funnel_0010',
   buffDefinitions: {
     buff_wpn_funnel_0008_magic_damage_taken_up: {
       stackingType: 'highPriority',
@@ -92,8 +92,7 @@ const definition = {
       maxTriggerCount: 1,
       presentation: {
         visible: true,
-        iconId: 'icon_battle_spell_taken_up',
-        iconPath: '/icons/icon_battle_spell_taken_up.webp',
+        icon: 'endaxis:icons/icon_battle_spell_taken_up',
         showInHeadBarCommon: true,
         showInHeadBarAttached: false,
         showInSquadIcon: false,

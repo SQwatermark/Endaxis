@@ -208,7 +208,7 @@ const definition = {
     },
   ],
   assetSlug: 'wpn_funnel_0019',
-  iconPath: '/weapons/funnel/wpn_funnel_0019.webp',
+  icon: 'endaxis:weapons/funnel/wpn_funnel_0019',
   buffDefinitions: {
     buff_wpn_funnel_0019_burstup_layer: {
       stackingType: 'stack',
@@ -220,8 +220,7 @@ const definition = {
       maxTriggerCount: 1,
       presentation: {
         visible: true,
-        iconId: 'icon_battle_buff_wpn_funnel_0019',
-        iconPath: '/icons/icon_battle_buff_wpn_funnel_0019.webp',
+        icon: 'endaxis:icons/icon_battle_buff_wpn_funnel_0019',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
         showInSquadIcon: true,
@@ -257,8 +256,7 @@ const definition = {
       maxTriggerCount: 1,
       presentation: {
         visible: true,
-        iconId: 'icon_battle_physical_infliction_up',
-        iconPath: '/icons/icon_battle_physical_infliction_up.webp',
+        icon: 'endaxis:icons/icon_battle_physical_infliction_up',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
         showInSquadIcon: true,
@@ -299,8 +297,7 @@ const definition = {
       maxTriggerCount: 1,
       presentation: {
         visible: true,
-        iconId: 'icon_battle_spell_up',
-        iconPath: '/icons/icon_battle_spell_up.webp',
+        icon: 'endaxis:icons/icon_battle_spell_up',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
         showInSquadIcon: true,

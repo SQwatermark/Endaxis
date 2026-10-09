@@ -3,7 +3,7 @@ import type { GearSetDefinition } from '../../../core/game-data/equipmentDefinit
 
 const definition = {
   slug: 'suit_heal01',
-  iconPath: '/equipment/heal01/item_equip_t4_suit_heal01_edc_03.webp',
+  icon: 'endaxis:equipment/heal01/item_equip_t4_suit_heal01_edc_03',
   modifiers: [{ kind: 'staticHealingIncrease', target: 'output', value: 0.2 }],
   actionGraph: {
     main: {
@@ -39,8 +39,7 @@ const definition = {
       maxTriggerCount: 0,
       presentation: {
         visible: true,
-        iconId: 'icon_battle_buff_def_up',
-        iconPath: '/icons/icon_battle_buff_def_up.webp',
+        icon: 'endaxis:icons/icon_battle_buff_def_up',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
         showInSquadIcon: true,

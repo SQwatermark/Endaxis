@@ -437,8 +437,7 @@ function parseOptionalPresentation(
   const presentationPath = `${path}.presentation`;
   const input = requireObject(entry.presentation, presentationPath);
   requireOnlyKeys(input, presentationPath, [
-    'iconId',
-    'iconPath',
+    'icon',
     'visible',
     'showInHeadBarCommon',
     'showInHeadBarAttached',
@@ -459,7 +458,7 @@ function parseOptionalPresentation(
     'orderPriority',
   ]);
   const optionalString = (
-    key: 'iconId' | 'iconPath' | 'charHpBarVfxType' | 'iconStyleInSquad' | 'abnormalColorType',
+    key: 'icon' | 'charHpBarVfxType' | 'iconStyleInSquad' | 'abnormalColorType',
   ) =>
     input[key] === undefined
       ? {}
@@ -497,8 +496,7 @@ function parseOptionalPresentation(
   }
   return {
     presentation: {
-      ...optionalString('iconId'),
-      ...optionalString('iconPath'),
+      ...optionalString('icon'),
       ...optionalBoolean('visible'),
       ...optionalBoolean('showInHeadBarCommon'),
       ...optionalBoolean('showInHeadBarAttached'),

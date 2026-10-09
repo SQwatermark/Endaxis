@@ -2,18 +2,30 @@ import type {
   DamageElement,
   OperatorAttribute,
   OperatorWeaponType,
+  SkillType,
 } from '../core/game-data/operatorDefinition';
 
 export const DEFAULT_GAME_ICON_PATH = '/icons/default_icon.webp';
 export const DEFAULT_WEAPON_ICON_PATH = '/weapons/default.webp';
 
-/** Native sprite identities whose exported WebP keeps an established public filename. */
-const ICON_ASSET_PATH_ALIASES: Readonly<Record<string, string>> = Object.freeze({
-  icon_energy_fusion_fire: '/icons/icon_energy_fusion_fire.webp',
-  icon_energy_fusion_pulse: '/icons/icon_energy_fusion_pulse.webp',
-  icon_energy_fusion_cryst: '/icons/icon_energy_fusion_cryst.webp',
-  icon_infliction_nature: '/icons/icon_energy_fusion_nature.webp',
-});
+/** 技能资源的展示约定；定义只保存非默认图标的文件名。 */
+export function defaultOperatorSkillIconPath(
+  slug: string,
+  weaponType: OperatorWeaponType,
+  skillType: SkillType,
+): string {
+  const name =
+    skillType === 'battleSkill'
+      ? 'battle'
+      : skillType === 'comboSkill'
+        ? 'combo'
+        : skillType === 'ultimate'
+          ? 'ultimate'
+          : null;
+  return name
+    ? `/operators/${requireAssetSegment(slug, 'operator asset slug')}/${name} 01.webp`
+    : getWeaponActionIconPath(weaponType);
+}
 
 const ATTRIBUTE_ICON_PATHS: Readonly<Record<OperatorAttribute, string>> = Object.freeze({
   strength: '/icons/icon_attribute_str.webp',
@@ -56,15 +68,6 @@ function requireAssetSegment(value: string, label: string): string {
     throw new Error(`${label} '${normalized}' is not a safe game asset segment`);
   }
   return normalized;
-}
-
-export function getIconAssetPath(iconId: string | null | undefined): string | null {
-  const normalized = String(iconId ?? '').trim();
-  if (!normalized) return null;
-  return (
-    ICON_ASSET_PATH_ALIASES[normalized] ??
-    `/icons/${requireAssetSegment(normalized, 'iconId')}.webp`
-  );
 }
 
 export function getOperatorAvatarPath(assetSlug: string): string {

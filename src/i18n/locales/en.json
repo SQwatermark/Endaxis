@@ -1,4 +1,24 @@
 {
+  "imagePicker": {
+    "choose": "Choose image",
+    "clear": "Use default",
+    "default": "Default image",
+    "missing": "Image resource not found",
+    "search": "Search resource name or ID",
+    "category": "Image category",
+    "all": "All categories",
+    "empty": "No matching images",
+    "more": "Show more",
+    "categories": {
+      "operators": "Operators",
+      "icons": "Common icons",
+      "weapons": "Weapons",
+      "equipment": "Equipment",
+      "enemies": "Enemies",
+      "consumables": "Consumables",
+      "contingency_contract": "Contingency Contract"
+    }
+  },
   "executionTrace": {
     "comboCandidatePassed": "Returned true → Combo candidate registered",
     "comboCandidateRejected": "Returned false → No combo candidate registered",
@@ -513,7 +533,7 @@
       "baseDefense": "Base defense",
       "levelRequirement": "Required level",
       "slotType": "Gear slot",
-      "iconPath": "Icon path",
+      "icon": "Icon",
       "lifetime": "Lifetime",
       "kind": "Type",
       "durationSeconds": "Duration in seconds",
@@ -1030,28 +1050,8 @@
         "name": "Completion Condition",
         "help": "Choose when the action completes and allows continuation."
       },
-      "noGuardBuffId": {
-        "name": "Vulnerability Buff",
-        "help": "Buff applied when vulnerability starts."
-      },
-      "noGuardDefinition": {
-        "name": "Vulnerability Definition",
-        "help": "Independent resource defining vulnerability."
-      },
       "type": {
         "name": "Type"
-      },
-      "fractureBuffId": {
-        "name": "Breach Buff"
-      },
-      "fractureDefinition": {
-        "name": "Breach Definition"
-      },
-      "crushedBuffId": {
-        "name": "Crush Buff"
-      },
-      "crushedDefinition": {
-        "name": "Crush Definition"
       },
       "damageMultiplier": {
         "name": "Damage Multiplier",
@@ -1060,12 +1060,6 @@
       "ignoreHitEffect": {
         "name": "Skip Hit Visuals",
         "help": "Skip hit visuals without removing damage."
-      },
-      "airborneBuffId": {
-        "name": "Launch Buff"
-      },
-      "airborneDefinition": {
-        "name": "Launch Definition"
       },
       "height": {
         "name": "Launch Height",
@@ -1800,13 +1794,9 @@
         "name": "Cast Skill",
         "help": "Request a skill cast, with options for cost and interruption."
       },
-      "applyKnockDown": {
-        "name": "Apply Knockdown",
-        "help": "Apply knockdown with the selected duration and requirements."
-      },
       "applyPhysicalInfliction": {
         "name": "Apply Physical Status",
-        "help": "Apply launch, crush or breach and resolve its effect against the target’s vulnerability."
+        "help": "Apply launch, knockdown, crush or breach and resolve its effect against the target’s vulnerability."
       },
       "applyElementalReaction": {
         "name": "Apply Arts Reaction",
@@ -4203,7 +4193,7 @@
         "triggerCustomAbilityEvent": "Synchronously publishes an exactly named custom event on the caster AbilitySystem. The current subset only supports the evidenced caster-to-self target route.",
         "castSkillDuringAction": "Queues a registered native skill from the current action and inherits this cast context without charging its cost again. The native ID must resolve to one logical skill.",
         "inheritSkillCastInfoForBasicAttack": "Inherits the current cast information for a basic attack started during the action, preserving damage provenance without creating another player action or cost.",
-        "applyPhysicalInfliction": "Executes the native FractureAction chain: creates No Guard first, then triggers Fracture when No Guard already exists. Both public Buff definitions are embedded at the use site.",
+        "applyPhysicalInfliction": "Applies No Guard or the selected physical infliction according to the target state. Buff IDs reference the shared definition repository.",
         "applyElementalReaction": "Directly applies an elemental reaction with duration and effectiveness.",
         "consumeElementalReaction": "Consumes a specified reaction on the enemy for follow-up effects.",
         "dealDamage": "Deals one Attack-scaled hit and may resolve stagger in the same step.",
@@ -4211,7 +4201,6 @@
         "dealStagger": "Deals stagger only, with no health damage.",
         "outputAirborne": "Outputs one airborne fact and synchronously triggers listeners without changing dummy position or control state.",
         "outputKnockDown": "Outputs one knockdown fact and synchronously triggers listeners without changing dummy position or control state.",
-        "applyKnockDown": "Root knockdown preserves guard breaking, status buffs, immunity and events. Standard scenario integration is pending; simulation is not yet supported.",
         "heal": "Heals an operator from the caster's primary attribute and records raw, actual, and overhealing even at full health.",
         "applyBuff": "Creates a Buff instance by looking up its ID in the owning object’s definitions and sets its initial blackboard values.",
         "createGlobalBuff": "Creates a battle-level GlobalBuff parent and projects its child Buffs onto every member of the fixed party.",
@@ -4373,7 +4362,6 @@
         "dealStagger": "Deal stagger",
         "outputAirborne": "Output airborne",
         "outputKnockDown": "Output knockdown",
-        "applyKnockDown": "Root knockdown (not integrated)",
         "heal": "Heal operator",
         "applyBuff": "Apply buff",
         "createGlobalBuff": "Create global buff",

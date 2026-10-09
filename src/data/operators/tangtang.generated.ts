@@ -2706,8 +2706,7 @@ const tangtangBuff2: SkillBuffDefinition = {
   durationSeconds: { blackboardKey: 'duration_waterbuff' },
   presentation: {
     visible: true,
-    iconId: 'icon_battle_tangtang_speedup',
-    iconPath: '/icons/icon_battle_tangtang_speedup.webp',
+    icon: 'endaxis:icons/icon_battle_tangtang_speedup',
     showInHeadBarCommon: false,
     showInHeadBarAttached: false,
     showInSquadIcon: false,
@@ -2792,8 +2791,7 @@ const tangtangBuff3: SkillBuffDefinition = {
   durationSeconds: { blackboardKey: 'duration_talent1buff' },
   presentation: {
     visible: true,
-    iconId: 'icon_battle_tangtang_speedup',
-    iconPath: '/icons/icon_battle_tangtang_speedup.webp',
+    icon: 'endaxis:icons/icon_battle_tangtang_speedup',
     showInHeadBarCommon: false,
     showInHeadBarAttached: false,
     showInSquadIcon: false,
@@ -3297,8 +3295,7 @@ const tangtangBuff13: SkillBuffDefinition = {
   durationSeconds: { blackboardKey: 'duration' },
   presentation: {
     visible: true,
-    iconId: 'icon_battle_tangtang_ultskilldebuff',
-    iconPath: '/icons/icon_battle_tangtang_ultskilldebuff.webp',
+    icon: 'endaxis:icons/icon_battle_tangtang_ultskilldebuff',
     showInHeadBarCommon: false,
     showInHeadBarAttached: false,
     showInSquadIcon: true,
@@ -3356,8 +3353,7 @@ const tangtangBuff15: SkillBuffDefinition = {
   durationSeconds: { blackboardKey: 'ultskill_debuff_duration' },
   presentation: {
     visible: true,
-    iconId: 'icon_battle_tangtang_ultskilldebuff',
-    iconPath: '/icons/icon_battle_tangtang_ultskilldebuff.webp',
+    icon: 'endaxis:icons/icon_battle_tangtang_ultskilldebuff',
     showInHeadBarCommon: true,
     showInHeadBarAttached: false,
     showInSquadIcon: false,
@@ -3678,8 +3674,7 @@ const tangtangBuff18: SkillBuffDefinition = {
   maxTriggerCount: 1,
   presentation: {
     visible: true,
-    iconId: 'icon_battle_affix_speedup',
-    iconPath: '/icons/icon_battle_affix_speedup.webp',
+    icon: 'endaxis:icons/icon_battle_affix_speedup',
     showInHeadBarCommon: true,
     showInHeadBarAttached: false,
     showInSquadIcon: true,
@@ -5365,7 +5360,7 @@ export const tangtang: OperatorDefinition = {
         },
       },
       presentation: {
-        icon: '/operators/tangtang/ultimate 01.webp',
+        icon: 'endaxis:operators/tangtang/ultimate_01',
         nameKey: 'effects.name.oldenStare',
         placement: 'enemy',
         damageDisplayBuffId: 'buff_chr_0027_tangtang_ultskill_debuff',
@@ -5707,7 +5702,7 @@ export const tangtang: OperatorDefinition = {
         },
       },
       presentation: {
-        icon: '/operators/tangtang/talent 2.webp',
+        icon: 'endaxis:operators/tangtang/talent_2',
         nameKey: 'effects.name.waterspouts',
         placement: 'enemy',
       },
@@ -6048,7 +6043,7 @@ export const tangtang: OperatorDefinition = {
         },
       },
       presentation: {
-        icon: '/operators/tangtang/talent 2.webp',
+        icon: 'endaxis:operators/tangtang/talent_2',
         nameKey: 'effects.name.waterspouts',
         placement: 'enemy',
       },
@@ -6389,7 +6384,7 @@ export const tangtang: OperatorDefinition = {
         },
       },
       presentation: {
-        icon: '/operators/tangtang/talent 2.webp',
+        icon: 'endaxis:operators/tangtang/talent_2',
         nameKey: 'effects.name.waterspouts',
         placement: 'enemy',
       },
@@ -6730,7 +6725,7 @@ export const tangtang: OperatorDefinition = {
         },
       },
       presentation: {
-        icon: '/operators/tangtang/talent 2.webp',
+        icon: 'endaxis:operators/tangtang/talent_2',
         nameKey: 'effects.name.waterspouts',
         placement: 'enemy',
       },
@@ -7070,7 +7065,7 @@ export const tangtang: OperatorDefinition = {
         },
       },
       presentation: {
-        icon: '/operators/tangtang/talent 2.webp',
+        icon: 'endaxis:operators/tangtang/talent_2',
         nameKey: 'effects.name.waterspouts',
         placement: 'enemy',
       },
@@ -7366,7 +7361,7 @@ export const tangtang: OperatorDefinition = {
         },
       },
       presentation: {
-        icon: '/operators/tangtang/talent 2.webp',
+        icon: 'endaxis:operators/tangtang/talent_2',
         nameKey: 'effects.name.waterspouts',
         placement: 'enemy',
       },

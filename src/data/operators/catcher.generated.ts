@@ -1334,10 +1334,11 @@ export const catcherChr_0020_meurs_ultimate_skillActionGraph = {
         },
         next: 'startTimeDilation_7',
       },
-      applyKnockDown_9: {
+      applyPhysicalInfliction_9: {
         action: {
-          kind: 'applyKnockDown',
+          kind: 'applyPhysicalInfliction',
           parameters: {
+            type: 'knockDown',
             target: 'enemy',
             duration: { kind: 'valueNode', nodeId: 'data_7' },
             force: false,
@@ -1451,7 +1452,7 @@ export const catcherChr_0020_meurs_ultimate_skill: SkillDefinition = {
     { startFrame: 46, endFrame: 49, sequence: { $sequence: 'applyBuff_2' } },
     { startFrame: 46, endFrame: 49, sequence: { $sequence: 'dealDamage_4' } },
     { startFrame: 64, endFrame: 67, sequence: { $sequence: 'dealDamage_6' } },
-    { startFrame: 85, endFrame: 88, sequence: { $sequence: 'applyKnockDown_9' } },
+    { startFrame: 85, endFrame: 88, sequence: { $sequence: 'applyPhysicalInfliction_9' } },
     { startFrame: 102, endFrame: 105, sequence: { $sequence: 'conditional_11' } },
     { startFrame: 0, endFrame: 38, sequence: { $sequence: 'hideUi_12' } },
     { startFrame: 0, endFrame: 38, sequence: { $sequence: 'startUltimateTimeDilation_13' } },
@@ -1617,8 +1618,7 @@ const catcherBuff1: SkillBuffDefinition = {
   durationSeconds: { blackboardKey: 'duration' },
   presentation: {
     visible: true,
-    iconId: 'icon_battle_buff_def_up',
-    iconPath: '/icons/icon_battle_buff_def_up.webp',
+    icon: 'endaxis:icons/icon_battle_buff_def_up',
     showInHeadBarCommon: false,
     showInHeadBarAttached: false,
     showInSquadIcon: true,

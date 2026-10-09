@@ -7,7 +7,7 @@ export interface ConsumableBuffApplicationDefinition {
 /** 当前固定木桩产品支持的主动增益消耗品。 */
 export interface ConsumableDefinition {
   readonly id: string;
-  readonly iconPath: string;
+  readonly icon: import('./images.ts').ImageRef;
   readonly rarity: number;
   readonly kind: 'operatorBuff';
   readonly durationSeconds: number;

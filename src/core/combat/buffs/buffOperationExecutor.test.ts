@@ -903,6 +903,7 @@ describe('BuffOperationExecutor', () => {
       sourceActionId: 'comboSkill',
       resolveTarget: () => target,
       onBeforeOutputPhysicalInfliction: event => beforeOutput.push(event),
+      resolveBuffDefinition: () => ({ stackingType: 'refresh' }),
       delegate,
     });
     const step = {
@@ -911,10 +912,6 @@ describe('BuffOperationExecutor', () => {
         type: 'fracture' as const,
         target: 'enemy' as const,
         isExtra: false,
-        noGuardBuffId: 'buff_physical_no_guard',
-        noGuardDefinition: { stackingType: 'unlimited' as const },
-        fractureBuffId: 'buff_physical_fracture',
-        fractureDefinition: { stackingType: 'refresh' as const },
       },
     };
     const attachBuffToCurrentSkill = vi.fn();
@@ -969,16 +966,13 @@ describe('BuffOperationExecutor', () => {
       sourceId: 'antal',
       resolveTarget: () => target,
       onBeforeOutputPhysicalInfliction: event => beforeOutput.push(event.type),
+      resolveBuffDefinition: () => ({ stackingType: 'refresh' }),
       delegate,
     });
     const parameters = {
       type: 'airborne' as const,
       target: 'enemy' as const,
       isExtra: false,
-      noGuardBuffId: 'buff_physical_no_guard',
-      noGuardDefinition: { stackingType: 'enhanceAndRefresh' as const },
-      airborneBuffId: 'buff_physical_airborne',
-      airborneDefinition: { stackingType: 'refresh' as const },
       duration: { kind: 'constant' as const, value: 1.5 },
       height: { kind: 'constant' as const, value: 2 },
       speedFactorMultiplier: 3,
@@ -1037,6 +1031,7 @@ describe('BuffOperationExecutor', () => {
     const executor = new BuffOperationExecutor({
       sourceId: 'dapan',
       resolveTarget: () => target,
+      resolveBuffDefinition: () => ({ stackingType: 'refresh' }),
       delegate,
     });
 
@@ -1048,10 +1043,6 @@ describe('BuffOperationExecutor', () => {
             type: 'crush',
             target: 'enemy',
             isExtra: false,
-            noGuardBuffId: 'buff_physical_no_guard',
-            noGuardDefinition: { stackingType: 'enhanceAndRefresh' },
-            crushedBuffId: 'buff_physical_crushed',
-            crushedDefinition: { stackingType: 'stack', stackingKey: 'physical' },
             damageMultiplier: numberInput({ kind: 'blackboard', key: 'crush_multi' }),
             ignoreHitEffect: true,
           },

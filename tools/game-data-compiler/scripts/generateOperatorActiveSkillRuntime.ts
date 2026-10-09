@@ -605,7 +605,6 @@ export function planOperatorActiveSkillRuntime(
   let definition: ReturnType<typeof compileOperatorActiveSkillRuntimeDefinitionSource>;
   try {
     definition = compileOperatorActiveSkillRuntimeDefinitionSource({
-      slug: args.slug,
       key: args.key,
       skillType: args.skillType,
       value: source,
@@ -658,8 +657,7 @@ export function planOperatorActiveSkillRuntime(
   for (const id of args.supplementalBuffIds)
     if (!runtimeBuffIds.has(id))
       throw new Error(`supplemental Buff '${id}' is not applied by the compiled runtime`);
-  // 正式动作已经给出完整静态 Buff 身份；闭包根不能只依赖命令行手填补充项，
-  // 否则物理异常等隐式公共 Buff 会在最终内联阶段虚假报缺失。
+  // 此阶段补齐物理异常隐式依赖；普通 Buff 在干员阶段按真实目标上下文编译。
   const buffClosureRoots = [
     ...new Set([
       ...collectCompiledPhysicalInflictionBuffIds(definition),

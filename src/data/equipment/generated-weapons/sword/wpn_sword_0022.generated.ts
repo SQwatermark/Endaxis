@@ -133,7 +133,7 @@ const definition = {
     },
   ],
   assetSlug: 'wpn_sword_0022',
-  iconPath: '/weapons/sword/wpn_sword_0022.webp',
+  icon: 'endaxis:weapons/sword/wpn_sword_0022',
   buffDefinitions: {
     buff_wpn_sword_0022_final: {
       stackingType: 'unique',
@@ -142,8 +142,7 @@ const definition = {
       durationSeconds: { blackboardKey: 'duration' },
       presentation: {
         visible: true,
-        iconId: 'icon_battle_buff_wpn_sword_0022',
-        iconPath: '/icons/icon_battle_buff_wpn_sword_0022.webp',
+        icon: 'endaxis:icons/icon_battle_buff_wpn_sword_0022',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
         showInSquadIcon: true,
@@ -206,8 +205,7 @@ const definition = {
       maxTriggerCount: 1,
       presentation: {
         visible: true,
-        iconId: 'icon_battle_buff_wpn_sword_0022',
-        iconPath: '/icons/icon_battle_buff_wpn_sword_0022.webp',
+        icon: 'endaxis:icons/icon_battle_buff_wpn_sword_0022',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
         showInSquadIcon: true,

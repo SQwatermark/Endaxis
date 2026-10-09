@@ -95,7 +95,7 @@ const commonBuff1: SkillBuffDefinition = {
     iconStyleInSquad: 'Default',
     abnormalColorType: 'Physical',
     orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
-    iconPath: '/icons/icon_term_ba_combo.webp',
+    icon: 'endaxis:icons/icon_term_ba_combo',
     nameKey: 'effects.name.link',
   },
   applyTags: [],
@@ -261,8 +261,7 @@ const commonBuff5: SkillBuffDefinition = {
   durationSeconds: { blackboardKey: 'duration' },
   presentation: {
     visible: true,
-    iconId: 'icon_battle_affix_natural_enhance',
-    iconPath: '/icons/icon_battle_affix_natural_enhance.webp',
+    icon: 'endaxis:icons/icon_battle_affix_natural_enhance',
     showInHeadBarCommon: false,
     showInHeadBarAttached: false,
     showInSquadIcon: true,
@@ -347,8 +346,7 @@ const commonBuff7: SkillBuffDefinition = {
   durationSeconds: { blackboardKey: 'duration' },
   presentation: {
     visible: true,
-    iconId: 'icon_battle_affix_pulse_enhance',
-    iconPath: '/icons/icon_battle_affix_pulse_enhance.webp',
+    icon: 'endaxis:icons/icon_battle_affix_pulse_enhance',
     showInHeadBarCommon: false,
     showInHeadBarAttached: false,
     showInSquadIcon: true,
@@ -455,8 +453,7 @@ const commonBuff9: SkillBuffDefinition = {
   durationSeconds: { blackboardKey: 'duration' },
   presentation: {
     visible: true,
-    iconId: 'icon_battle_affix_spell_enhance',
-    iconPath: '/icons/icon_battle_affix_spell_enhance.webp',
+    icon: 'endaxis:icons/icon_battle_affix_spell_enhance',
     showInHeadBarCommon: false,
     showInHeadBarAttached: false,
     showInSquadIcon: true,
@@ -541,8 +538,7 @@ const commonBuff11: SkillBuffDefinition = {
   durationSeconds: { blackboardKey: 'duration' },
   presentation: {
     visible: true,
-    iconId: 'icon_battle_affix_shelter',
-    iconPath: '/icons/icon_battle_affix_shelter.webp',
+    icon: 'endaxis:icons/icon_battle_affix_shelter',
     showInHeadBarCommon: false,
     showInHeadBarAttached: false,
     showInSquadIcon: true,
@@ -766,8 +762,7 @@ const commonBuff15: SkillBuffDefinition = {
   maxTriggerCount: 1,
   presentation: {
     visible: true,
-    iconId: 'icon_battle_affix_slow',
-    iconPath: '/icons/icon_battle_affix_slow.webp',
+    icon: 'endaxis:icons/icon_battle_affix_slow',
     showInHeadBarCommon: true,
     showInHeadBarAttached: false,
     showInSquadIcon: true,
@@ -898,8 +893,7 @@ const commonBuff18: SkillBuffDefinition = {
   durationSeconds: { blackboardKey: 'duration' },
   presentation: {
     visible: true,
-    iconId: 'icon_battle_affix_cryst_vulnerable',
-    iconPath: '/icons/icon_battle_affix_cryst_vulnerable.webp',
+    icon: 'endaxis:icons/icon_battle_affix_cryst_vulnerable',
     showInHeadBarCommon: true,
     showInHeadBarAttached: false,
     showInSquadIcon: true,
@@ -1123,8 +1117,7 @@ const commonBuff24: SkillBuffDefinition = {
   durationSeconds: { blackboardKey: 'duration' },
   presentation: {
     visible: true,
-    iconId: 'icon_battle_affix_physical_vulnerable',
-    iconPath: '/icons/icon_battle_affix_physical_vulnerable.webp',
+    icon: 'endaxis:icons/icon_battle_affix_physical_vulnerable',
     showInHeadBarCommon: true,
     showInHeadBarAttached: false,
     showInSquadIcon: true,
@@ -1213,8 +1206,7 @@ const commonBuff26: SkillBuffDefinition = {
   durationSeconds: { blackboardKey: 'duration' },
   presentation: {
     visible: true,
-    iconId: 'icon_battle_affix_pulse_vulnerable',
-    iconPath: '/icons/icon_battle_affix_pulse_vulnerable.webp',
+    icon: 'endaxis:icons/icon_battle_affix_pulse_vulnerable',
     showInHeadBarCommon: true,
     showInHeadBarAttached: false,
     showInSquadIcon: true,
@@ -1321,8 +1313,7 @@ const commonBuff28: SkillBuffDefinition = {
   durationSeconds: { blackboardKey: 'duration' },
   presentation: {
     visible: true,
-    iconId: 'icon_battle_affix_spell_vulnerable',
-    iconPath: '/icons/icon_battle_affix_spell_vulnerable.webp',
+    icon: 'endaxis:icons/icon_battle_affix_spell_vulnerable',
     showInHeadBarCommon: true,
     showInHeadBarAttached: false,
     showInSquadIcon: true,
@@ -1407,8 +1398,7 @@ const commonBuff30: SkillBuffDefinition = {
   durationSeconds: { blackboardKey: 'duration' },
   presentation: {
     visible: true,
-    iconId: 'icon_battle_affix_weak',
-    iconPath: '/icons/icon_battle_affix_weak.webp',
+    icon: 'endaxis:icons/icon_battle_affix_weak',
     showInHeadBarCommon: true,
     showInHeadBarAttached: false,
     showInSquadIcon: true,
@@ -1631,8 +1621,7 @@ const commonBuff33: SkillBuffDefinition = {
   maxTriggerCount: 1,
   presentation: {
     visible: true,
-    iconId: 'icon_battle_frozen',
-    iconPath: '/icons/icon_battle_frozen.webp',
+    icon: 'endaxis:icons/icon_battle_frozen',
     showInHeadBarCommon: true,
     showInHeadBarAttached: false,
     showInSquadIcon: false,
@@ -2628,8 +2617,7 @@ const commonBuff45: SkillBuffDefinition = {
   maxTriggerCount: 1,
   presentation: {
     visible: true,
-    iconId: 'icon_battle_burning',
-    iconPath: '/icons/icon_battle_burning.webp',
+    icon: 'endaxis:icons/icon_battle_burning',
     showInHeadBarCommon: true,
     showInHeadBarAttached: false,
     showInSquadIcon: false,
@@ -3030,8 +3018,7 @@ const commonBuff52: SkillBuffDefinition = {
   maxTriggerCount: -1,
   presentation: {
     visible: true,
-    iconId: 'icon_battle_corrupt',
-    iconPath: '/icons/icon_battle_corrupt.webp',
+    icon: 'endaxis:icons/icon_battle_corrupt',
     showInHeadBarCommon: true,
     showInHeadBarAttached: false,
     showInSquadIcon: false,
@@ -3838,8 +3825,7 @@ const commonBuff57: SkillBuffDefinition = {
   durationSeconds: { blackboardKey: 'duration' },
   presentation: {
     visible: true,
-    iconId: 'icon_skill_endmin_debuff',
-    iconPath: '/icons/icon_skill_endmin_debuff.webp',
+    icon: 'endaxis:icons/icon_skill_endmin_debuff',
     showInHeadBarCommon: true,
     showInHeadBarAttached: false,
     showInSquadIcon: false,
@@ -4197,8 +4183,7 @@ const commonBuff62: SkillBuffDefinition = {
   maxTriggerCount: 1,
   presentation: {
     visible: true,
-    iconId: 'icon_battle_conduct',
-    iconPath: '/icons/icon_battle_conduct.webp',
+    icon: 'endaxis:icons/icon_battle_conduct',
     showInHeadBarCommon: true,
     showInHeadBarAttached: false,
     showInSquadIcon: false,
@@ -4537,8 +4522,7 @@ const commonBuff65: SkillBuffDefinition = {
   maxTriggerCount: 1,
   presentation: {
     visible: true,
-    iconId: 'airborne',
-    iconPath: '/icons/airborne.webp',
+    icon: 'endaxis:icons/airborne',
     showInHeadBarCommon: false,
     showInHeadBarAttached: false,
     showInSquadIcon: false,
@@ -4851,8 +4835,7 @@ const commonBuff66: SkillBuffDefinition = {
   maxTriggerCount: 1,
   presentation: {
     visible: true,
-    iconId: 'knockback',
-    iconPath: '/icons/knockback.webp',
+    icon: 'endaxis:icons/knockback',
     showInHeadBarCommon: false,
     showInHeadBarAttached: false,
     showInSquadIcon: false,
@@ -5185,8 +5168,7 @@ const commonBuff67: SkillBuffDefinition = {
   maxTriggerCount: 0,
   presentation: {
     visible: true,
-    iconId: 'icon_battle_fracture',
-    iconPath: '/icons/icon_battle_fracture.webp',
+    icon: 'endaxis:icons/icon_battle_fracture',
     showInHeadBarCommon: true,
     showInHeadBarAttached: false,
     showInSquadIcon: false,
@@ -5750,8 +5732,7 @@ const commonBuff71: SkillBuffDefinition = {
   durationSeconds: { blackboardKey: 'duration' },
   presentation: {
     visible: true,
-    iconId: 'icon_shadow_attribute_penetrate',
-    iconPath: '/icons/icon_shadow_attribute_penetrate.webp',
+    icon: 'endaxis:icons/icon_shadow_attribute_penetrate',
     showInHeadBarCommon: false,
     showInHeadBarAttached: true,
     showInSquadIcon: false,

@@ -256,8 +256,9 @@ describe('标准入口普通倒地装配', () => {
           startFrame: 0,
           steps: [
             ...Array.from({ length: 2 }, () => ({
-              kind: 'applyKnockDown' as const,
+              kind: 'applyPhysicalInfliction' as const,
               parameters: {
+                type: 'knockDown' as const,
                 target: 'enemy' as const,
                 duration: { kind: 'constant' as const, value: 0.1 },
                 force: false,
@@ -3210,7 +3211,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
       ),
     ).toContainEqual(
       expect.objectContaining({
-        iconId: 'icon_energy_fusion_pulse',
+        icon: 'endaxis:icons/icon_energy_fusion_pulse',
         showInHeadBarCommon: false,
         showInHeadBarAttached: true,
       }),

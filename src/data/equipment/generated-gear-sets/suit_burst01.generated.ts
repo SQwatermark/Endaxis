@@ -3,7 +3,7 @@ import type { GearSetDefinition } from '../../../core/game-data/equipmentDefinit
 
 const definition = {
   slug: 'suit_burst01',
-  iconPath: '/equipment/burst01/item_equip_t4_suit_burst01_edc_01.webp',
+  icon: 'endaxis:equipment/burst01/item_equip_t4_suit_burst01_edc_01',
   modifiers: [
     { kind: 'damageScale', target: 'comboSkill', slot: 'baseAddition', value: 0.2 },
     { kind: 'damageScale', target: 'battleSkill', slot: 'baseAddition', value: 0.2 },
@@ -209,8 +209,7 @@ const definition = {
       maxTriggerCount: 1,
       presentation: {
         visible: true,
-        iconId: 'icon_battle_spell_up',
-        iconPath: '/icons/icon_battle_spell_up.webp',
+        icon: 'endaxis:icons/icon_battle_spell_up',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
         showInSquadIcon: true,

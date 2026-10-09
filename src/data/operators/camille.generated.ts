@@ -3498,8 +3498,7 @@ const camilleBuff4: SkillBuffDefinition = {
   durationSeconds: 999,
   presentation: {
     visible: true,
-    iconId: 'icon_battle_camille_normal_skill_bat',
-    iconPath: '/icons/icon_battle_camille_normal_skill_bat.webp',
+    icon: 'endaxis:icons/icon_battle_camille_normal_skill_bat',
     showInHeadBarCommon: false,
     showInHeadBarAttached: false,
     showInSquadIcon: true,
@@ -3700,8 +3699,7 @@ const camilleBuff9: SkillBuffDefinition = {
   maxStackCount: 1,
   presentation: {
     visible: true,
-    iconId: 'icon_battle_camille_normal_skill_bat',
-    iconPath: '/icons/icon_battle_camille_normal_skill_bat.webp',
+    icon: 'endaxis:icons/icon_battle_camille_normal_skill_bat',
     showInHeadBarCommon: true,
     showInHeadBarAttached: false,
     showInSquadIcon: false,
@@ -3758,8 +3756,7 @@ const camilleBuff11: SkillBuffDefinition = {
   durationSeconds: { blackboardKey: 'duration' },
   presentation: {
     visible: true,
-    iconId: 'icon_battle_fire_dmg_up',
-    iconPath: '/icons/icon_battle_fire_dmg_up.webp',
+    icon: 'endaxis:icons/icon_battle_fire_dmg_up',
     showInHeadBarCommon: false,
     showInHeadBarAttached: false,
     showInSquadIcon: true,
@@ -3835,8 +3832,7 @@ const camilleBuff12: SkillBuffDefinition = {
   durationSeconds: { blackboardKey: 'duration' },
   presentation: {
     visible: true,
-    iconId: 'icon_battle_camille_ult_state',
-    iconPath: '/icons/icon_battle_camille_ult_state.webp',
+    icon: 'endaxis:icons/icon_battle_camille_ult_state',
     showInHeadBarCommon: false,
     showInHeadBarAttached: false,
     showInSquadIcon: true,

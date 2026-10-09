@@ -83,10 +83,7 @@ describe('危机合约生效词条的开局装配', () => {
           expect(receipt.data?.sourceActionId).toBe(expectedSourceActionId);
         }
         const visibleReceipts = contractBuffReceipts.filter(
-          receipt =>
-            receipt.data?.visible === true ||
-            typeof receipt.data?.iconId === 'string' ||
-            typeof receipt.data?.iconPath === 'string',
+          receipt => receipt.data?.visible === true || typeof receipt.data?.icon === 'string',
         );
         const projected = projectBuffTimelineViz(result.receiptEntries, 0);
         for (const receipt of visibleReceipts) {

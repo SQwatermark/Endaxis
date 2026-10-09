@@ -1,10 +1,11 @@
+import { resolveImage } from '../../imageResources';
 import type { ScenarioDocument } from '../../../core/project/schema';
 import type { PublishedOperatorMetadata } from './publishedOperatorMetadata';
 export interface PublishedEquipmentIdentity {
   readonly slug: string;
   readonly assetSlug?: string;
   readonly displayName?: string;
-  readonly iconPath?: string;
+  readonly icon?: import('../../../../packages/game-data-contract/src/images').ImageRef;
   readonly traits?: readonly {
     readonly key: string;
     readonly eventHandlers?: readonly { readonly key: string }[];
@@ -23,7 +24,7 @@ export function capturePublishedEquipmentSources(
         kind,
         slug: weapon.assetSlug ?? weapon.slug,
         ...(weapon.displayName === undefined ? {} : { name: weapon.displayName }),
-        ...(weapon.iconPath === undefined ? {} : { iconPath: weapon.iconPath }),
+        ...(weapon.icon === undefined ? {} : { iconPath: resolveImage(weapon.icon) }),
         ...(weapon.traits === undefined
           ? {}
           : {

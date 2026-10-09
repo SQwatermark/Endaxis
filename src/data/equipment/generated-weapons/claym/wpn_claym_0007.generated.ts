@@ -143,7 +143,7 @@ const definition = {
     },
   ],
   assetSlug: 'wpn_claym_0007',
-  iconPath: '/weapons/claym/wpn_claym_0007.webp',
+  icon: 'endaxis:weapons/claym/wpn_claym_0007',
   buffDefinitions: {
     buff_wpn_claym_0007_valid: {
       stackingType: 'unlimited',
@@ -155,8 +155,7 @@ const definition = {
       maxTriggerCount: 1,
       presentation: {
         visible: true,
-        iconId: 'icon_battle_shield',
-        iconPath: '/icons/icon_battle_shield.webp',
+        icon: 'endaxis:icons/icon_battle_shield',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
         showInSquadIcon: true,

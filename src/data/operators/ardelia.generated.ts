@@ -2071,8 +2071,7 @@ const ardeliaBuff2: SkillBuffDefinition = {
   durationSeconds: { blackboardKey: 'duration' },
   presentation: {
     visible: true,
-    iconId: 'icon_battle_affix_vulnerable',
-    iconPath: '/icons/icon_battle_affix_vulnerable.webp',
+    icon: 'endaxis:icons/icon_battle_affix_vulnerable',
     showInHeadBarCommon: true,
     showInHeadBarAttached: false,
     showInSquadIcon: true,

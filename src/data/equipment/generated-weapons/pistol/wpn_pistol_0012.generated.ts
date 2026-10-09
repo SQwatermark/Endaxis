@@ -137,7 +137,7 @@ const definition = {
     },
   ],
   assetSlug: 'wpn_pistol_0012',
-  iconPath: '/weapons/pistol/wpn_pistol_0012.webp',
+  icon: 'endaxis:weapons/pistol/wpn_pistol_0012',
   buffDefinitions: {
     buff_wpn_pistol_0012_natural: {
       stackingType: 'highPriority',
@@ -149,8 +149,7 @@ const definition = {
       maxTriggerCount: 1,
       presentation: {
         visible: true,
-        iconId: 'icon_battle_natural_dmg_up',
-        iconPath: '/icons/icon_battle_natural_dmg_up.webp',
+        icon: 'endaxis:icons/icon_battle_natural_dmg_up',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
         showInSquadIcon: true,

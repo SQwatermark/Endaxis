@@ -73,7 +73,7 @@ describe('enemy status presentation rows', () => {
   });
   it('uses explicit native head-bar routing, not a shared icon or buff name, to hide internal effects', () => {
     const hidden = buff('internal', {
-      iconId: 'shared',
+      icon: 'endaxis:icons/shared',
       showInHeadBarCommon: false,
       showInHeadBarAttached: false,
     });
@@ -85,7 +85,7 @@ describe('enemy status presentation rows', () => {
     expect(
       isEnemyTimelineBuffVisible(buff('attachment', { ...hidden, showInHeadBarAttached: true })),
     ).toBe(true);
-    expect(isEnemyTimelineBuffVisible(buff('custom', { iconId: 'shared' }))).toBe(true);
+    expect(isEnemyTimelineBuffVisible(buff('custom', { icon: 'endaxis:icons/shared' }))).toBe(true);
     expect(JSON.stringify(hidden)).toBe(before);
   });
   it('never spreads neighboring frames into same-time slots or changes their timing', () => {
@@ -210,7 +210,7 @@ describe('enemy status presentation rows', () => {
     const attachment = buff('electric', { showInHeadBarAttached: true });
     const physical = buff('buff_physical_no_guard', { showInHeadBarAttached: true });
     const anomaly = buff('anomaly', { iconStyleInSquad: 'SpellAbnormal' });
-    const unknown = buff('unknown', { iconId: 'icon_battle_frozen' });
+    const unknown = buff('unknown', { icon: 'endaxis:icons/icon_battle_frozen' });
     const result = layoutEnemyStatusRows(
       [attachment, physical, anomaly, unknown],
       [],

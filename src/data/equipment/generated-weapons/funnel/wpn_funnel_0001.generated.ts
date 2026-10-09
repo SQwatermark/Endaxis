@@ -99,7 +99,7 @@ const definition = {
     },
   ],
   assetSlug: 'wpn_funnel_0001',
-  iconPath: '/weapons/funnel/wpn_funnel_0001.webp',
+  icon: 'endaxis:weapons/funnel/wpn_funnel_0001',
   buffDefinitions: {
     buff_wpn_funnel_0001: {
       stackingType: 'unique',

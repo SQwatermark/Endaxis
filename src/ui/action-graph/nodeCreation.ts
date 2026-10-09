@@ -38,7 +38,6 @@ const actionGroups: Readonly<Record<string, readonly string[]>> = {
     'heal',
     'outputKnockDown',
     'outputAirborne',
-    'applyKnockDown',
     'applyPhysicalInfliction',
     'triggerSpellBurst',
     'applyElementalInfliction',

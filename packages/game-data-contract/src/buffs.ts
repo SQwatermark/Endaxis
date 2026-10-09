@@ -371,10 +371,8 @@ export type BuffTimeClock = 'default' | 'global' | 'self';
 export interface CombatBuffPresentation {
   /** 此 Buff 的显示名称翻译键；仅供界面使用。 */
   readonly nameKey?: string;
-  /** 游戏资源中的图标 ID。 */
-  readonly iconId?: string;
-  /** 已导出图标的资源路径。 */
-  readonly iconPath?: string;
+  /** 内置图片资源引用。 */
+  readonly icon?: import('./images.ts').ImageRef;
   /** 是否允许界面显示这个 Buff。 */
   readonly visible?: boolean;
   /** 是否显示在普通头顶状态栏。 */

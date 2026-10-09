@@ -13,6 +13,8 @@ export const buffPresentationNames: Readonly<Record<string, string>> = {
 };
 
 /** 原生无图标的效果在时间轴上的补充展示，不改变 Buff 行为。 */
-export const buffPresentationIcons: Readonly<Record<string, string>> = {
-  buff_common_affixes_combo_trigger: '/icons/icon_term_ba_combo.webp',
+export const buffPresentationIcons: Readonly<
+  Record<string, import('../../../packages/game-data-contract/src/images.ts').ImageRef>
+> = {
+  buff_common_affixes_combo_trigger: 'endaxis:icons/icon_term_ba_combo',
 };

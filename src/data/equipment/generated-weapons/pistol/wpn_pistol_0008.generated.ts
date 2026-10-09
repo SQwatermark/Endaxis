@@ -166,7 +166,7 @@ const definition = {
     },
   ],
   assetSlug: 'wpn_pistol_0008',
-  iconPath: '/weapons/pistol/wpn_pistol_0008.webp',
+  icon: 'endaxis:weapons/pistol/wpn_pistol_0008',
   buffDefinitions: {
     buff_wpn_pistol_0008: {
       stackingType: 'highPriority',
@@ -175,8 +175,7 @@ const definition = {
       durationSeconds: { blackboardKey: 'duration' },
       presentation: {
         visible: true,
-        iconId: 'icon_battle_spell_up',
-        iconPath: '/icons/icon_battle_spell_up.webp',
+        icon: 'endaxis:icons/icon_battle_spell_up',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
         showInSquadIcon: true,
@@ -229,8 +228,7 @@ const definition = {
       durationSeconds: { blackboardKey: 'duration' },
       presentation: {
         visible: true,
-        iconId: 'icon_battle_spell_up',
-        iconPath: '/icons/icon_battle_spell_up.webp',
+        icon: 'endaxis:icons/icon_battle_spell_up',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
         showInSquadIcon: true,

@@ -887,10 +887,11 @@ export const lifengChr_0015_lifeng_normal_skillActionGraph = {
         },
         next: 'gainSquadUltimateEnergyFromSkillCost_8',
       },
-      applyKnockDown_10: {
+      applyPhysicalInfliction_10: {
         action: {
-          kind: 'applyKnockDown',
+          kind: 'applyPhysicalInfliction',
           parameters: {
+            type: 'knockDown',
             target: 'enemy',
             duration: { kind: 'constant', value: 1.5 },
             force: false,
@@ -948,7 +949,7 @@ export const lifengChr_0015_lifeng_normal_skill: SkillDefinition = {
     { startFrame: 54, endFrame: 56, sequence: { $sequence: 'forEachContextTarget_3' } },
     { startFrame: 7, endFrame: 9, sequence: { $sequence: 'dealDamage_5' } },
     { startFrame: 20, endFrame: 22, sequence: { $sequence: 'dealDamage_5' } },
-    { startFrame: 54, endFrame: 56, sequence: { $sequence: 'applyKnockDown_10' } },
+    { startFrame: 54, endFrame: 56, sequence: { $sequence: 'applyPhysicalInfliction_10' } },
   ],
   costs: [{ resource: 'sp', value: 100 }],
   skillType: 'battleSkill',
@@ -1549,8 +1550,7 @@ const lifengBuff3: SkillBuffDefinition = {
   maxStackCount: 1,
   presentation: {
     visible: true,
-    iconId: 'icon_battle_lifeng_potential_5',
-    iconPath: '/icons/icon_battle_lifeng_potential_5.webp',
+    icon: 'endaxis:icons/icon_battle_lifeng_potential_5',
     showInHeadBarCommon: false,
     showInHeadBarAttached: false,
     showInSquadIcon: true,
@@ -1630,8 +1630,7 @@ const lifengBuff5: SkillBuffDefinition = {
   durationSeconds: { blackboardKey: 'duration' },
   presentation: {
     visible: true,
-    iconId: 'icon_battle_affix_physical_vulnerable',
-    iconPath: '/icons/icon_battle_affix_physical_vulnerable.webp',
+    icon: 'endaxis:icons/icon_battle_affix_physical_vulnerable',
     showInHeadBarCommon: true,
     showInHeadBarAttached: false,
     showInSquadIcon: true,
@@ -2036,10 +2035,11 @@ export const lifeng: OperatorDefinition = {
                 },
                 next: null,
               },
-              applyKnockDown_2: {
+              applyPhysicalInfliction_2: {
                 action: {
-                  kind: 'applyKnockDown',
+                  kind: 'applyPhysicalInfliction',
                   parameters: {
+                    type: 'knockDown',
                     target: 'enemy',
                     duration: { kind: 'constant', value: 2.1 },
                     force: false,
@@ -2064,10 +2064,11 @@ export const lifeng: OperatorDefinition = {
                 },
                 next: null,
               },
-              applyKnockDown_4: {
+              applyPhysicalInfliction_4: {
                 action: {
-                  kind: 'applyKnockDown',
+                  kind: 'applyPhysicalInfliction',
                   parameters: {
+                    type: 'knockDown',
                     target: 'enemy',
                     duration: { kind: 'constant', value: 2.1 },
                     force: false,
@@ -2163,8 +2164,8 @@ export const lifeng: OperatorDefinition = {
           poise3: 0,
         },
         scheduledSequences: [
-          { startFrame: 6, endFrame: 7, sequence: { $sequence: 'applyKnockDown_2' } },
-          { startFrame: 66, endFrame: 67, sequence: { $sequence: 'applyKnockDown_4' } },
+          { startFrame: 6, endFrame: 7, sequence: { $sequence: 'applyPhysicalInfliction_2' } },
+          { startFrame: 66, endFrame: 67, sequence: { $sequence: 'applyPhysicalInfliction_4' } },
           { startFrame: 121, endFrame: 122, sequence: { $sequence: 'dealDamage_5' } },
           { startFrame: 67, endFrame: 68, sequence: { $sequence: 'conditional_8' } },
         ],

@@ -1,3 +1,4 @@
+import { resolveImage } from '../../imageResources';
 import { computed, shallowRef, watch, type Ref } from 'vue';
 import type { PublishedScenarioSimulation } from '../useScenarioSimulation';
 import type { TimelineOperatorIndex } from '../timelineEditorViewModel';
@@ -53,12 +54,12 @@ export function usePublishedSimulationDisplay(
       publishedGearSources.value = capturePublishedEquipmentSources(getGears?.() ?? [], 'gear');
       publishedGearIcons.value = new Map(
         (getGears?.() ?? []).flatMap(gear =>
-          gear.iconPath ? [[gear.slug, gear.iconPath] as const] : [],
+          gear.icon ? [[gear.slug, resolveImage(gear.icon)!] as const] : [],
         ),
       );
       publishedGearSetIcons.value = new Map(
         (getGearSets?.() ?? []).flatMap(set =>
-          set.iconPath ? [[set.slug, set.iconPath] as const] : [],
+          set.icon ? [[set.slug, resolveImage(set.icon)!] as const] : [],
         ),
       );
       battleLogSnapshot.value = capturePublishedBattleLog(

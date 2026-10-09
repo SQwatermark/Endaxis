@@ -54,3 +54,12 @@ export function parseSkillSettingResources(value: unknown): SkillSettingResource
     atbConsumedDefaultUspGainOther: read('atbConsumedDefaultUspGainOther'),
   };
 }
+/** 图片身份的语法校验；是否存在由应用资源目录或候选发布校验负责。 */
+export function isImageRef(
+  value: unknown,
+): value is import('../../../packages/game-data-contract/src/images').ImageRef {
+  return (
+    typeof value === 'string' &&
+    /^[a-z][a-z0-9_-]*:[a-zA-Z0-9_-]+(?:\/[a-zA-Z0-9_-]+)*$/.test(value)
+  );
+}

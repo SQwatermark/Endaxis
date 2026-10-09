@@ -370,54 +370,17 @@ describe('compileSkill', () => {
       },
     ]);
   });
-  it('compiles both inline physical-infliction Buff graphs at the skill level', () => {
+  it('keeps physical infliction Buff references without embedding definitions', () => {
+    const parameters = {
+      type: 'fracture' as const,
+      target: 'enemy' as const,
+      isExtra: false,
+    };
     const skill = linearSkill({
       key: 'fracture',
       timelineBlockFrames: 1,
-      steps: [
-        {
-          kind: 'applyPhysicalInfliction',
-          parameters: {
-            type: 'fracture',
-            target: 'enemy',
-            isExtra: false,
-            noGuardBuffId: 'buff_physical_no_guard',
-            noGuardDefinition: {
-              stackingType: 'unlimited',
-              lifecycleSequences: { start: { $sequence: 'start' } },
-              actionGraph: {
-                main: {
-                  nodes: {
-                    start: {
-                      action: { kind: 'dealStagger', parameters: { value: [2, 4] } },
-                      next: null,
-                    },
-                  },
-                },
-                macros: {},
-              },
-            },
-            fractureBuffId: 'buff_physical_fracture',
-            fractureDefinition: {
-              stackingType: 'refresh',
-              scheduledSequences: [{ startFrame: 0, sequence: { $sequence: 'entry' } }],
-              actionGraph: {
-                main: {
-                  nodes: {
-                    entry: {
-                      action: { kind: 'dealStagger', parameters: { value: [1, 3] } },
-                      next: null,
-                    },
-                  },
-                },
-                macros: {},
-              },
-            },
-          },
-        },
-      ],
+      steps: [{ kind: 'applyPhysicalInfliction', parameters }],
     });
-
     const compiled = compileSkill({
       operatorId: 'antal',
       skillGroupKey: 'comboSkill',
@@ -426,18 +389,9 @@ describe('compileSkill', () => {
       skill,
       programs: new ActionGraphDefinitionRepository(),
     });
-    const step = rootActionSteps(compiled.timelineActions[0]!.sequence)[0]!;
-    expect(step.kind).toBe('applyPhysicalInfliction');
-    if (step.kind !== 'applyPhysicalInfliction') return;
-    expect(
-      rootActionSteps(step.parameters.noGuardDefinition.lifecycleSequences?.start!)[0]?.parameters,
-    ).toEqual({ value: 4 });
-    expect(step.parameters.type).toBe('fracture');
-    if (step.parameters.type !== 'fracture') return;
-    expect(
-      rootActionSteps(step.parameters.fractureDefinition.scheduledSequences?.[0]?.sequence!)[0]
-        ?.parameters,
-    ).toEqual({ value: 3 });
+    expect(rootActionSteps(compiled.timelineActions[0]!.sequence)[0]?.parameters).toEqual(
+      parameters,
+    );
   });
 
   it('compiles operator Buff blueprints without a skill-level context', () => {

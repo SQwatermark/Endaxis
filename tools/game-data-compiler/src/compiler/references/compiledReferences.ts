@@ -1,3 +1,7 @@
+import {
+  PHYSICAL_NO_GUARD_BUFF,
+  PHYSICAL_INFLICTION_BUFFS,
+} from '../../../../../src/core/mechanics/physicalInfliction.ts';
 /** 从已编译动作树收集显式与隐式 Buff 依赖；动态 ID 在来源编译边界解决。 */
 export function collectCompiledBuffIds(value: unknown): ReadonlySet<string> {
   return new Set(collectCompiledBuffApplications(value).map(item => item.buffId));
@@ -88,7 +92,7 @@ export function collectCompiledDefaultKeywordCarrierIds(value: unknown): Readonl
   return ids;
 }
 
-/** 只收集仍需最终内联水合的物理异常公共 Buff；普通 applyBuff 已携带自己的定义。 */
+/** 单技能阶段只补物理异常隐式依赖；普通 Buff 的目标上下文由干员闭包装配确定。 */
 export function collectCompiledPhysicalInflictionBuffIds(value: unknown): ReadonlySet<string> {
   const ids = new Set<string>();
   const visit = (item: unknown): void => {
@@ -98,12 +102,12 @@ export function collectCompiledPhysicalInflictionBuffIds(value: unknown): Readon
     }
     if (item === null || typeof item !== 'object') return;
     const record = item as Record<string, unknown>;
-    if (record.kind === 'applyPhysicalInfliction') {
-      const parameters = record.parameters as Record<string, unknown>;
-      for (const key of ['noGuardBuffId', 'fractureBuffId', 'crushedBuffId', 'airborneBuffId']) {
-        const id = parameters[key];
-        if (typeof id === 'string' && id.length > 0) ids.add(id);
-      }
+    if (
+      record.kind === 'applyPhysicalInfliction' &&
+      (record.parameters as Record<string, unknown>).type !== 'knockDown'
+    ) {
+      collectCompiledBuffApplications(record).forEach(application => ids.add(application.buffId));
+      return;
     }
     Object.values(record).forEach(visit);
   };
@@ -129,29 +133,28 @@ export function collectCompiledBuffApplications(
     }
     if (item === null || typeof item !== 'object') return;
     const record = item as Record<string, unknown>;
-    if (record.kind === 'applyKnockDown') {
+    if (
+      record.kind === 'applyPhysicalInfliction' &&
+      (record.parameters as Record<string, unknown>).type === 'knockDown'
+    ) {
       const parameters = record.parameters as Record<string, unknown>;
       if (parameters.targetFilter !== 'skipAll') {
         // 原生根动作的隐式安装仍是依赖，不能在从来源图转到正式程序时丢失。
-        applications.push({ buffId: 'buff_physical_knockdown', target: 'enemy' });
+        applications.push({ buffId: PHYSICAL_INFLICTION_BUFFS.knockDown, target: 'enemy' });
         if (!parameters.force)
-          applications.push({ buffId: 'buff_physical_no_guard', target: 'enemy' });
+          applications.push({ buffId: PHYSICAL_NO_GUARD_BUFF, target: 'enemy' });
       }
     }
-    if (record.kind === 'applyPhysicalInfliction') {
+    if (
+      record.kind === 'applyPhysicalInfliction' &&
+      (record.parameters as Record<string, unknown>).type !== 'knockDown'
+    ) {
       const parameters = record.parameters as Record<string, unknown>;
       const type = parameters.type;
-      const noGuardBuffId = parameters.noGuardBuffId;
-      const abnormalBuffId =
-        type === 'fracture'
-          ? parameters.fractureBuffId
-          : type === 'crush'
-            ? parameters.crushedBuffId
-            : parameters.airborneBuffId;
-      if (typeof noGuardBuffId !== 'string' || typeof abnormalBuffId !== 'string')
-        throw new Error('compiled physical infliction step has invalid Buff identities');
-      applications.push({ buffId: noGuardBuffId, target: 'enemy' });
-      applications.push({ buffId: abnormalBuffId, target: 'enemy' });
+      if (type !== 'fracture' && type !== 'crush' && type !== 'airborne')
+        throw new Error('compiled physical infliction step has invalid type');
+      applications.push({ buffId: PHYSICAL_NO_GUARD_BUFF, target: 'enemy' });
+      applications.push({ buffId: PHYSICAL_INFLICTION_BUFFS[type], target: 'enemy' });
     }
     if (record.kind === 'applyBuff') {
       const parameters = record.parameters;

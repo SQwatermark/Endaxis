@@ -66,7 +66,7 @@ describe('Contingency Contract native source', () => {
       keyId: '',
       lockIds: [],
       romanNumSuffix: '',
-      iconPath: '/contingency_contract/1/icon_100201.webp',
+      icon: 'endaxis:contingency_contract/1/icon_100201',
       blackboard: { value: 0.5 },
     });
   });

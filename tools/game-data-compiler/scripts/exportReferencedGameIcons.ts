@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { generateImageCatalog } from './generateImageCatalog.ts';
 import { access, copyFile, mkdir, readFile, readdir, unlink, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -216,6 +217,7 @@ function isRuntimeReferenceSource(root: string, filePath: string): boolean {
   const relative = path.relative(root, filePath).replaceAll('\\', '/');
   return (
     TEXT_EXTENSIONS.has(path.extname(filePath).toLowerCase()) &&
+    !filePath.endsWith('imageCatalog.generated.ts') &&
     !relative.includes('/__snapshots__/') &&
     !/(^|\/)[^/]+\.(?:bench|spec|test)\.[^/]+$/u.test(relative)
   );
@@ -238,15 +240,6 @@ async function collectLiteralReferences(
     files.map(async ({ file: filePath }) => {
       const source = await readFile(filePath, 'utf8');
       const relative = path.relative(PROJECT_ROOT, filePath).replaceAll('\\', '/');
-      const slug = /\bslug:\s*['"]([a-z0-9-]+)['"]/.exec(source)?.[1];
-      if (slug) {
-        for (const match of source.matchAll(/\biconName:\s*['"]([^'"/\\]+)['"]/g)) {
-          const publicPath = `/operators/${slug}/${match[1]}.webp`;
-          const owners = references.get(publicPath) ?? new Set<string>();
-          owners.add(relative);
-          references.set(publicPath, owners);
-        }
-      }
       for (const publicPath of readGameIconReferences(source)) {
         const owners = references.get(publicPath) ?? new Set<string>();
         owners.add(relative);
@@ -718,6 +711,8 @@ export async function exportReferencedGameIcons(arguments_: ExportGameIconsArgum
   if (failures.length > 0)
     throw new Error(`${failures.length} referenced icons could not be exported`);
   if (snapshotVerification.status === 'failed') throw new Error(snapshotVerification.error);
+  if (!arguments_.dryRun)
+    await generateImageCatalog(path.dirname(arguments_.outputRoot), arguments_.outputRoot);
   return {
     referencedCount: references.length,
     exportedCount: results.filter(result => result.status.startsWith('exported-')).length,

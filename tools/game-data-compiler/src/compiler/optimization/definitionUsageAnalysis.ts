@@ -356,15 +356,15 @@ export function analyzeStepUsage(
     case 'setCharacterPassiveUiValue':
     case 'adjustSkillCooldown':
       return effect([step.parameters.value]);
-    case 'applyKnockDown':
-      return effect([step.parameters.duration]);
     case 'applyPhysicalInfliction':
       return effect(
         step.parameters.type === 'airborne'
           ? [step.parameters.duration, step.parameters.height]
-          : step.parameters.type === 'crush'
-            ? [step.parameters.damageMultiplier]
-            : [],
+          : step.parameters.type === 'knockDown'
+            ? [step.parameters.duration]
+            : step.parameters.type === 'crush'
+              ? [step.parameters.damageMultiplier]
+              : [],
       );
     case 'applyElementalReaction':
       return effect([step.parameters.durationSeconds]);

@@ -6416,8 +6416,7 @@ const yvonneBuff14: SkillBuffDefinition = {
   durationSeconds: { blackboardKey: 'duration' },
   presentation: {
     visible: true,
-    iconId: 'icon_battle_yvonne_buff',
-    iconPath: '/icons/icon_battle_yvonne_buff.webp',
+    icon: 'endaxis:icons/icon_battle_yvonne_buff',
     showInHeadBarCommon: false,
     showInHeadBarAttached: false,
     showInSquadIcon: true,
@@ -6785,8 +6784,7 @@ const yvonneBuff16: SkillBuffDefinition = {
   durationSeconds: { blackboardKey: 'duration_end' },
   presentation: {
     visible: true,
-    iconId: 'icon_battle_yvonne_buff',
-    iconPath: '/icons/icon_battle_yvonne_buff.webp',
+    icon: 'endaxis:icons/icon_battle_yvonne_buff',
     showInHeadBarCommon: false,
     showInHeadBarAttached: false,
     showInSquadIcon: true,
@@ -6868,8 +6866,7 @@ const yvonneBuff17: SkillBuffDefinition = {
   durationSeconds: { blackboardKey: 'recycle_time' },
   presentation: {
     visible: true,
-    iconId: 'icon_battle_yvonne_buff',
-    iconPath: '/icons/icon_battle_yvonne_buff.webp',
+    icon: 'endaxis:icons/icon_battle_yvonne_buff',
     showInHeadBarCommon: false,
     showInHeadBarAttached: false,
     showInSquadIcon: true,

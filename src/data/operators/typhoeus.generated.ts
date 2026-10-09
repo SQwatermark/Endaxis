@@ -11554,8 +11554,7 @@ const typhoeusBuff32: SkillBuffDefinition = {
   durationSeconds: { blackboardKey: 'sheild_cd' },
   presentation: {
     visible: true,
-    iconId: 'icon_battle_buff_typhoea_sheild_broken',
-    iconPath: '/icons/icon_battle_buff_typhoea_sheild_broken.webp',
+    icon: 'endaxis:icons/icon_battle_buff_typhoea_sheild_broken',
     showInHeadBarCommon: false,
     showInHeadBarAttached: false,
     showInSquadIcon: true,
@@ -11592,8 +11591,7 @@ const typhoeusBuff33: SkillBuffDefinition = {
   maxStackCount: 5,
   presentation: {
     visible: true,
-    iconId: 'icon_battle_buff_typhoea_sheild',
-    iconPath: '/icons/icon_battle_buff_typhoea_sheild.webp',
+    icon: 'endaxis:icons/icon_battle_buff_typhoea_sheild',
     showInHeadBarCommon: false,
     showInHeadBarAttached: false,
     showInSquadIcon: true,
@@ -12502,7 +12500,7 @@ export const typhoeus: OperatorDefinition = {
         ],
       },
       presentation: {
-        icon: '/operators/typhoeus/combo 01.webp',
+        icon: 'endaxis:operators/typhoeus/combo_01',
         nameKey: 'effects.name.barrageArray',
         placement: 'enemy',
       },

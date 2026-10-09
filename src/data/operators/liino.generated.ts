@@ -4678,7 +4678,7 @@ export const liinoChr_0035_liino_normal_skill_end: SkillDefinition = {
     asSkillCast: false,
     sequence: { $sequence: 'applyBuff_1' },
   },
-  iconName: 'battle 02',
+  icon: 'endaxis:operators/liino/battle_02',
   skillType: 'battleSkill',
   levelSource: 'battleSkill',
   nativeSkillType: 'extraActiveSkill',
@@ -5422,8 +5422,7 @@ const liinoBuff1: SkillBuffDefinition = {
   durationSeconds: { blackboardKey: 'duration' },
   presentation: {
     visible: true,
-    iconId: 'icon_battle_buff_atk_up',
-    iconPath: '/icons/icon_battle_buff_atk_up.webp',
+    icon: 'endaxis:icons/icon_battle_buff_atk_up',
     showInHeadBarCommon: false,
     showInHeadBarAttached: false,
     showInSquadIcon: true,
@@ -5464,8 +5463,7 @@ const liinoBuff2: SkillBuffDefinition = {
   durationSeconds: { blackboardKey: 'duration' },
   presentation: {
     visible: true,
-    iconId: 'icon_battle_buff_atk_up',
-    iconPath: '/icons/icon_battle_buff_atk_up.webp',
+    icon: 'endaxis:icons/icon_battle_buff_atk_up',
     showInHeadBarCommon: false,
     showInHeadBarAttached: false,
     showInSquadIcon: true,
@@ -5559,8 +5557,7 @@ const liinoBuff3: SkillBuffDefinition = {
   maxTriggerCount: 1,
   presentation: {
     visible: true,
-    iconId: 'icon_battle_buff_liino_inspire',
-    iconPath: '/icons/icon_battle_buff_liino_inspire.webp',
+    icon: 'endaxis:icons/icon_battle_buff_liino_inspire',
     showInHeadBarCommon: false,
     showInHeadBarAttached: false,
     showInSquadIcon: true,
@@ -7409,8 +7406,7 @@ const liinoBuff27: SkillBuffDefinition = {
   durationSeconds: { blackboardKey: 'duration' },
   presentation: {
     visible: true,
-    iconId: 'icon_battle_buff_liino_normalskill_music',
-    iconPath: '/icons/icon_battle_buff_liino_normalskill_music.webp',
+    icon: 'endaxis:icons/icon_battle_buff_liino_normalskill_music',
     showInHeadBarCommon: false,
     showInHeadBarAttached: false,
     showInSquadIcon: true,
@@ -7468,8 +7464,7 @@ const liinoBuff28: SkillBuffDefinition = {
   durationSeconds: { blackboardKey: 'duration' },
   presentation: {
     visible: true,
-    iconId: 'icon_battle_buff_liino_ultskill_music',
-    iconPath: '/icons/icon_battle_buff_liino_ultskill_music.webp',
+    icon: 'endaxis:icons/icon_battle_buff_liino_ultskill_music',
     showInHeadBarCommon: false,
     showInHeadBarAttached: false,
     showInSquadIcon: true,
@@ -7526,8 +7521,7 @@ const liinoBuff29: SkillBuffDefinition = {
   maxStackCount: 5,
   presentation: {
     visible: true,
-    iconId: 'icon_battle_buff_liino_normalskill_music',
-    iconPath: '/icons/icon_battle_buff_liino_normalskill_music.webp',
+    icon: 'endaxis:icons/icon_battle_buff_liino_normalskill_music',
     showInHeadBarCommon: false,
     showInHeadBarAttached: false,
     showInSquadIcon: true,
@@ -7584,8 +7578,7 @@ const liinoBuff30: SkillBuffDefinition = {
   maxStackCount: 5,
   presentation: {
     visible: true,
-    iconId: 'icon_battle_buff_liino_ultskill_music',
-    iconPath: '/icons/icon_battle_buff_liino_ultskill_music.webp',
+    icon: 'endaxis:icons/icon_battle_buff_liino_ultskill_music',
     showInHeadBarCommon: false,
     showInHeadBarAttached: false,
     showInSquadIcon: true,

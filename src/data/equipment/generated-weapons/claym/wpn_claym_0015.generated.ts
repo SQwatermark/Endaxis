@@ -150,7 +150,7 @@ const definition = {
     },
   ],
   assetSlug: 'wpn_claym_0015',
-  iconPath: '/weapons/claym/wpn_claym_0015.webp',
+  icon: 'endaxis:weapons/claym/wpn_claym_0015',
   buffDefinitions: {
     buff_wpn_claym_0015: {
       stackingType: 'refresh',
@@ -159,8 +159,7 @@ const definition = {
       durationSeconds: { blackboardKey: 'duration' },
       presentation: {
         visible: true,
-        iconId: 'icon_battle_buff_def_up',
-        iconPath: '/icons/icon_battle_buff_def_up.webp',
+        icon: 'endaxis:icons/icon_battle_buff_def_up',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
         showInSquadIcon: true,

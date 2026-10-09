@@ -84,7 +84,7 @@ describe('weapon runtime definitions', () => {
 
     expect(attachWeaponProductIdentities([native], { [native.slug]: item })[0]).toMatchObject({
       assetSlug: 'wpn_claym_0003',
-      iconPath: '/weapons/claym/wpn_claym_0003.webp',
+      icon: 'endaxis:weapons/claym/wpn_claym_0003',
     });
   });
 

@@ -104,7 +104,7 @@ const definition = {
     },
   ],
   assetSlug: 'wpn_funnel_0011',
-  iconPath: '/weapons/funnel/wpn_funnel_0011.webp',
+  icon: 'endaxis:weapons/funnel/wpn_funnel_0011',
   buffDefinitions: {
     buff_wpn_funnel_0011: {
       stackingType: 'unlimited',
@@ -313,8 +313,7 @@ const definition = {
       maxTriggerCount: 1,
       presentation: {
         visible: true,
-        iconId: 'icon_battle_spell_up',
-        iconPath: '/icons/icon_battle_spell_up.webp',
+        icon: 'endaxis:icons/icon_battle_spell_up',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
         showInSquadIcon: true,

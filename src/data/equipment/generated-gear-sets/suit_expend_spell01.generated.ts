@@ -3,7 +3,7 @@ import type { GearSetDefinition } from '../../../core/game-data/equipmentDefinit
 
 const definition = {
   slug: 'suit_expend_spell01',
-  iconPath: '/equipment/expend_spell01/item_equip_t4_suit_expend_spell01_body_02.webp',
+  icon: 'endaxis:equipment/expend_spell01/item_equip_t4_suit_expend_spell01_body_02',
   modifiers: [{ kind: 'panelStat', stat: 'attackPercent', value: 0.1 }],
   actionGraph: {
     main: {
@@ -110,8 +110,7 @@ const definition = {
       maxTriggerCount: 1,
       presentation: {
         visible: true,
-        iconId: 'icon_battle_spell_up',
-        iconPath: '/icons/icon_battle_spell_up.webp',
+        icon: 'endaxis:icons/icon_battle_spell_up',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
         showInSquadIcon: true,

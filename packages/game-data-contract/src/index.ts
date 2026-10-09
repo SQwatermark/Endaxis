@@ -5,6 +5,7 @@
  * 文件布局。这个文件只汇总对外公开的数据定义，不创建模拟器实例，也不执行战斗逻辑。
  */
 export * from './primitives.ts';
+export * from './images.ts';
 export * from './gameplayTags.ts';
 export * from './abilityEvents.ts';
 export * from './actions.ts';

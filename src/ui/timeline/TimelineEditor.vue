@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { resolveImage } from '../imageResources';
 import { operationName } from './operationNames';
 import { ActionExecutionTrace } from '../../core/combat/actions/actionExecutionTrace';
 import { projectDodgeMarkerDiagnostics } from '../../core/projection/dodgeMarkerDiagnostics';
@@ -211,11 +212,7 @@ import {
   resolveSkillExecutionDefinition,
 } from '../../core/compiler/resolveSkillDefinition';
 import type { SkillDefinition, OperationType } from '../../core/game-data/operatorDefinition';
-import {
-  getIconAssetPath,
-  getOperatorAvatarPath,
-  getWeaponActionIconPath,
-} from '../gameAssetPaths';
+import { getOperatorAvatarPath, getWeaponActionIconPath } from '../gameAssetPaths';
 import { groupPlacedSkillSequence, placeLibrarySkillGroup } from './interaction/placeSkillGroup';
 import { listOperatorSkillDefinitionBindings } from '../../core/game-data/operatorSkillDefinitions';
 import {
@@ -1572,7 +1569,7 @@ const mobileEnemyBuffsByCastId = computed(() => {
       (!attachmentBuffIds.has(segment.buffId) &&
         segment.iconStyleInSquad !== 'SpellAbnormal' &&
         !isPhysicalStatusRowBuff(segment)) ||
-      (buffIcon(segment) ?? segment.iconPath ?? getIconAssetPath(segment.iconId)) == null
+      (buffIcon(segment) ?? resolveImage(segment.icon)) == null
     )
       continue;
     const receipt = receiptsBySequence.get(segment.startSequence ?? -1);
@@ -1631,7 +1628,7 @@ const mobileTracks = computed<MobileTrack[]>(() =>
                   loadout.weapon.definition.assetSlug ?? loadout.weapon.weaponSlug,
                   locale.value,
                 ),
-              icon: loadout.weapon.definition.iconPath ?? null,
+              icon: resolveImage(loadout.weapon.definition.icon) ?? null,
               level: loadout.weapon.level,
             },
       gears: (['armor', 'gloves', 'accessory1', 'accessory2'] as const).map(slot => {
@@ -1643,14 +1640,14 @@ const mobileTracks = computed<MobileTrack[]>(() =>
               ? ''
               : (gear.definition.displayName ??
                 getGearPieceGameName(gear.definition.assetSlug ?? gear.gearSlug, locale.value)),
-          icon: gear?.definition.iconPath ?? null,
+          icon: resolveImage(gear?.definition.icon) ?? null,
         };
       }),
       casts: track.skillCasts.map(cast => {
         const visualStartFrame = castActualStartFrame(cast.id, cast.startFrame);
         const combatBuffs = mobileEnemyBuffsByCastId.value.get(cast.id) ?? [];
         const combatBadges = combatBuffs.flatMap(segment => {
-          const icon = buffIcon(segment) ?? segment.iconPath ?? getIconAssetPath(segment.iconId);
+          const icon = buffIcon(segment) ?? resolveImage(segment.icon);
           if (icon == null) return [];
           const sourceName = buffSourceName(segment);
           return [
@@ -2158,7 +2155,7 @@ const workspaceAssets = computed<readonly WorkspaceAssetSource[]>(() => {
         definition.displayName ??
         getWeaponGameName(definition.assetSlug ?? definition.slug, locale.value),
       custom: !!library.weapons[definition.slug],
-      iconPath: definition.iconPath,
+      iconPath: resolveImage(definition.icon),
       edit: { kind: 'weapon' as const, definition },
       graphPresentations: library.weapons[definition.slug]?.graphPresentations,
     })),
@@ -2171,7 +2168,7 @@ const workspaceAssets = computed<readonly WorkspaceAssetSource[]>(() => {
         definition.displayName ??
         getGearPieceGameName(definition.slug, locale.value),
       custom: !!library.gears[definition.slug],
-      iconPath: definition.iconPath,
+      iconPath: resolveImage(definition.icon),
       edit: { kind: 'gear' as const, definition },
       graphPresentations: library.gears[definition.slug]?.graphPresentations,
     })),
@@ -2184,7 +2181,7 @@ const workspaceAssets = computed<readonly WorkspaceAssetSource[]>(() => {
         definition.displayName ??
         getGearSetGameName(definition.slug, locale.value),
       custom: !!library.gearSets[definition.slug],
-      iconPath: definition.iconPath,
+      iconPath: resolveImage(definition.icon),
       edit: { kind: 'gearSet' as const, definition },
       graphPresentations: library.gearSets[definition.slug]?.graphPresentations,
     })),
@@ -2194,7 +2191,7 @@ const workspaceAssets = computed<readonly WorkspaceAssetSource[]>(() => {
       kindName: t('assetWorkspace.types.consumable'),
       name: getConsumableGameName(definition.id, locale.value),
       custom: false,
-      iconPath: definition.iconPath,
+      iconPath: resolveImage(definition.icon),
       edit: { kind: 'consumable' as const, definition },
     })),
     ...editorGameDataRepository.getCommonDefinitionSources().flatMap(source =>
@@ -2204,12 +2201,7 @@ const workspaceAssets = computed<readonly WorkspaceAssetSource[]>(() => {
         kindName: t('assetWorkspace.types.commonBuff'),
         name: resolveBuffDisplayName(id, { t, te }),
         custom: false,
-        iconPath:
-          definition.presentation?.iconPath ??
-          (definition.presentation?.iconId
-            ? getIconAssetPath(definition.presentation.iconId)
-            : undefined) ??
-          undefined,
+        iconPath: resolveImage(definition.presentation?.icon),
         edit: { kind: 'buff' as const, id, definition },
       })),
     ),
@@ -2219,7 +2211,7 @@ const workspaceAssets = computed<readonly WorkspaceAssetSource[]>(() => {
       kindName: t('assetWorkspace.types.enemy'),
       name: getEnemyGameName(definition.id, locale.value),
       custom: false,
-      iconPath: definition.iconPath,
+      iconPath: resolveImage(definition.icon),
       edit: { kind: 'enemy' as const, definition },
     })),
     ...gameDataRepository.getGlobalEffects().map(definition => ({
@@ -2245,7 +2237,7 @@ const workspaceAssets = computed<readonly WorkspaceAssetSource[]>(() => {
       kindName: t('assetWorkspace.types.contract'),
       name: localizedContingencyContractTagName(definition, locale.value),
       custom: false,
-      iconPath: definition.iconPath,
+      iconPath: resolveImage(definition.icon),
       edit: { kind: 'contract' as const, definition },
     })),
   ];
@@ -3848,7 +3840,7 @@ const cursorEnemyEffects = computed(() => {
           undefined,
           operatorBuffDisplayNameKeys.value,
         ),
-      icon: buffIcon(segment) ?? segment.iconPath ?? getIconAssetPath(segment.iconId) ?? null,
+      icon: buffIcon(segment) ?? resolveImage(segment.icon) ?? null,
       layers: segment.layers,
     });
   }
@@ -7047,15 +7039,24 @@ function setMobileGuideFrame(frame: number | null): void {
                 :can-move-down="track.trackIndex < 3"
                 :stat-details-available="panelResolution.panels.has(track.trackIndex)"
                 :stat-details-error="panelResolution.error"
-                :weapon-icon="loadoutModels[track.trackIndex]?.weapon?.definition.iconPath ?? null"
+                :weapon-icon="
+                  resolveImage(loadoutModels[track.trackIndex]?.weapon?.definition.icon) ?? null
+                "
                 :gear-icons="{
-                  armor: loadoutModels[track.trackIndex]?.gears.armor?.definition.iconPath ?? null,
+                  armor:
+                    resolveImage(loadoutModels[track.trackIndex]?.gears.armor?.definition.icon) ??
+                    null,
                   gloves:
-                    loadoutModels[track.trackIndex]?.gears.gloves?.definition.iconPath ?? null,
+                    resolveImage(loadoutModels[track.trackIndex]?.gears.gloves?.definition.icon) ??
+                    null,
                   accessory1:
-                    loadoutModels[track.trackIndex]?.gears.accessory1?.definition.iconPath ?? null,
+                    resolveImage(
+                      loadoutModels[track.trackIndex]?.gears.accessory1?.definition.icon,
+                    ) ?? null,
                   accessory2:
-                    loadoutModels[track.trackIndex]?.gears.accessory2?.definition.iconPath ?? null,
+                    resolveImage(
+                      loadoutModels[track.trackIndex]?.gears.accessory2?.definition.icon,
+                    ) ?? null,
                 }"
                 :active-gear-set-label="activeGearSetLabelsByTrack[track.trackIndex] ?? ''"
                 :labels="{
@@ -7270,7 +7271,7 @@ function setMobileGuideFrame(frame: number | null): void {
                   "
                 >
                   <img
-                    :src="gameDataRepository.getConsumable(use.consumableId)?.iconPath"
+                    :src="resolveImage(gameDataRepository.getConsumable(use.consumableId)?.icon)"
                     alt=""
                     aria-hidden="true"
                   />

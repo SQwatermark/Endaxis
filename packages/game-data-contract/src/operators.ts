@@ -476,7 +476,7 @@ export interface AbilityEntityCountPassiveUiDefinition {
   readonly kind: 'abilityEntityCount';
   readonly abilityEntityId: string;
   /** 图标资源路径。 */
-  readonly icon: string;
+  readonly icon: import('./images.ts').ImageRef;
   /** 实体显示名称的 i18n 键。 */
   readonly nameKey: string;
 }

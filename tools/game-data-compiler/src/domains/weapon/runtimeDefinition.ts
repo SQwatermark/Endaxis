@@ -39,7 +39,7 @@ export type CompiledWeaponRuntimeDefinitionSource = Omit<
   CompiledWeaponStaticDefinitionSource,
   'traits'
 > &
-  Readonly<Pick<WeaponDefinition, 'assetSlug' | 'iconPath'>> & {
+  Readonly<Pick<WeaponDefinition, 'assetSlug' | 'icon'>> & {
     readonly buffDefinitions?: Readonly<Record<string, CompiledBuffDefinitionSource>>;
     readonly traits: readonly (CompiledWeaponStaticDefinitionSource['traits'][number] &
       Readonly<Pick<WeaponTraitDefinition, 'blackboard' | 'skillId'>> & {

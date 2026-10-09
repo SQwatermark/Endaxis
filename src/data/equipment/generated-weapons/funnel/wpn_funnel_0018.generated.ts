@@ -208,7 +208,7 @@ const definition = {
     },
   ],
   assetSlug: 'wpn_funnel_0018',
-  iconPath: '/weapons/funnel/wpn_funnel_0018.webp',
+  icon: 'endaxis:weapons/funnel/wpn_funnel_0018',
   buffDefinitions: {
     buff_wpn_funnel_0018_layer: {
       stackingType: 'highPriorityWithMaxStack',
@@ -220,8 +220,7 @@ const definition = {
       maxTriggerCount: 1,
       presentation: {
         visible: true,
-        iconId: 'icon_battle_buff_atk_up',
-        iconPath: '/icons/icon_battle_buff_atk_up.webp',
+        icon: 'endaxis:icons/icon_battle_buff_atk_up',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
         showInSquadIcon: true,

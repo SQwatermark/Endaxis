@@ -238,7 +238,7 @@ const definition = {
     },
   ],
   assetSlug: 'wpn_claym_0013',
-  iconPath: '/weapons/claym/wpn_claym_0013.webp',
+  icon: 'endaxis:weapons/claym/wpn_claym_0013',
   buffDefinitions: {
     buff_wpn_claym_0013_combo_skill: {
       stackingType: 'refresh',
@@ -250,8 +250,7 @@ const definition = {
       maxTriggerCount: 1,
       presentation: {
         visible: true,
-        iconId: 'icon_battle_cryst_dmg_up',
-        iconPath: '/icons/icon_battle_cryst_dmg_up.webp',
+        icon: 'endaxis:icons/icon_battle_cryst_dmg_up',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
         showInSquadIcon: true,
@@ -292,8 +291,7 @@ const definition = {
       maxTriggerCount: 1,
       presentation: {
         visible: true,
-        iconId: 'icon_battle_cryst_dmg_up',
-        iconPath: '/icons/icon_battle_cryst_dmg_up.webp',
+        icon: 'endaxis:icons/icon_battle_cryst_dmg_up',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
         showInSquadIcon: true,

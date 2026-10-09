@@ -78,7 +78,7 @@ const definition = {
     },
   ],
   assetSlug: 'wpn_sword_0026',
-  iconPath: '/weapons/sword/wpn_sword_0026.webp',
+  icon: 'endaxis:weapons/sword/wpn_sword_0026',
   buffDefinitions: {
     buff_wpn_sword_0026_celebration: {
       stackingType: 'highPriority',
@@ -87,8 +87,7 @@ const definition = {
       durationSeconds: { blackboardKey: 'duration' },
       presentation: {
         visible: true,
-        iconId: 'icon_battle_buff_wpn_sword_0026',
-        iconPath: '/icons/icon_battle_buff_wpn_sword_0026.webp',
+        icon: 'endaxis:icons/icon_battle_buff_wpn_sword_0026',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
         showInSquadIcon: true,

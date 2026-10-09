@@ -3,7 +3,7 @@ import type { GearSetDefinition } from '../../../core/game-data/equipmentDefinit
 
 const definition = {
   slug: 'suit_fire_natr01',
-  iconPath: '/equipment/fire_natr01/item_equip_t4_suit_fire_natr01_edc_02.webp',
+  icon: 'endaxis:equipment/fire_natr01/item_equip_t4_suit_fire_natr01_edc_02',
   modifiers: [{ kind: 'panelStat', stat: 'artsIntensity', value: 30 }],
   actionGraph: {
     main: {
@@ -133,8 +133,7 @@ const definition = {
       maxTriggerCount: 1,
       presentation: {
         visible: true,
-        iconId: 'icon_battle_fire_dmp_up',
-        iconPath: '/icons/icon_battle_fire_dmp_up.webp',
+        icon: 'endaxis:icons/icon_battle_fire_dmp_up',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
         showInSquadIcon: true,
@@ -175,8 +174,7 @@ const definition = {
       maxTriggerCount: 1,
       presentation: {
         visible: true,
-        iconId: 'icon_battle_natural_up',
-        iconPath: '/icons/icon_battle_natural_up.webp',
+        icon: 'endaxis:icons/icon_battle_natural_up',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
         showInSquadIcon: true,

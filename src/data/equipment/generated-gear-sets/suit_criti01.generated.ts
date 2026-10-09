@@ -3,7 +3,7 @@ import type { GearSetDefinition } from '../../../core/game-data/equipmentDefinit
 
 const definition = {
   slug: 'suit_criti01',
-  iconPath: '/equipment/criti01/item_equip_t4_suit_criti01_edc_03.webp',
+  icon: 'endaxis:equipment/criti01/item_equip_t4_suit_criti01_edc_03',
   modifiers: [{ kind: 'panelStat', stat: 'criticalRate', value: 0.05 }],
   actionGraph: {
     main: {
@@ -79,8 +79,7 @@ const definition = {
       durationSeconds: { blackboardKey: 'duration' },
       presentation: {
         visible: true,
-        iconId: 'icon_battle_buff_atk_up',
-        iconPath: '/icons/icon_battle_buff_atk_up.webp',
+        icon: 'endaxis:icons/icon_battle_buff_atk_up',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
         showInSquadIcon: true,
@@ -169,8 +168,7 @@ const definition = {
       maxStackCount: 5,
       presentation: {
         visible: true,
-        iconId: 'icon_battle_crit_rate_up',
-        iconPath: '/icons/icon_battle_crit_rate_up.webp',
+        icon: 'endaxis:icons/icon_battle_crit_rate_up',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
         showInSquadIcon: true,

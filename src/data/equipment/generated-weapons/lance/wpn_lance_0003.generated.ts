@@ -64,7 +64,7 @@ const definition = {
     },
   ],
   assetSlug: 'wpn_lance_0003',
-  iconPath: '/weapons/lance/wpn_lance_0003.webp',
+  icon: 'endaxis:weapons/lance/wpn_lance_0003',
   buffDefinitions: {
     buff_wpn_lance_0003: {
       stackingType: 'unique',

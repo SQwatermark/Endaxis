@@ -2031,8 +2031,7 @@ const wulfgardBuff2: SkillBuffDefinition = {
   maxTriggerCount: -1,
   presentation: {
     visible: true,
-    iconId: 'icon_battle_wolfgd_talent_1',
-    iconPath: '/icons/icon_battle_wolfgd_talent_1.webp',
+    icon: 'endaxis:icons/icon_battle_wolfgd_talent_1',
     showInHeadBarCommon: false,
     showInHeadBarAttached: false,
     showInSquadIcon: true,

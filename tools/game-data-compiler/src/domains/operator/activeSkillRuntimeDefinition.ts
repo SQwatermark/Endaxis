@@ -4,7 +4,6 @@ import type {
   SkillCostDefinition,
 } from '../../compiler/intermediateDefinitions.ts';
 import type { OperatorActiveSkillTypeSource } from './activeSkills.ts';
-import { operatorSkillIconName } from './iconNames.ts';
 import { resolveSkillElement, type SkillPatchSource } from '../../source/skillPatch.ts';
 import { requireNonNegativeInteger, requireRecord } from '../../source/primitives.ts';
 import {
@@ -17,7 +16,6 @@ import type {
   CombatActionProjectionExtensionsSource,
 } from '../../compiler/combatProjectionCommon.ts';
 import type { CompiledBuffDefinitionSource } from '../../compiler/buffs/buffProjectionTypes.ts';
-import { createPhysicalInflictionDefinitionHydrator } from '../../compiler/actions/physicalInflictionHydration.ts';
 
 /** 已编译的正式技能子集；来源身份、黑板与消耗帧必填，不接受尚未接入的事件字段。 */
 export type CompiledOperatorActiveSkillRuntimeDefinitionSource = Readonly<
@@ -25,7 +23,6 @@ export type CompiledOperatorActiveSkillRuntimeDefinitionSource = Readonly<
     SkillDefinition,
     | 'key'
     | 'element'
-    | 'iconName'
     | 'useSkillGroupIcon'
     | 'timelineBlockFrames'
     | 'timelineContinuationSkillId'
@@ -45,6 +42,8 @@ export type CompiledOperatorActiveSkillRuntimeDefinitionSource = Readonly<
       >
     >
 > & {
+  /** 原生图标身份，组装干员时转换成独立图片引用。 */
+  readonly nativeIconId?: string;
   readonly actionGraph: import('../../compiler/intermediateDefinitions.ts').ActionGraphResourceDefinition;
   /** 仅供整名技能组装配；生成最终 OperatorDefinition 前必须移除。 */
   readonly allowNextSkillTransitions: CompiledActiveSkillRuntimeProjectionSource['allowNextSkillTransitions'];
@@ -56,7 +55,6 @@ export type CompiledOperatorActiveSkillRuntimeDefinitionSource = Readonly<
 };
 
 export function compileOperatorActiveSkillRuntimeDefinitionSource(input: {
-  readonly slug: string;
   readonly key: string;
   readonly skillType: OperatorActiveSkillTypeSource;
   readonly value: unknown;
@@ -85,7 +83,7 @@ export function compileOperatorActiveSkillRuntimeDefinitionSource(input: {
   const definition: CompiledOperatorActiveSkillRuntimeDefinitionSource = {
     actionGraph: runtime.actionGraph,
     key: input.key,
-    ...(input.patch?.iconId ? { iconName: operatorSkillIconName(input.patch.iconId) } : {}),
+    ...(input.patch?.iconId ? { nativeIconId: input.patch.iconId } : {}),
     ...(input.patch?.useSkillGroupIcon ? { useSkillGroupIcon: true } : {}),
     ...(input.skillType === 'dodge'
       ? {}
@@ -148,13 +146,10 @@ export function renderOperatorActiveSkillRuntimeDefinitionSource(input: {
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(input.operatorSlug))
     throw new Error('operatorSlug: expected stable kebab-case identity');
   const supplementalBuffDefinitions = input.supplementalBuffDefinitions ?? {};
-  const hydrate = createPhysicalInflictionDefinitionHydrator(supplementalBuffDefinitions);
   const { allowNextSkillTransitions: _allowNextSkillTransitions, ...runtimeDefinition } =
     input.definition;
-  const definition = hydrate(runtimeDefinition);
-  const hydratedSupplementalBuffDefinitions = hydrate(supplementalBuffDefinitions);
-  const renderedBuffs = renderTypeScriptData(hydratedSupplementalBuffDefinitions);
-  const renderedDefinition = renderTypeScriptData(definition);
+  const renderedBuffs = renderTypeScriptData(supplementalBuffDefinitions);
+  const renderedDefinition = renderTypeScriptData(runtimeDefinition);
   return {
     relativePath: `${input.operatorSlug}.${input.definition.key}.runtime.generated.ts`,
     content: `/** 由 tools/game-data-compiler 从完整主动 SkillData 动作图生成；不要手工编辑。 */\nimport type {\n  OperatorBuffDefinitions,\n  SkillDefinition,\n} from '../../../../core/game-data/operatorDefinition';\n\nexport const supplementalBuffDefinitions = ${renderedBuffs} as const satisfies OperatorBuffDefinitions;\n\nexport default ${renderedDefinition} as const satisfies SkillDefinition;\n`,

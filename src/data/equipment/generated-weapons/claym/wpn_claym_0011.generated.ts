@@ -124,7 +124,7 @@ const definition = {
     },
   ],
   assetSlug: 'wpn_claym_0011',
-  iconPath: '/weapons/claym/wpn_claym_0011.webp',
+  icon: 'endaxis:weapons/claym/wpn_claym_0011',
   buffDefinitions: {
     buff_wpn_claym_0011_atk_up_up: {
       stackingType: 'stack',
@@ -136,8 +136,7 @@ const definition = {
       maxTriggerCount: 1,
       presentation: {
         visible: true,
-        iconId: 'icon_battle_buff_atk_up',
-        iconPath: '/icons/icon_battle_buff_atk_up.webp',
+        icon: 'endaxis:icons/icon_battle_buff_atk_up',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
         showInSquadIcon: true,

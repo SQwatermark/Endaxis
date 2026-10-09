@@ -190,7 +190,7 @@ const definition = {
     },
   ],
   assetSlug: 'wpn_funnel_0020',
-  iconPath: '/weapons/funnel/wpn_funnel_0020.webp',
+  icon: 'endaxis:weapons/funnel/wpn_funnel_0020',
   buffDefinitions: {
     buff_wpn_funnel_0020_intensityup: {
       stackingType: 'highPriorityWithMaxStack',
@@ -202,8 +202,7 @@ const definition = {
       maxTriggerCount: 1,
       presentation: {
         visible: true,
-        iconId: 'icon_battle_natural_dmg_up',
-        iconPath: '/icons/icon_battle_natural_dmg_up.webp',
+        icon: 'endaxis:icons/icon_battle_natural_dmg_up',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
         showInSquadIcon: true,
@@ -244,8 +243,7 @@ const definition = {
       maxTriggerCount: 1,
       presentation: {
         visible: true,
-        iconId: 'icon_battle_natural_dmg_up',
-        iconPath: '/icons/icon_battle_natural_dmg_up.webp',
+        icon: 'endaxis:icons/icon_battle_natural_dmg_up',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
         showInSquadIcon: true,

@@ -129,8 +129,9 @@ function setup(
         sequence: chainEntry(
           `knockdown-requests-${requests}`,
           Array.from({ length: requests }, () => ({
-            kind: 'applyKnockDown' as const,
+            kind: 'applyPhysicalInfliction' as const,
             parameters: {
+              type: 'knockDown' as const,
               target: 'enemy' as const,
               duration: { kind: 'constant' as const, value: 1.5 },
               force: false,

@@ -3,7 +3,7 @@ import type { GearSetDefinition } from '../../../core/game-data/equipmentDefinit
 
 const definition = {
   slug: 'suit_pulse_cryst01',
-  iconPath: '/equipment/pulse_cryst01/item_equip_t4_suit_pulse_cryst01_edc_02.webp',
+  icon: 'endaxis:equipment/pulse_cryst01/item_equip_t4_suit_pulse_cryst01_edc_02',
   modifiers: [{ kind: 'panelStat', stat: 'artsIntensity', value: 30 }],
   actionGraph: {
     main: {
@@ -136,8 +136,7 @@ const definition = {
       maxTriggerCount: 1,
       presentation: {
         visible: true,
-        iconId: 'icon_battle_cryst_dmg_up',
-        iconPath: '/icons/icon_battle_cryst_dmg_up.webp',
+        icon: 'endaxis:icons/icon_battle_cryst_dmg_up',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
         showInSquadIcon: true,
@@ -178,8 +177,7 @@ const definition = {
       maxTriggerCount: 1,
       presentation: {
         visible: true,
-        iconId: 'icon_battle_pulse_dmg_up',
-        iconPath: '/icons/icon_battle_pulse_dmg_up.webp',
+        icon: 'endaxis:icons/icon_battle_pulse_dmg_up',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
         showInSquadIcon: true,

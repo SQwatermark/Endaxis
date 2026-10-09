@@ -193,8 +193,9 @@ describe('standardPlayerDamageCompatibility', () => {
   it('普通倒地必须有显式装配、来源面板和隐式 Buff，不能漏过 Buff 内行为', () => {
     const sequence: ResolvedActionSequence = chainEntry('compat-knockdown-root', [
       {
-        kind: 'applyKnockDown',
+        kind: 'applyPhysicalInfliction',
         parameters: {
+          type: 'knockDown' as const,
           target: 'enemy',
           duration: { kind: 'constant', value: 1 },
           force: false,
@@ -496,44 +497,11 @@ describe('standardPlayerDamageCompatibility', () => {
               },
               'nested-infliction': {
                 action: {
-                  kind: 'applyPhysicalInfliction',
+                  kind: 'setContextFlag',
                   parameters: {
-                    type: 'fracture',
-                    target: 'enemy',
-                    isExtra: false,
-                    noGuardBuffId: 'buff:inline',
-                    noGuardDefinition: {
-                      stackingType: 'stack',
-                      priority: 0,
-                      maxStackCount: 1,
-                      lifecycleSequences: {
-                        enable: { $sequence: 'nested-unsupported-operation' },
-                      },
-                      actionGraph: {
-                        main: {
-                          nodes: {
-                            'nested-unsupported-operation': {
-                              action: {
-                                kind: 'setContextFlag',
-                                parameters: {
-                                  flag: 'unsupported-nested-operation',
-                                  value: true,
-                                  target: 'caster',
-                                },
-                              },
-                              next: null,
-                            },
-                          },
-                        },
-                        macros: {},
-                      },
-                    },
-                    fractureBuffId: 'buff:fracture',
-                    fractureDefinition: {
-                      stackingType: 'stack',
-                      priority: 0,
-                      maxStackCount: 1,
-                    },
+                    flag: 'unsupported-nested-operation',
+                    value: true,
+                    target: 'caster',
                   },
                 },
                 next: null,
@@ -570,9 +538,7 @@ describe('standardPlayerDamageCompatibility', () => {
 
     expect(issues.map(issue => issue.code)).toEqual(['unsupported-condition', 'unsupported-step']);
     expect(issues[0]?.path).toContain('.parameters.condition.conditions[1].condition');
-    expect(issues[1]?.path).toContain(
-      '.whenFalse.steps[0].body.steps[0].parameters.noGuardDefinition.lifecycleSequences.enable.steps[0]',
-    );
+    expect(issues[1]?.path).toContain('.whenFalse.steps[0].body.steps[0]');
   });
 
   it('does not reject unsupported skills that cannot run before the requested end frame', () => {

@@ -2096,8 +2096,7 @@ const lastRiteBuff2: SkillBuffDefinition = {
   durationSeconds: { blackboardKey: 'duration' },
   presentation: {
     visible: true,
-    iconId: 'icon_battle_lastrite_buff',
-    iconPath: '/icons/icon_battle_lastrite_buff.webp',
+    icon: 'endaxis:icons/icon_battle_lastrite_buff',
     showInHeadBarCommon: false,
     showInHeadBarAttached: false,
     showInSquadIcon: true,

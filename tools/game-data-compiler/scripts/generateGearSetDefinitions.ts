@@ -6,7 +6,7 @@ import { GameplayTagRegistry } from '../src/source/nativeGameplayTags.ts';
 import { readGameplayTagPaths } from './readGameplayTagPaths.ts';
 import { requireRecord, requireString } from '../src/source/primitives.ts';
 import { parseItemIdentitySource } from '../src/source/itemIdentity.ts';
-import { projectEquipmentIconPath } from '../src/domains/equipment/formalDefinition.ts';
+import { projectEquipmentIcon } from '../src/domains/equipment/formalDefinition.ts';
 import type { CompiledEquipmentSuitRuntimeBatchSource } from '../src/domains/equipment/suitRuntimeDefinition.ts';
 import type { DefinitionOptimizationMode } from '../src/compiler/optimization/definitionOptimization.ts';
 import { finalizeGearSetDefinition } from '../src/compiler/finalizeDefinitions.ts';
@@ -74,7 +74,7 @@ export async function compileGearSetDefinitionsFromFiles(input: GearSetDefinitio
       );
     const identity = parseItemIdentitySource(itemTable![equipmentId], equipmentId);
     const { slug, ...contribution } = definition;
-    return { slug, iconPath: projectEquipmentIconPath(identity.iconId), ...contribution };
+    return { slug, icon: projectEquipmentIcon(identity.iconId), ...contribution };
   });
   return { ...batch, definitions };
 }

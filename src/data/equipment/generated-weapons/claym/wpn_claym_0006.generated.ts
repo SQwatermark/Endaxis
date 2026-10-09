@@ -62,7 +62,7 @@ const definition = {
     },
   ],
   assetSlug: 'wpn_claym_0006',
-  iconPath: '/weapons/claym/wpn_claym_0006.webp',
+  icon: 'endaxis:weapons/claym/wpn_claym_0006',
   buffDefinitions: {
     buff_wpn_claym_0006_cd: {
       stackingType: 'unique',
@@ -105,8 +105,7 @@ const definition = {
       maxTriggerCount: 1,
       presentation: {
         visible: true,
-        iconId: 'icon_battle_weapon_heal_skill_ready',
-        iconPath: '/icons/icon_battle_weapon_heal_skill_ready.webp',
+        icon: 'endaxis:icons/icon_battle_weapon_heal_skill_ready',
         showInHeadBarCommon: false,
         showInHeadBarAttached: false,
         showInSquadIcon: true,

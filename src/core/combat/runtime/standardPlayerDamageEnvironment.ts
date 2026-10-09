@@ -1860,8 +1860,7 @@ export class StandardPlayerDamageEnvironment {
           presentation !== undefined &&
           presentation.visible !== false &&
           (presentation.visible === true ||
-            presentation.iconId !== undefined ||
-            presentation.iconPath !== undefined ||
+            presentation.icon !== undefined ||
             presentation.showInSquadIcon === true ||
             presentation.showInHeadBarCommon === true ||
             presentation.showInHeadBarAttached === true),
@@ -1986,12 +1985,7 @@ export class StandardPlayerDamageEnvironment {
             : { iconDurationSourceTargetId: event.iconDurationSourceTargetId }),
           ...(simpleModifier ?? {}),
           ...(parentBuffId === undefined ? {} : { parentBuffId }),
-          ...(currentPresentation?.iconId === undefined
-            ? {}
-            : { iconId: currentPresentation.iconId }),
-          ...(currentPresentation?.iconPath === undefined
-            ? {}
-            : { iconPath: currentPresentation.iconPath }),
+          ...(currentPresentation?.icon === undefined ? {} : { icon: currentPresentation.icon }),
           ...(currentPresentation?.visible === undefined
             ? {}
             : { visible: currentPresentation.visible }),

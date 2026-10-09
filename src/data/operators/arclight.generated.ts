@@ -1538,8 +1538,7 @@ const arclightBuff1: SkillBuffDefinition = {
   durationSeconds: { blackboardKey: 'duration' },
   presentation: {
     visible: true,
-    iconId: 'icon_battle_pulse_dmg_up',
-    iconPath: '/icons/icon_battle_pulse_dmg_up.webp',
+    icon: 'endaxis:icons/icon_battle_pulse_dmg_up',
     showInHeadBarCommon: false,
     showInHeadBarAttached: false,
     showInSquadIcon: true,
@@ -1677,8 +1676,7 @@ const arclightBuff3: SkillBuffDefinition = {
   maxStackCount: 3,
   presentation: {
     visible: true,
-    iconId: 'icon_battle_ikut_talent_1',
-    iconPath: '/icons/icon_battle_ikut_talent_1.webp',
+    icon: 'endaxis:icons/icon_battle_ikut_talent_1',
     showInHeadBarCommon: false,
     showInHeadBarAttached: false,
     showInSquadIcon: true,

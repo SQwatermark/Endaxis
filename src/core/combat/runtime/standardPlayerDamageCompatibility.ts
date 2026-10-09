@@ -277,41 +277,9 @@ function inspectSequence(
           );
           return;
         }
-        inspectBuffDefinition(
-          step.parameters.noGuardDefinition,
-          `${stepPath}.parameters.noGuardDefinition`,
-          collect,
-          flags,
-          source,
-        );
-        if (step.parameters.type === 'crush') {
-          inspectBuffDefinition(
-            step.parameters.crushedDefinition,
-            `${stepPath}.parameters.crushedDefinition`,
-            collect,
-            flags,
-            source,
-          );
-        } else if (step.parameters.type === 'fracture') {
-          inspectBuffDefinition(
-            step.parameters.fractureDefinition,
-            `${stepPath}.parameters.fractureDefinition`,
-            collect,
-            flags,
-            source,
-          );
-        } else {
-          inspectBuffDefinition(
-            step.parameters.airborneDefinition,
-            `${stepPath}.parameters.airborneDefinition`,
-            collect,
-            flags,
-            source,
-          );
-        }
-        return;
-      case 'applyKnockDown':
-        if (!flags.knockDown || source === 'equipment') {
+        // Other physical Buffs are checked with the shared definition collection.
+        if (step.parameters.type !== 'knockDown') return;
+        if (!flags.knockDown) {
           report(
             collect,
             'unsupported-step',

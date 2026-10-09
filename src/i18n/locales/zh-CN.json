@@ -1,4 +1,24 @@
 {
+  "imagePicker": {
+    "choose": "选择图标",
+    "clear": "使用默认",
+    "default": "默认图标",
+    "missing": "图片资源不存在",
+    "search": "搜索资源名称或 ID",
+    "category": "图片分类",
+    "all": "全部分类",
+    "empty": "没有匹配的图片",
+    "more": "显示更多",
+    "categories": {
+      "operators": "干员",
+      "icons": "公共图标",
+      "weapons": "武器",
+      "equipment": "装备",
+      "enemies": "敌人",
+      "consumables": "消耗品",
+      "contingency_contract": "危机合约"
+    }
+  },
   "executionTrace": {
     "comboCandidatePassed": "返回 true → 已登记连携候选",
     "comboCandidateRejected": "返回 false → 未登记连携候选",
@@ -530,7 +550,7 @@
       "baseDefense": "基础防御力",
       "levelRequirement": "穿戴等级",
       "slotType": "装备部位",
-      "iconPath": "图标路径",
+      "icon": "图标",
       "lifetime": "持续时间",
       "kind": "类型",
       "durationSeconds": "持续秒数",
@@ -1047,28 +1067,8 @@
         "name": "完成条件",
         "help": "选择何时认为动作完成，以便继续后续动作。"
       },
-      "noGuardBuffId": {
-        "name": "破防 Buff",
-        "help": "首次破防时施加的 Buff。"
-      },
-      "noGuardDefinition": {
-        "name": "破防定义",
-        "help": "破防效果的独立资源定义。"
-      },
       "type": {
         "name": "类型"
-      },
-      "fractureBuffId": {
-        "name": "碎甲 Buff"
-      },
-      "fractureDefinition": {
-        "name": "碎甲定义"
-      },
-      "crushedBuffId": {
-        "name": "猛击 Buff"
-      },
-      "crushedDefinition": {
-        "name": "猛击定义"
       },
       "damageMultiplier": {
         "name": "伤害倍率",
@@ -1077,12 +1077,6 @@
       "ignoreHitEffect": {
         "name": "跳过命中特效",
         "help": "不播放命中特效，不代表取消伤害。"
-      },
-      "airborneBuffId": {
-        "name": "击飞 Buff"
-      },
-      "airborneDefinition": {
-        "name": "击飞定义"
       },
       "height": {
         "name": "击飞高度",
@@ -1817,13 +1811,9 @@
         "name": "施放技能",
         "help": "请求施放指定技能，可选择是否消耗资源及是否中断当前技能。"
       },
-      "applyKnockDown": {
-        "name": "施加倒地",
-        "help": "对目标施加倒地，设置持续时间和生效条件。"
-      },
       "applyPhysicalInfliction": {
         "name": "施加物理异常",
-        "help": "施加击飞、猛击或碎甲，并按目标的破防状态触发对应效果。"
+        "help": "施加击飞、倒地、猛击或碎甲，并按目标的破防状态触发对应效果。"
       },
       "applyElementalReaction": {
         "name": "施加元素反应",
@@ -3560,7 +3550,7 @@
         "buffOutput": "输出 Buff",
         "buffConsumed": "消耗 Buff",
         "airborneOutput": "输出浮空",
-        "knockDownOutput": "输出击倒",
+        "knockDownOutput": "输出倒地",
         "spGained": "获得技力",
         "damageTagHit": "伤害标签命中",
         "elementalInflictionApplied": "施加元素附着",
@@ -3587,7 +3577,7 @@
       "physicalInflictionType": "物理附着类型",
       "physicalInflictionTypes": {
         "airborne": "浮空",
-        "knockDown": "击倒",
+        "knockDown": "倒地",
         "fracture": "破碎",
         "crush": "碾压"
       },
@@ -4220,15 +4210,14 @@
         "triggerCustomAbilityEvent": "在施放者 AbilitySystem 上同步发布一个精确命名的自定义事件；当前只开放已取证的施放者到自身目标子集。",
         "castSkillDuringAction": "由当前动作延迟启动一个已注册的原生技能，并继承本次释放上下文；不重复扣费。原生 ID 必须能唯一对应一个逻辑技能。",
         "inheritSkillCastInfoForBasicAttack": "为动作中启动的普攻继承当前施法信息，使派生伤害继续归属于原技能释放；不创建新的玩家操作或重复扣费。",
-        "applyPhysicalInfliction": "按原生 FractureAction 顺序执行物理异常：首次创建破防层，已有破防层时触发碎甲链；两份公共 Buff 定义均内联在使用点。",
+        "applyPhysicalInfliction": "根据目标当前破防状态施加破防或对应物理异常；Buff ID 引用公共定义目录。",
         "applyElementalReaction": "直接施加指定元素反应及其持续时间和效果强度。",
         "consumeElementalReaction": "结束并消费敌人身上的指定元素反应，供后续步骤触发派生效果。",
         "dealDamage": "以攻击力和倍率为基础造成一次伤害，可在同一步骤中结算失衡值。",
         "dealFixedDamage": "以固定基础值造成伤害，不乘攻击力，但仍经过后续伤害修正与防御抗性。",
         "dealStagger": "只造成失衡，不造成生命伤害。数值仍会经过失衡倍率。",
         "outputAirborne": "向目标输出一次浮空事实并同步触发监听器；不改变木桩的位置或控制状态。",
-        "outputKnockDown": "向目标输出一次击倒事实并同步触发监听器；不改变木桩的位置或控制状态。",
-        "applyKnockDown": "普通根倒地：保留破防、状态 Buff、免疫和事件；标准场景装配尚未完成，暂不支持模拟。",
+        "outputKnockDown": "向目标输出一次倒地事实并同步触发监听器；不改变木桩的位置或控制状态。",
         "heal": "按施法者四维属性计算治疗，即使目标满血也记录原始治疗量与溢出治疗。",
         "applyBuff": "按 Buff ID 引用所属对象的定义创建实例，并设置实例的初始变量。",
         "createGlobalBuff": "创建战斗级 GlobalBuff 父实例，并把其子 Buff 投影到固定队伍的每名成员。",
@@ -4343,7 +4332,7 @@
         "canBreakWeakness": "可破弱",
         "crush": "碾压",
         "airborne": "击飞",
-        "knockDown": "击倒",
+        "knockDown": "倒地",
         "shatter": "碎冰",
         "dot": "持续伤害",
         "remainArea": "残留区域",
@@ -4389,8 +4378,7 @@
         "dealFixedDamage": "造成固定伤害",
         "dealStagger": "造成失衡",
         "outputAirborne": "输出浮空",
-        "outputKnockDown": "输出击倒",
-        "applyKnockDown": "普通倒地（尚未接入）",
+        "outputKnockDown": "输出倒地",
         "heal": "治疗干员",
         "applyBuff": "施加 Buff",
         "createGlobalBuff": "创建全局 Buff",

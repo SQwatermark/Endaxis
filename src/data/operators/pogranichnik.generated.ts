@@ -1235,228 +1235,7 @@ export const pogranichnikChr_0029_pograni_normal_skillActionGraph = {
       applyPhysicalInfliction_15: {
         action: {
           kind: 'applyPhysicalInfliction',
-          parameters: {
-            type: 'fracture',
-            target: 'enemy',
-            isExtra: false,
-            noGuardBuffId: 'buff_physical_no_guard',
-            noGuardDefinition: {
-              stackingType: 'enhanceAndRefresh',
-              priority: 100,
-              maxStackCount: 4,
-              durationSeconds: { blackboardKey: 'duration' },
-              presentation: {
-                visible: true,
-                iconId: 'icon_shadow_attribute_penetrate',
-                iconPath: '/icons/icon_shadow_attribute_penetrate.webp',
-                showInHeadBarCommon: false,
-                showInHeadBarAttached: true,
-                showInSquadIcon: false,
-                onlyShowForMainCharacter: false,
-                blinkInMainCharHpBar: false,
-                showProgressInHpBar: false,
-                showProgressInNormalSkillButton: false,
-                useWeakProgressInNormalSkillButton: false,
-                showProgressInUltimateSkillButton: false,
-                forceRaiseIconEvent: false,
-                showWarningBackground: false,
-                playStrongInAnimation: false,
-                hasCharHpBarVfxType: false,
-                charHpBarVfxType: 'Fire',
-                iconStyleInSquad: 'Default',
-                abnormalColorType: 'Physical',
-                orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
-              },
-              applyTags: ['Skill/Character/Common/NoGuard'],
-              extendTags: [],
-              blackboard: { atk_scale: 0, count: 0, duration: 20, skip_handle_cryst_break: 0 },
-              attributeModifiers: [],
-              lifecycleSequences: {
-                start: { $sequence: 'conditional_2' },
-                finish: { $sequence: 'applyBuff_3' },
-                afterEnhance: { $sequence: 'withActionBlackboardScope_9' },
-              },
-              actionGraph: {
-                main: {
-                  nodes: {
-                    applyBuff_1: {
-                      action: {
-                        kind: 'applyBuff',
-                        parameters: {
-                          buffId: 'buff_physical_handle_cryst_break',
-                          target: 'buffOwner',
-                          source: 'buffSource',
-                          inheritSourceSkillCastInfo: true,
-                        },
-                      },
-                      next: null,
-                    },
-                    conditional_2: {
-                      action: {
-                        kind: 'conditional',
-                        parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-                        whenTrue: { $sequence: 'applyBuff_1' },
-                      },
-                      next: null,
-                    },
-                    applyBuff_3: {
-                      action: {
-                        kind: 'applyBuff',
-                        parameters: {
-                          buffId: 'buff_physical_no_guard_fake',
-                          target: 'buffOwner',
-                          source: 'buffSource',
-                          inheritSourceSkillCastInfo: true,
-                        },
-                      },
-                      next: null,
-                    },
-                    igniteBuffs_4: {
-                      action: {
-                        kind: 'igniteBuffs',
-                        parameters: {
-                          target: 'buffOwner',
-                          source: 'buffOwner',
-                          igniteType: 'NoGuard',
-                        },
-                      },
-                      next: null,
-                    },
-                    conditional_7: {
-                      action: {
-                        kind: 'conditional',
-                        parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
-                        whenTrue: { $sequence: 'conditional_2' },
-                      },
-                      next: null,
-                    },
-                    withActionBlackboardScope_8: {
-                      action: {
-                        kind: 'withActionBlackboardScope',
-                        parameters: {
-                          scopeKey: 'native-buff-callback:1',
-                          lifetime: 'execution',
-                          alwaysNext: true,
-                          shareParentBlackboard: true,
-                          initialValues: {},
-                          inheritParent: true,
-                        },
-                        body: { $sequence: 'conditional_7' },
-                      },
-                      next: null,
-                    },
-                    withActionBlackboardScope_9: {
-                      action: {
-                        kind: 'withActionBlackboardScope',
-                        parameters: {
-                          scopeKey: 'native-buff-callback:0',
-                          lifetime: 'execution',
-                          alwaysNext: true,
-                          shareParentBlackboard: true,
-                          initialValues: {},
-                          inheritParent: true,
-                        },
-                        body: { $sequence: 'igniteBuffs_4' },
-                      },
-                      next: 'withActionBlackboardScope_8',
-                    },
-                  },
-                  dataNodes: {
-                    data_1: {
-                      type: 'number',
-                      expression: {
-                        kind: 'blackboard',
-                        key: 'skip_handle_cryst_break',
-                        fallback: 0,
-                      },
-                    },
-                    data_2: {
-                      type: 'boolean',
-                      expression: {
-                        kind: 'actionValueCompare',
-                        left: { kind: 'valueNode', nodeId: 'data_1' },
-                        operator: 'equal',
-                        right: { kind: 'constant', value: 0 },
-                      },
-                    },
-                    data_3: {
-                      type: 'boolean',
-                      expression: {
-                        kind: 'currentBuffStackCompare',
-                        operator: 'greaterOrEqual',
-                        value: { kind: 'constant', value: 2 },
-                      },
-                    },
-                  },
-                },
-                macros: {},
-              },
-            },
-            fractureBuffId: 'buff_physical_fracture',
-            fractureDefinition: {
-              stackingType: 'unlimited',
-              priority: 0,
-              maxStackCount: 1,
-              durationSeconds: 3,
-              triggerIntervalSeconds: 0,
-              waitFirstTriggerInterval: false,
-              maxTriggerCount: 0,
-              applyTags: [],
-              extendTags: [],
-              blackboard: { count: 0, duration: 15 },
-              attributeModifiers: [],
-              lifecycleSequences: { start: { $sequence: 'readBuffStackCount_3' } },
-              actionGraph: {
-                main: {
-                  nodes: {
-                    applyBuff_1: {
-                      action: {
-                        kind: 'applyBuff',
-                        parameters: {
-                          buffId: 'buff_physical_do_fracture',
-                          target: 'buffOwner',
-                          source: 'buffSource',
-                          inheritSourceSkillCastInfo: true,
-                          copiedBlackboardAssignments: { duration: 'duration' },
-                        },
-                      },
-                      next: null,
-                    },
-                    readSkillSettingData_2: {
-                      action: {
-                        kind: 'readSkillSettingData',
-                        parameters: {
-                          items: [
-                            {
-                              values: [12, 18, 24, 30],
-                              column: { kind: 'valueNode', nodeId: 'data_1' },
-                              storeKey: 'duration',
-                            },
-                          ],
-                        },
-                      },
-                      next: 'applyBuff_1',
-                    },
-                    readBuffStackCount_3: {
-                      action: {
-                        kind: 'readBuffStackCount',
-                        parameters: {
-                          target: 'buffOwner',
-                          outputKey: 'count',
-                          query: { kind: 'id', buffIds: ['buff_physical_no_guard'] },
-                        },
-                      },
-                      next: 'readSkillSettingData_2',
-                    },
-                  },
-                  dataNodes: {
-                    data_1: { type: 'number', expression: { kind: 'blackboard', key: 'count' } },
-                  },
-                },
-                macros: {},
-              },
-            },
-          },
+          parameters: { type: 'fracture', target: 'enemy', isExtra: false },
         },
         next: 'dealDamage_14',
       },
@@ -1500,6 +1279,7 @@ export const pogranichnikChr_0029_pograni_normal_skillActionGraph = {
 } as const satisfies ActionGraphResourceDefinition;
 
 export const pogranichnikChr_0029_pograni_normal_skill: SkillDefinition = {
+  actionGraph: pogranichnikChr_0029_pograni_normal_skillActionGraph,
   key: 'chr_0029_pograni_normal_skill',
   element: 'physical',
   blackboard: {
@@ -1548,7 +1328,6 @@ export const pogranichnikChr_0029_pograni_normal_skill: SkillDefinition = {
   skillType: 'battleSkill',
   levelSource: 'battleSkill',
   nativeSkillType: 'normalSkill',
-  actionGraph: pogranichnikChr_0029_pograni_normal_skillActionGraph,
 };
 
 export const pogranichnikChr_0029_pograni_combo_skillActionGraph = {
@@ -2879,8 +2658,7 @@ const pogranichnikBuff5: SkillBuffDefinition = {
   durationSeconds: { blackboardKey: 'duration' },
   presentation: {
     visible: true,
-    iconId: 'icon_battle_pograni_talent_1',
-    iconPath: '/icons/icon_battle_pograni_talent_1.webp',
+    icon: 'endaxis:icons/icon_battle_pograni_talent_1',
     showInHeadBarCommon: false,
     showInHeadBarAttached: false,
     showInSquadIcon: true,
@@ -3676,8 +3454,7 @@ const pogranichnikBuff10: SkillBuffDefinition = {
   durationSeconds: { blackboardKey: 'duration' },
   presentation: {
     visible: true,
-    iconId: 'icon_battle_pograni_buff',
-    iconPath: '/icons/icon_battle_pograni_buff.webp',
+    icon: 'endaxis:icons/icon_battle_pograni_buff',
     showInHeadBarCommon: false,
     showInHeadBarAttached: false,
     showInSquadIcon: true,
