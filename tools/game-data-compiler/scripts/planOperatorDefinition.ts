@@ -398,7 +398,7 @@ function parsePresentationVariants(
   value: unknown,
   conditions: ReadonlyMap<string, SkillPresentationVariantDefinition['condition']>,
   sourcePath: string,
-): SkillPresentationVariantDefinition[] {
+): (SkillPresentationVariantDefinition & { readonly conditionId: string })[] {
   if (value === undefined) return [];
   const keys = new Set<string>();
   return requireArray(value, sourcePath).map((raw, index) => {
@@ -411,7 +411,7 @@ function parsePresentationVariants(
     const conditionId = requireNonEmptyString(row.conditionId, `${path}.conditionId`);
     const compiled = conditions.get(conditionId);
     if (compiled === undefined) throw new Error(`${path}: unknown condition '${conditionId}'`);
-    return { key, condition: compiled };
+    return { key, condition: compiled, conditionId };
   });
 }
 

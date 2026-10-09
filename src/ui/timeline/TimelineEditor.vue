@@ -214,11 +214,14 @@ import type { SkillDefinition, OperationType } from '../../core/game-data/operat
 import {
   getIconAssetPath,
   getOperatorAvatarPath,
-  getOperatorSkillIconPath,
   getWeaponActionIconPath,
 } from '../gameAssetPaths';
 import { groupPlacedSkillSequence, placeLibrarySkillGroup } from './interaction/placeSkillGroup';
-import { resolveOperatorPresentationFormKey } from './library/operatorFormPresentation';
+import { listOperatorSkillDefinitionBindings } from '../../core/game-data/operatorSkillDefinitions';
+import {
+  resolveOperatorPresentationFormKey,
+  resolveOperatorSkillIcon,
+} from './library/operatorFormPresentation';
 import { SkillPlacementTransaction } from './interaction/skillPlacementTransaction';
 import {
   resolveCompactSkillSelection,
@@ -1508,7 +1511,12 @@ const exportShareTracks = computed<readonly TimelineShareTrack[]>(() =>
         icon:
           track.operatorAssetSlug === null || cast.operationType === null
             ? null
-            : getOperatorSkillIconPath(track.operatorAssetSlug, cast.operationType),
+            : skillDisplayIcon(
+                cast.operationType,
+                track.operatorSlug,
+                track.trackIndex,
+                cast.source.kind === 'operatorSkill' ? cast.source.skillKey : undefined,
+              ),
       })),
     })),
 );
@@ -1748,7 +1756,12 @@ const mobileLibrary = computed<MobileLibraryEntry[]>(() =>
       entry.operationType === 'battleSkill' ||
       entry.operationType === 'comboSkill' ||
       entry.operationType === 'ultimate'
-        ? skillDisplayIcon(entry.operationType, selectedTrackModel.value.operatorSlug)
+        ? skillDisplayIcon(
+            entry.operationType,
+            selectedTrackModel.value.operatorSlug,
+            selectedTrack.value,
+            entry.skills[0]?.skillKey,
+          )
         : '',
     durationFrames: entry.skills.reduce((total, skill) => total + skill.timelineBlockFrames, 0),
     skills: entry.skills.map(skill => ({
@@ -4195,12 +4208,22 @@ function skillAccentColor(operationType: string | null, operatorSlug: string | n
       : '#8c8c8c';
 }
 
-function skillDisplayIcon(skillType: string, operatorSlug: string | null): string {
+function skillDisplayIcon(
+  skillType: string,
+  operatorSlug: string | null,
+  trackIndex = selectedTrack.value,
+  skillKey?: string,
+): string {
   if (operatorSlug === null) return '';
   const operator = editorGameDataRepository.getOperator(operatorSlug);
-  const assetSlug = operator?.assetSlug ?? operatorSlug;
-  if (skillType === 'battleSkill' || skillType === 'comboSkill' || skillType === 'ultimate') {
-    return getOperatorSkillIconPath(assetSlug, skillType) ?? '';
+  const attributes = panelResolution.value.panels.get(trackIndex)?.attributes;
+  if (operator) {
+    const formKey = attributes ? resolveOperatorPresentationFormKey(operator, attributes) : null;
+    const binding = listOperatorSkillDefinitionBindings(operator).find(({ skill, group }) =>
+      skillKey ? skill.key === skillKey : group.operationType === skillType,
+    );
+    const icon = binding && resolveOperatorSkillIcon(binding, formKey, operator);
+    if (icon) return icon;
   }
   const weaponType = operator?.weaponType ?? 'sword';
   return getWeaponActionIconPath(weaponType);
@@ -6465,7 +6488,14 @@ function setMobileGuideFrame(frame: number | null): void {
               :tooltip="skillLibraryTypeLabel(entry)"
               :type-label="skillLibraryTypeLabel(entry)"
               :duration="skillDurationSeconds(entry)"
-              :icon="skillDisplayIcon(entry.operationType, selectedTrackModel.operatorSlug)"
+              :icon="
+                skillDisplayIcon(
+                  entry.operationType,
+                  selectedTrackModel.operatorSlug,
+                  selectedTrack,
+                  entry.skills[0]?.skillKey,
+                )
+              "
               :accent-color="skillAccentColor(entry.operationType, selectedTrackModel.operatorSlug)"
               :selected="libraryEntrySelected(entry)"
               :segments="skillSegments(entry)"

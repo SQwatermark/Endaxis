@@ -2590,6 +2590,7 @@ export const laevatainChr_0016_laevat_normal_skill_during_ult: SkillDefinition =
     { startFrame: 0, endFrame: 115, sequence: { $sequence: 'applyBuff_33' } },
   ],
   costs: [{ resource: 'sp', value: 100 }],
+  iconName: 'battle 02',
   skillType: 'battleSkill',
   levelSource: 'battleSkill',
   nativeSkillType: 'normalSkill',

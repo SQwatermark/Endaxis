@@ -4,6 +4,7 @@ import type {
   SkillCostDefinition,
 } from '../../compiler/intermediateDefinitions.ts';
 import type { OperatorActiveSkillTypeSource } from './activeSkills.ts';
+import { operatorSkillIconName } from './iconNames.ts';
 import { resolveSkillElement, type SkillPatchSource } from '../../source/skillPatch.ts';
 import { requireNonNegativeInteger, requireRecord } from '../../source/primitives.ts';
 import {
@@ -24,6 +25,8 @@ export type CompiledOperatorActiveSkillRuntimeDefinitionSource = Readonly<
     SkillDefinition,
     | 'key'
     | 'element'
+    | 'iconName'
+    | 'useSkillGroupIcon'
     | 'timelineBlockFrames'
     | 'timelineContinuationSkillId'
     | 'timelineBlockFollowUpSkillId'
@@ -53,6 +56,7 @@ export type CompiledOperatorActiveSkillRuntimeDefinitionSource = Readonly<
 };
 
 export function compileOperatorActiveSkillRuntimeDefinitionSource(input: {
+  readonly slug: string;
   readonly key: string;
   readonly skillType: OperatorActiveSkillTypeSource;
   readonly value: unknown;
@@ -81,6 +85,8 @@ export function compileOperatorActiveSkillRuntimeDefinitionSource(input: {
   const definition: CompiledOperatorActiveSkillRuntimeDefinitionSource = {
     actionGraph: runtime.actionGraph,
     key: input.key,
+    ...(input.patch?.iconId ? { iconName: operatorSkillIconName(input.patch.iconId) } : {}),
+    ...(input.patch?.useSkillGroupIcon ? { useSkillGroupIcon: true } : {}),
     ...(input.skillType === 'dodge'
       ? {}
       : { element: resolveSkillElement(root.iconBgType, input.patch, input.sourcePath) }),

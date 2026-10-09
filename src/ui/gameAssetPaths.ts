@@ -2,7 +2,6 @@ import type {
   DamageElement,
   OperatorAttribute,
   OperatorWeaponType,
-  SkillType,
 } from '../core/game-data/operatorDefinition';
 
 export const DEFAULT_GAME_ICON_PATH = '/icons/default_icon.webp';
@@ -39,12 +38,6 @@ const WEAPON_ACTION_ICON_PATHS: Readonly<Record<OperatorWeaponType, string>> = O
   funnel: '/icons/icon_attack_funnel.webp',
 });
 
-const OPERATOR_SKILL_ICON_FILES: Partial<Record<SkillType, string>> = Object.freeze({
-  battleSkill: 'battle.webp',
-  comboSkill: 'combo.webp',
-  ultimate: 'ultimate.webp',
-});
-
 const SPELL_BURST_ICON_PATHS: Readonly<Record<string, string>> = Object.freeze({
   Fire: '/icons/icon_burst_fusion_fire.webp',
   Pulse: '/icons/icon_burst_fusion_pulse.webp',
@@ -76,13 +69,6 @@ export function getIconAssetPath(iconId: string | null | undefined): string | nu
 
 export function getOperatorAvatarPath(assetSlug: string): string {
   return `/operators/${requireAssetSegment(assetSlug, 'operator asset slug')}/avatar.webp`;
-}
-
-export function getOperatorSkillIconPath(assetSlug: string, skillType: SkillType): string | null {
-  const file = OPERATOR_SKILL_ICON_FILES[skillType];
-  return file
-    ? `/operators/${requireAssetSegment(assetSlug, 'operator asset slug')}/${file}`
-    : null;
 }
 
 export function getOperatorTalentIconPath(assetSlug: string, oneBasedIndex: number): string {

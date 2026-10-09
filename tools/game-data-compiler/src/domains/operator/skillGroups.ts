@@ -43,6 +43,7 @@ export interface NativeOperatorSkillGroupSource {
   readonly skillGroupId: string;
   /** 当前 metadata 未保存枚举成员名，因此保留原生整数身份。 */
   readonly nativeGroupType: number;
+  readonly conditionIcons?: Readonly<Record<string, string>>;
   readonly skillIds: readonly string[];
 }
 
@@ -137,6 +138,13 @@ export function parseNativeOperatorSkillGroupSources(
       skillGroupId: id,
       nativeGroupType: requireNonNegativeInteger(group.skillGroupType, `${path}.skillGroupType`),
       skillIds,
+      conditionIcons: Object.fromEntries(
+        [1, 2].flatMap(index => {
+          const condition = group[`conditionId${index}`];
+          const icon = group[`conditionIcon${index}`];
+          return condition && icon ? [[String(condition), `/icons/${icon}.webp`]] : [];
+        }),
+      ),
     };
   });
 }

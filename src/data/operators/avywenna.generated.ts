@@ -2753,7 +2753,7 @@ export const avywenna: OperatorDefinition = {
         },
       },
       presentation: {
-        icon: '/operators/avywenna/combo.webp',
+        icon: '/operators/avywenna/combo 01.webp',
         nameKey: 'effects.name.thunderlance',
         placement: 'operator',
       },
@@ -2862,7 +2862,7 @@ export const avywenna: OperatorDefinition = {
         },
       },
       presentation: {
-        icon: '/operators/avywenna/ultimate.webp',
+        icon: '/operators/avywenna/ultimate 01.webp',
         nameKey: 'effects.name.thunderlanceEx',
         placement: 'operator',
       },

@@ -367,8 +367,12 @@ export interface SkillDefinitionProperties extends SkillActionProgramDefinition 
 }
 
 /** 闪避不参与技能养成；其他干员技能必须明确等级来源。 */
-export type SkillDefinition = SkillDefinitionProperties &
-  (
+export type SkillDefinition = SkillDefinitionProperties & {
+  /** 干员目录内的图标文件名，不含扩展名；普攻、下落攻击和处决始终使用武器类型图标。 */
+  iconName?: string;
+  /** 允许生效的技能组条件图标覆盖自身图标；默认关闭。 */
+  useSkillGroupIcon?: boolean;
+} & (
     | {
         /** 技能的战斗分类，不由技能库分组推测。 */
         skillType: Exclude<SkillType, 'dodge'>;
@@ -463,6 +467,8 @@ export interface RoutedSkillReplacementDefinition {
 
 /** 同一技能组根据养成条件切换的展示形态，不产生新的释放身份。 */
 export interface SkillPresentationVariantDefinition {
+  /** 此形态的干员图标文件名，不含目录和扩展名；省略沿用默认图标。 */
+  iconName?: string;
   /** 展示形态在技能组中的唯一名称。 */
   key: string;
   /** 最终构筑满足此条件时选用该展示形态。 */

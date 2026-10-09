@@ -12502,7 +12502,7 @@ export const typhoeus: OperatorDefinition = {
         ],
       },
       presentation: {
-        icon: '/operators/typhoeus/combo.webp',
+        icon: '/operators/typhoeus/combo 01.webp',
         nameKey: 'effects.name.barrageArray',
         placement: 'enemy',
       },

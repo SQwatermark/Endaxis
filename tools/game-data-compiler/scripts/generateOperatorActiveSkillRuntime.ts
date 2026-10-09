@@ -605,6 +605,7 @@ export function planOperatorActiveSkillRuntime(
   let definition: ReturnType<typeof compileOperatorActiveSkillRuntimeDefinitionSource>;
   try {
     definition = compileOperatorActiveSkillRuntimeDefinitionSource({
+      slug: args.slug,
       key: args.key,
       skillType: args.skillType,
       value: source,

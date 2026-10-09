@@ -11,12 +11,12 @@ export const abilityEntityPresentations: Readonly<
   Record<string, NonNullable<AbilityEntityDefinition['presentation']>>
 > = {
   abilityentity_chr_0012_avywen_combo_skill_lance: {
-    icon: '/operators/avywenna/combo.webp',
+    icon: '/operators/avywenna/combo 01.webp',
     nameKey: 'effects.name.thunderlance',
     placement: 'operator',
   },
   abilityentity_chr_0012_avywen_ultimate_skill_lance: {
-    icon: '/operators/avywenna/ultimate.webp',
+    icon: '/operators/avywenna/ultimate 01.webp',
     nameKey: 'effects.name.thunderlanceEx',
     placement: 'operator',
   },
@@ -27,13 +27,13 @@ export const abilityEntityPresentations: Readonly<
   abilityentity_chr_0027_tangtang_normal_skill_03_02: waterspoutPresentation,
   abilityentity_chr_0027_tangtang_normal_skill_03_03: waterspoutPresentation,
   abilityentity_chr_0027_tangtang_ultskill: {
-    icon: '/operators/tangtang/ultimate.webp',
+    icon: '/operators/tangtang/ultimate 01.webp',
     nameKey: 'effects.name.oldenStare',
     placement: 'enemy',
     damageDisplayBuffId: 'buff_chr_0027_tangtang_ultskill_debuff',
   },
   abilityentity_chr_0034_typhoea_combo_presistdamage: {
-    icon: '/operators/typhoeus/combo.webp',
+    icon: '/operators/typhoeus/combo 01.webp',
     nameKey: 'effects.name.barrageArray',
     placement: 'enemy',
   },

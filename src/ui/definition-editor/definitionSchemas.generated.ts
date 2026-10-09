@@ -72,6 +72,11 @@ const schema_04620bcedd77 = {
   optional: true,
   description: '与语言无关的展示资源；名称和描述仍由 locale family 按需解析。',
 } as const;
+const schema_f8fc68191629 = {
+  kind: 'string',
+  optional: true,
+  description: '干员目录内的图标文件名，不含扩展名；普攻、下落攻击和处决始终使用武器类型图标。',
+} as const;
 const schema_a7c632da5929 = [
   'comboSkill',
   'plungingAttack',
@@ -1881,7 +1886,7 @@ const schema_191bca465db9 = {
   optional: true,
   description: '技能启用期间注册的战斗事件响应。',
 } as const;
-const schema_ca850f7fdf79 = {
+const schema_4482e17f20a4 = {
   placementPolicy: {
     kind: 'object',
     fields: schema_f29775915ce0,
@@ -1971,6 +1976,11 @@ const schema_ca850f7fdf79 = {
     element: {
       kind: 'object',
       fields: {
+        iconName: {
+          kind: 'string',
+          optional: true,
+          description: '此形态的干员图标文件名，不含目录和扩展名；省略沿用默认图标。',
+        },
         key: { kind: 'string', description: '展示形态在技能组中的唯一名称。' },
         condition: {
           kind: 'object',
@@ -2223,7 +2233,7 @@ export const definitionSchemas = {
       },
       skillGroups: {
         kind: 'array',
-        element: { kind: 'object', fields: schema_ca850f7fdf79 },
+        element: { kind: 'object', fields: schema_4482e17f20a4 },
         semantics: { arrayElement: {} },
         description: '干员技能库的操作组集合；不包含切人、闪避、跳跃。组成员配置操作段的目标技能。',
       },
@@ -2881,6 +2891,12 @@ export const definitionSchemas = {
           eventHandlers: schema_191bca465db9,
           blackboard: schema_dcc3197d8b15,
           scheduledSequences: schema_3c8414c0c980,
+          iconName: schema_f8fc68191629,
+          useSkillGroupIcon: {
+            kind: 'boolean',
+            optional: true,
+            description: '允许生效的技能组条件图标覆盖自身图标；默认关闭。',
+          },
           skillType: {
             kind: 'enum',
             options: [
@@ -2938,6 +2954,12 @@ export const definitionSchemas = {
           eventHandlers: schema_191bca465db9,
           blackboard: schema_dcc3197d8b15,
           scheduledSequences: schema_3c8414c0c980,
+          iconName: schema_f8fc68191629,
+          useSkillGroupIcon: {
+            kind: 'boolean',
+            optional: true,
+            description: '允许生效的技能组条件图标覆盖自身图标；默认关闭。',
+          },
           skillType: { kind: 'enum', options: ['dodge'] },
           levelSource: schema_cb135381615b,
           element: schema_cb135381615b,
@@ -2946,7 +2968,7 @@ export const definitionSchemas = {
     ],
     semantics: schema_4107b248d073,
   },
-  skillGroup: { kind: 'object', fields: schema_ca850f7fdf79 },
+  skillGroup: { kind: 'object', fields: schema_4482e17f20a4 },
   skillGroupVariant: { kind: 'object', fields: schema_59ae2ded5e63 },
   buff: {
     kind: 'union',

@@ -87,7 +87,26 @@ it('uses published operator, skill and weapon identities, including the timeline
       },
     ],
   };
-  const operators = capturePublishedOperatorMetadata(scenario, { getOperator: () => arcane });
+  const operators = capturePublishedOperatorMetadata(scenario, { getOperator: () => arcane }, [
+    { operatorId: 'track', attributes: { strength: 0, agility: 0, intellect: 10, will: 20 } },
+  ]);
+  expect(operators.get('arcane')?.skillIcons?.chr_0032_lizhiyan_ultimate_skill).toBe(
+    '/operators/arcane/ultimate 02.webp',
+  );
+  const equalAttributes = capturePublishedOperatorMetadata(
+    scenario,
+    { getOperator: () => arcane },
+    [{ operatorId: 'track', attributes: { strength: 0, agility: 0, intellect: 20, will: 20 } }],
+  );
+  expect(equalAttributes.get('arcane')?.skillIcons?.chr_0032_lizhiyan_ultimate_skill).toBe(
+    '/operators/arcane/ultimate 01.webp',
+  );
+  // 第二段不接受技能组图标覆盖，两种构筑都应保留独立图标。
+  for (const metadata of [operators, equalAttributes]) {
+    expect(metadata.get('arcane')?.skillIcons?.chr_0032_lizhiyan_ultimate_skill2).toBe(
+      '/operators/arcane/ultimate 03.webp',
+    );
+  }
   const c = new CombatReceiptCollector();
   c.record({
     event: 'BuffApplied',
@@ -126,7 +145,7 @@ it('uses published operator, skill and weapon identities, including the timeline
     '/operators/arcane/avatar.webp',
   );
   expect(icon(q.get({ kind: 'action', ownerId: 'track', actionId: 'cast' }), 0)).toBe(
-    '/operators/arcane/ultimate.webp',
+    '/operators/arcane/ultimate 02.webp',
   );
   expect(icon(q.get({ kind: 'buff', ownerId: 'track', instanceId: 1 }), 0)).toBe('/weapon.webp');
   expect(icon(q.get({ kind: 'buff', ownerId: 'track', instanceId: 2 }), 1)).toBe('/set.webp');

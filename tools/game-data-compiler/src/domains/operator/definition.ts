@@ -23,6 +23,8 @@ import {
   compileOperatorPotentialDefinition,
 } from './progressionDefinition.ts';
 import type { CompiledOperatorActiveSkillRuntimeDefinitionSource } from './activeSkillRuntimeDefinition.ts';
+import { operatorSkillIconName } from './iconNames.ts';
+import { defaultOperatorSkillIconPath } from '../../../../../packages/game-data-contract/src/skillIconPaths.ts';
 import type { CompiledAbilityEntityTemplateCatalogSource } from '../../compiler/abilities/abilityEntityCatalog.ts';
 import { compileAbilityEntityTemplateCatalogSource } from '../../compiler/abilities/abilityEntityCatalog.ts';
 import { compileAbilityEntityDefinitionSource } from '../../compiler/abilities/abilityEntityDefinition.ts';
@@ -108,7 +110,9 @@ export interface OperatorDefinitionAssemblyInput {
   readonly playerActionRoutes?: OperatorPlayerActionRoutes;
   readonly playerActionModes?: readonly OperatorPlayerActionModeDefinition[];
   /** 所有技能组共用的、由最终构筑属性决定的说明文本形态。 */
-  readonly presentationVariants?: readonly SkillPresentationVariantDefinition[];
+  readonly presentationVariants?: readonly (SkillPresentationVariantDefinition & {
+    readonly conditionId: string;
+  })[];
   /** `_InitSkills` 从 CharacterData 注册出的原生类型初值，以 skillId 为键。 */
   readonly nativeSkillTypeBySkillId?: Readonly<Record<string, NativeSkillType>>;
   readonly nativePlayerActionRouting?: {
@@ -781,8 +785,23 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
     if (nativeSkillType === undefined) {
       throw new Error(`skill '${key}' has no native SkillType initialization evidence`);
     }
+    const { iconName, ...skillDefinition } = definition;
+    const defaultIcon = defaultOperatorSkillIconPath(
+      foundation.identity.slug,
+      foundation.character.weaponType,
+      identity.skillType,
+    );
     definitions.set(key, {
-      ...definition,
+      ...skillDefinition,
+      ...(iconName &&
+      iconName !==
+        defaultIcon
+          .split('/')
+          .at(-1)!
+          .replace(/\.webp$/, '') &&
+      !['basicAttack', 'plungingAttack', 'finisher'].includes(identity.skillType)
+        ? { iconName }
+        : {}),
       ...identity,
       skillType: identity.skillType,
       nativeSkillType,
@@ -889,7 +908,23 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
           }),
       ...(input.presentationVariants === undefined
         ? {}
-        : { presentationVariants: input.presentationVariants }),
+        : {
+            presentationVariants: input.presentationVariants.map(({ conditionId, ...variant }) => {
+              const nativeGroup = skillLibrary.nativeSkillGroups.find(native =>
+                native.skillIds.includes(visibleSkillKeys[0]!),
+              );
+              const nativeIcon = nativeGroup?.conditionIcons?.[conditionId];
+              const iconName = nativeIcon
+                ? operatorSkillIconName(
+                    nativeIcon
+                      .split('/')
+                      .at(-1)!
+                      .replace(/\.webp$/, ''),
+                  )
+                : undefined;
+              return { ...variant, ...(iconName ? { iconName } : {}) };
+            }),
+          }),
     } satisfies SkillGroupDefinition;
   });
   const unassignedRuntimeReplacementSkillKeys = [...runtimeReplacementSkillKeys].filter(

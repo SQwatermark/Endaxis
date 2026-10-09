@@ -44,7 +44,11 @@ export function usePublishedSimulationDisplay(
         publishedGearSetIcons.value = new Map();
         return;
       }
-      publishedOperators.value = capturePublishedOperatorMetadata(value.scenario, index);
+      publishedOperators.value = capturePublishedOperatorMetadata(
+        value.scenario,
+        index,
+        value.run.operatorPanels,
+      );
       publishedWeaponSources.value = capturePublishedEquipmentSources(getWeapons());
       publishedGearSources.value = capturePublishedEquipmentSources(getGears?.() ?? [], 'gear');
       publishedGearIcons.value = new Map(

@@ -5365,7 +5365,7 @@ export const tangtang: OperatorDefinition = {
         },
       },
       presentation: {
-        icon: '/operators/tangtang/ultimate.webp',
+        icon: '/operators/tangtang/ultimate 01.webp',
         nameKey: 'effects.name.oldenStare',
         placement: 'enemy',
         damageDisplayBuffId: 'buff_chr_0027_tangtang_ultskill_debuff',

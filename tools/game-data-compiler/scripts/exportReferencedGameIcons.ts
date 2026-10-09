@@ -238,6 +238,15 @@ async function collectLiteralReferences(
     files.map(async ({ file: filePath }) => {
       const source = await readFile(filePath, 'utf8');
       const relative = path.relative(PROJECT_ROOT, filePath).replaceAll('\\', '/');
+      const slug = /\bslug:\s*['"]([a-z0-9-]+)['"]/.exec(source)?.[1];
+      if (slug) {
+        for (const match of source.matchAll(/\biconName:\s*['"]([^'"/\\]+)['"]/g)) {
+          const publicPath = `/operators/${slug}/${match[1]}.webp`;
+          const owners = references.get(publicPath) ?? new Set<string>();
+          owners.add(relative);
+          references.set(publicPath, owners);
+        }
+      }
       for (const publicPath of readGameIconReferences(source)) {
         const owners = references.get(publicPath) ?? new Set<string>();
         owners.add(relative);
@@ -297,7 +306,8 @@ export async function addOperatorImpliedReferences(
     const assets = operator.assets === undefined ? {} : requireRecord(operator.assets, assetPath);
     const add = (fileName: string, sourceName: string, preferredPathSegment: string): void => {
       const validOutputName =
-        /^[a-zA-Z0-9_-]+$/.test(fileName) || /^talent [1-9][0-9]*$/.test(fileName);
+        /^[a-zA-Z0-9_-]+$/.test(fileName) ||
+        /^(?:talent [1-9][0-9]*|(?:battle|combo|ultimate) [0-9]{2,})$/.test(fileName);
       if (!validOutputName || !/^[a-zA-Z0-9_-]+$/.test(sourceName)) {
         throw new Error(`${assetPath}: icon output and source must be plain file names`);
       }
@@ -319,20 +329,24 @@ export async function addOperatorImpliedReferences(
         : requireNonEmptyString(assets.portraitCharacterId, `${assetPath}.portraitCharacterId`);
     add('avatar', `icon_round_${assetCharacterId}`, '/charroundicon/');
     add('portrait', `icon_${assetCharacterId}`, '/charicon/');
-    for (const [skillKey, outputName] of [
-      ['battleSkill', 'battle'],
-      ['comboSkill', 'combo'],
-      ['ultimate', 'ultimate'],
+    // Default icons are implicit in definitions; explicit variants share the same naming rule.
+    const nativeName = operator.charId.split('_').slice(2).join('_');
+    for (const [name, prefix] of [
+      ['battle', 'icon_skill'],
+      ['combo', 'icon_combo_skill'],
+      ['ultimate', 'icon_ultimate_skill'],
     ] as const) {
-      if (!operator.skillGroups.some(group => group.operationType === skillKey)) continue;
-      const nativeCharacterName = operator.charId.split('_').slice(2).join('_');
-      const conventionalIconId =
-        skillKey === 'comboSkill'
-          ? `icon_combo_skill_${nativeCharacterName}_01`
-          : skillKey === 'ultimate'
-            ? `icon_ultimate_skill_${nativeCharacterName}_01`
-            : `icon_skill_${nativeCharacterName}_01`;
-      add(outputName, conventionalIconId, '/skillicon/');
+      const directory = `/operators/${operator.slug}/`;
+      const files = new Set([
+        `${name} 01.webp`,
+        ...[...references.keys()]
+          .filter(value => value.startsWith(`${directory}${name} `))
+          .map(value => value.slice(directory.length)),
+      ]);
+      for (const file of files) {
+        const index = / (\d+)\.webp$/.exec(file)?.[1];
+        if (index) add(file.slice(0, -5), `${prefix}_${nativeName}_${index}`, '/skillicon/');
+      }
     }
     const talentIcons = new Map<number, string>();
     const icons =
@@ -438,12 +452,20 @@ function sourcePlanForReference(
   if (publicPath.startsWith('/operators/')) {
     return {
       sourceNames: [`${stem}.png`],
-      preferredPathSegments: [stem.startsWith('icon_skill_') ? '/skillicon/' : '/bufficon/'],
+      preferredPathSegments: [
+        /^icon_(?:combo_|ultimate_)?skill_/.test(stem) ? '/skillicon/' : '/bufficon/',
+      ],
     };
   }
   return {
     sourceNames: [`${stem}.png`],
-    preferredPathSegments: [stem.startsWith('icon_term_') ? '/termicon/' : '/bufficon/'],
+    preferredPathSegments: [
+      /^icon_(?:combo_|ultimate_)?skill_/.test(stem)
+        ? '/skillicon/'
+        : stem.startsWith('icon_term_')
+          ? '/termicon/'
+          : '/bufficon/',
+    ],
   };
 }
 
@@ -643,9 +665,7 @@ export async function exportReferencedGameIcons(arguments_: ExportGameIconsArgum
   await mkdir(TMP_ROOT, { recursive: true });
   const references = await buildReferenceClosure(arguments_);
   const snapshot =
-    arguments_.sourceMode === 'hybrid'
-      ? await AkedbSnapshot.load(arguments_.cdn)
-      : undefined;
+    arguments_.sourceMode === 'hybrid' ? await AkedbSnapshot.load(arguments_.cdn) : undefined;
   const results: Array<Awaited<ReturnType<typeof exportReference>>> = [];
   const failures: Array<{ publicPath: string; error: string }> = [];
   // 复用来源下载的有界调度；各图校验独立，账本按资源路径排序而不是按请求完成顺序。

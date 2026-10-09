@@ -982,6 +982,7 @@ export const arcaneChr_0032_lizhiyan_normal_skillActionGraph = {
 export const arcaneChr_0032_lizhiyan_normal_skill: SkillDefinition = {
   actionGraph: arcaneChr_0032_lizhiyan_normal_skillActionGraph,
   key: 'chr_0032_lizhiyan_normal_skill',
+  useSkillGroupIcon: true,
   element: 'nature',
   blackboard: {
     atk_scale: 2.85,
@@ -1453,6 +1454,7 @@ export const arcaneChr_0032_lizhiyan_combo_skillActionGraph = {
 
 export const arcaneChr_0032_lizhiyan_combo_skill: SkillDefinition = {
   key: 'chr_0032_lizhiyan_combo_skill',
+  useSkillGroupIcon: true,
   element: 'nature',
   blackboard: {
     atb_return_wisd: [28, 28, 28, 28, 28, 28, 28, 28, 28, 30, 30, 30],
@@ -2216,6 +2218,7 @@ export const arcaneChr_0032_lizhiyan_ultimate_skillActionGraph = {
 export const arcaneChr_0032_lizhiyan_ultimate_skill: SkillDefinition = {
   actionGraph: arcaneChr_0032_lizhiyan_ultimate_skillActionGraph,
   key: 'chr_0032_lizhiyan_ultimate_skill',
+  useSkillGroupIcon: true,
   element: 'nature',
   blackboard: {
     atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8],
@@ -2912,6 +2915,7 @@ export const arcaneChr_0032_lizhiyan_ultimate_skill2: SkillDefinition = {
   ],
   cooldownFrames: 300,
   costs: [{ resource: 'ultimateEnergy', value: 100 }],
+  iconName: 'ultimate 03',
   skillType: 'ultimate',
   levelSource: 'ultimate',
   nativeSkillType: 'normalSkill',
@@ -6864,6 +6868,7 @@ export const arcane: OperatorDefinition = {
             operator: 'greaterOrEqual',
             right: 'will',
           },
+          iconName: 'battle 01',
         },
         {
           key: 'will',
@@ -6873,6 +6878,7 @@ export const arcane: OperatorDefinition = {
             operator: 'less',
             right: 'will',
           },
+          iconName: 'battle 02',
         },
       ],
     },
@@ -6889,6 +6895,7 @@ export const arcane: OperatorDefinition = {
             operator: 'greaterOrEqual',
             right: 'will',
           },
+          iconName: 'combo 01',
         },
         {
           key: 'will',
@@ -6898,6 +6905,7 @@ export const arcane: OperatorDefinition = {
             operator: 'less',
             right: 'will',
           },
+          iconName: 'combo 02',
         },
       ],
     },
@@ -6919,6 +6927,7 @@ export const arcane: OperatorDefinition = {
             operator: 'greaterOrEqual',
             right: 'will',
           },
+          iconName: 'ultimate 01',
         },
         {
           key: 'will',
@@ -6928,6 +6937,7 @@ export const arcane: OperatorDefinition = {
             operator: 'less',
             right: 'will',
           },
+          iconName: 'ultimate 02',
         },
       ],
     },

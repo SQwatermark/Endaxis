@@ -66,6 +66,7 @@ describe('Operator 主动技能正式运行定义', () => {
     };
 
     const definition = compileOperatorActiveSkillRuntimeDefinitionSource({
+      slug: 'test',
       key: 'native.attack1',
       skillType: 'basicAttack',
       value: source,
@@ -95,6 +96,7 @@ describe('Operator 主动技能正式运行定义', () => {
       { key: 'atb', valueDouble: 3, valueStr: '', isDynamic: true },
     ];
     const definition = compileOperatorActiveSkillRuntimeDefinitionSource({
+      slug: 'test',
       key: 'dynamic',
       skillType: 'comboSkill',
       value: source,
@@ -120,11 +122,13 @@ describe('Operator 主动技能正式运行定义', () => {
     (source.castData as Record<string, unknown>).startCdFrame = 3;
     source.exclusiveFrame = 20;
     const definition = compileOperatorActiveSkillRuntimeDefinitionSource({
+      slug: 'test',
       key: 'battle',
       skillType: 'battleSkill',
       value: source,
       sourcePath: 'battle.json',
       patch: {
+        iconId: 'icon_skill_sample_01',
         levels: [1, 2],
         blackboard: { attack_scale: [1, 1.2] },
         cooldownSeconds: [1, 1.5],
@@ -135,6 +139,7 @@ describe('Operator 主动技能正式运行定义', () => {
     });
     expect(definition).toMatchObject({
       key: 'battle',
+      iconName: 'battle 01',
       blackboard: { attack_scale: [1, 1.2] },
       timelineBlockFrames: 21,
       naturalDurationFrames: 30,
@@ -200,6 +205,7 @@ describe('Operator 主动技能正式运行定义', () => {
     (source.castData as Record<string, unknown>).startCdFrame = 0;
     expect(() =>
       compileOperatorActiveSkillRuntimeDefinitionSource({
+        slug: 'test',
         key: 'battle',
         skillType: 'battleSkill',
         value: source,

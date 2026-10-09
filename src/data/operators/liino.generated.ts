@@ -4678,6 +4678,7 @@ export const liinoChr_0035_liino_normal_skill_end: SkillDefinition = {
     asSkillCast: false,
     sequence: { $sequence: 'applyBuff_1' },
   },
+  iconName: 'battle 02',
   skillType: 'battleSkill',
   levelSource: 'battleSkill',
   nativeSkillType: 'extraActiveSkill',

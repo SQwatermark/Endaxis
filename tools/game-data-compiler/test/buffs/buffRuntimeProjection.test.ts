@@ -4913,6 +4913,7 @@ function sourceFixture(): BuffRuntimeSource {
       lifeType: 'Infinity',
       addingCooldown: null,
       ignoreAddingCooldown: false,
+      ignoreTagImmune: false,
       duration: { value: 0, blackboardKey: null, levelValues: null },
       triggerInterval: { value: -1, blackboardKey: null, levelValues: null },
       waitFirstTriggerInterval: false,
