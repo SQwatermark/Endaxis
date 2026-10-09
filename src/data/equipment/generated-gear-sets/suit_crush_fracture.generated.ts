@@ -12,13 +12,17 @@ const definition = {
           action: {
             kind: 'applyBuff',
             parameters: {
-              buffId: 'buff_equipsuit_crush_fracture',
+              buffs: [
+                {
+                  buffId: 'buff_equipsuit_crush_fracture',
+                  blackboardAssignments: {
+                    phy_dmg_up_perstack: { kind: 'constant', value: 0.06 },
+                    duration: { kind: 'constant', value: 20 },
+                    special_multi: { kind: 'constant', value: 1.5 },
+                  },
+                },
+              ],
               target: 'caster',
-              blackboardAssignments: {
-                phy_dmg_up_perstack: { kind: 'constant', value: 0.06 },
-                duration: { kind: 'constant', value: 20 },
-                special_multi: { kind: 'constant', value: 1.5 },
-              },
             },
           },
           next: null,
@@ -71,16 +75,20 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_equipsuit_crush_fracture_physicdamage',
+                  buffs: [
+                    {
+                      buffId: 'buff_equipsuit_crush_fracture_physicdamage',
+                      copiedBlackboardAssignments: {
+                        priority: 'phy_dmg_up_final',
+                        phy_dmg_up: 'phy_dmg_up_final',
+                        duration: 'duration',
+                      },
+                    },
+                  ],
                   target: 'buffOwner',
                   source: 'buffOwner',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: {
-                    priority: 'phy_dmg_up_final',
-                    phy_dmg_up: 'phy_dmg_up_final',
-                    duration: 'duration',
-                  },
                 },
               },
               next: null,

@@ -477,8 +477,10 @@ function observableEquipmentResult(result: any) {
 function observableGearSetRuntimeResult(result: any, gearSet: RuntimeGearSet) {
   const rootBuffIds = new Set(
     installationSteps(gearSet).flatMap(step =>
-      step.kind === 'applyBuff' && typeof step.parameters?.buffId === 'string'
-        ? [step.parameters.buffId]
+      step.kind === 'applyBuff'
+        ? step.parameters.buffs.flatMap(entry =>
+            typeof entry.buffId === 'string' ? [entry.buffId] : [],
+          )
         : [],
     ),
   );

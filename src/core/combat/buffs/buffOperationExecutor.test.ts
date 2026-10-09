@@ -1,3 +1,4 @@
+import { createActionGraphCompilation } from '../../compiler/compileActionGraph';
 import { createEventBuff } from '../events/buffEventTestFixture';
 import { numberInput } from '../../../test/compiledGraphInputs';
 import { rootActionSteps } from '../../compiler/actionProgramInspection';
@@ -24,6 +25,70 @@ const delegate: CombatOperationExecutor = {
 };
 
 describe('BuffOperationExecutor', () => {
+  it('强制反应先快照参数再消费，零消费直接施加，层数不足不截断后续动作', () => {
+    const attachment = 'test-cryo';
+    const status = 'buff_common_fire_fire_burning_triggered';
+    const tag = 'Skill/Character/Common/SpellInflict/CrystInflict';
+    const container = new CombatBuffContainer('enemy', new CombatAttributeSet());
+    const target = new BuffDefinitionOperationTarget(container, {
+      get: id => ({
+        id,
+        stackingType: 'unlimited' as const,
+        applyTags: id === attachment ? [tag] : [],
+      }),
+      compile: entry => ({ id: entry.id, stackingType: 'unlimited', applyTags: entry.applyTags }),
+    });
+    target.apply({ buffId: attachment, sourceId: 'caster', blackboardValues: {} });
+    const blackboard = new ActionBlackboard();
+    blackboard.assignDynamic('count', 2);
+    const finish = target.finishCountByTags.bind(target);
+    const consume = vi.spyOn(target, 'finishCountByTags');
+    consume.mockImplementation((...args) => {
+      const result = finish(...args);
+      blackboard.assignDynamic('count', 99);
+      return result;
+    });
+    const apply = vi.spyOn(target, 'apply');
+    const executor = new BuffOperationExecutor({
+      sourceId: 'caster',
+      resolveTarget: () => target,
+      resolveBuffDefinition: () => ({ stackingType: 'unlimited' }),
+      delegate,
+    });
+    const parameters = {
+      target: 'enemy' as const,
+      element: 'heat' as const,
+      consumedElement: 'cryo' as const,
+      consumedLayers: numberInput({ kind: 'constant', value: 1 }),
+      count: numberInput({ kind: 'blackboard', key: 'count' }),
+      isExtra: true,
+    };
+    expect(executor.execute({ kind: 'forceSpellStatus', parameters }, { blackboard })).toBe(true);
+    expect(container.getCountByIds([attachment])).toBe(0);
+    expect(apply).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        buffId: status,
+        isExtra: true,
+        blackboardValues: { consumed_type: 2, consumed_layer: 1, count: 2 },
+      }),
+    );
+    apply.mockClear();
+    expect(executor.execute({ kind: 'forceSpellStatus', parameters }, { blackboard })).toBe(true);
+    expect(apply).not.toHaveBeenCalled();
+    executor.execute(
+      {
+        kind: 'forceSpellStatus',
+        parameters: {
+          ...parameters,
+          consumedLayers: numberInput({ kind: 'constant', value: 0 }),
+        },
+      },
+      { blackboard },
+    );
+    expect(consume).toHaveBeenCalledTimes(1);
+    expect(apply).toHaveBeenCalledTimes(1);
+  });
+
   it('干员附着在多层循环外检查冷却，直接异常消费附着而不派发普通 Before 事件', () => {
     const attached = 'buff_common_enemy_spell_cryst_attached';
     const triggered = 'buff_common_enemy_spell_cryst_triggered_frozen';
@@ -73,7 +138,7 @@ describe('BuffOperationExecutor', () => {
 
   it('拒绝旧内嵌蓝图，不忽略它或改用目录中的同名定义', () => {
     const parameters = {
-      buffId: 'owned',
+      buffs: [{ buffId: 'owned' }],
       target: 'caster' as const,
       definition: { stackingType: 'unlimited' as const },
     };
@@ -137,7 +202,7 @@ describe('BuffOperationExecutor', () => {
       },
       {
         kind: 'applyBuff',
-        parameters: { target: 'actionInputTarget', buffId: 'bonus' },
+        parameters: { buffs: [{ buffId: 'bonus' }], target: 'actionInputTarget' },
       },
     ];
     const blackboard = new ActionBlackboard();
@@ -205,7 +270,7 @@ describe('BuffOperationExecutor', () => {
       {
         kind: 'applyBuff',
         parameters: {
-          buffId: 'counter-or-shield',
+          buffs: [{ buffId: 'counter-or-shield' }],
           target: 'caster',
           source: 'buffSource',
         },
@@ -378,7 +443,11 @@ describe('BuffOperationExecutor', () => {
         executor.execute(
           {
             kind: 'applyBuff',
-            parameters: { buffId: 'phantom', target: 'caster', inheritSourceSkillCastInfo },
+            parameters: {
+              buffs: [{ buffId: 'phantom' }],
+              target: 'caster',
+              inheritSourceSkillCastInfo,
+            },
           },
           {
             blackboard: new ActionBlackboard(),
@@ -440,7 +509,11 @@ describe('BuffOperationExecutor', () => {
     executor.execute(
       {
         kind: 'applyBuff',
-        parameters: { buffId: 'child', target: 'currentTarget', sourceContextKey: 'source' },
+        parameters: {
+          buffs: [{ buffId: 'child' }],
+          target: 'currentTarget',
+          sourceContextKey: 'source',
+        },
       },
       {
         blackboard: new ActionBlackboard(),
@@ -499,7 +572,11 @@ describe('BuffOperationExecutor', () => {
     });
     const step = {
       kind: 'applyBuff' as const,
-      parameters: { buffId: 'child', target: 'caster' as const, sourceContextKey: 'seraph' },
+      parameters: {
+        buffs: [{ buffId: 'child' }],
+        target: 'caster' as const,
+        sourceContextKey: 'seraph',
+      },
     };
     const context = {
       blackboard: new ActionBlackboard(),
@@ -529,7 +606,7 @@ describe('BuffOperationExecutor', () => {
         delegate,
       });
       executor.execute(
-        { kind: 'applyBuff', parameters: { buffId: 'child', target: 'caster' } },
+        { kind: 'applyBuff', parameters: { buffs: [{ buffId: 'child' }], target: 'caster' } },
         {
           blackboard: new ActionBlackboard(),
           buffOwnerId: 'receiver',
@@ -554,7 +631,7 @@ describe('BuffOperationExecutor', () => {
     const step = {
       kind: 'applyBuff' as const,
       parameters: {
-        buffId: 'weakness',
+        buffs: [{ buffId: 'weakness' }],
         target: 'enemy' as const,
         iconDurationSource: { kind: 'actionOwnerAbilityEntity' as const },
       },
@@ -587,7 +664,7 @@ describe('BuffOperationExecutor', () => {
     const step = {
       kind: 'applyBuff' as const,
       parameters: {
-        buffId: 'weakness',
+        buffs: [{ buffId: 'weakness' }],
         target: 'enemy' as const,
         iconDurationSource: {
           kind: 'actionOwnerTimedMarker' as const,
@@ -629,7 +706,7 @@ describe('BuffOperationExecutor', () => {
         {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'weakness',
+            buffs: [{ buffId: 'weakness' }],
             target: 'enemy',
             iconDurationSource: {
               kind: 'actionOwnerTimedMarker',
@@ -661,18 +738,22 @@ describe('BuffOperationExecutor', () => {
       {
         kind: 'applyBuff',
         parameters: {
-          buffId: 'carrier',
-          target: 'caster',
-          blackboardAssignments: {
-            rate: numberInput({ kind: 'blackboard', key: 'base_rate' }),
-          },
-          keywordEnhancements: [
+          buffs: [
             {
-              triggerBuffIds: ['trigger'],
-              operation: 'add',
-              value: numberInput({ kind: 'blackboard', key: 'bonus' }),
+              buffId: 'carrier',
+              blackboardAssignments: {
+                rate: numberInput({ kind: 'blackboard', key: 'base_rate' }),
+              },
+              keywordEnhancements: [
+                {
+                  triggerBuffIds: ['trigger'],
+                  operation: 'add',
+                  value: numberInput({ kind: 'blackboard', key: 'bonus' }),
+                },
+              ],
             },
           ],
+          target: 'caster',
         },
       },
       { blackboard: new ActionBlackboard({ base_rate: 0.2, bonus: 0.05 }) },
@@ -763,7 +844,7 @@ describe('BuffOperationExecutor', () => {
       });
       const step = {
         kind: 'applyBuff' as const,
-        parameters: { buffId: 'child', target: 'caster' as const, source: sourceKind },
+        parameters: { buffs: [{ buffId: 'child' }], target: 'caster' as const, source: sourceKind },
       };
       const context = {
         blackboard: new ActionBlackboard(),
@@ -804,7 +885,7 @@ describe('BuffOperationExecutor', () => {
         executor.execute({
           kind: 'applyBuff',
           parameters: {
-            buffId: 'attached',
+            buffs: [{ buffId: 'attached' }],
             target: 'caster',
             lifetimeOwner: 'currentCastSkill',
             ...(legacy ? { durationSeconds: 10 } : {}),
@@ -1095,7 +1176,7 @@ describe('BuffOperationExecutor', () => {
     const step = {
       kind: 'applyBuff' as const,
       parameters: {
-        buffId: 'aura-buff',
+        buffs: [{ buffId: 'aura-buff' }],
         target: 'enemy' as const,
         finishByAction: true,
       },
@@ -1147,23 +1228,38 @@ describe('BuffOperationExecutor', () => {
       sourceId: 'operator',
       resolveTarget: recipient => (recipient === 'caster' ? owner : target),
       delegate,
+      resolveEventTarget: id => (id === 'enemy' ? target : owner),
     });
-    const step = {
-      kind: 'applyBuff' as const,
-      parameters: {
-        buffId: 'aura',
-        target: 'enemy' as const,
-        finishByAction: true,
-        onActionEndFinishBuffs: { target: 'caster' as const, buffIds: ['aura'] },
+    const program = createActionGraphCompilation(
+      {
+        nodes: {
+          aura: {
+            action: {
+              kind: 'aura',
+              parameters: { target: 'enemy', buffs: [{ buffId: 'aura' }] },
+              onEnter: { $sequence: null },
+              onExit: { $sequence: 'cleanup' },
+            },
+            next: null,
+          },
+          cleanup: {
+            action: {
+              kind: 'finishBuffsById',
+              parameters: { target: 'caster', buffIds: ['aura'], reason: 'other' },
+            },
+            next: null,
+          },
+        },
       },
-    };
-    const context = {
+      1,
+    ).compileAll();
+    const runtime = new CombatActionSequenceRuntime(executor, {
       blackboard: new ActionBlackboard(),
-      actionBuffReferencesState: { active: false, references: [] },
-    };
-    executor.execute(step, context);
+    });
+    const action = runtime.createGraphSequence(program, 'aura', 'root');
+    action.tryExecute({});
     expect(calls).toEqual([]);
-    executor.end(step, context);
+    action.end({});
     expect(calls).toEqual(['instance', 'owner']);
   });
 
@@ -1190,7 +1286,7 @@ describe('BuffOperationExecutor', () => {
     const step = {
       kind: 'applyBuff' as const,
       parameters: {
-        buffId: 'cancel-entity',
+        buffs: [{ buffId: 'cancel-entity' }],
         target: 'caster' as const,
         finishByAction: true,
         inheritToNextSkillIds: ['native.attack1'],
@@ -1223,7 +1319,7 @@ describe('BuffOperationExecutor', () => {
       const step = {
         kind: 'applyBuff' as const,
         parameters: {
-          buffId: 'branch-aura',
+          buffs: [{ buffId: 'branch-aura' }],
           target: 'enemy' as const,
           finishByAction: true,
         },
@@ -1449,7 +1545,7 @@ describe('BuffOperationExecutor', () => {
         {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'child',
+            buffs: [{ buffId: 'child' }],
             target: 'caster',
             ...(usesAttachingSkillLifetime
               ? { lifetimeOwner: 'currentCastSkill' as const }
@@ -1878,15 +1974,19 @@ describe('BuffOperationExecutor', () => {
         {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'ultimate-base',
+            buffs: [
+              {
+                buffId: 'ultimate-base',
+                blackboardAssignments: {
+                  duration: { kind: 'constant', value: 25 },
+                  comboRate: numberInput({ kind: 'blackboard', key: 'rate' }),
+                },
+                stringBlackboardAssignments: {
+                  child_buff_id: 'buff:icon',
+                },
+              },
+            ],
             target: 'caster',
-            blackboardAssignments: {
-              duration: { kind: 'constant', value: 25 },
-              comboRate: numberInput({ kind: 'blackboard', key: 'rate' }),
-            },
-            stringBlackboardAssignments: {
-              child_buff_id: 'buff:icon',
-            },
           },
         },
         { blackboard },
@@ -1907,7 +2007,7 @@ describe('BuffOperationExecutor', () => {
         {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'external-event-buff',
+            buffs: [{ buffId: 'external-event-buff' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
           },
@@ -1955,7 +2055,7 @@ describe('BuffOperationExecutor', () => {
     expect(
       executor.execute({
         kind: 'applyBuff',
-        parameters: { buffId: 'operator-mark', target: 'caster' },
+        parameters: { buffs: [{ buffId: 'operator-mark' }], target: 'caster' },
       }),
     ).toBe(true);
     expect(applied).toEqual([
@@ -1997,7 +2097,7 @@ describe('BuffOperationExecutor', () => {
     expect(
       executor.execute({
         kind: 'applyBuff',
-        parameters: { buffId: 'party-buff', target: 'party' },
+        parameters: { buffs: [{ buffId: 'party-buff' }], target: 'party' },
       }),
     ).toBe(true);
     expect(appliedTo).toEqual(['operator-a', 'operator-b']);
@@ -2033,7 +2133,7 @@ describe('BuffOperationExecutor', () => {
     expect(
       executor.execute({
         kind: 'applyBuff',
-        parameters: { buffId: 'controlled-buff', target: 'controlledOperator' },
+        parameters: { buffs: [{ buffId: 'controlled-buff' }], target: 'controlledOperator' },
       }),
     ).toBe(true);
     expect(appliedTo).toEqual(['operator-controlled']);
@@ -2074,7 +2174,7 @@ describe('BuffOperationExecutor', () => {
       executor.execute(
         {
           kind: 'applyBuff',
-          parameters: { buffId: 'owner-child', target: 'buffOwner' },
+          parameters: { buffs: [{ buffId: 'owner-child' }], target: 'buffOwner' },
         },
         context,
       ),
@@ -2129,7 +2229,7 @@ describe('BuffOperationExecutor', () => {
       executor.execute(
         {
           kind: 'applyBuff',
-          parameters: { buffId: 'healing-trigger-buff', target: 'eventTarget' },
+          parameters: { buffs: [{ buffId: 'healing-trigger-buff' }], target: 'eventTarget' },
         },
         {
           blackboard: new ActionBlackboard(),
@@ -2186,7 +2286,7 @@ describe('BuffOperationExecutor', () => {
           {
             kind: 'applyBuff',
             parameters: {
-              buffId: 'event-source-buff',
+              buffs: [{ buffId: 'event-source-buff' }],
               target: 'eventSource',
               source: 'eventSource',
             },
@@ -2247,7 +2347,7 @@ describe('BuffOperationExecutor', () => {
         {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'lifecycle-child',
+            buffs: [{ buffId: 'lifecycle-child' }],
             target: 'buffOwner',
             source: 'eventSource',
           },
@@ -2349,11 +2449,7 @@ describe('BuffOperationExecutor', () => {
     expect(
       executor.execute({
         kind: 'applyBuff',
-        parameters: {
-          buffId: 'mark',
-          target: 'enemy',
-          source: 'enemy',
-        },
+        parameters: { buffs: [{ buffId: 'mark' }], target: 'enemy', source: 'enemy' },
       }),
     ).toBe(true);
     expect(applied).toEqual([
@@ -2395,7 +2491,7 @@ describe('BuffOperationExecutor', () => {
         {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'entity-sourced-mark',
+            buffs: [{ buffId: 'entity-sourced-mark' }],
             target: 'enemy',
             source: 'currentAbilityEntity',
           },
@@ -2409,44 +2505,56 @@ describe('BuffOperationExecutor', () => {
     expect(applied).toEqual([expect.objectContaining({ sourceId: 'abilityEntity:7' })]);
   });
 
-  it('repeats a Buff using the runtime action-blackboard count', () => {
-    const applied: unknown[] = [];
-    const target = {
-      ownerId: 'enemy-1',
-      apply: (request: unknown) => {
-        applied.push(request);
-        return true;
-      },
-      getCountByIds: () => 0,
-      finishByIds: () => 0,
-      holdByIds: () => ({ release: () => undefined }),
-      getCountByTags: () => 0,
-      matchesEntityTags: () => false,
-      findFirstByIds: () => undefined,
-      findFirstByTags: () => undefined,
-      finishByTags: () => 0,
-    };
+  it('按目标、次数、Buff 条目顺序施加，每项动态读取而次数只读取一次', () => {
+    const blackboard = new ActionBlackboard({ count: 1.5, value: 0 });
+    const applied: { target: string; id: string; value: number }[] = [];
+    const makeTarget = (id: string) =>
+      Object.assign(new CombatBuffContainer(id, new CombatAttributeSet()), {
+        apply: (request: BuffApplicationRequest) => {
+          applied.push({
+            target: id,
+            id: request.buffId,
+            value: request.blackboardValues.value as number,
+          });
+          blackboard.assignDynamic('value', applied.length);
+          blackboard.assignDynamic('count', 0);
+          return false; // 单项添加失败不截断其余条目或次数。
+        },
+      });
+    const first = makeTarget('first'),
+      second = makeTarget('second');
     const executor = new BuffOperationExecutor({
       sourceId: 'operator',
-      resolveTarget: () => target,
+      resolveTarget: () => first,
+      resolveApplicationTargets: () => [first, second],
       delegate,
     });
-    const blackboard = new ActionBlackboard({ count: 2.5 });
-
     expect(
       executor.execute(
         {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'stack-marker',
-            target: 'enemy',
+            target: 'party',
             count: numberInput({ kind: 'blackboard', key: 'count' }),
+            buffs: ['a', 'b'].map(buffId => ({
+              buffId,
+              blackboardAssignments: { value: numberInput({ kind: 'blackboard', key: 'value' }) },
+            })),
           },
         },
         { blackboard },
       ),
     ).toBe(true);
-    expect(applied).toHaveLength(3);
+    expect(applied).toEqual([
+      { target: 'first', id: 'a', value: 0 },
+      { target: 'first', id: 'b', value: 1 },
+      { target: 'first', id: 'a', value: 2 },
+      { target: 'first', id: 'b', value: 3 },
+      { target: 'second', id: 'a', value: 4 },
+      { target: 'second', id: 'b', value: 5 },
+      { target: 'second', id: 'a', value: 6 },
+      { target: 'second', id: 'b', value: 7 },
+    ]);
   });
 
   it('forwards the current skill-cast snapshot only when the action requests it', () => {
@@ -2483,7 +2591,7 @@ describe('BuffOperationExecutor', () => {
         {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'ultimate-base',
+            buffs: [{ buffId: 'ultimate-base' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
           },
@@ -2534,7 +2642,7 @@ describe('BuffOperationExecutor', () => {
       executor.execute({
         kind: 'applyBuff',
         parameters: {
-          buffId: 'legacy',
+          buffs: [{ buffId: 'legacy' }],
           target: 'enemy',
           durationSeconds: 10,
           effectiveness: 1,

@@ -157,7 +157,43 @@ describe('公共 Buff 运行时投影', () => {
     expect(readResourceActions(definition, definition.lifecycleSequences?.enable)).toEqual([
       {
         kind: 'overrideBasicAttackMapping',
-        parameters: { skillId: 'chr_0017_yvonne_ult_attack_end' },
+        parameters: { skillIds: ['chr_0017_yvonne_ult_attack_end'] },
+      },
+    ]);
+    // 同一原生动作中的多项映射必须仍是一节点，不能按项拆分生命周期。
+    const batch = projectSequence(
+      {
+        ...sequence,
+        actions: [
+          {
+            ...template,
+            body: {
+              kind: 'leaf',
+              value: {
+                family: 'inputControl',
+                action: {
+                  ...action,
+                  mappings: [
+                    ...action.mappings,
+                    { ...action.mappings[0]!, skillId: 'fixture.attack' },
+                  ],
+                },
+              },
+            },
+          },
+        ],
+      },
+      {
+        actionOwnerTarget: 'buffOwner',
+        actionSourceTarget: 'buffSource',
+        actionTargetTarget: 'buffOwner',
+        fixedBuffOwnerTarget: 'caster',
+      },
+    );
+    expect(batch.steps).toEqual([
+      {
+        kind: 'overrideBasicAttackMapping',
+        parameters: { skillIds: ['chr_0017_yvonne_ult_attack_end', 'fixture.attack'] },
       },
     ]);
     const node = {
@@ -1464,7 +1500,16 @@ describe('公共 Buff 运行时投影', () => {
                           buffSource: 'ActionSource',
                           inheritSourceSkillCastInfo: false,
                           buffs: [entry],
-                          exitBuffs: [],
+                          actionOnEnter: {
+                            actions: [],
+                            onlyExecuteWhenSourceIsMainCharacter: false,
+                            onlyExecuteWhenSourceIsGuard: false,
+                          },
+                          actionOnExit: {
+                            actions: [],
+                            onlyExecuteWhenSourceIsMainCharacter: false,
+                            onlyExecuteWhenSourceIsGuard: false,
+                          },
                         },
                       },
                     },
@@ -1480,21 +1525,24 @@ describe('公共 Buff 运行时投影', () => {
         visualOnlyIds,
       );
     expect(project().steps[0]).toMatchObject({
-      parameters: { stringBlackboardAssignments: { rate: 'label' } },
+      parameters: { buffs: [{ stringBlackboardAssignments: { rate: 'label' } }] },
     });
     // 已证明纯表现的整项先省略，不因其中未执行的字符串写入阻塞。
     expect(project(new Set([entry.buffId])).steps).toEqual([]);
     assignment.useDirectValue = false;
     expect(project().steps[0]).toMatchObject({
-      parameters:
-        family === 'buffApplication'
-          ? { copiedBlackboardAssignments: { rate: 'source_rate' } }
-          : { blackboardAssignments: { rate: { kind: 'blackboard', key: 'source_rate' } } },
+      parameters: {
+        buffs: [
+          family === 'buffApplication'
+            ? { copiedBlackboardAssignments: { rate: 'source_rate' } }
+            : { blackboardAssignments: { rate: { kind: 'blackboard', key: 'source_rate' } } },
+        ],
+      },
     });
     assignment.useDirectValue = true;
     assignment.valueType = 'Numeric';
     expect(project().steps[0]).toMatchObject({
-      parameters: { blackboardAssignments: { rate: { kind: 'constant', value: 7 } } },
+      parameters: { buffs: [{ blackboardAssignments: { rate: { kind: 'constant', value: 7 } } }] },
     });
   });
 
@@ -1526,7 +1574,16 @@ describe('公共 Buff 运行时投影', () => {
                   buffSource: 'ActionOwner',
                   inheritSourceSkillCastInfo: true,
                   buffs: [entry],
-                  exitBuffs: [],
+                  actionOnEnter: {
+                    actions: [],
+                    onlyExecuteWhenSourceIsMainCharacter: false,
+                    onlyExecuteWhenSourceIsGuard: false,
+                  },
+                  actionOnExit: {
+                    actions: [],
+                    onlyExecuteWhenSourceIsMainCharacter: false,
+                    onlyExecuteWhenSourceIsGuard: false,
+                  },
                   iconDurationOverride: {
                     durationSourceType: 'TimedMarker',
                     timedMarkerId: 'ultimate-window',
@@ -1558,7 +1615,7 @@ describe('公共 Buff 运行时投影', () => {
     });
   });
 
-  it('导电状态子 Buff 使用外层换算后的最终时长建立反应并保留原生寿命', () => {
+  it('导电状态只生成原生 Buff 应用，持续时间留在 Buff 黑板中', () => {
     const sequence = sourceFixture().graph.abilityEvents[0]!.actions[0]!;
     const apply = sequence.actions[1]!;
     if (apply.body.kind !== 'leaf' || apply.body.value.family !== 'buffApplication')
@@ -1607,28 +1664,20 @@ describe('公共 Buff 运行时投影', () => {
 
     expect(project().steps).toMatchObject([
       {
-        kind: 'applyElementalReaction',
-        parameters: {
-          reaction: 'electrification',
-          target: 'enemy',
-          durationSeconds: { kind: 'blackboard', key: 'duration' },
-        },
-      },
-      {
         kind: 'applyBuff',
         parameters: {
-          buffId: 'buff_common_pulse_pulse_conduct_triggered_do',
+          buffs: [{ buffId: 'buff_common_pulse_pulse_conduct_triggered_do' }],
           target: 'enemy',
         },
       },
     ]);
-    // 同名黑板值由源作用域直接继承；反应步骤仍显式读取该值作为最终时长。
-    const appliedStep = project().steps[1]!;
+    // 同名黑板值由源作用域直接继承，Buff 自身负责寿命。
+    const appliedStep = project().steps[0]!;
     if (appliedStep.kind !== 'applyBuff') throw new Error('expected an applyBuff step');
     expect(appliedStep.parameters).not.toHaveProperty('blackboardAssignments');
 
     action.buffs = [{ ...action.buffs[0]!, assignments: [] }];
-    expect(project).toThrow('unsupported electrification trigger Buff shape');
+    expect(project().steps).toHaveLength(1);
   });
 
   it('Buff 事件中的 ActionSource 保留精确 Buff 来源实例', () => {
@@ -3571,10 +3620,7 @@ describe('公共 Buff 运行时投影', () => {
                 [
                   {
                     kind: 'applyBuff',
-                    parameters: {
-                      buffId: 'buff_child',
-                      target: 'buffOwner',
-                    },
+                    parameters: { buffs: [{ buffId: 'buff_child' }], target: 'buffOwner' },
                   },
                 ],
                 true,
@@ -4591,7 +4637,7 @@ function fixedTarget(targetSource: string): TargetReferenceSource {
 }
 
 describe('固定木桩 RangedAura 投影', () => {
-  it('唯一敌人进入范围时只执行一次完整进入动作树', () => {
+  it('唯一敌人光环保留独立进入回调而不展开成外层动作', () => {
     const metadata = {
       nativeType: 'fixture',
       nativeName: 'fixture',
@@ -4648,21 +4694,24 @@ describe('固定木桩 RangedAura 投影', () => {
         },
       ],
     };
-    expect(
-      projectSequence(sequence as never, {
-        gameplayTagRegistry: fixtureGameplayTagRegistry,
-        actionOwnerTarget: 'caster',
-        actionSourceTarget: 'caster',
-        actionTargetTarget: 'enemy',
-      }).steps,
-    ).toEqual([
+    const result = projectSequence(sequence as never, {
+      gameplayTagRegistry: fixtureGameplayTagRegistry,
+      actionOwnerTarget: 'caster',
+      actionSourceTarget: 'caster',
+      actionTargetTarget: 'enemy',
+    });
+    expect(result.steps).toHaveLength(1);
+    const aura = result.steps[0]!;
+    expect(aura).toMatchObject({
+      kind: 'aura',
+      parameters: { target: 'enemy', buffs: [] },
+      onExit: { $sequence: null },
+    });
+    if (aura.kind !== 'aura') throw new Error('expected Aura');
+    expect(readActionGraphChain(result.graph, aura.onEnter)).toEqual([
       {
         kind: 'modifyActionValue',
-        parameters: {
-          key: 'count',
-          operation: 'add',
-          value: { kind: 'constant', value: 1 },
-        },
+        parameters: { key: 'count', operation: 'add', value: { kind: 'constant', value: 1 } },
       },
     ]);
   });

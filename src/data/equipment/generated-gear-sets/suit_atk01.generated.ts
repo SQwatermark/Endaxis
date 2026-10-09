@@ -16,13 +16,17 @@ const definition = {
           action: {
             kind: 'applyBuff',
             parameters: {
-              buffId: 'buff_equipsuit_atk_01',
+              buffs: [
+                {
+                  buffId: 'buff_equipsuit_atk_01',
+                  blackboardAssignments: {
+                    dmg_up: { kind: 'constant', value: 0.24 },
+                    atk_up: { kind: 'constant', value: 0.05 },
+                    duration: { kind: 'constant', value: 15 },
+                  },
+                },
+              ],
               target: 'caster',
-              blackboardAssignments: {
-                dmg_up: { kind: 'constant', value: 0.24 },
-                atk_up: { kind: 'constant', value: 0.05 },
-                duration: { kind: 'constant', value: 15 },
-              },
             },
           },
           next: null,
@@ -56,11 +60,15 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_equipsuit_atk_01_normalskill',
+                  buffs: [
+                    {
+                      buffId: 'buff_equipsuit_atk_01_normalskill',
+                      copiedBlackboardAssignments: { atk_up: 'atk_up', duration: 'duration' },
+                    },
+                  ],
                   target: 'buffOwner',
                   source: 'buffOwner',
                   inheritSourceSkillCastInfo: true,
-                  copiedBlackboardAssignments: { atk_up: 'atk_up', duration: 'duration' },
                 },
               },
               next: null,
@@ -77,11 +85,15 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_equipsuit_atk_01_comboskill',
+                  buffs: [
+                    {
+                      buffId: 'buff_equipsuit_atk_01_comboskill',
+                      copiedBlackboardAssignments: { atk_up: 'atk_up', duration: 'duration' },
+                    },
+                  ],
                   target: 'buffOwner',
                   source: 'buffOwner',
                   inheritSourceSkillCastInfo: true,
-                  copiedBlackboardAssignments: { atk_up: 'atk_up', duration: 'duration' },
                 },
               },
               next: null,
@@ -98,11 +110,15 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_equipsuit_atk_01_ultimateskill',
+                  buffs: [
+                    {
+                      buffId: 'buff_equipsuit_atk_01_ultimateskill',
+                      copiedBlackboardAssignments: { atk_up: 'atk_up', duration: 'duration' },
+                    },
+                  ],
                   target: 'buffOwner',
                   source: 'buffOwner',
                   inheritSourceSkillCastInfo: true,
-                  copiedBlackboardAssignments: { atk_up: 'atk_up', duration: 'duration' },
                 },
               },
               next: null,

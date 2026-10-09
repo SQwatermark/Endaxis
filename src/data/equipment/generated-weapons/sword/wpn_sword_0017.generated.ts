@@ -62,11 +62,15 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_sword_0017_exist',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_sword_0017_exist',
+                      copiedBlackboardAssignments: { duration: 'duration', max_stack: 'max_stack' },
+                    },
+                  ],
                   target: 'caster',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: { duration: 'duration', max_stack: 'max_stack' },
                 },
               },
               next: 'createTimedMarker_1',
@@ -99,11 +103,15 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_sword_0017_valid',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_sword_0017_valid',
+                      copiedBlackboardAssignments: { dmg_up: 'dmg_up_final' },
+                    },
+                  ],
                   target: 'caster',
                   inheritSourceSkillCastInfo: true,
                   lifetimeOwner: 'currentCastSkill',
-                  copiedBlackboardAssignments: { dmg_up: 'dmg_up_final' },
                 },
               },
               next: null,

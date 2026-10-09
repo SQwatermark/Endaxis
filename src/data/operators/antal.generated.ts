@@ -36,9 +36,9 @@ export const antalChr_0023_antal_attack1ActionGraph = {
                 actionGraph: {
                   main: {
                     nodes: {
-                      changeResourceByActionValue_1: {
+                      changeResource_1: {
                         action: {
-                          kind: 'changeResourceByActionValue',
+                          kind: 'changeResource',
                           parameters: {
                             resource: 'sp',
                             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -57,7 +57,7 @@ export const antalChr_0023_antal_attack1ActionGraph = {
                             condition: { kind: 'conditionNode', nodeId: 'data_2' },
                             alwaysNext: true,
                           },
-                          whenTrue: { $sequence: 'changeResourceByActionValue_1' },
+                          whenTrue: { $sequence: 'changeResource_1' },
                         },
                         next: null,
                       },
@@ -180,9 +180,9 @@ export const antalChr_0023_antal_attack2ActionGraph = {
                 actionGraph: {
                   main: {
                     nodes: {
-                      changeResourceByActionValue_1: {
+                      changeResource_1: {
                         action: {
-                          kind: 'changeResourceByActionValue',
+                          kind: 'changeResource',
                           parameters: {
                             resource: 'sp',
                             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -201,7 +201,7 @@ export const antalChr_0023_antal_attack2ActionGraph = {
                             condition: { kind: 'conditionNode', nodeId: 'data_2' },
                             alwaysNext: true,
                           },
-                          whenTrue: { $sequence: 'changeResourceByActionValue_1' },
+                          whenTrue: { $sequence: 'changeResource_1' },
                         },
                         next: null,
                       },
@@ -325,9 +325,9 @@ export const antalChr_0023_antal_attack3ActionGraph = {
                 actionGraph: {
                   main: {
                     nodes: {
-                      changeResourceByActionValue_1: {
+                      changeResource_1: {
                         action: {
-                          kind: 'changeResourceByActionValue',
+                          kind: 'changeResource',
                           parameters: {
                             resource: 'sp',
                             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -346,7 +346,7 @@ export const antalChr_0023_antal_attack3ActionGraph = {
                             condition: { kind: 'conditionNode', nodeId: 'data_2' },
                             alwaysNext: true,
                           },
-                          whenTrue: { $sequence: 'changeResourceByActionValue_1' },
+                          whenTrue: { $sequence: 'changeResource_1' },
                         },
                         next: null,
                       },
@@ -493,9 +493,9 @@ export const antalChr_0023_antal_attack4ActionGraph = {
                         },
                         next: null,
                       },
-                      changeResourceByActionValue_2: {
+                      changeResource_2: {
                         action: {
-                          kind: 'changeResourceByActionValue',
+                          kind: 'changeResource',
                           parameters: {
                             resource: 'sp',
                             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -525,7 +525,7 @@ export const antalChr_0023_antal_attack4ActionGraph = {
                             condition: { kind: 'conditionNode', nodeId: 'data_3' },
                             alwaysNext: true,
                           },
-                          whenTrue: { $sequence: 'changeResourceByActionValue_2' },
+                          whenTrue: { $sequence: 'changeResource_2' },
                         },
                         next: null,
                       },
@@ -707,9 +707,9 @@ export const antalChr_0023_antal_power_attackActionGraph = {
                 actionGraph: {
                   main: {
                     nodes: {
-                      changeResourceByActionValue_1: {
+                      changeResource_1: {
                         action: {
-                          kind: 'changeResourceByActionValue',
+                          kind: 'changeResource',
                           parameters: {
                             resource: 'sp',
                             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -728,7 +728,7 @@ export const antalChr_0023_antal_power_attackActionGraph = {
                             condition: { kind: 'conditionNode', nodeId: 'data_2' },
                             alwaysNext: true,
                           },
-                          whenTrue: { $sequence: 'changeResourceByActionValue_1' },
+                          whenTrue: { $sequence: 'changeResource_1' },
                         },
                         next: null,
                       },
@@ -874,7 +874,7 @@ export const antalChr_0023_antal_power_attackActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_power_attack_disable_cast_skill',
+            buffs: [{ buffId: 'buff_common_power_attack_disable_cast_skill' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -886,7 +886,7 @@ export const antalChr_0023_antal_power_attackActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_full_immune_medium',
+            buffs: [{ buffId: 'buff_common_full_immune_medium' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -936,44 +936,36 @@ export const antalChr_0023_antal_power_attack: SkillDefinition = {
 export const antalChr_0023_antal_plunging_attack_endActionGraph = {
   main: {
     nodes: {
-      changeResourceByActionValue_1: {
+      changeResource_1: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
             coefficient: { kind: 'constant', value: 1 },
             recipient: 'team',
+            onlyMainOperator: true,
             spGainKind: 'gain',
             spGainSource: 'normalAttack',
           },
         },
         next: null,
       },
-      conditional_2: {
-        action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-          whenTrue: { $sequence: 'changeResourceByActionValue_1' },
-        },
-        next: null,
-      },
-      dealDamage_3: {
+      dealDamage_2: {
         action: {
           kind: 'dealDamage',
           parameters: {
             damageType: 'electric',
-            attackScale: { kind: 'valueNode', nodeId: 'data_3' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_2' },
             tags: ['normalAttack', 'plungingAttack'],
           },
         },
-        next: 'conditional_2',
+        next: 'changeResource_1',
       },
     },
     dataNodes: {
       data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
-      data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
-      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
+      data_2: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
     },
   },
   macros: {},
@@ -992,7 +984,7 @@ export const antalChr_0023_antal_plunging_attack_end: SkillDefinition = {
   exclusiveFrame: 15,
   offsetRecordFrame: 0,
   costFrame: 0,
-  scheduledSequences: [{ startFrame: 1, endFrame: 6, sequence: { $sequence: 'dealDamage_3' } }],
+  scheduledSequences: [{ startFrame: 1, endFrame: 6, sequence: { $sequence: 'dealDamage_2' } }],
   skillType: 'plungingAttack',
   levelSource: 'basicAttack',
   nativeSkillType: 'attack',
@@ -1029,19 +1021,23 @@ export const antalChr_0023_antal_normal_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0023_antal_normal_skill',
+            buffs: [
+              {
+                buffId: 'buff_chr_0023_antal_normal_skill',
+                copiedBlackboardAssignments: {
+                  rate: 'rate',
+                  duration: 'duration',
+                  potential_3: 'potential_3',
+                  potential_3_atb: 'potential_3_atb',
+                  potential_5: 'potential_5',
+                  delay_time: 'delay_time',
+                  potential_5_rate: 'potential_5_rate',
+                },
+              },
+            ],
             target: 'caster',
             source: 'enemy',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: {
-              rate: 'rate',
-              duration: 'duration',
-              potential_3: 'potential_3',
-              potential_3_atb: 'potential_3_atb',
-              potential_5: 'potential_5',
-              delay_time: 'delay_time',
-              potential_5_rate: 'potential_5_rate',
-            },
           },
         },
         next: 'dealDamage_3',
@@ -1245,9 +1241,9 @@ export const antalChr_0023_antal_combo_skillActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_11: {
+      changeResource_11: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'ultimateEnergy',
             amount: { kind: 'valueNode', nodeId: 'data_3' },
@@ -1268,7 +1264,7 @@ export const antalChr_0023_antal_combo_skillActionGraph = {
             stagger: { kind: 'valueNode', nodeId: 'data_5' },
           },
         },
-        next: 'changeResourceByActionValue_11',
+        next: 'changeResource_11',
       },
       switch_13: {
         action: {
@@ -1398,7 +1394,7 @@ export const antalChr_0023_antal_ultimate_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_damage_immune_ult_skill',
+            buffs: [{ buffId: 'buff_common_damage_immune_ult_skill' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -1410,10 +1406,14 @@ export const antalChr_0023_antal_ultimate_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0023_antal_utimate_skill',
+            buffs: [
+              {
+                buffId: 'buff_chr_0023_antal_utimate_skill',
+                copiedBlackboardAssignments: { duration: 'duration', rate: 'rate' },
+              },
+            ],
             target: 'party',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: { duration: 'duration', rate: 'rate' },
           },
         },
         next: null,
@@ -1662,20 +1662,24 @@ const antalBuff3ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0023_antal_tageffect',
+            buffs: [
+              {
+                buffId: 'buff_chr_0023_antal_tageffect',
+                copiedBlackboardAssignments: {
+                  rate: 'rate',
+                  duration: 'duration',
+                  potential_3: 'potential_3',
+                  potential_3_atb: 'potential_3_atb',
+                  potential_5_rate: 'potential_5_rate',
+                  potential_5: 'potential_5',
+                  delay_time: 'delay_time',
+                },
+              },
+            ],
             target: 'buffSource',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
-            copiedBlackboardAssignments: {
-              rate: 'rate',
-              duration: 'duration',
-              potential_3: 'potential_3',
-              potential_3_atb: 'potential_3_atb',
-              potential_5_rate: 'potential_5_rate',
-              potential_5: 'potential_5',
-              delay_time: 'delay_time',
-            },
           },
         },
         next: null,
@@ -1713,22 +1717,26 @@ const antalBuff4ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_affixes_vulnerable_fire',
+            buffs: [
+              {
+                buffId: 'buff_common_affixes_vulnerable_fire',
+                blackboardAssignments: {
+                  duration: { kind: 'valueNode', nodeId: 'data_1' },
+                  rate: { kind: 'valueNode', nodeId: 'data_2' },
+                },
+                keywordEnhancements: [
+                  {
+                    triggerBuffIds: ['buff_chr_0023_antal_talent_1_combotrigger'],
+                    operation: 'add',
+                    value: { kind: 'valueNode', nodeId: 'data_3' },
+                  },
+                ],
+                stringBlackboardAssignments: { child_buff_id: 'buff_chr_0023_antal_normal_icon' },
+              },
+            ],
             target: 'enemy',
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
-            blackboardAssignments: {
-              duration: { kind: 'valueNode', nodeId: 'data_1' },
-              rate: { kind: 'valueNode', nodeId: 'data_2' },
-            },
-            keywordEnhancements: [
-              {
-                triggerBuffIds: ['buff_chr_0023_antal_talent_1_combotrigger'],
-                operation: 'add',
-                value: { kind: 'valueNode', nodeId: 'data_3' },
-              },
-            ],
-            stringBlackboardAssignments: { child_buff_id: 'buff_chr_0023_antal_normal_icon' },
           },
         },
         next: null,
@@ -1737,22 +1745,26 @@ const antalBuff4ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_affixes_vulnerable_pulse',
+            buffs: [
+              {
+                buffId: 'buff_common_affixes_vulnerable_pulse',
+                blackboardAssignments: {
+                  duration: { kind: 'valueNode', nodeId: 'data_4' },
+                  rate: { kind: 'valueNode', nodeId: 'data_5' },
+                },
+                keywordEnhancements: [
+                  {
+                    triggerBuffIds: ['buff_chr_0023_antal_talent_1_combotrigger'],
+                    operation: 'add',
+                    value: { kind: 'valueNode', nodeId: 'data_6' },
+                  },
+                ],
+                stringBlackboardAssignments: { child_buff_id: 'buff_chr_0023_antal_normal_icon_2' },
+              },
+            ],
             target: 'enemy',
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
-            blackboardAssignments: {
-              duration: { kind: 'valueNode', nodeId: 'data_4' },
-              rate: { kind: 'valueNode', nodeId: 'data_5' },
-            },
-            keywordEnhancements: [
-              {
-                triggerBuffIds: ['buff_chr_0023_antal_talent_1_combotrigger'],
-                operation: 'add',
-                value: { kind: 'valueNode', nodeId: 'data_6' },
-              },
-            ],
-            stringBlackboardAssignments: { child_buff_id: 'buff_chr_0023_antal_normal_icon_2' },
           },
         },
         next: 'applyBuff_1',
@@ -1772,7 +1784,7 @@ const antalBuff4ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0023_antal_talent_1_combotrigger',
+            buffs: [{ buffId: 'buff_chr_0023_antal_talent_1_combotrigger' }],
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
@@ -1868,20 +1880,26 @@ const antalBuff4: SkillBuffDefinition = {
 const antalBuff5ActionGraph = {
   main: {
     nodes: {
-      applyBuff_1: {
+      aura_1: {
         action: {
-          kind: 'applyBuff',
+          kind: 'aura',
           parameters: {
-            buffId: 'buff_chr_0023_antal_talent_1_heal_trigger',
             target: 'party',
-            finishByAction: true,
             inheritSourceSkillCastInfo: true,
-            blackboardAssignments: {
-              healvalue: { kind: 'valueNode', nodeId: 'data_1' },
-              cd: { kind: 'valueNode', nodeId: 'data_2' },
-              multiplier: { kind: 'valueNode', nodeId: 'data_3' },
-            },
+            buffs: [
+              {
+                buffId: 'buff_chr_0023_antal_talent_1_heal_trigger',
+                blackboardAssignments: {
+                  healvalue: { kind: 'valueNode', nodeId: 'data_1' },
+                  cd: { kind: 'valueNode', nodeId: 'data_2' },
+                  multiplier: { kind: 'valueNode', nodeId: 'data_3' },
+                },
+                stringBlackboardAssignments: {},
+              },
+            ],
           },
+          onEnter: { $sequence: null },
+          onExit: { $sequence: null },
         },
         next: null,
       },
@@ -1903,7 +1921,7 @@ const antalBuff5: SkillBuffDefinition = {
   extendTags: [],
   blackboard: { cd: 30, healvalue: 300, multiplier: 3 },
   attributeModifiers: [],
-  lifecycleSequences: { enable: { $sequence: 'applyBuff_1' } },
+  lifecycleSequences: { enable: { $sequence: 'aura_1' } },
   actionGraph: antalBuff5ActionGraph,
 };
 
@@ -2050,11 +2068,15 @@ const antalBuff8ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_damage_immune_talent',
+            buffs: [
+              {
+                buffId: 'buff_common_damage_immune_talent',
+                blackboardAssignments: { duration: { kind: 'constant', value: 0.01 } },
+              },
+            ],
             target: 'buffSource',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
-            blackboardAssignments: { duration: { kind: 'constant', value: 0.01 } },
           },
         },
         next: 'heal_1',
@@ -2208,15 +2230,19 @@ const antalBuff11ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_affixes_enhance_fire',
+            buffs: [
+              {
+                buffId: 'buff_common_affixes_enhance_fire',
+                blackboardAssignments: {
+                  duration: { kind: 'valueNode', nodeId: 'data_1' },
+                  rate: { kind: 'valueNode', nodeId: 'data_2' },
+                },
+                stringBlackboardAssignments: { child_buff_id: 'buff_chr_0023_antal_ultimate_icon' },
+              },
+            ],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
-            blackboardAssignments: {
-              duration: { kind: 'valueNode', nodeId: 'data_1' },
-              rate: { kind: 'valueNode', nodeId: 'data_2' },
-            },
-            stringBlackboardAssignments: { child_buff_id: 'buff_chr_0023_antal_ultimate_icon' },
           },
         },
         next: null,
@@ -2225,15 +2251,21 @@ const antalBuff11ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_affixes_enhance_pulse',
+            buffs: [
+              {
+                buffId: 'buff_common_affixes_enhance_pulse',
+                blackboardAssignments: {
+                  duration: { kind: 'valueNode', nodeId: 'data_3' },
+                  rate: { kind: 'valueNode', nodeId: 'data_4' },
+                },
+                stringBlackboardAssignments: {
+                  child_buff_id: 'buff_chr_0023_antal_ultimate_icon_2',
+                },
+              },
+            ],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
-            blackboardAssignments: {
-              duration: { kind: 'valueNode', nodeId: 'data_3' },
-              rate: { kind: 'valueNode', nodeId: 'data_4' },
-            },
-            stringBlackboardAssignments: { child_buff_id: 'buff_chr_0023_antal_ultimate_icon_2' },
           },
         },
         next: 'applyBuff_1',

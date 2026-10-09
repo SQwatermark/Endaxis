@@ -44,11 +44,15 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_claym_0008_atk_up',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_claym_0008_atk_up',
+                      copiedBlackboardAssignments: { atk_up: 'atk_up', duration: 'duration' },
+                    },
+                  ],
                   target: 'caster',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: { atk_up: 'atk_up', duration: 'duration' },
                 },
               },
               next: null,
@@ -73,11 +77,18 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_claym_0008_atk_up',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_claym_0008_atk_up',
+                      copiedBlackboardAssignments: {
+                        atk_up: 'atk_up_dynamic',
+                        duration: 'duration',
+                      },
+                    },
+                  ],
                   target: 'caster',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: { atk_up: 'atk_up_dynamic', duration: 'duration' },
                 },
               },
               next: null,
@@ -114,9 +125,13 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_claym_0008',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_claym_0008',
+                      blackboardAssignments: { poise_up: { kind: 'valueNode', nodeId: 'data_8' } },
+                    },
+                  ],
                   target: 'caster',
-                  blackboardAssignments: { poise_up: { kind: 'valueNode', nodeId: 'data_8' } },
                 },
               },
               next: null,

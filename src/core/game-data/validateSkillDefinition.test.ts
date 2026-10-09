@@ -71,7 +71,7 @@ describe('validateSkillDefinition', () => {
     const applyToHost = {
       kind: 'applyBuff' as const,
       parameters: {
-        buffId: 'entity-monitor',
+        buffs: [{ buffId: 'entity-monitor' }],
         target: 'currentAbilityEntity' as const,
         source: 'currentAbilityEntity' as const,
       },
@@ -630,7 +630,7 @@ describe('validateSkillDefinition', () => {
       { target: 'caster', source: 'currentAbilityEntity' },
     ]) {
       const skill = skillWithSteps([
-        { kind: 'applyBuff', parameters: { buffId: 'entity-monitor', ...parameters } },
+        { kind: 'applyBuff', parameters: { buffs: [{ buffId: 'entity-monitor' }], ...parameters } },
       ]);
       expect(validateSkillDefinition(skill)).not.toEqual([]);
     }
@@ -659,7 +659,7 @@ describe('validateSkillDefinition', () => {
     const apply = {
       kind: 'applyBuff' as const,
       parameters: {
-        buffId: 'entity-monitor',
+        buffs: [{ buffId: 'entity-monitor' }],
         target: 'currentAbilityEntity' as const,
         source: 'currentAbilityEntity' as const,
       },
@@ -723,7 +723,7 @@ describe('validateSkillDefinition', () => {
     const coefficient: Record<string, unknown> = { kind: 'blackboard', key: 'targetCount' };
     const skill = skillWithSteps([
       {
-        kind: 'changeResourceByActionValue',
+        kind: 'changeResource',
         parameters: {
           resource: 'sp',
           amount: { kind: 'blackboard', key: 'refundAmount' },
@@ -831,7 +831,7 @@ describe('validateSkillDefinition', () => {
       {
         kind: 'applyBuff',
         parameters: {
-          buffId: 'test',
+          buffs: [{ buffId: 'test' }],
           target: 'caster',
           sourceContextKey: 'queried',
           ...(conflicting ? { source: 'caster' } : {}),

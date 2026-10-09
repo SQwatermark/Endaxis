@@ -383,7 +383,8 @@
     "nodes": {
       "prepare": "Set variable",
       "damage": "Deal damage",
-      "applyBuff": "Apply Buff"
+      "applyBuff": "Apply Buff",
+      "aura": "Aura"
     },
     "descriptions": {
       "operator": "Open independent skills from their groups, or browse owned Buffs and entities.",
@@ -858,10 +859,6 @@
         "name": "Read target group",
         "help": "Name of the target group saved earlier to read."
       },
-      "onActionEndFinishBuffs": {
-        "name": "Finish buffs on action end",
-        "help": "When the action ends, finishes every matching Buff on the selected object by ID."
-      },
       "nativeExecuteInterval": {
         "name": "Execute on interval",
         "help": "Executes immediately, then repeats on the interval; the body is kept until the next execution or host end."
@@ -1183,10 +1180,6 @@
       "keywordEnhancements": {
         "name": "Keyword Enhancements",
         "help": "Set keyword enhancements on this effect."
-      },
-      "onActionEndBuffs": {
-        "name": "Buffs on End",
-        "help": "Follow-up Buffs applied to the same targets when this action ends."
       },
       "inheritToNextSkillIds": {
         "name": "Allowed Successor Skills",
@@ -1798,13 +1791,9 @@
         "name": "Apply Physical Status",
         "help": "Apply launch, knockdown, crush or breach and resolve its effect against the target’s vulnerability."
       },
-      "applyElementalReaction": {
-        "name": "Apply Arts Reaction",
-        "help": "Apply a lasting Arts reaction to the target."
-      },
-      "consumeElementalReaction": {
-        "name": "Remove Arts Reaction",
-        "help": "End the selected Arts reaction on the target."
+      "forceSpellStatus": {
+        "name": "Force Arts reaction",
+        "help": "Consumes the specified attachment layers and applies an Arts reaction. Skips targets with insufficient layers; zero consumption applies directly."
       },
       "dealDamage": {
         "name": "Deal Damage",
@@ -1977,10 +1966,6 @@
       "changeResource": {
         "name": "Change Resource",
         "help": "Add or spend resources such as SP or Ultimate Energy. Positive adds; negative spends."
-      },
-      "changeResourceByActionValue": {
-        "name": "Change Resource by Value",
-        "help": "Add or spend resources using a value input."
       },
       "recoverDashEnergy": {
         "name": "Restore Dodge Stamina",
@@ -2398,10 +2383,6 @@
         "name": "Arts Infliction Present?",
         "help": "Check for enough stacks of the selected Arts infliction."
       },
-      "elementalReactionActive": {
-        "name": "Arts Reaction Active?",
-        "help": "Check that the selected reaction is active at the required level."
-      },
       "not": {
         "name": "NOT",
         "help": "Invert True and False."
@@ -2441,6 +2422,10 @@
       "skillDamageTypeIn": {
         "name": "Check skill element",
         "help": "Check the event skill’s element, or the executing skill when there is no event skill."
+      },
+      "aura": {
+        "name": "Aura",
+        "help": "Maintain aura Buff instances per target and execute entry and exit callbacks."
       }
     },
     "open": "Edit skill graph",
@@ -2682,8 +2667,6 @@
       "BuffPresentationStarted": "Buff display start",
       "BuffPresentationFinished": "Buff display end",
       "ElementalInflictionApplied": "Elemental infliction",
-      "ElementalReactionApplied": "Elemental reaction apply",
-      "ElementalReactionConsumed": "Elemental reaction consume",
       "SpellBurstApplied": "Arts burst",
       "ComboWindowOpened": "Combo window open",
       "ComboWindowConsumed": "Combo window consume",
@@ -3899,7 +3882,6 @@
         "eventDamageTagsMatch": "Event damage tags match",
         "eventDamageFeaturesMatch": "Event damage features match",
         "elementalInflictionPresent": "Elemental infliction present",
-        "elementalReactionActive": "Elemental reaction active",
         "not": "Not",
         "all": "All",
         "any": "Any",
@@ -4194,8 +4176,6 @@
         "castSkillDuringAction": "Queues a registered native skill from the current action and inherits this cast context without charging its cost again. The native ID must resolve to one logical skill.",
         "inheritSkillCastInfoForBasicAttack": "Inherits the current cast information for a basic attack started during the action, preserving damage provenance without creating another player action or cost.",
         "applyPhysicalInfliction": "Applies No Guard or the selected physical infliction according to the target state. Buff IDs reference the shared definition repository.",
-        "applyElementalReaction": "Directly applies an elemental reaction with duration and effectiveness.",
-        "consumeElementalReaction": "Consumes a specified reaction on the enemy for follow-up effects.",
         "dealDamage": "Deals one Attack-scaled hit and may resolve stagger in the same step.",
         "dealFixedDamage": "Deals damage from a fixed base without multiplying Attack; later modifiers still apply.",
         "dealStagger": "Deals stagger only, with no health damage.",
@@ -4237,7 +4217,6 @@
         "calculateActionValue": "Calculates from two operands and writes to the action blackboard.",
         "storeSourceAttributeValue": "Reads a current combat attribute from the skill source and stores the native rounded and scaled result in the action blackboard.",
         "changeResource": "Changes SP or ultimate energy using a per-level amount.",
-        "changeResourceByActionValue": "Changes SP or ultimate energy from a constant or action blackboard value.",
         "gainSquadUltimateEnergyFromSkillCost": "Converts the actual SP cost of this skill into squad ultimate energy.",
         "gainFinisherSp": "Restores shared SP using the finisher-specific rule.",
         "recoverDashEnergy": "Restores native dodge energy by the action value.",
@@ -4266,7 +4245,8 @@
         "startTimeDilation": "Starts ordinary time dilation. Scope, duration, slot, priority, and curve determine the resulting clock scale.",
         "startUltimateTimeDilation": "Starts ultimate-specific global time dilation. The caster ignores it automatically and it stops when the action ends.",
         "hideUi": "Native HideUIAction interval. The normal branch controls ultimate presentation independently of time dilation. The input-only branch still requires the CommonMask protocol; this is not a universal skill lock.",
-        "setIgnoreGlobalTimeScale": "Controls whether ability entities ignore global time scale for this action interval, reverting it when configured."
+        "setIgnoreGlobalTimeScale": "Controls whether ability entities ignore global time scale for this action interval, reverting it when configured.",
+        "aura": "Maintain aura Buff instances per target and execute entry and exit callbacks."
       },
       "damageType": "Damage type",
       "eventListenerWindowHint": "The current scheduled sequence start and end frames define the listening window. Responses run synchronously on the triggering frame.",
@@ -4355,8 +4335,6 @@
         "refreshCurrentBuffAttributeModifiers": "Refresh current Buff modifiers",
         "restrictUltimateEnergyRecovery": "Restrict ultimate-energy recovery",
         "applyPhysicalInfliction": "Apply physical infliction",
-        "applyElementalReaction": "Apply reaction",
-        "consumeElementalReaction": "Consume reaction",
         "dealDamage": "Deal damage",
         "dealFixedDamage": "Deal fixed damage",
         "dealStagger": "Deal stagger",
@@ -4392,7 +4370,6 @@
         "calculateActionValue": "Calculate action value",
         "storeSourceAttributeValue": "Store source attribute value",
         "changeResource": "Change resource",
-        "changeResourceByActionValue": "Change resource by action value",
         "gainSquadUltimateEnergyFromSkillCost": "Gain ultimate energy from skill cost",
         "gainFinisherSp": "Gain finisher SP",
         "recoverDashEnergy": "Restore dodge energy",
@@ -4411,7 +4388,8 @@
         "setContextFlag": "Set context flag",
         "openComboWindow": "Open next combo window",
         "showComboRingQte": "Show precise-link window",
-        "listenForCombatEvents": "Listen for combat events"
+        "listenForCombatEvents": "Listen for combat events",
+        "aura": "Aura"
       }
     },
     "inspector": {
@@ -4507,11 +4485,9 @@
       "noSamples": "Waiting for simulation samples"
     },
     "hitInflictionSuffix": " infliction",
-    "hitReactionConsumed": " consumed",
     "effect": {
       "burst": "Burst",
       "reaction": "Reaction",
-      "reactionConsumed": "Reaction consumed",
       "layers": "{stacks} layers"
     },
     "passiveUi": {
@@ -4629,7 +4605,6 @@
       "element": "Element",
       "outcome": "Outcome",
       "reaction": "Reaction",
-      "reactionConsumed": "Reaction consumed",
       "level": "Level"
     },
     "simGuide": {

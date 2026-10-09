@@ -79,11 +79,15 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_lance_0008',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_lance_0008',
+                      copiedBlackboardAssignments: { duration: 'duration', atk_up: 'atk_up' },
+                    },
+                  ],
                   target: 'caster',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: { duration: 'duration', atk_up: 'atk_up' },
                 },
               },
               next: null,

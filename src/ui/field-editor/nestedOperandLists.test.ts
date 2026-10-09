@@ -328,7 +328,10 @@ it('exit Buff list and finishByAction are applied as one validated sibling trans
   const finish = actionNodeSchemas.applyBuff.fields.find(
     field => field.path.at(-1) === 'finishByAction',
   )!;
-  const value: any = { kind: 'applyBuff', parameters: { buffId: 'buff', target: 'caster' } };
+  const value: any = {
+    kind: 'applyBuff',
+    parameters: { buffs: [{ buffId: 'buff' }], target: 'caster' },
+  };
   let owner: any = {
     actionGraph: { main: { nodes: { node: { action: value, next: null } } }, macros: {} },
   };

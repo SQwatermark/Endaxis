@@ -170,7 +170,7 @@ it('被动写入EntityBB由同角色主动技能读取，而非留在被动局�
           'passive-entitybb-writer',
           [
             {
-              kind: 'changeResourceByActionValue',
+              kind: 'changeResource',
               parameters: {
                 resource: 'ultimateEnergy',
                 recipient: 'caster',
@@ -1689,7 +1689,7 @@ describe('CombatRuntimeAssembly', () => {
             {
               kind: 'applyBuff',
               parameters: {
-                buffId: 'hidden-buff',
+                buffs: [{ buffId: 'hidden-buff' }],
                 target: 'caster',
                 inheritSourceSkillCastInfo: true,
               },
@@ -1995,7 +1995,7 @@ describe('CombatRuntimeAssembly', () => {
           {
             kind: 'applyBuff' as const,
             parameters: {
-              buffId: 'source-child',
+              buffs: [{ buffId: 'source-child' }],
               target: 'buffOwner' as const,
               inheritSourceSkillCastInfo: true,
             },
@@ -2016,7 +2016,7 @@ describe('CombatRuntimeAssembly', () => {
             {
               kind: 'applyBuff',
               parameters: {
-                buffId: 'source-parent',
+                buffs: [{ buffId: 'source-parent' }],
                 target: 'partyExceptCaster',
                 inheritSourceSkillCastInfo: true,
               },
@@ -2709,7 +2709,7 @@ describe('CombatRuntimeAssembly', () => {
                               action: {
                                 kind: 'applyBuff',
                                 parameters: {
-                                  buffId: 'entity-monitor',
+                                  buffs: [{ buffId: 'entity-monitor' }],
                                   target: 'currentAbilityEntity',
                                   inheritSourceSkillCastInfo: true,
                                 },
@@ -2753,7 +2753,7 @@ describe('CombatRuntimeAssembly', () => {
               {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'entity-trigger-result',
+                  buffs: [{ buffId: 'entity-trigger-result' }],
                   target: 'buffOwner',
                   inheritSourceSkillCastInfo: true,
                 },
@@ -3537,7 +3537,7 @@ describe('CombatRuntimeAssembly', () => {
                     'equipment-gain-sp',
                     [
                       {
-                        kind: 'changeResourceByActionValue',
+                        kind: 'changeResource',
                         parameters: {
                           resource: 'sp',
                           amount: { kind: 'valueNode', nodeId: 'input_1' },
@@ -3806,7 +3806,7 @@ describe('CombatRuntimeAssembly', () => {
             {
               kind: 'applyBuff',
               parameters: {
-                buffId: 'resource-buff',
+                buffs: [{ buffId: 'resource-buff' }],
                 target: 'caster',
                 inheritSourceSkillCastInfo: true,
               },
@@ -3900,10 +3900,7 @@ describe('CombatRuntimeAssembly', () => {
               'step-1': {
                 action: {
                   kind: 'applyBuff',
-                  parameters: {
-                    buffId: 'watched-buff',
-                    target: 'caster',
-                  },
+                  parameters: { buffs: [{ buffId: 'watched-buff' }], target: 'caster' },
                 },
                 next: null,
               },
@@ -4119,7 +4116,7 @@ describe('CombatRuntimeAssembly', () => {
             {
               kind: 'applyBuff',
               parameters: {
-                buffId: 'party-owner-buff',
+                buffs: [{ buffId: 'party-owner-buff' }],
                 target: 'party',
                 inheritSourceSkillCastInfo: true,
               },
@@ -4215,7 +4212,7 @@ describe('CombatRuntimeAssembly', () => {
         {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'equipment-child',
+            buffs: [{ buffId: 'equipment-child' }],
             target: 'caster',
             ...(owner === 'upgrade' ? {} : { source: 'eventSource' as const }),
             asChildBuff: true,
@@ -4350,11 +4347,15 @@ describe('CombatRuntimeAssembly', () => {
                 {
                   kind: 'applyBuff',
                   parameters: {
-                    buffId: 'potential-marker',
+                    buffs: [
+                      {
+                        buffId: 'potential-marker',
+                        blackboardAssignments: {
+                          ratio: { kind: 'constant', value: 0.5 },
+                        },
+                      },
+                    ],
                     target: 'caster',
-                    blackboardAssignments: {
-                      ratio: { kind: 'constant', value: 0.5 },
-                    },
                   },
                 },
               ]),
@@ -4391,12 +4392,16 @@ describe('CombatRuntimeAssembly', () => {
                   {
                     kind: 'applyBuff',
                     parameters: {
-                      buffId: 'talent-aura',
+                      buffs: [
+                        {
+                          buffId: 'talent-aura',
+                          blackboardAssignments: {
+                            attackIncrease: { kind: 'valueNode', nodeId: 'input_1' },
+                          },
+                        },
+                      ],
                       target: 'caster',
                       asChildBuff: true,
-                      blackboardAssignments: {
-                        attackIncrease: { kind: 'valueNode', nodeId: 'input_1' },
-                      },
                     },
                   },
                 ],
@@ -4501,10 +4506,7 @@ describe('CombatRuntimeAssembly', () => {
               sequence: chainEntry('upgrade-attack-after-sp-gain', [
                 {
                   kind: 'applyBuff',
-                  parameters: {
-                    buffId: 'attack-up',
-                    target: 'caster',
-                  },
+                  parameters: { buffs: [{ buffId: 'attack-up' }], target: 'caster' },
                 },
               ]),
             },
@@ -4617,10 +4619,7 @@ describe('CombatRuntimeAssembly', () => {
               sequence: chainEntry('skill-sp-listener-apply', [
                 {
                   kind: 'applyBuff',
-                  parameters: {
-                    buffId: 'skill-sp-listener',
-                    target: 'caster',
-                  },
+                  parameters: { buffs: [{ buffId: 'skill-sp-listener' }], target: 'caster' },
                 },
               ]),
             },
@@ -4636,7 +4635,7 @@ describe('CombatRuntimeAssembly', () => {
                     {
                       kind: 'applyBuff',
                       parameters: {
-                        buffId: 'skill-sp-listener-attack',
+                        buffs: [{ buffId: 'skill-sp-listener-attack' }],
                         target: 'caster',
                       },
                     },
@@ -4669,10 +4668,7 @@ describe('CombatRuntimeAssembly', () => {
               sequence: chainEntry('upgrade-skill-sp-attack', [
                 {
                   kind: 'applyBuff',
-                  parameters: {
-                    buffId: 'skill-sp-attack',
-                    target: 'caster',
-                  },
+                  parameters: { buffs: [{ buffId: 'skill-sp-attack' }], target: 'caster' },
                 },
               ]),
             },
@@ -5544,7 +5540,7 @@ describe('CombatRuntimeAssembly', () => {
           sequence: chainEntry('party-buff-apply', [
             {
               kind: 'applyBuff',
-              parameters: { buffId: 'party-buff', target: 'party' },
+              parameters: { buffs: [{ buffId: 'party-buff' }], target: 'party' },
             },
           ]),
         },
@@ -5658,7 +5654,7 @@ describe('CombatRuntimeAssembly', () => {
           {
             startFrame: 0,
             sequence: chainEntry(`teammate-shield-apply-${target}`, [
-              { kind: 'applyBuff', parameters: { buffId: 'shield', target } },
+              { kind: 'applyBuff', parameters: { buffs: [{ buffId: 'shield' }], target } },
             ]),
           },
         ],

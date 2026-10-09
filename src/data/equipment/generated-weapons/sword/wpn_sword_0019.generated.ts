@@ -51,15 +51,19 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_sword_0019_up',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_sword_0019_up',
+                      copiedBlackboardAssignments: {
+                        dmg_up: 'dmg_up',
+                        duration: 'duration',
+                        max_stack: 'max_stack',
+                      },
+                    },
+                  ],
                   target: 'party',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: {
-                    dmg_up: 'dmg_up',
-                    duration: 'duration',
-                    max_stack: 'max_stack',
-                  },
                 },
               },
               next: null,

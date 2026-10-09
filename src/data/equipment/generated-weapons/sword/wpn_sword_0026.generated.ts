@@ -40,17 +40,21 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_sword_0026_celebration',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_sword_0026_celebration',
+                      copiedBlackboardAssignments: {
+                        dmg_up: 'dmg_up',
+                        phy_spell_up: 'phy_spell_up',
+                        def_up: 'def_up',
+                        duration: 'duration',
+                        hp_up: 'hp_up_c',
+                      },
+                    },
+                  ],
                   target: 'party',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: {
-                    dmg_up: 'dmg_up',
-                    phy_spell_up: 'phy_spell_up',
-                    def_up: 'def_up',
-                    duration: 'duration',
-                    hp_up: 'hp_up_c',
-                  },
                 },
               },
               next: null,

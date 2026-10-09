@@ -44,11 +44,15 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_sword_0009',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_sword_0009',
+                      copiedBlackboardAssignments: { duration: 'duration', atk_up: 'atk_up' },
+                    },
+                  ],
                   target: 'caster',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: { duration: 'duration', atk_up: 'atk_up' },
                 },
               },
               next: null,

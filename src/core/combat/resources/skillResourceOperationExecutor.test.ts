@@ -25,6 +25,66 @@ function findSkill(key: string): SkillDefinition {
 }
 
 describe('SkillResourceOperationExecutor', () => {
+  it('主控限制只跳过技力获取，切换主控后生效，且不限制终结技能量', () => {
+    const resources = new CombatResources({
+      sp: 0,
+      maxSp: 300,
+      returnedSp: 0,
+      sharedSpGain: { baseGainEfficiency: 1 },
+      spRecovery: { valuePerSecond: 0, pauseDuration: 0, pauseRemaining: 0 },
+      ultimateEnergySystemUnlocked: true,
+      normalSkillUltimateEnergy: { selfGainPerSp: 0, otherGainPerSp: 0 },
+      squad: [
+        {
+          operatorId: 'caster',
+          ultimateEnergy: 0,
+          maxUltimateEnergy: 100,
+          ultimateEnergyGainMultiplier: 1,
+          allowedUltimateEnergyRecoveryTags: null,
+        },
+      ],
+    });
+    let controlled = false;
+    const receipt = new CombatReceiptCollector();
+    const executor = new SkillResourceOperationExecutor({
+      sourceOperatorId: 'caster',
+      sourceActionId: 'skill',
+      clock: new CombatClock(),
+      resources,
+      receipt,
+      getNonReturnedSpCost: () => 0,
+      finisherSpRecovery: 0,
+      delegate: {
+        execute: () => false,
+        evaluate: condition => condition.kind === 'casterControlled' && controlled,
+      },
+    });
+    const sp = {
+      kind: 'changeResource' as const,
+      parameters: {
+        resource: 'sp' as const,
+        recipient: 'team' as const,
+        amount: 10,
+        onlyMainOperator: true,
+      },
+    };
+    expect(executor.execute(sp)).toBe(true);
+    expect(receipt.entries).toHaveLength(0);
+    executor.execute({
+      kind: 'changeResource',
+      parameters: {
+        resource: 'ultimateEnergy',
+        recipient: 'caster',
+        amount: 10,
+        onlyMainOperator: true,
+      },
+    });
+    expect(resources.getUltimateEnergy('caster')).toBe(10);
+    controlled = true;
+    executor.execute(sp);
+    expect(receipt.entries).toHaveLength(2);
+  });
+
   it('installs and ends an action-owned ultimate recovery restriction', () => {
     const resources = new CombatResources({
       sp: 0,
@@ -446,7 +506,7 @@ describe('SkillResourceOperationExecutor', () => {
     expect(
       operations.execute(
         {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: numberInput({ kind: 'blackboard', key: 'atbReturn' }),

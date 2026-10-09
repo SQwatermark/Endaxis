@@ -229,7 +229,7 @@ describe('公共 Buff 环境读取：来源到正式执行器', () => {
             [
               ...projected.steps,
               {
-                kind: 'changeResourceByActionValue',
+                kind: 'changeResource',
                 parameters: {
                   resource: 'sp',
                   recipient: 'caster',
@@ -334,7 +334,7 @@ describe('公共 Buff 环境读取：来源到正式执行器', () => {
       [
         ...projected.steps,
         {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             recipient: 'caster',

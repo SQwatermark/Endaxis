@@ -1,3 +1,4 @@
+import { resolveLevelValue } from './compileActionValues';
 import type { CompiledGraphStepForKind, CompiledValueInput } from './compiledGraphData.ts';
 /** 每个节点只编译一次；控制出口与嵌套宿主保留程序引用，不构造序列树。 */
 import type {
@@ -57,7 +58,10 @@ export interface CompiledActionGraphNode {
         | 'forEachContextTarget'
         | 'listenForCombatEvents'
       >
-    | CompiledGraphScope;
+    | CompiledGraphScope
+    | (Omit<CompiledGraphStepForKind<'aura'>, 'parameters'> & {
+        readonly parameters: import('./combatProgram').ResolvedCombatStepParameters['aura'];
+      });
   readonly next: string | null;
 }
 
@@ -282,6 +286,37 @@ export function createActionGraphCompilation(
         node.action.kind === 'forEachContextTarget'
       ) {
         action = node.action;
+      } else if (node.action.kind === 'aura') {
+        action = {
+          ...node.action,
+          parameters: {
+            ...node.action.parameters,
+            buffs: node.action.parameters.buffs.map(
+              ({ blackboardAssignments, ...entry }, index) => ({
+                ...entry,
+                ...(blackboardAssignments === undefined
+                  ? {}
+                  : {
+                      blackboardAssignments: Object.fromEntries(
+                        Object.entries(blackboardAssignments).map(([key, value]) => [
+                          key,
+                          typeof value === 'object' && 'kind' in value
+                            ? value
+                            : {
+                                kind: 'constant' as const,
+                                value: resolveLevelValue(
+                                  value,
+                                  skillLevel,
+                                  `graph.${id}.buffs[${index}].${key}`,
+                                ),
+                              },
+                        ]),
+                      ),
+                    }),
+              }),
+            ),
+          },
+        };
       } else if (node.action.kind === 'listenForCombatEvents') {
         action = node.action;
       } else if (node.action.kind === 'callResource') {

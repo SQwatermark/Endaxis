@@ -66,15 +66,19 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_sword_0005_atk_up_up',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_sword_0005_atk_up_up',
+                      copiedBlackboardAssignments: {
+                        atk_up2: 'atk_up2',
+                        duration: 'duration',
+                        max_stack: 'max_stack',
+                      },
+                    },
+                  ],
                   target: 'caster',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: {
-                    atk_up2: 'atk_up2',
-                    duration: 'duration',
-                    max_stack: 'max_stack',
-                  },
                 },
               },
               next: 'createTimedMarker_1',

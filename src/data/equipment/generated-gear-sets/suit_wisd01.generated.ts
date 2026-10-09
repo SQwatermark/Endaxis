@@ -12,9 +12,13 @@ const definition = {
           action: {
             kind: 'applyBuff',
             parameters: {
-              buffId: 'buff_equipsuit_wisd_spdmg_01',
+              buffs: [
+                {
+                  buffId: 'buff_equipsuit_wisd_spdmg_01',
+                  blackboardAssignments: { spell_dmg_up: { kind: 'constant', value: 0.2 } },
+                },
+              ],
               target: 'caster',
-              blackboardAssignments: { spell_dmg_up: { kind: 'constant', value: 0.2 } },
             },
           },
           next: null,

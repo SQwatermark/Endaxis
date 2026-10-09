@@ -51,14 +51,18 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_pistol_0011_valid',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_pistol_0011_valid',
+                      copiedBlackboardAssignments: {
+                        cryst_dmg_up2: 'cryst_dmg_up2',
+                        duration: 'duration',
+                      },
+                    },
+                  ],
                   target: 'caster',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: {
-                    cryst_dmg_up2: 'cryst_dmg_up2',
-                    duration: 'duration',
-                  },
                 },
               },
               next: null,
@@ -83,14 +87,18 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_pistol_0011_valid2',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_pistol_0011_valid2',
+                      copiedBlackboardAssignments: {
+                        spell_damage_taken_up: 'spell_damage_taken_up',
+                        duration2: 'duration2',
+                      },
+                    },
+                  ],
                   target: 'eventTarget',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: {
-                    spell_damage_taken_up: 'spell_damage_taken_up',
-                    duration2: 'duration2',
-                  },
                 },
               },
               next: null,

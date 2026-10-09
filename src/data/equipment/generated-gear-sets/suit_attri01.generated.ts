@@ -12,13 +12,17 @@ const definition = {
           action: {
             kind: 'applyBuff',
             parameters: {
-              buffId: 'buff_equipsuit_attrisuit_01',
+              buffs: [
+                {
+                  buffId: 'buff_equipsuit_attrisuit_01',
+                  blackboardAssignments: {
+                    atk_up: { kind: 'constant', value: 0.15 },
+                    dmg_up: { kind: 'constant', value: 0.3 },
+                    max_stack: { kind: 'constant', value: 2 },
+                  },
+                },
+              ],
               target: 'caster',
-              blackboardAssignments: {
-                atk_up: { kind: 'constant', value: 0.15 },
-                dmg_up: { kind: 'constant', value: 0.3 },
-                max_stack: { kind: 'constant', value: 2 },
-              },
             },
           },
           next: null,
@@ -50,12 +54,16 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_equipsuit_attrisuitup_01',
+                  buffs: [
+                    {
+                      buffId: 'buff_equipsuit_attrisuitup_01',
+                      copiedBlackboardAssignments: { dmg_up: 'dmg_up', max_stack: 'max_stack' },
+                    },
+                  ],
                   target: 'buffOwner',
                   source: 'buffOwner',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: { dmg_up: 'dmg_up', max_stack: 'max_stack' },
                 },
               },
               next: null,
@@ -132,11 +140,15 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_equipsuit_attrisuitup_02',
+                  buffs: [
+                    {
+                      buffId: 'buff_equipsuit_attrisuitup_02',
+                      copiedBlackboardAssignments: { dmg_up: 'dmg_up' },
+                    },
+                  ],
                   target: 'buffOwner',
                   source: 'buffOwner',
                   inheritSourceSkillCastInfo: true,
-                  copiedBlackboardAssignments: { dmg_up: 'dmg_up' },
                 },
               },
               next: 'finishBuffsById_1',

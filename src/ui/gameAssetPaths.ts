@@ -57,11 +57,6 @@ const SPELL_BURST_ICON_PATHS: Readonly<Record<string, string>> = Object.freeze({
   Cryst: '/icons/icon_burst_fusion_cryst.webp',
 });
 
-const ELEMENTAL_REACTION_ICON_PATHS: Readonly<Record<string, string>> = Object.freeze({
-  electrification: '/icons/icon_battle_debuff_conduct.webp',
-  corrosion: '/icons/icon_battle_debuff_corrupt.webp',
-});
-
 function requireAssetSegment(value: string, label: string): string {
   const normalized = String(value ?? '').trim();
   if (!/^[A-Za-z0-9_-]+$/.test(normalized)) {
@@ -95,8 +90,4 @@ export function getWeaponActionIconPath(weaponType: OperatorWeaponType): string 
 
 export function getSpellBurstIconPath(burstType: string | null | undefined): string | null {
   return SPELL_BURST_ICON_PATHS[String(burstType ?? '')] ?? null;
-}
-
-export function getElementalReactionIconPath(reaction: string | null | undefined): string | null {
-  return ELEMENTAL_REACTION_ICON_PATHS[String(reaction ?? '')] ?? null;
 }

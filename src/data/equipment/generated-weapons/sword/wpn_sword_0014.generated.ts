@@ -65,15 +65,19 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_sword_0014_magic_up_ex',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_sword_0014_magic_up_ex',
+                      copiedBlackboardAssignments: {
+                        duration: 'duration',
+                        spell_dmg_up2: 'spell_dmg_up2',
+                        phy_spell_up: 'phy_spell_up',
+                      },
+                    },
+                  ],
                   target: 'caster',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: {
-                    duration: 'duration',
-                    spell_dmg_up2: 'spell_dmg_up2',
-                    phy_spell_up: 'phy_spell_up',
-                  },
                 },
               },
               next: null,

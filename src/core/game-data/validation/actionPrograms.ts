@@ -37,7 +37,6 @@ import {
   DAMAGE_TYPES_SET,
   DAMAGE_TAGS_SET,
   INFLICTION_ELEMENTS_SET,
-  ELEMENTAL_REACTIONS_SET,
   COMBAT_TARGETS_SET,
   TIMED_MARKER_TARGETS_SET,
   OPERATOR_ATTRIBUTES_SET,
@@ -243,7 +242,7 @@ function validateStatusModifier(
 }
 
 /**
- * changeResource / changeResourceByActionValue 的资源变化元数据：
+ * changeResource / changeResource 的资源变化元数据：
  * 校验 recipient 与资源互斥字段（sp 专属、ultimateEnergy 专属）。
  */
 function validateResourceChangeMetadata(
@@ -925,6 +924,24 @@ function validateCombatStep(
       requireBoolean(parameters, 'ignoreWeakImmune', `${path}.parameters`, out);
       requireBoolean(parameters, 'ignoreAddingCooldown', `${path}.parameters`, out);
       break;
+    case 'forceSpellStatus':
+      requireEnum(parameters, 'target', new Set(['enemy']), `${path}.parameters`, out);
+      requireEnum(parameters, 'element', INFLICTION_ELEMENTS_SET, `${path}.parameters`, out);
+      requireEnum(
+        parameters,
+        'consumedElement',
+        INFLICTION_ELEMENTS_SET,
+        `${path}.parameters`,
+        out,
+      );
+      validateActionValueOperand(
+        parameters.consumedLayers,
+        `${path}.parameters.consumedLayers`,
+        out,
+      );
+      validateActionValueOperand(parameters.count, `${path}.parameters.count`, out);
+      requireBoolean(parameters, 'isExtra', `${path}.parameters`, out);
+      break;
     case 'applyElementalInfliction':
       if (parameters.inverseReaction !== undefined)
         requireBoolean(parameters, 'inverseReaction', `${path}.parameters`, out);
@@ -945,25 +962,6 @@ function validateCombatStep(
         `${path}.parameters`,
         out,
       );
-      break;
-    case 'applyElementalReaction':
-      requireEnum(parameters, 'reaction', ELEMENTAL_REACTIONS_SET, `${path}.parameters`, out);
-      requireTarget();
-      validateLevelValuesOrActionValueOperand(
-        parameters.durationSeconds,
-        `${path}.parameters.durationSeconds`,
-        out,
-      );
-      if (parameters.durationMultiplier !== undefined) {
-        requireFiniteNumber(parameters, 'durationMultiplier', `${path}.parameters`, out);
-      }
-      requireFiniteNumber(parameters, 'effectiveness', `${path}.parameters`, out);
-      break;
-    case 'consumeElementalReaction':
-      requireEnum(parameters, 'reaction', ELEMENTAL_REACTIONS_SET, `${path}.parameters`, out);
-      if (parameters.target !== 'enemy') {
-        push(out, `${path}.parameters.target`, "expected 'enemy'");
-      }
       break;
     case 'dealDamage': {
       requireEnum(parameters, 'damageType', DAMAGE_TYPES_SET, `${path}.parameters`, out);
@@ -1174,6 +1172,17 @@ function validateCombatStep(
       }
       validateGameplayTags(parameters.tags, `${path}.parameters.tags`, out, true);
       break;
+    case 'aura': {
+      validateBuffApplication(parameters, path, out, currentTargetAvailable, true);
+      requireEnum(
+        parameters,
+        'target',
+        new Set(['party', 'partyExceptCaster', 'enemy']),
+        `${path}.parameters`,
+        out,
+      );
+      break;
+    }
     case 'applyBuff': {
       validateBuffApplication(parameters, path, out, currentTargetAvailable);
       break;
@@ -1873,21 +1882,15 @@ function validateCombatStep(
       break;
     }
     case 'changeResource':
-      validateLevelValues(parameters.amount, `${path}.parameters.amount`, out);
-      if (parameters.coefficient !== undefined) {
-        validateLevelValues(parameters.coefficient, `${path}.parameters.coefficient`, out);
-      }
-      validateResourceChangeMetadata(parameters, `${path}.parameters`, out);
-      break;
-    case 'changeResourceByActionValue':
-      validateActionValueOperand(parameters.amount, `${path}.parameters.amount`, out);
-      if (parameters.coefficient !== undefined) {
+      validateLevelValuesOrActionValueOperand(parameters.amount, `${path}.parameters.amount`, out);
+      if (parameters.coefficient !== undefined)
         validateLevelValuesOrActionValueOperand(
           parameters.coefficient,
           `${path}.parameters.coefficient`,
           out,
         );
-      }
+      if (parameters.onlyMainOperator !== undefined)
+        requireBoolean(parameters, 'onlyMainOperator', `${path}.parameters`, out);
       validateResourceChangeMetadata(parameters, `${path}.parameters`, out);
       break;
     case 'gainSquadUltimateEnergyFromSkillCost':
@@ -2290,7 +2293,13 @@ function validateCombatStep(
       }
       break;
     case 'overrideBasicAttackMapping':
-      requireString(parameters, 'skillId', `${path}.parameters`, out);
+      if (
+        !Array.isArray(parameters.skillIds) ||
+        parameters.skillIds.length === 0 ||
+        parameters.skillIds.some(id => typeof id !== 'string' || id.length === 0)
+      ) {
+        push(out, `${path}.parameters.skillIds`, 'expected a non-empty list of skill IDs');
+      }
       break;
     case 'overrideMultiDashLimit':
       validateActionValueOperand(parameters.dashCount, `${path}.parameters.dashCount`, out);
@@ -2783,6 +2792,10 @@ export function validateActionGraphContexts(
           case 'repeatEachTick':
           case 'repeatByActionValue':
             child(action.body, context);
+            break;
+          case 'aura':
+            child(action.onEnter, { ...context, currentTarget: true });
+            child(action.onExit, { ...context, currentTarget: true });
             break;
           case 'forEachContextTarget':
             child(action.body, { ...context, currentTarget: true });

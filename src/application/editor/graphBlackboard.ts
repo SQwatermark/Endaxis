@@ -210,8 +210,10 @@ export function analyzeGraphBlackboard(
         for (const [key, child] of Object.entries(value)) visitInline(child, [...path, key]);
       }
       visitInline(action);
-      if (action.kind === 'applyBuff')
-        for (const key of Object.values(action.parameters.copiedBlackboardAssignments ?? {}))
+      if (action.kind === 'applyBuff' || action.kind === 'aura')
+        for (const key of action.parameters.buffs.flatMap(entry =>
+          Object.values(entry.copiedBlackboardAssignments ?? {}),
+        ))
           read(key);
       for (const input of listDataInputs(action))
         if (input.source !== null)

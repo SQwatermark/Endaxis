@@ -199,11 +199,15 @@ export function compileWeaponRuntimeDefinitionBatchSource(
           return {
             kind: 'applyBuff' as const,
             parameters: {
-              buffId: installation.buffId,
+              buffs: [
+                {
+                  buffId: installation.buffId,
+                  ...(Object.keys(assignments).length === 0
+                    ? {}
+                    : { blackboardAssignments: assignments }),
+                },
+              ],
               target: 'caster' as const,
-              ...(Object.keys(assignments).length === 0
-                ? {}
-                : { blackboardAssignments: assignments }),
             },
           };
         },

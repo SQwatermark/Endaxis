@@ -12,13 +12,17 @@ const definition = {
           action: {
             kind: 'applyBuff',
             parameters: {
-              buffId: 'buff_equipsuit_physuit_01',
+              buffs: [
+                {
+                  buffId: 'buff_equipsuit_physuit_01',
+                  blackboardAssignments: {
+                    atk_scale: { kind: 'constant', value: 2.5 },
+                    poise: { kind: 'constant', value: 10 },
+                    duration: { kind: 'constant', value: 15 },
+                  },
+                },
+              ],
               target: 'caster',
-              blackboardAssignments: {
-                atk_scale: { kind: 'constant', value: 2.5 },
-                poise: { kind: 'constant', value: 10 },
-                duration: { kind: 'constant', value: 15 },
-              },
             },
           },
           next: null,

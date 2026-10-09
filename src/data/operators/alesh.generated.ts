@@ -8,9 +8,9 @@ import type { OperatorDefinition } from '../../../packages/game-data-contract/sr
 export const aleshChr_0024_deepfin_attack1ActionGraph = {
   main: {
     nodes: {
-      changeResourceByActionValue_1: {
+      changeResource_1: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -35,7 +35,7 @@ export const aleshChr_0024_deepfin_attack1ActionGraph = {
             targets: ['enemy', 'caster'],
           },
         },
-        next: 'changeResourceByActionValue_1',
+        next: 'changeResource_1',
       },
       conditional_3: {
         action: {
@@ -110,9 +110,9 @@ export const aleshChr_0024_deepfin_attack1: SkillDefinition = {
 export const aleshChr_0024_deepfin_attack2ActionGraph = {
   main: {
     nodes: {
-      changeResourceByActionValue_1: {
+      changeResource_1: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -137,7 +137,7 @@ export const aleshChr_0024_deepfin_attack2ActionGraph = {
             targets: ['enemy', 'caster'],
           },
         },
-        next: 'changeResourceByActionValue_1',
+        next: 'changeResource_1',
       },
       conditional_3: {
         action: {
@@ -243,9 +243,9 @@ export const aleshChr_0024_deepfin_attack3ActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_3: {
+      changeResource_3: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -261,7 +261,7 @@ export const aleshChr_0024_deepfin_attack3ActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResourceByActionValue_3' },
+          whenTrue: { $sequence: 'changeResource_3' },
         },
         next: null,
       },
@@ -331,9 +331,9 @@ export const aleshChr_0024_deepfin_attack3: SkillDefinition = {
 export const aleshChr_0024_deepfin_attack4ActionGraph = {
   main: {
     nodes: {
-      changeResourceByActionValue_1: {
+      changeResource_1: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -358,7 +358,7 @@ export const aleshChr_0024_deepfin_attack4ActionGraph = {
             targets: ['enemy', 'caster'],
           },
         },
-        next: 'changeResourceByActionValue_1',
+        next: 'changeResource_1',
       },
       conditional_3: {
         action: {
@@ -469,9 +469,9 @@ export const aleshChr_0024_deepfin_attack5ActionGraph = {
         },
         next: 'conditional_2',
       },
-      changeResourceByActionValue_4: {
+      changeResource_4: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_4' },
@@ -496,7 +496,7 @@ export const aleshChr_0024_deepfin_attack5ActionGraph = {
             targets: ['enemy', 'caster'],
           },
         },
-        next: 'changeResourceByActionValue_4',
+        next: 'changeResource_4',
       },
       conditional_6: {
         action: {
@@ -579,9 +579,9 @@ export const aleshChr_0024_deepfin_attack5: SkillDefinition = {
 export const aleshChr_0024_deepfin_power_attackActionGraph = {
   main: {
     nodes: {
-      changeResourceByActionValue_1: {
+      changeResource_1: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'constant', value: 0 },
@@ -606,7 +606,7 @@ export const aleshChr_0024_deepfin_power_attackActionGraph = {
             targets: ['enemy', 'caster'],
           },
         },
-        next: 'changeResourceByActionValue_1',
+        next: 'changeResource_1',
       },
       conditional_3: {
         action: {
@@ -688,7 +688,7 @@ export const aleshChr_0024_deepfin_power_attackActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_full_immune_medium',
+            buffs: [{ buffId: 'buff_common_full_immune_medium' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -700,7 +700,7 @@ export const aleshChr_0024_deepfin_power_attackActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_power_attack_disable_cast_skill',
+            buffs: [{ buffId: 'buff_common_power_attack_disable_cast_skill' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -765,9 +765,9 @@ export const aleshChr_0024_deepfin_power_attack: SkillDefinition = {
 export const aleshChr_0024_deepfin_plunging_attack_endActionGraph = {
   main: {
     nodes: {
-      changeResourceByActionValue_1: {
+      changeResource_1: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -783,7 +783,7 @@ export const aleshChr_0024_deepfin_plunging_attack_endActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResourceByActionValue_1' },
+          whenTrue: { $sequence: 'changeResource_1' },
         },
         next: null,
       },
@@ -886,9 +886,9 @@ export const aleshChr_0024_deepfin_normal_skillActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_13: {
+      changeResource_13: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_5' },
@@ -900,9 +900,9 @@ export const aleshChr_0024_deepfin_normal_skillActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_12: {
+      changeResource_12: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_6' },
@@ -914,9 +914,9 @@ export const aleshChr_0024_deepfin_normal_skillActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_11: {
+      changeResource_11: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_7' },
@@ -928,9 +928,9 @@ export const aleshChr_0024_deepfin_normal_skillActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_10: {
+      changeResource_10: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_8' },
@@ -947,22 +947,10 @@ export const aleshChr_0024_deepfin_normal_skillActionGraph = {
           kind: 'switch',
           parameters: { choice: { kind: 'valueNode', nodeId: 'data_9' }, alwaysNext: true },
           options: [
-            {
-              value: { kind: 'constant', value: 1 },
-              sequence: { $sequence: 'changeResourceByActionValue_10' },
-            },
-            {
-              value: { kind: 'constant', value: 2 },
-              sequence: { $sequence: 'changeResourceByActionValue_11' },
-            },
-            {
-              value: { kind: 'constant', value: 3 },
-              sequence: { $sequence: 'changeResourceByActionValue_12' },
-            },
-            {
-              value: { kind: 'constant', value: 4 },
-              sequence: { $sequence: 'changeResourceByActionValue_13' },
-            },
+            { value: { kind: 'constant', value: 1 }, sequence: { $sequence: 'changeResource_10' } },
+            { value: { kind: 'constant', value: 2 }, sequence: { $sequence: 'changeResource_11' } },
+            { value: { kind: 'constant', value: 3 }, sequence: { $sequence: 'changeResource_12' } },
+            { value: { kind: 'constant', value: 4 }, sequence: { $sequence: 'changeResource_13' } },
           ],
         },
         next: null,
@@ -1071,44 +1059,21 @@ export const aleshChr_0024_deepfin_normal_skillActionGraph = {
         action: { kind: 'gainSquadUltimateEnergyFromSkillCost', parameters: { coefficient: 1 } },
         next: null,
       },
-      applyBuff_25: {
+      forceSpellStatus_25: {
         action: {
-          kind: 'applyBuff',
+          kind: 'forceSpellStatus',
           parameters: {
-            buffId: 'buff_common_cryst_cryst_frozen_triggered',
             target: 'enemy',
-            inheritSourceSkillCastInfo: true,
-            blackboardAssignments: {
-              consumed_type: { kind: 'constant', value: 2 },
-              consumed_layer: { kind: 'valueNode', nodeId: 'data_22' },
-              count: { kind: 'valueNode', nodeId: 'data_23' },
-            },
+            element: 'cryo',
+            consumedElement: 'cryo',
+            consumedLayers: { kind: 'valueNode', nodeId: 'data_22' },
+            count: { kind: 'valueNode', nodeId: 'data_23' },
+            isExtra: false,
           },
         },
         next: null,
       },
-      finishBuffsByTag_26: {
-        action: {
-          kind: 'finishBuffsByTag',
-          parameters: {
-            target: 'enemy',
-            tagQueryType: 'hasAny',
-            buffTags: ['Skill/Character/Common/SpellInflict/CrystInflict'],
-            reason: 'early',
-            count: { kind: 'valueNode', nodeId: 'data_24' },
-          },
-        },
-        next: 'applyBuff_25',
-      },
-      conditional_27: {
-        action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_26' } },
-          whenTrue: { $sequence: 'finishBuffsByTag_26' },
-        },
-        next: null,
-      },
-      readBuffStackCount_28: {
+      readBuffStackCount_26: {
         action: {
           kind: 'readBuffStackCount',
           parameters: {
@@ -1121,17 +1086,17 @@ export const aleshChr_0024_deepfin_normal_skillActionGraph = {
             },
           },
         },
-        next: 'conditional_27',
+        next: 'forceSpellStatus_25',
       },
-      conditional_29: {
+      conditional_27: {
         action: {
           kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_27' }, alwaysNext: true },
-          whenTrue: { $sequence: 'readBuffStackCount_28' },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_24' }, alwaysNext: true },
+          whenTrue: { $sequence: 'readBuffStackCount_26' },
         },
         next: null,
       },
-      repeatEachTick_30: {
+      repeatEachTick_28: {
         action: {
           kind: 'repeatEachTick',
           parameters: {
@@ -1142,7 +1107,7 @@ export const aleshChr_0024_deepfin_normal_skillActionGraph = {
               targetTriggerIntervalSeconds: 0.033,
             },
           },
-          body: { $sequence: 'conditional_29' },
+          body: { $sequence: 'conditional_27' },
         },
         next: null,
       },
@@ -1190,20 +1155,7 @@ export const aleshChr_0024_deepfin_normal_skillActionGraph = {
       data_21: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
       data_22: { type: 'number', expression: { kind: 'blackboard', key: 'count' } },
       data_23: { type: 'number', expression: { kind: 'blackboard', key: 'count' } },
-      data_24: { type: 'number', expression: { kind: 'blackboard', key: 'count' } },
-      data_25: { type: 'number', expression: { kind: 'blackboard', key: 'count' } },
-      data_26: {
-        type: 'boolean',
-        expression: {
-          kind: 'buffStackCompare',
-          target: 'enemy',
-          tagQueryType: 'hasAny',
-          buffTags: ['Skill/Character/Common/SpellInflict/CrystInflict'],
-          operator: 'greaterOrEqual',
-          value: { kind: 'valueNode', nodeId: 'data_25' },
-        },
-      },
-      data_27: {
+      data_24: {
         type: 'boolean',
         expression: {
           kind: 'buffStackCompare',
@@ -1250,7 +1202,7 @@ export const aleshChr_0024_deepfin_normal_skill: SkillDefinition = {
       endFrame: 28,
       sequence: { $sequence: 'gainSquadUltimateEnergyFromSkillCost_24' },
     },
-    { startFrame: 27, endFrame: 28, sequence: { $sequence: 'repeatEachTick_30' } },
+    { startFrame: 27, endFrame: 28, sequence: { $sequence: 'repeatEachTick_28' } },
   ],
   smartTarget: 'enemy',
   costs: [{ resource: 'sp', value: 100 }],
@@ -1274,7 +1226,7 @@ export const aleshChr_0024_deepfin_combo_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0024_deepfin_combo_camera',
+            buffs: [{ buffId: 'buff_chr_0024_deepfin_combo_camera' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
           },
@@ -1307,9 +1259,9 @@ export const aleshChr_0024_deepfin_combo_skillActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_5: {
+      changeResource_5: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_5' },
@@ -1360,14 +1312,15 @@ export const aleshChr_0024_deepfin_combo_skillActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_9: {
+      changeResource_9: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'ultimateEnergy',
             amount: { kind: 'valueNode', nodeId: 'data_7' },
             coefficient: { kind: 'constant', value: 1 },
             recipient: 'caster',
+            onlyMainOperator: true,
           },
         },
         next: 'conditional_8',
@@ -1383,9 +1336,9 @@ export const aleshChr_0024_deepfin_combo_skillActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_15: {
+      changeResource_15: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_9' },
@@ -1412,9 +1365,9 @@ export const aleshChr_0024_deepfin_combo_skillActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_18: {
+      changeResource_18: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_11' },
@@ -1498,10 +1451,14 @@ export const aleshChr_0024_deepfin_combo_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0024_deepfin_potential_3',
+            buffs: [
+              {
+                buffId: 'buff_chr_0024_deepfin_potential_3',
+                copiedBlackboardAssignments: { atk_up: 'atk_up', duration: 'Duration' },
+              },
+            ],
             target: 'party',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: { atk_up: 'atk_up', duration: 'Duration' },
           },
         },
         next: null,
@@ -1608,12 +1565,12 @@ export const aleshChr_0024_deepfin_combo_skill: SkillDefinition = {
     { startFrame: 0, endFrame: 1, sequence: { $sequence: 'findCharacterTeamTargets_1' } },
     { startFrame: 0, endFrame: 23, sequence: { $sequence: 'applyBuff_2' } },
     { startFrame: 38, endFrame: 41, sequence: { $sequence: 'dealDamage_3' } },
-    { startFrame: 93, endFrame: 96, sequence: { $sequence: 'changeResourceByActionValue_5' } },
-    { startFrame: 38, endFrame: 43, sequence: { $sequence: 'changeResourceByActionValue_9' } },
-    { startFrame: 93, endFrame: 98, sequence: { $sequence: 'changeResourceByActionValue_9' } },
-    { startFrame: 22, endFrame: 24, sequence: { $sequence: 'changeResourceByActionValue_15' } },
+    { startFrame: 93, endFrame: 96, sequence: { $sequence: 'changeResource_5' } },
+    { startFrame: 38, endFrame: 43, sequence: { $sequence: 'changeResource_9' } },
+    { startFrame: 93, endFrame: 98, sequence: { $sequence: 'changeResource_9' } },
+    { startFrame: 22, endFrame: 24, sequence: { $sequence: 'changeResource_15' } },
     { startFrame: 64, endFrame: 66, sequence: { $sequence: 'jumpTimeline_16' } },
-    { startFrame: 77, endFrame: 79, sequence: { $sequence: 'changeResourceByActionValue_18' } },
+    { startFrame: 77, endFrame: 79, sequence: { $sequence: 'changeResource_18' } },
     { startFrame: 10, endFrame: 11, sequence: { $sequence: 'calculateActionValue_26' } },
     { startFrame: 93, endFrame: 96, sequence: { $sequence: 'conditional_28' } },
   ],
@@ -1699,9 +1656,9 @@ export const aleshChr_0024_deepfin_ultimate_skillActionGraph = {
         },
         next: 'repeatEachTick_6',
       },
-      changeResourceByActionValue_9: {
+      changeResource_9: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_10' },
@@ -1713,9 +1670,9 @@ export const aleshChr_0024_deepfin_ultimate_skillActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_8: {
+      changeResource_8: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_11' },
@@ -1731,8 +1688,8 @@ export const aleshChr_0024_deepfin_ultimate_skillActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_13' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResourceByActionValue_8' },
-          whenFalse: { $sequence: 'changeResourceByActionValue_9' },
+          whenTrue: { $sequence: 'changeResource_8' },
+          whenFalse: { $sequence: 'changeResource_9' },
         },
         next: null,
       },
@@ -1785,7 +1742,7 @@ export const aleshChr_0024_deepfin_ultimate_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_damage_immune_ult_skill',
+            buffs: [{ buffId: 'buff_common_damage_immune_ult_skill' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -2128,9 +2085,9 @@ const aleshBuff3ActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_2: {
+      changeResource_2: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'ultimateEnergy',
             amount: { kind: 'valueNode', nodeId: 'data_2' },
@@ -2144,7 +2101,7 @@ const aleshBuff3ActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
-          whenTrue: { $sequence: 'changeResourceByActionValue_2' },
+          whenTrue: { $sequence: 'changeResource_2' },
         },
         next: null,
       },
@@ -2160,7 +2117,7 @@ const aleshBuff3ActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_6' } },
-          whenTrue: { $sequence: 'changeResourceByActionValue_2' },
+          whenTrue: { $sequence: 'changeResource_2' },
         },
         next: null,
       },
@@ -2227,18 +2184,25 @@ const aleshBuff3: SkillBuffDefinition = {
 const aleshBuff4ActionGraph = {
   main: {
     nodes: {
-      applyBuff_1: {
+      aura_1: {
         action: {
-          kind: 'applyBuff',
+          kind: 'aura',
           parameters: {
-            buffId: 'buff_chr_0024_deepfin_talent_1',
             target: 'partyExceptCaster',
-            finishByAction: true,
-            blackboardAssignments: {
-              usp: { kind: 'valueNode', nodeId: 'data_1' },
-              CD: { kind: 'valueNode', nodeId: 'data_2' },
-            },
+            inheritSourceSkillCastInfo: false,
+            buffs: [
+              {
+                buffId: 'buff_chr_0024_deepfin_talent_1',
+                blackboardAssignments: {
+                  usp: { kind: 'valueNode', nodeId: 'data_1' },
+                  CD: { kind: 'valueNode', nodeId: 'data_2' },
+                },
+                stringBlackboardAssignments: {},
+              },
+            ],
           },
+          onEnter: { $sequence: null },
+          onExit: { $sequence: null },
         },
         next: null,
       },
@@ -2254,9 +2218,9 @@ const aleshBuff4ActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_3: {
+      changeResource_3: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'ultimateEnergy',
             amount: { kind: 'valueNode', nodeId: 'data_4' },
@@ -2276,7 +2240,7 @@ const aleshBuff4ActionGraph = {
             right: { kind: 'valueNode', nodeId: 'data_6' },
           },
         },
-        next: 'changeResourceByActionValue_3',
+        next: 'changeResource_3',
       },
       conditional_5: {
         action: {
@@ -2331,7 +2295,7 @@ const aleshBuff4: SkillBuffDefinition = {
   extendTags: [],
   blackboard: { CD: 3, count: 0, usp: 10, usp_final: 0, usp_self: 12 },
   attributeModifiers: [],
-  lifecycleSequences: { enable: { $sequence: 'applyBuff_1' } },
+  lifecycleSequences: { enable: { $sequence: 'aura_1' } },
   abilityEventResponses: [
     { event: 'outputBuff', priority: 0, sequence: { $sequence: 'conditional_6' } },
   ],

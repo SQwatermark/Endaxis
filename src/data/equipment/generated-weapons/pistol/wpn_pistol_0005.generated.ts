@@ -54,13 +54,17 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_pistol_0005',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_pistol_0005',
+                      blackboardAssignments: {
+                        crit_up2: { kind: 'valueNode', nodeId: 'data_1' },
+                        dmg_up: { kind: 'valueNode', nodeId: 'data_2' },
+                        duration: { kind: 'valueNode', nodeId: 'data_3' },
+                      },
+                    },
+                  ],
                   target: 'caster',
-                  blackboardAssignments: {
-                    crit_up2: { kind: 'valueNode', nodeId: 'data_1' },
-                    dmg_up: { kind: 'valueNode', nodeId: 'data_2' },
-                    duration: { kind: 'valueNode', nodeId: 'data_3' },
-                  },
                 },
               },
               next: null,
@@ -103,24 +107,30 @@ const definition = {
       extendTags: [],
       blackboard: { crit_up2: 0, dmg_up: 0, duration: 0 },
       attributeModifiers: [],
-      lifecycleSequences: { enable: { $sequence: 'applyBuff_1' } },
+      lifecycleSequences: { enable: { $sequence: 'aura_1' } },
       actionGraph: {
         main: {
           nodes: {
-            applyBuff_1: {
+            aura_1: {
               action: {
-                kind: 'applyBuff',
+                kind: 'aura',
                 parameters: {
-                  buffId: 'buff_wpn_pistol_0005_inaura',
                   target: 'enemy',
-                  finishByAction: true,
                   inheritSourceSkillCastInfo: true,
-                  blackboardAssignments: {
-                    dmg_up: { kind: 'valueNode', nodeId: 'data_1' },
-                    duration: { kind: 'valueNode', nodeId: 'data_2' },
-                    crit_up2: { kind: 'valueNode', nodeId: 'data_3' },
-                  },
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_pistol_0005_inaura',
+                      blackboardAssignments: {
+                        dmg_up: { kind: 'valueNode', nodeId: 'data_1' },
+                        duration: { kind: 'valueNode', nodeId: 'data_2' },
+                        crit_up2: { kind: 'valueNode', nodeId: 'data_3' },
+                      },
+                      stringBlackboardAssignments: {},
+                    },
+                  ],
                 },
+                onEnter: { $sequence: null },
+                onExit: { $sequence: null },
               },
               next: null,
             },
@@ -163,15 +173,19 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_pistol_0005_valid',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_pistol_0005_valid',
+                      copiedBlackboardAssignments: {
+                        dmg_up: 'dmg_up_dynamic',
+                        crit_up2: 'crit_up2_dynamic',
+                        duration: 'duration',
+                      },
+                    },
+                  ],
                   target: 'buffSource',
                   source: 'buffSource',
                   inheritSourceSkillCastInfo: true,
-                  copiedBlackboardAssignments: {
-                    dmg_up: 'dmg_up_dynamic',
-                    crit_up2: 'crit_up2_dynamic',
-                    duration: 'duration',
-                  },
                 },
               },
               next: null,
@@ -220,15 +234,19 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_pistol_0005_valid',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_pistol_0005_valid',
+                      copiedBlackboardAssignments: {
+                        dmg_up: 'dmg_up',
+                        crit_up2: 'crit_up2',
+                        duration: 'duration',
+                      },
+                    },
+                  ],
                   target: 'buffSource',
                   source: 'buffSource',
                   inheritSourceSkillCastInfo: true,
-                  copiedBlackboardAssignments: {
-                    dmg_up: 'dmg_up',
-                    crit_up2: 'crit_up2',
-                    duration: 'duration',
-                  },
                 },
               },
               next: null,

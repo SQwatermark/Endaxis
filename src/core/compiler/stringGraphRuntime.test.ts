@@ -186,7 +186,11 @@ describe('字符串数据图实际消费与切面恢复', () => {
     });
     const source = graph({
       kind: 'applyBuff',
-      parameters: { target: 'caster', buffId: reference, count: { kind: 'constant', value: 2 } },
+      parameters: {
+        buffs: [{ buffId: reference }],
+        target: 'caster',
+        count: { kind: 'constant', value: 2 },
+      },
     });
     expect(validateActionGraphActions(source, 'graph')).toEqual([]);
     const entry = createActionGraphCompilation(source, 1).compileEntry(
@@ -200,7 +204,7 @@ describe('字符串数据图实际消费与切面恢复', () => {
     expect(apply).toHaveBeenCalledTimes(2);
     const bad = graph({
       kind: 'applyBuff',
-      parameters: { target: 'caster', buffId: reference, durationSeconds: 1 },
+      parameters: { buffs: [{ buffId: reference }], target: 'caster', durationSeconds: 1 },
     });
     expect(
       validateActionGraphActions(bad, 'graph').some(issue =>

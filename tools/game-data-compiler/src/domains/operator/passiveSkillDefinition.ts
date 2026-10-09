@@ -133,10 +133,14 @@ export function compileOperatorUpgradePassiveSkills(
       return {
         kind: 'applyBuff' as const,
         parameters: {
-          buffId: buff.buffId,
+          buffs: [
+            {
+              buffId: buff.buffId,
+              ...(Object.keys(blackboardAssignments).length === 0 ? {} : { blackboardAssignments }),
+            },
+          ],
           target: 'caster' as const,
           inheritSourceSkillCastInfo: false,
-          ...(Object.keys(blackboardAssignments).length === 0 ? {} : { blackboardAssignments }),
         },
       };
     });

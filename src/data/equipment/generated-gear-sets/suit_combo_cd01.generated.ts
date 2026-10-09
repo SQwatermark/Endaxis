@@ -12,13 +12,17 @@ const definition = {
           action: {
             kind: 'applyBuff',
             parameters: {
-              buffId: 'buff_equipsuit_combo_cd01',
+              buffs: [
+                {
+                  buffId: 'buff_equipsuit_combo_cd01',
+                  blackboardAssignments: {
+                    spell_up: { kind: 'constant', value: 0.2 },
+                    max_stack: { kind: 'constant', value: 2 },
+                    duration: { kind: 'constant', value: 15 },
+                  },
+                },
+              ],
               target: 'caster',
-              blackboardAssignments: {
-                spell_up: { kind: 'constant', value: 0.2 },
-                max_stack: { kind: 'constant', value: 2 },
-                duration: { kind: 'constant', value: 15 },
-              },
             },
           },
           next: null,
@@ -50,16 +54,20 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_equipsuit_combo_cd01_spellup',
+                  buffs: [
+                    {
+                      buffId: 'buff_equipsuit_combo_cd01_spellup',
+                      copiedBlackboardAssignments: {
+                        spell_up: 'spell_up',
+                        duration: 'duration',
+                        max_stack: 'max_stack',
+                      },
+                    },
+                  ],
                   target: 'buffOwner',
                   source: 'buffOwner',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: {
-                    spell_up: 'spell_up',
-                    duration: 'duration',
-                    max_stack: 'max_stack',
-                  },
                 },
               },
               next: null,

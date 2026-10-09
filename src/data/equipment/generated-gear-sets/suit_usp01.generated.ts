@@ -12,12 +12,16 @@ const definition = {
           action: {
             kind: 'applyBuff',
             parameters: {
-              buffId: 'buff_equipsuit_usp_01',
+              buffs: [
+                {
+                  buffId: 'buff_equipsuit_usp_01',
+                  blackboardAssignments: {
+                    ultimate_gain_up: { kind: 'constant', value: 0.2 },
+                    atb_recover: { kind: 'constant', value: 50 },
+                  },
+                },
+              ],
               target: 'caster',
-              blackboardAssignments: {
-                ultimate_gain_up: { kind: 'constant', value: 0.2 },
-                atb_recover: { kind: 'constant', value: 50 },
-              },
             },
           },
           next: null,
@@ -57,9 +61,9 @@ const definition = {
               },
               next: null,
             },
-            changeResourceByActionValue_2: {
+            changeResource_2: {
               action: {
-                kind: 'changeResourceByActionValue',
+                kind: 'changeResource',
                 parameters: {
                   resource: 'sp',
                   amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -80,7 +84,7 @@ const definition = {
                   value: { kind: 'constant', value: 1 },
                 },
               },
-              next: 'changeResourceByActionValue_2',
+              next: 'changeResource_2',
             },
             conditional_4: {
               action: {

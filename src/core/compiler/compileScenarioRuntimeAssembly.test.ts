@@ -809,7 +809,7 @@ describe('compileScenarioRuntimeAssembly', () => {
             init: {
               action: {
                 kind: 'applyBuff',
-                parameters: { buffId: 'buff.runtime-set', target: 'caster' },
+                parameters: { buffs: [{ buffId: 'buff.runtime-set' }], target: 'caster' },
               },
               next: null,
             },
@@ -845,7 +845,9 @@ describe('compileScenarioRuntimeAssembly', () => {
       enableSequence: actionSteps([
         { kind: 'changeResource', parameters: { resource: 'sp', amount: 2, recipient: 'team' } },
       ]),
-      sequence: actionSteps([{ kind: 'applyBuff', parameters: { buffId: 'buff.runtime-set' } }]),
+      sequence: actionSteps([
+        { kind: 'applyBuff', parameters: { buffs: [{ buffId: 'buff.runtime-set' }] } },
+      ]),
     });
   });
 

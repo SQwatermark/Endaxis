@@ -60,14 +60,18 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_lance_0012_attribute2',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_lance_0012_attribute2',
+                      copiedBlackboardAssignments: {
+                        all_attr_up2: 'all_attr_up2',
+                        duration: 'duration',
+                      },
+                    },
+                  ],
                   target: 'caster',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: {
-                    all_attr_up2: 'all_attr_up2',
-                    duration: 'duration',
-                  },
                 },
               },
               next: 'createTimedMarker_1',
@@ -112,11 +116,18 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_lance_0012_attribute',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_lance_0012_attribute',
+                      copiedBlackboardAssignments: {
+                        all_attr_up: 'all_attr_up',
+                        duration: 'duration',
+                      },
+                    },
+                  ],
                   target: 'caster',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: { all_attr_up: 'all_attr_up', duration: 'duration' },
                 },
               },
               next: 'createTimedMarker_6',
@@ -149,9 +160,13 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_lance_0012_noguard',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_lance_0012_noguard',
+                      blackboardAssignments: { dmg_up: { kind: 'valueNode', nodeId: 'data_11' } },
+                    },
+                  ],
                   target: 'caster',
-                  blackboardAssignments: { dmg_up: { kind: 'valueNode', nodeId: 'data_11' } },
                 },
               },
               next: null,

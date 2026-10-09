@@ -42,7 +42,11 @@ function graphExtractor(graph: IntermediateDefinition<ActionGraphDefinition>) {
           visit(
             item,
             key === parameterStringField || key === stringField(kind),
-            key === 'parameters' ? stringField(kind) : undefined,
+            key === 'parameters'
+              ? stringField(kind)
+              : key === 'buffs'
+                ? parameterStringField
+                : undefined,
           ),
         ] as const,
     );
@@ -61,7 +65,7 @@ function graphExtractor(graph: IntermediateDefinition<ActionGraphDefinition>) {
     )
       return value;
     if (Array.isArray(value)) {
-      const items = value.map(item => visit(item));
+      const items = value.map(item => visit(item, false, parameterStringField));
       return items.every((item, index) => item === value[index]) ? value : items;
     }
     const type = expressionType(value, stringInput);

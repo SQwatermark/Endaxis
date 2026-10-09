@@ -36,23 +36,89 @@ export function validateBuffApplication(
   path: string,
   out: SkillDefinitionValidationIssue[],
   currentTargetAvailable: boolean,
+  allowEmptyBuffs = false,
 ): void {
   if (parameters.sourceContextKey !== undefined) {
     requireString(parameters, 'sourceContextKey', `${path}.parameters`, out);
     if (parameters.source !== undefined)
       push(out, `${path}.parameters.source`, 'source and sourceContextKey are mutually exclusive');
   }
-  const dynamicId = typeof parameters.buffId === 'object' && parameters.buffId !== null;
-  validateActionStringOperand(parameters.buffId, `${path}.parameters.buffId`, out);
-  if (dynamicId) {
-    for (const field of ['durationSeconds', 'effectiveness']) {
-      if (parameters[field] !== undefined)
-        push(
+  if (!Array.isArray(parameters.buffs) || (!allowEmptyBuffs && parameters.buffs.length === 0)) {
+    push(out, `${path}.parameters.buffs`, 'expected a non-empty Buff list');
+  } else {
+    parameters.buffs.forEach((value, index) => {
+      const itemPath = `${path}.parameters.buffs[${index}]`;
+      const entry = asRecord(value, itemPath, out);
+      if (entry === null) return;
+      const dynamicId = typeof entry.buffId === 'object' && entry.buffId !== null;
+      validateActionStringOperand(entry.buffId, `${itemPath}.buffId`, out);
+      if (dynamicId) {
+        for (const field of ['durationSeconds', 'effectiveness']) {
+          if (parameters[field] !== undefined)
+            push(
+              out,
+              `${path}.parameters.${field}`,
+              '动态 Buff ID 只能通过定义目录查表，不能使用内联或旧式覆盖',
+            );
+        }
+      }
+
+      if (entry.blackboardAssignments !== undefined) {
+        const assignments = asRecord(
+          entry.blackboardAssignments,
+          `${itemPath}.blackboardAssignments`,
           out,
-          `${path}.parameters.${field}`,
-          '动态 Buff ID 只能通过定义目录查表，不能使用内联或旧式覆盖',
         );
-    }
+        if (assignments !== null) {
+          for (const [key, operand] of Object.entries(assignments)) {
+            const assignmentPath = `${itemPath}.blackboardAssignments.${key}`;
+            if (typeof operand === 'number' || Array.isArray(operand))
+              validateLevelValues(operand, assignmentPath, out);
+            else validateActionValueOperand(operand, assignmentPath, out);
+          }
+        }
+      }
+      if (entry.stringBlackboardAssignments !== undefined) {
+        const assignments = asRecord(
+          entry.stringBlackboardAssignments,
+          `${itemPath}.stringBlackboardAssignments`,
+          out,
+        );
+        if (assignments !== null) {
+          for (const [key, value] of Object.entries(assignments)) {
+            if (key.trim().length === 0)
+              push(out, `${itemPath}.stringBlackboardAssignments`, 'contains an empty key');
+            if (typeof value !== 'string' || value.trim().length === 0) {
+              push(
+                out,
+                `${itemPath}.stringBlackboardAssignments.${key}`,
+                'expected a non-empty string',
+              );
+            }
+          }
+        }
+      }
+      if (entry.copiedBlackboardAssignments !== undefined) {
+        const assignments = asRecord(
+          entry.copiedBlackboardAssignments,
+          `${itemPath}.copiedBlackboardAssignments`,
+          out,
+        );
+        if (assignments !== null) {
+          for (const [key, value] of Object.entries(assignments)) {
+            if (key.trim().length === 0)
+              push(out, `${itemPath}.copiedBlackboardAssignments`, 'contains an empty key');
+            if (typeof value !== 'string' || value.trim().length === 0) {
+              push(
+                out,
+                `${itemPath}.copiedBlackboardAssignments.${key}`,
+                'expected a non-empty source key',
+              );
+            }
+          }
+        }
+      }
+    });
   }
   if (parameters.iconDurationSource !== undefined) {
     const sourcePath = `${path}.parameters.iconDurationSource`;
@@ -96,61 +162,6 @@ export function validateBuffApplication(
       push(out, path, 'currentAbilityEntity source requires a forEachContextTarget body');
     }
   }
-  if (parameters.blackboardAssignments !== undefined) {
-    const assignments = asRecord(
-      parameters.blackboardAssignments,
-      `${path}.parameters.blackboardAssignments`,
-      out,
-    );
-    if (assignments !== null) {
-      for (const [key, operand] of Object.entries(assignments)) {
-        const assignmentPath = `${path}.parameters.blackboardAssignments.${key}`;
-        if (typeof operand === 'number' || Array.isArray(operand))
-          validateLevelValues(operand, assignmentPath, out);
-        else validateActionValueOperand(operand, assignmentPath, out);
-      }
-    }
-  }
-  if (parameters.stringBlackboardAssignments !== undefined) {
-    const assignments = asRecord(
-      parameters.stringBlackboardAssignments,
-      `${path}.parameters.stringBlackboardAssignments`,
-      out,
-    );
-    if (assignments !== null) {
-      for (const [key, value] of Object.entries(assignments)) {
-        if (key.trim().length === 0)
-          push(out, `${path}.parameters.stringBlackboardAssignments`, 'contains an empty key');
-        if (typeof value !== 'string' || value.trim().length === 0) {
-          push(
-            out,
-            `${path}.parameters.stringBlackboardAssignments.${key}`,
-            'expected a non-empty string',
-          );
-        }
-      }
-    }
-  }
-  if (parameters.copiedBlackboardAssignments !== undefined) {
-    const assignments = asRecord(
-      parameters.copiedBlackboardAssignments,
-      `${path}.parameters.copiedBlackboardAssignments`,
-      out,
-    );
-    if (assignments !== null) {
-      for (const [key, value] of Object.entries(assignments)) {
-        if (key.trim().length === 0)
-          push(out, `${path}.parameters.copiedBlackboardAssignments`, 'contains an empty key');
-        if (typeof value !== 'string' || value.trim().length === 0) {
-          push(
-            out,
-            `${path}.parameters.copiedBlackboardAssignments.${key}`,
-            'expected a non-empty source key',
-          );
-        }
-      }
-    }
-  }
   if (parameters.inheritSourceSkillCastInfo !== undefined) {
     requireBoolean(parameters, 'inheritSourceSkillCastInfo', `${path}.parameters`, out);
   }
@@ -159,74 +170,6 @@ export function validateBuffApplication(
   }
   if (parameters.finishByAction !== undefined) {
     requireBoolean(parameters, 'finishByAction', `${path}.parameters`, out);
-  }
-  if (parameters.onActionEndFinishBuffs !== undefined) {
-    const cleanupPath = `${path}.parameters.onActionEndFinishBuffs`;
-    const cleanup = asRecord(parameters.onActionEndFinishBuffs, cleanupPath, out);
-    if (parameters.finishByAction !== true) push(out, cleanupPath, 'requires finishByAction');
-    if (cleanup !== null) {
-      requireEnum(cleanup, 'target', BUFF_APPLICATION_TARGETS_SET, cleanupPath, out);
-      if (
-        !Array.isArray(cleanup.buffIds) ||
-        cleanup.buffIds.length === 0 ||
-        cleanup.buffIds.some(id => typeof id !== 'string' || id.length === 0)
-      ) {
-        push(out, `${cleanupPath}.buffIds`, 'expected non-empty Buff IDs');
-      }
-    }
-  }
-  if (parameters.onActionEndBuffs !== undefined) {
-    const exitPath = `${path}.parameters.onActionEndBuffs`;
-    if (!Array.isArray(parameters.onActionEndBuffs)) {
-      push(out, exitPath, 'expected an array');
-    } else {
-      if (parameters.onActionEndBuffs.length === 0)
-        push(out, exitPath, 'expected at least one Buff');
-      parameters.onActionEndBuffs.forEach((value, index) => {
-        const itemPath = `${exitPath}[${index}]`;
-        const item = asRecord(value, itemPath, out);
-        if (item === null) return;
-        requireString(item, 'buffId', itemPath, out);
-        requireEnum(item, 'target', BUFF_APPLICATION_TARGETS_SET, itemPath, out);
-        if (item.source !== undefined)
-          requireEnum(item, 'source', BUFF_APPLICATION_SOURCES_SET, itemPath, out);
-        if (item.blackboardAssignments !== undefined) {
-          const assignments = asRecord(
-            item.blackboardAssignments,
-            `${itemPath}.blackboardAssignments`,
-            out,
-          );
-          if (assignments !== null) {
-            for (const [key, operand] of Object.entries(assignments)) {
-              const assignmentPath = `${itemPath}.blackboardAssignments.${key}`;
-              if (typeof operand === 'number' || Array.isArray(operand))
-                validateLevelValues(operand, assignmentPath, out);
-              else validateActionValueOperand(operand, assignmentPath, out);
-            }
-          }
-        }
-        if (item.stringBlackboardAssignments !== undefined) {
-          const assignments = asRecord(
-            item.stringBlackboardAssignments,
-            `${itemPath}.stringBlackboardAssignments`,
-            out,
-          );
-          if (assignments !== null) {
-            for (const [key, assignment] of Object.entries(assignments)) {
-              if (typeof assignment !== 'string' || assignment.length === 0)
-                push(
-                  out,
-                  `${itemPath}.stringBlackboardAssignments.${key}`,
-                  'expected a non-empty string',
-                );
-            }
-          }
-        }
-        if (item.inheritSourceSkillCastInfo !== undefined)
-          requireBoolean(item, 'inheritSourceSkillCastInfo', itemPath, out);
-      });
-    }
-    if (parameters.finishByAction !== true) push(out, exitPath, 'requires finishByAction=true');
   }
   if (parameters.inheritToNextSkillIds !== undefined) {
     const inheritPath = `${path}.parameters.inheritToNextSkillIds`;

@@ -90,14 +90,18 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_funnel_0009_magic_up_ult',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_funnel_0009_magic_up_ult',
+                      copiedBlackboardAssignments: {
+                        spell_dmg_up: 'spell_dmg_up',
+                        duration: 'duration',
+                      },
+                    },
+                  ],
                   target: 'caster',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: {
-                    spell_dmg_up: 'spell_dmg_up',
-                    duration: 'duration',
-                  },
                 },
               },
               next: null,
@@ -114,14 +118,18 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_funnel_0009_magic_up_combo',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_funnel_0009_magic_up_combo',
+                      copiedBlackboardAssignments: {
+                        spell_dmg_up2: 'spell_dmg_up2',
+                        duration2: 'duration2',
+                      },
+                    },
+                  ],
                   target: 'caster',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: {
-                    spell_dmg_up2: 'spell_dmg_up2',
-                    duration2: 'duration2',
-                  },
                 },
               },
               next: null,

@@ -14,7 +14,6 @@ import {
   type DamageFeature,
   type DamageTag,
   type DamageType,
-  type ElementalReaction,
   type EnemyRank,
   type HealTarget,
   type InflictionElement,
@@ -622,14 +621,6 @@ export type CombatConditionExpression =
       minimumStacks?: number;
     }
   | {
-      /** 检查指定复合元素反应是否生效。 */
-      kind: 'elementalReactionActive';
-      /** 要检查的元素反应。 */
-      reaction: ElementalReaction;
-      /** 反应至少需要达到的等级。 */
-      minimumLevel?: number;
-    }
-  | {
       /** 对一个子条件的结果取反。 */
       kind: 'not';
       /** 要取反的条件。 */
@@ -729,7 +720,6 @@ export const COMBAT_CONDITION_KINDS = [
   'buffSourceMatchesOwner',
   'ownerSpawnedAbilityEntityPresent',
   'elementalInflictionPresent',
-  'elementalReactionActive',
   'not',
   'all',
   'any',

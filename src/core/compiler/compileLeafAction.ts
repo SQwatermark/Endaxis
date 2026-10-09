@@ -66,7 +66,6 @@ const LEAF_ACTION_KINDS = [
   'storeSourceAttributeValue',
   'storeEntityPropertyValue',
   'setHealthFloor',
-  'changeResourceByActionValue',
   'recoverDashEnergy',
   'recordPerfectDodge',
   'gainSquadUltimateEnergyFromSkillCost',
@@ -78,11 +77,11 @@ const LEAF_ACTION_KINDS = [
   'limitMovementGait',
   'applyCharacterInfliction',
   'applyElementalInfliction',
+  'forceSpellStatus',
   'applyPhysicalInfliction',
   'triggerSpellBurst',
   'triggerCustomAbilityEvent',
   'castSkillDuringAction',
-  'consumeElementalReaction',
   'outputAirborne',
   'outputKnockDown',
   'gainFinisherSp',
@@ -98,7 +97,6 @@ const LEAF_ACTION_KINDS = [
   'setCharacterPassiveUiValue',
   'inheritSkillCastInfoForBasicAttack',
   'adjustSkillCooldown',
-  'applyElementalReaction',
 ] as const;
 type LeafAction = CompiledStepForKind<(typeof LEAF_ACTION_KINDS)[number]>;
 export type ResolvedLeafAction = ResolvedCombatStepForKind<(typeof LEAF_ACTION_KINDS)[number]>;
@@ -334,49 +332,26 @@ export function compileLeafAction(
               },
       };
     }
-    case 'changeResource':
+    case 'changeResource': {
+      const { amount, coefficient, ...parameters } = step.parameters;
       return {
         ...keyed,
         kind: step.kind,
         parameters: {
-          resource: step.parameters.resource,
-          amount: resolveLevelValue(
-            step.parameters.amount,
-            skillLevel,
-            `${path}.parameters.amount`,
-          ),
-          ...(step.parameters.coefficient === undefined
+          ...parameters,
+          amount: resolveLevelValueOrActionOperand(amount, skillLevel, `${path}.parameters.amount`),
+          ...(coefficient === undefined
             ? {}
             : {
-                coefficient: resolveLevelValue(
-                  step.parameters.coefficient,
+                coefficient: resolveLevelValueOrActionOperand(
+                  coefficient,
                   skillLevel,
                   `${path}.parameters.coefficient`,
                 ),
               }),
-          recipient: step.parameters.recipient,
-          ...(step.parameters.spGainKind === undefined
-            ? {}
-            : { spGainKind: step.parameters.spGainKind }),
-          ...(step.parameters.spGainSource === undefined
-            ? {}
-            : { spGainSource: step.parameters.spGainSource }),
-          ...(step.parameters.isPercentValue === undefined
-            ? {}
-            : { isPercentValue: step.parameters.isPercentValue }),
-          ...(step.parameters.ultimateRecoveryTag === undefined
-            ? {}
-            : {
-                ultimateRecoveryTag: step.parameters.ultimateRecoveryTag,
-              }),
-          ...(step.parameters.ignoreUltimateEnergyGainMultiplier === undefined
-            ? {}
-            : {
-                ignoreUltimateEnergyGainMultiplier:
-                  step.parameters.ignoreUltimateEnergyGainMultiplier,
-              }),
         },
       };
+    }
     case 'restrictUltimateEnergyRecovery':
       return {
         ...keyed,
@@ -515,28 +490,6 @@ export function compileLeafAction(
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'setHealthFloor':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
-    case 'changeResourceByActionValue': {
-      const { coefficient, ultimateRecoveryTag, ...parameters } = step.parameters;
-      return {
-        ...keyed,
-        kind: step.kind,
-        parameters: {
-          ...parameters,
-          ...(ultimateRecoveryTag === undefined
-            ? {}
-            : { ultimateRecoveryTag: ultimateRecoveryTag }),
-          ...(coefficient === undefined
-            ? {}
-            : {
-                coefficient: resolveLevelValueOrActionOperand(
-                  coefficient,
-                  skillLevel,
-                  `${path}.parameters.coefficient`,
-                ),
-              }),
-        },
-      };
-    }
     case 'recoverDashEnergy':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'recordPerfectDodge':
@@ -566,12 +519,12 @@ export function compileLeafAction(
     case 'triggerCharacterInflictionEvent':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'applyCharacterInfliction':
+    case 'forceSpellStatus':
     case 'applyElementalInfliction':
     case 'applyPhysicalInfliction':
     case 'triggerSpellBurst':
     case 'triggerCustomAbilityEvent':
     case 'castSkillDuringAction':
-    case 'consumeElementalReaction':
     case 'outputAirborne':
     case 'outputKnockDown':
     case 'gainFinisherSp':
@@ -588,18 +541,5 @@ export function compileLeafAction(
     case 'inheritSkillCastInfoForBasicAttack':
     case 'adjustSkillCooldown':
       return { ...keyed, kind: step.kind, parameters: step.parameters } as ResolvedLeafAction;
-    case 'applyElementalReaction':
-      return {
-        ...keyed,
-        kind: step.kind,
-        parameters: {
-          ...step.parameters,
-          durationSeconds: resolveLevelValueOrActionOperand(
-            step.parameters.durationSeconds,
-            skillLevel,
-            `${path}.parameters.durationSeconds`,
-          ),
-        },
-      };
   }
 }

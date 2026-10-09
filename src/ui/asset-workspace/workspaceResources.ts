@@ -116,13 +116,14 @@ function conditionReferences(
 function actionReferences(action: ActionGraphStep): readonly { kind: string; id: string }[] {
   const buffs = (ids: readonly string[]) => ids.map(id => ({ kind: 'buff', id }));
   switch (action.kind) {
+    case 'aura':
     case 'applyBuff': {
       const p = action.parameters;
       return buffs([
-        ...(typeof p.buffId === 'string' ? [p.buffId] : []),
-        ...(p.onActionEndBuffs?.map(buff => buff.buffId) ?? []),
-        ...(p.onActionEndFinishBuffs?.buffIds ?? []),
-        ...(p.keywordEnhancements?.flatMap(item => item.triggerBuffIds) ?? []),
+        ...p.buffs.flatMap(entry => (typeof entry.buffId === 'string' ? [entry.buffId] : [])),
+        ...p.buffs.flatMap(
+          entry => entry.keywordEnhancements?.flatMap(item => item.triggerBuffIds) ?? [],
+        ),
       ]);
     }
     case 'finishBuffsById':

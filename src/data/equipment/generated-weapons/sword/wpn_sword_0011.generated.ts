@@ -44,12 +44,16 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_sword_0011',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_sword_0011',
+                      blackboardAssignments: {
+                        dmg_up: { kind: 'valueNode', nodeId: 'data_1' },
+                        phy_dmg_up: { kind: 'valueNode', nodeId: 'data_2' },
+                      },
+                    },
+                  ],
                   target: 'caster',
-                  blackboardAssignments: {
-                    dmg_up: { kind: 'valueNode', nodeId: 'data_1' },
-                    phy_dmg_up: { kind: 'valueNode', nodeId: 'data_2' },
-                  },
                 },
               },
               next: null,

@@ -1,3 +1,4 @@
+import { FORCED_SPELL_STATUS_BUFFS } from '../../../../../src/core/mechanics/forcedSpellStatus.ts';
 import {
   PHYSICAL_NO_GUARD_BUFF,
   PHYSICAL_INFLICTION_BUFFS,
@@ -64,26 +65,28 @@ export function collectCompiledDefaultKeywordCarrierIds(value: unknown): Readonl
     }
     if (item === null || typeof item !== 'object') return;
     const record = item as Record<string, unknown>;
-    if (record.kind === 'applyBuff') {
+    if (record.kind === 'applyBuff' || record.kind === 'aura') {
       const parameters = record.parameters;
       if (parameters !== null && typeof parameters === 'object') {
         const parameterRecord = parameters as Record<string, unknown>;
-        const buffId = parameterRecord.buffId;
-        const assignments = parameterRecord.blackboardAssignments;
-        const assignmentKeys =
-          assignments !== null && typeof assignments === 'object'
-            ? Object.keys(assignments as Record<string, unknown>).sort()
-            : [];
-        if (
-          typeof buffId === 'string' &&
-          isRecoveredKeywordCarrierBuffId(buffId) &&
-          parameterRecord.inheritSourceSkillCastInfo === true &&
-          assignmentKeys.length === 2 &&
-          assignmentKeys[0] === 'duration' &&
-          assignmentKeys[1] === 'rate' &&
-          parameterRecord.stringBlackboardAssignments === undefined
-        )
-          ids.add(buffId);
+        for (const entry of buffEntries(parameterRecord)) {
+          const buffId = entry.buffId;
+          const assignments = entry.blackboardAssignments;
+          const assignmentKeys =
+            assignments !== null && typeof assignments === 'object'
+              ? Object.keys(assignments as Record<string, unknown>).sort()
+              : [];
+          if (
+            typeof buffId === 'string' &&
+            isRecoveredKeywordCarrierBuffId(buffId) &&
+            parameterRecord.inheritSourceSkillCastInfo === true &&
+            assignmentKeys.length === 2 &&
+            assignmentKeys[0] === 'duration' &&
+            assignmentKeys[1] === 'rate' &&
+            entry.stringBlackboardAssignments === undefined
+          )
+            ids.add(buffId);
+        }
       }
     }
     Object.values(record).forEach(visit);
@@ -156,13 +159,19 @@ export function collectCompiledBuffApplications(
       applications.push({ buffId: PHYSICAL_NO_GUARD_BUFF, target: 'enemy' });
       applications.push({ buffId: PHYSICAL_INFLICTION_BUFFS[type], target: 'enemy' });
     }
-    if (record.kind === 'applyBuff') {
+    if (record.kind === 'forceSpellStatus') {
+      const parameters = record.parameters as {
+        element: keyof typeof FORCED_SPELL_STATUS_BUFFS;
+        target: string;
+      };
+      const buffId = FORCED_SPELL_STATUS_BUFFS[parameters.element];
+      if (buffId === undefined) throw new Error('compiled forceSpellStatus has invalid element');
+      applications.push({ buffId, target: parameters.target });
+    }
+    if (record.kind === 'applyBuff' || record.kind === 'aura') {
       const parameters = record.parameters;
       if (parameters === null || typeof parameters !== 'object')
         throw new Error('compiled applyBuff step is missing parameters');
-      const buffId = (parameters as Record<string, unknown>).buffId;
-      if (typeof buffId !== 'string' || buffId.length === 0)
-        throw new Error('compiled applyBuff step has an invalid buffId');
       const target = (parameters as Record<string, unknown>).target;
       if (typeof target !== 'string' || target.length === 0)
         throw new Error('compiled applyBuff step has an invalid target');
@@ -172,28 +181,16 @@ export function collectCompiledBuffApplications(
           readonly [COMPILED_BUFF_CAPTURED_TARGET_GROUPS]?: CompiledBuffCapturedTargetGroupsSource;
         }
       )[COMPILED_BUFF_CAPTURED_TARGET_GROUPS];
-      applications.push({
-        buffId,
-        target,
-        ...(typeof source === 'string' ? { source } : {}),
-        ...(capturedTargetGroups === undefined ? {} : { capturedTargetGroups }),
-      });
-      const onActionEndBuffs = (parameters as Record<string, unknown>).onActionEndBuffs;
-      if (Array.isArray(onActionEndBuffs)) {
-        for (const [index, raw] of onActionEndBuffs.entries()) {
-          if (raw === null || typeof raw !== 'object')
-            throw new Error(`compiled action-end Buff ${index} is invalid`);
-          const exit = raw as Record<string, unknown>;
-          if (typeof exit.buffId !== 'string' || exit.buffId.length === 0)
-            throw new Error(`compiled action-end Buff ${index} has an invalid buffId`);
-          if (typeof exit.target !== 'string' || exit.target.length === 0)
-            throw new Error(`compiled action-end Buff ${index} has an invalid target`);
-          applications.push({
-            buffId: exit.buffId,
-            target: exit.target,
-            ...(typeof exit.source === 'string' ? { source: exit.source } : {}),
-          });
-        }
+      for (const entry of buffEntries(parameters as Record<string, unknown>)) {
+        const buffId = entry.buffId;
+        if (typeof buffId !== 'string' || buffId.length === 0)
+          throw new Error('compiled applyBuff step has an invalid buffId');
+        applications.push({
+          buffId,
+          target,
+          ...(typeof source === 'string' ? { source } : {}),
+          ...(capturedTargetGroups === undefined ? {} : { capturedTargetGroups }),
+        });
       }
     }
     Object.values(record).forEach(visit);
@@ -267,23 +264,25 @@ export function collectCompiledBuffIdentityReadIds(value: unknown): ReadonlySet<
         }
       }
     }
-    if (record.kind === 'applyBuff') {
+    if (record.kind === 'applyBuff' || record.kind === 'aura') {
       const parameters = record.parameters;
       if (parameters !== null && typeof parameters === 'object') {
         const parameterRecord = parameters as Record<string, unknown>;
-        const assignments = parameterRecord.stringBlackboardAssignments;
-        if (assignments !== null && typeof assignments === 'object') {
-          const childId = (assignments as Record<string, unknown>).child_buff_id;
-          if (typeof childId === 'string' && childId.length > 0) ids.add(childId);
-        }
-        const enhancements = parameterRecord.keywordEnhancements;
-        if (Array.isArray(enhancements)) {
-          for (const enhancement of enhancements) {
-            if (enhancement === null || typeof enhancement !== 'object') continue;
-            const triggerBuffIds = (enhancement as Record<string, unknown>).triggerBuffIds;
-            if (!Array.isArray(triggerBuffIds)) continue;
-            for (const id of triggerBuffIds)
-              if (typeof id === 'string' && id.length > 0) ids.add(id);
+        for (const entry of buffEntries(parameterRecord)) {
+          const assignments = entry.stringBlackboardAssignments;
+          if (assignments !== null && typeof assignments === 'object') {
+            const childId = (assignments as Record<string, unknown>).child_buff_id;
+            if (typeof childId === 'string' && childId.length > 0) ids.add(childId);
+          }
+          const enhancements = entry.keywordEnhancements;
+          if (Array.isArray(enhancements)) {
+            for (const enhancement of enhancements) {
+              if (enhancement === null || typeof enhancement !== 'object') continue;
+              const triggerBuffIds = (enhancement as Record<string, unknown>).triggerBuffIds;
+              if (!Array.isArray(triggerBuffIds)) continue;
+              for (const id of triggerBuffIds)
+                if (typeof id === 'string' && id.length > 0) ids.add(id);
+            }
           }
         }
       }
@@ -298,3 +297,12 @@ import {
   COMPILED_BUFF_CAPTURED_TARGET_GROUPS,
   type CompiledBuffCapturedTargetGroupsSource,
 } from '../buffs/compiledBuffMetadata.ts';
+function buffEntries(parameters: Record<string, unknown>): readonly Record<string, unknown>[] {
+  if (!Array.isArray(parameters.buffs))
+    throw new Error('compiled applyBuff is missing its Buff list');
+  return parameters.buffs.map(entry => {
+    if (entry === null || typeof entry !== 'object')
+      throw new Error('compiled applyBuff has an invalid Buff entry');
+    return entry as Record<string, unknown>;
+  });
+}

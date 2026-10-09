@@ -51,15 +51,19 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_claym_0004_phy_damage_up',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_claym_0004_phy_damage_up',
+                      copiedBlackboardAssignments: {
+                        phy_damage_up2: 'phy_damage_up2',
+                        duration: 'duration',
+                        max_stack: 'max_stack',
+                      },
+                    },
+                  ],
                   target: 'caster',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: {
-                    phy_damage_up2: 'phy_damage_up2',
-                    duration: 'duration',
-                    max_stack: 'max_stack',
-                  },
                 },
               },
               next: null,
@@ -68,10 +72,14 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_claym_0004_cd',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_claym_0004_cd',
+                      copiedBlackboardAssignments: { cd_duration: 'cd_duraton' },
+                    },
+                  ],
                   target: 'caster',
                   inheritSourceSkillCastInfo: true,
-                  copiedBlackboardAssignments: { cd_duration: 'cd_duraton' },
                 },
               },
               next: 'applyBuff_1',

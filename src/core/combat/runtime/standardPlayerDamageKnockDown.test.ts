@@ -96,7 +96,11 @@ function setup(
   });
   const apply = (buffId: string) => ({
     kind: 'applyBuff' as const,
-    parameters: { buffId, target: 'caster' as const, inheritSourceSkillCastInfo: true },
+    parameters: {
+      buffs: [{ buffId }],
+      target: 'caster' as const,
+      inheritSourceSkillCastInfo: true,
+    },
   });
   // 使用契约编译和真实 Buff 生命周期；这是流程夹具，不冒充原生物理 Buff 的数值。
   const buffDefinitions = {

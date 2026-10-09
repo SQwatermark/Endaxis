@@ -50,11 +50,15 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_sword_0022_final',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_sword_0022_final',
+                      copiedBlackboardAssignments: { dmg_up: 'dmg_up2', duration: 'duration' },
+                    },
+                  ],
                   target: 'caster',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: { dmg_up: 'dmg_up2', duration: 'duration' },
                 },
               },
               next: null,
@@ -79,11 +83,15 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_sword_0022_layer',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_sword_0022_layer',
+                      copiedBlackboardAssignments: { dmg_up: 'dmg_up', max_stack: 'max_stack' },
+                    },
+                  ],
                   target: 'caster',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: { dmg_up: 'dmg_up', max_stack: 'max_stack' },
                 },
               },
               next: 'conditional_3',

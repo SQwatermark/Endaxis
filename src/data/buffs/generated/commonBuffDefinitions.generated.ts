@@ -14,11 +14,15 @@ const commonBuff1ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_affixes_skillimbue',
+            buffs: [
+              {
+                buffId: 'buff_common_affixes_skillimbue',
+                copiedBlackboardAssignments: { imbue_scale: 'imbue_scale' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: { imbue_scale: 'imbue_scale' },
           },
         },
         next: 'finishParentGlobalBuff_1',
@@ -115,13 +119,17 @@ const commonBuff2ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: { kind: 'stringNode', nodeId: 'data_1' },
+            buffs: [
+              {
+                buffId: { kind: 'stringNode', nodeId: 'data_1' },
+                copiedBlackboardAssignments: { rate: 'rate', duration: 'duration' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
             asChildBuff: true,
-            copiedBlackboardAssignments: { rate: 'rate', duration: 'duration' },
           },
         },
         next: null,
@@ -162,13 +170,17 @@ const commonBuff3ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: { kind: 'stringNode', nodeId: 'data_1' },
+            buffs: [
+              {
+                buffId: { kind: 'stringNode', nodeId: 'data_1' },
+                copiedBlackboardAssignments: { rate: 'rate', duration: 'duration' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
             asChildBuff: true,
-            copiedBlackboardAssignments: { rate: 'rate', duration: 'duration' },
           },
         },
         next: null,
@@ -209,13 +221,17 @@ const commonBuff4ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: { kind: 'stringNode', nodeId: 'data_1' },
+            buffs: [
+              {
+                buffId: { kind: 'stringNode', nodeId: 'data_1' },
+                copiedBlackboardAssignments: { rate: 'rate', duration: 'duration' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
             asChildBuff: true,
-            copiedBlackboardAssignments: { rate: 'rate', duration: 'duration' },
           },
         },
         next: null,
@@ -294,13 +310,17 @@ const commonBuff6ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: { kind: 'stringNode', nodeId: 'data_1' },
+            buffs: [
+              {
+                buffId: { kind: 'stringNode', nodeId: 'data_1' },
+                copiedBlackboardAssignments: { rate: 'rate', duration: 'duration' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
             asChildBuff: true,
-            copiedBlackboardAssignments: { rate: 'rate', duration: 'duration' },
           },
         },
         next: null,
@@ -379,13 +399,17 @@ const commonBuff8ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: { kind: 'stringNode', nodeId: 'data_1' },
+            buffs: [
+              {
+                buffId: { kind: 'stringNode', nodeId: 'data_1' },
+                copiedBlackboardAssignments: { rate: 'rate', duration: 'duration' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
             asChildBuff: true,
-            copiedBlackboardAssignments: { rate: 'rate', duration: 'duration' },
           },
         },
         next: null,
@@ -486,13 +510,17 @@ const commonBuff10ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: { kind: 'stringNode', nodeId: 'data_1' },
+            buffs: [
+              {
+                buffId: { kind: 'stringNode', nodeId: 'data_1' },
+                copiedBlackboardAssignments: { rate: 'rate', duration: 'duration' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
             asChildBuff: true,
-            copiedBlackboardAssignments: { rate: 'rate', duration: 'duration' },
           },
         },
         next: null,
@@ -572,12 +600,16 @@ const commonBuff12ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_affixes_skillimbue_atk',
+            buffs: [
+              {
+                buffId: 'buff_common_affixes_skillimbue_atk',
+                copiedBlackboardAssignments: { imbue_scale: 'imbue_scale' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
-            copiedBlackboardAssignments: { imbue_scale: 'imbue_scale' },
           },
         },
         next: 'skillAffix_2',
@@ -712,13 +744,17 @@ const commonBuff14ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: { kind: 'stringNode', nodeId: 'data_1' },
+            buffs: [
+              {
+                buffId: { kind: 'stringNode', nodeId: 'data_1' },
+                copiedBlackboardAssignments: { rate: 'rate', duration: 'duration' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
             asChildBuff: true,
-            copiedBlackboardAssignments: { rate: 'rate', duration: 'duration' },
           },
         },
         next: null,
@@ -796,12 +832,16 @@ const commonBuff16ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: { kind: 'stringNode', nodeId: 'data_1' },
+            buffs: [
+              {
+                buffId: { kind: 'stringNode', nodeId: 'data_1' },
+                copiedBlackboardAssignments: { rate: 'rate', duration: 'duration' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
-            copiedBlackboardAssignments: { rate: 'rate', duration: 'duration' },
           },
         },
         next: null,
@@ -837,13 +877,17 @@ const commonBuff17ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: { kind: 'stringNode', nodeId: 'data_1' },
+            buffs: [
+              {
+                buffId: { kind: 'stringNode', nodeId: 'data_1' },
+                copiedBlackboardAssignments: { rate: 'rate', duration: 'duration' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
             asChildBuff: true,
-            copiedBlackboardAssignments: { rate: 'rate', duration: 'duration' },
           },
         },
         next: null,
@@ -943,13 +987,17 @@ const commonBuff20ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: { kind: 'stringNode', nodeId: 'data_1' },
+            buffs: [
+              {
+                buffId: { kind: 'stringNode', nodeId: 'data_1' },
+                copiedBlackboardAssignments: { rate: 'rate', duration: 'duration' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
             asChildBuff: true,
-            copiedBlackboardAssignments: { rate: 'rate', duration: 'duration' },
           },
         },
         next: null,
@@ -994,13 +1042,17 @@ const commonBuff21ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: { kind: 'stringNode', nodeId: 'data_1' },
+            buffs: [
+              {
+                buffId: { kind: 'stringNode', nodeId: 'data_1' },
+                copiedBlackboardAssignments: { rate: 'rate', duration: 'duration' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
             asChildBuff: true,
-            copiedBlackboardAssignments: { rate: 'rate', duration: 'duration' },
           },
         },
         next: null,
@@ -1062,13 +1114,17 @@ const commonBuff23ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: { kind: 'stringNode', nodeId: 'data_1' },
+            buffs: [
+              {
+                buffId: { kind: 'stringNode', nodeId: 'data_1' },
+                copiedBlackboardAssignments: { rate: 'rate', duration: 'duration' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
             asChildBuff: true,
-            copiedBlackboardAssignments: { rate: 'rate', duration: 'duration' },
           },
         },
         next: null,
@@ -1150,13 +1206,17 @@ const commonBuff25ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: { kind: 'stringNode', nodeId: 'data_1' },
+            buffs: [
+              {
+                buffId: { kind: 'stringNode', nodeId: 'data_1' },
+                copiedBlackboardAssignments: { rate: 'rate', duration: 'duration' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
             asChildBuff: true,
-            copiedBlackboardAssignments: { rate: 'rate', duration: 'duration' },
           },
         },
         next: null,
@@ -1239,13 +1299,17 @@ const commonBuff27ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: { kind: 'stringNode', nodeId: 'data_1' },
+            buffs: [
+              {
+                buffId: { kind: 'stringNode', nodeId: 'data_1' },
+                copiedBlackboardAssignments: { rate: 'rate', duration: 'duration' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
             asChildBuff: true,
-            copiedBlackboardAssignments: { rate: 'rate', duration: 'duration' },
           },
         },
         next: null,
@@ -1346,13 +1410,17 @@ const commonBuff29ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: { kind: 'stringNode', nodeId: 'data_1' },
+            buffs: [
+              {
+                buffId: { kind: 'stringNode', nodeId: 'data_1' },
+                copiedBlackboardAssignments: { rate: 'rate', duration: 'duration' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
             asChildBuff: true,
-            copiedBlackboardAssignments: { rate: 'rate', duration: 'duration' },
           },
         },
         next: null,
@@ -1479,16 +1547,20 @@ const commonBuff32ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_cryst_cryst_frozen_triggered_do',
+            buffs: [
+              {
+                buffId: 'buff_common_cryst_cryst_frozen_triggered_do',
+                copiedBlackboardAssignments: {
+                  count: 'count',
+                  duration: 'duration',
+                  consumed_type: 'consumed_type',
+                  consumed_layer: 'consumed_layer',
+                },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: {
-              count: 'count',
-              duration: 'duration',
-              consumed_type: 'consumed_type',
-              consumed_layer: 'consumed_layer',
-            },
           },
         },
         next: null,
@@ -1548,12 +1620,16 @@ const commonBuff33ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_frozen',
+            buffs: [
+              {
+                buffId: 'buff_common_frozen',
+                copiedBlackboardAssignments: { duration: 'duration' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
-            copiedBlackboardAssignments: { duration: 'duration' },
           },
         },
         next: null,
@@ -1570,7 +1646,7 @@ const commonBuff33ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_cryst_triggered_fx',
+            buffs: [{ buffId: 'buff_common_cryst_triggered_fx' }],
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
@@ -1857,15 +1933,19 @@ const commonBuff40ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_dash_immune',
+            buffs: [
+              {
+                buffId: 'buff_common_dash_immune',
+                copiedBlackboardAssignments: {
+                  dodgeSkillId: 'dodgeSkillId',
+                  vfx_buff_name: 'vfx_buff_name',
+                },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
-            copiedBlackboardAssignments: {
-              dodgeSkillId: 'dodgeSkillId',
-              vfx_buff_name: 'vfx_buff_name',
-            },
           },
         },
         next: null,
@@ -2025,9 +2105,9 @@ const commonBuff41ActionGraph = {
         },
         next: 'startTimeDilation_3',
       },
-      changeResourceByActionValue_5: {
+      changeResource_5: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_2' },
@@ -2054,7 +2134,7 @@ const commonBuff41ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_dash_succeed_immune',
+            buffs: [{ buffId: 'buff_common_dash_succeed_immune' }],
             target: 'buffSource',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
@@ -2077,7 +2157,7 @@ const commonBuff41ActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_6' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResourceByActionValue_5' },
+          whenTrue: { $sequence: 'changeResource_5' },
         },
         next: 'recoverDashEnergy_9',
       },
@@ -2188,9 +2268,9 @@ const commonBuff41ActionGraph = {
         },
         next: 'startTimeDilation_13',
       },
-      changeResourceByActionValue_15: {
+      changeResource_15: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_8' },
@@ -2206,7 +2286,7 @@ const commonBuff41ActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_12' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResourceByActionValue_15' },
+          whenTrue: { $sequence: 'changeResource_15' },
         },
         next: 'recoverDashEnergy_9',
       },
@@ -2317,7 +2397,7 @@ const commonBuff42ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_full_immune_weak',
+            buffs: [{ buffId: 'buff_common_full_immune_weak' }],
             target: 'buffOwner',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
@@ -2330,15 +2410,19 @@ const commonBuff42ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_dash_behit_listener',
+            buffs: [
+              {
+                buffId: 'buff_common_dash_behit_listener',
+                copiedBlackboardAssignments: {
+                  dodgeSkillId: 'dodgeSkillId',
+                  vfx_buff_name: 'vfx_buff_name',
+                },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
-            copiedBlackboardAssignments: {
-              dodgeSkillId: 'dodgeSkillId',
-              vfx_buff_name: 'vfx_buff_name',
-            },
           },
         },
         next: null,
@@ -2425,7 +2509,7 @@ const commonBuff43ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_full_immune_weak',
+            buffs: [{ buffId: 'buff_common_full_immune_weak' }],
             target: 'buffOwner',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
@@ -2518,12 +2602,16 @@ const commonBuff45ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_burning_status',
+            buffs: [
+              {
+                buffId: 'buff_common_burning_status',
+                copiedBlackboardAssignments: { burning_atk_scale: 'burning_atk_scale' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
-            copiedBlackboardAssignments: { burning_atk_scale: 'burning_atk_scale' },
           },
         },
         next: null,
@@ -2559,7 +2647,7 @@ const commonBuff45ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_fire_triggered_fx',
+            buffs: [{ buffId: 'buff_common_fire_triggered_fx' }],
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
@@ -2760,12 +2848,16 @@ const commonBuff48ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_do_frozen',
+            buffs: [
+              {
+                buffId: 'buff_common_do_frozen',
+                copiedBlackboardAssignments: { duration: 'duration' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
-            copiedBlackboardAssignments: { duration: 'duration' },
           },
         },
         next: null,
@@ -3128,20 +3220,24 @@ const commonBuff53ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_natural_natural_corrupt_do',
+            buffs: [
+              {
+                buffId: 'buff_common_natural_natural_corrupt_do',
+                copiedBlackboardAssignments: {
+                  def_decrease: 'def_decrease',
+                  max_def_decrease: 'max_def_decrease',
+                  def_decrease_tick: 'def_decrease_tick',
+                  start_def_decrease: 'start_def_decrease',
+                  duration: 'duration',
+                  consumed_type: 'consumed_type',
+                  consumed_layer: 'consumed_layer',
+                  count: 'count',
+                },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: {
-              def_decrease: 'def_decrease',
-              max_def_decrease: 'max_def_decrease',
-              def_decrease_tick: 'def_decrease_tick',
-              start_def_decrease: 'start_def_decrease',
-              duration: 'duration',
-              consumed_type: 'consumed_type',
-              consumed_layer: 'consumed_layer',
-              count: 'count',
-            },
           },
         },
         next: null,
@@ -3552,11 +3648,18 @@ const commonBuff57ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0003_endminf_talent_1_tirgger',
+            buffs: [
+              {
+                buffId: 'buff_chr_0003_endminf_talent_1_tirgger',
+                copiedBlackboardAssignments: {
+                  duration: 'duration_dynamic',
+                  atk_up: 'atk_up_dynamic',
+                },
+              },
+            ],
             target: 'partyExceptCaster',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: { duration: 'duration_dynamic', atk_up: 'atk_up_dynamic' },
           },
         },
         next: null,
@@ -3607,11 +3710,18 @@ const commonBuff57ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0003_endminf_talent_1_tirgger',
+            buffs: [
+              {
+                buffId: 'buff_chr_0003_endminf_talent_1_tirgger',
+                copiedBlackboardAssignments: {
+                  duration: 'duration_dynamic',
+                  atk_up: 'atk_up_dynamic',
+                },
+              },
+            ],
             target: 'buffSource',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: { duration: 'duration_dynamic', atk_up: 'atk_up_dynamic' },
           },
         },
         next: 'conditional_8',
@@ -3648,9 +3758,9 @@ const commonBuff57ActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_13: {
+      changeResource_13: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'ultimateEnergy',
             amount: { kind: 'valueNode', nodeId: 'data_7' },
@@ -3671,7 +3781,7 @@ const commonBuff57ActionGraph = {
             outputKey: 'endmin_usp',
           },
         },
-        next: 'changeResourceByActionValue_13',
+        next: 'changeResource_13',
       },
       conditional_15: {
         action: {
@@ -3977,53 +4087,44 @@ const commonBuff61ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_pulse_pulse_conduct_triggered_do',
+            buffs: [
+              {
+                buffId: 'buff_common_pulse_pulse_conduct_triggered_do',
+                copiedBlackboardAssignments: {
+                  duration: 'real_duration',
+                  count: 'count',
+                  consumed_type: 'consumed_type',
+                  consumed_layer: 'consumed_layer',
+                  extra_scaling: 'extra_scaling',
+                },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: {
-              duration: 'real_duration',
-              count: 'count',
-              consumed_type: 'consumed_type',
-              consumed_layer: 'consumed_layer',
-              extra_scaling: 'extra_scaling',
-            },
           },
         },
         next: null,
       },
-      applyElementalReaction_4: {
-        action: {
-          kind: 'applyElementalReaction',
-          parameters: {
-            reaction: 'electrification',
-            target: 'enemy',
-            durationSeconds: { kind: 'valueNode', nodeId: 'data_3' },
-            effectiveness: 1,
-          },
-        },
-        next: 'applyBuff_3',
-      },
-      conditional_5: {
+      conditional_4: {
         action: {
           kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' }, alwaysNext: true },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_4' }, alwaysNext: true },
           whenTrue: { $sequence: 'modifyActionValue_1' },
           whenFalse: { $sequence: 'readSkillSettingData_2' },
         },
-        next: 'applyElementalReaction_4',
+        next: 'applyBuff_3',
       },
     },
     dataNodes: {
       data_1: { type: 'number', expression: { kind: 'blackboard', key: 'duration' } },
       data_2: { type: 'number', expression: { kind: 'blackboard', key: 'count' } },
-      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'real_duration' } },
-      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'duration', fallback: 0 } },
-      data_5: {
+      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'duration', fallback: 0 } },
+      data_4: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_4' },
+          left: { kind: 'valueNode', nodeId: 'data_3' },
           operator: 'greater',
           right: { kind: 'constant', value: 0 },
         },
@@ -4049,7 +4150,7 @@ const commonBuff61: SkillBuffDefinition = {
     real_duration: 0,
   },
   attributeModifiers: [],
-  lifecycleSequences: { start: { $sequence: 'conditional_5' } },
+  lifecycleSequences: { start: { $sequence: 'conditional_4' } },
   actionGraph: commonBuff61ActionGraph,
 };
 
@@ -4060,7 +4161,7 @@ const commonBuff62ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_pulse_triggered_fx',
+            buffs: [{ buffId: 'buff_common_pulse_triggered_fx' }],
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
@@ -4379,11 +4480,15 @@ const commonBuff65ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_physical_no_guard',
+            buffs: [
+              {
+                buffId: 'buff_physical_no_guard',
+                blackboardAssignments: { skip_handle_cryst_break: { kind: 'constant', value: 1 } },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
-            blackboardAssignments: { skip_handle_cryst_break: { kind: 'constant', value: 1 } },
           },
         },
         next: null,
@@ -4427,7 +4532,7 @@ const commonBuff65ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_physical_handle_cryst_break',
+            buffs: [{ buffId: 'buff_physical_handle_cryst_break' }],
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
@@ -4613,7 +4718,7 @@ const commonBuff66ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_physical_handle_cryst_break',
+            buffs: [{ buffId: 'buff_physical_handle_cryst_break' }],
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
@@ -4920,7 +5025,7 @@ const commonBuff67ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_physical_handle_cryst_break',
+            buffs: [{ buffId: 'buff_physical_handle_cryst_break' }],
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
@@ -5216,11 +5321,15 @@ const commonBuff68ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_physical_do_fracture',
+            buffs: [
+              {
+                buffId: 'buff_physical_do_fracture',
+                copiedBlackboardAssignments: { duration: 'duration' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: { duration: 'duration' },
           },
         },
         next: null,
@@ -5384,11 +5493,15 @@ const commonBuff69ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_cryst_triggered_physical_break',
+            buffs: [
+              {
+                buffId: 'buff_common_cryst_triggered_physical_break',
+                copiedBlackboardAssignments: { atk_scale: 'atk_scale' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: { atk_scale: 'atk_scale' },
           },
         },
         next: 'switch_6',
@@ -5469,11 +5582,15 @@ const commonBuff70ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_physical_no_guard',
+            buffs: [
+              {
+                buffId: 'buff_physical_no_guard',
+                blackboardAssignments: { skip_handle_cryst_break: { kind: 'constant', value: 1 } },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
-            blackboardAssignments: { skip_handle_cryst_break: { kind: 'constant', value: 1 } },
           },
         },
         next: null,
@@ -5517,7 +5634,7 @@ const commonBuff70ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_physical_handle_cryst_break',
+            buffs: [{ buffId: 'buff_physical_handle_cryst_break' }],
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
@@ -5624,7 +5741,7 @@ const commonBuff71ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_physical_handle_cryst_break',
+            buffs: [{ buffId: 'buff_physical_handle_cryst_break' }],
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
@@ -5644,7 +5761,7 @@ const commonBuff71ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_physical_no_guard_fake',
+            buffs: [{ buffId: 'buff_physical_no_guard_fake' }],
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,

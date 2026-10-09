@@ -12,13 +12,17 @@ const definition = {
           action: {
             kind: 'applyBuff',
             parameters: {
-              buffId: 'buff_equipsuit_usp_02',
+              buffs: [
+                {
+                  buffId: 'buff_equipsuit_usp_02',
+                  blackboardAssignments: {
+                    hp_up: { kind: 'constant', value: 1000 },
+                    dmg_up: { kind: 'constant', value: 0.16 },
+                    duration: { kind: 'constant', value: 15 },
+                  },
+                },
+              ],
               target: 'caster',
-              blackboardAssignments: {
-                hp_up: { kind: 'constant', value: 1000 },
-                dmg_up: { kind: 'constant', value: 0.16 },
-                duration: { kind: 'constant', value: 15 },
-              },
             },
           },
           next: null,
@@ -50,11 +54,15 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_equipsuit_usp_02_AddAttack',
+                  buffs: [
+                    {
+                      buffId: 'buff_equipsuit_usp_02_AddAttack',
+                      copiedBlackboardAssignments: { dmg_up: 'dmg_up', duration: 'duration' },
+                    },
+                  ],
                   target: 'partyExceptCaster',
                   source: 'buffOwner',
                   inheritSourceSkillCastInfo: true,
-                  copiedBlackboardAssignments: { dmg_up: 'dmg_up', duration: 'duration' },
                 },
               },
               next: null,

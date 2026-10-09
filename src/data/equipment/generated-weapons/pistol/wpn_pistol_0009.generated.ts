@@ -147,14 +147,18 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_pistol_0009_dmg_taken_up_f',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_pistol_0009_dmg_taken_up_f',
+                      copiedBlackboardAssignments: {
+                        damage_taken_up_fire: 'dmg_taken_up',
+                        duration: 'duration',
+                        lv: 'lv',
+                      },
+                    },
+                  ],
                   target: 'eventTarget',
                   inheritSourceSkillCastInfo: true,
-                  copiedBlackboardAssignments: {
-                    damage_taken_up_fire: 'dmg_taken_up',
-                    duration: 'duration',
-                    lv: 'lv',
-                  },
                 },
               },
               next: 'setGlobalCooldown_1',
@@ -163,10 +167,14 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_pistol_0009_cd',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_pistol_0009_cd',
+                      copiedBlackboardAssignments: { cd: 'cd' },
+                    },
+                  ],
                   target: 'caster',
                   inheritSourceSkillCastInfo: true,
-                  copiedBlackboardAssignments: { cd: 'cd' },
                 },
               },
               next: 'applyBuff_2',
@@ -191,14 +199,18 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_pistol_0009_dmg_taken_up_p',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_pistol_0009_dmg_taken_up_p',
+                      copiedBlackboardAssignments: {
+                        damage_taken_up_pulse: 'dmg_taken_up',
+                        duration: 'duration',
+                        lv: 'lv',
+                      },
+                    },
+                  ],
                   target: 'eventTarget',
                   inheritSourceSkillCastInfo: true,
-                  copiedBlackboardAssignments: {
-                    damage_taken_up_pulse: 'dmg_taken_up',
-                    duration: 'duration',
-                    lv: 'lv',
-                  },
                 },
               },
               next: 'setGlobalCooldown_1',
@@ -207,10 +219,14 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_pistol_0009_cd',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_pistol_0009_cd',
+                      copiedBlackboardAssignments: { cd: 'cd' },
+                    },
+                  ],
                   target: 'caster',
                   inheritSourceSkillCastInfo: true,
-                  copiedBlackboardAssignments: { cd: 'cd' },
                 },
               },
               next: 'applyBuff_7',
@@ -235,14 +251,18 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_pistol_0009_dmg_taken_up_c',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_pistol_0009_dmg_taken_up_c',
+                      copiedBlackboardAssignments: {
+                        damage_taken_up_cryst: 'dmg_taken_up',
+                        duration: 'duration',
+                        lv: 'lv',
+                      },
+                    },
+                  ],
                   target: 'eventTarget',
                   inheritSourceSkillCastInfo: true,
-                  copiedBlackboardAssignments: {
-                    damage_taken_up_cryst: 'dmg_taken_up',
-                    duration: 'duration',
-                    lv: 'lv',
-                  },
                 },
               },
               next: 'setGlobalCooldown_1',
@@ -251,10 +271,14 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_pistol_0009_cd',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_pistol_0009_cd',
+                      copiedBlackboardAssignments: { cd: 'cd' },
+                    },
+                  ],
                   target: 'caster',
                   inheritSourceSkillCastInfo: true,
-                  copiedBlackboardAssignments: { cd: 'cd' },
                 },
               },
               next: 'applyBuff_12',
@@ -279,14 +303,18 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_pistol_0009_dmg_taken_up_n',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_pistol_0009_dmg_taken_up_n',
+                      copiedBlackboardAssignments: {
+                        damage_taken_up_natural: 'dmg_taken_up',
+                        duration: 'duration',
+                        lv: 'lv',
+                      },
+                    },
+                  ],
                   target: 'eventTarget',
                   inheritSourceSkillCastInfo: true,
-                  copiedBlackboardAssignments: {
-                    damage_taken_up_natural: 'dmg_taken_up',
-                    duration: 'duration',
-                    lv: 'lv',
-                  },
                 },
               },
               next: 'setGlobalCooldown_1',
@@ -295,10 +323,14 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_pistol_0009_cd',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_pistol_0009_cd',
+                      copiedBlackboardAssignments: { cd: 'cd' },
+                    },
+                  ],
                   target: 'caster',
                   inheritSourceSkillCastInfo: true,
-                  copiedBlackboardAssignments: { cd: 'cd' },
                 },
               },
               next: 'applyBuff_17',

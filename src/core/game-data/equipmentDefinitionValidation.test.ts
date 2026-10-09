@@ -21,7 +21,10 @@ describe('equipmentDefinitionValidation', () => {
             main: {
               nodes: {
                 apply: {
-                  action: { kind: 'applyBuff', parameters: { buffId: 'owned', target: 'caster' } },
+                  action: {
+                    kind: 'applyBuff',
+                    parameters: { buffs: [{ buffId: 'owned' }], target: 'caster' },
+                  },
                   next: null,
                 },
               },
@@ -222,7 +225,7 @@ describe('equipmentDefinitionValidation', () => {
               entry: {
                 action: {
                   kind: 'applyBuff',
-                  parameters: { buffId: 'buff.fixture-set', target: 'caster' },
+                  parameters: { buffs: [{ buffId: 'buff.fixture-set' }], target: 'caster' },
                 },
                 next: null,
               },

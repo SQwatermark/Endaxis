@@ -111,8 +111,6 @@ it.each(['repeat', 'convert', 'consume'])(
         expect(tail.endFrame).toBe(finished[0]!.frame);
         expect(tail.endFrame).toBeGreaterThan(180);
         expect(tail.endFrame).toBeLessThan(240);
-        // 旧版 ENEMY_EFFECT_EXPIRE 只截短持续段；不为原生消费制造额外图标。
-        expect(viz.markers.filter(marker => marker.kind === 'reactionConsumed')).toEqual([]);
       }
       return;
     }

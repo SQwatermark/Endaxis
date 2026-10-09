@@ -51,14 +51,18 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_sword_0006_valid',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_sword_0006_valid',
+                      copiedBlackboardAssignments: {
+                        normal_atk_up_valid: 'normal_atk_up',
+                        duration: 'duration',
+                      },
+                    },
+                  ],
                   target: 'caster',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: {
-                    normal_atk_up_valid: 'normal_atk_up',
-                    duration: 'duration',
-                  },
                 },
               },
               next: null,

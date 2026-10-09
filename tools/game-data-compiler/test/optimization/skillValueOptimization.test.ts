@@ -24,7 +24,7 @@ const assign = (key: string, value: number): CombatStepForKind<'modifyActionValu
   parameters: { key, operation: 'assign', value: literal(value) },
 });
 const spend = (key: string): ActionGraphStep => ({
-  kind: 'changeResourceByActionValue',
+  kind: 'changeResource',
   parameters: { resource: 'sp', recipient: 'team', amount: board(key) },
 });
 const signal: ActionGraphStep = {
@@ -104,8 +104,12 @@ function executeSkillPrograms(input: SkillDefinition): readonly number[] {
   const observed: number[] = [];
   const operations = new ActionBlackboardOperationExecutor({
     execute(step, context) {
-      if (step.kind === 'changeResourceByActionValue') {
-        observed.push(resolveActionValueOperand(step.parameters.amount, context!.blackboard));
+      if (step.kind === 'changeResource') {
+        observed.push(
+          typeof step.parameters.amount === 'number'
+            ? step.parameters.amount
+            : resolveActionValueOperand(step.parameters.amount, context!.blackboard),
+        );
       }
       return true;
     },
@@ -157,7 +161,7 @@ describe('技能黑板和算术写入裁剪', () => {
               },
             },
             {
-              kind: 'changeResourceByActionValue',
+              kind: 'changeResource',
               parameters: { resource: 'sp', recipient: 'team', amount: board('second') },
             },
           ]),
@@ -229,7 +233,7 @@ describe('技能黑板和算术写入裁剪', () => {
           startFrame: 10,
           sequence: chain(nodes, 'later', [
             {
-              kind: 'changeResourceByActionValue',
+              kind: 'changeResource',
               parameters: { resource: 'sp', recipient: 'team', amount: board('later') },
             },
           ]),
@@ -246,7 +250,7 @@ describe('技能黑板和算术写入裁剪', () => {
                     event: { kind: 'skillHit', skillKey: 'battleSkill', scope: 'operator' },
                     sequence: chain(nodes, 'listener-body', [
                       {
-                        kind: 'changeResourceByActionValue',
+                        kind: 'changeResource',
                         parameters: {
                           resource: 'sp',
                           recipient: 'team',

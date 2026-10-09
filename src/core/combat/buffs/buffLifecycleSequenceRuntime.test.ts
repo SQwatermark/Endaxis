@@ -73,7 +73,11 @@ describe('attachBuffLifecycleSequences', () => {
           apply: {
             action: {
               kind: 'applyBuff',
-              parameters: { buffId: childDefinition.id, target: 'caster', finishByAction: true },
+              parameters: {
+                buffs: [{ buffId: childDefinition.id }],
+                target: 'caster',
+                finishByAction: true,
+              },
             },
             next: null,
           },
@@ -1571,7 +1575,7 @@ describe('attachBuffLifecycleSequences', () => {
           {
             kind: 'applyBuff',
             parameters: {
-              buffId: 'aura-child',
+              buffs: [{ buffId: 'aura-child' }],
               target: 'enemy',
               finishByAction: true,
             },

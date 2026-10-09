@@ -195,7 +195,16 @@ export interface ActionGraphExecutionState {
 }
 
 /** 图控制状态中的子项是实际调用帧，不包含子程序定义或执行器。 */
+export interface AuraInfluenceState {
+  readonly target: RuntimeTargetRef;
+  readonly buffs: BuffReference[];
+  active: boolean;
+  enter: ActionGraphExecutionState | null;
+  exit: ActionGraphExecutionState | null;
+}
+
 export type ActionGraphNodeData =
+  | { readonly kind: 'graphAura'; active: boolean; readonly influences: AuraInfluenceState[] }
   | { readonly kind: 'graphMacro'; body: ActionGraphExecutionState | null }
   | {
       readonly kind: 'graphListener';
@@ -218,9 +227,9 @@ export type ActionGraphNodeData =
     }
   | { readonly kind: 'graphGuard'; body: ActionGraphExecutionState | null };
 
-/** 当前动作持有的登记。结束动作时按编号解除，不保存回调。 */
+/** 当前动作按顺序持有的登记；结束时逐项解除，同一动作的多项登记共享寿命。 */
 export interface ActionRegistrationState {
-  registrationId: number | null;
+  registrationIds: number[];
 }
 
 /** 动作负责结束或转交的 Buff；对象句柄由当前分支按引用重新解析。 */

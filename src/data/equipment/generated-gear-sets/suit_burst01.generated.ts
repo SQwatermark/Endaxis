@@ -35,15 +35,19 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_equipsuit_burst_01_spelldmgup',
+                  buffs: [
+                    {
+                      buffId: 'buff_equipsuit_burst_01_spelldmgup',
+                      copiedBlackboardAssignments: {
+                        spell_dmg_up: 'spell_dmg_up',
+                        duration: 'duration',
+                      },
+                    },
+                  ],
                   target: 'buffOwner',
                   source: 'buffOwner',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: {
-                    spell_dmg_up: 'spell_dmg_up',
-                    duration: 'duration',
-                  },
                 },
               },
               next: null,
@@ -264,13 +268,17 @@ const definition = {
           action: {
             kind: 'applyBuff',
             parameters: {
-              buffId: 'buff_equipsuit_burst_01',
+              buffs: [
+                {
+                  buffId: 'buff_equipsuit_burst_01',
+                  blackboardAssignments: {
+                    stack_cond: { kind: 'constant', value: 2 },
+                    spell_dmg_up: { kind: 'constant', value: 0.35 },
+                    duration: { kind: 'constant', value: 15 },
+                  },
+                },
+              ],
               target: 'caster',
-              blackboardAssignments: {
-                stack_cond: { kind: 'constant', value: 2 },
-                spell_dmg_up: { kind: 'constant', value: 0.35 },
-                duration: { kind: 'constant', value: 15 },
-              },
             },
           },
           next: null,

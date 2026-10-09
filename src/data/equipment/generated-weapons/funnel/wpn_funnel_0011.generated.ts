@@ -54,16 +54,20 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_funnel_0011',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_funnel_0011',
+                      copiedBlackboardAssignments: {
+                        spell_dmg_up: 'spell_dmg_up',
+                        spell_dmg_up2: 'spell_dmg_up2',
+                        duration: 'duration',
+                        max_stack: 'max_stack',
+                      },
+                    },
+                  ],
                   target: 'caster',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: {
-                    spell_dmg_up: 'spell_dmg_up',
-                    spell_dmg_up2: 'spell_dmg_up2',
-                    duration: 'duration',
-                    max_stack: 'max_stack',
-                  },
                 },
               },
               next: null,
@@ -150,13 +154,17 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_funnel_0011_valid',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_funnel_0011_valid',
+                      copiedBlackboardAssignments: {
+                        spell_dmg_up: 'spell_dmg_up_final',
+                        duration: 'duration',
+                      },
+                    },
+                  ],
                   target: 'party',
                   inheritSourceSkillCastInfo: true,
-                  copiedBlackboardAssignments: {
-                    spell_dmg_up: 'spell_dmg_up_final',
-                    duration: 'duration',
-                  },
                 },
               },
               next: null,

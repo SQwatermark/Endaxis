@@ -124,7 +124,6 @@ it('恢复环境直接绑定账本和事件目录，不重新登记监听或改�
     saved.environment.postSkillRequestListeners,
   );
   expect(restored.runtimeState.buffProgress).toBe(saved.environment.buffProgress);
-  expect(restored.runtimeState.reactions).toBe(saved.environment.reactions);
   const restoredReceived = vi.fn();
   restored
     .eventsFor('enemy')
@@ -3908,39 +3907,6 @@ describe('StandardPlayerDamageEnvironment', () => {
     );
   });
 
-  it('applies reactions with levels and evaluates reaction conditions', () => {
-    const context = createContext();
-    const receipt = context.receipt as CombatReceiptCollector;
-    const environment = createEnvironment();
-    const executor = environment.runtimeOptions.createOperationExecutor(context);
-    const step = {
-      kind: 'applyElementalReaction' as const,
-      parameters: {
-        reaction: 'electrification' as const,
-        target: 'enemy' as const,
-        durationSeconds: 5,
-        effectiveness: 1,
-      },
-    };
-
-    expect(executor.execute(step)).toBe(true);
-    expect(executor.execute(step)).toBe(true);
-    expect(receipt.entries.at(-1)).toMatchObject({
-      event: 'ElementalReactionApplied',
-      data: { reaction: 'electrification', level: 2, previousLevel: 1 },
-    });
-    expect(
-      executor.evaluate({
-        kind: 'elementalReactionActive',
-        reaction: 'electrification',
-        minimumLevel: 2,
-      }),
-    ).toBe(true);
-    expect(executor.evaluate({ kind: 'elementalReactionActive', reaction: 'corrosion' })).toBe(
-      false,
-    );
-  });
-
   it('rejects operations outside the recovered subset', () => {
     const environment = createEnvironment();
     const executor = environment.runtimeOptions.createOperationExecutor(createContext());
@@ -3948,7 +3914,7 @@ describe('StandardPlayerDamageEnvironment', () => {
     expect(() =>
       executor.execute({
         kind: 'applyBuff',
-        parameters: { buffId: 'buff:missing', target: 'enemy' },
+        parameters: { buffs: [{ buffId: 'buff:missing' }], target: 'enemy' },
       }),
     ).toThrow("does not support 'applyBuff'");
   });

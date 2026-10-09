@@ -51,15 +51,19 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_pistol_0010_valid',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_pistol_0010_valid',
+                      copiedBlackboardAssignments: {
+                        cryst_dmg_up_valid: 'cryst_dmg_up2',
+                        duration: 'duration',
+                        max_stack: 'max_stack',
+                      },
+                    },
+                  ],
                   target: 'caster',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: {
-                    cryst_dmg_up_valid: 'cryst_dmg_up2',
-                    duration: 'duration',
-                    max_stack: 'max_stack',
-                  },
                 },
               },
               next: null,

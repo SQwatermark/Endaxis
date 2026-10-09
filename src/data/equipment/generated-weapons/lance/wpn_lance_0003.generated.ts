@@ -44,9 +44,13 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_lance_0003',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_lance_0003',
+                      blackboardAssignments: { atk_up: { kind: 'valueNode', nodeId: 'data_1' } },
+                    },
+                  ],
                   target: 'caster',
-                  blackboardAssignments: { atk_up: { kind: 'valueNode', nodeId: 'data_1' } },
                 },
               },
               next: null,

@@ -51,14 +51,18 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_claym_0017_dmgup',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_claym_0017_dmgup',
+                      copiedBlackboardAssignments: {
+                        duration: 'duration',
+                        phy_spell_up: 'phy_spell_up',
+                      },
+                    },
+                  ],
                   target: 'caster',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: {
-                    duration: 'duration',
-                    phy_spell_up: 'phy_spell_up',
-                  },
                 },
               },
               next: null,
@@ -75,14 +79,18 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_claym_0017_dmgup2',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_claym_0017_dmgup2',
+                      copiedBlackboardAssignments: {
+                        duration2: 'duration2',
+                        phy_dmg_up_mult: 'phy_dmg_up_final',
+                      },
+                    },
+                  ],
                   target: 'caster',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: {
-                    duration2: 'duration2',
-                    phy_dmg_up_mult: 'phy_dmg_up_final',
-                  },
                 },
               },
               next: null,

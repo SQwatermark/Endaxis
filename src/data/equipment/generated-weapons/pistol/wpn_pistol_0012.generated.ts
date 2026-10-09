@@ -53,14 +53,18 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_pistol_0012_natural',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_pistol_0012_natural',
+                      copiedBlackboardAssignments: {
+                        nature_dmg_up_mult: 'nature_dmg_up',
+                        duration: 'duration',
+                      },
+                    },
+                  ],
                   target: 'caster',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: {
-                    nature_dmg_up_mult: 'nature_dmg_up',
-                    duration: 'duration',
-                  },
                 },
               },
               next: null,

@@ -364,7 +364,10 @@ describe('黑板用途的读取对象', () => {
 it('keeps unresolved string graphs as conservative usage barriers without inventing a blackboard key', () => {
   const stringNode = { kind: 'stringNode' as const, nodeId: 'shared' };
   const usages = [
-    analyzeStepUsage({ kind: 'applyBuff', parameters: { target: 'caster', buffId: stringNode } }),
+    analyzeStepUsage({
+      kind: 'applyBuff',
+      parameters: { buffs: [{ buffId: stringNode }], target: 'caster' },
+    }),
     analyzeStepUsage({
       kind: 'castSkillDuringAction',
       parameters: {

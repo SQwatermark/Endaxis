@@ -154,15 +154,19 @@ export function compileStrictSwitchToBuffCastSource(
     return {
       kind: 'applyBuff' as const,
       parameters: {
-        buffId: requireNonEmptyString(input.buffId, `${path}.buffId`),
+        buffs: [
+          {
+            buffId: requireNonEmptyString(input.buffId, `${path}.buffId`),
+            ...(Object.keys(numericAssignments).length === 0
+              ? {}
+              : { blackboardAssignments: numericAssignments }),
+            ...(Object.keys(stringAssignments).length === 0
+              ? {}
+              : { stringBlackboardAssignments: stringAssignments }),
+          },
+        ],
         target,
         inheritSourceSkillCastInfo: true,
-        ...(Object.keys(numericAssignments).length === 0
-          ? {}
-          : { blackboardAssignments: numericAssignments }),
-        ...(Object.keys(stringAssignments).length === 0
-          ? {}
-          : { stringBlackboardAssignments: stringAssignments }),
       },
     };
   });

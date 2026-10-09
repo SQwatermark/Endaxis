@@ -152,8 +152,6 @@ import {
   type ElementalInflictionEvent,
   type ElementalInflictionEventPayload,
 } from '../infliction/elementalInflictionOperationExecutor';
-import { ElementalReactionOperationExecutor } from '../infliction/elementalReactionOperationExecutor';
-import { ElementalReactionContainer } from '../infliction/elementalReactionState';
 import type {
   CompoundStatusSkillSettingSource,
   SkillSettingsDocument,
@@ -391,7 +389,6 @@ export class StandardPlayerDamageEnvironment {
   #resolveAbilitySystemSourceId: (entityId: string) => string = entityId => entityId;
   #resolveProjectileRuntimeDependencies:
     ((definitionOperatorId: string) => ProjectileRuntimeDependencies) | null = null;
-  readonly #reactions: ElementalReactionContainer;
   readonly #operatorPanels = new Map<string, ResolvedOperatorPanel>();
   readonly #operatorVitals = new Map<string, CombatVitals>();
   readonly #buffProgress: BuffProgressRecorder;
@@ -429,7 +426,6 @@ export class StandardPlayerDamageEnvironment {
     this.#eventStates = options.restoredEventStates ?? new Map();
     this.#postSkillRequestListenerState =
       restored?.postSkillRequestListeners ?? createPostSkillRequestListenerState();
-    this.#reactions = new ElementalReactionContainer(restored?.reactions);
     this.#buffProgress = new BuffProgressRecorder(restored?.buffProgress);
     for (const [operatorId, state] of restored?.operatorVitals ?? []) {
       const vitals = CombatVitals.bindRuntimeState(state);
@@ -538,7 +534,6 @@ export class StandardPlayerDamageEnvironment {
       random: options.randomState ?? null,
       enemyVitals: this.#enemyVitals.runtimeState,
       operatorVitals: new Map(),
-      reactions: this.#reactions.runtimeState,
       knockDown: this.#enemyKnockDown?.runtimeState ?? null,
       buffProgress: this.#buffProgress.runtimeState,
       poiseBreakBuffs: this.#poiseBreakBuffs.runtimeState,
@@ -933,7 +928,7 @@ export class StandardPlayerDamageEnvironment {
       beforePoiseZero: modifier => this.#beginPoiseBreak(modifier.sourceId),
       consumeFinisherEligibility: () => this.#poiseBreakBuffs.consumeFinisher(),
       // 配装元素链仍需独立闭环，不能因 HP 伤害可用而自动开放。
-      delegate: 'program' in context ? this.#createReactionExecutor(context) : strictTerminal,
+      delegate: 'program' in context ? this.#createInflictionExecutor(context) : strictTerminal,
     });
     const delegate = 'program' in context ? this.#createKnockDownExecutor(context, damage) : damage;
     return this.#createHealExecutor(context, operatorId, delegate);
@@ -1027,18 +1022,6 @@ export class StandardPlayerDamageEnvironment {
         );
       },
       delegate,
-    });
-  }
-
-  #createReactionExecutor(context: CombatOperationExecutorContext): CombatOperationExecutor {
-    return new ElementalReactionOperationExecutor({
-      sourceOperatorId: context.program.operatorId,
-      castId: context.castId,
-      targetId: 'enemy',
-      clock: context.clock,
-      receipt: context.receipt,
-      container: this.#reactions,
-      delegate: this.#createInflictionExecutor(context),
     });
   }
 

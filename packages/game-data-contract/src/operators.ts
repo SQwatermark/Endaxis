@@ -116,16 +116,6 @@ export type UpgradeModifierDefinition =
       branchKey: string;
     }
   | {
-      /** 乘算某个技能步骤产生效果的持续时间。 */
-      kind: 'multiplyEffectDuration';
-      /** 目标执行技能；身份在所属定义宿主内唯一，与展示组无关。 */
-      skillKey: string;
-      /** 目标步骤。 */
-      stepKey: string;
-      /** 持续时间乘数。 */
-      multiplier: number;
-    }
-  | {
       /** 乘算技能的资源费用。 */
       kind: 'multiplySkillCost';
       /** 目标执行技能；身份在所属定义宿主内唯一，与展示组无关。 */
@@ -134,16 +124,6 @@ export type UpgradeModifierDefinition =
       resource: CombatResource;
       /** 费用乘数。 */
       multiplier: number;
-    }
-  | {
-      /** 设置一个技能步骤的效果系数。 */
-      kind: 'setEffectiveness';
-      /** 目标执行技能；身份在所属定义宿主内唯一，与展示组无关。 */
-      skillKey: string;
-      /** 目标步骤。 */
-      stepKey: string;
-      /** 新的效果系数。 */
-      value: number;
     }
   | {
       /** 将构筑期常驻增伤写入对应伤害属性；数值使用小数，例如 15% 写作 0.15。 */
@@ -285,9 +265,7 @@ export type UpgradeModifierDefinition =
 export const UPGRADE_MODIFIER_KINDS = [
   'addConditionalDamage',
   'enableSkillBranch',
-  'multiplyEffectDuration',
   'multiplySkillCost',
-  'setEffectiveness',
   'addSkillStat',
   'patchSkillBlackboard',
   'patchPassiveBlackboard',

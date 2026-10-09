@@ -86,7 +86,7 @@ class OperationStep extends StatelessCombatStep {
       step.kind === 'skillAffix' ||
       (step.kind === 'changeSkillSlot' && step.parameters.lifetime !== undefined)
     )
-      this.#registrationState = { registrationId: null };
+      this.#registrationState = { registrationIds: [] };
     if (step.kind === 'applyBuff' && step.parameters.finishByAction === true)
       this.#buffReferencesState = { active: false, references: [] };
     if (step.kind === 'inheritBuffById')
@@ -466,7 +466,21 @@ export class CombatActionSequenceRuntime {
           (reference, context, index, saved) =>
             create(reference, index, this.#graphHost(context), saved),
         ),
-      withTarget: target => this.#graphHost({ ...operationContext, currentTarget: target }),
+      withTarget: (target, asInput) =>
+        this.#graphHost({
+          ...operationContext,
+          currentTarget: target,
+          ...(asInput ? { actionInputTarget: target } : {}),
+        }),
+      aura: parameters => {
+        const operations = this.operations.aura;
+        if (!operations) throw new Error('Aura Buff operations are not configured');
+        return {
+          targets: () => operations.targets(parameters, operationContext),
+          apply: target => operations.apply(parameters, target, operationContext),
+          finish: references => operations.finish(references),
+        };
+      },
       targets: parameters => this.resolveLoopTargets(parameters, operationContext),
       bindOperation: action => this.#createLeafStep(action, operationContext),
       canExecute: () => operationContext.canExecuteAction?.() !== false,

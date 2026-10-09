@@ -54,11 +54,15 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_lance_0015_atkup',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_lance_0015_atkup',
+                      copiedBlackboardAssignments: { atk_up: 'atk_up', duration: 'duration' },
+                    },
+                  ],
                   target: 'party',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: { atk_up: 'atk_up', duration: 'duration' },
                 },
               },
               next: null,
@@ -75,11 +79,18 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_lance_0015_dmgup',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_lance_0015_dmgup',
+                      copiedBlackboardAssignments: {
+                        dmg_up: 'fire_dmg_up',
+                        duration2: 'duration2',
+                      },
+                    },
+                  ],
                   target: 'party',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: { dmg_up: 'fire_dmg_up', duration2: 'duration2' },
                 },
               },
               next: null,

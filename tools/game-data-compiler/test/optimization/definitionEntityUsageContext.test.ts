@@ -49,7 +49,7 @@ const childSkillRuntime = {
   },
 } as const;
 const spend = (key: string): ActionGraphStep => ({
-  kind: 'changeResourceByActionValue',
+  kind: 'changeResource',
   parameters: { resource: 'sp', recipient: 'team', amount: board(key) },
 });
 const assign = (key: string, value: number): ActionGraphStep => ({
@@ -356,8 +356,12 @@ function executeEntitySkill(value: SkillDefinition) {
   const amounts: number[] = [];
   const actionOperations = new ActionBlackboardOperationExecutor({
     execute(step, context) {
-      if (step.kind === 'changeResourceByActionValue')
-        amounts.push(resolveActionValueOperand(step.parameters.amount, context!.blackboard));
+      if (step.kind === 'changeResource')
+        amounts.push(
+          typeof step.parameters.amount === 'number'
+            ? step.parameters.amount
+            : resolveActionValueOperand(step.parameters.amount, context!.blackboard),
+        );
       return true;
     },
     evaluate: () => true,
@@ -409,8 +413,12 @@ describe('跨技能黑板用途', () => {
       const amounts: number[] = [];
       const operations = new ActionBlackboardOperationExecutor({
         execute(step, context) {
-          if (step.kind === 'changeResourceByActionValue')
-            amounts.push(resolveActionValueOperand(step.parameters.amount, context!.blackboard));
+          if (step.kind === 'changeResource')
+            amounts.push(
+              typeof step.parameters.amount === 'number'
+                ? step.parameters.amount
+                : resolveActionValueOperand(step.parameters.amount, context!.blackboard),
+            );
           return true;
         },
         evaluate: () => true,

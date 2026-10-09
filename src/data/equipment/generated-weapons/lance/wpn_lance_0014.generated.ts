@@ -66,15 +66,19 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_lance_0014_damageup',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_lance_0014_damageup',
+                      copiedBlackboardAssignments: {
+                        atk_up: 'atk_up',
+                        duration2: 'duration',
+                        max_stack: 'max_stack',
+                      },
+                    },
+                  ],
                   target: 'eventTarget',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: {
-                    atk_up: 'atk_up',
-                    duration2: 'duration',
-                    max_stack: 'max_stack',
-                  },
                 },
               },
               next: 'createTimedMarker_1',

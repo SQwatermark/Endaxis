@@ -36,9 +36,9 @@ export const wulfgardChr_0006_wolfgd_attack1ActionGraph = {
                 actionGraph: {
                   main: {
                     nodes: {
-                      changeResourceByActionValue_1: {
+                      changeResource_1: {
                         action: {
-                          kind: 'changeResourceByActionValue',
+                          kind: 'changeResource',
                           parameters: {
                             resource: 'sp',
                             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -57,7 +57,7 @@ export const wulfgardChr_0006_wolfgd_attack1ActionGraph = {
                             condition: { kind: 'conditionNode', nodeId: 'data_2' },
                             alwaysNext: true,
                           },
-                          whenTrue: { $sequence: 'changeResourceByActionValue_1' },
+                          whenTrue: { $sequence: 'changeResource_1' },
                         },
                         next: null,
                       },
@@ -131,9 +131,9 @@ export const wulfgardChr_0006_wolfgd_attack1ActionGraph = {
                 actionGraph: {
                   main: {
                     nodes: {
-                      changeResourceByActionValue_1: {
+                      changeResource_1: {
                         action: {
-                          kind: 'changeResourceByActionValue',
+                          kind: 'changeResource',
                           parameters: {
                             resource: 'sp',
                             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -152,7 +152,7 @@ export const wulfgardChr_0006_wolfgd_attack1ActionGraph = {
                             condition: { kind: 'conditionNode', nodeId: 'data_2' },
                             alwaysNext: true,
                           },
-                          whenTrue: { $sequence: 'changeResourceByActionValue_1' },
+                          whenTrue: { $sequence: 'changeResource_1' },
                         },
                         next: null,
                       },
@@ -277,9 +277,9 @@ export const wulfgardChr_0006_wolfgd_attack2ActionGraph = {
                 actionGraph: {
                   main: {
                     nodes: {
-                      changeResourceByActionValue_1: {
+                      changeResource_1: {
                         action: {
-                          kind: 'changeResourceByActionValue',
+                          kind: 'changeResource',
                           parameters: {
                             resource: 'sp',
                             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -298,7 +298,7 @@ export const wulfgardChr_0006_wolfgd_attack2ActionGraph = {
                             condition: { kind: 'conditionNode', nodeId: 'data_2' },
                             alwaysNext: true,
                           },
-                          whenTrue: { $sequence: 'changeResourceByActionValue_1' },
+                          whenTrue: { $sequence: 'changeResource_1' },
                         },
                         next: null,
                       },
@@ -423,9 +423,9 @@ export const wulfgardChr_0006_wolfgd_attack3ActionGraph = {
                 actionGraph: {
                   main: {
                     nodes: {
-                      changeResourceByActionValue_1: {
+                      changeResource_1: {
                         action: {
-                          kind: 'changeResourceByActionValue',
+                          kind: 'changeResource',
                           parameters: {
                             resource: 'sp',
                             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -444,7 +444,7 @@ export const wulfgardChr_0006_wolfgd_attack3ActionGraph = {
                             condition: { kind: 'conditionNode', nodeId: 'data_2' },
                             alwaysNext: true,
                           },
-                          whenTrue: { $sequence: 'changeResourceByActionValue_1' },
+                          whenTrue: { $sequence: 'changeResource_1' },
                         },
                         next: null,
                       },
@@ -570,9 +570,9 @@ export const wulfgardChr_0006_wolfgd_attack4ActionGraph = {
                 actionGraph: {
                   main: {
                     nodes: {
-                      changeResourceByActionValue_1: {
+                      changeResource_1: {
                         action: {
-                          kind: 'changeResourceByActionValue',
+                          kind: 'changeResource',
                           parameters: {
                             resource: 'sp',
                             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -591,7 +591,7 @@ export const wulfgardChr_0006_wolfgd_attack4ActionGraph = {
                             condition: { kind: 'conditionNode', nodeId: 'data_2' },
                             alwaysNext: true,
                           },
-                          whenTrue: { $sequence: 'changeResourceByActionValue_1' },
+                          whenTrue: { $sequence: 'changeResource_1' },
                         },
                         next: null,
                       },
@@ -722,7 +722,7 @@ export const wulfgardChr_0006_wolfgd_power_attackActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_full_immune_medium',
+            buffs: [{ buffId: 'buff_common_full_immune_medium' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -734,7 +734,7 @@ export const wulfgardChr_0006_wolfgd_power_attackActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_power_attack_disable_cast_skill',
+            buffs: [{ buffId: 'buff_common_power_attack_disable_cast_skill' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -1143,9 +1143,9 @@ export const wulfgardChr_0006_wolfgd_normal_skillActionGraph = {
                         },
                         next: null,
                       },
-                      changeResourceByActionValue_2: {
+                      changeResource_2: {
                         action: {
-                          kind: 'changeResourceByActionValue',
+                          kind: 'changeResource',
                           parameters: {
                             resource: 'sp',
                             amount: { kind: 'valueNode', nodeId: 'data_4' },
@@ -1166,7 +1166,7 @@ export const wulfgardChr_0006_wolfgd_normal_skillActionGraph = {
                           },
                           whenTrue: { $sequence: 'modifyActionValue_1' },
                         },
-                        next: 'changeResourceByActionValue_2',
+                        next: 'changeResource_2',
                       },
                       dealDamage_4: {
                         action: {
@@ -1347,10 +1347,14 @@ export const wulfgardChr_0006_wolfgd_normal_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0006_wolfgd_talent_0_effectbuff',
+            buffs: [
+              {
+                buffId: 'buff_chr_0006_wolfgd_talent_0_effectbuff',
+                copiedBlackboardAssignments: { add: 'teammate_percent', duration: 'duration' },
+              },
+            ],
             target: 'party',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: { add: 'teammate_percent', duration: 'duration' },
           },
         },
         next: null,
@@ -1370,10 +1374,14 @@ export const wulfgardChr_0006_wolfgd_normal_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0006_wolfgd_talent_0_effectbuff',
+            buffs: [
+              {
+                buffId: 'buff_chr_0006_wolfgd_talent_0_effectbuff',
+                copiedBlackboardAssignments: { add: 'add', duration: 'duration' },
+              },
+            ],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: { add: 'add', duration: 'duration' },
           },
         },
         next: 'modifyActionValue_13',
@@ -1788,7 +1796,7 @@ export const wulfgardChr_0006_wolfgd_ultimate_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_fire_fire_burning_triggered',
+            buffs: [{ buffId: 'buff_common_fire_fire_burning_triggered' }],
             target: 'enemy',
             inheritSourceSkillCastInfo: true,
           },
@@ -1826,7 +1834,7 @@ export const wulfgardChr_0006_wolfgd_ultimate_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_damage_immune_ult_skill',
+            buffs: [{ buffId: 'buff_common_damage_immune_ult_skill' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -1967,11 +1975,15 @@ const wulfgardBuff1ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0006_wolfgd_talent_0_effectbuff',
+            buffs: [
+              {
+                buffId: 'buff_chr_0006_wolfgd_talent_0_effectbuff',
+                copiedBlackboardAssignments: { duration: 'duration', add: 'add' },
+              },
+            ],
             target: 'buffSource',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: { duration: 'duration', add: 'add' },
           },
         },
         next: null,
@@ -2253,9 +2265,9 @@ export const wulfgard: OperatorDefinition = {
         actionGraph: {
           main: {
             nodes: {
-              changeResourceByActionValue_1: {
+              changeResource_1: {
                 action: {
-                  kind: 'changeResourceByActionValue',
+                  kind: 'changeResource',
                   parameters: {
                     resource: 'ultimateEnergy',
                     amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -2277,7 +2289,7 @@ export const wulfgard: OperatorDefinition = {
                   },
                   key: 'abilityentity_chr_0006_wolfgd_combo_skill:chr_0006_wolfgd_combo_skill_abilityrange:/childSkill/actionGraph/main/nodes/dealDamage_2/action',
                 },
-                next: 'changeResourceByActionValue_1',
+                next: 'changeResource_1',
               },
               applyElementalInfliction_3: {
                 action: {

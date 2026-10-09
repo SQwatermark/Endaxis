@@ -59,15 +59,19 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_claym_0016_dmgup',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_claym_0016_dmgup',
+                      copiedBlackboardAssignments: {
+                        max_stack: 'max_stack',
+                        phy_dmg_up: 'phy_dmg_up2',
+                        duration: 'duration',
+                      },
+                    },
+                  ],
                   target: 'caster',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: {
-                    max_stack: 'max_stack',
-                    phy_dmg_up: 'phy_dmg_up2',
-                    duration: 'duration',
-                  },
                 },
               },
               next: 'createTimedMarker_1',

@@ -261,7 +261,10 @@ describe('从原始文件独立编译定义', () => {
       planEntry !== null &&
         planEntry !== undefined &&
         plan?.actionGraph.main.nodes[planEntry]?.action,
-    ).toMatchObject({ kind: 'applyBuff', parameters: { buffId: 'buff_fixture', target: 'enemy' } });
+    ).toMatchObject({
+      kind: 'applyBuff',
+      parameters: { buffs: [{ buffId: 'buff_fixture' }], target: 'enemy' },
+    });
     expect(compiled.enemyMaxHealthPlans).toEqual([{ tagId: 2, multiplier: 1.5 }]);
     expect(compiled.scope.supportedTagIds).toEqual(new Set([1]));
     expect(compiled.revision).toBe('fixture@1');

@@ -8,7 +8,6 @@ export type BlackboardMappingDestination =
   | 'childAction'
   | 'childEntity'
   | 'buff'
-  | 'exitBuff'
   | 'globalBuffChild'
   | 'abilityEntity'
   | 'globalBuff'
@@ -24,9 +23,6 @@ const declarations = [
   ['withActionBlackboardScope', 'initialValues', 'levels', 'childAction'],
   ['withActionBlackboardScope', 'entityInitialValues', 'levels', 'childEntity'],
   ['withActionBlackboardScope', 'entityAssignments', 'operand', 'childEntity'],
-  ['applyBuff', 'blackboardAssignments', 'levelsOrOperand', 'buff'],
-  ['applyBuff', 'stringBlackboardAssignments', 'string', 'buff'],
-  ['applyBuff', 'copiedBlackboardAssignments', 'copy', 'buff'],
   ['spawnAbilityEntity', 'blackboardAssignments', 'operand', 'abilityEntity'],
   ['spawnAbilityEntity', 'stringBlackboardAssignments', 'string', 'abilityEntity'],
   ['createGlobalBuff', 'blackboardAssignments', 'operand', 'globalBuff'],
@@ -53,21 +49,30 @@ export function resolveBlackboardMapping(
   const fieldName = name ?? (node ? schema.path.at(-1) : undefined);
   const shape = node ? schema.valueSchema : schema;
   if (shape.kind !== 'record' || !shape.declaration) return undefined;
-  // Exit Buff assignments have a distinct declaration and operand-only numeric values.
+  // applyBuff 与 Aura 共用条目声明，嵌套黑板映射仍属于接收 Buff。
   if (
     !node &&
-    ['blackboardAssignments', 'stringBlackboardAssignments'].includes(String(fieldName))
+    [
+      'blackboardAssignments',
+      'stringBlackboardAssignments',
+      'copiedBlackboardAssignments',
+    ].includes(String(fieldName))
   ) {
     const root = actionNodeSchemas.applyBuff.fields.find(
-      field => field.path.at(-1) === 'onActionEndBuffs',
+      field => field.path.at(-1) === 'buffs',
     )?.valueSchema;
     const formal =
       root?.kind === 'array' && root.element.kind === 'object'
         ? root.element.fields[String(fieldName)]
         : undefined;
-    const value = fieldName === 'blackboardAssignments' ? 'operand' : 'string';
+    const value =
+      fieldName === 'blackboardAssignments'
+        ? 'levelsOrOperand'
+        : fieldName === 'copiedBlackboardAssignments'
+          ? 'copy'
+          : 'string';
     if (sameFieldDeclaration(formal, shape) && matchesValue(shape.value, value))
-      return { value, destination: 'exitBuff' };
+      return { value, destination: 'buff' };
   }
   if (!node && fieldName === 'blackboardAssignments' && matchesValue(shape.value, 'operand')) {
     const root = actionNodeSchemas.createGlobalBuff.fields.find(

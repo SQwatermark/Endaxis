@@ -54,14 +54,18 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_sword_0020_cryst',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_sword_0020_cryst',
+                      copiedBlackboardAssignments: {
+                        cryst_dmg_up: 'cryst_dmg_up',
+                        duration: 'duration',
+                      },
+                    },
+                  ],
                   target: 'eventTarget',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: {
-                    cryst_dmg_up: 'cryst_dmg_up',
-                    duration: 'duration',
-                  },
                 },
               },
               next: null,

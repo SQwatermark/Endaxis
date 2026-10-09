@@ -153,9 +153,13 @@ it('records string operand reads and copied-source reads without fabricating dyn
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: { kind: 'stringNode', nodeId: 'buffId' },
+            buffs: [
+              {
+                buffId: { kind: 'stringNode', nodeId: 'buffId' },
+                copiedBlackboardAssignments: { targetKey: 'sourceKey' },
+              },
+            ],
             target: 'caster',
-            copiedBlackboardAssignments: { targetKey: 'sourceKey' },
           },
         },
         next: null,

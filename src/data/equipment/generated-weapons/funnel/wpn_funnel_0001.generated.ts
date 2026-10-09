@@ -79,9 +79,13 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_funnel_0001',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_funnel_0001',
+                      blackboardAssignments: { atk_up: { kind: 'valueNode', nodeId: 'data_1' } },
+                    },
+                  ],
                   target: 'caster',
-                  blackboardAssignments: { atk_up: { kind: 'valueNode', nodeId: 'data_1' } },
                 },
               },
               next: null,

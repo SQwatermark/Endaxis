@@ -189,7 +189,7 @@ describe('CombatActionSequenceRuntime', () => {
     const definition = chainEntry('basic-attack-restore', [
       {
         kind: 'overrideBasicAttackMapping',
-        parameters: { skillId: 'current' },
+        parameters: { skillIds: ['current', 'current.next'] },
       },
     ]);
     const action = first.runtime.createSequence(definition);
@@ -199,7 +199,7 @@ describe('CombatActionSequenceRuntime', () => {
     const second = bind(restored);
     const resumed = second.runtime.createSequence(definition, second.context, saved.action);
     expect(second.register).not.toHaveBeenCalled();
-    expect(saved.ability.nextBasicAttackMappingId).toBe(2);
+    expect(saved.ability.nextBasicAttackMappingId).toBe(3);
     restored.overrideBasicAttackMapping('later');
     resumed.end({});
     resumed.end({});
@@ -207,6 +207,7 @@ describe('CombatActionSequenceRuntime', () => {
     expect([...original.runtimeState.buffBasicAttackMappings.values()]).toEqual([
       'earlier',
       'current',
+      'current.next',
     ]);
     expect(second.context).not.toHaveProperty('actionRegistrationState');
   });
@@ -270,16 +271,16 @@ describe('CombatActionSequenceRuntime', () => {
               if (step.kind !== 'skillAffix') return false;
               const state = operationContext?.actionRegistrationState;
               if (state === undefined) throw new Error('missing SkillAffix action data');
-              state.registrationId = 17;
+              state.registrationIds = [17];
               installed.push(17);
               return true;
             },
             end: (step, operationContext) => {
               if (step.kind !== 'skillAffix') return;
               const state = operationContext?.actionRegistrationState;
-              if (state?.registrationId === null || state?.registrationId === undefined) return;
-              finished.push(state.registrationId);
-              state.registrationId = null;
+              if (state === undefined) return;
+              finished.push(...state.registrationIds);
+              state.registrationIds = [];
             },
             evaluate: () => false,
           },
@@ -808,7 +809,7 @@ describe('CombatActionSequenceRuntime', () => {
             action: {
               kind: 'applyBuff',
               parameters: {
-                buffId: 'fixture',
+                buffs: [{ buffId: 'fixture' }],
                 target: 'caster',
                 finishByAction: true,
               },

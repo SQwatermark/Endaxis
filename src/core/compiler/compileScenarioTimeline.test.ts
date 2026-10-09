@@ -940,7 +940,9 @@ it('不含过渡总图的干员能分别编译主动技能与常驻被动', () =
   ).toMatchObject([
     {
       kind: 'applyBuff',
-      parameters: { buffId: 'native-buff', blackboardAssignments: { power: { value: 7 } } },
+      parameters: {
+        buffs: [{ buffId: 'native-buff', blackboardAssignments: { power: { value: 7 } } }],
+      },
     },
   ]);
 });

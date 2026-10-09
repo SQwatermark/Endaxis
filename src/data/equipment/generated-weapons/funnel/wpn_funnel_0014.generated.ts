@@ -61,11 +61,19 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_funnel_0014_up',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_funnel_0014_up',
+                      copiedBlackboardAssignments: {
+                        dmg_up: 'dmg_up',
+                        duration: 'duration',
+                        lv: 'lv',
+                      },
+                    },
+                  ],
                   target: 'party',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: { dmg_up: 'dmg_up', duration: 'duration', lv: 'lv' },
                 },
               },
               next: null,

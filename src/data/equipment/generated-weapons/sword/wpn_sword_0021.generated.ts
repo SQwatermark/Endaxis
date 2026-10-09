@@ -67,11 +67,15 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_sword_0021_exist',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_sword_0021_exist',
+                      copiedBlackboardAssignments: { duration: 'duration' },
+                    },
+                  ],
                   target: 'caster',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: { duration: 'duration' },
                 },
               },
               next: null,
@@ -96,11 +100,15 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_sword_0021_valid',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_sword_0021_valid',
+                      copiedBlackboardAssignments: { phy_dmg_up: 'phy_dmg_up' },
+                    },
+                  ],
                   target: 'caster',
                   inheritSourceSkillCastInfo: true,
                   lifetimeOwner: 'currentCastSkill',
-                  copiedBlackboardAssignments: { phy_dmg_up: 'phy_dmg_up' },
                 },
               },
               next: null,

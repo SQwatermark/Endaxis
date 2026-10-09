@@ -22,7 +22,8 @@ export function graphOperandSchemas(
   if (!switchOptions && (path.length !== 2 || path[0] !== 'parameters')) return;
   const slots: Readonly<Record<string, Readonly<Record<string, readonly string[]>>>> = {
     dealDamage: { instantAttributeModifiers: ['value'], instantDamageScaleModifiers: ['addition'] },
-    applyBuff: { keywordEnhancements: ['value'], onActionEndBuffs: ['blackboardAssignments', '*'] },
+    applyBuff: { buffs: ['blackboardAssignments', '*'] },
+    aura: { buffs: ['blackboardAssignments', '*'] },
     readSkillSettingData: { items: ['column'] },
   };
   const keys = switchOptions ? ['value'] : slots[kind]?.[String(path[1])];

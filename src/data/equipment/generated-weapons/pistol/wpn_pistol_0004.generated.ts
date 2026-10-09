@@ -70,11 +70,15 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_pistol_0004_atk_up',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_pistol_0004_atk_up',
+                      copiedBlackboardAssignments: { atk_up: 'atk_up', duration: 'duration' },
+                    },
+                  ],
                   target: 'caster',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: { atk_up: 'atk_up', duration: 'duration' },
                 },
               },
               next: null,

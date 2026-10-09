@@ -1097,7 +1097,7 @@ describe('SkillRuntime', () => {
       expect.objectContaining({
         kind: 'applyBuff',
         parameters: expect.objectContaining({
-          buffId: 'buff_chr_0035_liino_skill_end',
+          buffs: [{ buffId: 'buff_chr_0035_liino_skill_end' }],
           inheritSourceSkillCastInfo: true,
         }),
       }),
@@ -1130,7 +1130,7 @@ describe('SkillRuntime', () => {
           steps: [
             {
               kind: 'applyBuff',
-              parameters: { buffId: 'end-signal', target: 'caster' },
+              parameters: { buffs: [{ buffId: 'end-signal' }], target: 'caster' },
             },
           ],
         },
@@ -1147,7 +1147,7 @@ describe('SkillRuntime', () => {
     expect(ending.operations.execute).toHaveBeenCalledWith(
       expect.objectContaining({
         kind: 'applyBuff',
-        parameters: expect.objectContaining({ buffId: 'end-signal' }),
+        parameters: expect.objectContaining({ buffs: [{ buffId: 'end-signal' }] }),
       }),
       expect.objectContaining({
         skillCastInfo: expect.objectContaining({

@@ -546,7 +546,11 @@ function propagateBuffTargets(
           targetGroupChanged = true;
         }
       }
-      for (const node of nodes) {
+      const pendingNodes = nodes.map(node => ({
+        node,
+        inputTarget: undefined as Target | undefined,
+      }));
+      for (const { node, inputTarget } of pendingNodes) {
         if (!node.metadata.enabled || node.body.kind !== 'leaf') continue;
         if (
           node.body.value.family === 'aura' &&
@@ -555,7 +559,14 @@ function propagateBuffTargets(
           const action = node.body.value.action;
           const childOwner: Target = action.target === 'enemy' ? 'enemy' : 'caster';
           const childSource = action.buffSource === 'ActionOwner' ? owner : sourceTarget;
-          for (const entry of [...action.buffs, ...action.exitBuffs]) {
+          for (const sequence of [action.actionOnEnter, action.actionOnExit])
+            pendingNodes.push(
+              ...collectNativeActionNodes(sequence).map(node => ({
+                node,
+                inputTarget: childOwner,
+              })),
+            );
+          for (const entry of action.buffs) {
             changed = register(owners, ownerConflicts, entry.buffId, childOwner) || changed;
             changed =
               register(sourceTargets, sourceConflicts, entry.buffId, childSource) || changed;
@@ -616,9 +627,11 @@ function propagateBuffTargets(
                 : target.targetSource === 'MainCharacter' ||
                     isControlledOperatorInstantSearch(target)
                   ? 'caster'
-                  : target.targetSource === 'Target' && lifecycleNodes.has(node)
-                    ? owner
-                    : undefined;
+                  : target.targetSource === 'Target' && inputTarget !== undefined
+                    ? inputTarget
+                    : target.targetSource === 'Target' && lifecycleNodes.has(node)
+                      ? owner
+                      : undefined;
           const childOwner = resolve(action.target);
           const childSource = resolve(action.source);
           const childId =

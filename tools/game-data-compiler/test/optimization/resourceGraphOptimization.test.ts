@@ -99,7 +99,7 @@ describe('独立资源图构建与优化', () => {
       graph.sequence([
         ...calculations,
         {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           key,
           parameters: {
             resource: 'sp',
@@ -118,8 +118,12 @@ describe('独立资源图构建与优化', () => {
       const executor = new ActionBlackboardOperationExecutor({
         evaluate: () => true,
         execute(step, context) {
-          if (step.kind !== 'changeResourceByActionValue') throw new Error('unexpected leaf');
-          outputs.push(resolveActionValueOperand(step.parameters.amount, context!.blackboard));
+          if (step.kind !== 'changeResource') throw new Error('unexpected leaf');
+          outputs.push(
+            typeof step.parameters.amount === 'number'
+              ? step.parameters.amount
+              : resolveActionValueOperand(step.parameters.amount, context!.blackboard),
+          );
           return true;
         },
       });

@@ -398,7 +398,7 @@ it('node string operand commit revalidates catalogs and keeps refused drafts', a
   const field = actionNodeSchemas.applyBuff.fields.find(f => f.path.at(-1) === 'buffId')!;
   const accepted: unknown[] = [];
   const f = await mountSetup(NodeInspectorFields, {
-    value: { kind: 'applyBuff', parameters: { buffId: 'old' } },
+    value: { kind: 'applyBuff', parameters: { buffs: [{ buffId: 'old' }] } },
     kind: 'applyBuff',
     fields: [field],
     referenceChoices: candidates,
@@ -418,7 +418,10 @@ it('node string operand commit revalidates catalogs and keeps refused drafts', a
     await f.update({ referenceChoices: candidates });
     f.state.changeStructured(field, 'known');
     expect(accepted).toHaveLength(2);
-    expect(accepted[1]).toEqual({ kind: 'applyBuff', parameters: { buffId: 'known' } });
+    expect(accepted[1]).toEqual({
+      kind: 'applyBuff',
+      parameters: { buffs: [{ buffId: 'known' }] },
+    });
   } finally {
     f.stop();
   }
@@ -453,7 +456,7 @@ it.each(['buffId', 'blackboardAssignments'])(
     const field = actionNodeSchemas.applyBuff.fields.find(f => f.path.at(-1) === name)!;
     const value = {
       kind: 'applyBuff',
-      parameters: { buffId: 'known', blackboardAssignments: { old: 1 } },
+      parameters: { buffs: [{ buffId: 'known', blackboardAssignments: { old: 1 } }] },
     };
     let accepts = false;
     const attempts: unknown[] = [];
@@ -1293,7 +1296,10 @@ it('cannot replace a connected string operand through a stale or synthetic inlin
   const field = actionNodeSchemas.applyBuff.fields.find(f => f.path.at(-1) === 'buffId')!;
   const accepted: unknown[] = [];
   const f = await mountSetup(NodeInspectorFields, {
-    value: { kind: 'applyBuff', parameters: { buffId: { kind: 'stringNode', nodeId: 'shared' } } },
+    value: {
+      kind: 'applyBuff',
+      parameters: { buffs: [{ buffId: { kind: 'stringNode', nodeId: 'shared' } }] },
+    },
     kind: 'applyBuff',
     fields: [field],
     referenceChoices: candidates,

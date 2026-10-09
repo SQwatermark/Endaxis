@@ -222,6 +222,11 @@ export function pruneUnusedGraphSkillValues(
           collectReference(option.sequence, `${path}.options[${optionIndex}].sequence`),
         );
         return;
+      case 'aura':
+        observe(analyzeStepUsage(action as unknown as CombatStepDefinition, usageContext));
+        collectReference(action.onEnter, `${path}.onEnter`);
+        collectReference(action.onExit, `${path}.onExit`);
+        return;
       case 'once':
       case 'repeatEachTick':
       case 'forEachContextTarget':

@@ -63,15 +63,19 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_funnel_0015_combo',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_funnel_0015_combo',
+                      copiedBlackboardAssignments: {
+                        pulse_dmg_up: 'pulse_dmg_up2',
+                        max_stack: 'max_stack',
+                        duration: 'duration',
+                      },
+                    },
+                  ],
                   target: 'caster',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: {
-                    pulse_dmg_up: 'pulse_dmg_up2',
-                    max_stack: 'max_stack',
-                    duration: 'duration',
-                  },
                 },
               },
               next: 'createTimedMarker_1',
@@ -104,14 +108,18 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_funnel_0015_ultimate',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_funnel_0015_ultimate',
+                      copiedBlackboardAssignments: {
+                        pulse_dmg_up: 'pulse_dmg_up3',
+                        duration: 'duration2',
+                      },
+                    },
+                  ],
                   target: 'caster',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: {
-                    pulse_dmg_up: 'pulse_dmg_up3',
-                    duration: 'duration2',
-                  },
                 },
               },
               next: null,

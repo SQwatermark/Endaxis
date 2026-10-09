@@ -11,29 +11,22 @@ import type { OperatorDefinition } from '../../../packages/game-data-contract/sr
 export const lastRiteChr_0026_lastrite_attack1ActionGraph = {
   main: {
     nodes: {
-      changeResourceByActionValue_1: {
+      changeResource_1: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
             coefficient: { kind: 'constant', value: 1 },
             recipient: 'team',
+            onlyMainOperator: true,
             spGainKind: 'gain',
             spGainSource: 'normalAttack',
           },
         },
         next: null,
       },
-      conditional_2: {
-        action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-          whenTrue: { $sequence: 'changeResourceByActionValue_1' },
-        },
-        next: null,
-      },
-      startTimeDilation_3: {
+      startTimeDilation_2: {
         action: {
           kind: 'startTimeDilation',
           parameters: {
@@ -46,28 +39,28 @@ export const lastRiteChr_0026_lastrite_attack1ActionGraph = {
             targets: ['enemy', 'caster'],
           },
         },
-        next: 'conditional_2',
+        next: 'changeResource_1',
       },
-      conditional_4: {
+      conditional_3: {
         action: {
           kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' }, alwaysNext: true },
-          whenTrue: { $sequence: 'startTimeDilation_3' },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' }, alwaysNext: true },
+          whenTrue: { $sequence: 'startTimeDilation_2' },
         },
         next: null,
       },
-      dealDamage_5: {
+      dealDamage_4: {
         action: {
           kind: 'dealDamage',
           parameters: {
             damageType: 'cryo',
-            attackScale: { kind: 'valueNode', nodeId: 'data_4' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_3' },
             tags: ['normalAttack'],
           },
         },
-        next: 'conditional_4',
+        next: 'conditional_3',
       },
-      reachSkillOperableBoundary_6: {
+      reachSkillOperableBoundary_5: {
         action: {
           kind: 'reachSkillOperableBoundary',
           parameters: { skillIds: ['chr_0026_lastrite_attack2'] },
@@ -78,8 +71,7 @@ export const lastRiteChr_0026_lastrite_attack1ActionGraph = {
     dataNodes: {
       data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
       data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
-      data_3: { type: 'boolean', expression: { kind: 'casterControlled' } },
-      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
+      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
     },
   },
   macros: {},
@@ -111,8 +103,8 @@ export const lastRiteChr_0026_lastrite_attack1: SkillDefinition = {
   },
   costFrame: 9,
   scheduledSequences: [
-    { startFrame: 12, endFrame: 13, sequence: { $sequence: 'dealDamage_5' } },
-    { startFrame: 20, endFrame: 35, sequence: { $sequence: 'reachSkillOperableBoundary_6' } },
+    { startFrame: 12, endFrame: 13, sequence: { $sequence: 'dealDamage_4' } },
+    { startFrame: 20, endFrame: 35, sequence: { $sequence: 'reachSkillOperableBoundary_5' } },
   ],
   timelineContinuationSkillId: 'chr_0026_lastrite_attack2',
   skillType: 'basicAttack',
@@ -123,9 +115,9 @@ export const lastRiteChr_0026_lastrite_attack1: SkillDefinition = {
 export const lastRiteChr_0026_lastrite_attack2ActionGraph = {
   main: {
     nodes: {
-      changeResourceByActionValue_1: {
+      changeResource_1: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -150,7 +142,7 @@ export const lastRiteChr_0026_lastrite_attack2ActionGraph = {
             targets: ['enemy', 'caster'],
           },
         },
-        next: 'changeResourceByActionValue_1',
+        next: 'changeResource_1',
       },
       conditional_3: {
         action: {
@@ -228,9 +220,9 @@ export const lastRiteChr_0026_lastrite_attack2: SkillDefinition = {
 export const lastRiteChr_0026_lastrite_attack3ActionGraph = {
   main: {
     nodes: {
-      changeResourceByActionValue_1: {
+      changeResource_1: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -255,7 +247,7 @@ export const lastRiteChr_0026_lastrite_attack3ActionGraph = {
             targets: ['enemy', 'caster'],
           },
         },
-        next: 'changeResourceByActionValue_1',
+        next: 'changeResource_1',
       },
       conditional_3: {
         action: {
@@ -429,9 +421,9 @@ export const lastRiteChr_0026_lastrite_attack4ActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_5: {
+      changeResource_5: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_4' },
@@ -447,7 +439,7 @@ export const lastRiteChr_0026_lastrite_attack4ActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResourceByActionValue_5' },
+          whenTrue: { $sequence: 'changeResource_5' },
         },
         next: null,
       },
@@ -646,7 +638,7 @@ export const lastRiteChr_0026_lastrite_power_attackActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_power_attack_disable_cast_skill',
+            buffs: [{ buffId: 'buff_common_power_attack_disable_cast_skill' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -658,7 +650,7 @@ export const lastRiteChr_0026_lastrite_power_attackActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_full_immune_medium',
+            buffs: [{ buffId: 'buff_common_full_immune_medium' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -708,44 +700,36 @@ export const lastRiteChr_0026_lastrite_power_attack: SkillDefinition = {
 export const lastRiteChr_0026_lastrite_plunging_attack_endActionGraph = {
   main: {
     nodes: {
-      changeResourceByActionValue_1: {
+      changeResource_1: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
             coefficient: { kind: 'constant', value: 1 },
             recipient: 'team',
+            onlyMainOperator: true,
             spGainKind: 'gain',
             spGainSource: 'normalAttack',
           },
         },
         next: null,
       },
-      conditional_2: {
-        action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-          whenTrue: { $sequence: 'changeResourceByActionValue_1' },
-        },
-        next: null,
-      },
-      dealDamage_3: {
+      dealDamage_2: {
         action: {
           kind: 'dealDamage',
           parameters: {
             damageType: 'cryo',
-            attackScale: { kind: 'valueNode', nodeId: 'data_3' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_2' },
             tags: ['normalAttack', 'plungingAttack'],
           },
         },
-        next: 'conditional_2',
+        next: 'changeResource_1',
       },
     },
     dataNodes: {
       data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
-      data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
-      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
+      data_2: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
     },
   },
   macros: {},
@@ -764,7 +748,7 @@ export const lastRiteChr_0026_lastrite_plunging_attack_end: SkillDefinition = {
   exclusiveFrame: 20,
   offsetRecordFrame: 0,
   costFrame: 9,
-  scheduledSequences: [{ startFrame: 2, endFrame: 3, sequence: { $sequence: 'dealDamage_3' } }],
+  scheduledSequences: [{ startFrame: 2, endFrame: 3, sequence: { $sequence: 'dealDamage_2' } }],
   skillType: 'plungingAttack',
   levelSource: 'basicAttack',
   nativeSkillType: 'attack',
@@ -777,18 +761,22 @@ export const lastRiteChr_0026_lastrite_normal_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0026_lastrite_normal_skill_inattack',
+            buffs: [
+              {
+                buffId: 'buff_chr_0026_lastrite_normal_skill_inattack',
+                blackboardAssignments: {
+                  atk_scale: { kind: 'valueNode', nodeId: 'data_1' },
+                  duration: { kind: 'valueNode', nodeId: 'data_2' },
+                  atb: { kind: 'valueNode', nodeId: 'data_3' },
+                  atk_up: { kind: 'valueNode', nodeId: 'data_4' },
+                  poise: { kind: 'valueNode', nodeId: 'data_5' },
+                  potential_1: { kind: 'valueNode', nodeId: 'data_6' },
+                  usp: { kind: 'valueNode', nodeId: 'data_7' },
+                },
+              },
+            ],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
-            blackboardAssignments: {
-              atk_scale: { kind: 'valueNode', nodeId: 'data_1' },
-              duration: { kind: 'valueNode', nodeId: 'data_2' },
-              atb: { kind: 'valueNode', nodeId: 'data_3' },
-              atk_up: { kind: 'valueNode', nodeId: 'data_4' },
-              poise: { kind: 'valueNode', nodeId: 'data_5' },
-              potential_1: { kind: 'valueNode', nodeId: 'data_6' },
-              usp: { kind: 'valueNode', nodeId: 'data_7' },
-            },
           },
         },
         next: null,
@@ -866,17 +854,21 @@ export const lastRiteChr_0026_lastrite_normal_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0026_lastrite_normal_skill_main_start',
+            buffs: [
+              {
+                buffId: 'buff_chr_0026_lastrite_normal_skill_main_start',
+                copiedBlackboardAssignments: {
+                  atk_scale: 'atk_scale',
+                  duration: 'duration',
+                  atb: 'atb',
+                  atk_up: 'atk_up',
+                  potential_1: 'potential_1',
+                  usp: 'usp',
+                },
+              },
+            ],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: {
-              atk_scale: 'atk_scale',
-              duration: 'duration',
-              atb: 'atb',
-              atk_up: 'atk_up',
-              potential_1: 'potential_1',
-              usp: 'usp',
-            },
           },
         },
         next: null,
@@ -923,9 +915,9 @@ export const lastRiteChr_0026_lastrite_normal_skillActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_13: {
+      changeResource_13: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'ultimateEnergy',
             amount: { kind: 'valueNode', nodeId: 'data_13' },
@@ -938,23 +930,27 @@ export const lastRiteChr_0026_lastrite_normal_skillActionGraph = {
       },
       gainSquadUltimateEnergyFromSkillCost_14: {
         action: { kind: 'gainSquadUltimateEnergyFromSkillCost', parameters: { coefficient: 1 } },
-        next: 'changeResourceByActionValue_13',
+        next: 'changeResource_13',
       },
       applyBuff_15: {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0026_lastrite_normal_skill_self',
+            buffs: [
+              {
+                buffId: 'buff_chr_0026_lastrite_normal_skill_self',
+                copiedBlackboardAssignments: {
+                  atk_scale: 'atk_scale',
+                  duration: 'duration',
+                  atb: 'atb',
+                  atk_up: 'atk_up',
+                  potential_1: 'potential_1',
+                  poise: 'poise',
+                },
+              },
+            ],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: {
-              atk_scale: 'atk_scale',
-              duration: 'duration',
-              atb: 'atb',
-              atk_up: 'atk_up',
-              potential_1: 'potential_1',
-              poise: 'poise',
-            },
           },
         },
         next: 'gainSquadUltimateEnergyFromSkillCost_14',
@@ -1090,7 +1086,7 @@ export const lastRiteChr_0026_lastrite_ultimate_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_damage_immune_ult_skill',
+            buffs: [{ buffId: 'buff_common_damage_immune_ult_skill' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -1351,9 +1347,9 @@ export const lastRiteChr_0026_lastrite_combo_skillActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_2: {
+      changeResource_2: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'ultimateEnergy',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -1368,13 +1364,13 @@ export const lastRiteChr_0026_lastrite_combo_skillActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResourceByActionValue_2' },
+          whenTrue: { $sequence: 'changeResource_2' },
         },
         next: null,
       },
-      changeResourceByActionValue_4: {
+      changeResource_4: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'ultimateEnergy',
             amount: { kind: 'valueNode', nodeId: 'data_4' },
@@ -1394,7 +1390,7 @@ export const lastRiteChr_0026_lastrite_combo_skillActionGraph = {
             tags: ['comboSkill'],
           },
         },
-        next: 'changeResourceByActionValue_4',
+        next: 'changeResource_4',
       },
       readBuffStackCount_6: {
         action: {
@@ -1498,16 +1494,16 @@ export const lastRiteChr_0026_lastrite_combo_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0026_lastrite_combo_skill_hitstop',
+            buffs: [{ buffId: 'buff_chr_0026_lastrite_combo_skill_hitstop' }],
             target: 'enemy',
             inheritSourceSkillCastInfo: true,
           },
         },
         next: null,
       },
-      changeResourceByActionValue_15: {
+      changeResource_15: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'ultimateEnergy',
             amount: { kind: 'valueNode', nodeId: 'data_12' },
@@ -1518,9 +1514,9 @@ export const lastRiteChr_0026_lastrite_combo_skillActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_16: {
+      changeResource_16: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'ultimateEnergy',
             amount: { kind: 'valueNode', nodeId: 'data_13' },
@@ -1535,8 +1531,8 @@ export const lastRiteChr_0026_lastrite_combo_skillActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_16' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResourceByActionValue_15' },
-          whenFalse: { $sequence: 'changeResourceByActionValue_16' },
+          whenTrue: { $sequence: 'changeResource_15' },
+          whenFalse: { $sequence: 'changeResource_16' },
         },
         next: null,
       },
@@ -1703,7 +1699,7 @@ const lastRitePassive1ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0026_lastrite_passive',
+            buffs: [{ buffId: 'buff_chr_0026_lastrite_passive' }],
             target: 'caster',
             inheritSourceSkillCastInfo: false,
           },
@@ -1900,7 +1896,7 @@ const lastRiteBuff2ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0026_lastrite_normal_skill_tag',
+            buffs: [{ buffId: 'buff_chr_0026_lastrite_normal_skill_tag' }],
             target: 'buffSource',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
@@ -1912,11 +1908,15 @@ const lastRiteBuff2ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0026_lastrite_normal_skill_phantom',
+            buffs: [
+              {
+                buffId: 'buff_chr_0026_lastrite_normal_skill_phantom',
+                copiedBlackboardAssignments: { atk_scale: 'atk_scale' },
+              },
+            ],
             target: 'enemy',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: { atk_scale: 'atk_scale' },
           },
         },
         next: 'applyBuff_8',
@@ -1925,11 +1925,15 @@ const lastRiteBuff2ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0026_lastrite_normal_skill_phantom_main',
+            buffs: [
+              {
+                buffId: 'buff_chr_0026_lastrite_normal_skill_phantom_main',
+                copiedBlackboardAssignments: { atk_scale1: 'atk_scale' },
+              },
+            ],
             target: 'enemy',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: { atk_scale1: 'atk_scale' },
           },
         },
         next: 'applyBuff_8',
@@ -2147,18 +2151,22 @@ const lastRiteBuff3ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0026_lastrite_normal_skill_self',
+            buffs: [
+              {
+                buffId: 'buff_chr_0026_lastrite_normal_skill_self',
+                copiedBlackboardAssignments: {
+                  atk_scale: 'atk_scale',
+                  duration: 'duration',
+                  atb: 'atb',
+                  atk_up: 'atk_up',
+                  poise: 'poise',
+                  potential_1: 'potential_1',
+                },
+              },
+            ],
             target: 'buffSource',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: {
-              atk_scale: 'atk_scale',
-              duration: 'duration',
-              atb: 'atb',
-              atk_up: 'atk_up',
-              poise: 'poise',
-              potential_1: 'potential_1',
-            },
           },
         },
         next: null,
@@ -2185,9 +2193,9 @@ const lastRiteBuff3ActionGraph = {
         },
         next: 'finishBuffsById_2',
       },
-      changeResourceByActionValue_4: {
+      changeResource_4: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'ultimateEnergy',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -2200,7 +2208,7 @@ const lastRiteBuff3ActionGraph = {
       },
       gainSquadUltimateEnergyFromSkillCost_5: {
         action: { kind: 'gainSquadUltimateEnergyFromSkillCost', parameters: { coefficient: 1 } },
-        next: 'changeResourceByActionValue_4',
+        next: 'changeResource_4',
       },
       withActionBlackboardScope_6: {
         action: {
@@ -2254,9 +2262,9 @@ const lastRiteBuff3: SkillBuffDefinition = {
 const lastRiteBuff4ActionGraph = {
   main: {
     nodes: {
-      changeResourceByActionValue_1: {
+      changeResource_1: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'ultimateEnergy',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -2269,23 +2277,27 @@ const lastRiteBuff4ActionGraph = {
       },
       gainSquadUltimateEnergyFromSkillCost_2: {
         action: { kind: 'gainSquadUltimateEnergyFromSkillCost', parameters: { coefficient: 1 } },
-        next: 'changeResourceByActionValue_1',
+        next: 'changeResource_1',
       },
       applyBuff_3: {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0026_lastrite_normal_skill_self',
+            buffs: [
+              {
+                buffId: 'buff_chr_0026_lastrite_normal_skill_self',
+                copiedBlackboardAssignments: {
+                  atk_scale: 'atk_scale',
+                  duration: 'duration',
+                  atb: 'atb',
+                  atk_up: 'atk_up',
+                  potential_1: 'potential_1',
+                },
+              },
+            ],
             target: 'buffSource',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: {
-              atk_scale: 'atk_scale',
-              duration: 'duration',
-              atb: 'atb',
-              atk_up: 'atk_up',
-              potential_1: 'potential_1',
-            },
           },
         },
         next: 'gainSquadUltimateEnergyFromSkillCost_2',
@@ -2475,9 +2487,9 @@ const lastRiteBuff6: SkillBuffDefinition = {
 const lastRiteBuff7ActionGraph = {
   main: {
     nodes: {
-      changeResourceByActionValue_1: {
+      changeResource_1: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -2493,21 +2505,25 @@ const lastRiteBuff7ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0026_lastrite_normal_skill',
+            buffs: [
+              {
+                buffId: 'buff_chr_0026_lastrite_normal_skill',
+                copiedBlackboardAssignments: {
+                  duration: 'duration',
+                  atk_scale: 'atk_scale',
+                  atb: 'atb',
+                  poise: 'poise',
+                  atk_up: 'atk_up',
+                  potential_1: 'potential_1',
+                },
+              },
+            ],
             target: 'party',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: {
-              duration: 'duration',
-              atk_scale: 'atk_scale',
-              atb: 'atb',
-              poise: 'poise',
-              atk_up: 'atk_up',
-              potential_1: 'potential_1',
-            },
           },
         },
-        next: 'changeResourceByActionValue_1',
+        next: 'changeResource_1',
       },
     },
     dataNodes: { data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } } },
@@ -2630,11 +2646,15 @@ const lastRiteBuff10ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0026_lastrite_talent_1_vul',
+            buffs: [
+              {
+                buffId: 'buff_chr_0026_lastrite_talent_1_vul',
+                copiedBlackboardAssignments: { crystal_vul: 'crystal_vul', duration: 'duration' },
+              },
+            ],
             target: 'eventTarget',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: { crystal_vul: 'crystal_vul', duration: 'duration' },
           },
         },
         next: null,
@@ -2714,15 +2734,19 @@ const lastRiteBuff11ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_affixes_vulnerable_crystal',
+            buffs: [
+              {
+                buffId: 'buff_common_affixes_vulnerable_crystal',
+                blackboardAssignments: {
+                  duration: { kind: 'valueNode', nodeId: 'data_1' },
+                  rate: { kind: 'valueNode', nodeId: 'data_2' },
+                },
+              },
+            ],
             target: 'buffOwner',
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
             finishByAction: true,
-            blackboardAssignments: {
-              duration: { kind: 'valueNode', nodeId: 'data_1' },
-              rate: { kind: 'valueNode', nodeId: 'data_2' },
-            },
           },
         },
         next: null,

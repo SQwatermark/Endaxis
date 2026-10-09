@@ -19,14 +19,11 @@ import type {
   ElementalReaction,
   HealCalculationAttribute,
   OperatorAttribute,
-  ResourceRecipient,
   SkillBuffDefinition,
   SkillBuffLifecycleSequences,
   SkillBuffAbilityEventResponse,
   SkillBuffIgniteEventResponse,
   SkillGlobalBuffDefinition,
-  SpGainKind,
-  SpGainSource,
   SkillType,
   StatusModifierDefinition,
   UpgradeEvent,
@@ -163,8 +160,7 @@ export interface ResolvedCombatStepParameters {
   triggerSpellBurst: CompiledStepParameters['triggerSpellBurst'];
   triggerCustomAbilityEvent: CompiledStepParameters['triggerCustomAbilityEvent'];
   applyPhysicalInfliction: CompiledStepParameters['applyPhysicalInfliction'];
-  applyElementalReaction: CompiledStepParameters['applyElementalReaction'];
-  consumeElementalReaction: CompiledStepParameters['consumeElementalReaction'];
+  forceSpellStatus: CompiledStepParameters['forceSpellStatus'];
   outputAirborne: CompiledStepParameters['outputAirborne'];
   outputKnockDown: CompiledStepParameters['outputKnockDown'];
   dealDamage: {
@@ -222,8 +218,16 @@ export interface ResolvedCombatStepParameters {
           addition?: never;
         }
     );
-  applyBuff: Omit<CompiledStepParameters['applyBuff'], 'blackboardAssignments'> & {
-    readonly blackboardAssignments?: Readonly<Record<string, CompiledValueInput>>;
+  aura: Omit<CompiledStepParameters['aura'], 'buffs'> & {
+    readonly buffs: ResolvedCombatStepParameters['applyBuff']['buffs'];
+  };
+  applyBuff: Omit<CompiledStepParameters['applyBuff'], 'buffs'> & {
+    readonly buffs: readonly (Omit<
+      CompiledStepParameters['applyBuff']['buffs'][number],
+      'blackboardAssignments'
+    > & {
+      readonly blackboardAssignments?: Readonly<Record<string, CompiledValueInput>>;
+    })[];
   };
   createGlobalBuff: Omit<CompiledStepParameters['createGlobalBuff'], 'definition'> & {
     readonly definition: CompiledGlobalBuffDefinition;
@@ -264,23 +268,9 @@ export interface ResolvedCombatStepParameters {
   storeSourceAttributeValue: CompiledStepParameters['storeSourceAttributeValue'];
   storeEntityPropertyValue: CompiledStepParameters['storeEntityPropertyValue'];
   setHealthFloor: CompiledStepParameters['setHealthFloor'];
-  changeResource: {
-    resource: CombatResource;
-    amount: number;
-    coefficient?: number;
-    recipient: ResourceRecipient;
-    spGainKind?: SpGainKind;
-    spGainSource?: SpGainSource;
-    isPercentValue?: boolean;
-    ultimateRecoveryTag?: GameplayTag;
-    ignoreUltimateEnergyGainMultiplier?: boolean;
-  };
-  changeResourceByActionValue: Omit<
-    CompiledStepParameters['changeResourceByActionValue'],
-    'coefficient' | 'ultimateRecoveryTag'
-  > & {
+  changeResource: Omit<CompiledStepParameters['changeResource'], 'amount' | 'coefficient'> & {
+    amount: number | CompiledValueInput;
     coefficient?: number | CompiledValueInput;
-    ultimateRecoveryTag?: GameplayTag;
   };
   recoverDashEnergy: CompiledStepParameters['recoverDashEnergy'];
   recordPerfectDodge: CompiledStepParameters['recordPerfectDodge'];
@@ -411,14 +401,14 @@ export const COMBAT_STEP_EXECUTION_ROUTES = {
   triggerCustomAbilityEvent: 'operation',
   castSkillDuringAction: 'operation',
   applyPhysicalInfliction: 'operation',
-  applyElementalReaction: 'operation',
-  consumeElementalReaction: 'operation',
+  forceSpellStatus: 'operation',
   outputAirborne: 'operation',
   outputKnockDown: 'operation',
   dealDamage: 'operation',
   dealFixedDamage: 'operation',
   dealStagger: 'operation',
   heal: 'operation',
+  aura: 'sequence',
   applyBuff: 'operation',
   createGlobalBuff: 'operation',
   finishParentGlobalBuff: 'operation',
@@ -459,7 +449,6 @@ export const COMBAT_STEP_EXECUTION_ROUTES = {
   storeEntityPropertyValue: 'operation',
   setHealthFloor: 'operation',
   changeResource: 'operation',
-  changeResourceByActionValue: 'operation',
   recoverDashEnergy: 'operation',
   recordPerfectDodge: 'operation',
   gainSquadUltimateEnergyFromSkillCost: 'operation',

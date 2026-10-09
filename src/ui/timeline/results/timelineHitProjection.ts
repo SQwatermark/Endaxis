@@ -332,59 +332,61 @@ export function projectCastGraphHitMarkers(
         );
         return;
       }
-      if (step.kind === 'applyBuff') {
+      if (step.kind === 'applyBuff' || step.kind === 'aura') {
         if (step.parameters.inheritSourceSkillCastInfo === false) return;
-        if (typeof step.parameters.buffId !== 'string') return;
-        const buffId = step.parameters.buffId;
-        const buff = operator.buffDefinitions?.[buffId];
-        if (buff === undefined || activeBuffIds.has(buffId)) return;
-        const nextBuffIds = new Set(activeBuffIds).add(buffId);
-        inOwner(buff, () => {
-          (buff.scheduledSequences ?? []).forEach((scheduled, index) =>
-            collect(
-              scheduled.sequence,
-              buffEntryCallSite.scheduled(buffId, index),
-              null,
-              frameOffset + scheduled.startFrame,
-              true,
-              nextBuffIds,
-              activeEntityIds,
-            ),
-          );
-          for (const [key, sequence] of Object.entries(buff.lifecycleSequences ?? {}))
-            if (sequence !== undefined)
+        for (const entry of step.parameters.buffs) {
+          if (typeof entry.buffId !== 'string') continue;
+          const buffId = entry.buffId;
+          const buff = operator.buffDefinitions?.[buffId];
+          if (buff === undefined || activeBuffIds.has(buffId)) continue;
+          const nextBuffIds = new Set(activeBuffIds).add(buffId);
+          inOwner(buff, () => {
+            (buff.scheduledSequences ?? []).forEach((scheduled, index) =>
               collect(
-                sequence,
-                buffEntryCallSite.lifecycle(buffId, key),
+                scheduled.sequence,
+                buffEntryCallSite.scheduled(buffId, index),
+                null,
+                frameOffset + scheduled.startFrame,
+                true,
+                nextBuffIds,
+                activeEntityIds,
+              ),
+            );
+            for (const [key, sequence] of Object.entries(buff.lifecycleSequences ?? {}))
+              if (sequence !== undefined)
+                collect(
+                  sequence,
+                  buffEntryCallSite.lifecycle(buffId, key),
+                  null,
+                  frameOffset,
+                  true,
+                  nextBuffIds,
+                  activeEntityIds,
+                );
+            (buff.abilityEventResponses ?? []).forEach((response, index) =>
+              collect(
+                response.sequence,
+                buffEntryCallSite.abilityEventResponse(buffId, index),
                 null,
                 frameOffset,
                 true,
                 nextBuffIds,
                 activeEntityIds,
-              );
-          (buff.abilityEventResponses ?? []).forEach((response, index) =>
-            collect(
-              response.sequence,
-              buffEntryCallSite.abilityEventResponse(buffId, index),
-              null,
-              frameOffset,
-              true,
-              nextBuffIds,
-              activeEntityIds,
-            ),
-          );
-          (buff.igniteEventResponses ?? []).forEach((response, index) =>
-            collect(
-              response.sequence,
-              buffEntryCallSite.igniteEventResponse(buffId, index),
-              null,
-              frameOffset,
-              true,
-              nextBuffIds,
-              activeEntityIds,
-            ),
-          );
-        });
+              ),
+            );
+            (buff.igniteEventResponses ?? []).forEach((response, index) =>
+              collect(
+                response.sequence,
+                buffEntryCallSite.igniteEventResponse(buffId, index),
+                null,
+                frameOffset,
+                true,
+                nextBuffIds,
+                activeEntityIds,
+              ),
+            );
+          });
+        }
         return;
       }
       if (step.kind !== 'spawnAbilityEntity' && step.kind !== 'startCurrentAbilityEntityChildSkill')

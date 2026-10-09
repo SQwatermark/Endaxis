@@ -12,14 +12,18 @@ const definition = {
           action: {
             kind: 'applyBuff',
             parameters: {
-              buffId: 'buff_equipsuit_combosuit_01',
+              buffs: [
+                {
+                  buffId: 'buff_equipsuit_combosuit_01',
+                  blackboardAssignments: {
+                    dmg_up: { kind: 'constant', value: 0.16 },
+                    duration: { kind: 'constant', value: 15 },
+                    cd: { kind: 'constant', value: 0 },
+                    comboskill_cooldown: { kind: 'constant', value: 0.85 },
+                  },
+                },
+              ],
               target: 'caster',
-              blackboardAssignments: {
-                dmg_up: { kind: 'constant', value: 0.16 },
-                duration: { kind: 'constant', value: 15 },
-                cd: { kind: 'constant', value: 0 },
-                comboskill_cooldown: { kind: 'constant', value: 0.85 },
-              },
             },
           },
           next: null,
@@ -51,12 +55,16 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_equipsuit_combosuit_01_adddamage',
+                  buffs: [
+                    {
+                      buffId: 'buff_equipsuit_combosuit_01_adddamage',
+                      copiedBlackboardAssignments: { dmg_up: 'dmg_up', duration: 'duration' },
+                    },
+                  ],
                   target: 'party',
                   source: 'buffOwner',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: { dmg_up: 'dmg_up', duration: 'duration' },
                 },
               },
               next: null,

@@ -64,16 +64,20 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_funnel_0016_will',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_funnel_0016_will',
+                      copiedBlackboardAssignments: {
+                        spell_dmg_taken_up: 'spell_dmg_taken_up',
+                        duration3: 'duration3',
+                        spell_dmg_taken_up2: 'spell_dmg_taken_up2',
+                        duration4: 'duration4',
+                      },
+                    },
+                  ],
                   target: 'caster',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: {
-                    spell_dmg_taken_up: 'spell_dmg_taken_up',
-                    duration3: 'duration3',
-                    spell_dmg_taken_up2: 'spell_dmg_taken_up2',
-                    duration4: 'duration4',
-                  },
                 },
               },
               next: null,
@@ -93,16 +97,20 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_funnel_0016_wisd',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_funnel_0016_wisd',
+                      copiedBlackboardAssignments: {
+                        spell_dmg_up: 'spell_dmg_up',
+                        duration: 'duration',
+                        atk_up2: 'atk_up2',
+                        duration2: 'duration2',
+                      },
+                    },
+                  ],
                   target: 'caster',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: {
-                    spell_dmg_up: 'spell_dmg_up',
-                    duration: 'duration',
-                    atk_up2: 'atk_up2',
-                    duration2: 'duration2',
-                  },
                 },
               },
               next: null,
@@ -134,18 +142,22 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_funnel_0016',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_funnel_0016',
+                      blackboardAssignments: {
+                        atk_up2: { kind: 'valueNode', nodeId: 'data_2' },
+                        duration: { kind: 'valueNode', nodeId: 'data_3' },
+                        duration2: { kind: 'valueNode', nodeId: 'data_4' },
+                        duration3: { kind: 'valueNode', nodeId: 'data_5' },
+                        duration4: { kind: 'valueNode', nodeId: 'data_6' },
+                        spell_dmg_taken_up: { kind: 'valueNode', nodeId: 'data_7' },
+                        spell_dmg_taken_up2: { kind: 'valueNode', nodeId: 'data_8' },
+                        spell_dmg_up: { kind: 'valueNode', nodeId: 'data_9' },
+                      },
+                    },
+                  ],
                   target: 'caster',
-                  blackboardAssignments: {
-                    atk_up2: { kind: 'valueNode', nodeId: 'data_2' },
-                    duration: { kind: 'valueNode', nodeId: 'data_3' },
-                    duration2: { kind: 'valueNode', nodeId: 'data_4' },
-                    duration3: { kind: 'valueNode', nodeId: 'data_5' },
-                    duration4: { kind: 'valueNode', nodeId: 'data_6' },
-                    spell_dmg_taken_up: { kind: 'valueNode', nodeId: 'data_7' },
-                    spell_dmg_taken_up2: { kind: 'valueNode', nodeId: 'data_8' },
-                    spell_dmg_up: { kind: 'valueNode', nodeId: 'data_9' },
-                  },
                 },
               },
               next: null,
@@ -250,16 +262,20 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_funnel_0016_wisd',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_funnel_0016_wisd',
+                      copiedBlackboardAssignments: {
+                        spell_dmg_up: 'spell_dmg_up',
+                        duration: 'duration',
+                        atk_up2: 'atk_up2',
+                        duration2: 'duration2',
+                      },
+                    },
+                  ],
                   target: 'buffOwner',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: {
-                    spell_dmg_up: 'spell_dmg_up',
-                    duration: 'duration',
-                    atk_up2: 'atk_up2',
-                    duration2: 'duration2',
-                  },
                 },
               },
               next: null,
@@ -279,16 +295,20 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_funnel_0016_will',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_funnel_0016_will',
+                      copiedBlackboardAssignments: {
+                        spell_dmg_taken_up: 'spell_dmg_taken_up',
+                        duration3: 'duration3',
+                        spell_dmg_taken_up2: 'spell_dmg_taken_up2',
+                        duration4: 'duration4',
+                      },
+                    },
+                  ],
                   target: 'buffOwner',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: {
-                    spell_dmg_taken_up: 'spell_dmg_taken_up',
-                    duration3: 'duration3',
-                    spell_dmg_taken_up2: 'spell_dmg_taken_up2',
-                    duration4: 'duration4',
-                  },
                 },
               },
               next: null,
@@ -354,14 +374,18 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_funnel_0016_will_atk',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_funnel_0016_will_atk',
+                      copiedBlackboardAssignments: {
+                        spell_dmg_taken_up: 'spell_dmg_taken_up',
+                        duration3: 'duration3',
+                      },
+                    },
+                  ],
                   target: 'eventTarget',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: {
-                    spell_dmg_taken_up: 'spell_dmg_taken_up',
-                    duration3: 'duration3',
-                  },
                 },
               },
               next: null,
@@ -378,14 +402,18 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_funnel_0016_will_dmg',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_funnel_0016_will_dmg',
+                      copiedBlackboardAssignments: {
+                        spell_dmg_taken_up2: 'spell_dmg_taken_up2',
+                        duration4: 'duration4',
+                      },
+                    },
+                  ],
                   target: 'eventTarget',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: {
-                    spell_dmg_taken_up2: 'spell_dmg_taken_up2',
-                    duration4: 'duration4',
-                  },
                 },
               },
               next: null,
@@ -490,15 +518,19 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_funnel_0016_will_icon',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_funnel_0016_will_icon',
+                      copiedBlackboardAssignments: {
+                        duration: 'duration3',
+                        duration_dynamic: 'duration_dynamic',
+                      },
+                    },
+                  ],
                   target: 'buffOwner',
                   inheritSourceSkillCastInfo: true,
                   finishByAction: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: {
-                    duration: 'duration3',
-                    duration_dynamic: 'duration_dynamic',
-                  },
                 },
               },
               next: null,
@@ -587,15 +619,19 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_funnel_0016_will_icon',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_funnel_0016_will_icon',
+                      copiedBlackboardAssignments: {
+                        duration: 'duration4',
+                        duration_dynamic: 'duration_dynamic',
+                      },
+                    },
+                  ],
                   target: 'buffOwner',
                   inheritSourceSkillCastInfo: true,
                   finishByAction: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: {
-                    duration: 'duration4',
-                    duration_dynamic: 'duration_dynamic',
-                  },
                 },
               },
               next: null,
@@ -703,14 +739,18 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_funnel_0016_wisd_natureup',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_funnel_0016_wisd_natureup',
+                      copiedBlackboardAssignments: {
+                        spell_dmg_up: 'spell_dmg_up',
+                        duration: 'duration',
+                      },
+                    },
+                  ],
                   target: 'buffOwner',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: {
-                    spell_dmg_up: 'spell_dmg_up',
-                    duration: 'duration',
-                  },
                 },
               },
               next: null,
@@ -727,11 +767,15 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_funnel_0016_wisd_atkup',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_funnel_0016_wisd_atkup',
+                      copiedBlackboardAssignments: { atk_up2: 'atk_up2', duration2: 'duration2' },
+                    },
+                  ],
                   target: 'buffOwner',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: { atk_up2: 'atk_up2', duration2: 'duration2' },
                 },
               },
               next: null,

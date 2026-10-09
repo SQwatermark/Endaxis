@@ -648,9 +648,11 @@ function withTerminalPreparation(
   terminal: CombatOperationExecutor,
   operationHost?: CombatOperationExecutor['operationHost'],
   executionTrace?: CombatOperationExecutor['executionTrace'],
+  aura?: CombatOperationExecutor['aura'],
 ): CombatOperationExecutor {
   return {
     ...(executionTrace === undefined ? {} : { executionTrace }),
+    ...(aura === undefined ? {} : { aura }),
     ...(operationHost === undefined ? {} : { operationHost }),
     prepare: (step, context) => terminal.prepare?.(step, context),
     execute: (step, context) => chain.execute(step, context),
@@ -4329,6 +4331,7 @@ export class CombatRuntimeAssembly {
             frame: () => this.clock.frame,
             receiptCount: () => this.receipt.history.length,
           },
+      buffOperations.aura,
     );
   }
 
@@ -4682,6 +4685,7 @@ export class CombatRuntimeAssembly {
             frame: () => this.clock.frame,
             receiptCount: () => this.receipt.history.length,
           },
+      buffOperations.aura,
     );
     const bindingKey = `${operatorId}\u0000${sourceActionId}`;
     if (!this.#reactiveOperationBindings.has(bindingKey)) {

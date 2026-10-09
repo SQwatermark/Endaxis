@@ -1,4 +1,9 @@
 import {
+  FORCED_SPELL_STATUS_BUFFS,
+  ELEMENTAL_ATTACHMENT_TAGS,
+} from '../../mechanics/forcedSpellStatus';
+import { NATIVE_ELEMENT_VALUES } from '../infliction/elementalInfliction';
+import {
   PHYSICAL_NO_GUARD_BUFF,
   PHYSICAL_INFLICTION_BUFFS,
 } from '../../mechanics/physicalInfliction';
@@ -22,6 +27,7 @@ import { type ActionBlackboardValue } from '../../../../packages/game-data-contr
 import { compareCombatNumbers } from '../../mechanics/combatNumbers.ts';
 import type {
   ResolvedCombatOperationStep,
+  ResolvedCombatStepForKind,
   ResolvedCombatStepParameters,
   ResolvedSkillBuffDefinition,
 } from '../../compiler/combatProgram';
@@ -300,10 +306,58 @@ export interface BuffOperationDependencies {
   readonly readProcessingSkillCastId?: (ownerId: string) => number | undefined;
 }
 
+export interface AuraInfluenceOperations {
+  targets(
+    parameters: ResolvedCombatStepParameters['aura'],
+    context: CombatOperationContext,
+  ): readonly RuntimeTargetRef[];
+  apply(
+    parameters: ResolvedCombatStepParameters['aura'],
+    target: RuntimeTargetRef,
+    context: CombatOperationContext,
+  ): BuffReference[];
+  finish(references: readonly BuffReference[]): void;
+}
+
 export class BuffOperationExecutor implements CombatOperationExecutor {
   /** 只缓存当前执行器创建过的对象；是否活动以及实例身份以动作数据为准。 */
   readonly #buffHandleBindings = new Map<string, BuffApplicationHandle>();
   constructor(readonly dependencies: BuffOperationDependencies) {}
+
+  readonly aura: AuraInfluenceOperations = {
+    targets: (parameters, context) =>
+      this.#resolveApplicationTargets(parameters.target, context).map(target =>
+        target.ownerId === 'enemy'
+          ? { kind: 'enemy' as const }
+          : { kind: 'operator' as const, operatorId: target.ownerId },
+      ),
+    apply: (parameters, target, context) => {
+      const scoped = { ...context, currentTarget: target };
+      const receiver = this.#resolveApplicationTargets('currentTarget', scoped)[0];
+      if (!receiver?.applyScoped) throw new Error('Aura requires a scoped Buff receiver');
+      const references: BuffReference[] = [];
+      for (const entry of parameters.buffs) {
+        const handle = receiver.applyScoped(
+          this.#createBuffRequest(parameters, entry, {
+            ...context,
+            ...(parameters.source === 'currentAbilityEntity' &&
+            context.actionOwnerAbilityEntity !== undefined
+              ? { currentTarget: context.actionOwnerAbilityEntity }
+              : {}),
+          }),
+        );
+        if (handle !== null) {
+          references.push(handle.reference);
+          this.#buffHandleBindings.set(buffReferenceKey(handle.reference), handle);
+        }
+      }
+      return references;
+    },
+    finish: references => {
+      for (let index = references.length - 1; index >= 0; index--)
+        this.#resolveActionBuff(references[index]!)?.finish('other');
+    },
+  };
 
   execute(step: RuntimeOperation, context?: CombatOperationContext): boolean {
     if (step.kind === 'limitMovementGait') {
@@ -420,14 +474,67 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
     if (step.kind === 'skillAffix') {
       const state = context?.actionRegistrationState;
       if (state === undefined) throw new Error('SkillAffix requires action data');
-      if (state.registrationId !== null) throw new Error('SkillAffix action is already active');
+      if (state.registrationIds.length > 0) throw new Error('SkillAffix action is already active');
       if (context?.bindCurrentBuffSkillAffix === undefined || context.buffOwnerId === undefined)
         return false;
       if (this.dependencies.readProcessingSkillCastId === undefined)
         throw new Error('SkillAffix requires a processing-skill resolver');
       const id = this.dependencies.readProcessingSkillCastId(context.buffOwnerId);
       if (id === undefined) return false;
-      state.registrationId = context.bindCurrentBuffSkillAffix(id);
+      state.registrationIds = [context.bindCurrentBuffSkillAffix(id)];
+      return true;
+    }
+    if (step.kind === 'forceSpellStatus') {
+      if (context === undefined) throw new Error('forceSpellStatus requires an action context');
+      const target = this.dependencies.resolveTarget(step.parameters.target);
+      const buffId = FORCED_SPELL_STATUS_BUFFS[step.parameters.element];
+      const definition = this.dependencies.resolveBuffDefinition?.(buffId);
+      if (definition === undefined || target.apply === undefined)
+        throw new Error(
+          `forceSpellStatus requires Buff definition '${buffId}' and an application target`,
+        );
+      // 原生三个 BlackboardInt 在消费之前求值；消费回调不能改变本次已确定的参数。
+      const layers = Math.trunc(
+        resolveActionValueOperand(step.parameters.consumedLayers, context.blackboard),
+      );
+      const count = Math.trunc(
+        resolveActionValueOperand(step.parameters.count, context.blackboard),
+      );
+      const tags = [ELEMENTAL_ATTACHMENT_TAGS[step.parameters.consumedElement]];
+      const sourceId = context.actionSourceId ?? context.buffSourceId ?? this.dependencies.sourceId;
+      if (layers > 0) {
+        // 层数不足只跳过本目标，原生动作本身仍返回成功。
+        if (target.getCountByTags(tags, 'hasAny') < layers) return true;
+        if (target.finishCountByTags === undefined)
+          throw new Error('forceSpellStatus requires a count-aware Buff target');
+        target.finishCountByTags(
+          tags,
+          'hasAny',
+          layers,
+          'early',
+          false,
+          sourceId,
+          context.skillCastInfo ?? null,
+        );
+      }
+      target.apply({
+        buffId,
+        definition,
+        definitionOwnerId: this.dependencies.definitionOwnerId,
+        sourceId,
+        sourceActionId: this.dependencies.sourceActionId,
+        producedBy: operationProducer(context, {
+          ownerId: this.dependencies.sourceId,
+          actionId: this.dependencies.sourceActionId,
+        }),
+        blackboardValues: {
+          consumed_type: NATIVE_ELEMENT_VALUES[step.parameters.consumedElement],
+          consumed_layer: layers,
+          count,
+        },
+        skillCastInfo: context.skillCastInfo,
+        isExtra: step.parameters.isExtra,
+      });
       return true;
     }
     if (step.kind === 'applyPhysicalInfliction') {
@@ -550,8 +657,9 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
     }
 
     if (step.kind === 'applyBuff') {
-      const identity = stringInputExpression(step.parameters.buffId);
-      const dynamicId = typeof identity !== 'string';
+      const dynamicId = step.parameters.buffs.some(
+        entry => typeof stringInputExpression(entry.buffId) !== 'string',
+      );
       if (
         dynamicId &&
         ('definition' in step.parameters ||
@@ -606,17 +714,6 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
           ? this.dependencies.delegate.execute(step)
           : this.dependencies.delegate.execute(step, context);
       }
-      const assignments = step.parameters.blackboardAssignments ?? {};
-      const stringAssignments = step.parameters.stringBlackboardAssignments ?? {};
-      const copiedAssignments = step.parameters.copiedBlackboardAssignments ?? {};
-      if (
-        (Object.keys(assignments).length > 0 ||
-          Object.keys(stringAssignments).length > 0 ||
-          Object.keys(copiedAssignments).length > 0) &&
-        context === undefined
-      ) {
-        throw new Error('applyBuff runtime values require a combat operation context');
-      }
       if (step.parameters.count !== undefined && context === undefined) {
         throw new Error('applyBuff runtime count requires a combat operation context');
       }
@@ -625,188 +722,8 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
           ? 1
           : resolveActionValueOperand(step.parameters.count, context!.blackboard);
       // CreateBuffAction.FillSkillCastInfo 读取动作环境，事件来源只供事件条件读取。
-      const inheritedSkillCastInfo = context?.skillCastInfo;
       if (!Number.isFinite(count)) throw new RangeError('applyBuff count must be finite');
       // CreateBuffAction 每次实际施加都读 ID 和参数；前一个子 Buff 启动后可以改变后续读取值。
-      const createRequest = (): BuffApplicationRequest => {
-        const buffId =
-          typeof identity === 'string'
-            ? identity
-            : context?.blackboard.getString(identity.blackboardKey);
-        if (buffId === undefined || buffId.trim().length === 0)
-          throw new Error(
-            `Buff ID '${typeof identity === 'string' ? identity : identity.blackboardKey}' 缺失、为空或不是字符串`,
-          );
-        let definition = this.dependencies.resolveBuffDefinition?.(buffId);
-        if (dynamicId && definition === undefined) {
-          throw new Error(`动态 Buff ID '${buffId}' 在定义目录中不存在`);
-        }
-        if (step.parameters.keywordEnhancements?.length) {
-          if (definition === undefined)
-            throw new Error(`关键词 Buff '${buffId}' 在定义目录中不存在`);
-          if (definition.keywordEnhancements?.length)
-            throw new Error(`关键词 Buff '${buffId}' 的共享定义已含实例增强规则`);
-          definition = {
-            ...definition,
-            keywordEnhancements: step.parameters.keywordEnhancements.map(enhancement => ({
-              triggerBuffIds: enhancement.triggerBuffIds,
-              operation: enhancement.operation,
-              targetKey: 'rate',
-              initialValue: { blackboardKey: 'rate' },
-              value: resolveActionValueOperand(enhancement.value, context!.blackboard),
-            })),
-          };
-        }
-        const requiresSourceAttributeValue = definition?.shields?.some(
-          shield =>
-            typeof shield.value === 'object' &&
-            'attribute' in shield.value &&
-            shield.value.attributeSource === 'buffSource',
-        );
-        const sourceTarget =
-          step.parameters.sourceContextKey !== undefined
-            ? this.#resolveContextSource(step.parameters.sourceContextKey, context)
-            : step.parameters.source !== undefined || requiresSourceAttributeValue
-              ? this.#resolveApplicationSource(
-                  step.parameters.source ?? 'caster',
-                  context,
-                  definition === undefined || requiresSourceAttributeValue === true,
-                )
-              : undefined;
-        let iconDurationSourceTargetId: string | undefined;
-        if (step.parameters.iconDurationSource?.kind === 'actionOwnerAbilityEntity') {
-          if (context?.actionOwnerAbilityEntity === undefined) {
-            throw new Error(
-              'AbilityEntity Buff icon duration source requires an AbilityEntity action owner',
-            );
-          }
-          iconDurationSourceTargetId = `ability-entity:${context.actionOwnerAbilityEntity.instanceId}`;
-        } else if (step.parameters.iconDurationSource?.kind === 'actionOwnerTimedMarker') {
-          if (context?.actionOwnerAbilityEntity === undefined) {
-            throw new Error(
-              'TimedMarker Buff icon duration source requires an AbilityEntity action owner',
-            );
-          }
-          const resolve = this.dependencies.resolveAbilityEntityTimedMarkerSource;
-          if (resolve === undefined) {
-            throw new Error('TimedMarker Buff icon duration source runtime is not configured');
-          }
-          iconDurationSourceTargetId = resolve(
-            context.actionOwnerAbilityEntity,
-            step.parameters.iconDurationSource.markerId,
-          );
-          if (iconDurationSourceTargetId === undefined) {
-            throw new Error(
-              `AbilityEntity TimedMarker '${step.parameters.iconDurationSource.markerId}' is not active`,
-            );
-          }
-        }
-        return {
-          buffId,
-          producedBy: operationProducer(context, {
-            ownerId: this.dependencies.sourceId,
-            actionId: this.dependencies.sourceActionId,
-          }),
-          ...(definition === undefined ? {} : { definition }),
-          // 原生默认 ActionSource：回调来源优先，其次宿主 Buff 创建者；不是持有者。
-          sourceId:
-            step.parameters.source === undefined && step.parameters.sourceContextKey === undefined
-              ? (context?.actionSourceId ?? context?.buffSourceId ?? this.dependencies.sourceId)
-              : sourceTarget!.ownerId,
-          definitionOwnerId: this.dependencies.definitionOwnerId ?? this.dependencies.sourceId,
-          // 已解析定义且没有来源属性消费者时，不建立多余的活对象依赖；来源身份仍保留。
-          ...((definition !== undefined && !requiresSourceAttributeValue) ||
-          sourceTarget?.getAttributeValue === undefined
-            ? {}
-            : {
-                getSourceAttributeValue: sourceTarget.getAttributeValue.bind(sourceTarget),
-                sourceAttributeOwnerId: sourceTarget.ownerId,
-              }),
-          ...(this.dependencies.sourceActionId === undefined
-            ? {}
-            : { sourceActionId: this.dependencies.sourceActionId }),
-          blackboardValues: Object.fromEntries([
-            ...Object.entries(assignments).map(
-              ([key, operand]) =>
-                [key, resolveActionValueOperand(operand, context!.blackboard)] as const,
-            ),
-            ...Object.entries(stringAssignments),
-            ...Object.entries(copiedAssignments).map(([targetKey, sourceKey]) => {
-              const value = context!.blackboard.getValue(sourceKey);
-              if (value === undefined) {
-                throw new Error(`action blackboard value '${sourceKey}' is missing`);
-              }
-              return [targetKey, value] as const;
-            }),
-          ]),
-          ...(context === undefined
-            ? {}
-            : (() => {
-                const factors = Object.fromEntries(
-                  Object.entries(
-                    Object.fromEntries([
-                      ...Object.entries(assignments).map(
-                        ([key, operand]) =>
-                          [key, resolveSkillSettingFactor(operand, context.blackboard)] as const,
-                      ),
-                      ...Object.keys(stringAssignments).map(key => [key, undefined] as const),
-                      ...Object.entries(copiedAssignments).map(
-                        ([key, sourceKey]) =>
-                          [key, context.blackboard.getArtsIntensityDetail(sourceKey)] as const,
-                      ),
-                    ]),
-                  ).filter(
-                    (
-                      entry,
-                    ): entry is [string, import('../state/foundationState').ArtsIntensityFactor] =>
-                      entry[1] !== undefined,
-                  ),
-                );
-                return Object.keys(factors).length
-                  ? { blackboardArtsIntensityFactors: factors }
-                  : {};
-              })()),
-          ...(context === undefined
-            ? {}
-            : (() => {
-                const calculations = Object.fromEntries(
-                  Object.entries(
-                    Object.fromEntries([
-                      ...Object.entries(assignments).map(([key, operand]) => [
-                        key,
-                        (() => {
-                          const sourceKey = valueInputBlackboardKey(operand);
-                          return sourceKey === undefined
-                            ? undefined
-                            : context.blackboard.getValueCalculation(sourceKey);
-                        })(),
-                      ]),
-                      ...Object.keys(stringAssignments).map(key => [key, undefined]),
-                      ...Object.entries(copiedAssignments).map(([key, sourceKey]) => [
-                        key,
-                        context.blackboard.getValueCalculation(sourceKey),
-                      ]),
-                    ]),
-                  ).filter(
-                    (
-                      entry,
-                    ): entry is [
-                      string,
-                      import('../state/foundationState').ActionValueCalculation,
-                    ] => entry[1] !== undefined,
-                  ),
-                );
-                return Object.keys(calculations).length
-                  ? { blackboardValueCalculations: calculations }
-                  : {};
-              })()),
-          ...(step.parameters.inheritSourceSkillCastInfo && inheritedSkillCastInfo !== undefined
-            ? { skillCastInfo: inheritedSkillCastInfo }
-            : {}),
-          ...(step.parameters.isExtra ? { isExtra: true } : {}),
-          ...(iconDurationSourceTargetId === undefined ? {} : { iconDurationSourceTargetId }),
-        };
-      };
       const actionBuffs = finishByAction ? this.#requireActionBuffState(context) : undefined;
       if (actionBuffs?.active) {
         throw new Error('action-duration applyBuff step is already active');
@@ -815,27 +732,29 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
       // 原生用从 0 开始的整数计数器与 float 次数比较，正小数因此会多执行一次。
       for (const target of targets) {
         for (let repetition = 0; repetition < count; repetition += 1) {
-          const request = createRequest();
-          if (finishByAction || asChildBuff || attachToSkill) {
-            const handle = target.applyScoped!(request);
-            if (handle !== null) {
-              if (finishByAction) {
-                scoped.push(handle);
-                this.#buffHandleBindings.set(buffReferenceKey(handle.reference), handle);
-              }
-              if (asChildBuff) addOwnerChild!(handle);
-              if (attachToSkill) {
-                // 原生派生钩子只对创建成功的实例读取 CastSkillContext。
-                if (attachBuff === undefined) {
-                  throw new Error(
-                    'currentCastSkill Buff lifetime requires a native CastSkillContext attachment port',
-                  );
+          for (const entry of step.parameters.buffs) {
+            const request = this.#createBuffRequest(step.parameters, entry, context);
+            if (finishByAction || asChildBuff || attachToSkill) {
+              const handle = target.applyScoped!(request);
+              if (handle !== null) {
+                if (finishByAction) {
+                  scoped.push(handle);
+                  this.#buffHandleBindings.set(buffReferenceKey(handle.reference), handle);
                 }
-                attachBuff(handle);
+                if (asChildBuff) addOwnerChild!(handle);
+                if (attachToSkill) {
+                  // 原生派生钩子只对创建成功的实例读取 CastSkillContext。
+                  if (attachBuff === undefined) {
+                    throw new Error(
+                      'currentCastSkill Buff lifetime requires a native CastSkillContext attachment port',
+                    );
+                  }
+                  attachBuff(handle);
+                }
               }
+            } else {
+              target.apply!(request);
             }
-          } else {
-            target.apply!(request);
           }
         }
       }
@@ -1366,11 +1285,11 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
     if (step.kind === 'skillAffix') {
       const state = context?.actionRegistrationState;
       if (state === undefined) throw new Error('SkillAffix requires action data');
-      if (state.registrationId !== null) {
+      if (state.registrationIds.length > 0) {
         if (context?.finishCurrentBuffSkillAffix === undefined)
           throw new Error('SkillAffix requires a current Buff finish port');
-        context.finishCurrentBuffSkillAffix(state.registrationId);
-        state.registrationId = null;
+        for (const id of state.registrationIds) context.finishCurrentBuffSkillAffix(id);
+        state.registrationIds = [];
       }
       return;
     }
@@ -1435,32 +1354,203 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
       }
       actionBuffs.references.length = 0;
       actionBuffs.active = false;
-      if (step.parameters.onActionEndFinishBuffs !== undefined) {
-        this.execute(
-          {
-            kind: 'finishBuffsById',
-            parameters: {
-              ...step.parameters.onActionEndFinishBuffs,
-              reason: 'other',
-            },
-          },
-          context,
-        );
-      }
-      for (const exit of step.parameters.onActionEndBuffs ?? []) {
-        this.execute(
-          {
-            kind: 'applyBuff',
-            parameters: exit,
-          },
-          context,
-        );
-      }
       return;
     }
     this.dependencies.delegate.end?.(step, context);
   }
 
+  #createBuffRequest(
+    parameters: ResolvedCombatStepForKind<'applyBuff'>['parameters'],
+    entry: ResolvedCombatStepForKind<'applyBuff'>['parameters']['buffs'][number],
+    context: CombatOperationContext | undefined,
+  ): BuffApplicationRequest {
+    const identity = stringInputExpression(entry.buffId);
+    const dynamicId = typeof identity !== 'string';
+    const assignments = entry.blackboardAssignments ?? {};
+    const stringAssignments = entry.stringBlackboardAssignments ?? {};
+    const copiedAssignments = entry.copiedBlackboardAssignments ?? {};
+    if (
+      (Object.keys(assignments).length > 0 ||
+        Object.keys(stringAssignments).length > 0 ||
+        Object.keys(copiedAssignments).length > 0) &&
+      context === undefined
+    ) {
+      throw new Error('applyBuff runtime values require a combat operation context');
+    }
+
+    const buffId =
+      typeof identity === 'string'
+        ? identity
+        : context?.blackboard.getString(identity.blackboardKey);
+    if (buffId === undefined || buffId.trim().length === 0)
+      throw new Error(
+        `Buff ID '${typeof identity === 'string' ? identity : identity.blackboardKey}' 缺失、为空或不是字符串`,
+      );
+    let definition = this.dependencies.resolveBuffDefinition?.(buffId);
+    if (dynamicId && definition === undefined) {
+      throw new Error(`动态 Buff ID '${buffId}' 在定义目录中不存在`);
+    }
+    if (entry.keywordEnhancements?.length) {
+      if (definition === undefined) throw new Error(`关键词 Buff '${buffId}' 在定义目录中不存在`);
+      if (definition.keywordEnhancements?.length)
+        throw new Error(`关键词 Buff '${buffId}' 的共享定义已含实例增强规则`);
+      definition = {
+        ...definition,
+        keywordEnhancements: entry.keywordEnhancements.map(enhancement => ({
+          triggerBuffIds: enhancement.triggerBuffIds,
+          operation: enhancement.operation,
+          targetKey: 'rate',
+          initialValue: { blackboardKey: 'rate' },
+          value: resolveActionValueOperand(enhancement.value, context!.blackboard),
+        })),
+      };
+    }
+    const requiresSourceAttributeValue = definition?.shields?.some(
+      shield =>
+        typeof shield.value === 'object' &&
+        'attribute' in shield.value &&
+        shield.value.attributeSource === 'buffSource',
+    );
+    const sourceTarget =
+      parameters.sourceContextKey !== undefined
+        ? this.#resolveContextSource(parameters.sourceContextKey, context)
+        : parameters.source !== undefined || requiresSourceAttributeValue
+          ? this.#resolveApplicationSource(
+              parameters.source ?? 'caster',
+              context,
+              definition === undefined || requiresSourceAttributeValue === true,
+            )
+          : undefined;
+    let iconDurationSourceTargetId: string | undefined;
+    if (parameters.iconDurationSource?.kind === 'actionOwnerAbilityEntity') {
+      if (context?.actionOwnerAbilityEntity === undefined) {
+        throw new Error(
+          'AbilityEntity Buff icon duration source requires an AbilityEntity action owner',
+        );
+      }
+      iconDurationSourceTargetId = `ability-entity:${context.actionOwnerAbilityEntity.instanceId}`;
+    } else if (parameters.iconDurationSource?.kind === 'actionOwnerTimedMarker') {
+      if (context?.actionOwnerAbilityEntity === undefined) {
+        throw new Error(
+          'TimedMarker Buff icon duration source requires an AbilityEntity action owner',
+        );
+      }
+      const resolve = this.dependencies.resolveAbilityEntityTimedMarkerSource;
+      if (resolve === undefined) {
+        throw new Error('TimedMarker Buff icon duration source runtime is not configured');
+      }
+      iconDurationSourceTargetId = resolve(
+        context.actionOwnerAbilityEntity,
+        parameters.iconDurationSource.markerId,
+      );
+      if (iconDurationSourceTargetId === undefined) {
+        throw new Error(
+          `AbilityEntity TimedMarker '${parameters.iconDurationSource.markerId}' is not active`,
+        );
+      }
+    }
+    return {
+      buffId,
+      producedBy: operationProducer(context, {
+        ownerId: this.dependencies.sourceId,
+        actionId: this.dependencies.sourceActionId,
+      }),
+      ...(definition === undefined ? {} : { definition }),
+      // 原生默认 ActionSource：回调来源优先，其次宿主 Buff 创建者；不是持有者。
+      sourceId:
+        parameters.source === undefined && parameters.sourceContextKey === undefined
+          ? (context?.actionSourceId ?? context?.buffSourceId ?? this.dependencies.sourceId)
+          : sourceTarget!.ownerId,
+      definitionOwnerId: this.dependencies.definitionOwnerId ?? this.dependencies.sourceId,
+      // 已解析定义且没有来源属性消费者时，不建立多余的活对象依赖；来源身份仍保留。
+      ...((definition !== undefined && !requiresSourceAttributeValue) ||
+      sourceTarget?.getAttributeValue === undefined
+        ? {}
+        : {
+            getSourceAttributeValue: sourceTarget.getAttributeValue.bind(sourceTarget),
+            sourceAttributeOwnerId: sourceTarget.ownerId,
+          }),
+      ...(this.dependencies.sourceActionId === undefined
+        ? {}
+        : { sourceActionId: this.dependencies.sourceActionId }),
+      blackboardValues: Object.fromEntries([
+        ...Object.entries(assignments).map(
+          ([key, operand]) =>
+            [key, resolveActionValueOperand(operand, context!.blackboard)] as const,
+        ),
+        ...Object.entries(stringAssignments),
+        ...Object.entries(copiedAssignments).map(([targetKey, sourceKey]) => {
+          const value = context!.blackboard.getValue(sourceKey);
+          if (value === undefined) {
+            throw new Error(`action blackboard value '${sourceKey}' is missing`);
+          }
+          return [targetKey, value] as const;
+        }),
+      ]),
+      ...(context === undefined
+        ? {}
+        : (() => {
+            const factors = Object.fromEntries(
+              Object.entries(
+                Object.fromEntries([
+                  ...Object.entries(assignments).map(
+                    ([key, operand]) =>
+                      [key, resolveSkillSettingFactor(operand, context.blackboard)] as const,
+                  ),
+                  ...Object.keys(stringAssignments).map(key => [key, undefined] as const),
+                  ...Object.entries(copiedAssignments).map(
+                    ([key, sourceKey]) =>
+                      [key, context.blackboard.getArtsIntensityDetail(sourceKey)] as const,
+                  ),
+                ]),
+              ).filter(
+                (
+                  entry,
+                ): entry is [string, import('../state/foundationState').ArtsIntensityFactor] =>
+                  entry[1] !== undefined,
+              ),
+            );
+            return Object.keys(factors).length ? { blackboardArtsIntensityFactors: factors } : {};
+          })()),
+      ...(context === undefined
+        ? {}
+        : (() => {
+            const calculations = Object.fromEntries(
+              Object.entries(
+                Object.fromEntries([
+                  ...Object.entries(assignments).map(([key, operand]) => [
+                    key,
+                    (() => {
+                      const sourceKey = valueInputBlackboardKey(operand);
+                      return sourceKey === undefined
+                        ? undefined
+                        : context.blackboard.getValueCalculation(sourceKey);
+                    })(),
+                  ]),
+                  ...Object.keys(stringAssignments).map(key => [key, undefined]),
+                  ...Object.entries(copiedAssignments).map(([key, sourceKey]) => [
+                    key,
+                    context.blackboard.getValueCalculation(sourceKey),
+                  ]),
+                ]),
+              ).filter(
+                (
+                  entry,
+                ): entry is [string, import('../state/foundationState').ActionValueCalculation] =>
+                  entry[1] !== undefined,
+              ),
+            );
+            return Object.keys(calculations).length
+              ? { blackboardValueCalculations: calculations }
+              : {};
+          })()),
+      ...(parameters.inheritSourceSkillCastInfo && context?.skillCastInfo !== undefined
+        ? { skillCastInfo: context?.skillCastInfo }
+        : {}),
+      ...(parameters.isExtra ? { isExtra: true } : {}),
+      ...(iconDurationSourceTargetId === undefined ? {} : { iconDurationSourceTargetId }),
+    };
+  }
   #requireActionBuffState(context: CombatOperationContext | undefined) {
     const state = context?.actionBuffReferencesState;
     if (state === undefined) throw new Error('action-owned Buff operation requires action data');

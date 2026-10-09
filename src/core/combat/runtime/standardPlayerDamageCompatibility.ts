@@ -106,7 +106,6 @@ function inspectCondition(
     case 'casterComboPending':
     case 'eventComboRingQteSucceeded':
     case 'abilityEntityTimedMarkerPresent':
-    case 'elementalReactionActive':
     case 'casterControlled':
     case 'characterTypeIn':
     case 'operatorRoleIn':
@@ -330,8 +329,7 @@ function inspectSequence(
           }
         }
         return;
-      case 'applyElementalReaction':
-      case 'consumeElementalReaction':
+      case 'forceSpellStatus':
       case 'outputAirborne':
       case 'outputKnockDown':
         return;
@@ -456,8 +454,7 @@ function inspectSequence(
             ),
           );
         return;
-      case 'changeResource':
-      case 'changeResourceByActionValue': {
+      case 'changeResource': {
         const { resource, recipient } = step.parameters;
         const supported =
           (resource === 'sp' && recipient === 'team') ||

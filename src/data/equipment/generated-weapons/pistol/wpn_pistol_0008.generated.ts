@@ -69,14 +69,18 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_pistol_0008',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_pistol_0008',
+                      copiedBlackboardAssignments: {
+                        duration: 'duration',
+                        dmg_up_final: 'spell_dmg_up2',
+                      },
+                    },
+                  ],
                   target: 'caster',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: {
-                    duration: 'duration',
-                    dmg_up_final: 'spell_dmg_up2',
-                  },
                 },
               },
               next: null,
@@ -93,13 +97,17 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_pistol_0008_extra_valid',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_pistol_0008_extra_valid',
+                      copiedBlackboardAssignments: {
+                        duration: 'duration2',
+                        dmg_up_final: 'spell_dmg_up3',
+                      },
+                    },
+                  ],
                   target: 'caster',
                   inheritSourceSkillCastInfo: true,
-                  copiedBlackboardAssignments: {
-                    duration: 'duration2',
-                    dmg_up_final: 'spell_dmg_up3',
-                  },
                 },
               },
               next: null,

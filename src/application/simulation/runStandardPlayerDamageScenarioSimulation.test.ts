@@ -1054,7 +1054,7 @@ function createGeneratedMifuBattleChainScenario() {
                 steps: Array.from({ length: 3 }, () => ({
                   kind: 'applyBuff' as const,
                   parameters: {
-                    buffId: 'buff_physical_no_guard',
+                    buffs: [{ buffId: 'buff_physical_no_guard' }],
                     target: 'enemy' as const,
                     inheritSourceSkillCastInfo: true,
                   },
@@ -1207,12 +1207,16 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
             {
               kind: 'applyBuff',
               parameters: {
-                buffId: 'buff_common_cryst_triggered_physical_break',
+                buffs: [
+                  {
+                    buffId: 'buff_common_cryst_triggered_physical_break',
+                    blackboardAssignments: {
+                      atk_scale: { kind: 'constant', value: 0 },
+                    },
+                  },
+                ],
                 target: 'enemy',
                 inheritSourceSkillCastInfo: true,
-                blackboardAssignments: {
-                  atk_scale: { kind: 'constant', value: 0 },
-                },
               },
             },
           ],
@@ -2081,7 +2085,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
                     ...Array.from({ length: 3 }, (): ActionGraphStep => ({
                       kind: 'applyBuff',
                       parameters: {
-                        buffId: 'buff_physical_no_guard',
+                        buffs: [{ buffId: 'buff_physical_no_guard' }],
                         target: 'enemy',
                         inheritSourceSkillCastInfo: true,
                       },
@@ -2089,7 +2093,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
                     {
                       kind: 'applyBuff',
                       parameters: {
-                        buffId: 'buff_common_energy_shard_attached_fire',
+                        buffs: [{ buffId: 'buff_common_energy_shard_attached_fire' }],
                         target: 'enemy',
                         inheritSourceSkillCastInfo: true,
                       },
@@ -3216,8 +3220,12 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
         showInHeadBarAttached: true,
       }),
     );
-    expect(result.receiptEntries.some(entry => entry.event === 'ElementalReactionApplied')).toBe(
-      true,
+    expect(result.receiptEntries).toContainEqual(
+      expect.objectContaining({
+        event: 'BuffApplied',
+        targetId: 'enemy',
+        data: expect.objectContaining({ buffId: 'buff_common_pulse_pulse_conduct_triggered_do' }),
+      }),
     );
     expect(result.enemyVitals.finalPoise).toBe(0);
 

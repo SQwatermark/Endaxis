@@ -19,7 +19,6 @@ import {
   type DamageFeature,
   type DamageTag,
   type DamageType,
-  type ElementalReaction,
   type HealCalculationAttribute,
   type HealTarget,
   type InflictionElement,
@@ -87,6 +86,36 @@ export const BUFF_TAG_FINISH_TARGETS = [
 ] as const satisfies readonly BuffApplicationTarget[];
 /** 按标签结束 Buff 的单体或队伍目标。 */
 export type BuffTagFinishTarget = (typeof BUFF_TAG_FINISH_TARGETS)[number];
+
+/** 一条 CreateBuffAction 输入；不持有独立目标或生命周期。 */
+export interface BuffApplicationEntry {
+  /** 动态身份在执行时从字符串黑板读取；不携带可被误用的字面回退 ID。 */
+  buffId: ActionStringOperand;
+  /**
+   * 在施加时覆盖 Buff 定义黑板的同名默认值。动作操作数从当前动作黑板求值；
+   * 等级值在技能或养成初始化程序编译时解析。
+   */
+  blackboardAssignments?: Readonly<Record<string, LevelValues | ActionValueOperand>>;
+  /** 原生字符串输入的字面覆盖；与数值赋值分开，避免把字符串伪装成计算操作数。 */
+  stringBlackboardAssignments?: Readonly<Record<string, string>>;
+  /**
+   * 原生 useDirectValue=false：从当前动作黑板按实际值类型复制到新 Buff。
+   * 键是目标 Buff 黑板键，值是当前动作黑板来源键。
+   */
+  copiedBlackboardAssignments?: Readonly<Record<string, string>>;
+  /**
+   * 原生 KeywordAction.enhancingList：只附着到本次创建的关键词载体实例，不能改写共享模板。
+   * value 在创建边沿从当前动作黑板求值，随后由载体自身监听普通 Buff 的加入边沿。
+   */
+  keywordEnhancements?: readonly {
+    /** 任一加入时触发强化的普通 Buff ID。 */
+    triggerBuffIds: readonly string[];
+    /** 对关键词值执行赋值、加算或乘算。 */
+    operation: 'assign' | 'add' | 'multiply';
+    /** 从当前动作黑板或常量读取的运算值。 */
+    value: ActionValueOperand;
+  }[];
+}
 
 /** 一次伤害步骤的完整声明；倍率使用小数，失衡与生命伤害同属该命中。 */
 export interface DealDamageParameters {
@@ -535,25 +564,20 @@ export interface CombatStepParameters {
         returnWhen: 'always' | 'successAndInterrupted' | 'success' | 'interrupted';
       }
   );
-  /** 在目标身上创建一个有持续时间和效果系数的复合元素反应。 */
-  applyElementalReaction: {
-    /** 要创建的复合元素反应。 */
-    reaction: ElementalReaction;
-    /** 反应作用的对象。 */
-    target: CombatTarget;
-    /** 原生反应触发 Buff 可从当前动作黑板转交持续时间。 */
-    durationSeconds: number | ActionValueOperand;
-    /** 构筑期持续时间修正；与动作黑板基础时长分离。 */
-    durationMultiplier?: number;
-    /** 反应效果系数。 */
-    effectiveness: number;
-  };
-  /** 从目标身上移除一个复合元素反应。 */
-  consumeElementalReaction: {
-    /** 要移除的元素反应。 */
-    reaction: ElementalReaction;
-    /** 当前只支持从敌人身上移除。 */
+  /** 原生 ForceSpellStatusAction：检查并消费附着，再创建指定法术反应；整个过程是一次动作。 */
+  forceSpellStatus: {
+    /** 接收反应的目标。 */
     target: 'enemy';
+    /** 指定反应的元素：燃烧、导电、冻结或腐蚀。 */
+    element: InflictionElement;
+    /** 被消费的附着元素；与反应元素独立。 */
+    consumedElement: InflictionElement;
+    /** 消费层数；不大于零时不检查或消费附着。 */
+    consumedLayers: ActionValueOperand;
+    /** 传入反应 Buff 的 count，不是消费层数。 */
+    count: ActionValueOperand;
+    /** 原生 AddBuffContext 的额外施加标记。 */
+    isExtra: boolean;
   };
   /** 报告一次对固定目标成功输出浮空；木桩模型不保存位移、朝向或控制状态。 */
   outputAirborne: {
@@ -613,9 +637,24 @@ export interface CombatStepParameters {
         }
     );
   /** 按目标、来源和黑板赋值创建一个或多个 Buff 实例。 */
+  /** 原生 Aura：每个进入目标分别施加区域 Buff，并执行进入/退出回调。 */
+  aura: {
+    /** 零空间下的候选集合；排除的是动作 Owner。 */
+    target: 'party' | 'partyExceptCaster' | 'enemy';
+    /** 按原生顺序施加到每个进入目标。 */
+    buffs: readonly BuffApplicationEntry[];
+    /** 区域 Buff 的来源，不改写回调环境的 Owner/Source。 */
+    source?: BuffApplicationSource;
+    /** 将当前施法身份传给区域 Buff。 */
+    inheritSourceSkillCastInfo?: boolean;
+    /** 仅覆盖显示倒计时，不改变实例寿命。 */
+    iconDurationSource?:
+      | { readonly kind: 'actionOwnerAbilityEntity' }
+      | { readonly kind: 'actionOwnerTimedMarker'; readonly markerId: string };
+  };
   applyBuff: {
-    /** 动态身份在执行时从字符串黑板读取；不携带可被误用的字面回退 ID。 */
-    buffId: ActionStringOperand;
+    /** 每次循环按顺序施加；ID 与赋值在轮到该项时求值。 */
+    buffs: readonly BuffApplicationEntry[];
     /** 接收 Buff 的单体或队伍目标。 */
     target: BuffApplicationTarget;
     /** 原生 CreateBuffAction 的循环次数；省略时执行一次，正小数按 `int < float` 语义向上取整。 */
@@ -643,59 +682,12 @@ export interface CombatStepParameters {
           /** 定时标记 ID。 */
           readonly markerId: string;
         };
-    /**
-     * 在施加时覆盖 Buff 定义黑板的同名默认值。动作操作数从当前动作黑板求值；
-     * 等级值在技能或养成初始化程序编译时解析。
-     */
-    blackboardAssignments?: Readonly<Record<string, LevelValues | ActionValueOperand>>;
-    /** 原生字符串输入的字面覆盖；与数值赋值分开，避免把字符串伪装成计算操作数。 */
-    stringBlackboardAssignments?: Readonly<Record<string, string>>;
-    /**
-     * 原生 useDirectValue=false：从当前动作黑板按实际值类型复制到新 Buff。
-     * 键是目标 Buff 黑板键，值是当前动作黑板来源键。
-     */
-    copiedBlackboardAssignments?: Readonly<Record<string, string>>;
-    /**
-     * 原生 KeywordAction.enhancingList：只附着到本次创建的关键词载体实例，不能改写共享模板。
-     * value 在创建边沿从当前动作黑板求值，随后由载体自身监听普通 Buff 的加入边沿。
-     */
-    keywordEnhancements?: readonly {
-      /** 任一加入时触发强化的普通 Buff ID。 */
-      triggerBuffIds: readonly string[];
-      /** 对关键词值执行赋值、加算或乘算。 */
-      operation: 'assign' | 'add' | 'multiply';
-      /** 从当前动作黑板或常量读取的运算值。 */
-      value: ActionValueOperand;
-    }[];
     /** 原生动作要求把当前施法身份复制到新 Buff 时为 true。 */
     inheritSourceSkillCastInfo?: boolean;
     /** 原生 AddBuffContext.isExtra；仅作为 Buff 添加事件事实传播，不自行产生数值效果。 */
     isExtra?: boolean;
     /** 原生区域/动作生命周期结束时，只结束本步骤实际创建的 Buff 实例。 */
     finishByAction?: boolean;
-    /** 动作结束时，在回收自身创建的 Buff 后，按 ID 清理指定目标的全部匹配 Buff。 */
-    onActionEndFinishBuffs?: {
-      target: BuffApplicationTarget;
-      buffIds: readonly string[];
-    };
-    /**
-     * 原生 Aura 离开边沿：先结束本步骤创建的区域 Buff，再在同一批目标上创建有限余效。
-     * 只随 finishByAction=true 使用；余效是独立实例，不再归原 Aura 动作托管。
-     */
-    onActionEndBuffs?: readonly {
-      /** 余效 Buff ID。 */
-      buffId: string;
-      /** 接收余效 Buff 的目标。 */
-      target: BuffApplicationTarget;
-      /** 余效 Buff 的来源对象。 */
-      source?: BuffApplicationSource;
-      /** 从当前动作黑板计算并传给余效 Buff 的数值。 */
-      blackboardAssignments?: Readonly<Record<string, ActionValueOperand>>;
-      /** 直接传给余效 Buff 的字符串值。 */
-      stringBlackboardAssignments?: Readonly<Record<string, string>>;
-      /** 是否把当前施法身份传给余效 Buff。 */
-      inheritSourceSkillCastInfo?: boolean;
-    }[];
     /**
      * 当前技能由白名单中的下一原生技能打断时，把本步骤创建的同一 Buff 实例转交给下一技能；
      * 不刷新层数、持续时间、来源或黑板。当前只与 finishByAction=true 的原生组合一起使用。
@@ -1170,14 +1162,14 @@ export interface CombatStepParameters {
     /** 生命下限数值或比例。 */
     value: ActionValueOperand;
   };
-  /** 按技能或养成等级解析固定数值后增减战斗资源。 */
+  /** 原生 ObtainCostAction：在执行点读取数值并增减战斗资源。 */
   changeResource: {
     /** 要增减的资源。 */
     resource: CombatResource;
     /** 正数增加、负数减少的资源量。 */
-    amount: LevelValues;
+    amount: LevelValues | ActionValueOperand;
     /** 原生 ObtainCostAction 在资源效率链之前乘到 amount 上；省略时为 1。 */
-    coefficient?: LevelValues;
+    coefficient?: LevelValues | ActionValueOperand;
     /** 资源作用于施法者还是全队。 */
     recipient: ResourceRecipient;
     /** 仅对正向技力变化有效；省略时按普通获得处理。 */
@@ -1190,27 +1182,8 @@ export interface CombatStepParameters {
     ultimateRecoveryTag?: GameplayTag;
     /** 终结技能量专用：跳过目标自身的回能效率。 */
     ignoreUltimateEnergyGainMultiplier?: boolean;
-  };
-  /** 执行时从当前技能动作黑板读取数值，再交给同一资源账本处理。 */
-  changeResourceByActionValue: {
-    /** 要增减的资源。 */
-    resource: CombatResource;
-    /** 从动作黑板或常量读取的资源量。 */
-    amount: ActionValueOperand;
-    /** 原生 ObtainCostAction 在资源效率链之前乘到动态 amount 上；省略时为 1。 */
-    coefficient?: LevelValues | ActionValueOperand;
-    /** 资源作用于施法者还是全队。 */
-    recipient: ResourceRecipient;
-    /** 正向技力变化是正常获得还是返还。 */
-    spGainKind?: SpGainKind;
-    /** 正向技力变化的动作来源。 */
-    spGainSource?: SpGainSource;
-    /** 是否把终结技能量数值解释为最大能量比例。 */
-    isPercentValue?: boolean;
-    /** 正向终结技能量回复携带的许可标签。 */
-    ultimateRecoveryTag?: GameplayTag;
-    /** 是否跳过目标自身的终结技能量获取倍率。 */
-    ignoreUltimateEnergyGainMultiplier?: boolean;
+    /** 原生 atbOnlyMainChar；仅限制技力获取，终结技能量不受此开关影响。 */
+    onlyMainOperator?: boolean;
   };
   /** 返还 PlayerController 持有的全队共享闪避体力。 */
   recoverDashEnergy: {
@@ -1425,8 +1398,8 @@ export interface CombatStepParameters {
   };
   /** Buff 动作有效期间覆盖普攻命令；结束时只移除本次注册。 */
   overrideBasicAttackMapping: {
-    /** Buff 有效期内普通攻击操作请求的原生技能 ID。 */
-    skillId: string;
+    /** 按原生配置顺序登记的普攻技能；全部映射随本动作一起结束。 */
+    skillIds: readonly string[];
   };
   /** 动作有效期间覆盖当前干员可连续执行的 Dash 次数；负数表示无限。 */
   overrideMultiDashLimit: {
@@ -1487,18 +1460,18 @@ export const COMBAT_STEP_KINDS = [
   'limitMovementGait',
   'applyCharacterInfliction',
   'applyElementalInfliction',
+  'forceSpellStatus',
   'triggerSpellBurst',
   'triggerCustomAbilityEvent',
   'castSkillDuringAction',
   'applyPhysicalInfliction',
-  'applyElementalReaction',
-  'consumeElementalReaction',
   'outputAirborne',
   'outputKnockDown',
   'dealDamage',
   'dealFixedDamage',
   'dealStagger',
   'heal',
+  'aura',
   'applyBuff',
   'createGlobalBuff',
   'finishParentGlobalBuff',
@@ -1539,7 +1512,6 @@ export const COMBAT_STEP_KINDS = [
   'storeEntityPropertyValue',
   'setHealthFloor',
   'changeResource',
-  'changeResourceByActionValue',
   'recoverDashEnergy',
   'recordPerfectDodge',
   'gainSquadUltimateEnergyFromSkillCost',
@@ -1622,12 +1594,19 @@ type CombatStepNode<K extends CombatStepKind> = {
                     skill: AbilityEntityChildSkillDefinition;
                   }[];
                 }
-              : K extends 'forEachContextTarget'
+              : K extends 'aura'
                 ? {
-                    /** 对每个目标执行的序列。 */
-                    body: ActionGraphReference;
+                    /** 区域 Buff 安装后的原生进入回调。 */
+                    onEnter: ActionGraphReference;
+                    /** 区域 Buff 回收后的原生退出回调；Target 为离开对象。 */
+                    onExit: ActionGraphReference;
                   }
-                : {});
+                : K extends 'forEachContextTarget'
+                  ? {
+                      /** 对每个目标执行的序列。 */
+                      body: ActionGraphReference;
+                    }
+                  : {});
 
 /** 干员定义中可执行、按 `kind` 精确区分的一项步骤。 */
 export type CombatStepDefinition = CombatStepForKind<CombatStepKind>;

@@ -22,7 +22,7 @@ import type {
 const literal = (value: number) => ({ kind: 'constant' as const, value });
 const board = (key: string) => ({ kind: 'blackboard' as const, key });
 const spend = (key: string): ActionGraphStep => ({
-  kind: 'changeResourceByActionValue',
+  kind: 'changeResource',
   parameters: { resource: 'sp', recipient: 'team', amount: board(key) },
 });
 const gate = (key: string): CombatCondition => ({
@@ -75,9 +75,12 @@ function executeContribution(definition: GearSetDefinition) {
   const amounts: number[] = [];
   const operations = new ActionBlackboardOperationExecutor({
     execute(step, context) {
-      if (step.kind !== 'changeResourceByActionValue')
-        throw new Error(`unexpected test action ${step.kind}`);
-      amounts.push(resolveActionValueOperand(step.parameters.amount, context!.blackboard));
+      if (step.kind !== 'changeResource') throw new Error(`unexpected test action ${step.kind}`);
+      amounts.push(
+        typeof step.parameters.amount === 'number'
+          ? step.parameters.amount
+          : resolveActionValueOperand(step.parameters.amount, context!.blackboard),
+      );
       return true;
     },
     evaluate: () => {
@@ -335,9 +338,13 @@ describe('有运行入口的装备贡献按键裁剪初值', () => {
         {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'independent_buff',
+            buffs: [
+              {
+                buffId: 'independent_buff',
+                blackboardAssignments: { received: board('transfer') },
+              },
+            ],
             target: 'caster',
-            blackboardAssignments: { received: board('transfer') },
           },
         },
       ]),

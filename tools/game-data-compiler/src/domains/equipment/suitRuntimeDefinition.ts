@@ -223,9 +223,15 @@ export function compileEquipmentSuitRuntimeBatchSource(
       steps.push({
         kind: 'applyBuff',
         parameters: {
-          buffId: installation.buffId,
+          buffs: [
+            {
+              buffId: installation.buffId,
+              ...(Object.keys(assignments).length === 0
+                ? {}
+                : { blackboardAssignments: assignments }),
+            },
+          ],
           target: 'caster',
-          ...(Object.keys(assignments).length === 0 ? {} : { blackboardAssignments: assignments }),
         },
       });
     }

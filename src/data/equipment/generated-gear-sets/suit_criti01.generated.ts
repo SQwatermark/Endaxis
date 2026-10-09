@@ -12,15 +12,19 @@ const definition = {
           action: {
             kind: 'applyBuff',
             parameters: {
-              buffId: 'buff_equipsuit_critsuit_01',
+              buffs: [
+                {
+                  buffId: 'buff_equipsuit_critsuit_01',
+                  blackboardAssignments: {
+                    atk_up: { kind: 'constant', value: 0.05 },
+                    crit_up: { kind: 'constant', value: 0.05 },
+                    duration: { kind: 'constant', value: 5 },
+                    crit_up2: { kind: 'constant', value: 0.05 },
+                    max_stack: { kind: 'constant', value: 5 },
+                  },
+                },
+              ],
               target: 'caster',
-              blackboardAssignments: {
-                atk_up: { kind: 'constant', value: 0.05 },
-                crit_up: { kind: 'constant', value: 0.05 },
-                duration: { kind: 'constant', value: 5 },
-                crit_up2: { kind: 'constant', value: 0.05 },
-                max_stack: { kind: 'constant', value: 5 },
-              },
             },
           },
           next: null,
@@ -52,17 +56,21 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_equipsuit_critsuitatk_01',
+                  buffs: [
+                    {
+                      buffId: 'buff_equipsuit_critsuitatk_01',
+                      copiedBlackboardAssignments: {
+                        atk_up: 'atk_up',
+                        crit_up2: 'crit_up2',
+                        duration: 'duration',
+                        max_stack: 'max_stack',
+                      },
+                    },
+                  ],
                   target: 'buffOwner',
                   source: 'buffOwner',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: {
-                    atk_up: 'atk_up',
-                    crit_up2: 'crit_up2',
-                    duration: 'duration',
-                    max_stack: 'max_stack',
-                  },
                 },
               },
               next: null,
@@ -115,12 +123,16 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_equipsuit_critsuitdmg_01',
+                  buffs: [
+                    {
+                      buffId: 'buff_equipsuit_critsuitdmg_01',
+                      copiedBlackboardAssignments: { crit_up2: 'crit_up2' },
+                    },
+                  ],
                   target: 'buffOwner',
                   source: 'buffOwner',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: { crit_up2: 'crit_up2' },
                 },
               },
               next: null,

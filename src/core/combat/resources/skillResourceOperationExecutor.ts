@@ -59,30 +59,6 @@ export class SkillResourceOperationExecutor implements CombatOperationExecutor {
       this.runtimeState.ultimateRecoveryRestrictionHandles.set(this.programs.slot(step), handle);
       return true;
     }
-    if (step.kind === 'changeResourceByActionValue') {
-      if (context === undefined) {
-        throw new Error('changeResourceByActionValue requires a combat operation context');
-      }
-      const { amount, coefficient, ...parameters } = step.parameters;
-      return this.execute(
-        {
-          kind: 'changeResource',
-          parameters: {
-            ...parameters,
-            amount: Math.fround(resolveActionValueOperand(amount, context.blackboard)),
-            ...(coefficient === undefined
-              ? {}
-              : {
-                  coefficient:
-                    typeof coefficient === 'object'
-                      ? Math.fround(resolveActionValueOperand(coefficient, context.blackboard))
-                      : coefficient,
-                }),
-          },
-        },
-        context,
-      );
-    }
     if (step.kind === 'recoverDashEnergy') {
       if (context === undefined)
         throw new Error('recoverDashEnergy requires a combat operation context');
@@ -115,39 +91,45 @@ export class SkillResourceOperationExecutor implements CombatOperationExecutor {
       });
       return true;
     }
-    if (
-      step.kind === 'changeResource' &&
-      step.parameters.resource === 'sp' &&
-      step.parameters.recipient === 'team'
-    ) {
-      const amount = Math.fround(step.parameters.amount * (step.parameters.coefficient ?? 1));
-      const change = this.dependencies.resources.gainSp(
-        amount,
-        step.parameters.spGainKind,
-        step.parameters.spGainSource ?? 'default',
-      );
-      this.#recordSpChange(change, step.parameters.spGainSource ?? 'default', context);
-      return true;
-    }
-
-    if (
-      step.kind === 'changeResource' &&
-      step.parameters.resource === 'ultimateEnergy' &&
-      step.parameters.recipient === 'caster'
-    ) {
-      const amount = Math.fround(step.parameters.amount);
-      const change = this.dependencies.resources.changeUltimateEnergy(
-        this.dependencies.sourceOperatorId,
-        amount,
-        {
-          coefficient: step.parameters.coefficient,
-          isPercentValue: step.parameters.isPercentValue,
-          recoveryTag: step.parameters.ultimateRecoveryTag,
-          ignoreGainMultiplier: step.parameters.ignoreUltimateEnergyGainMultiplier,
-        },
-      );
-      this.#recordUltimateEnergyChange(change, context);
-      return true;
+    if (step.kind === 'changeResource') {
+      const p = step.parameters;
+      if (
+        p.resource === 'sp' &&
+        p.onlyMainOperator &&
+        !this.dependencies.delegate.evaluate({ kind: 'casterControlled' }, context)
+      )
+        return true;
+      const read = (value: typeof p.amount): number => {
+        if (typeof value === 'number') return value;
+        if (context === undefined)
+          throw new Error('dynamic resource amount requires an action context');
+        return Math.fround(resolveActionValueOperand(value, context.blackboard));
+      };
+      const amount = read(p.amount);
+      const coefficient = p.coefficient === undefined ? undefined : read(p.coefficient);
+      if (p.resource === 'sp' && p.recipient === 'team') {
+        const change = this.dependencies.resources.gainSp(
+          Math.fround(amount * (coefficient ?? 1)),
+          p.spGainKind,
+          p.spGainSource ?? 'default',
+        );
+        this.#recordSpChange(change, p.spGainSource ?? 'default', context);
+        return true;
+      }
+      if (p.resource === 'ultimateEnergy' && p.recipient === 'caster') {
+        const change = this.dependencies.resources.changeUltimateEnergy(
+          this.dependencies.sourceOperatorId,
+          Math.fround(amount),
+          {
+            coefficient,
+            isPercentValue: p.isPercentValue,
+            recoveryTag: p.ultimateRecoveryTag,
+            ignoreGainMultiplier: p.ignoreUltimateEnergyGainMultiplier,
+          },
+        );
+        this.#recordUltimateEnergyChange(change, context);
+        return true;
+      }
     }
 
     if (step.kind === 'gainFinisherSp') {

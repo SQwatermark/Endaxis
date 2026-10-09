@@ -49,10 +49,14 @@ it('projects boolean conditions and existing record values but never ordinary st
   const inputs = actionTypedInputs({
     kind: 'applyBuff',
     parameters: {
+      buffs: [
+        {
+          buffId: { kind: 'stringNode', nodeId: 'buff' },
+          blackboardAssignments: { power: [2, 3] },
+          stringBlackboardAssignments: { name: 'label' },
+        },
+      ],
       target: 'caster',
-      buffId: { kind: 'stringNode', nodeId: 'buff' },
-      blackboardAssignments: { power: [2, 3] },
-      stringBlackboardAssignments: { name: 'label' },
     },
   });
   expect(inputs.map(input => input.path.join('.'))).toEqual([

@@ -1022,19 +1022,27 @@ describe('registered generated operators', () => {
       {
         kind: 'applyBuff',
         parameters: {
-          buffId: 'buff_common_affixes_enhance_crystal',
-          stringBlackboardAssignments: {
-            child_buff_id: 'buff_chr_0011_seraph_ultimate_effect',
-          },
+          buffs: [
+            {
+              buffId: 'buff_common_affixes_enhance_crystal',
+              stringBlackboardAssignments: {
+                child_buff_id: 'buff_chr_0011_seraph_ultimate_effect',
+              },
+            },
+          ],
         },
       },
       {
         kind: 'applyBuff',
         parameters: {
-          buffId: 'buff_common_affixes_enhance_natural',
-          stringBlackboardAssignments: {
-            child_buff_id: 'buff_chr_0011_seraph_ultimate_effect_2',
-          },
+          buffs: [
+            {
+              buffId: 'buff_common_affixes_enhance_natural',
+              stringBlackboardAssignments: {
+                child_buff_id: 'buff_chr_0011_seraph_ultimate_effect_2',
+              },
+            },
+          ],
         },
       },
     ]);

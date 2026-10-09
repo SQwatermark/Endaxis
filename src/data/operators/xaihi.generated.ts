@@ -35,25 +35,18 @@ export const xaihiChr_0011_seraph_attack1ActionGraph = {
                 actionGraph: {
                   main: {
                     nodes: {
-                      changeResourceByActionValue_1: {
+                      changeResource_1: {
                         action: {
-                          kind: 'changeResourceByActionValue',
+                          kind: 'changeResource',
                           parameters: {
                             resource: 'sp',
                             amount: { kind: 'valueNode', nodeId: 'data_1' },
                             coefficient: { kind: 'constant', value: 1 },
                             recipient: 'team',
+                            onlyMainOperator: true,
                             spGainKind: 'gain',
                             spGainSource: 'normalAttack',
                           },
-                        },
-                        next: null,
-                      },
-                      conditional_2: {
-                        action: {
-                          kind: 'conditional',
-                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-                          whenTrue: { $sequence: 'changeResourceByActionValue_1' },
                         },
                         next: null,
                       },
@@ -61,10 +54,10 @@ export const xaihiChr_0011_seraph_attack1ActionGraph = {
                         action: {
                           kind: 'conditional',
                           parameters: {
-                            condition: { kind: 'conditionNode', nodeId: 'data_3' },
+                            condition: { kind: 'conditionNode', nodeId: 'data_2' },
                             alwaysNext: true,
                           },
-                          whenTrue: { $sequence: 'conditional_2' },
+                          whenTrue: { $sequence: 'changeResource_1' },
                         },
                         next: null,
                       },
@@ -73,7 +66,7 @@ export const xaihiChr_0011_seraph_attack1ActionGraph = {
                           kind: 'dealDamage',
                           parameters: {
                             damageType: 'cryo',
-                            attackScale: { kind: 'valueNode', nodeId: 'data_4' },
+                            attackScale: { kind: 'valueNode', nodeId: 'data_3' },
                             tags: ['normalAttack'],
                           },
                         },
@@ -83,8 +76,7 @@ export const xaihiChr_0011_seraph_attack1ActionGraph = {
                     dataNodes: {
                       data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
                       data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
-                      data_3: { type: 'boolean', expression: { kind: 'casterControlled' } },
-                      data_4: {
+                      data_3: {
                         type: 'number',
                         expression: { kind: 'blackboard', key: 'atk_scale' },
                       },
@@ -189,25 +181,18 @@ export const xaihiChr_0011_seraph_attack2ActionGraph = {
                 actionGraph: {
                   main: {
                     nodes: {
-                      changeResourceByActionValue_1: {
+                      changeResource_1: {
                         action: {
-                          kind: 'changeResourceByActionValue',
+                          kind: 'changeResource',
                           parameters: {
                             resource: 'sp',
                             amount: { kind: 'valueNode', nodeId: 'data_1' },
                             coefficient: { kind: 'constant', value: 1 },
                             recipient: 'team',
+                            onlyMainOperator: true,
                             spGainKind: 'gain',
                             spGainSource: 'normalAttack',
                           },
-                        },
-                        next: null,
-                      },
-                      conditional_2: {
-                        action: {
-                          kind: 'conditional',
-                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-                          whenTrue: { $sequence: 'changeResourceByActionValue_1' },
                         },
                         next: null,
                       },
@@ -215,10 +200,10 @@ export const xaihiChr_0011_seraph_attack2ActionGraph = {
                         action: {
                           kind: 'conditional',
                           parameters: {
-                            condition: { kind: 'conditionNode', nodeId: 'data_3' },
+                            condition: { kind: 'conditionNode', nodeId: 'data_2' },
                             alwaysNext: true,
                           },
-                          whenTrue: { $sequence: 'conditional_2' },
+                          whenTrue: { $sequence: 'changeResource_1' },
                         },
                         next: null,
                       },
@@ -227,7 +212,7 @@ export const xaihiChr_0011_seraph_attack2ActionGraph = {
                           kind: 'dealDamage',
                           parameters: {
                             damageType: 'cryo',
-                            attackScale: { kind: 'valueNode', nodeId: 'data_4' },
+                            attackScale: { kind: 'valueNode', nodeId: 'data_3' },
                             tags: ['normalAttack'],
                           },
                         },
@@ -237,8 +222,7 @@ export const xaihiChr_0011_seraph_attack2ActionGraph = {
                     dataNodes: {
                       data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
                       data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
-                      data_3: { type: 'boolean', expression: { kind: 'casterControlled' } },
-                      data_4: {
+                      data_3: {
                         type: 'number',
                         expression: { kind: 'blackboard', key: 'atk_scale' },
                       },
@@ -343,25 +327,18 @@ export const xaihiChr_0011_seraph_attack3ActionGraph = {
                 actionGraph: {
                   main: {
                     nodes: {
-                      changeResourceByActionValue_1: {
+                      changeResource_1: {
                         action: {
-                          kind: 'changeResourceByActionValue',
+                          kind: 'changeResource',
                           parameters: {
                             resource: 'sp',
                             amount: { kind: 'valueNode', nodeId: 'data_1' },
                             coefficient: { kind: 'constant', value: 1 },
                             recipient: 'team',
+                            onlyMainOperator: true,
                             spGainKind: 'gain',
                             spGainSource: 'normalAttack',
                           },
-                        },
-                        next: null,
-                      },
-                      conditional_2: {
-                        action: {
-                          kind: 'conditional',
-                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-                          whenTrue: { $sequence: 'changeResourceByActionValue_1' },
                         },
                         next: null,
                       },
@@ -369,10 +346,10 @@ export const xaihiChr_0011_seraph_attack3ActionGraph = {
                         action: {
                           kind: 'conditional',
                           parameters: {
-                            condition: { kind: 'conditionNode', nodeId: 'data_3' },
+                            condition: { kind: 'conditionNode', nodeId: 'data_2' },
                             alwaysNext: true,
                           },
-                          whenTrue: { $sequence: 'conditional_2' },
+                          whenTrue: { $sequence: 'changeResource_1' },
                         },
                         next: null,
                       },
@@ -381,7 +358,7 @@ export const xaihiChr_0011_seraph_attack3ActionGraph = {
                           kind: 'dealDamage',
                           parameters: {
                             damageType: 'cryo',
-                            attackScale: { kind: 'valueNode', nodeId: 'data_4' },
+                            attackScale: { kind: 'valueNode', nodeId: 'data_3' },
                             tags: ['normalAttack'],
                           },
                         },
@@ -391,8 +368,7 @@ export const xaihiChr_0011_seraph_attack3ActionGraph = {
                     dataNodes: {
                       data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
                       data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
-                      data_3: { type: 'boolean', expression: { kind: 'casterControlled' } },
-                      data_4: {
+                      data_3: {
                         type: 'number',
                         expression: { kind: 'blackboard', key: 'atk_scale' },
                       },
@@ -497,25 +473,18 @@ export const xaihiChr_0011_seraph_attack4ActionGraph = {
                 actionGraph: {
                   main: {
                     nodes: {
-                      changeResourceByActionValue_1: {
+                      changeResource_1: {
                         action: {
-                          kind: 'changeResourceByActionValue',
+                          kind: 'changeResource',
                           parameters: {
                             resource: 'sp',
                             amount: { kind: 'valueNode', nodeId: 'data_1' },
                             coefficient: { kind: 'constant', value: 0.5 },
                             recipient: 'team',
+                            onlyMainOperator: true,
                             spGainKind: 'gain',
                             spGainSource: 'normalAttack',
                           },
-                        },
-                        next: null,
-                      },
-                      conditional_2: {
-                        action: {
-                          kind: 'conditional',
-                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-                          whenTrue: { $sequence: 'changeResourceByActionValue_1' },
                         },
                         next: null,
                       },
@@ -523,10 +492,10 @@ export const xaihiChr_0011_seraph_attack4ActionGraph = {
                         action: {
                           kind: 'conditional',
                           parameters: {
-                            condition: { kind: 'conditionNode', nodeId: 'data_3' },
+                            condition: { kind: 'conditionNode', nodeId: 'data_2' },
                             alwaysNext: true,
                           },
-                          whenTrue: { $sequence: 'conditional_2' },
+                          whenTrue: { $sequence: 'changeResource_1' },
                         },
                         next: null,
                       },
@@ -535,7 +504,7 @@ export const xaihiChr_0011_seraph_attack4ActionGraph = {
                           kind: 'dealDamage',
                           parameters: {
                             damageType: 'cryo',
-                            attackScale: { kind: 'valueNode', nodeId: 'data_4' },
+                            attackScale: { kind: 'valueNode', nodeId: 'data_3' },
                             tags: ['normalAttack'],
                           },
                         },
@@ -545,8 +514,7 @@ export const xaihiChr_0011_seraph_attack4ActionGraph = {
                     dataNodes: {
                       data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
                       data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
-                      data_3: { type: 'boolean', expression: { kind: 'casterControlled' } },
-                      data_4: {
+                      data_3: {
                         type: 'number',
                         expression: { kind: 'blackboard', key: 'atk_scale' },
                       },
@@ -624,9 +592,9 @@ export const xaihiChr_0011_seraph_attack4: SkillDefinition = {
 export const xaihiChr_0011_seraph_attack5ActionGraph = {
   main: {
     nodes: {
-      changeResourceByActionValue_1: {
+      changeResource_1: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -649,7 +617,7 @@ export const xaihiChr_0011_seraph_attack5ActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResourceByActionValue_1' },
+          whenTrue: { $sequence: 'changeResource_1' },
         },
         next: null,
       },
@@ -760,7 +728,7 @@ export const xaihiChr_0011_seraph_power_attackActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_full_immune_medium',
+            buffs: [{ buffId: 'buff_common_full_immune_medium' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -772,7 +740,7 @@ export const xaihiChr_0011_seraph_power_attackActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_power_attack_disable_cast_skill',
+            buffs: [{ buffId: 'buff_common_power_attack_disable_cast_skill' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -822,44 +790,36 @@ export const xaihiChr_0011_seraph_power_attack: SkillDefinition = {
 export const xaihiChr_0011_seraph_plunging_attack_endActionGraph = {
   main: {
     nodes: {
-      changeResourceByActionValue_1: {
+      changeResource_1: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
             coefficient: { kind: 'constant', value: 1 },
             recipient: 'team',
+            onlyMainOperator: true,
             spGainKind: 'gain',
             spGainSource: 'normalAttack',
           },
         },
         next: null,
       },
-      conditional_2: {
-        action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-          whenTrue: { $sequence: 'changeResourceByActionValue_1' },
-        },
-        next: null,
-      },
-      dealDamage_3: {
+      dealDamage_2: {
         action: {
           kind: 'dealDamage',
           parameters: {
             damageType: 'cryo',
-            attackScale: { kind: 'valueNode', nodeId: 'data_3' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_2' },
             tags: ['normalAttack', 'plungingAttack'],
           },
         },
-        next: 'conditional_2',
+        next: 'changeResource_1',
       },
     },
     dataNodes: {
       data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
-      data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
-      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
+      data_2: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
     },
   },
   macros: {},
@@ -878,7 +838,7 @@ export const xaihiChr_0011_seraph_plunging_attack_end: SkillDefinition = {
   exclusiveFrame: 12,
   offsetRecordFrame: 0,
   costFrame: 0,
-  scheduledSequences: [{ startFrame: 1, endFrame: 6, sequence: { $sequence: 'dealDamage_3' } }],
+  scheduledSequences: [{ startFrame: 1, endFrame: 6, sequence: { $sequence: 'dealDamage_2' } }],
   skillType: 'plungingAttack',
   levelSource: 'basicAttack',
   nativeSkillType: 'attack',
@@ -905,9 +865,9 @@ export const xaihiChr_0011_seraph_normal_skillActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_3: {
+      changeResource_3: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -923,7 +883,7 @@ export const xaihiChr_0011_seraph_normal_skillActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResourceByActionValue_3' },
+          whenTrue: { $sequence: 'changeResource_3' },
         },
         next: null,
       },
@@ -931,16 +891,20 @@ export const xaihiChr_0011_seraph_normal_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0011_seraph_spawnball',
+            buffs: [
+              {
+                buffId: 'buff_chr_0011_seraph_spawnball',
+                copiedBlackboardAssignments: {
+                  atk_up: 'atk_up',
+                  atk_scale: 'atk_scale',
+                  heal_value: 'heal_value',
+                  buff_duration: 'buff_duration',
+                  will_up: 'will_up',
+                },
+              },
+            ],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: {
-              atk_up: 'atk_up',
-              atk_scale: 'atk_scale',
-              heal_value: 'heal_value',
-              buff_duration: 'buff_duration',
-              will_up: 'will_up',
-            },
           },
         },
         next: null,
@@ -1006,7 +970,7 @@ export const xaihiChr_0011_seraph_combo_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0011_seraph_finishball_02',
+            buffs: [{ buffId: 'buff_chr_0011_seraph_finishball_02' }],
             target: 'currentAbilityEntity',
             inheritSourceSkillCastInfo: true,
           },
@@ -1058,13 +1022,17 @@ export const xaihiChr_0011_seraph_combo_skillActionGraph = {
                         action: {
                           kind: 'applyBuff',
                           parameters: {
-                            buffId: 'buff_chr_0011_seraph_talent_1_crystup',
+                            buffs: [
+                              {
+                                buffId: 'buff_chr_0011_seraph_talent_1_crystup',
+                                copiedBlackboardAssignments: {
+                                  cryst_up: 'cryst_up',
+                                  duration: 'duration',
+                                },
+                              },
+                            ],
                             target: 'enemy',
                             inheritSourceSkillCastInfo: true,
-                            copiedBlackboardAssignments: {
-                              cryst_up: 'cryst_up',
-                              duration: 'duration',
-                            },
                           },
                         },
                         next: null,
@@ -1091,9 +1059,9 @@ export const xaihiChr_0011_seraph_combo_skillActionGraph = {
                         },
                         next: null,
                       },
-                      changeResourceByActionValue_15: {
+                      changeResource_15: {
                         action: {
-                          kind: 'changeResourceByActionValue',
+                          kind: 'changeResource',
                           parameters: {
                             resource: 'ultimateEnergy',
                             amount: { kind: 'valueNode', nodeId: 'data_4' },
@@ -1116,7 +1084,7 @@ export const xaihiChr_0011_seraph_combo_skillActionGraph = {
                             targets: ['enemy', 'caster'],
                           },
                         },
-                        next: 'changeResourceByActionValue_15',
+                        next: 'changeResource_15',
                       },
                       dealDamage_17: {
                         action: {
@@ -1361,7 +1329,7 @@ export const xaihiChr_0011_seraph_ultimate_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_damage_immune_ult_skill',
+            buffs: [{ buffId: 'buff_common_damage_immune_ult_skill' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -1373,15 +1341,19 @@ export const xaihiChr_0011_seraph_ultimate_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0011_seraph_atk_buff',
+            buffs: [
+              {
+                buffId: 'buff_chr_0011_seraph_atk_buff',
+                copiedBlackboardAssignments: {
+                  atk_up: 'atk_up',
+                  duration: 'duration',
+                  wisd_up: 'wisd_up',
+                  wisd_max: 'wisd_max',
+                },
+              },
+            ],
             target: 'party',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: {
-              atk_up: 'atk_up',
-              duration: 'duration',
-              wisd_up: 'wisd_up',
-              wisd_max: 'wisd_max',
-            },
           },
         },
         next: null,
@@ -1482,17 +1454,21 @@ const xaihiBuff1ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_affixes_enhance_natural',
+            buffs: [
+              {
+                buffId: 'buff_common_affixes_enhance_natural',
+                blackboardAssignments: {
+                  duration: { kind: 'valueNode', nodeId: 'data_3' },
+                  rate: { kind: 'valueNode', nodeId: 'data_4' },
+                },
+                stringBlackboardAssignments: {
+                  child_buff_id: 'buff_chr_0011_seraph_ultimate_effect_2',
+                },
+              },
+            ],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
-            blackboardAssignments: {
-              duration: { kind: 'valueNode', nodeId: 'data_3' },
-              rate: { kind: 'valueNode', nodeId: 'data_4' },
-            },
-            stringBlackboardAssignments: {
-              child_buff_id: 'buff_chr_0011_seraph_ultimate_effect_2',
-            },
           },
         },
         next: null,
@@ -1501,15 +1477,21 @@ const xaihiBuff1ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_affixes_enhance_crystal',
+            buffs: [
+              {
+                buffId: 'buff_common_affixes_enhance_crystal',
+                blackboardAssignments: {
+                  duration: { kind: 'valueNode', nodeId: 'data_5' },
+                  rate: { kind: 'valueNode', nodeId: 'data_6' },
+                },
+                stringBlackboardAssignments: {
+                  child_buff_id: 'buff_chr_0011_seraph_ultimate_effect',
+                },
+              },
+            ],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
-            blackboardAssignments: {
-              duration: { kind: 'valueNode', nodeId: 'data_5' },
-              rate: { kind: 'valueNode', nodeId: 'data_6' },
-            },
-            stringBlackboardAssignments: { child_buff_id: 'buff_chr_0011_seraph_ultimate_effect' },
           },
         },
         next: 'applyBuff_3',
@@ -1635,7 +1617,7 @@ const xaihiBuff2ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0011_seraph_finishball_04',
+            buffs: [{ buffId: 'buff_chr_0011_seraph_finishball_04' }],
             target: 'buffOwner',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
@@ -1797,11 +1779,15 @@ const xaihiBuff5ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0011_seraph_potential_1_atkup',
+            buffs: [
+              {
+                buffId: 'buff_chr_0011_seraph_potential_1_atkup',
+                copiedBlackboardAssignments: { buff_duration: 'buff_duration', atk_up: 'atk_up' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: { buff_duration: 'buff_duration', atk_up: 'atk_up' },
           },
         },
         next: null,
@@ -1895,7 +1881,7 @@ const xaihiBuff6ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0011_seraph_combo_count',
+            buffs: [{ buffId: 'buff_chr_0011_seraph_combo_count' }],
             target: 'currentAbilityEntity',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
@@ -1919,18 +1905,22 @@ const xaihiBuff6ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0011_seraph_mainchr_heal',
+            buffs: [
+              {
+                buffId: 'buff_chr_0011_seraph_mainchr_heal',
+                copiedBlackboardAssignments: {
+                  atk_scale: 'atk_scale',
+                  heal_value: 'heal_value',
+                  potential_1: 'potential_1',
+                  buff_duration: 'buff_duration',
+                  atk_up: 'atk_up',
+                  will_up: 'will_up',
+                },
+              },
+            ],
             target: 'buffOwner',
             sourceContextKey: 'seraph',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: {
-              atk_scale: 'atk_scale',
-              heal_value: 'heal_value',
-              potential_1: 'potential_1',
-              buff_duration: 'buff_duration',
-              atk_up: 'atk_up',
-              will_up: 'will_up',
-            },
           },
         },
         next: 'createTimedMarker_2',
@@ -2064,14 +2054,18 @@ const xaihiBuff7ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_affixes_enhance_spell',
+            buffs: [
+              {
+                buffId: 'buff_common_affixes_enhance_spell',
+                blackboardAssignments: {
+                  duration: { kind: 'valueNode', nodeId: 'data_1' },
+                  rate: { kind: 'valueNode', nodeId: 'data_2' },
+                },
+              },
+            ],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
-            blackboardAssignments: {
-              duration: { kind: 'valueNode', nodeId: 'data_1' },
-              rate: { kind: 'valueNode', nodeId: 'data_2' },
-            },
           },
         },
         next: null,
@@ -2501,26 +2495,57 @@ export const xaihi: OperatorDefinition = {
       lifetime: { kind: 'limited', durationSeconds: 30 },
       maxStackingCount: 1,
       childSkill: {
+        skillId: 'chr_0011_seraph_normal_skill_abentity_onfield',
+        nativeSkillType: 'normalSkill',
+        naturalDurationFrames: 900,
+        castResource: {
+          costFrame: 0,
+          cooldownSeconds: 0,
+          maxChargeTime: 1,
+          cost: { resource: 'ultimateEnergy', value: 0, availabilityThreshold: 0 },
+        },
+        blackboard: {
+          atk_scale: 0.1,
+          atk_up: 0,
+          buff_duration: 0,
+          heal_value: 20,
+          poise: 0,
+          potential_1: 0,
+          usp: 0,
+          will_up: 0,
+        },
+        scheduledSequences: [
+          { startFrame: 1, endFrame: 901, sequence: { $sequence: 'aura_1' } },
+          { startFrame: 0, endFrame: 1, sequence: { $sequence: 'applyBuff_2' } },
+          { startFrame: 600, endFrame: 603, sequence: { $sequence: 'conditional_5' } },
+        ],
         actionGraph: {
           main: {
             nodes: {
-              applyBuff_1: {
+              aura_1: {
                 action: {
-                  kind: 'applyBuff',
+                  kind: 'aura',
                   parameters: {
-                    buffId: 'buff_chr_0011_seraph_normal_skill_heal',
                     target: 'party',
                     source: 'currentAbilityEntity',
-                    finishByAction: true,
-                    blackboardAssignments: {
-                      atk_scale: { kind: 'valueNode', nodeId: 'data_1' },
-                      heal_value: { kind: 'valueNode', nodeId: 'data_2' },
-                      potential_1: { kind: 'valueNode', nodeId: 'data_3' },
-                      buff_duration: { kind: 'valueNode', nodeId: 'data_4' },
-                      atk_up: { kind: 'valueNode', nodeId: 'data_5' },
-                      will_up: { kind: 'valueNode', nodeId: 'data_6' },
-                    },
+                    inheritSourceSkillCastInfo: false,
+                    buffs: [
+                      {
+                        buffId: 'buff_chr_0011_seraph_normal_skill_heal',
+                        blackboardAssignments: {
+                          atk_scale: { kind: 'valueNode', nodeId: 'data_1' },
+                          heal_value: { kind: 'valueNode', nodeId: 'data_2' },
+                          potential_1: { kind: 'valueNode', nodeId: 'data_3' },
+                          buff_duration: { kind: 'valueNode', nodeId: 'data_4' },
+                          atk_up: { kind: 'valueNode', nodeId: 'data_5' },
+                          will_up: { kind: 'valueNode', nodeId: 'data_6' },
+                        },
+                        stringBlackboardAssignments: {},
+                      },
+                    ],
                   },
+                  onEnter: { $sequence: null },
+                  onExit: { $sequence: null },
                 },
                 next: null,
               },
@@ -2528,7 +2553,7 @@ export const xaihi: OperatorDefinition = {
                 action: {
                   kind: 'applyBuff',
                   parameters: {
-                    buffId: 'buff_common_full_immune',
+                    buffs: [{ buffId: 'buff_common_full_immune' }],
                     target: 'currentAbilityEntity',
                     source: 'currentAbilityEntity',
                     inheritSourceSkillCastInfo: true,
@@ -2540,7 +2565,7 @@ export const xaihi: OperatorDefinition = {
                 action: {
                   kind: 'applyBuff',
                   parameters: {
-                    buffId: 'buff_chr_0011_seraph_finishball_02',
+                    buffs: [{ buffId: 'buff_chr_0011_seraph_finishball_02' }],
                     target: 'currentAbilityEntity',
                     inheritSourceSkillCastInfo: true,
                   },
@@ -2592,30 +2617,6 @@ export const xaihi: OperatorDefinition = {
           },
           macros: {},
         },
-        skillId: 'chr_0011_seraph_normal_skill_abentity_onfield',
-        nativeSkillType: 'normalSkill',
-        naturalDurationFrames: 900,
-        castResource: {
-          costFrame: 0,
-          cooldownSeconds: 0,
-          maxChargeTime: 1,
-          cost: { resource: 'ultimateEnergy', value: 0, availabilityThreshold: 0 },
-        },
-        blackboard: {
-          atk_scale: 0.1,
-          atk_up: 0,
-          buff_duration: 0,
-          heal_value: 20,
-          poise: 0,
-          potential_1: 0,
-          usp: 0,
-          will_up: 0,
-        },
-        scheduledSequences: [
-          { startFrame: 1, endFrame: 901, sequence: { $sequence: 'applyBuff_1' } },
-          { startFrame: 0, endFrame: 1, sequence: { $sequence: 'applyBuff_2' } },
-          { startFrame: 600, endFrame: 603, sequence: { $sequence: 'conditional_5' } },
-        ],
       },
     },
   },

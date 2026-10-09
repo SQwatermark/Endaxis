@@ -3596,19 +3596,6 @@ export const definitionSchemas = {
               fields: {
                 kind: {
                   kind: 'enum',
-                  options: ['multiplyEffectDuration'],
-                  description: '乘算某个技能步骤产生效果的持续时间。',
-                },
-                skillKey: schema_f8c7f6f975a2,
-                stepKey: { kind: 'string', description: '目标步骤。' },
-                multiplier: { kind: 'number', description: '持续时间乘数。' },
-              },
-            },
-            {
-              kind: 'object',
-              fields: {
-                kind: {
-                  kind: 'enum',
                   options: ['multiplySkillCost'],
                   description: '乘算技能的资源费用。',
                 },
@@ -3620,19 +3607,6 @@ export const definitionSchemas = {
                   description: '要修改的资源。',
                 },
                 multiplier: { kind: 'number', description: '费用乘数。' },
-              },
-            },
-            {
-              kind: 'object',
-              fields: {
-                kind: {
-                  kind: 'enum',
-                  options: ['setEffectiveness'],
-                  description: '设置一个技能步骤的效果系数。',
-                },
-                skillKey: schema_f8c7f6f975a2,
-                stepKey: { kind: 'string', description: '目标步骤。' },
-                value: { kind: 'number', description: '新的效果系数。' },
               },
             },
             {
@@ -3876,12 +3850,12 @@ export const definitionSchemas = {
             },
           ],
           semantics: {
-            unionVariants: [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}],
+            unionVariants: [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}],
           },
         },
         semantics: {
           arrayElement: {
-            unionVariants: [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}],
+            unionVariants: [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}],
           },
         },
         optional: true,

@@ -63,15 +63,19 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_sword_0016_valid',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_sword_0016_valid',
+                      copiedBlackboardAssignments: {
+                        pd_up: 'phy_dmg_up3',
+                        duration: 'duration',
+                        max_stack: 'max_stack',
+                      },
+                    },
+                  ],
                   target: 'partyExceptCaster',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: {
-                    pd_up: 'phy_dmg_up3',
-                    duration: 'duration',
-                    max_stack: 'max_stack',
-                  },
                 },
               },
               next: 'createTimedMarker_1',
@@ -80,15 +84,19 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_sword_0016_valid',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_sword_0016_valid',
+                      copiedBlackboardAssignments: {
+                        pd_up: 'phy_dmg_up2',
+                        duration: 'duration',
+                        max_stack: 'max_stack',
+                      },
+                    },
+                  ],
                   target: 'caster',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: {
-                    pd_up: 'phy_dmg_up2',
-                    duration: 'duration',
-                    max_stack: 'max_stack',
-                  },
                 },
               },
               next: 'applyBuff_2',
@@ -113,9 +121,15 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_sword_0016',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_sword_0016',
+                      blackboardAssignments: {
+                        phy_dmg_up: { kind: 'valueNode', nodeId: 'data_5' },
+                      },
+                    },
+                  ],
                   target: 'caster',
-                  blackboardAssignments: { phy_dmg_up: { kind: 'valueNode', nodeId: 'data_5' } },
                 },
               },
               next: null,

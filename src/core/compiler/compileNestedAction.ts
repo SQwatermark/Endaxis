@@ -92,31 +92,34 @@ export function compileNestedAction(
     case 'applyBuff': {
       if ('definition' in step.parameters)
         throw new Error(`${path}: applyBuff must reference an owner Buff definition`);
-      const { blackboardAssignments, ...parameters } = step.parameters;
+      const parameters = step.parameters;
       return {
         ...keyed,
         kind: step.kind,
         parameters: {
           ...parameters,
-          ...(blackboardAssignments === undefined
-            ? {}
-            : {
-                blackboardAssignments: Object.fromEntries(
-                  Object.entries(blackboardAssignments).map(([key, value]) => [
-                    key,
-                    typeof value === 'object' && 'kind' in value
-                      ? value
-                      : {
-                          kind: 'constant' as const,
-                          value: resolveLevelValue(
-                            value as LevelValues,
-                            skillLevel,
-                            `${path}.parameters.blackboardAssignments.${key}`,
-                          ),
-                        },
-                  ]),
-                ),
-              }),
+          buffs: parameters.buffs.map(({ blackboardAssignments, ...entry }, index) => ({
+            ...entry,
+            ...(blackboardAssignments === undefined
+              ? {}
+              : {
+                  blackboardAssignments: Object.fromEntries(
+                    Object.entries(blackboardAssignments).map(([key, value]) => [
+                      key,
+                      typeof value === 'object' && 'kind' in value
+                        ? value
+                        : {
+                            kind: 'constant' as const,
+                            value: resolveLevelValue(
+                              value as LevelValues,
+                              skillLevel,
+                              `${path}.parameters.buffs[${index}].blackboardAssignments.${key}`,
+                            ),
+                          },
+                    ]),
+                  ),
+                }),
+          })),
         },
       };
     }

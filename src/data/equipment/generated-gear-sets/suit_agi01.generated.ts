@@ -12,9 +12,13 @@ const definition = {
           action: {
             kind: 'applyBuff',
             parameters: {
-              buffId: 'buff_equipsuit_agi_phydmg_01',
+              buffs: [
+                {
+                  buffId: 'buff_equipsuit_agi_phydmg_01',
+                  blackboardAssignments: { phy_dmg_up: { kind: 'constant', value: 0.2 } },
+                },
+              ],
               target: 'caster',
-              blackboardAssignments: { phy_dmg_up: { kind: 'constant', value: 0.2 } },
             },
           },
           next: null,

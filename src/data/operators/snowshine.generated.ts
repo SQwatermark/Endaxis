@@ -8,29 +8,22 @@ import type { OperatorDefinition } from '../../../packages/game-data-contract/sr
 export const snowshineChr_0014_aurora_attack1ActionGraph = {
   main: {
     nodes: {
-      changeResourceByActionValue_1: {
+      changeResource_1: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
             coefficient: { kind: 'constant', value: 1 },
             recipient: 'team',
+            onlyMainOperator: true,
             spGainKind: 'gain',
             spGainSource: 'normalAttack',
           },
         },
         next: null,
       },
-      conditional_2: {
-        action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-          whenTrue: { $sequence: 'changeResourceByActionValue_1' },
-        },
-        next: null,
-      },
-      startTimeDilation_3: {
+      startTimeDilation_2: {
         action: {
           kind: 'startTimeDilation',
           parameters: {
@@ -43,28 +36,28 @@ export const snowshineChr_0014_aurora_attack1ActionGraph = {
             targets: ['enemy', 'caster'],
           },
         },
-        next: 'conditional_2',
+        next: 'changeResource_1',
       },
-      conditional_4: {
+      conditional_3: {
         action: {
           kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' }, alwaysNext: true },
-          whenTrue: { $sequence: 'startTimeDilation_3' },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' }, alwaysNext: true },
+          whenTrue: { $sequence: 'startTimeDilation_2' },
         },
         next: null,
       },
-      dealDamage_5: {
+      dealDamage_4: {
         action: {
           kind: 'dealDamage',
           parameters: {
             damageType: 'physical',
-            attackScale: { kind: 'valueNode', nodeId: 'data_4' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_3' },
             tags: ['normalAttack'],
           },
         },
-        next: 'conditional_4',
+        next: 'conditional_3',
       },
-      reachSkillOperableBoundary_6: {
+      reachSkillOperableBoundary_5: {
         action: {
           kind: 'reachSkillOperableBoundary',
           parameters: { skillIds: ['chr_0014_aurora_attack2'] },
@@ -75,8 +68,7 @@ export const snowshineChr_0014_aurora_attack1ActionGraph = {
     dataNodes: {
       data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
       data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
-      data_3: { type: 'boolean', expression: { kind: 'casterControlled' } },
-      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
+      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
     },
   },
   macros: {},
@@ -108,8 +100,8 @@ export const snowshineChr_0014_aurora_attack1: SkillDefinition = {
   },
   costFrame: 0,
   scheduledSequences: [
-    { startFrame: 19, endFrame: 20, sequence: { $sequence: 'dealDamage_5' } },
-    { startFrame: 32, endFrame: 47, sequence: { $sequence: 'reachSkillOperableBoundary_6' } },
+    { startFrame: 19, endFrame: 20, sequence: { $sequence: 'dealDamage_4' } },
+    { startFrame: 32, endFrame: 47, sequence: { $sequence: 'reachSkillOperableBoundary_5' } },
   ],
   timelineContinuationSkillId: 'chr_0014_aurora_attack2',
   skillType: 'basicAttack',
@@ -120,9 +112,9 @@ export const snowshineChr_0014_aurora_attack1: SkillDefinition = {
 export const snowshineChr_0014_aurora_attack2ActionGraph = {
   main: {
     nodes: {
-      changeResourceByActionValue_1: {
+      changeResource_1: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -147,7 +139,7 @@ export const snowshineChr_0014_aurora_attack2ActionGraph = {
             targets: ['enemy', 'caster'],
           },
         },
-        next: 'changeResourceByActionValue_1',
+        next: 'changeResource_1',
       },
       conditional_3: {
         action: {
@@ -284,9 +276,9 @@ export const snowshineChr_0014_aurora_attack3ActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_6: {
+      changeResource_6: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_4' },
@@ -299,11 +291,7 @@ export const snowshineChr_0014_aurora_attack3ActionGraph = {
         next: null,
       },
       once_7: {
-        action: {
-          kind: 'once',
-          parameters: {},
-          body: { $sequence: 'changeResourceByActionValue_6' },
-        },
+        action: { kind: 'once', parameters: {}, body: { $sequence: 'changeResource_6' } },
         next: null,
       },
       startTimeDilation_8: {
@@ -478,7 +466,7 @@ export const snowshineChr_0014_aurora_power_attackActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_full_immune_medium',
+            buffs: [{ buffId: 'buff_common_full_immune_medium' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -490,7 +478,7 @@ export const snowshineChr_0014_aurora_power_attackActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_power_attack_disable_cast_skill',
+            buffs: [{ buffId: 'buff_common_power_attack_disable_cast_skill' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -539,44 +527,36 @@ export const snowshineChr_0014_aurora_power_attack: SkillDefinition = {
 export const snowshineChr_0014_aurora_plunging_attack_endActionGraph = {
   main: {
     nodes: {
-      changeResourceByActionValue_1: {
+      changeResource_1: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
             coefficient: { kind: 'constant', value: 1 },
             recipient: 'team',
+            onlyMainOperator: true,
             spGainKind: 'gain',
             spGainSource: 'normalAttack',
           },
         },
         next: null,
       },
-      conditional_2: {
-        action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-          whenTrue: { $sequence: 'changeResourceByActionValue_1' },
-        },
-        next: null,
-      },
-      dealDamage_3: {
+      dealDamage_2: {
         action: {
           kind: 'dealDamage',
           parameters: {
             damageType: 'physical',
-            attackScale: { kind: 'valueNode', nodeId: 'data_3' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_2' },
             tags: ['normalAttack', 'plungingAttack'],
           },
         },
-        next: 'conditional_2',
+        next: 'changeResource_1',
       },
     },
     dataNodes: {
       data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
-      data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
-      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
+      data_2: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
     },
   },
   macros: {},
@@ -595,7 +575,7 @@ export const snowshineChr_0014_aurora_plunging_attack_end: SkillDefinition = {
   exclusiveFrame: 20,
   offsetRecordFrame: 0,
   costFrame: 9,
-  scheduledSequences: [{ startFrame: 1, endFrame: 2, sequence: { $sequence: 'dealDamage_3' } }],
+  scheduledSequences: [{ startFrame: 1, endFrame: 2, sequence: { $sequence: 'dealDamage_2' } }],
   skillType: 'plungingAttack',
   levelSource: 'basicAttack',
   nativeSkillType: 'attack',
@@ -611,9 +591,9 @@ export const snowshineChr_0014_aurora_normal_skillActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_2: {
+      changeResource_2: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -629,10 +609,14 @@ export const snowshineChr_0014_aurora_normal_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_obtain_ultimate_sp',
+            buffs: [
+              {
+                buffId: 'buff_common_obtain_ultimate_sp',
+                blackboardAssignments: { ratio: { kind: 'constant', value: 0.5 } },
+              },
+            ],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
-            blackboardAssignments: { ratio: { kind: 'constant', value: 0.5 } },
           },
         },
         next: null,
@@ -641,9 +625,9 @@ export const snowshineChr_0014_aurora_normal_skillActionGraph = {
         action: { kind: 'markCurrentSkillCanInterrupt', parameters: {} },
         next: null,
       },
-      changeResourceByActionValue_5: {
+      changeResource_5: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'ultimateEnergy',
             amount: { kind: 'valueNode', nodeId: 'data_2' },
@@ -657,7 +641,7 @@ export const snowshineChr_0014_aurora_normal_skillActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_4' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResourceByActionValue_5' },
+          whenTrue: { $sequence: 'changeResource_5' },
         },
         next: null,
       },
@@ -665,23 +649,29 @@ export const snowshineChr_0014_aurora_normal_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_obtain_ultimate_sp',
+            buffs: [
+              {
+                buffId: 'buff_common_obtain_ultimate_sp',
+                blackboardAssignments: { ratio: { kind: 'constant', value: 0.5 } },
+              },
+            ],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
-            blackboardAssignments: { ratio: { kind: 'constant', value: 0.5 } },
           },
         },
         next: 'conditional_6',
       },
       finishTimeline_8: { action: { kind: 'finishTimeline', parameters: {} }, next: null },
-      applyBuff_9: {
+      aura_9: {
         action: {
-          kind: 'applyBuff',
+          kind: 'aura',
           parameters: {
-            buffId: 'buff_chr_0014_aurora_potential_1_listener',
             target: 'party',
-            finishByAction: true,
+            inheritSourceSkillCastInfo: false,
+            buffs: [{ buffId: 'buff_chr_0014_aurora_potential_1_listener' }],
           },
+          onEnter: { $sequence: null },
+          onExit: { $sequence: null },
         },
         next: null,
       },
@@ -689,22 +679,29 @@ export const snowshineChr_0014_aurora_normal_skillActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_6' }, alwaysNext: true },
-          whenTrue: { $sequence: 'applyBuff_9' },
+          whenTrue: { $sequence: 'aura_9' },
         },
         next: null,
       },
-      applyBuff_11: {
+      aura_11: {
         action: {
-          kind: 'applyBuff',
+          kind: 'aura',
           parameters: {
-            buffId: 'buff_chr_0014_aurora_reduce_damage',
             target: 'party',
-            finishByAction: true,
-            blackboardAssignments: {
-              taken_dmg: { kind: 'valueNode', nodeId: 'data_7' },
-              potential_1: { kind: 'valueNode', nodeId: 'data_8' },
-            },
+            inheritSourceSkillCastInfo: false,
+            buffs: [
+              {
+                buffId: 'buff_chr_0014_aurora_reduce_damage',
+                blackboardAssignments: {
+                  taken_dmg: { kind: 'valueNode', nodeId: 'data_7' },
+                  potential_1: { kind: 'valueNode', nodeId: 'data_8' },
+                },
+                stringBlackboardAssignments: {},
+              },
+            ],
           },
+          onEnter: { $sequence: null },
+          onExit: { $sequence: null },
         },
         next: 'conditional_10',
       },
@@ -756,18 +753,22 @@ export const snowshineChr_0014_aurora_normal_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0014_aurora_reduce_damage',
+            buffs: [
+              {
+                buffId: 'buff_chr_0014_aurora_reduce_damage',
+                blackboardAssignments: { duration: { kind: 'constant', value: 1 } },
+                copiedBlackboardAssignments: { taken_dmg: 'taken_dmg' },
+              },
+            ],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
-            blackboardAssignments: { duration: { kind: 'constant', value: 1 } },
-            copiedBlackboardAssignments: { taken_dmg: 'taken_dmg' },
           },
         },
         next: null,
       },
-      changeResourceByActionValue_19: {
+      changeResource_19: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_11' },
@@ -808,11 +809,7 @@ export const snowshineChr_0014_aurora_normal_skillActionGraph = {
         next: 'startTimeDilation_20',
       },
       once_22: {
-        action: {
-          kind: 'once',
-          parameters: {},
-          body: { $sequence: 'changeResourceByActionValue_19' },
-        },
+        action: { kind: 'once', parameters: {}, body: { $sequence: 'changeResource_19' } },
         next: 'dealDamage_21',
       },
       applyElementalInfliction_23: {
@@ -883,15 +880,22 @@ export const snowshineChr_0014_aurora_normal_skillActionGraph = {
         },
         next: null,
       },
-      applyBuff_26: {
+      aura_26: {
         action: {
-          kind: 'applyBuff',
+          kind: 'aura',
           parameters: {
-            buffId: 'buff_chr_0014_aurora_reduce_damage',
             target: 'party',
-            finishByAction: true,
-            blackboardAssignments: { taken_dmg: { kind: 'valueNode', nodeId: 'data_14' } },
+            inheritSourceSkillCastInfo: false,
+            buffs: [
+              {
+                buffId: 'buff_chr_0014_aurora_reduce_damage',
+                blackboardAssignments: { taken_dmg: { kind: 'valueNode', nodeId: 'data_14' } },
+                stringBlackboardAssignments: {},
+              },
+            ],
           },
+          onEnter: { $sequence: null },
+          onExit: { $sequence: null },
         },
         next: null,
       },
@@ -972,17 +976,17 @@ export const snowshineChr_0014_aurora_normal_skill: SkillDefinition = {
   costFrame: 0,
   scheduledSequences: [
     { startFrame: 0, endFrame: 3, sequence: { $sequence: 'findCharacterTeamTargets_1' } },
-    { startFrame: 0, endFrame: 3, sequence: { $sequence: 'changeResourceByActionValue_2' } },
+    { startFrame: 0, endFrame: 3, sequence: { $sequence: 'changeResource_2' } },
     { startFrame: 0, endFrame: 5, sequence: { $sequence: 'applyBuff_3' } },
     { startFrame: 67, endFrame: 70, sequence: { $sequence: 'markCurrentSkillCanInterrupt_4' } },
     { startFrame: 107, endFrame: 109, sequence: { $sequence: 'applyBuff_7' } },
     { startFrame: 106, endFrame: 107, sequence: { $sequence: 'finishTimeline_8' } },
-    { startFrame: 0, endFrame: 51, sequence: { $sequence: 'applyBuff_11' } },
+    { startFrame: 0, endFrame: 51, sequence: { $sequence: 'aura_11' } },
     { startFrame: 0, endFrame: 51, sequence: { $sequence: 'listenForCombatEvents_opt3' } },
     { startFrame: 107, endFrame: 108, sequence: { $sequence: 'applyBuff_18' } },
     { startFrame: 125, endFrame: 127, sequence: { $sequence: 'repeatEachTick_24' } },
     { startFrame: 107, endFrame: 110, sequence: { $sequence: 'startTimeDilation_25' } },
-    { startFrame: 107, endFrame: 125, sequence: { $sequence: 'applyBuff_26' } },
+    { startFrame: 107, endFrame: 125, sequence: { $sequence: 'aura_26' } },
   ],
   costs: [{ resource: 'sp', value: 100 }],
   skillType: 'battleSkill',
@@ -1094,9 +1098,9 @@ export const snowshineChr_0014_aurora_combo_skillActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_10: {
+      changeResource_10: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'ultimateEnergy',
             amount: { kind: 'valueNode', nodeId: 'data_3' },
@@ -1166,7 +1170,7 @@ export const snowshineChr_0014_aurora_combo_skill: SkillDefinition = {
   scheduledSequences: [
     { startFrame: 0, endFrame: 3, sequence: { $sequence: 'findCharacterTeamTargets_1' } },
     { startFrame: 0, endFrame: 123, sequence: { $sequence: 'conditional_3' } },
-    { startFrame: 12, endFrame: 15, sequence: { $sequence: 'changeResourceByActionValue_10' } },
+    { startFrame: 12, endFrame: 15, sequence: { $sequence: 'changeResource_10' } },
     { startFrame: 0, endFrame: 13, sequence: { $sequence: 'startTimeDilation_11' } },
   ],
   cooldownFrames: [750, 750, 750, 750, 750, 750, 750, 750, 720, 720, 720, 690],
@@ -1256,7 +1260,7 @@ export const snowshineChr_0014_aurora_ultimate_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_damage_immune_ult_skill',
+            buffs: [{ buffId: 'buff_common_damage_immune_ult_skill' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -1511,7 +1515,7 @@ const snowshineBuff4ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0014_aurora_potential_1',
+            buffs: [{ buffId: 'buff_chr_0014_aurora_potential_1' }],
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
@@ -1565,14 +1569,18 @@ const snowshineBuff5ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_affixes_shelter',
+            buffs: [
+              {
+                buffId: 'buff_common_affixes_shelter',
+                blackboardAssignments: {
+                  duration: { kind: 'constant', value: 9999999 },
+                  rate: { kind: 'valueNode', nodeId: 'data_1' },
+                },
+              },
+            ],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
-            blackboardAssignments: {
-              duration: { kind: 'constant', value: 9999999 },
-              rate: { kind: 'valueNode', nodeId: 'data_1' },
-            },
           },
         },
         next: null,
@@ -1581,12 +1589,16 @@ const snowshineBuff5ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0014_aurora_reduce_damage_remain',
+            buffs: [
+              {
+                buffId: 'buff_chr_0014_aurora_reduce_damage_remain',
+                blackboardAssignments: { duration: { kind: 'constant', value: 0.5 } },
+                copiedBlackboardAssignments: { potential_1: 'potential_1', taken_dmg: 'taken_dmg' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
-            blackboardAssignments: { duration: { kind: 'constant', value: 0.5 } },
-            copiedBlackboardAssignments: { potential_1: 'potential_1', taken_dmg: 'taken_dmg' },
           },
         },
         next: null,
@@ -1620,14 +1632,18 @@ const snowshineBuff6ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_affixes_shelter',
+            buffs: [
+              {
+                buffId: 'buff_common_affixes_shelter',
+                blackboardAssignments: {
+                  duration: { kind: 'constant', value: 9999999 },
+                  rate: { kind: 'valueNode', nodeId: 'data_1' },
+                },
+              },
+            ],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
-            blackboardAssignments: {
-              duration: { kind: 'constant', value: 9999999 },
-              rate: { kind: 'valueNode', nodeId: 'data_1' },
-            },
           },
         },
         next: null,
@@ -1795,11 +1811,15 @@ const snowshineBuff9ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_cryst_cryst_frozen_triggered',
+            buffs: [
+              {
+                buffId: 'buff_common_cryst_cryst_frozen_triggered',
+                copiedBlackboardAssignments: { extra_duration: 'extra_duration' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: { extra_duration: 'extra_duration' },
           },
         },
         next: null,
@@ -2025,6 +2045,33 @@ export const snowshine: OperatorDefinition = {
       lifetime: { kind: 'limited', durationSeconds: 3 },
       deathReleaseDelaySeconds: 0.100000001490116,
       childSkill: {
+        skillId: 'chr_0014_aurora_combo_skill_abilityrange',
+        nativeSkillType: 'normalSkill',
+        naturalDurationFrames: 3000,
+        castResource: {
+          costFrame: 0,
+          cooldownSeconds: 0,
+          maxChargeTime: 1,
+          cost: { resource: 'ultimateEnergy', value: 0, availabilityThreshold: 0 },
+        },
+        blackboard: {
+          duration: 0,
+          heal_scale: 1,
+          heal_scale_loop: 1,
+          heal_static_value: 0,
+          heal_static_value_loop: 0,
+          interval: 0,
+        },
+        scheduledSequences: [
+          { startFrame: 0, endFrame: 3, sequence: { $sequence: 'findCharacterTeamTargets_1' } },
+          { startFrame: 0, endFrame: 3, sequence: { $sequence: 'aura_2' } },
+          { startFrame: 0, endFrame: 900, sequence: { $sequence: 'aura_3' } },
+          {
+            startFrame: 90,
+            endFrame: 93,
+            sequence: { $sequence: 'finishActionOwnerAbilityEntity_4' },
+          },
+        ],
         actionGraph: {
           main: {
             nodes: {
@@ -2038,37 +2085,49 @@ export const snowshine: OperatorDefinition = {
                 },
                 next: null,
               },
-              applyBuff_2: {
+              aura_2: {
                 action: {
-                  kind: 'applyBuff',
+                  kind: 'aura',
                   parameters: {
-                    buffId: 'buff_chr_0014_aurora_combo_skill_heal',
                     target: 'party',
-                    finishByAction: true,
                     inheritSourceSkillCastInfo: true,
-                    blackboardAssignments: {
-                      heal_scale: { kind: 'valueNode', nodeId: 'data_1' },
-                      heal_static_value: { kind: 'valueNode', nodeId: 'data_2' },
-                    },
+                    buffs: [
+                      {
+                        buffId: 'buff_chr_0014_aurora_combo_skill_heal',
+                        blackboardAssignments: {
+                          heal_scale: { kind: 'valueNode', nodeId: 'data_1' },
+                          heal_static_value: { kind: 'valueNode', nodeId: 'data_2' },
+                        },
+                        stringBlackboardAssignments: {},
+                      },
+                    ],
                   },
+                  onEnter: { $sequence: null },
+                  onExit: { $sequence: null },
                 },
                 next: null,
               },
-              applyBuff_3: {
+              aura_3: {
                 action: {
-                  kind: 'applyBuff',
+                  kind: 'aura',
                   parameters: {
-                    buffId: 'buff_chr_0014_aurora_combo_skill_heal_loop',
                     target: 'party',
-                    finishByAction: true,
                     inheritSourceSkillCastInfo: true,
-                    blackboardAssignments: {
-                      heal_scale_loop: { kind: 'valueNode', nodeId: 'data_3' },
-                      heal_static_value_loop: { kind: 'valueNode', nodeId: 'data_4' },
-                      duration: { kind: 'valueNode', nodeId: 'data_5' },
-                      interval: { kind: 'valueNode', nodeId: 'data_6' },
-                    },
+                    buffs: [
+                      {
+                        buffId: 'buff_chr_0014_aurora_combo_skill_heal_loop',
+                        blackboardAssignments: {
+                          heal_scale_loop: { kind: 'valueNode', nodeId: 'data_3' },
+                          heal_static_value_loop: { kind: 'valueNode', nodeId: 'data_4' },
+                          duration: { kind: 'valueNode', nodeId: 'data_5' },
+                          interval: { kind: 'valueNode', nodeId: 'data_6' },
+                        },
+                        stringBlackboardAssignments: {},
+                      },
+                    ],
                   },
+                  onEnter: { $sequence: null },
+                  onExit: { $sequence: null },
                 },
                 next: null,
               },
@@ -2097,33 +2156,6 @@ export const snowshine: OperatorDefinition = {
           },
           macros: {},
         },
-        skillId: 'chr_0014_aurora_combo_skill_abilityrange',
-        nativeSkillType: 'normalSkill',
-        naturalDurationFrames: 3000,
-        castResource: {
-          costFrame: 0,
-          cooldownSeconds: 0,
-          maxChargeTime: 1,
-          cost: { resource: 'ultimateEnergy', value: 0, availabilityThreshold: 0 },
-        },
-        blackboard: {
-          duration: 0,
-          heal_scale: 1,
-          heal_scale_loop: 1,
-          heal_static_value: 0,
-          heal_static_value_loop: 0,
-          interval: 0,
-        },
-        scheduledSequences: [
-          { startFrame: 0, endFrame: 3, sequence: { $sequence: 'findCharacterTeamTargets_1' } },
-          { startFrame: 0, endFrame: 3, sequence: { $sequence: 'applyBuff_2' } },
-          { startFrame: 0, endFrame: 900, sequence: { $sequence: 'applyBuff_3' } },
-          {
-            startFrame: 90,
-            endFrame: 93,
-            sequence: { $sequence: 'finishActionOwnerAbilityEntity_4' },
-          },
-        ],
       },
     },
     abilityentity_chr_0014_aurora_ultimate_skill: {
@@ -2138,53 +2170,6 @@ export const snowshine: OperatorDefinition = {
       deathReleaseDelaySeconds: 0.100000001490116,
       childSkills: {
         chr_0014_aurora_ultimate_skill_abilityrange_potential2: {
-          actionGraph: {
-            main: {
-              nodes: {
-                applyBuff_1: {
-                  action: {
-                    kind: 'applyBuff',
-                    parameters: {
-                      buffId: 'buff_chr_0014_aurora_ultimate_skill_dmg',
-                      target: 'enemy',
-                      finishByAction: true,
-                      inheritSourceSkillCastInfo: true,
-                      blackboardAssignments: {
-                        atk_scale_loop: { kind: 'valueNode', nodeId: 'data_1' },
-                      },
-                    },
-                  },
-                  next: null,
-                },
-                applyBuff_2: {
-                  action: {
-                    kind: 'applyBuff',
-                    parameters: {
-                      buffId: 'buff_chr_0014_aurora_ultimate_skill_frost',
-                      target: 'enemy',
-                      finishByAction: true,
-                      inheritSourceSkillCastInfo: true,
-                      blackboardAssignments: {
-                        extra_duration: { kind: 'valueNode', nodeId: 'data_2' },
-                      },
-                    },
-                  },
-                  next: 'applyBuff_1',
-                },
-              },
-              dataNodes: {
-                data_1: {
-                  type: 'number',
-                  expression: { kind: 'blackboard', key: 'atk_scale_loop' },
-                },
-                data_2: {
-                  type: 'number',
-                  expression: { kind: 'blackboard', key: 'extra_duration' },
-                },
-              },
-            },
-            macros: {},
-          },
           skillId: 'chr_0014_aurora_ultimate_skill_abilityrange_potential2',
           nativeSkillType: 'normalSkill',
           naturalDurationFrames: 300,
@@ -2195,58 +2180,54 @@ export const snowshine: OperatorDefinition = {
             cost: { resource: 'ultimateEnergy', value: 0, availabilityThreshold: 0 },
           },
           blackboard: { atk_scale: 4, atk_scale_loop: 1, extra_duration: 0, frozen_level: 1 },
-          scheduledSequences: [
-            { startFrame: 4, endFrame: 156, sequence: { $sequence: 'applyBuff_2' } },
-          ],
-        },
-        chr_0014_aurora_ultimate_skill_abilityrange: {
+          scheduledSequences: [{ startFrame: 4, endFrame: 156, sequence: { $sequence: 'aura_1' } }],
           actionGraph: {
             main: {
               nodes: {
-                applyBuff_1: {
+                aura_1: {
                   action: {
-                    kind: 'applyBuff',
+                    kind: 'aura',
                     parameters: {
-                      buffId: 'buff_chr_0014_aurora_ultimate_skill_dmg',
                       target: 'enemy',
-                      finishByAction: true,
                       inheritSourceSkillCastInfo: true,
-                      blackboardAssignments: {
-                        atk_scale_loop: { kind: 'valueNode', nodeId: 'data_1' },
-                      },
+                      buffs: [
+                        {
+                          buffId: 'buff_chr_0014_aurora_ultimate_skill_frost',
+                          blackboardAssignments: {
+                            extra_duration: { kind: 'valueNode', nodeId: 'data_1' },
+                          },
+                          stringBlackboardAssignments: {},
+                        },
+                        {
+                          buffId: 'buff_chr_0014_aurora_ultimate_skill_dmg',
+                          blackboardAssignments: {
+                            atk_scale_loop: { kind: 'valueNode', nodeId: 'data_2' },
+                          },
+                          stringBlackboardAssignments: {},
+                        },
+                      ],
                     },
+                    onEnter: { $sequence: null },
+                    onExit: { $sequence: null },
                   },
                   next: null,
-                },
-                applyBuff_2: {
-                  action: {
-                    kind: 'applyBuff',
-                    parameters: {
-                      buffId: 'buff_chr_0014_aurora_ultimate_skill_frost',
-                      target: 'enemy',
-                      finishByAction: true,
-                      inheritSourceSkillCastInfo: true,
-                      blackboardAssignments: {
-                        extra_duration: { kind: 'valueNode', nodeId: 'data_2' },
-                      },
-                    },
-                  },
-                  next: 'applyBuff_1',
                 },
               },
               dataNodes: {
                 data_1: {
                   type: 'number',
-                  expression: { kind: 'blackboard', key: 'atk_scale_loop' },
+                  expression: { kind: 'blackboard', key: 'extra_duration' },
                 },
                 data_2: {
                   type: 'number',
-                  expression: { kind: 'blackboard', key: 'extra_duration' },
+                  expression: { kind: 'blackboard', key: 'atk_scale_loop' },
                 },
               },
             },
             macros: {},
           },
+        },
+        chr_0014_aurora_ultimate_skill_abilityrange: {
           skillId: 'chr_0014_aurora_ultimate_skill_abilityrange',
           nativeSkillType: 'normalSkill',
           naturalDurationFrames: 300,
@@ -2257,9 +2238,52 @@ export const snowshine: OperatorDefinition = {
             cost: { resource: 'ultimateEnergy', value: 0, availabilityThreshold: 0 },
           },
           blackboard: { atk_scale: 4, atk_scale_loop: 1, extra_duration: 0, frozen_level: 1 },
-          scheduledSequences: [
-            { startFrame: 4, endFrame: 157, sequence: { $sequence: 'applyBuff_2' } },
-          ],
+          scheduledSequences: [{ startFrame: 4, endFrame: 157, sequence: { $sequence: 'aura_1' } }],
+          actionGraph: {
+            main: {
+              nodes: {
+                aura_1: {
+                  action: {
+                    kind: 'aura',
+                    parameters: {
+                      target: 'enemy',
+                      inheritSourceSkillCastInfo: true,
+                      buffs: [
+                        {
+                          buffId: 'buff_chr_0014_aurora_ultimate_skill_frost',
+                          blackboardAssignments: {
+                            extra_duration: { kind: 'valueNode', nodeId: 'data_1' },
+                          },
+                          stringBlackboardAssignments: {},
+                        },
+                        {
+                          buffId: 'buff_chr_0014_aurora_ultimate_skill_dmg',
+                          blackboardAssignments: {
+                            atk_scale_loop: { kind: 'valueNode', nodeId: 'data_2' },
+                          },
+                          stringBlackboardAssignments: {},
+                        },
+                      ],
+                    },
+                    onEnter: { $sequence: null },
+                    onExit: { $sequence: null },
+                  },
+                  next: null,
+                },
+              },
+              dataNodes: {
+                data_1: {
+                  type: 'number',
+                  expression: { kind: 'blackboard', key: 'extra_duration' },
+                },
+                data_2: {
+                  type: 'number',
+                  expression: { kind: 'blackboard', key: 'atk_scale_loop' },
+                },
+              },
+            },
+            macros: {},
+          },
         },
       },
     },

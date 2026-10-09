@@ -607,6 +607,23 @@ export function attachBuffLifecycleSequences<Key extends string>(
     // 回调更换操作来源，但仍使用同一个实例运行时，不能重置 once 和动作黑板作用域。
     runtime = new CombatActionSequenceRuntime(
       {
+        aura: {
+          targets: (parameters, callback) => {
+            const aura = operationsFor(callback).aura;
+            if (!aura) throw new Error('Buff Aura target operations are not configured');
+            return aura.targets(parameters, callback);
+          },
+          apply: (parameters, target, callback) => {
+            const aura = operationsFor(callback).aura;
+            if (!aura) throw new Error('Buff Aura application operations are not configured');
+            return aura.apply(parameters, target, callback);
+          },
+          finish: references => {
+            if (!defaultOperations.aura)
+              throw new Error('Buff Aura cleanup operations are not configured');
+            defaultOperations.aura.finish(references);
+          },
+        },
         execute: (step, callback) => operationsFor(callback).execute(step, callback),
         evaluate: (condition, callback) => operationsFor(callback).evaluate(condition, callback),
         prepare: (step, callback) => operationsFor(callback).prepare?.(step, callback),

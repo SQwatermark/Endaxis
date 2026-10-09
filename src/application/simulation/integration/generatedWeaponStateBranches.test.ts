@@ -57,10 +57,7 @@ describe('生成武器的目标状态与层数伤害分支', () => {
           startFrame: 1,
           steps: Array.from({ length: layers }, () => ({
             kind: 'applyBuff' as const,
-            parameters: {
-              buffId: 'buff_physical_no_guard',
-              target: 'enemy' as const,
-            },
+            parameters: { buffs: [{ buffId: 'buff_physical_no_guard' }], target: 'enemy' as const },
           })),
         },
         { startFrame: 60, steps: [crush] },
@@ -92,10 +89,7 @@ describe('生成武器的目标状态与层数伤害分支', () => {
         steps: [
           {
             kind: 'applyBuff',
-            parameters: {
-              buffId: 'buff_physical_no_guard',
-              target: 'caster',
-            },
+            parameters: { buffs: [{ buffId: 'buff_physical_no_guard' }], target: 'caster' },
           },
         ],
       },

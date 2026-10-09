@@ -65,16 +65,20 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_sword_0012_atk_up',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_sword_0012_atk_up',
+                      copiedBlackboardAssignments: {
+                        atk_up2: 'atk_up2',
+                        duration: 'duration',
+                        lv: 'lv',
+                        max_stack: 'max_stack',
+                      },
+                    },
+                  ],
                   target: 'party',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: {
-                    atk_up2: 'atk_up2',
-                    duration: 'duration',
-                    lv: 'lv',
-                    max_stack: 'max_stack',
-                  },
                 },
               },
               next: null,

@@ -5,28 +5,6 @@ const definition = {
   slug: 'suit_atk02',
   icon: 'endaxis:equipment/atk02/item_equip_t4_suit_atk02_edc_04',
   modifiers: [{ kind: 'panelStat', stat: 'attackPercent', value: 0.15 }],
-  actionGraph: {
-    main: {
-      nodes: {
-        applyBuff_1: {
-          action: {
-            kind: 'applyBuff',
-            parameters: {
-              buffId: 'buff_equipsuit_atk_02',
-              target: 'caster',
-              blackboardAssignments: {
-                atk_up: { kind: 'constant', value: 0.15 },
-                dmg_up: { kind: 'constant', value: 0.2 },
-                max_stack: { kind: 'constant', value: 3 },
-              },
-            },
-          },
-          next: null,
-        },
-      },
-    },
-    macros: {},
-  },
   skillId: 'passive_equipsuit_atk_02',
   buffDefinitions: {
     buff_equipsuit_atk_02: {
@@ -40,23 +18,30 @@ const definition = {
       extendTags: [],
       blackboard: { atk_up: 0.1, dmg_up: 0.2, max_stack: 5 },
       attributeModifiers: [],
-      lifecycleSequences: { enable: { $sequence: 'applyBuff_1' } },
+      lifecycleSequences: { enable: { $sequence: 'aura_1' } },
       actionGraph: {
         main: {
           nodes: {
-            applyBuff_1: {
+            aura_1: {
               action: {
-                kind: 'applyBuff',
+                kind: 'aura',
                 parameters: {
-                  buffId: 'buff_equipsuit_atk_02_aruadetect',
                   target: 'party',
                   source: 'buffOwner',
-                  finishByAction: true,
-                  blackboardAssignments: {
-                    dmg_up: { kind: 'valueNode', nodeId: 'data_1' },
-                    max_stack: { kind: 'valueNode', nodeId: 'data_2' },
-                  },
+                  inheritSourceSkillCastInfo: false,
+                  buffs: [
+                    {
+                      buffId: 'buff_equipsuit_atk_02_aruadetect',
+                      blackboardAssignments: {
+                        dmg_up: { kind: 'valueNode', nodeId: 'data_1' },
+                        max_stack: { kind: 'valueNode', nodeId: 'data_2' },
+                      },
+                      stringBlackboardAssignments: {},
+                    },
+                  ],
                 },
+                onEnter: { $sequence: null },
+                onExit: { $sequence: null },
               },
               next: null,
             },
@@ -122,11 +107,15 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_equipsuit_atk_02_addcombodamage_buff',
+                  buffs: [
+                    {
+                      buffId: 'buff_equipsuit_atk_02_addcombodamage_buff',
+                      copiedBlackboardAssignments: { dmg_up: 'dmg_up' },
+                    },
+                  ],
                   target: 'buffOwner',
                   source: 'buffOwner',
                   inheritSourceSkillCastInfo: true,
-                  copiedBlackboardAssignments: { dmg_up: 'dmg_up' },
                 },
               },
               next: 'finishBuffsById_1',
@@ -252,11 +241,15 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_equipsuit_atk_02_addcombodamage',
+                  buffs: [
+                    {
+                      buffId: 'buff_equipsuit_atk_02_addcombodamage',
+                      copiedBlackboardAssignments: { dmg_up: 'dmg_up', max_stack: 'max_stack' },
+                    },
+                  ],
                   target: 'caster',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: { dmg_up: 'dmg_up', max_stack: 'max_stack' },
                 },
               },
               next: null,
@@ -282,6 +275,32 @@ const definition = {
     },
   },
   enableSequence: { $sequence: 'applyBuff_1' },
+  actionGraph: {
+    main: {
+      nodes: {
+        applyBuff_1: {
+          action: {
+            kind: 'applyBuff',
+            parameters: {
+              buffs: [
+                {
+                  buffId: 'buff_equipsuit_atk_02',
+                  blackboardAssignments: {
+                    atk_up: { kind: 'constant', value: 0.15 },
+                    dmg_up: { kind: 'constant', value: 0.2 },
+                    max_stack: { kind: 'constant', value: 3 },
+                  },
+                },
+              ],
+              target: 'caster',
+            },
+          },
+          next: null,
+        },
+      },
+    },
+    macros: {},
+  },
 } as const satisfies GearSetDefinition;
 
 export default definition;

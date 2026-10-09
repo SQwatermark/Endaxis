@@ -270,7 +270,7 @@ export const typhoeusChr_0034_typhoea_attack2ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0034_typhoea_passive_increase_attackrange',
+            buffs: [{ buffId: 'buff_chr_0034_typhoea_passive_increase_attackrange' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             isExtra: true,
@@ -381,7 +381,7 @@ export const typhoeusChr_0034_typhoea_attack3ActionGraph = {
                         action: {
                           kind: 'applyBuff',
                           parameters: {
-                            buffId: 'buff_chr_0034_typhoea_attack_3_1_damagetaken',
+                            buffs: [{ buffId: 'buff_chr_0034_typhoea_attack_3_1_damagetaken' }],
                             target: 'enemy',
                             inheritSourceSkillCastInfo: true,
                           },
@@ -511,7 +511,7 @@ export const typhoeusChr_0034_typhoea_attack3ActionGraph = {
                         action: {
                           kind: 'applyBuff',
                           parameters: {
-                            buffId: 'buff_chr_0034_typhoea_attack_3_2_damagetaken',
+                            buffs: [{ buffId: 'buff_chr_0034_typhoea_attack_3_2_damagetaken' }],
                             target: 'enemy',
                             inheritSourceSkillCastInfo: true,
                           },
@@ -606,7 +606,7 @@ export const typhoeusChr_0034_typhoea_attack3ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0034_typhoea_passive_increase_attackrange',
+            buffs: [{ buffId: 'buff_chr_0034_typhoea_passive_increase_attackrange' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             isExtra: true,
@@ -875,7 +875,7 @@ export const typhoeusChr_0034_typhoea_attack4ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0034_typhoea_attack_4_addtionalbattleshape_onenemy',
+            buffs: [{ buffId: 'buff_chr_0034_typhoea_attack_4_addtionalbattleshape_onenemy' }],
             target: 'enemy',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -887,7 +887,7 @@ export const typhoeusChr_0034_typhoea_attack4ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0034_typhoea_passive_increase_attackrange',
+            buffs: [{ buffId: 'buff_chr_0034_typhoea_passive_increase_attackrange' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             isExtra: true,
@@ -1011,9 +1011,9 @@ export const typhoeusChr_0034_typhoea_attack5ActionGraph = {
                         },
                         next: null,
                       },
-                      changeResourceByActionValue_2: {
+                      changeResource_2: {
                         action: {
-                          kind: 'changeResourceByActionValue',
+                          kind: 'changeResource',
                           parameters: {
                             resource: 'sp',
                             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -1029,7 +1029,7 @@ export const typhoeusChr_0034_typhoea_attack5ActionGraph = {
                         action: {
                           kind: 'applyBuff',
                           parameters: {
-                            buffId: 'buff_chr_0034_typhoea_attack_5_damagetaken',
+                            buffs: [{ buffId: 'buff_chr_0034_typhoea_attack_5_damagetaken' }],
                             target: 'enemy',
                             count: { kind: 'constant', value: 0.3 },
                             inheritSourceSkillCastInfo: true,
@@ -1057,7 +1057,7 @@ export const typhoeusChr_0034_typhoea_attack5ActionGraph = {
                             condition: { kind: 'conditionNode', nodeId: 'data_7' },
                             alwaysNext: true,
                           },
-                          whenTrue: { $sequence: 'changeResourceByActionValue_2' },
+                          whenTrue: { $sequence: 'changeResource_2' },
                         },
                         next: 'dealDamage_4',
                       },
@@ -1367,16 +1367,20 @@ export const typhoeusChr_0034_typhoea_floating_attack1ActionGraph = {
                         action: {
                           kind: 'applyBuff',
                           parameters: {
-                            buffId: 'buff_chr_0034_typhoea_normal_skill_arrow_energy_buffer_2',
+                            buffs: [
+                              {
+                                buffId: 'buff_chr_0034_typhoea_normal_skill_arrow_energy_buffer_2',
+                              },
+                            ],
                             target: 'caster',
                             inheritSourceSkillCastInfo: true,
                           },
                         },
                         next: null,
                       },
-                      changeResourceByActionValue_8: {
+                      changeResource_8: {
                         action: {
-                          kind: 'changeResourceByActionValue',
+                          kind: 'changeResource',
                           parameters: {
                             resource: 'ultimateEnergy',
                             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -1397,7 +1401,7 @@ export const typhoeusChr_0034_typhoea_floating_attack1ActionGraph = {
                             count: { kind: 'constant', value: 1 },
                           },
                         },
-                        next: 'changeResourceByActionValue_8',
+                        next: 'changeResource_8',
                       },
                       conditional_11: {
                         action: {
@@ -1414,10 +1418,16 @@ export const typhoeusChr_0034_typhoea_floating_attack1ActionGraph = {
                         action: {
                           kind: 'applyBuff',
                           parameters: {
-                            buffId: 'buff_common_natural_natural_triggered_typhoea',
+                            buffs: [
+                              {
+                                buffId: 'buff_common_natural_natural_triggered_typhoea',
+                                copiedBlackboardAssignments: {
+                                  damage_enhence: 'total_damage_rate',
+                                },
+                              },
+                            ],
                             target: 'enemy',
                             inheritSourceSkillCastInfo: true,
-                            copiedBlackboardAssignments: { damage_enhence: 'total_damage_rate' },
                           },
                         },
                         next: null,
@@ -1426,10 +1436,16 @@ export const typhoeusChr_0034_typhoea_floating_attack1ActionGraph = {
                         action: {
                           kind: 'applyBuff',
                           parameters: {
-                            buffId: 'buff_common_natural_natural_triggered_typhoea',
+                            buffs: [
+                              {
+                                buffId: 'buff_common_natural_natural_triggered_typhoea',
+                                copiedBlackboardAssignments: {
+                                  damage_enhence: 'total_damage_rate',
+                                },
+                              },
+                            ],
                             target: 'enemy',
                             inheritSourceSkillCastInfo: true,
-                            copiedBlackboardAssignments: { damage_enhence: 'total_damage_rate' },
                           },
                         },
                         next: 'applyBuff_7',
@@ -1446,9 +1462,9 @@ export const typhoeusChr_0034_typhoea_floating_attack1ActionGraph = {
                         },
                         next: 'applyBuff_2',
                       },
-                      changeResourceByActionValue_4: {
+                      changeResource_4: {
                         action: {
-                          kind: 'changeResourceByActionValue',
+                          kind: 'changeResource',
                           parameters: {
                             resource: 'ultimateEnergy',
                             amount: { kind: 'valueNode', nodeId: 'data_5' },
@@ -1469,7 +1485,7 @@ export const typhoeusChr_0034_typhoea_floating_attack1ActionGraph = {
                             count: { kind: 'constant', value: 1 },
                           },
                         },
-                        next: 'changeResourceByActionValue_4',
+                        next: 'changeResource_4',
                       },
                       conditional_10: {
                         action: {
@@ -1526,7 +1542,7 @@ export const typhoeusChr_0034_typhoea_floating_attack1ActionGraph = {
                         action: {
                           kind: 'applyBuff',
                           parameters: {
-                            buffId: 'buff_chr_0034_typhoea_floatingattack_damagetaken',
+                            buffs: [{ buffId: 'buff_chr_0034_typhoea_floatingattack_damagetaken' }],
                             target: 'enemy',
                             inheritSourceSkillCastInfo: true,
                           },
@@ -1846,7 +1862,7 @@ export const typhoeusChr_0034_typhoea_floating_attack1ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0034_typhoea_combo_skill_canusefloatingskill',
+            buffs: [{ buffId: 'buff_chr_0034_typhoea_combo_skill_canusefloatingskill' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -1952,7 +1968,7 @@ export const typhoeusChr_0034_typhoea_floating_attack1ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0034_typhoea_common_arrowshow',
+            buffs: [{ buffId: 'buff_chr_0034_typhoea_common_arrowshow' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
           },
@@ -2465,16 +2481,20 @@ export const typhoeusChr_0034_typhoea_floating_attack2ActionGraph = {
                         action: {
                           kind: 'applyBuff',
                           parameters: {
-                            buffId: 'buff_chr_0034_typhoea_normal_skill_arrow_energy_buffer_2',
+                            buffs: [
+                              {
+                                buffId: 'buff_chr_0034_typhoea_normal_skill_arrow_energy_buffer_2',
+                              },
+                            ],
                             target: 'caster',
                             inheritSourceSkillCastInfo: true,
                           },
                         },
                         next: null,
                       },
-                      changeResourceByActionValue_8: {
+                      changeResource_8: {
                         action: {
-                          kind: 'changeResourceByActionValue',
+                          kind: 'changeResource',
                           parameters: {
                             resource: 'ultimateEnergy',
                             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -2495,7 +2515,7 @@ export const typhoeusChr_0034_typhoea_floating_attack2ActionGraph = {
                             count: { kind: 'constant', value: 1 },
                           },
                         },
-                        next: 'changeResourceByActionValue_8',
+                        next: 'changeResource_8',
                       },
                       conditional_11: {
                         action: {
@@ -2512,10 +2532,16 @@ export const typhoeusChr_0034_typhoea_floating_attack2ActionGraph = {
                         action: {
                           kind: 'applyBuff',
                           parameters: {
-                            buffId: 'buff_common_natural_natural_triggered_typhoea',
+                            buffs: [
+                              {
+                                buffId: 'buff_common_natural_natural_triggered_typhoea',
+                                copiedBlackboardAssignments: {
+                                  damage_enhence: 'total_damage_rate',
+                                },
+                              },
+                            ],
                             target: 'enemy',
                             inheritSourceSkillCastInfo: true,
-                            copiedBlackboardAssignments: { damage_enhence: 'total_damage_rate' },
                           },
                         },
                         next: null,
@@ -2524,10 +2550,16 @@ export const typhoeusChr_0034_typhoea_floating_attack2ActionGraph = {
                         action: {
                           kind: 'applyBuff',
                           parameters: {
-                            buffId: 'buff_common_natural_natural_triggered_typhoea',
+                            buffs: [
+                              {
+                                buffId: 'buff_common_natural_natural_triggered_typhoea',
+                                copiedBlackboardAssignments: {
+                                  damage_enhence: 'total_damage_rate',
+                                },
+                              },
+                            ],
                             target: 'enemy',
                             inheritSourceSkillCastInfo: true,
-                            copiedBlackboardAssignments: { damage_enhence: 'total_damage_rate' },
                           },
                         },
                         next: 'applyBuff_7',
@@ -2544,9 +2576,9 @@ export const typhoeusChr_0034_typhoea_floating_attack2ActionGraph = {
                         },
                         next: 'applyBuff_2',
                       },
-                      changeResourceByActionValue_4: {
+                      changeResource_4: {
                         action: {
-                          kind: 'changeResourceByActionValue',
+                          kind: 'changeResource',
                           parameters: {
                             resource: 'ultimateEnergy',
                             amount: { kind: 'valueNode', nodeId: 'data_5' },
@@ -2567,7 +2599,7 @@ export const typhoeusChr_0034_typhoea_floating_attack2ActionGraph = {
                             count: { kind: 'constant', value: 1 },
                           },
                         },
-                        next: 'changeResourceByActionValue_4',
+                        next: 'changeResource_4',
                       },
                       conditional_10: {
                         action: {
@@ -2624,7 +2656,7 @@ export const typhoeusChr_0034_typhoea_floating_attack2ActionGraph = {
                         action: {
                           kind: 'applyBuff',
                           parameters: {
-                            buffId: 'buff_chr_0034_typhoea_floatingattack_damagetaken',
+                            buffs: [{ buffId: 'buff_chr_0034_typhoea_floatingattack_damagetaken' }],
                             target: 'enemy',
                             inheritSourceSkillCastInfo: true,
                           },
@@ -2944,7 +2976,7 @@ export const typhoeusChr_0034_typhoea_floating_attack2ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0034_typhoea_combo_skill_canusefloatingskill',
+            buffs: [{ buffId: 'buff_chr_0034_typhoea_combo_skill_canusefloatingskill' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -3085,7 +3117,7 @@ export const typhoeusChr_0034_typhoea_floating_attack2ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0034_typhoea_common_arrowshow',
+            buffs: [{ buffId: 'buff_chr_0034_typhoea_common_arrowshow' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
           },
@@ -3546,16 +3578,20 @@ export const typhoeusChr_0034_typhoea_floating_attack3ActionGraph = {
                         action: {
                           kind: 'applyBuff',
                           parameters: {
-                            buffId: 'buff_chr_0034_typhoea_normal_skill_arrow_energy_buffer_2',
+                            buffs: [
+                              {
+                                buffId: 'buff_chr_0034_typhoea_normal_skill_arrow_energy_buffer_2',
+                              },
+                            ],
                             target: 'caster',
                             inheritSourceSkillCastInfo: true,
                           },
                         },
                         next: null,
                       },
-                      changeResourceByActionValue_8: {
+                      changeResource_8: {
                         action: {
-                          kind: 'changeResourceByActionValue',
+                          kind: 'changeResource',
                           parameters: {
                             resource: 'ultimateEnergy',
                             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -3576,7 +3612,7 @@ export const typhoeusChr_0034_typhoea_floating_attack3ActionGraph = {
                             count: { kind: 'constant', value: 1 },
                           },
                         },
-                        next: 'changeResourceByActionValue_8',
+                        next: 'changeResource_8',
                       },
                       conditional_11: {
                         action: {
@@ -3593,10 +3629,16 @@ export const typhoeusChr_0034_typhoea_floating_attack3ActionGraph = {
                         action: {
                           kind: 'applyBuff',
                           parameters: {
-                            buffId: 'buff_common_natural_natural_triggered_typhoea',
+                            buffs: [
+                              {
+                                buffId: 'buff_common_natural_natural_triggered_typhoea',
+                                copiedBlackboardAssignments: {
+                                  damage_enhence: 'total_damage_rate',
+                                },
+                              },
+                            ],
                             target: 'enemy',
                             inheritSourceSkillCastInfo: true,
-                            copiedBlackboardAssignments: { damage_enhence: 'total_damage_rate' },
                           },
                         },
                         next: null,
@@ -3605,10 +3647,16 @@ export const typhoeusChr_0034_typhoea_floating_attack3ActionGraph = {
                         action: {
                           kind: 'applyBuff',
                           parameters: {
-                            buffId: 'buff_common_natural_natural_triggered_typhoea',
+                            buffs: [
+                              {
+                                buffId: 'buff_common_natural_natural_triggered_typhoea',
+                                copiedBlackboardAssignments: {
+                                  damage_enhence: 'total_damage_rate',
+                                },
+                              },
+                            ],
                             target: 'enemy',
                             inheritSourceSkillCastInfo: true,
-                            copiedBlackboardAssignments: { damage_enhence: 'total_damage_rate' },
                           },
                         },
                         next: 'applyBuff_7',
@@ -3625,9 +3673,9 @@ export const typhoeusChr_0034_typhoea_floating_attack3ActionGraph = {
                         },
                         next: 'applyBuff_2',
                       },
-                      changeResourceByActionValue_4: {
+                      changeResource_4: {
                         action: {
-                          kind: 'changeResourceByActionValue',
+                          kind: 'changeResource',
                           parameters: {
                             resource: 'ultimateEnergy',
                             amount: { kind: 'valueNode', nodeId: 'data_5' },
@@ -3648,7 +3696,7 @@ export const typhoeusChr_0034_typhoea_floating_attack3ActionGraph = {
                             count: { kind: 'constant', value: 1 },
                           },
                         },
-                        next: 'changeResourceByActionValue_4',
+                        next: 'changeResource_4',
                       },
                       conditional_10: {
                         action: {
@@ -3705,7 +3753,7 @@ export const typhoeusChr_0034_typhoea_floating_attack3ActionGraph = {
                         action: {
                           kind: 'applyBuff',
                           parameters: {
-                            buffId: 'buff_chr_0034_typhoea_floatingattack_damagetaken',
+                            buffs: [{ buffId: 'buff_chr_0034_typhoea_floatingattack_damagetaken' }],
                             target: 'enemy',
                             inheritSourceSkillCastInfo: true,
                           },
@@ -4025,7 +4073,7 @@ export const typhoeusChr_0034_typhoea_floating_attack3ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0034_typhoea_combo_skill_canusefloatingskill',
+            buffs: [{ buffId: 'buff_chr_0034_typhoea_combo_skill_canusefloatingskill' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -4075,7 +4123,7 @@ export const typhoeusChr_0034_typhoea_floating_attack3ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0034_typhoea_common_arrowshow',
+            buffs: [{ buffId: 'buff_chr_0034_typhoea_common_arrowshow' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
           },
@@ -4398,7 +4446,7 @@ export const typhoeusChr_0034_typhoea_floating_attack4ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0034_typhoea_normal_skill_aimmedenemy_all',
+            buffs: [{ buffId: 'buff_chr_0034_typhoea_normal_skill_aimmedenemy_all' }],
             target: 'enemy',
             inheritSourceSkillCastInfo: true,
           },
@@ -4499,16 +4547,20 @@ export const typhoeusChr_0034_typhoea_floating_attack4ActionGraph = {
                         action: {
                           kind: 'applyBuff',
                           parameters: {
-                            buffId: 'buff_chr_0034_typhoea_normal_skill_arrow_energy_buffer_2',
+                            buffs: [
+                              {
+                                buffId: 'buff_chr_0034_typhoea_normal_skill_arrow_energy_buffer_2',
+                              },
+                            ],
                             target: 'caster',
                             inheritSourceSkillCastInfo: true,
                           },
                         },
                         next: null,
                       },
-                      changeResourceByActionValue_8: {
+                      changeResource_8: {
                         action: {
-                          kind: 'changeResourceByActionValue',
+                          kind: 'changeResource',
                           parameters: {
                             resource: 'ultimateEnergy',
                             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -4529,7 +4581,7 @@ export const typhoeusChr_0034_typhoea_floating_attack4ActionGraph = {
                             count: { kind: 'constant', value: 1 },
                           },
                         },
-                        next: 'changeResourceByActionValue_8',
+                        next: 'changeResource_8',
                       },
                       conditional_11: {
                         action: {
@@ -4546,10 +4598,16 @@ export const typhoeusChr_0034_typhoea_floating_attack4ActionGraph = {
                         action: {
                           kind: 'applyBuff',
                           parameters: {
-                            buffId: 'buff_common_natural_natural_triggered_typhoea',
+                            buffs: [
+                              {
+                                buffId: 'buff_common_natural_natural_triggered_typhoea',
+                                copiedBlackboardAssignments: {
+                                  damage_enhence: 'total_damage_rate',
+                                },
+                              },
+                            ],
                             target: 'enemy',
                             inheritSourceSkillCastInfo: true,
-                            copiedBlackboardAssignments: { damage_enhence: 'total_damage_rate' },
                           },
                         },
                         next: null,
@@ -4558,10 +4616,16 @@ export const typhoeusChr_0034_typhoea_floating_attack4ActionGraph = {
                         action: {
                           kind: 'applyBuff',
                           parameters: {
-                            buffId: 'buff_common_natural_natural_triggered_typhoea',
+                            buffs: [
+                              {
+                                buffId: 'buff_common_natural_natural_triggered_typhoea',
+                                copiedBlackboardAssignments: {
+                                  damage_enhence: 'total_damage_rate',
+                                },
+                              },
+                            ],
                             target: 'enemy',
                             inheritSourceSkillCastInfo: true,
-                            copiedBlackboardAssignments: { damage_enhence: 'total_damage_rate' },
                           },
                         },
                         next: 'applyBuff_7',
@@ -4578,9 +4642,9 @@ export const typhoeusChr_0034_typhoea_floating_attack4ActionGraph = {
                         },
                         next: 'applyBuff_2',
                       },
-                      changeResourceByActionValue_4: {
+                      changeResource_4: {
                         action: {
-                          kind: 'changeResourceByActionValue',
+                          kind: 'changeResource',
                           parameters: {
                             resource: 'ultimateEnergy',
                             amount: { kind: 'valueNode', nodeId: 'data_5' },
@@ -4601,7 +4665,7 @@ export const typhoeusChr_0034_typhoea_floating_attack4ActionGraph = {
                             count: { kind: 'constant', value: 1 },
                           },
                         },
-                        next: 'changeResourceByActionValue_4',
+                        next: 'changeResource_4',
                       },
                       conditional_10: {
                         action: {
@@ -4658,7 +4722,7 @@ export const typhoeusChr_0034_typhoea_floating_attack4ActionGraph = {
                         action: {
                           kind: 'applyBuff',
                           parameters: {
-                            buffId: 'buff_chr_0034_typhoea_floatingattack_damagetaken',
+                            buffs: [{ buffId: 'buff_chr_0034_typhoea_floatingattack_damagetaken' }],
                             target: 'enemy',
                             inheritSourceSkillCastInfo: true,
                           },
@@ -5044,7 +5108,7 @@ export const typhoeusChr_0034_typhoea_floating_attack4ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0034_typhoea_combo_skill_canusefloatingskill',
+            buffs: [{ buffId: 'buff_chr_0034_typhoea_combo_skill_canusefloatingskill' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -5119,7 +5183,7 @@ export const typhoeusChr_0034_typhoea_floating_attack4ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0034_typhoea_common_arrowshow',
+            buffs: [{ buffId: 'buff_chr_0034_typhoea_common_arrowshow' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
           },
@@ -5511,16 +5575,20 @@ export const typhoeusChr_0034_typhoea_floating_attack5ActionGraph = {
                         action: {
                           kind: 'applyBuff',
                           parameters: {
-                            buffId: 'buff_chr_0034_typhoea_normal_skill_arrow_energy_buffer_2',
+                            buffs: [
+                              {
+                                buffId: 'buff_chr_0034_typhoea_normal_skill_arrow_energy_buffer_2',
+                              },
+                            ],
                             target: 'caster',
                             inheritSourceSkillCastInfo: true,
                           },
                         },
                         next: null,
                       },
-                      changeResourceByActionValue_8: {
+                      changeResource_8: {
                         action: {
-                          kind: 'changeResourceByActionValue',
+                          kind: 'changeResource',
                           parameters: {
                             resource: 'ultimateEnergy',
                             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -5541,7 +5609,7 @@ export const typhoeusChr_0034_typhoea_floating_attack5ActionGraph = {
                             count: { kind: 'constant', value: 1 },
                           },
                         },
-                        next: 'changeResourceByActionValue_8',
+                        next: 'changeResource_8',
                       },
                       conditional_11: {
                         action: {
@@ -5558,10 +5626,16 @@ export const typhoeusChr_0034_typhoea_floating_attack5ActionGraph = {
                         action: {
                           kind: 'applyBuff',
                           parameters: {
-                            buffId: 'buff_common_natural_natural_triggered_typhoea',
+                            buffs: [
+                              {
+                                buffId: 'buff_common_natural_natural_triggered_typhoea',
+                                copiedBlackboardAssignments: {
+                                  damage_enhence: 'total_damage_rate',
+                                },
+                              },
+                            ],
                             target: 'enemy',
                             inheritSourceSkillCastInfo: true,
-                            copiedBlackboardAssignments: { damage_enhence: 'total_damage_rate' },
                           },
                         },
                         next: null,
@@ -5570,10 +5644,16 @@ export const typhoeusChr_0034_typhoea_floating_attack5ActionGraph = {
                         action: {
                           kind: 'applyBuff',
                           parameters: {
-                            buffId: 'buff_common_natural_natural_triggered_typhoea',
+                            buffs: [
+                              {
+                                buffId: 'buff_common_natural_natural_triggered_typhoea',
+                                copiedBlackboardAssignments: {
+                                  damage_enhence: 'total_damage_rate',
+                                },
+                              },
+                            ],
                             target: 'enemy',
                             inheritSourceSkillCastInfo: true,
-                            copiedBlackboardAssignments: { damage_enhence: 'total_damage_rate' },
                           },
                         },
                         next: 'applyBuff_7',
@@ -5590,9 +5670,9 @@ export const typhoeusChr_0034_typhoea_floating_attack5ActionGraph = {
                         },
                         next: 'applyBuff_2',
                       },
-                      changeResourceByActionValue_4: {
+                      changeResource_4: {
                         action: {
-                          kind: 'changeResourceByActionValue',
+                          kind: 'changeResource',
                           parameters: {
                             resource: 'ultimateEnergy',
                             amount: { kind: 'valueNode', nodeId: 'data_5' },
@@ -5613,7 +5693,7 @@ export const typhoeusChr_0034_typhoea_floating_attack5ActionGraph = {
                             count: { kind: 'constant', value: 1 },
                           },
                         },
-                        next: 'changeResourceByActionValue_4',
+                        next: 'changeResource_4',
                       },
                       conditional_10: {
                         action: {
@@ -5670,7 +5750,7 @@ export const typhoeusChr_0034_typhoea_floating_attack5ActionGraph = {
                         action: {
                           kind: 'applyBuff',
                           parameters: {
-                            buffId: 'buff_chr_0034_typhoea_floatingattack_damagetaken',
+                            buffs: [{ buffId: 'buff_chr_0034_typhoea_floatingattack_damagetaken' }],
                             target: 'enemy',
                             inheritSourceSkillCastInfo: true,
                           },
@@ -5959,16 +6039,20 @@ export const typhoeusChr_0034_typhoea_floating_attack5ActionGraph = {
                         action: {
                           kind: 'applyBuff',
                           parameters: {
-                            buffId: 'buff_chr_0034_typhoea_normal_skill_arrow_energy_buffer_2',
+                            buffs: [
+                              {
+                                buffId: 'buff_chr_0034_typhoea_normal_skill_arrow_energy_buffer_2',
+                              },
+                            ],
                             target: 'caster',
                             inheritSourceSkillCastInfo: true,
                           },
                         },
                         next: null,
                       },
-                      changeResourceByActionValue_8: {
+                      changeResource_8: {
                         action: {
-                          kind: 'changeResourceByActionValue',
+                          kind: 'changeResource',
                           parameters: {
                             resource: 'ultimateEnergy',
                             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -5989,7 +6073,7 @@ export const typhoeusChr_0034_typhoea_floating_attack5ActionGraph = {
                             count: { kind: 'constant', value: 1 },
                           },
                         },
-                        next: 'changeResourceByActionValue_8',
+                        next: 'changeResource_8',
                       },
                       conditional_11: {
                         action: {
@@ -6006,10 +6090,16 @@ export const typhoeusChr_0034_typhoea_floating_attack5ActionGraph = {
                         action: {
                           kind: 'applyBuff',
                           parameters: {
-                            buffId: 'buff_common_natural_natural_triggered_typhoea',
+                            buffs: [
+                              {
+                                buffId: 'buff_common_natural_natural_triggered_typhoea',
+                                copiedBlackboardAssignments: {
+                                  damage_enhence: 'total_damage_rate',
+                                },
+                              },
+                            ],
                             target: 'enemy',
                             inheritSourceSkillCastInfo: true,
-                            copiedBlackboardAssignments: { damage_enhence: 'total_damage_rate' },
                           },
                         },
                         next: null,
@@ -6018,10 +6108,16 @@ export const typhoeusChr_0034_typhoea_floating_attack5ActionGraph = {
                         action: {
                           kind: 'applyBuff',
                           parameters: {
-                            buffId: 'buff_common_natural_natural_triggered_typhoea',
+                            buffs: [
+                              {
+                                buffId: 'buff_common_natural_natural_triggered_typhoea',
+                                copiedBlackboardAssignments: {
+                                  damage_enhence: 'total_damage_rate',
+                                },
+                              },
+                            ],
                             target: 'enemy',
                             inheritSourceSkillCastInfo: true,
-                            copiedBlackboardAssignments: { damage_enhence: 'total_damage_rate' },
                           },
                         },
                         next: 'applyBuff_7',
@@ -6038,9 +6134,9 @@ export const typhoeusChr_0034_typhoea_floating_attack5ActionGraph = {
                         },
                         next: 'applyBuff_2',
                       },
-                      changeResourceByActionValue_4: {
+                      changeResource_4: {
                         action: {
-                          kind: 'changeResourceByActionValue',
+                          kind: 'changeResource',
                           parameters: {
                             resource: 'ultimateEnergy',
                             amount: { kind: 'valueNode', nodeId: 'data_5' },
@@ -6061,7 +6157,7 @@ export const typhoeusChr_0034_typhoea_floating_attack5ActionGraph = {
                             count: { kind: 'constant', value: 1 },
                           },
                         },
-                        next: 'changeResourceByActionValue_4',
+                        next: 'changeResource_4',
                       },
                       conditional_10: {
                         action: {
@@ -6079,10 +6175,14 @@ export const typhoeusChr_0034_typhoea_floating_attack5ActionGraph = {
                         action: {
                           kind: 'applyBuff',
                           parameters: {
-                            buffId: 'buff_chr_0034_typhoea_normal_attack5_atb_recovered',
+                            buffs: [
+                              {
+                                buffId: 'buff_chr_0034_typhoea_normal_attack5_atb_recovered',
+                                copiedBlackboardAssignments: { atb: 'atb' },
+                              },
+                            ],
                             target: 'caster',
                             inheritSourceSkillCastInfo: true,
-                            copiedBlackboardAssignments: { atb: 'atb' },
                           },
                         },
                         next: null,
@@ -6136,7 +6236,7 @@ export const typhoeusChr_0034_typhoea_floating_attack5ActionGraph = {
                         action: {
                           kind: 'applyBuff',
                           parameters: {
-                            buffId: 'buff_chr_0034_typhoea_floatingattack_damagetaken',
+                            buffs: [{ buffId: 'buff_chr_0034_typhoea_floatingattack_damagetaken' }],
                             target: 'enemy',
                             inheritSourceSkillCastInfo: true,
                           },
@@ -6229,7 +6329,7 @@ export const typhoeusChr_0034_typhoea_floating_attack5ActionGraph = {
                         action: {
                           kind: 'applyBuff',
                           parameters: {
-                            buffId: 'buff_chr_0034_typhoea_normal_skill_hitstop',
+                            buffs: [{ buffId: 'buff_chr_0034_typhoea_normal_skill_hitstop' }],
                             target: 'caster',
                             inheritSourceSkillCastInfo: true,
                           },
@@ -6553,7 +6653,7 @@ export const typhoeusChr_0034_typhoea_floating_attack5ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0034_typhoea_combo_skill_canusefloatingskill',
+            buffs: [{ buffId: 'buff_chr_0034_typhoea_combo_skill_canusefloatingskill' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -6587,7 +6687,7 @@ export const typhoeusChr_0034_typhoea_floating_attack5ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0034_typhoea_common_arrowshow',
+            buffs: [{ buffId: 'buff_chr_0034_typhoea_common_arrowshow' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
           },
@@ -7004,7 +7104,7 @@ export const typhoeusChr_0034_typhoea_power_attackActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0034_typhoea_power_attack_maintarget',
+            buffs: [{ buffId: 'buff_chr_0034_typhoea_power_attack_maintarget' }],
             target: 'enemy',
             inheritSourceSkillCastInfo: true,
           },
@@ -7015,7 +7115,7 @@ export const typhoeusChr_0034_typhoea_power_attackActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_full_immune_medium',
+            buffs: [{ buffId: 'buff_common_full_immune_medium' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -7027,7 +7127,7 @@ export const typhoeusChr_0034_typhoea_power_attackActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_power_attack_disable_cast_skill',
+            buffs: [{ buffId: 'buff_common_power_attack_disable_cast_skill' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -7148,9 +7248,9 @@ export const typhoeusChr_0034_typhoea_plunging_attack_end: SkillDefinition = {
 export const typhoeusChr_0034_typhoea_normal_skill_floating_startActionGraph = {
   main: {
     nodes: {
-      changeResourceByActionValue_1: {
+      changeResource_1: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -7166,7 +7266,7 @@ export const typhoeusChr_0034_typhoea_normal_skill_floating_startActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
-          whenTrue: { $sequence: 'changeResourceByActionValue_1' },
+          whenTrue: { $sequence: 'changeResource_1' },
         },
         next: null,
       },
@@ -7174,7 +7274,15 @@ export const typhoeusChr_0034_typhoea_normal_skill_floating_startActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0034_typhoea_floatingmode',
+            buffs: [
+              {
+                buffId: 'buff_chr_0034_typhoea_floatingmode',
+                copiedBlackboardAssignments: {
+                  potential_atkup: 'potential_atkup',
+                  atk_up: 'atk_up',
+                },
+              },
+            ],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -7189,7 +7297,6 @@ export const typhoeusChr_0034_typhoea_normal_skill_floating_startActionGraph = {
               'chr_0034_typhoea_combo_skillfloating',
               'chr_0034_typhoea_ultimate_skillfloating',
             ],
-            copiedBlackboardAssignments: { potential_atkup: 'potential_atkup', atk_up: 'atk_up' },
           },
         },
         next: null,
@@ -7309,7 +7416,7 @@ export const typhoeusChr_0034_typhoea_normal_skill_floating_startActionGraph = {
                         action: {
                           kind: 'applyBuff',
                           parameters: {
-                            buffId: 'buff_chr_0034_typhoea_normal_start_hittimes',
+                            buffs: [{ buffId: 'buff_chr_0034_typhoea_normal_start_hittimes' }],
                             target: 'caster',
                             inheritSourceSkillCastInfo: true,
                           },
@@ -7458,7 +7565,7 @@ export const typhoeusChr_0034_typhoea_normal_skill_floating_startActionGraph = {
                         action: {
                           kind: 'applyBuff',
                           parameters: {
-                            buffId: 'buff_chr_0034_typhoea_normal_start_hittimes',
+                            buffs: [{ buffId: 'buff_chr_0034_typhoea_normal_start_hittimes' }],
                             target: 'caster',
                             inheritSourceSkillCastInfo: true,
                           },
@@ -7612,7 +7719,7 @@ export const typhoeusChr_0034_typhoea_normal_skill_floating_startActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0034_typhoea_common_arrowshow',
+            buffs: [{ buffId: 'buff_chr_0034_typhoea_common_arrowshow' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
           },
@@ -7825,7 +7932,7 @@ export const typhoeusChr_0034_typhoea_normal_skill_floating_loopActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0034_typhoea_combo_skill_canusefloatingskill',
+            buffs: [{ buffId: 'buff_chr_0034_typhoea_combo_skill_canusefloatingskill' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -7837,7 +7944,7 @@ export const typhoeusChr_0034_typhoea_normal_skill_floating_loopActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0034_typhoea_common_arrowshow',
+            buffs: [{ buffId: 'buff_chr_0034_typhoea_common_arrowshow' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
           },
@@ -8202,7 +8309,7 @@ export const typhoeusChr_0034_typhoea_combo_skillActionGraph = {
                         action: {
                           kind: 'applyBuff',
                           parameters: {
-                            buffId: 'buff_chr_0034_typhoea_combo_skill_arrow_hittimes',
+                            buffs: [{ buffId: 'buff_chr_0034_typhoea_combo_skill_arrow_hittimes' }],
                             target: 'enemy',
                             inheritSourceSkillCastInfo: true,
                           },
@@ -8302,9 +8409,9 @@ export const typhoeusChr_0034_typhoea_combo_skillActionGraph = {
         },
         next: 'calculateActionValue_37',
       },
-      changeResourceByActionValue_39: {
+      changeResource_39: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'ultimateEnergy',
             amount: { kind: 'valueNode', nodeId: 'data_6' },
@@ -8318,7 +8425,7 @@ export const typhoeusChr_0034_typhoea_combo_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0034_typhoea_common_func_arrowreload',
+            buffs: [{ buffId: 'buff_chr_0034_typhoea_common_func_arrowreload' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
           },
@@ -8405,7 +8512,7 @@ export const typhoeusChr_0034_typhoea_combo_skill: SkillDefinition = {
     { startFrame: 47, endFrame: 50, sequence: { $sequence: 'conditional_7' } },
     { startFrame: 49, endFrame: 52, sequence: { $sequence: 'conditional_7' } },
     { startFrame: 35, endFrame: 54, sequence: { $sequence: 'calculateActionValue_38' } },
-    { startFrame: 35, endFrame: 50, sequence: { $sequence: 'changeResourceByActionValue_39' } },
+    { startFrame: 35, endFrame: 50, sequence: { $sequence: 'changeResource_39' } },
     { startFrame: 35, endFrame: 38, sequence: { $sequence: 'applyBuff_40' } },
     { startFrame: 60, endFrame: 241, sequence: { $sequence: 'markCurrentSkillCanInterrupt_41' } },
   ],
@@ -8780,7 +8887,7 @@ export const typhoeusChr_0034_typhoea_combo_skillfloatingActionGraph = {
                         action: {
                           kind: 'applyBuff',
                           parameters: {
-                            buffId: 'buff_chr_0034_typhoea_combo_skill_arrow_hittimes',
+                            buffs: [{ buffId: 'buff_chr_0034_typhoea_combo_skill_arrow_hittimes' }],
                             target: 'enemy',
                             inheritSourceSkillCastInfo: true,
                           },
@@ -8844,9 +8951,9 @@ export const typhoeusChr_0034_typhoea_combo_skillfloatingActionGraph = {
         },
         next: 'modifyActionValue_52',
       },
-      changeResourceByActionValue_54: {
+      changeResource_54: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'ultimateEnergy',
             amount: { kind: 'valueNode', nodeId: 'data_7' },
@@ -8860,7 +8967,7 @@ export const typhoeusChr_0034_typhoea_combo_skillfloatingActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0034_typhoea_common_func_arrowreload',
+            buffs: [{ buffId: 'buff_chr_0034_typhoea_common_func_arrowreload' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
           },
@@ -8937,7 +9044,7 @@ export const typhoeusChr_0034_typhoea_combo_skillfloatingActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0034_typhoea_common_arrowshow',
+            buffs: [{ buffId: 'buff_chr_0034_typhoea_common_arrowshow' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
           },
@@ -9070,7 +9177,7 @@ export const typhoeusChr_0034_typhoea_combo_skillfloating: SkillDefinition = {
     { startFrame: 47, endFrame: 50, sequence: { $sequence: 'conditional_25' } },
     { startFrame: 49, endFrame: 52, sequence: { $sequence: 'conditional_25' } },
     { startFrame: 35, endFrame: 54, sequence: { $sequence: 'withActionBlackboardScope_53' } },
-    { startFrame: 35, endFrame: 38, sequence: { $sequence: 'changeResourceByActionValue_54' } },
+    { startFrame: 35, endFrame: 38, sequence: { $sequence: 'changeResource_54' } },
     { startFrame: 35, endFrame: 38, sequence: { $sequence: 'applyBuff_55' } },
     { startFrame: 0, endFrame: 3, sequence: { $sequence: 'modifyActionValue_56' } },
     { startFrame: 40, endFrame: 70, sequence: { $sequence: 'readBuffStackCount_57' } },
@@ -9116,7 +9223,15 @@ export const typhoeusChr_0034_typhoea_ultimate_skillfloatingActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0034_typhoea_floatingmode',
+            buffs: [
+              {
+                buffId: 'buff_chr_0034_typhoea_floatingmode',
+                copiedBlackboardAssignments: {
+                  potential_atkup: 'potential_atkup',
+                  atk_up: 'atk_up',
+                },
+              },
+            ],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -9131,7 +9246,6 @@ export const typhoeusChr_0034_typhoea_ultimate_skillfloatingActionGraph = {
               'chr_0034_typhoea_combo_skillfloating',
               'chr_0034_typhoea_ultimate_skillfloating',
             ],
-            copiedBlackboardAssignments: { potential_atkup: 'potential_atkup', atk_up: 'atk_up' },
           },
         },
         next: null,
@@ -9198,7 +9312,7 @@ export const typhoeusChr_0034_typhoea_ultimate_skillfloatingActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0034_typhoea_passive_arrowrecover_exitfight',
+            buffs: [{ buffId: 'buff_chr_0034_typhoea_passive_arrowrecover_exitfight' }],
             target: 'caster',
             count: { kind: 'valueNode', nodeId: 'data_2' },
             inheritSourceSkillCastInfo: true,
@@ -9210,7 +9324,7 @@ export const typhoeusChr_0034_typhoea_ultimate_skillfloatingActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0034_typhoea_normal_skill_arrow_num',
+            buffs: [{ buffId: 'buff_chr_0034_typhoea_normal_skill_arrow_num' }],
             target: 'caster',
             count: { kind: 'valueNode', nodeId: 'data_3' },
             inheritSourceSkillCastInfo: true,
@@ -9439,7 +9553,7 @@ export const typhoeusChr_0034_typhoea_ultimate_skillfloatingActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_damage_immune_ult_skill',
+            buffs: [{ buffId: 'buff_common_damage_immune_ult_skill' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -9462,7 +9576,7 @@ export const typhoeusChr_0034_typhoea_ultimate_skillfloatingActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0034_typhoea_common_arrowshow',
+            buffs: [{ buffId: 'buff_chr_0034_typhoea_common_arrowshow' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
           },
@@ -9621,7 +9735,7 @@ const typhoeusPassive1ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0034_typhoea_passive',
+            buffs: [{ buffId: 'buff_chr_0034_typhoea_passive' }],
             target: 'caster',
             inheritSourceSkillCastInfo: false,
           },
@@ -9646,7 +9760,7 @@ const typhoeusPassive2ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0034_typhoea_passive_increase_attackrange',
+            buffs: [{ buffId: 'buff_chr_0034_typhoea_passive_increase_attackrange' }],
             target: 'caster',
             inheritSourceSkillCastInfo: false,
           },
@@ -9902,15 +10016,19 @@ const typhoeusBuff5ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_affixes_slow',
+            buffs: [
+              {
+                buffId: 'buff_common_affixes_slow',
+                blackboardAssignments: {
+                  duration: { kind: 'constant', value: 20 },
+                  rate: { kind: 'valueNode', nodeId: 'data_1' },
+                },
+              },
+            ],
             target: 'enemy',
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
             finishByAction: true,
-            blackboardAssignments: {
-              duration: { kind: 'constant', value: 20 },
-              rate: { kind: 'valueNode', nodeId: 'data_1' },
-            },
           },
         },
         next: null,
@@ -10056,7 +10174,7 @@ const typhoeusBuff9ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0034_typhoea_normal_skill_arrow_num',
+            buffs: [{ buffId: 'buff_chr_0034_typhoea_normal_skill_arrow_num' }],
             target: 'buffOwner',
             source: 'buffSource',
             count: { kind: 'valueNode', nodeId: 'data_1' },
@@ -10183,7 +10301,7 @@ const typhoeusBuff11ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0034_typhoea_normal_skill_targetfind',
+            buffs: [{ buffId: 'buff_chr_0034_typhoea_normal_skill_targetfind' }],
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
@@ -10204,12 +10322,16 @@ const typhoeusBuff11ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0034_typhoea_potential_atkup',
+            buffs: [
+              {
+                buffId: 'buff_chr_0034_typhoea_potential_atkup',
+                copiedBlackboardAssignments: { atk_up: 'atk_up' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
-            copiedBlackboardAssignments: { atk_up: 'atk_up' },
           },
         },
         next: null,
@@ -10237,7 +10359,7 @@ const typhoeusBuff11ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0034_typhoea_passive_increase_attackrange',
+            buffs: [{ buffId: 'buff_chr_0034_typhoea_passive_increase_attackrange' }],
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
@@ -10332,7 +10454,7 @@ const typhoeusBuff11ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0034_typhoea_talent_linken_sphere_superarmour',
+            buffs: [{ buffId: 'buff_chr_0034_typhoea_talent_linken_sphere_superarmour' }],
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
@@ -10585,9 +10707,9 @@ const typhoeusBuff12: SkillBuffDefinition = {
 const typhoeusBuff13ActionGraph = {
   main: {
     nodes: {
-      changeResourceByActionValue_1: {
+      changeResource_1: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -10614,7 +10736,7 @@ const typhoeusBuff13: SkillBuffDefinition = {
   extendTags: [],
   blackboard: { atb: 0, count: 0 },
   attributeModifiers: [],
-  lifecycleSequences: { start: { $sequence: 'changeResourceByActionValue_1' } },
+  lifecycleSequences: { start: { $sequence: 'changeResource_1' } },
   actionGraph: typhoeusBuff13ActionGraph,
 };
 
@@ -10677,7 +10799,7 @@ const typhoeusBuff16ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0034_typhoea_normal_skill_arrow_energy',
+            buffs: [{ buffId: 'buff_chr_0034_typhoea_normal_skill_arrow_energy' }],
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
@@ -10711,7 +10833,7 @@ const typhoeusBuff17ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0034_typhoea_normal_skill_arrow_energy',
+            buffs: [{ buffId: 'buff_chr_0034_typhoea_normal_skill_arrow_energy' }],
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
@@ -10745,7 +10867,7 @@ const typhoeusBuff18ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0034_typhoea_normal_skill_arrow_energy',
+            buffs: [{ buffId: 'buff_chr_0034_typhoea_normal_skill_arrow_energy' }],
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
@@ -10948,7 +11070,7 @@ const typhoeusBuff23ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0034_typhoea_normal_skill_arrow_energy_buffer_1',
+            buffs: [{ buffId: 'buff_chr_0034_typhoea_normal_skill_arrow_energy_buffer_1' }],
             target: 'buffSource',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
@@ -10960,7 +11082,7 @@ const typhoeusBuff23ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0034_typhoea_normal_skill_arrow_energy_buffer_3',
+            buffs: [{ buffId: 'buff_chr_0034_typhoea_normal_skill_arrow_energy_buffer_3' }],
             target: 'buffSource',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
@@ -11057,7 +11179,7 @@ const typhoeusBuff25ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0034_typhoea_normal_skill_arrow_energy',
+            buffs: [{ buffId: 'buff_chr_0034_typhoea_normal_skill_arrow_energy' }],
             target: 'buffOwner',
             source: 'buffSource',
             count: { kind: 'valueNode', nodeId: 'data_1' },
@@ -11070,7 +11192,7 @@ const typhoeusBuff25ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0034_typhoea_normal_skill_arrow_num',
+            buffs: [{ buffId: 'buff_chr_0034_typhoea_normal_skill_arrow_num' }],
             target: 'buffOwner',
             source: 'buffSource',
             count: { kind: 'constant', value: 4 },
@@ -11079,14 +11201,16 @@ const typhoeusBuff25ActionGraph = {
         },
         next: 'applyBuff_2',
       },
-      applyBuff_4: {
+      aura_4: {
         action: {
-          kind: 'applyBuff',
+          kind: 'aura',
           parameters: {
-            buffId: 'buff_chr_0034_typhoea_passitive_enemy_listennaturalspellbrust',
             target: 'enemy',
-            finishByAction: true,
+            inheritSourceSkillCastInfo: false,
+            buffs: [{ buffId: 'buff_chr_0034_typhoea_passitive_enemy_listennaturalspellbrust' }],
           },
+          onEnter: { $sequence: null },
+          onExit: { $sequence: null },
         },
         next: null,
       },
@@ -11105,7 +11229,7 @@ const typhoeusBuff25ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0034_typhoea_normal_skill_arrow_num',
+            buffs: [{ buffId: 'buff_chr_0034_typhoea_normal_skill_arrow_num' }],
             target: 'buffOwner',
             source: 'buffSource',
             count: { kind: 'valueNode', nodeId: 'data_2' },
@@ -11132,7 +11256,7 @@ const typhoeusBuff25ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0034_typhoea_normal_skill_arrow_energy',
+            buffs: [{ buffId: 'buff_chr_0034_typhoea_normal_skill_arrow_energy' }],
             target: 'buffOwner',
             source: 'buffSource',
             count: { kind: 'valueNode', nodeId: 'data_3' },
@@ -11211,7 +11335,7 @@ const typhoeusBuff25: SkillBuffDefinition = {
     truly_exit_fight: 1,
   },
   attributeModifiers: [],
-  lifecycleSequences: { start: { $sequence: 'applyBuff_3' }, enable: { $sequence: 'applyBuff_4' } },
+  lifecycleSequences: { start: { $sequence: 'applyBuff_3' }, enable: { $sequence: 'aura_4' } },
   abilityEventResponses: [
     { event: 'enterFight', priority: 0, sequence: { $sequence: 'conditional_11' } },
     { event: 'ownerSwitchToGuard', priority: 0, sequence: { $sequence: 'finishBuffsById_12' } },
@@ -11354,15 +11478,19 @@ const typhoeusBuff31ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0034_typhoea_talent_linken_sphere_enable',
+            buffs: [
+              {
+                buffId: 'buff_chr_0034_typhoea_talent_linken_sphere_enable',
+                copiedBlackboardAssignments: {
+                  protect_times: 'protect_times',
+                  damage_resist: 'param1',
+                },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffSource',
             count: { kind: 'valueNode', nodeId: 'data_3' },
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: {
-              protect_times: 'protect_times',
-              damage_resist: 'param1',
-            },
           },
         },
         next: null,
@@ -11441,11 +11569,15 @@ const typhoeusBuff31ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0034_typhoea_talent_linken_sphere_cd',
+            buffs: [
+              {
+                buffId: 'buff_chr_0034_typhoea_talent_linken_sphere_cd',
+                copiedBlackboardAssignments: { sheild_cd: 'param2' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: { sheild_cd: 'param2' },
           },
         },
         next: null,
@@ -11737,7 +11869,7 @@ const typhoeusBuff35ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0034_typhoea_ultimate_skill_cause_subarrowrain_timer',
+            buffs: [{ buffId: 'buff_chr_0034_typhoea_ultimate_skill_cause_subarrowrain_timer' }],
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
@@ -12392,6 +12524,32 @@ export const typhoeus: OperatorDefinition = {
       lifetime: { kind: 'limited', durationSeconds: 10 },
       maxStackingCount: 1,
       childSkill: {
+        skillId: 'chr_0034_typhoea_combo_persistentdamage',
+        nativeSkillType: 'normalSkill',
+        naturalDurationFrames: 180,
+        castResource: {
+          costFrame: 0,
+          cooldownSeconds: 0,
+          maxChargeTime: 1,
+          cost: { resource: 'ultimateEnergy', value: 0, availabilityThreshold: 0 },
+        },
+        blackboard: {
+          atb: 0,
+          atk_scale: 0,
+          atk_scale_persistent: 0,
+          hit_index: 0,
+          naturalinflect_stack: 0,
+          persistent_naturalburst_increase: 0,
+          persistent_slow: 0,
+          persistent_time: 0,
+          recover_bufftime: 12,
+          usp: 0,
+        },
+        scheduledSequences: [
+          { startFrame: 0, endFrame: 3, sequence: { $sequence: 'calculateActionValue_1' } },
+          { startFrame: 0, endFrame: 180, sequence: { $sequence: 'repeatEachTick_3' } },
+          { startFrame: 0, endFrame: 180, sequence: { $sequence: 'aura_4' } },
+        ],
         actionGraph: {
           main: {
             nodes: {
@@ -12434,19 +12592,25 @@ export const typhoeus: OperatorDefinition = {
                 },
                 next: null,
               },
-              applyBuff_4: {
+              aura_4: {
                 action: {
-                  kind: 'applyBuff',
+                  kind: 'aura',
                   parameters: {
-                    buffId: 'buff_chr_0034_typhoea_combo_enemy_debuff',
                     target: 'enemy',
-                    finishByAction: true,
                     inheritSourceSkillCastInfo: true,
-                    blackboardAssignments: {
-                      damage_up: { kind: 'valueNode', nodeId: 'data_3' },
-                      slow_down: { kind: 'valueNode', nodeId: 'data_4' },
-                    },
+                    buffs: [
+                      {
+                        buffId: 'buff_chr_0034_typhoea_combo_enemy_debuff',
+                        blackboardAssignments: {
+                          damage_up: { kind: 'valueNode', nodeId: 'data_3' },
+                          slow_down: { kind: 'valueNode', nodeId: 'data_4' },
+                        },
+                        stringBlackboardAssignments: {},
+                      },
+                    ],
                   },
+                  onEnter: { $sequence: null },
+                  onExit: { $sequence: null },
                 },
                 next: null,
               },
@@ -12472,32 +12636,6 @@ export const typhoeus: OperatorDefinition = {
           },
           macros: {},
         },
-        skillId: 'chr_0034_typhoea_combo_persistentdamage',
-        nativeSkillType: 'normalSkill',
-        naturalDurationFrames: 180,
-        castResource: {
-          costFrame: 0,
-          cooldownSeconds: 0,
-          maxChargeTime: 1,
-          cost: { resource: 'ultimateEnergy', value: 0, availabilityThreshold: 0 },
-        },
-        blackboard: {
-          atb: 0,
-          atk_scale: 0,
-          atk_scale_persistent: 0,
-          hit_index: 0,
-          naturalinflect_stack: 0,
-          persistent_naturalburst_increase: 0,
-          persistent_slow: 0,
-          persistent_time: 0,
-          recover_bufftime: 12,
-          usp: 0,
-        },
-        scheduledSequences: [
-          { startFrame: 0, endFrame: 3, sequence: { $sequence: 'calculateActionValue_1' } },
-          { startFrame: 0, endFrame: 180, sequence: { $sequence: 'repeatEachTick_3' } },
-          { startFrame: 0, endFrame: 180, sequence: { $sequence: 'applyBuff_4' } },
-        ],
       },
       presentation: {
         icon: 'endaxis:operators/typhoeus/combo_01',
@@ -12598,15 +12736,19 @@ export const typhoeus: OperatorDefinition = {
                 action: {
                   kind: 'applyBuff',
                   parameters: {
-                    buffId: 'buff_chr_0034_typhoea_ultimate_skill_cause_subarrowrain',
+                    buffs: [
+                      {
+                        buffId: 'buff_chr_0034_typhoea_ultimate_skill_cause_subarrowrain',
+                        copiedBlackboardAssignments: {
+                          atk_scale_center: 'atk_scale_center',
+                          atk_scale_main: 'atk_scale_main',
+                          atk_scale_outer: 'atk_scale_outer',
+                        },
+                      },
+                    ],
                     target: 'caster',
                     inheritSourceSkillCastInfo: true,
                     finishByAction: true,
-                    copiedBlackboardAssignments: {
-                      atk_scale_center: 'atk_scale_center',
-                      atk_scale_main: 'atk_scale_main',
-                      atk_scale_outer: 'atk_scale_outer',
-                    },
                   },
                 },
                 next: null,

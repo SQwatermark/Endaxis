@@ -69,11 +69,15 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_funnel_0019_intensityup',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_funnel_0019_intensityup',
+                      copiedBlackboardAssignments: { phy_spell_up: 'phy_spell_up' },
+                    },
+                  ],
                   target: 'caster',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: { phy_spell_up: 'phy_spell_up' },
                 },
               },
               next: null,
@@ -82,7 +86,7 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_funnel_0019_burstup_layer',
+                  buffs: [{ buffId: 'buff_wpn_funnel_0019_burstup_layer' }],
                   target: 'caster',
                   count: { kind: 'valueNode', nodeId: 'data_1' },
                   inheritSourceSkillCastInfo: true,
@@ -115,11 +119,15 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_funnel_0019_spelldmgup',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_funnel_0019_spelldmgup',
+                      copiedBlackboardAssignments: { spell_dmg_up2: 'spell_dmg_up2' },
+                    },
+                  ],
                   target: 'caster',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: { spell_dmg_up2: 'spell_dmg_up2' },
                 },
               },
               next: 'createTimedMarker_4',

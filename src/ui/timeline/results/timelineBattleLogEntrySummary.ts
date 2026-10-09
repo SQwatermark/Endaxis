@@ -138,20 +138,6 @@ export function summarizeTimelineBattleLogEntry(
           : options.semanticLabel('inflictionOutcome', string(data, 'outcomeKind')!),
       ]);
     }
-    case 'ElementalReactionApplied':
-      return compact([
-        identity('reaction', 'reaction'),
-        number(data, 'level') === null ? null : `Lv.${formatNumber(number(data, 'level')!)}`,
-        number(data, 'durationSeconds') === null
-          ? null
-          : `${options.formatValue(number(data, 'durationSeconds')!)}s`,
-      ]);
-    case 'ElementalReactionConsumed':
-      return compact([
-        identity('reaction', 'reaction'),
-        number(data, 'level') === null ? null : `Lv.${formatNumber(number(data, 'level')!)}`,
-        data?.consumed === false ? options.semanticLabel('flag', 'notConsumed') : null,
-      ]);
     case 'StatusChanged':
       return compact([
         identity('status', 'statusKey'),

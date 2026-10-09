@@ -87,15 +87,19 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_funnel_0018_layer',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_funnel_0018_layer',
+                      copiedBlackboardAssignments: {
+                        atk_up: 'atk_up2',
+                        max_stack: 'max_stack',
+                        duration: 'duration',
+                      },
+                    },
+                  ],
                   target: 'partyExceptCaster',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: {
-                    atk_up: 'atk_up2',
-                    max_stack: 'max_stack',
-                    duration: 'duration',
-                  },
                 },
               },
               next: null,
@@ -104,15 +108,19 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_funnel_0018_layer',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_funnel_0018_layer',
+                      copiedBlackboardAssignments: {
+                        atk_up: 'atk_up',
+                        max_stack: 'max_stack',
+                        duration: 'duration',
+                      },
+                    },
+                  ],
                   target: 'caster',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: {
-                    atk_up: 'atk_up',
-                    max_stack: 'max_stack',
-                    duration: 'duration',
-                  },
                 },
               },
               next: 'applyBuff_1',

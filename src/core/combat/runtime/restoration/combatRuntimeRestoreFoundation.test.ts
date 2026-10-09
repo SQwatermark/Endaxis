@@ -422,7 +422,7 @@ it('正式装配从活动技能切面恢复后继续得到相同逐帧结果', (
       action: {
         kind: 'applyBuff' as const,
         parameters: {
-          buffId: 'persistent',
+          buffs: [{ buffId: 'persistent' }],
           target: 'caster' as const,
           inheritSourceSkillCastInfo: true,
         },
@@ -530,7 +530,7 @@ it('正式装配从活动技能切面恢复后继续得到相同逐帧结果', (
       enableSequence: chainEntry('passive-enable', [
         {
           kind: 'applyBuff' as const,
-          parameters: { buffId: 'passivePersistent', target: 'caster' as const },
+          parameters: { buffs: [{ buffId: 'passivePersistent' }], target: 'caster' as const },
         },
       ]),
     },
@@ -647,7 +647,7 @@ it('正式装配从活动技能切面恢复后继续得到相同逐帧结果', (
       sequence: chainEntry('potential-skill-hit-buff', [
         {
           kind: 'applyBuff' as const,
-          parameters: { buffId: 'potentialPersistent', target: 'caster' as const },
+          parameters: { buffs: [{ buffId: 'potentialPersistent' }], target: 'caster' as const },
         },
       ]),
     },

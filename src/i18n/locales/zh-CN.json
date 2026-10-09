@@ -383,7 +383,8 @@
     "nodes": {
       "prepare": "设置变量",
       "damage": "造成伤害",
-      "applyBuff": "添加 Buff"
+      "applyBuff": "添加 Buff",
+      "aura": "光环"
     },
     "descriptions": {
       "operator": "从技能分组进入独立技能图，也可以查看这个干员所属的 Buff 和能力实体。",
@@ -875,10 +876,6 @@
         "name": "读取目标组",
         "help": "读取此前保存的目标组名称。"
       },
-      "onActionEndFinishBuffs": {
-        "name": "动作结束时结束 Buff",
-        "help": "动作结束时，按 ID 结束指定对象身上全部匹配的 Buff。"
-      },
       "nativeExecuteInterval": {
         "name": "按间隔执行",
         "help": "立即执行一次，之后按间隔重复；子序列保留到下次执行或宿主结束。"
@@ -1200,10 +1197,6 @@
       "keywordEnhancements": {
         "name": "关键词强化",
         "help": "为这次创建的效果设置关键词强化值。"
-      },
-      "onActionEndBuffs": {
-        "name": "结束后的余效",
-        "help": "本动作结束时，对原目标施加的后续 Buff。"
       },
       "inheritToNextSkillIds": {
         "name": "允许继承的技能",
@@ -1815,13 +1808,9 @@
         "name": "施加物理异常",
         "help": "施加击飞、倒地、猛击或碎甲，并按目标的破防状态触发对应效果。"
       },
-      "applyElementalReaction": {
-        "name": "施加元素反应",
-        "help": "为目标添加指定的持续元素反应。"
-      },
-      "consumeElementalReaction": {
-        "name": "移除元素反应",
-        "help": "结束目标身上指定的元素反应。"
+      "forceSpellStatus": {
+        "name": "强制施加法术反应",
+        "help": "按指定层数消费附着并施加法术反应。层数不足时跳过；零消费时直接施加。"
       },
       "dealDamage": {
         "name": "造成伤害",
@@ -1994,10 +1983,6 @@
       "changeResource": {
         "name": "改变战斗资源",
         "help": "增加或消耗技力、终结技能量等资源。正数增加，负数消耗。"
-      },
-      "changeResourceByActionValue": {
-        "name": "按变量改变战斗资源",
-        "help": "使用数值输入增加或消耗战斗资源。"
       },
       "recoverDashEnergy": {
         "name": "恢复闪避体力",
@@ -2415,10 +2400,6 @@
         "name": "存在元素附着？",
         "help": "检查敌人的指定元素附着是否达到要求层数。"
       },
-      "elementalReactionActive": {
-        "name": "元素反应生效？",
-        "help": "检查指定元素反应是否生效并达到要求等级。"
-      },
       "not": {
         "name": "非",
         "help": "将是变为否，将否变为是。"
@@ -2458,6 +2439,10 @@
       "skillDamageTypeIn": {
         "name": "检查技能属性",
         "help": "检查触发事件的技能属性；无事件技能时检查当前执行技能。"
+      },
+      "aura": {
+        "name": "光环",
+        "help": "按目标维护区域 Buff，并执行进入和退出回调。"
       }
     },
     "open": "编辑技能图",
@@ -2699,8 +2684,6 @@
       "BuffPresentationStarted": "Buff 显示开始",
       "BuffPresentationFinished": "Buff 显示结束",
       "ElementalInflictionApplied": "元素附着",
-      "ElementalReactionApplied": "元素反应施加",
-      "ElementalReactionConsumed": "元素反应消耗",
       "SpellBurstApplied": "法术爆发",
       "ComboWindowOpened": "连携窗口开启",
       "ComboWindowConsumed": "连携窗口消耗",
@@ -3916,7 +3899,6 @@
         "eventDamageTagsMatch": "事件伤害标签匹配",
         "eventDamageFeaturesMatch": "事件伤害特征匹配",
         "elementalInflictionPresent": "存在元素附着",
-        "elementalReactionActive": "元素反应生效中",
         "not": "条件取反",
         "all": "全部成立",
         "any": "任一成立",
@@ -4211,8 +4193,6 @@
         "castSkillDuringAction": "由当前动作延迟启动一个已注册的原生技能，并继承本次释放上下文；不重复扣费。原生 ID 必须能唯一对应一个逻辑技能。",
         "inheritSkillCastInfoForBasicAttack": "为动作中启动的普攻继承当前施法信息，使派生伤害继续归属于原技能释放；不创建新的玩家操作或重复扣费。",
         "applyPhysicalInfliction": "根据目标当前破防状态施加破防或对应物理异常；Buff ID 引用公共定义目录。",
-        "applyElementalReaction": "直接施加指定元素反应及其持续时间和效果强度。",
-        "consumeElementalReaction": "结束并消费敌人身上的指定元素反应，供后续步骤触发派生效果。",
         "dealDamage": "以攻击力和倍率为基础造成一次伤害，可在同一步骤中结算失衡值。",
         "dealFixedDamage": "以固定基础值造成伤害，不乘攻击力，但仍经过后续伤害修正与防御抗性。",
         "dealStagger": "只造成失衡，不造成生命伤害。数值仍会经过失衡倍率。",
@@ -4254,7 +4234,6 @@
         "calculateActionValue": "用两个操作数计算结果并写入当前技能技能变量。",
         "storeSourceAttributeValue": "读取技能来源实体的当前战斗属性，按原生取整与倍率公式写入技能变量。",
         "changeResource": "按等级配置的数值改变技力或终结技能量。",
-        "changeResourceByActionValue": "从技能变量或常量读取数值，再改变技力或终结技能量。",
         "gainSquadUltimateEnergyFromSkillCost": "根据本次技能实际消耗的技力，为队伍成员换算终结技能量。",
         "gainFinisherSp": "按处决专用规则为全队回复共享技力。",
         "recoverDashEnergy": "按动作数值回复原生闪避体力。",
@@ -4283,7 +4262,8 @@
         "startTimeDilation": "启动普通时间膨胀。作用范围、持续时间、槽位、优先级和曲线共同决定最终时钟倍率。",
         "startUltimateTimeDilation": "启动终结技专用全局时间膨胀。施法者自动忽略该倍率，并在动作结束时停止。",
         "hideUi": "原生 HideUIAction 区间，普通分支控制终结技演出状态，独立于时间膨胀。仅阻断输入分支尚需 CommonMask 协议，不能视为统一禁止施法。",
-        "setIgnoreGlobalTimeScale": "在当前动作区间内设置能力实体是否忽略全局时间倍率；启用还原时会在动作结束后撤销。"
+        "setIgnoreGlobalTimeScale": "在当前动作区间内设置能力实体是否忽略全局时间倍率；启用还原时会在动作结束后撤销。",
+        "aura": "光环"
       },
       "damageType": "伤害类型",
       "eventListenerWindowHint": "监听窗口由当前调度序列的开始帧和结束帧决定；事件响应在触发帧同步执行。",
@@ -4372,8 +4352,6 @@
         "refreshCurrentBuffAttributeModifiers": "刷新当前 Buff 属性修正",
         "restrictUltimateEnergyRecovery": "限制终结技能量回复",
         "applyPhysicalInfliction": "施加物理异常",
-        "applyElementalReaction": "施加元素反应",
-        "consumeElementalReaction": "消耗元素反应",
         "dealDamage": "造成伤害",
         "dealFixedDamage": "造成固定伤害",
         "dealStagger": "造成失衡",
@@ -4409,7 +4387,6 @@
         "calculateActionValue": "计算动作值",
         "storeSourceAttributeValue": "保存来源属性值",
         "changeResource": "改变资源",
-        "changeResourceByActionValue": "按动作值改变资源",
         "gainSquadUltimateEnergyFromSkillCost": "按技能消耗获得终结技能量",
         "gainFinisherSp": "处决回复技力",
         "recoverDashEnergy": "回复闪避体力",
@@ -4428,7 +4405,8 @@
         "setContextFlag": "设置上下文标记",
         "openComboWindow": "开启下一段连携窗口",
         "showComboRingQte": "显示精准连携窗口",
-        "listenForCombatEvents": "监听战斗事件"
+        "listenForCombatEvents": "监听战斗事件",
+        "aura": "光环"
       }
     },
     "inspector": {
@@ -4524,11 +4502,9 @@
       "noSamples": "等待模拟样本"
     },
     "hitInflictionSuffix": "附着",
-    "hitReactionConsumed": " 已消费",
     "effect": {
       "burst": "爆发",
       "reaction": "反应",
-      "reactionConsumed": "反应消费",
       "layers": "{stacks} 层"
     },
     "passiveUi": {
@@ -4646,7 +4622,6 @@
       "element": "元素",
       "outcome": "结果",
       "reaction": "反应",
-      "reactionConsumed": "反应消费",
       "level": "等级"
     },
     "simGuide": {

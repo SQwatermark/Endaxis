@@ -66,11 +66,15 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_claym_0015',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_claym_0015',
+                      copiedBlackboardAssignments: { def_up: 'def_up', duration: 'duration' },
+                    },
+                  ],
                   target: 'caster',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: { def_up: 'def_up', duration: 'duration' },
                 },
               },
               next: null,

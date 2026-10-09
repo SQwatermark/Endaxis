@@ -92,6 +92,11 @@ function collectRequiredActionSequenceReferences(
       collectRequiredActionSequenceReferences(data.body, references);
     } else if (data.kind === 'graphScope') {
       collectRequiredActionSequenceReferences(data.body?.execution ?? null, references);
+    } else if (data.kind === 'graphAura') {
+      for (const influence of data.influences) {
+        collectRequiredActionSequenceReferences(influence.enter, references);
+        collectRequiredActionSequenceReferences(influence.exit, references);
+      }
     } else if (data.kind === 'graphTargets') {
       for (const body of data.loop.bodies.values()) {
         collectRequiredActionSequenceReferences(body.sequence, references);

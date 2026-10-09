@@ -224,25 +224,18 @@ export const tangtangChr_0027_tangtang_attack2ActionGraph = {
                 actionGraph: {
                   main: {
                     nodes: {
-                      changeResourceByActionValue_1: {
+                      changeResource_1: {
                         action: {
-                          kind: 'changeResourceByActionValue',
+                          kind: 'changeResource',
                           parameters: {
                             resource: 'sp',
                             amount: { kind: 'valueNode', nodeId: 'data_1' },
                             coefficient: { kind: 'constant', value: 0.5 },
                             recipient: 'team',
+                            onlyMainOperator: true,
                             spGainKind: 'gain',
                             spGainSource: 'normalAttack',
                           },
-                        },
-                        next: null,
-                      },
-                      conditional_2: {
-                        action: {
-                          kind: 'conditional',
-                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-                          whenTrue: { $sequence: 'changeResourceByActionValue_1' },
                         },
                         next: null,
                       },
@@ -250,10 +243,10 @@ export const tangtangChr_0027_tangtang_attack2ActionGraph = {
                         action: {
                           kind: 'conditional',
                           parameters: {
-                            condition: { kind: 'conditionNode', nodeId: 'data_3' },
+                            condition: { kind: 'conditionNode', nodeId: 'data_2' },
                             alwaysNext: true,
                           },
-                          whenTrue: { $sequence: 'conditional_2' },
+                          whenTrue: { $sequence: 'changeResource_1' },
                         },
                         next: null,
                       },
@@ -262,7 +255,7 @@ export const tangtangChr_0027_tangtang_attack2ActionGraph = {
                           kind: 'dealDamage',
                           parameters: {
                             damageType: 'cryo',
-                            attackScale: { kind: 'valueNode', nodeId: 'data_4' },
+                            attackScale: { kind: 'valueNode', nodeId: 'data_3' },
                             tags: ['normalAttack'],
                           },
                         },
@@ -272,8 +265,7 @@ export const tangtangChr_0027_tangtang_attack2ActionGraph = {
                     dataNodes: {
                       data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
                       data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
-                      data_3: { type: 'boolean', expression: { kind: 'casterControlled' } },
-                      data_4: {
+                      data_3: {
                         type: 'number',
                         expression: { kind: 'blackboard', key: 'atk_scale_2' },
                       },
@@ -646,9 +638,9 @@ export const tangtangChr_0027_tangtang_attack5ActionGraph = {
                         },
                         next: null,
                       },
-                      changeResourceByActionValue_2: {
+                      changeResource_2: {
                         action: {
-                          kind: 'changeResourceByActionValue',
+                          kind: 'changeResource',
                           parameters: {
                             resource: 'sp',
                             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -664,7 +656,7 @@ export const tangtangChr_0027_tangtang_attack5ActionGraph = {
                         action: {
                           kind: 'conditional',
                           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
-                          whenTrue: { $sequence: 'changeResourceByActionValue_2' },
+                          whenTrue: { $sequence: 'changeResource_2' },
                         },
                         next: null,
                       },
@@ -897,7 +889,7 @@ export const tangtangChr_0027_tangtang_power_attackActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_full_immune_medium',
+            buffs: [{ buffId: 'buff_common_full_immune_medium' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -909,7 +901,7 @@ export const tangtangChr_0027_tangtang_power_attackActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_power_attack_disable_cast_skill',
+            buffs: [{ buffId: 'buff_common_power_attack_disable_cast_skill' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -1062,7 +1054,7 @@ export const tangtangChr_0027_tangtang_normal_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0027_tangtang_normalskill_abilityentity_1',
+            buffs: [{ buffId: 'buff_chr_0027_tangtang_normalskill_abilityentity_1' }],
             target: 'currentAbilityEntity',
             inheritSourceSkillCastInfo: true,
           },
@@ -1095,7 +1087,7 @@ export const tangtangChr_0027_tangtang_normal_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0027_tangtang_water_wake',
+            buffs: [{ buffId: 'buff_chr_0027_tangtang_water_wake' }],
             target: 'currentAbilityEntity',
             inheritSourceSkillCastInfo: true,
           },
@@ -1117,9 +1109,9 @@ export const tangtangChr_0027_tangtang_normal_skillActionGraph = {
         },
         next: 'forEachContextTarget_8',
       },
-      changeResourceByActionValue_10: {
+      changeResource_10: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_3' },
@@ -1135,13 +1127,13 @@ export const tangtangChr_0027_tangtang_normal_skillActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResourceByActionValue_10' },
+          whenTrue: { $sequence: 'changeResource_10' },
         },
         next: null,
       },
-      changeResourceByActionValue_11: {
+      changeResource_11: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_6' },
@@ -1179,7 +1171,7 @@ export const tangtangChr_0027_tangtang_normal_skillActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_8' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResourceByActionValue_11' },
+          whenTrue: { $sequence: 'changeResource_11' },
           whenFalse: { $sequence: 'conditional_12' },
         },
         next: 'spawnAbilityEntity_16',
@@ -1248,7 +1240,7 @@ export const tangtangChr_0027_tangtang_normal_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0027_tangtang_normalskill_abilityentity_2',
+            buffs: [{ buffId: 'buff_chr_0027_tangtang_normalskill_abilityentity_2' }],
             target: 'currentAbilityEntity',
             inheritSourceSkillCastInfo: true,
           },
@@ -1286,7 +1278,7 @@ export const tangtangChr_0027_tangtang_normal_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0027_tangtang_skillappear',
+            buffs: [{ buffId: 'buff_chr_0027_tangtang_skillappear' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -1477,7 +1469,7 @@ export const tangtangChr_0027_tangtang_ultimate_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_damage_immune_ult_skill',
+            buffs: [{ buffId: 'buff_common_damage_immune_ult_skill' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -1759,10 +1751,14 @@ export const tangtangChr_0027_tangtang_combo_skillActionGraph = {
                         action: {
                           kind: 'applyBuff',
                           parameters: {
-                            buffId: 'buff_chr_0027_tangtang_water',
+                            buffs: [
+                              {
+                                buffId: 'buff_chr_0027_tangtang_water',
+                                copiedBlackboardAssignments: { duration_water: 'duration_water' },
+                              },
+                            ],
                             target: 'caster',
                             inheritSourceSkillCastInfo: true,
-                            copiedBlackboardAssignments: { duration_water: 'duration_water' },
                           },
                         },
                         next: 'forEachContextTarget_13',
@@ -1866,10 +1862,14 @@ export const tangtangChr_0027_tangtang_combo_skillActionGraph = {
                         action: {
                           kind: 'applyBuff',
                           parameters: {
-                            buffId: 'buff_chr_0027_tangtang_water',
+                            buffs: [
+                              {
+                                buffId: 'buff_chr_0027_tangtang_water',
+                                copiedBlackboardAssignments: { duration_water: 'duration_water' },
+                              },
+                            ],
                             target: 'caster',
                             inheritSourceSkillCastInfo: true,
-                            copiedBlackboardAssignments: { duration_water: 'duration_water' },
                           },
                         },
                         next: 'findOwnerSpawnedAbilityEntities_10',
@@ -1988,10 +1988,14 @@ export const tangtangChr_0027_tangtang_combo_skillActionGraph = {
                         action: {
                           kind: 'applyBuff',
                           parameters: {
-                            buffId: 'buff_chr_0027_tangtang_water',
+                            buffs: [
+                              {
+                                buffId: 'buff_chr_0027_tangtang_water',
+                                copiedBlackboardAssignments: { duration_water: 'duration_water' },
+                              },
+                            ],
                             target: 'caster',
                             inheritSourceSkillCastInfo: true,
-                            copiedBlackboardAssignments: { duration_water: 'duration_water' },
                           },
                         },
                         next: 'forEachContextTarget_13',
@@ -2095,10 +2099,14 @@ export const tangtangChr_0027_tangtang_combo_skillActionGraph = {
                         action: {
                           kind: 'applyBuff',
                           parameters: {
-                            buffId: 'buff_chr_0027_tangtang_water',
+                            buffs: [
+                              {
+                                buffId: 'buff_chr_0027_tangtang_water',
+                                copiedBlackboardAssignments: { duration_water: 'duration_water' },
+                              },
+                            ],
                             target: 'caster',
                             inheritSourceSkillCastInfo: true,
-                            copiedBlackboardAssignments: { duration_water: 'duration_water' },
                           },
                         },
                         next: 'findOwnerSpawnedAbilityEntities_10',
@@ -2250,9 +2258,9 @@ export const tangtangChr_0027_tangtang_combo_skillActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_19: {
+      changeResource_19: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'ultimateEnergy',
             amount: { kind: 'valueNode', nodeId: 'data_4' },
@@ -2281,7 +2289,7 @@ export const tangtangChr_0027_tangtang_combo_skillActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_6' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResourceByActionValue_19' },
+          whenTrue: { $sequence: 'changeResource_19' },
         },
         next: 'startTimeDilation_20',
       },
@@ -2482,7 +2490,7 @@ const tangtangPassive1ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0027_tangtang_water_passiveui',
+            buffs: [{ buffId: 'buff_chr_0027_tangtang_water_passiveui' }],
             target: 'caster',
             inheritSourceSkillCastInfo: false,
           },
@@ -2493,17 +2501,21 @@ const tangtangPassive1ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0027_tangtang_passive_0',
+            buffs: [
+              {
+                buffId: 'buff_chr_0027_tangtang_passive_0',
+                blackboardAssignments: {
+                  duration_spellvulnerable: { kind: 'valueNode', nodeId: 'data_1' },
+                  normalskill_atk_scale01: { kind: 'valueNode', nodeId: 'data_2' },
+                  normalskill_atk_scale02: { kind: 'valueNode', nodeId: 'data_3' },
+                  normalskill_atk_scale03: { kind: 'valueNode', nodeId: 'data_4' },
+                  rate_spellvulnerable: { kind: 'valueNode', nodeId: 'data_5' },
+                  rate_spellvulnerable_02: { kind: 'valueNode', nodeId: 'data_6' },
+                },
+              },
+            ],
             target: 'caster',
             inheritSourceSkillCastInfo: false,
-            blackboardAssignments: {
-              duration_spellvulnerable: { kind: 'valueNode', nodeId: 'data_1' },
-              normalskill_atk_scale01: { kind: 'valueNode', nodeId: 'data_2' },
-              normalskill_atk_scale02: { kind: 'valueNode', nodeId: 'data_3' },
-              normalskill_atk_scale03: { kind: 'valueNode', nodeId: 'data_4' },
-              rate_spellvulnerable: { kind: 'valueNode', nodeId: 'data_5' },
-              rate_spellvulnerable_02: { kind: 'valueNode', nodeId: 'data_6' },
-            },
           },
         },
         next: 'applyBuff_1',
@@ -2665,16 +2677,20 @@ const tangtangBuff2ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_affixes_speedup',
+            buffs: [
+              {
+                buffId: 'buff_common_affixes_speedup',
+                blackboardAssignments: {
+                  duration: { kind: 'valueNode', nodeId: 'data_1' },
+                  rate: { kind: 'valueNode', nodeId: 'data_2' },
+                },
+                stringBlackboardAssignments: { child_buff_id: 'buff_chr_0027_tangtang_water_icon' },
+              },
+            ],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
             finishByAction: true,
-            blackboardAssignments: {
-              duration: { kind: 'valueNode', nodeId: 'data_1' },
-              rate: { kind: 'valueNode', nodeId: 'data_2' },
-            },
-            stringBlackboardAssignments: { child_buff_id: 'buff_chr_0027_tangtang_water_icon' },
           },
         },
         next: null,
@@ -2743,16 +2759,20 @@ const tangtangBuff3ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_affixes_speedup',
-            target: 'caster',
+            buffs: [
+              {
+                buffId: 'buff_common_affixes_speedup',
+                blackboardAssignments: {
+                  duration: { kind: 'valueNode', nodeId: 'data_1' },
+                  rate: { kind: 'valueNode', nodeId: 'data_2' },
+                },
+                stringBlackboardAssignments: { child_buff_id: 'buff_chr_0027_tangtang_water_icon' },
+              },
+            ],
+            target: 'buffOwner',
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
             finishByAction: true,
-            blackboardAssignments: {
-              duration: { kind: 'valueNode', nodeId: 'data_1' },
-              rate: { kind: 'valueNode', nodeId: 'data_2' },
-            },
-            stringBlackboardAssignments: { child_buff_id: 'buff_chr_0027_tangtang_water_icon' },
           },
         },
         next: null,
@@ -2825,15 +2845,19 @@ const tangtangBuff4ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_affixes_slow',
+            buffs: [
+              {
+                buffId: 'buff_common_affixes_slow',
+                blackboardAssignments: {
+                  duration: { kind: 'valueNode', nodeId: 'data_1' },
+                  rate: { kind: 'valueNode', nodeId: 'data_2' },
+                },
+              },
+            ],
             target: 'enemy',
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
             finishByAction: true,
-            blackboardAssignments: {
-              duration: { kind: 'valueNode', nodeId: 'data_1' },
-              rate: { kind: 'valueNode', nodeId: 'data_2' },
-            },
           },
         },
         next: null,
@@ -2867,15 +2891,19 @@ const tangtangBuff5ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_affixes_slow',
+            buffs: [
+              {
+                buffId: 'buff_common_affixes_slow',
+                blackboardAssignments: {
+                  duration: { kind: 'valueNode', nodeId: 'data_1' },
+                  rate: { kind: 'valueNode', nodeId: 'data_2' },
+                },
+              },
+            ],
             target: 'enemy',
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
             finishByAction: true,
-            blackboardAssignments: {
-              duration: { kind: 'valueNode', nodeId: 'data_1' },
-              rate: { kind: 'valueNode', nodeId: 'data_2' },
-            },
           },
         },
         next: null,
@@ -2961,15 +2989,19 @@ const tangtangBuff8ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_affixes_vulnerable_spell',
+            buffs: [
+              {
+                buffId: 'buff_common_affixes_vulnerable_spell',
+                blackboardAssignments: {
+                  duration: { kind: 'valueNode', nodeId: 'data_1' },
+                  rate: { kind: 'valueNode', nodeId: 'data_2' },
+                },
+              },
+            ],
             target: 'enemy',
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
             finishByAction: true,
-            blackboardAssignments: {
-              duration: { kind: 'valueNode', nodeId: 'data_1' },
-              rate: { kind: 'valueNode', nodeId: 'data_2' },
-            },
           },
         },
         next: null,
@@ -3134,7 +3166,7 @@ const tangtangBuff10ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0027_tangtang_normalskill_abilityentity_2',
+            buffs: [{ buffId: 'buff_chr_0027_tangtang_normalskill_abilityentity_2' }],
             target: 'currentAbilityEntity',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
@@ -3249,7 +3281,7 @@ const tangtangBuff13ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0027_tangtang_ultskill_buff_damage',
+            buffs: [{ buffId: 'buff_chr_0027_tangtang_ultskill_buff_damage' }],
             target: 'controlledOperator',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
@@ -3400,7 +3432,7 @@ const tangtangBuff16ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0027_tangtang_ultskill_abilityentity_1',
+            buffs: [{ buffId: 'buff_chr_0027_tangtang_ultskill_abilityentity_1' }],
             target: 'currentAbilityEntity',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
@@ -3428,7 +3460,7 @@ const tangtangBuff16ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0027_tangtang_water_ultskillwake',
+            buffs: [{ buffId: 'buff_chr_0027_tangtang_water_ultskillwake' }],
             target: 'currentAbilityEntity',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
@@ -3517,7 +3549,7 @@ const tangtangBuff16ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0027_tangtang_ultskill_abilityentity_2',
+            buffs: [{ buffId: 'buff_chr_0027_tangtang_ultskill_abilityentity_2' }],
             target: 'currentAbilityEntity',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
@@ -4360,7 +4392,7 @@ export const tangtang: OperatorDefinition = {
                   action: {
                     kind: 'applyBuff',
                     parameters: {
-                      buffId: 'buff_chr_0027_tangtang_normalskill_abilityentity_1',
+                      buffs: [{ buffId: 'buff_chr_0027_tangtang_normalskill_abilityentity_1' }],
                       target: 'currentAbilityEntity',
                       inheritSourceSkillCastInfo: true,
                     },
@@ -4669,7 +4701,7 @@ export const tangtang: OperatorDefinition = {
             endFrame: 1516,
             sequence: { $sequence: 'finishActionOwnerAbilityEntity_24' },
           },
-          { startFrame: 0, endFrame: 1500, sequence: { $sequence: 'conditional_34' } },
+          { startFrame: 0, endFrame: 1500, sequence: { $sequence: 'conditional_36' } },
         ],
         actionGraph: {
           main: {
@@ -4817,70 +4849,26 @@ export const tangtang: OperatorDefinition = {
                 action: { kind: 'finishActionOwnerAbilityEntity', parameters: {} },
                 next: 'finishBuffsById_8',
               },
-              applyBuff_30: {
+              applyBuff_31: {
                 action: {
                   kind: 'applyBuff',
                   parameters: {
-                    buffId: 'buff_chr_0027_tangtang_comboskill_waterbuff',
-                    target: 'party',
-                    finishByAction: true,
-                    onActionEndBuffs: [
+                    buffs: [
                       {
-                        buffId: 'buff_chr_0027_tangtang_comboskill_waterbuff_outaura',
-                        target: 'party',
-                        inheritSourceSkillCastInfo: true,
-                        blackboardAssignments: {
-                          duration_talent1buff: { kind: 'valueNode', nodeId: 'data_10' },
-                          ratio_speed: { kind: 'valueNode', nodeId: 'data_11' },
+                        buffId: 'buff_chr_0027_tangtang_comboskill_waterdebuff_outaura',
+                        copiedBlackboardAssignments: {
+                          duration_talent1buff: 'duration_talent1buff',
+                          ratio_speedreduction: 'ratio_speedreduction',
                         },
                       },
                     ],
+                    target: 'enemy',
                     inheritSourceSkillCastInfo: true,
-                    blackboardAssignments: {
-                      ratio_speed: { kind: 'valueNode', nodeId: 'data_12' },
-                    },
                   },
                 },
                 next: null,
               },
-              finishBuffsById_31: {
-                action: {
-                  kind: 'finishBuffsById',
-                  parameters: {
-                    target: 'party',
-                    buffIds: ['buff_chr_0027_tangtang_comboskill_waterbuff_outaura'],
-                    reason: 'other',
-                  },
-                },
-                next: 'applyBuff_30',
-              },
-              applyBuff_32: {
-                action: {
-                  kind: 'applyBuff',
-                  parameters: {
-                    buffId: 'buff_chr_0027_tangtang_comboskill_waterdebuff',
-                    target: 'enemy',
-                    finishByAction: true,
-                    onActionEndBuffs: [
-                      {
-                        buffId: 'buff_chr_0027_tangtang_comboskill_waterdebuff_outaura',
-                        target: 'enemy',
-                        inheritSourceSkillCastInfo: true,
-                        blackboardAssignments: {
-                          duration_talent1buff: { kind: 'valueNode', nodeId: 'data_13' },
-                          ratio_speedreduction: { kind: 'valueNode', nodeId: 'data_14' },
-                        },
-                      },
-                    ],
-                    inheritSourceSkillCastInfo: true,
-                    blackboardAssignments: {
-                      ratio_speedreduction: { kind: 'valueNode', nodeId: 'data_15' },
-                    },
-                  },
-                },
-                next: 'finishBuffsById_31',
-              },
-              finishBuffsById_33: {
+              finishBuffsById_30: {
                 action: {
                   kind: 'finishBuffsById',
                   parameters: {
@@ -4889,13 +4877,85 @@ export const tangtang: OperatorDefinition = {
                     reason: 'other',
                   },
                 },
-                next: 'applyBuff_32',
+                next: null,
               },
-              conditional_34: {
+              applyBuff_33: {
+                action: {
+                  kind: 'applyBuff',
+                  parameters: {
+                    buffs: [
+                      {
+                        buffId: 'buff_chr_0027_tangtang_comboskill_waterbuff_outaura',
+                        copiedBlackboardAssignments: {
+                          duration_talent1buff: 'duration_talent1buff',
+                          ratio_speed: 'ratio_speed',
+                        },
+                      },
+                    ],
+                    target: 'currentTarget',
+                    inheritSourceSkillCastInfo: true,
+                  },
+                },
+                next: null,
+              },
+              finishBuffsById_32: {
+                action: {
+                  kind: 'finishBuffsById',
+                  parameters: {
+                    target: 'currentTarget',
+                    buffIds: ['buff_chr_0027_tangtang_comboskill_waterbuff_outaura'],
+                    reason: 'other',
+                  },
+                },
+                next: null,
+              },
+              aura_34: {
+                action: {
+                  kind: 'aura',
+                  parameters: {
+                    target: 'party',
+                    inheritSourceSkillCastInfo: true,
+                    buffs: [
+                      {
+                        buffId: 'buff_chr_0027_tangtang_comboskill_waterbuff',
+                        blackboardAssignments: {
+                          ratio_speed: { kind: 'valueNode', nodeId: 'data_10' },
+                        },
+                        stringBlackboardAssignments: {},
+                      },
+                    ],
+                  },
+                  onEnter: { $sequence: 'finishBuffsById_32' },
+                  onExit: { $sequence: 'applyBuff_33' },
+                },
+                next: null,
+              },
+              aura_35: {
+                action: {
+                  kind: 'aura',
+                  parameters: {
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    buffs: [
+                      {
+                        buffId: 'buff_chr_0027_tangtang_comboskill_waterdebuff',
+                        blackboardAssignments: {
+                          ratio_speedreduction: { kind: 'valueNode', nodeId: 'data_11' },
+                        },
+                        stringBlackboardAssignments: {},
+                      },
+                    ],
+                  },
+                  onEnter: { $sequence: 'finishBuffsById_30' },
+                  onExit: { $sequence: 'applyBuff_31' },
+                },
+                next: 'aura_34',
+              },
+              conditional_36: {
                 action: {
                   kind: 'conditional',
-                  parameters: { condition: { kind: 'conditionNode', nodeId: 'data_17' } },
-                  whenTrue: { $sequence: 'finishBuffsById_33' },
+                  parameters: { condition: { kind: 'conditionNode', nodeId: 'data_13' } },
+                  whenTrue: { $sequence: 'aura_35' },
                 },
                 next: null,
               },
@@ -4977,33 +5037,20 @@ export const tangtang: OperatorDefinition = {
                   value: { kind: 'constant', value: 1 },
                 },
               },
-              data_10: {
-                type: 'number',
-                expression: { kind: 'blackboard', key: 'duration_talent1buff' },
-              },
-              data_11: { type: 'number', expression: { kind: 'blackboard', key: 'ratio_speed' } },
-              data_12: { type: 'number', expression: { kind: 'blackboard', key: 'ratio_speed' } },
-              data_13: {
-                type: 'number',
-                expression: { kind: 'blackboard', key: 'duration_talent1buff' },
-              },
-              data_14: {
+              data_10: { type: 'number', expression: { kind: 'blackboard', key: 'ratio_speed' } },
+              data_11: {
                 type: 'number',
                 expression: { kind: 'blackboard', key: 'ratio_speedreduction' },
               },
-              data_15: {
-                type: 'number',
-                expression: { kind: 'blackboard', key: 'ratio_speedreduction' },
-              },
-              data_16: {
+              data_12: {
                 type: 'number',
                 expression: { kind: 'blackboard', key: 'talent1_speed', fallback: 0 },
               },
-              data_17: {
+              data_13: {
                 type: 'boolean',
                 expression: {
                   kind: 'actionValueCompare',
-                  left: { kind: 'valueNode', nodeId: 'data_16' },
+                  left: { kind: 'valueNode', nodeId: 'data_12' },
                   operator: 'greaterOrEqual',
                   right: { kind: 'constant', value: 1 },
                 },
@@ -5072,21 +5119,21 @@ export const tangtang: OperatorDefinition = {
           {
             startFrame: 0,
             endFrame: 121,
-            sequence: { $sequence: 'createAbilityEntityTimedMarker_8' },
+            sequence: { $sequence: 'createAbilityEntityTimedMarker_10' },
           },
-          { startFrame: 128, endFrame: 136, sequence: { $sequence: 'conditional_12' } },
-          { startFrame: 128, endFrame: 128, sequence: { $sequence: 'conditional_14' } },
-          { startFrame: 127, endFrame: 128, sequence: { $sequence: 'finishTimeline_15' } },
-          { startFrame: 0, endFrame: 119, sequence: { $sequence: 'listenForCombatEvents_18' } },
+          { startFrame: 128, endFrame: 136, sequence: { $sequence: 'conditional_16' } },
+          { startFrame: 128, endFrame: 128, sequence: { $sequence: 'conditional_18' } },
+          { startFrame: 127, endFrame: 128, sequence: { $sequence: 'finishTimeline_19' } },
+          { startFrame: 0, endFrame: 119, sequence: { $sequence: 'listenForCombatEvents_22' } },
           {
             startFrame: 127,
             endFrame: 128,
-            sequence: { $sequence: 'finishActionOwnerAbilityEntity_19' },
+            sequence: { $sequence: 'finishActionOwnerAbilityEntity_23' },
           },
           {
             startFrame: 156,
             endFrame: 157,
-            sequence: { $sequence: 'finishActionOwnerAbilityEntity_19' },
+            sequence: { $sequence: 'finishActionOwnerAbilityEntity_23' },
           },
         ],
         actionGraph: {
@@ -5165,40 +5212,64 @@ export const tangtang: OperatorDefinition = {
                 },
                 next: 'startTimeDilation_4',
               },
-              applyBuff_6: {
+              finishBuffsById_6: {
                 action: {
-                  kind: 'applyBuff',
+                  kind: 'finishBuffsById',
                   parameters: {
-                    buffId: 'buff_chr_0027_tangtang_ultskill_buff',
-                    target: 'party',
-                    source: 'currentAbilityEntity',
-                    finishByAction: true,
-                    iconDurationSource: {
-                      kind: 'actionOwnerTimedMarker',
-                      markerId: 'tangtang_ult',
-                    },
-                    inheritSourceSkillCastInfo: true,
+                    target: 'enemy',
+                    buffIds: ['buff_chr_0027_tangtang_ultskill_debuff'],
+                    reason: 'other',
                   },
                 },
                 next: null,
               },
-              applyBuff_7: {
+              finishBuffsById_7: {
                 action: {
-                  kind: 'applyBuff',
+                  kind: 'finishBuffsById',
                   parameters: {
-                    buffId: 'buff_chr_0027_tangtang_ultskill_debuff',
-                    target: 'enemy',
-                    finishByAction: true,
+                    target: 'currentTarget',
+                    buffIds: ['buff_chr_0027_tangtang_ultskill_buff'],
+                    reason: 'other',
+                  },
+                },
+                next: null,
+              },
+              aura_8: {
+                action: {
+                  kind: 'aura',
+                  parameters: {
+                    target: 'party',
+                    source: 'currentAbilityEntity',
                     iconDurationSource: {
                       kind: 'actionOwnerTimedMarker',
                       markerId: 'tangtang_ult',
                     },
                     inheritSourceSkillCastInfo: true,
+                    buffs: [{ buffId: 'buff_chr_0027_tangtang_ultskill_buff' }],
                   },
+                  onEnter: { $sequence: null },
+                  onExit: { $sequence: 'finishBuffsById_7' },
                 },
-                next: 'applyBuff_6',
+                next: null,
               },
-              createAbilityEntityTimedMarker_8: {
+              aura_9: {
+                action: {
+                  kind: 'aura',
+                  parameters: {
+                    target: 'enemy',
+                    iconDurationSource: {
+                      kind: 'actionOwnerTimedMarker',
+                      markerId: 'tangtang_ult',
+                    },
+                    inheritSourceSkillCastInfo: true,
+                    buffs: [{ buffId: 'buff_chr_0027_tangtang_ultskill_debuff' }],
+                  },
+                  onEnter: { $sequence: null },
+                  onExit: { $sequence: 'finishBuffsById_6' },
+                },
+                next: 'aura_8',
+              },
+              createAbilityEntityTimedMarker_10: {
                 action: {
                   kind: 'createAbilityEntityTimedMarker',
                   parameters: {
@@ -5208,21 +5279,22 @@ export const tangtang: OperatorDefinition = {
                     timeDomain: 'self',
                   },
                 },
-                next: 'applyBuff_7',
+                next: 'aura_9',
               },
-              applyBuff_11: {
+              aura_15: {
                 action: {
-                  kind: 'applyBuff',
+                  kind: 'aura',
                   parameters: {
-                    buffId: 'buff_chr_0027_tangtang_ultskill_debuff',
                     target: 'enemy',
-                    finishByAction: true,
                     inheritSourceSkillCastInfo: true,
+                    buffs: [{ buffId: 'buff_chr_0027_tangtang_ultskill_debuff' }],
                   },
+                  onEnter: { $sequence: null },
+                  onExit: { $sequence: 'finishBuffsById_6' },
                 },
                 next: null,
               },
-              calculateActionValue_10: {
+              calculateActionValue_14: {
                 action: {
                   kind: 'calculateActionValue',
                   parameters: {
@@ -5232,60 +5304,64 @@ export const tangtang: OperatorDefinition = {
                     right: { kind: 'valueNode', nodeId: 'data_7' },
                   },
                 },
-                next: 'applyBuff_11',
+                next: 'aura_15',
               },
-              conditional_12: {
+              conditional_16: {
                 action: {
                   kind: 'conditional',
                   parameters: {
                     condition: { kind: 'conditionNode', nodeId: 'data_9' },
                     alwaysNext: true,
                   },
-                  whenTrue: { $sequence: 'calculateActionValue_10' },
-                  whenFalse: { $sequence: 'applyBuff_11' },
+                  whenTrue: { $sequence: 'calculateActionValue_14' },
+                  whenFalse: { $sequence: 'aura_15' },
                 },
                 next: null,
               },
-              applyBuff_13: {
+              applyBuff_17: {
                 action: {
                   kind: 'applyBuff',
                   parameters: {
-                    buffId: 'buff_chr_0027_tangtang_ultskill_waterwake',
+                    buffs: [
+                      {
+                        buffId: 'buff_chr_0027_tangtang_ultskill_waterwake',
+                        copiedBlackboardAssignments: {
+                          talent2_ultskill: 'talent2_ultskill',
+                          dmg_up_water_ult: 'dmg_up_water_ult',
+                          rate_spellvulnerable: 'rate_spellvulnerable',
+                          rate_spellvulnerable_02: 'rate_spellvulnerable_02',
+                          duration_spellvulnerable: 'duration_spellvulnerable',
+                        },
+                      },
+                    ],
                     target: 'caster',
                     inheritSourceSkillCastInfo: true,
-                    copiedBlackboardAssignments: {
-                      talent2_ultskill: 'talent2_ultskill',
-                      dmg_up_water_ult: 'dmg_up_water_ult',
-                      rate_spellvulnerable: 'rate_spellvulnerable',
-                      rate_spellvulnerable_02: 'rate_spellvulnerable_02',
-                      duration_spellvulnerable: 'duration_spellvulnerable',
-                    },
                   },
                 },
                 next: null,
               },
-              conditional_14: {
+              conditional_18: {
                 action: {
                   kind: 'conditional',
                   parameters: { condition: { kind: 'conditionNode', nodeId: 'data_11' } },
-                  whenTrue: { $sequence: 'applyBuff_13' },
+                  whenTrue: { $sequence: 'applyBuff_17' },
                 },
                 next: null,
               },
-              finishTimeline_15: { action: { kind: 'finishTimeline', parameters: {} }, next: null },
-              jumpTimeline_16: {
+              finishTimeline_19: { action: { kind: 'finishTimeline', parameters: {} }, next: null },
+              jumpTimeline_20: {
                 action: { kind: 'jumpTimeline', parameters: { destinationFrame: 128 } },
                 next: null,
               },
-              conditional_17: {
+              conditional_21: {
                 action: {
                   kind: 'conditional',
                   parameters: { condition: { kind: 'conditionNode', nodeId: 'data_12' } },
-                  whenTrue: { $sequence: 'jumpTimeline_16' },
+                  whenTrue: { $sequence: 'jumpTimeline_20' },
                 },
                 next: null,
               },
-              listenForCombatEvents_18: {
+              listenForCombatEvents_22: {
                 action: {
                   kind: 'listenForCombatEvents',
                   parameters: {
@@ -5295,14 +5371,14 @@ export const tangtang: OperatorDefinition = {
                         event: { kind: 'abilityEvent', event: 'outputBuff' },
                         phase: 'dataAction',
                         priority: 0,
-                        sequence: { $sequence: 'conditional_17' },
+                        sequence: { $sequence: 'conditional_21' },
                       },
                     ],
                   },
                 },
                 next: null,
               },
-              finishActionOwnerAbilityEntity_19: {
+              finishActionOwnerAbilityEntity_23: {
                 action: { kind: 'finishActionOwnerAbilityEntity', parameters: {} },
                 next: null,
               },
@@ -5385,7 +5461,7 @@ export const tangtang: OperatorDefinition = {
                   action: {
                     kind: 'applyBuff',
                     parameters: {
-                      buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                      buffs: [{ buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction' }],
                       target: 'enemy',
                       inheritSourceSkillCastInfo: true,
                     },
@@ -5403,13 +5479,17 @@ export const tangtang: OperatorDefinition = {
                   action: {
                     kind: 'applyBuff',
                     parameters: {
-                      buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                      buffs: [
+                        {
+                          buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                          copiedBlackboardAssignments: {
+                            duration_spellvulnerable: 'duration_spellvulnerable',
+                            rate_spellvulnerable: 'rate_spellvulnerable_02',
+                          },
+                        },
+                      ],
                       target: 'enemy',
                       inheritSourceSkillCastInfo: true,
-                      copiedBlackboardAssignments: {
-                        duration_spellvulnerable: 'duration_spellvulnerable',
-                        rate_spellvulnerable: 'rate_spellvulnerable_02',
-                      },
                     },
                   },
                   next: null,
@@ -5648,7 +5728,7 @@ export const tangtang: OperatorDefinition = {
                   action: {
                     kind: 'applyBuff',
                     parameters: {
-                      buffId: 'buff_common_obtain_ultimate_sp',
+                      buffs: [{ buffId: 'buff_common_obtain_ultimate_sp' }],
                       target: 'caster',
                       inheritSourceSkillCastInfo: true,
                     },
@@ -5726,7 +5806,7 @@ export const tangtang: OperatorDefinition = {
                   action: {
                     kind: 'applyBuff',
                     parameters: {
-                      buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                      buffs: [{ buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction' }],
                       target: 'enemy',
                       inheritSourceSkillCastInfo: true,
                     },
@@ -5744,13 +5824,17 @@ export const tangtang: OperatorDefinition = {
                   action: {
                     kind: 'applyBuff',
                     parameters: {
-                      buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                      buffs: [
+                        {
+                          buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                          copiedBlackboardAssignments: {
+                            duration_spellvulnerable: 'duration_spellvulnerable',
+                            rate_spellvulnerable: 'rate_spellvulnerable_02',
+                          },
+                        },
+                      ],
                       target: 'enemy',
                       inheritSourceSkillCastInfo: true,
-                      copiedBlackboardAssignments: {
-                        duration_spellvulnerable: 'duration_spellvulnerable',
-                        rate_spellvulnerable: 'rate_spellvulnerable_02',
-                      },
                     },
                   },
                   next: null,
@@ -5989,7 +6073,7 @@ export const tangtang: OperatorDefinition = {
                   action: {
                     kind: 'applyBuff',
                     parameters: {
-                      buffId: 'buff_common_obtain_ultimate_sp',
+                      buffs: [{ buffId: 'buff_common_obtain_ultimate_sp' }],
                       target: 'caster',
                       inheritSourceSkillCastInfo: true,
                     },
@@ -6067,7 +6151,7 @@ export const tangtang: OperatorDefinition = {
                   action: {
                     kind: 'applyBuff',
                     parameters: {
-                      buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                      buffs: [{ buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction' }],
                       target: 'enemy',
                       inheritSourceSkillCastInfo: true,
                     },
@@ -6085,13 +6169,17 @@ export const tangtang: OperatorDefinition = {
                   action: {
                     kind: 'applyBuff',
                     parameters: {
-                      buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                      buffs: [
+                        {
+                          buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                          copiedBlackboardAssignments: {
+                            duration_spellvulnerable: 'duration_spellvulnerable',
+                            rate_spellvulnerable: 'rate_spellvulnerable_02',
+                          },
+                        },
+                      ],
                       target: 'enemy',
                       inheritSourceSkillCastInfo: true,
-                      copiedBlackboardAssignments: {
-                        duration_spellvulnerable: 'duration_spellvulnerable',
-                        rate_spellvulnerable: 'rate_spellvulnerable_02',
-                      },
                     },
                   },
                   next: null,
@@ -6330,7 +6418,7 @@ export const tangtang: OperatorDefinition = {
                   action: {
                     kind: 'applyBuff',
                     parameters: {
-                      buffId: 'buff_common_obtain_ultimate_sp',
+                      buffs: [{ buffId: 'buff_common_obtain_ultimate_sp' }],
                       target: 'caster',
                       inheritSourceSkillCastInfo: true,
                     },
@@ -6409,7 +6497,7 @@ export const tangtang: OperatorDefinition = {
                   action: {
                     kind: 'applyBuff',
                     parameters: {
-                      buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                      buffs: [{ buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction' }],
                       target: 'enemy',
                       inheritSourceSkillCastInfo: true,
                     },
@@ -6427,13 +6515,17 @@ export const tangtang: OperatorDefinition = {
                   action: {
                     kind: 'applyBuff',
                     parameters: {
-                      buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                      buffs: [
+                        {
+                          buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                          copiedBlackboardAssignments: {
+                            duration_spellvulnerable: 'duration_spellvulnerable',
+                            rate_spellvulnerable: 'rate_spellvulnerable',
+                          },
+                        },
+                      ],
                       target: 'enemy',
                       inheritSourceSkillCastInfo: true,
-                      copiedBlackboardAssignments: {
-                        duration_spellvulnerable: 'duration_spellvulnerable',
-                        rate_spellvulnerable: 'rate_spellvulnerable',
-                      },
                     },
                   },
                   next: null,
@@ -6671,7 +6763,7 @@ export const tangtang: OperatorDefinition = {
                   action: {
                     kind: 'applyBuff',
                     parameters: {
-                      buffId: 'buff_common_obtain_ultimate_sp',
+                      buffs: [{ buffId: 'buff_common_obtain_ultimate_sp' }],
                       target: 'caster',
                       inheritSourceSkillCastInfo: true,
                     },
@@ -6749,7 +6841,7 @@ export const tangtang: OperatorDefinition = {
                   action: {
                     kind: 'applyBuff',
                     parameters: {
-                      buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                      buffs: [{ buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction' }],
                       target: 'enemy',
                       inheritSourceSkillCastInfo: true,
                     },
@@ -6767,13 +6859,17 @@ export const tangtang: OperatorDefinition = {
                   action: {
                     kind: 'applyBuff',
                     parameters: {
-                      buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                      buffs: [
+                        {
+                          buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
+                          copiedBlackboardAssignments: {
+                            duration_spellvulnerable: 'duration_spellvulnerable',
+                            rate_spellvulnerable: 'rate_spellvulnerable',
+                          },
+                        },
+                      ],
                       target: 'enemy',
                       inheritSourceSkillCastInfo: true,
-                      copiedBlackboardAssignments: {
-                        duration_spellvulnerable: 'duration_spellvulnerable',
-                        rate_spellvulnerable: 'rate_spellvulnerable',
-                      },
                     },
                   },
                   next: null,
@@ -7011,7 +7107,7 @@ export const tangtang: OperatorDefinition = {
                   action: {
                     kind: 'applyBuff',
                     parameters: {
-                      buffId: 'buff_common_obtain_ultimate_sp',
+                      buffs: [{ buffId: 'buff_common_obtain_ultimate_sp' }],
                       target: 'caster',
                       inheritSourceSkillCastInfo: true,
                     },
@@ -7089,7 +7185,7 @@ export const tangtang: OperatorDefinition = {
                   action: {
                     kind: 'applyBuff',
                     parameters: {
-                      buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction',
+                      buffs: [{ buffId: 'buff_chr_0027_tangtang_comboskill_spelllnfliction' }],
                       target: 'enemy',
                       inheritSourceSkillCastInfo: true,
                     },
@@ -7307,7 +7403,7 @@ export const tangtang: OperatorDefinition = {
                   action: {
                     kind: 'applyBuff',
                     parameters: {
-                      buffId: 'buff_common_obtain_ultimate_sp',
+                      buffs: [{ buffId: 'buff_common_obtain_ultimate_sp' }],
                       target: 'caster',
                       inheritSourceSkillCastInfo: true,
                     },

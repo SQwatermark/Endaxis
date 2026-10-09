@@ -8,10 +8,7 @@ import { validateActionGraphActions } from '../../game-data/validation/actionPro
 
 const step = {
   kind: 'applyBuff',
-  parameters: {
-    buffId: stringInput('child'),
-    target: 'enemy',
-  },
+  parameters: { buffs: [{ buffId: stringInput('child') }], target: 'enemy' },
 } as const;
 
 function fixture(blackboard: ActionBlackboard) {
@@ -50,7 +47,12 @@ describe('动态 Buff 引用复用公共施加管线', () => {
         parameters: {
           ...step.parameters,
           count: { kind: 'constant', value: 2 },
-          blackboardAssignments: { rate: numberInput({ kind: 'blackboard', key: 'rate' }) },
+          buffs: [
+            {
+              ...step.parameters.buffs[0],
+              blackboardAssignments: { rate: numberInput({ kind: 'blackboard', key: 'rate' }) },
+            },
+          ],
         },
       },
       { blackboard },
@@ -92,8 +94,8 @@ describe('动态 Buff 引用复用公共施加管线', () => {
     });
     expect(validateActionGraphActions(graphWith(step), '$')).toEqual([]);
     for (const parameters of [
-      { ...step.parameters, buffId: { blackboardKey: '' } },
-      { ...step.parameters, buffId: { blackboardKey: 'child', value: 'stale' } },
+      { ...step.parameters, buffs: [{ buffId: { blackboardKey: '' } }] },
+      { ...step.parameters, buffs: [{ buffId: { blackboardKey: 'child', value: 'stale' } }] },
       { ...step.parameters, definition: { stackingType: 'unlimited' } },
       { ...step.parameters, durationSeconds: 1 },
     ])

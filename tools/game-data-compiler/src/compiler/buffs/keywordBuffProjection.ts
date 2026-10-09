@@ -61,24 +61,28 @@ export function projectKeywordBuffAction(
   return {
     kind: 'applyBuff',
     parameters: {
-      buffId: action.carrierBuffId,
+      buffs: [
+        {
+          buffId: action.carrierBuffId,
+          blackboardAssignments: { duration: operand(action.duration), rate: operand(action.rate) },
+          ...(action.enhancements.length === 0
+            ? {}
+            : {
+                keywordEnhancements: action.enhancements.map(enhancement => ({
+                  triggerBuffIds: enhancement.buffIds,
+                  operation: enhancement.operation.toLowerCase() as 'assign' | 'add' | 'multiply',
+                  value: operand(enhancement.value),
+                })),
+              }),
+          ...(action.overrideChildBuffId
+            ? { stringBlackboardAssignments: { child_buff_id: action.childBuffId.value } }
+            : {}),
+        },
+      ],
       target,
       inheritSourceSkillCastInfo: true,
       ...(action.asChildBuff ? { asChildBuff: true } : {}),
       ...(action.autoFinishByAction ? { finishByAction: true } : {}),
-      blackboardAssignments: { duration: operand(action.duration), rate: operand(action.rate) },
-      ...(action.enhancements.length === 0
-        ? {}
-        : {
-            keywordEnhancements: action.enhancements.map(enhancement => ({
-              triggerBuffIds: enhancement.buffIds,
-              operation: enhancement.operation.toLowerCase() as 'assign' | 'add' | 'multiply',
-              value: operand(enhancement.value),
-            })),
-          }),
-      ...(action.overrideChildBuffId
-        ? { stringBlackboardAssignments: { child_buff_id: action.childBuffId.value } }
-        : {}),
     },
   };
 }

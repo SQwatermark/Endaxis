@@ -12,13 +12,17 @@ const definition = {
           action: {
             kind: 'applyBuff',
             parameters: {
-              buffId: 'buff_equipsuit_healup_01',
+              buffs: [
+                {
+                  buffId: 'buff_equipsuit_healup_01',
+                  blackboardAssignments: {
+                    dmg_taken_down: { kind: 'constant', value: 0.85 },
+                    dmg_taken_down2: { kind: 'constant', value: 0.7 },
+                    duration: { kind: 'constant', value: 10 },
+                  },
+                },
+              ],
               target: 'caster',
-              blackboardAssignments: {
-                dmg_taken_down: { kind: 'constant', value: 0.85 },
-                dmg_taken_down2: { kind: 'constant', value: 0.7 },
-                duration: { kind: 'constant', value: 10 },
-              },
             },
           },
           next: null,
@@ -117,13 +121,20 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_common_dmgtk_down_equip_1',
+                  buffs: [
+                    {
+                      buffId: 'buff_common_dmgtk_down_equip_1',
+                      blackboardAssignments: { priority: { kind: 'constant', value: 1 } },
+                      copiedBlackboardAssignments: {
+                        value: 'dmg_taken_down2',
+                        duration: 'duration',
+                      },
+                    },
+                  ],
                   target: 'eventTarget',
                   source: 'buffOwner',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  blackboardAssignments: { priority: { kind: 'constant', value: 1 } },
-                  copiedBlackboardAssignments: { value: 'dmg_taken_down2', duration: 'duration' },
                 },
               },
               next: null,
@@ -140,12 +151,19 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_common_dmgtk_down_equip_1',
+                  buffs: [
+                    {
+                      buffId: 'buff_common_dmgtk_down_equip_1',
+                      blackboardAssignments: { priority: { kind: 'constant', value: 0 } },
+                      copiedBlackboardAssignments: {
+                        value: 'dmg_taken_down',
+                        duration: 'duration',
+                      },
+                    },
+                  ],
                   target: 'eventTarget',
                   source: 'buffOwner',
                   inheritSourceSkillCastInfo: true,
-                  blackboardAssignments: { priority: { kind: 'constant', value: 0 } },
-                  copiedBlackboardAssignments: { value: 'dmg_taken_down', duration: 'duration' },
                 },
               },
               next: null,

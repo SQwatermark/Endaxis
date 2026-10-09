@@ -928,7 +928,7 @@ export function planRoutedSkills(
     const routingBuffId = requireNonEmptyString(
       config.routingBuffId === undefined
         ? routeStep?.kind === 'applyBuff'
-          ? routeStep.parameters.buffId
+          ? routeStep.parameters.buffs[0]?.buffId
           : undefined
         : config.routingBuffId,
       `${path}.routingBuffId`,
@@ -947,7 +947,8 @@ export function planRoutedSkills(
         ? condition.value !== 1
         : condition.value.kind !== 'constant' || condition.value.value !== 1) ||
       routeStep?.kind !== 'applyBuff' ||
-      routeStep.parameters.buffId !== routingBuffId ||
+      routeStep.parameters.buffs.length !== 1 ||
+      routeStep.parameters.buffs[0]?.buffId !== routingBuffId ||
       routeStep.parameters.target !== 'caster' ||
       routeStep.parameters.inheritSourceSkillCastInfo !== true ||
       wrapper.scheduledSequences.length !== 0

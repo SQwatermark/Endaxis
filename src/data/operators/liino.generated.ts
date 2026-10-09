@@ -12,31 +12,35 @@ export const liinoChr_0035_liino_combo_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_comboskill_ultskill_hit',
+            buffs: [
+              {
+                buffId: 'buff_chr_0035_liino_comboskill_ultskill_hit',
+                blackboardAssignments: {
+                  atb_return_duration: { kind: 'valueNode', nodeId: 'data_1' },
+                  atb_return: { kind: 'valueNode', nodeId: 'data_2' },
+                  time_duration: { kind: 'valueNode', nodeId: 'data_3' },
+                  usp: { kind: 'valueNode', nodeId: 'data_4' },
+                  atk_scale_2: { kind: 'valueNode', nodeId: 'data_5' },
+                  radius: { kind: 'valueNode', nodeId: 'data_6' },
+                  atk_scale: { kind: 'valueNode', nodeId: 'data_7' },
+                  poise: { kind: 'valueNode', nodeId: 'data_8' },
+                  input_angle: { kind: 'valueNode', nodeId: 'data_9' },
+                  cam_angle: { kind: 'valueNode', nodeId: 'data_10' },
+                  cam_duration: { kind: 'valueNode', nodeId: 'data_11' },
+                  owner_mainchar_distance: { kind: 'valueNode', nodeId: 'data_12' },
+                  owner_mainchar_alpha: { kind: 'valueNode', nodeId: 'data_13' },
+                  normal_combo: { kind: 'valueNode', nodeId: 'data_14' },
+                  remainingtime: { kind: 'valueNode', nodeId: 'data_15' },
+                  combo_duration: { kind: 'valueNode', nodeId: 'data_16' },
+                  time_ratio: { kind: 'valueNode', nodeId: 'data_17' },
+                  talent_b: { kind: 'valueNode', nodeId: 'data_18' },
+                  heal_value: { kind: 'valueNode', nodeId: 'data_19' },
+                  heal_rate: { kind: 'valueNode', nodeId: 'data_20' },
+                },
+              },
+            ],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
-            blackboardAssignments: {
-              atb_return_duration: { kind: 'valueNode', nodeId: 'data_1' },
-              atb_return: { kind: 'valueNode', nodeId: 'data_2' },
-              time_duration: { kind: 'valueNode', nodeId: 'data_3' },
-              usp: { kind: 'valueNode', nodeId: 'data_4' },
-              atk_scale_2: { kind: 'valueNode', nodeId: 'data_5' },
-              radius: { kind: 'valueNode', nodeId: 'data_6' },
-              atk_scale: { kind: 'valueNode', nodeId: 'data_7' },
-              poise: { kind: 'valueNode', nodeId: 'data_8' },
-              input_angle: { kind: 'valueNode', nodeId: 'data_9' },
-              cam_angle: { kind: 'valueNode', nodeId: 'data_10' },
-              cam_duration: { kind: 'valueNode', nodeId: 'data_11' },
-              owner_mainchar_distance: { kind: 'valueNode', nodeId: 'data_12' },
-              owner_mainchar_alpha: { kind: 'valueNode', nodeId: 'data_13' },
-              normal_combo: { kind: 'valueNode', nodeId: 'data_14' },
-              remainingtime: { kind: 'valueNode', nodeId: 'data_15' },
-              combo_duration: { kind: 'valueNode', nodeId: 'data_16' },
-              time_ratio: { kind: 'valueNode', nodeId: 'data_17' },
-              talent_b: { kind: 'valueNode', nodeId: 'data_18' },
-              heal_value: { kind: 'valueNode', nodeId: 'data_19' },
-              heal_rate: { kind: 'valueNode', nodeId: 'data_20' },
-            },
           },
         },
         next: null,
@@ -60,9 +64,9 @@ export const liinoChr_0035_liino_combo_skillActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_4: {
+      changeResource_4: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'ultimateEnergy',
             amount: { kind: 'valueNode', nodeId: 'data_22' },
@@ -82,7 +86,7 @@ export const liinoChr_0035_liino_combo_skillActionGraph = {
             amount: { kind: 'valueNode', nodeId: 'data_23' },
           },
         },
-        next: 'changeResourceByActionValue_4',
+        next: 'changeResource_4',
       },
       storeSourceAttributeValue_6: {
         action: {
@@ -306,7 +310,7 @@ export const liinoChr_0035_liino_combo_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_showhide',
+            buffs: [{ buffId: 'buff_chr_0035_liino_showhide' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -339,7 +343,7 @@ export const liinoChr_0035_liino_combo_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_showhide_fire',
+            buffs: [{ buffId: 'buff_chr_0035_liino_showhide_fire' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -372,7 +376,7 @@ export const liinoChr_0035_liino_combo_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_showhide_audio',
+            buffs: [{ buffId: 'buff_chr_0035_liino_showhide_audio' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -397,7 +401,7 @@ export const liinoChr_0035_liino_combo_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_showhide_audio_fire',
+            buffs: [{ buffId: 'buff_chr_0035_liino_showhide_audio_fire' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -840,7 +844,7 @@ export const liinoChr_0035_liino_attack3ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_showhide_attack',
+            buffs: [{ buffId: 'buff_chr_0035_liino_showhide_attack' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -887,7 +891,7 @@ export const liinoChr_0035_liino_attack3ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_showhide_fire',
+            buffs: [{ buffId: 'buff_chr_0035_liino_showhide_fire' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -930,7 +934,7 @@ export const liinoChr_0035_liino_attack3ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_showhide_audio',
+            buffs: [{ buffId: 'buff_chr_0035_liino_showhide_audio' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -979,7 +983,7 @@ export const liinoChr_0035_liino_attack3ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_showhide_audio_fire',
+            buffs: [{ buffId: 'buff_chr_0035_liino_showhide_audio_fire' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -1205,7 +1209,7 @@ export const liinoChr_0035_liino_attack4ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_showhide_attack',
+            buffs: [{ buffId: 'buff_chr_0035_liino_showhide_attack' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -1250,7 +1254,7 @@ export const liinoChr_0035_liino_attack4ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_showhide_fire',
+            buffs: [{ buffId: 'buff_chr_0035_liino_showhide_fire' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -1293,7 +1297,7 @@ export const liinoChr_0035_liino_attack4ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_showhide_audio',
+            buffs: [{ buffId: 'buff_chr_0035_liino_showhide_audio' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -1342,7 +1346,7 @@ export const liinoChr_0035_liino_attack4ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_showhide_audio_fire',
+            buffs: [{ buffId: 'buff_chr_0035_liino_showhide_audio_fire' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -1496,9 +1500,9 @@ export const liinoChr_0035_liino_attack4: SkillDefinition = {
 export const liinoChr_0035_liino_attack5ActionGraph = {
   main: {
     nodes: {
-      changeResourceByActionValue_1: {
+      changeResource_1: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -1523,7 +1527,7 @@ export const liinoChr_0035_liino_attack5ActionGraph = {
             targets: ['caster'],
           },
         },
-        next: 'changeResourceByActionValue_1',
+        next: 'changeResource_1',
       },
       conditional_3: {
         action: {
@@ -1569,7 +1573,7 @@ export const liinoChr_0035_liino_attack5ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_showhide_attack',
+            buffs: [{ buffId: 'buff_chr_0035_liino_showhide_attack' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -1614,7 +1618,7 @@ export const liinoChr_0035_liino_attack5ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_showhide_fire',
+            buffs: [{ buffId: 'buff_chr_0035_liino_showhide_fire' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -1660,7 +1664,7 @@ export const liinoChr_0035_liino_attack5ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_showhide_audio',
+            buffs: [{ buffId: 'buff_chr_0035_liino_showhide_audio' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -1706,7 +1710,7 @@ export const liinoChr_0035_liino_attack5ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_showhide_audio_fire',
+            buffs: [{ buffId: 'buff_chr_0035_liino_showhide_audio_fire' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -1947,7 +1951,7 @@ export const liinoChr_0035_liino_power_attackActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_full_immune_medium',
+            buffs: [{ buffId: 'buff_common_full_immune_medium' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -1959,7 +1963,7 @@ export const liinoChr_0035_liino_power_attackActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_power_attack_disable_cast_skill',
+            buffs: [{ buffId: 'buff_common_power_attack_disable_cast_skill' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -1988,7 +1992,7 @@ export const liinoChr_0035_liino_power_attackActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_showhide_attack',
+            buffs: [{ buffId: 'buff_chr_0035_liino_showhide_attack' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -2022,7 +2026,7 @@ export const liinoChr_0035_liino_power_attackActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_showhide_attack',
+            buffs: [{ buffId: 'buff_chr_0035_liino_showhide_attack' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -2057,7 +2061,7 @@ export const liinoChr_0035_liino_power_attackActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_showhide_fire',
+            buffs: [{ buffId: 'buff_chr_0035_liino_showhide_fire' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -2089,7 +2093,7 @@ export const liinoChr_0035_liino_power_attackActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_showhide_audio',
+            buffs: [{ buffId: 'buff_chr_0035_liino_showhide_audio' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -2118,7 +2122,7 @@ export const liinoChr_0035_liino_power_attackActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_showhide_audio_fire',
+            buffs: [{ buffId: 'buff_chr_0035_liino_showhide_audio_fire' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -2296,7 +2300,7 @@ export const liinoChr_0035_liino_plunging_attack_endActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_showhide_attack',
+            buffs: [{ buffId: 'buff_chr_0035_liino_showhide_attack' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -2341,7 +2345,7 @@ export const liinoChr_0035_liino_plunging_attack_endActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_showhide_fire',
+            buffs: [{ buffId: 'buff_chr_0035_liino_showhide_fire' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -2358,7 +2362,7 @@ export const liinoChr_0035_liino_plunging_attack_endActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_showhide_audio',
+            buffs: [{ buffId: 'buff_chr_0035_liino_showhide_audio' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -2407,7 +2411,7 @@ export const liinoChr_0035_liino_plunging_attack_endActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_showhide_audio_fire',
+            buffs: [{ buffId: 'buff_chr_0035_liino_showhide_audio_fire' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -3588,7 +3592,7 @@ export const liinoChr_0035_liino_normal_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_normalskill_music_cd_uishow',
+            buffs: [{ buffId: 'buff_chr_0035_liino_normalskill_music_cd_uishow' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -3633,7 +3637,7 @@ export const liinoChr_0035_liino_normal_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_normalskill_music_cry_vfx',
+            buffs: [{ buffId: 'buff_chr_0035_liino_normalskill_music_cry_vfx' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
           },
@@ -3733,7 +3737,18 @@ export const liinoChr_0035_liino_normal_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_normalskill_spelllnfliction_extraattack',
+            buffs: [
+              {
+                buffId: 'buff_chr_0035_liino_normalskill_spelllnfliction_extraattack',
+                copiedBlackboardAssignments: {
+                  music_frame: 'normalskill_frame',
+                  heal_rate: 'heal_rate',
+                  heal_value: 'heal_value',
+                  atk_scale_2: 'atk_scale_2',
+                  hit_tigger: 'atk_trigger',
+                },
+              },
+            ],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -3741,26 +3756,20 @@ export const liinoChr_0035_liino_normal_skillActionGraph = {
               'chr_0035_liino_combo_skill',
               'chr_0035_liino_normal_skill_combo',
             ],
-            copiedBlackboardAssignments: {
-              music_frame: 'normalskill_frame',
-              heal_rate: 'heal_rate',
-              heal_value: 'heal_value',
-              atk_scale_2: 'atk_scale_2',
-              hit_tigger: 'atk_trigger',
-            },
           },
         },
         next: null,
       },
-      applyBuff_31: {
+      aura_31: {
         action: {
-          kind: 'applyBuff',
+          kind: 'aura',
           parameters: {
-            buffId: 'buff_chr_0035_liino_normalskill_spelllnfliction_check',
             target: 'enemy',
-            finishByAction: true,
             inheritSourceSkillCastInfo: true,
+            buffs: [{ buffId: 'buff_chr_0035_liino_normalskill_spelllnfliction_check' }],
           },
+          onEnter: { $sequence: null },
+          onExit: { $sequence: null },
         },
         next: 'applyBuff_30',
       },
@@ -3768,17 +3777,21 @@ export const liinoChr_0035_liino_normal_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_normalskill_music_damage',
+            buffs: [
+              {
+                buffId: 'buff_chr_0035_liino_normalskill_music_damage',
+                copiedBlackboardAssignments: {
+                  vfx_music_duration: 'music_duration',
+                  atk_scale: 'atk_scale_3',
+                  heal_value: 'heal_value',
+                  heal_rate: 'heal_rate',
+                },
+              },
+            ],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
             inheritToNextSkillIds: ['chr_0035_liino_combo_skill'],
-            copiedBlackboardAssignments: {
-              vfx_music_duration: 'music_duration',
-              atk_scale: 'atk_scale_3',
-              heal_value: 'heal_value',
-              heal_rate: 'heal_rate',
-            },
           },
         },
         next: null,
@@ -3787,19 +3800,23 @@ export const liinoChr_0035_liino_normal_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_normalskill_music_tag',
+            buffs: [
+              {
+                buffId: 'buff_chr_0035_liino_normalskill_music_tag',
+                copiedBlackboardAssignments: {
+                  duration: 'music_duration',
+                  atk_up: 'atk_up',
+                  healtaken_rate: 'healtaken_rate',
+                  shelter: 'shelter',
+                  shelter_duration: 'shelter_duration',
+                  talent_a: 'talent_a',
+                },
+              },
+            ],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
             inheritToNextSkillIds: ['chr_0035_liino_combo_skill'],
-            copiedBlackboardAssignments: {
-              duration: 'music_duration',
-              atk_up: 'atk_up',
-              healtaken_rate: 'healtaken_rate',
-              shelter: 'shelter',
-              shelter_duration: 'shelter_duration',
-              talent_a: 'talent_a',
-            },
           },
         },
         next: 'applyBuff_32',
@@ -3808,7 +3825,7 @@ export const liinoChr_0035_liino_normal_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_showhide',
+            buffs: [{ buffId: 'buff_chr_0035_liino_showhide' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -3842,7 +3859,7 @@ export const liinoChr_0035_liino_normal_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_showhide_attack',
+            buffs: [{ buffId: 'buff_chr_0035_liino_showhide_attack' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -3894,7 +3911,7 @@ export const liinoChr_0035_liino_normal_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_showhide_fire',
+            buffs: [{ buffId: 'buff_chr_0035_liino_showhide_fire' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -3911,7 +3928,7 @@ export const liinoChr_0035_liino_normal_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_showhide_audio',
+            buffs: [{ buffId: 'buff_chr_0035_liino_showhide_audio' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -3958,7 +3975,7 @@ export const liinoChr_0035_liino_normal_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_showhide_audio_fire',
+            buffs: [{ buffId: 'buff_chr_0035_liino_showhide_audio_fire' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -3971,9 +3988,9 @@ export const liinoChr_0035_liino_normal_skillActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_45: {
+      changeResource_45: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_9' },
@@ -3994,7 +4011,7 @@ export const liinoChr_0035_liino_normal_skillActionGraph = {
             reason: 'other',
           },
         },
-        next: 'changeResourceByActionValue_45',
+        next: 'changeResource_45',
       },
       conditional_47: {
         action: {
@@ -4143,7 +4160,7 @@ export const liinoChr_0035_liino_normal_skill: SkillDefinition = {
     { startFrame: 90, endFrame: 1815, sequence: { $sequence: 'listenForCombatEvents_22' } },
     { startFrame: 90, endFrame: 1815, sequence: { $sequence: 'listenForCombatEvents_26' } },
     { startFrame: 45, endFrame: 1691, sequence: { $sequence: 'repeatEachTick_29' } },
-    { startFrame: 45, endFrame: 1691, sequence: { $sequence: 'applyBuff_31' } },
+    { startFrame: 45, endFrame: 1691, sequence: { $sequence: 'aura_31' } },
     { startFrame: 15, endFrame: 1815, sequence: { $sequence: 'applyBuff_33' } },
     { startFrame: 0, endFrame: 1804, sequence: { $sequence: 'conditional_39' } },
     { startFrame: 6, endFrame: 1804, sequence: { $sequence: 'applyBuff_40' } },
@@ -4220,7 +4237,7 @@ export const liinoChr_0035_liino_normal_skill_comboActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_normalskill_music_cry_vfx',
+            buffs: [{ buffId: 'buff_chr_0035_liino_normalskill_music_cry_vfx' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
           },
@@ -4360,7 +4377,7 @@ export const liinoChr_0035_liino_normal_skill_comboActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_showhide',
+            buffs: [{ buffId: 'buff_chr_0035_liino_showhide' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -4395,7 +4412,7 @@ export const liinoChr_0035_liino_normal_skill_comboActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_showhide',
+            buffs: [{ buffId: 'buff_chr_0035_liino_showhide' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -4408,7 +4425,7 @@ export const liinoChr_0035_liino_normal_skill_comboActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_showhide_fire',
+            buffs: [{ buffId: 'buff_chr_0035_liino_showhide_fire' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -4425,7 +4442,7 @@ export const liinoChr_0035_liino_normal_skill_comboActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_showhide_audio',
+            buffs: [{ buffId: 'buff_chr_0035_liino_showhide_audio' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -4472,7 +4489,7 @@ export const liinoChr_0035_liino_normal_skill_comboActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_showhide_audio',
+            buffs: [{ buffId: 'buff_chr_0035_liino_showhide_audio' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -4521,7 +4538,7 @@ export const liinoChr_0035_liino_normal_skill_comboActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_showhide_audio_fire',
+            buffs: [{ buffId: 'buff_chr_0035_liino_showhide_audio_fire' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -4650,7 +4667,7 @@ export const liinoChr_0035_liino_normal_skill_endActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_skill_end',
+            buffs: [{ buffId: 'buff_chr_0035_liino_skill_end' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
           },
@@ -4746,13 +4763,17 @@ export const liinoChr_0035_liino_ultimate_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_ultskill_music_heal_start',
+            buffs: [
+              {
+                buffId: 'buff_chr_0035_liino_ultskill_music_heal_start',
+                copiedBlackboardAssignments: {
+                  heal_value: 'ultheal03_value',
+                  heal_rate: 'ultheal03_rate',
+                },
+              },
+            ],
             target: 'party',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: {
-              heal_value: 'ultheal03_value',
-              heal_rate: 'ultheal03_rate',
-            },
           },
         },
         next: null,
@@ -4761,13 +4782,17 @@ export const liinoChr_0035_liino_ultimate_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_ultskill_music_heal',
+            buffs: [
+              {
+                buffId: 'buff_chr_0035_liino_ultskill_music_heal',
+                copiedBlackboardAssignments: {
+                  heal_value: 'ultheal02_value',
+                  heal_rate: 'ultheal02_rate',
+                },
+              },
+            ],
             target: 'party',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: {
-              heal_value: 'ultheal02_value',
-              heal_rate: 'ultheal02_rate',
-            },
           },
         },
         next: null,
@@ -4828,7 +4853,7 @@ export const liinoChr_0035_liino_ultimate_skillActionGraph = {
                         action: {
                           kind: 'applyBuff',
                           parameters: {
-                            buffId: 'buff_physical_no_guard',
+                            buffs: [{ buffId: 'buff_physical_no_guard' }],
                             target: 'enemy',
                             inheritSourceSkillCastInfo: true,
                           },
@@ -4909,7 +4934,7 @@ export const liinoChr_0035_liino_ultimate_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_ultskill_refrainobtainusp',
+            buffs: [{ buffId: 'buff_chr_0035_liino_ultskill_refrainobtainusp' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -4949,7 +4974,7 @@ export const liinoChr_0035_liino_ultimate_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_normalskill_music_cry_vfx',
+            buffs: [{ buffId: 'buff_chr_0035_liino_normalskill_music_cry_vfx' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
           },
@@ -4985,20 +5010,24 @@ export const liinoChr_0035_liino_ultimate_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_ultskill_music_tag',
+            buffs: [
+              {
+                buffId: 'buff_chr_0035_liino_ultskill_music_tag',
+                copiedBlackboardAssignments: {
+                  duration: 'ultmusic_duration',
+                  finish_duration: 'finish_duration',
+                  atk_up: 'atk_up',
+                  spellenhance_rate: 'fnlatk_up',
+                  talent_a: 'talent_a',
+                  shelter: 'shelter',
+                  shelter_duration: 'shelter_duration',
+                  healtaken_rate: 'healtaken_rate',
+                },
+              },
+            ],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
-            copiedBlackboardAssignments: {
-              duration: 'ultmusic_duration',
-              finish_duration: 'finish_duration',
-              atk_up: 'atk_up',
-              spellenhance_rate: 'fnlatk_up',
-              talent_a: 'talent_a',
-              shelter: 'shelter',
-              shelter_duration: 'shelter_duration',
-              healtaken_rate: 'healtaken_rate',
-            },
           },
         },
         next: null,
@@ -5042,18 +5071,22 @@ export const liinoChr_0035_liino_ultimate_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_ultskill_music_damage',
+            buffs: [
+              {
+                buffId: 'buff_chr_0035_liino_ultskill_music_damage',
+                copiedBlackboardAssignments: {
+                  vfx_music_duration: 'ultmusic_duration',
+                  atk_scale_3: 'atk_scale_3',
+                  music_damage_trigger: 'ultmusic_trigger',
+                  ultheal_value: 'ultheal_value',
+                  ultheal_rate: 'ultheal_rate',
+                },
+              },
+            ],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
             inheritToNextSkillIds: ['chr_0035_liino_combo_skill'],
-            copiedBlackboardAssignments: {
-              vfx_music_duration: 'ultmusic_duration',
-              atk_scale_3: 'atk_scale_3',
-              music_damage_trigger: 'ultmusic_trigger',
-              ultheal_value: 'ultheal_value',
-              ultheal_rate: 'ultheal_rate',
-            },
           },
         },
         next: null,
@@ -5062,7 +5095,7 @@ export const liinoChr_0035_liino_ultimate_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_showhide_fire',
+            buffs: [{ buffId: 'buff_chr_0035_liino_showhide_fire' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -5079,7 +5112,7 @@ export const liinoChr_0035_liino_ultimate_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_showhide_audio',
+            buffs: [{ buffId: 'buff_chr_0035_liino_showhide_audio' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -5097,7 +5130,7 @@ export const liinoChr_0035_liino_ultimate_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_showhide_audio_fire',
+            buffs: [{ buffId: 'buff_chr_0035_liino_showhide_audio_fire' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -5114,7 +5147,7 @@ export const liinoChr_0035_liino_ultimate_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_damage_immune_medium',
+            buffs: [{ buffId: 'buff_common_damage_immune_medium' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -5498,9 +5531,9 @@ const liinoBuff3ActionGraph = {
         action: { kind: 'finishParentGlobalBuff', parameters: { reason: 'early' } },
         next: null,
       },
-      changeResourceByActionValue_2: {
+      changeResource_2: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -5516,7 +5549,7 @@ const liinoBuff3ActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-          whenTrue: { $sequence: 'changeResourceByActionValue_2' },
+          whenTrue: { $sequence: 'changeResource_2' },
         },
         next: null,
       },
@@ -5619,9 +5652,9 @@ const liinoBuff4ActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_4: {
+      changeResource_4: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'ultimateEnergy',
             amount: { kind: 'valueNode', nodeId: 'data_2' },
@@ -5641,7 +5674,7 @@ const liinoBuff4ActionGraph = {
             amount: { kind: 'valueNode', nodeId: 'data_3' },
           },
         },
-        next: 'changeResourceByActionValue_4',
+        next: 'changeResource_4',
       },
       storeSourceAttributeValue_6: {
         action: {
@@ -5862,12 +5895,16 @@ const liinoBuff5ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_atkup',
+            buffs: [
+              {
+                buffId: 'buff_chr_0035_liino_atkup',
+                copiedBlackboardAssignments: { atk_up: 'atk_up', duration: 'duration' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
-            copiedBlackboardAssignments: { atk_up: 'atk_up', duration: 'duration' },
           },
         },
         next: null,
@@ -6464,7 +6501,7 @@ const liinoBuff12ActionGraph = {
                         action: {
                           kind: 'applyBuff',
                           parameters: {
-                            buffId: 'buff_physical_no_guard',
+                            buffs: [{ buffId: 'buff_physical_no_guard' }],
                             target: 'enemy',
                             inheritSourceSkillCastInfo: true,
                           },
@@ -6596,17 +6633,13 @@ const liinoBuff12: SkillBuffDefinition = {
 const liinoBuff13ActionGraph = {
   main: {
     nodes: {
-      applyBuff_1: {
+      finishBuffsById_1: {
         action: {
-          kind: 'applyBuff',
+          kind: 'finishBuffsById',
           parameters: {
-            buffId: 'buff_chr_0035_liino_atkup_owner',
-            target: 'buffOwner',
-            source: 'buffSource',
-            inheritSourceSkillCastInfo: true,
-            finishByAction: true,
-            asChildBuff: true,
-            copiedBlackboardAssignments: { atk_up: 'atk_up', duration: 'duration_atkup' },
+            target: 'currentTarget',
+            buffIds: ['buff_chr_0035_liino_normalskill_buff_atkup'],
+            reason: 'other',
           },
         },
         next: null,
@@ -6615,56 +6648,96 @@ const liinoBuff13ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_normalskill_buff_atkup',
-            target: 'partyExceptCaster',
-            finishByAction: true,
+            buffs: [
+              {
+                buffId: 'buff_chr_0035_liino_atkup_owner',
+                copiedBlackboardAssignments: { atk_up: 'atk_up', duration: 'duration_atkup' },
+              },
+            ],
+            target: 'buffOwner',
+            source: 'buffSource',
             inheritSourceSkillCastInfo: true,
-            blackboardAssignments: { atk_up: { kind: 'valueNode', nodeId: 'data_1' } },
+            finishByAction: true,
+            asChildBuff: true,
           },
         },
-        next: 'applyBuff_1',
+        next: null,
       },
-      applyBuff_3: {
+      aura_3: {
+        action: {
+          kind: 'aura',
+          parameters: {
+            target: 'partyExceptCaster',
+            inheritSourceSkillCastInfo: true,
+            buffs: [
+              {
+                buffId: 'buff_chr_0035_liino_normalskill_buff_atkup',
+                blackboardAssignments: { atk_up: { kind: 'valueNode', nodeId: 'data_1' } },
+                stringBlackboardAssignments: {},
+              },
+            ],
+          },
+          onEnter: { $sequence: null },
+          onExit: { $sequence: 'finishBuffsById_1' },
+        },
+        next: 'applyBuff_2',
+      },
+      applyBuff_4: {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_talent_shelter_normalskill',
-            target: 'party',
-            finishByAction: true,
-            onActionEndBuffs: [
+            buffs: [
               {
                 buffId: 'buff_chr_0035_liino_talent_shelter_finishtime_normalskill',
-                target: 'party',
-                inheritSourceSkillCastInfo: true,
-                blackboardAssignments: {
-                  shelter: { kind: 'valueNode', nodeId: 'data_2' },
-                  duration: { kind: 'valueNode', nodeId: 'data_3' },
-                  heal_rate: { kind: 'valueNode', nodeId: 'data_4' },
+                copiedBlackboardAssignments: {
+                  shelter: 'shelter',
+                  duration: 'shelter_duration',
+                  heal_rate: 'healtaken_rate',
                 },
               },
             ],
+            target: 'currentTarget',
+            source: 'buffSource',
             inheritSourceSkillCastInfo: true,
-            blackboardAssignments: {
-              shelter: { kind: 'valueNode', nodeId: 'data_5' },
-              heal_rate: { kind: 'valueNode', nodeId: 'data_6' },
-            },
           },
         },
         next: null,
       },
-      conditional_4: {
+      aura_5: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_8' } },
-          whenTrue: { $sequence: 'applyBuff_3' },
+          kind: 'aura',
+          parameters: {
+            target: 'party',
+            inheritSourceSkillCastInfo: true,
+            buffs: [
+              {
+                buffId: 'buff_chr_0035_liino_talent_shelter_normalskill',
+                blackboardAssignments: {
+                  shelter: { kind: 'valueNode', nodeId: 'data_2' },
+                  heal_rate: { kind: 'valueNode', nodeId: 'data_3' },
+                },
+                stringBlackboardAssignments: {},
+              },
+            ],
+          },
+          onEnter: { $sequence: null },
+          onExit: { $sequence: 'applyBuff_4' },
         },
         next: null,
       },
-      applyBuff_5: {
+      conditional_6: {
+        action: {
+          kind: 'conditional',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
+          whenTrue: { $sequence: 'aura_5' },
+        },
+        next: null,
+      },
+      applyBuff_7: {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_normalskill_end',
+            buffs: [{ buffId: 'buff_chr_0035_liino_normalskill_end' }],
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
@@ -6672,7 +6745,7 @@ const liinoBuff13ActionGraph = {
         },
         next: null,
       },
-      castSkillDuringAction_6: {
+      castSkillDuringAction_8: {
         action: {
           kind: 'castSkillDuringAction',
           parameters: {
@@ -6684,15 +6757,15 @@ const liinoBuff13ActionGraph = {
         },
         next: null,
       },
-      conditional_7: {
+      conditional_9: {
         action: {
           kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_9' } },
-          whenTrue: { $sequence: 'castSkillDuringAction_6' },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_6' } },
+          whenTrue: { $sequence: 'castSkillDuringAction_8' },
         },
         next: null,
       },
-      withActionBlackboardScope_8: {
+      withActionBlackboardScope_10: {
         action: {
           kind: 'withActionBlackboardScope',
           parameters: {
@@ -6703,11 +6776,11 @@ const liinoBuff13ActionGraph = {
             initialValues: {},
             inheritParent: true,
           },
-          body: { $sequence: 'conditional_4' },
+          body: { $sequence: 'conditional_6' },
         },
         next: null,
       },
-      withActionBlackboardScope_9: {
+      withActionBlackboardScope_11: {
         action: {
           kind: 'withActionBlackboardScope',
           parameters: {
@@ -6718,29 +6791,26 @@ const liinoBuff13ActionGraph = {
             initialValues: {},
             inheritParent: true,
           },
-          body: { $sequence: 'applyBuff_2' },
+          body: { $sequence: 'aura_3' },
         },
-        next: 'withActionBlackboardScope_8',
+        next: 'withActionBlackboardScope_10',
       },
     },
     dataNodes: {
       data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atk_up' } },
       data_2: { type: 'number', expression: { kind: 'blackboard', key: 'shelter' } },
-      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'shelter_duration' } },
-      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'healtaken_rate' } },
-      data_5: { type: 'number', expression: { kind: 'blackboard', key: 'shelter' } },
-      data_6: { type: 'number', expression: { kind: 'blackboard', key: 'healtaken_rate' } },
-      data_7: { type: 'number', expression: { kind: 'blackboard', key: 'talent_a', fallback: 0 } },
-      data_8: {
+      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'healtaken_rate' } },
+      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'talent_a', fallback: 0 } },
+      data_5: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_7' },
+          left: { kind: 'valueNode', nodeId: 'data_4' },
           operator: 'greaterOrEqual',
           right: { kind: 'constant', value: 1 },
         },
       },
-      data_9: {
+      data_6: {
         type: 'boolean',
         expression: { kind: 'eventCustomAbilityNameMatch', eventName: 'liino_comboskill_end' },
       },
@@ -6790,11 +6860,11 @@ const liinoBuff13: SkillBuffDefinition = {
   },
   attributeModifiers: [],
   lifecycleSequences: {
-    enable: { $sequence: 'withActionBlackboardScope_9' },
-    finish: { $sequence: 'applyBuff_5' },
+    enable: { $sequence: 'withActionBlackboardScope_11' },
+    finish: { $sequence: 'applyBuff_7' },
   },
   abilityEventResponses: [
-    { event: 'customAbilityEvent', priority: 0, sequence: { $sequence: 'conditional_7' } },
+    { event: 'customAbilityEvent', priority: 0, sequence: { $sequence: 'conditional_9' } },
   ],
   actionGraph: liinoBuff13ActionGraph,
 };
@@ -6859,17 +6929,21 @@ const liinoBuff15ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_normalskill_music_animation_hitl',
+            buffs: [
+              {
+                buffId: 'buff_chr_0035_liino_normalskill_music_animation_hitl',
+                copiedBlackboardAssignments: {
+                  music_frame: 'music_frame',
+                  atk_scale_2: 'atk_scale_2',
+                  heal_rate: 'heal_rate',
+                  heal_value: 'heal_value',
+                },
+              },
+            ],
             target: 'buffSource',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
-            copiedBlackboardAssignments: {
-              music_frame: 'music_frame',
-              atk_scale_2: 'atk_scale_2',
-              heal_rate: 'heal_rate',
-              heal_value: 'heal_value',
-            },
           },
         },
         next: null,
@@ -6890,17 +6964,21 @@ const liinoBuff15ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_normalskill_music_animation_hitr',
+            buffs: [
+              {
+                buffId: 'buff_chr_0035_liino_normalskill_music_animation_hitr',
+                copiedBlackboardAssignments: {
+                  music_frame: 'music_frame',
+                  heal_rate: 'heal_rate',
+                  heal_value: 'heal_value',
+                  atk_scale_2: 'atk_scale_2',
+                },
+              },
+            ],
             target: 'buffSource',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
-            copiedBlackboardAssignments: {
-              music_frame: 'music_frame',
-              heal_rate: 'heal_rate',
-              heal_value: 'heal_value',
-              atk_scale_2: 'atk_scale_2',
-            },
           },
         },
         next: null,
@@ -7029,7 +7107,7 @@ const liinoBuff16ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_potential_enterfight',
+            buffs: [{ buffId: 'buff_chr_0035_liino_potential_enterfight' }],
             target: 'buffSource',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
@@ -7182,7 +7260,7 @@ const liinoBuff23ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_ultskill_end',
+            buffs: [{ buffId: 'buff_chr_0035_liino_ultskill_end' }],
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
@@ -7194,7 +7272,7 @@ const liinoBuff23ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_normalskill_end_active',
+            buffs: [{ buffId: 'buff_chr_0035_liino_normalskill_end_active' }],
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
@@ -7258,15 +7336,19 @@ const liinoBuff24ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_affixes_enhance_natural',
+            buffs: [
+              {
+                buffId: 'buff_common_affixes_enhance_natural',
+                blackboardAssignments: {
+                  duration: { kind: 'valueNode', nodeId: 'data_1' },
+                  rate: { kind: 'valueNode', nodeId: 'data_2' },
+                },
+              },
+            ],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
             finishByAction: true,
-            blackboardAssignments: {
-              duration: { kind: 'valueNode', nodeId: 'data_1' },
-              rate: { kind: 'valueNode', nodeId: 'data_2' },
-            },
           },
         },
         next: null,
@@ -7275,15 +7357,19 @@ const liinoBuff24ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_affixes_enhance_pulse',
+            buffs: [
+              {
+                buffId: 'buff_common_affixes_enhance_pulse',
+                blackboardAssignments: {
+                  duration: { kind: 'valueNode', nodeId: 'data_3' },
+                  rate: { kind: 'valueNode', nodeId: 'data_4' },
+                },
+              },
+            ],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
             finishByAction: true,
-            blackboardAssignments: {
-              duration: { kind: 'valueNode', nodeId: 'data_3' },
-              rate: { kind: 'valueNode', nodeId: 'data_4' },
-            },
           },
         },
         next: 'applyBuff_1',
@@ -7382,13 +7468,16 @@ const liinoBuff27ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_talent_shelter_finishtime',
+            buffs: [
+              {
+                buffId: 'buff_chr_0035_liino_talent_shelter_finishtime',
+                copiedBlackboardAssignments: { shelter: 'shelter', heal_rate: 'heal_rate' },
+              },
+            ],
             target: 'buffOwner',
-            source: 'buffSource',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
             asChildBuff: true,
-            copiedBlackboardAssignments: { shelter: 'shelter', heal_rate: 'heal_rate' },
           },
         },
         next: null,
@@ -7440,13 +7529,16 @@ const liinoBuff28ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_talent_shelter_finishtime',
+            buffs: [
+              {
+                buffId: 'buff_chr_0035_liino_talent_shelter_finishtime',
+                copiedBlackboardAssignments: { shelter: 'shelter', heal_rate: 'heal_rate' },
+              },
+            ],
             target: 'buffOwner',
-            source: 'buffSource',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
             asChildBuff: true,
-            copiedBlackboardAssignments: { shelter: 'shelter', heal_rate: 'heal_rate' },
           },
         },
         next: null,
@@ -7498,13 +7590,17 @@ const liinoBuff29ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_talent_shelter',
+            buffs: [
+              {
+                buffId: 'buff_chr_0035_liino_talent_shelter',
+                copiedBlackboardAssignments: { shelter: 'shelter', heal_rate: 'heal_rate' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
             asChildBuff: true,
-            copiedBlackboardAssignments: { shelter: 'shelter', heal_rate: 'heal_rate' },
           },
         },
         next: null,
@@ -7555,13 +7651,17 @@ const liinoBuff30ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_talent_shelter',
+            buffs: [
+              {
+                buffId: 'buff_chr_0035_liino_talent_shelter',
+                copiedBlackboardAssignments: { shelter: 'shelter', heal_rate: 'heal_rate' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
             asChildBuff: true,
-            copiedBlackboardAssignments: { shelter: 'shelter', heal_rate: 'heal_rate' },
           },
         },
         next: null,
@@ -7612,15 +7712,19 @@ const liinoBuff31ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_spellenhance',
+            buffs: [
+              {
+                buffId: 'buff_chr_0035_liino_spellenhance',
+                copiedBlackboardAssignments: {
+                  spellenhance_rate: 'spellenhance_rate',
+                  duration: 'duration',
+                },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
-            copiedBlackboardAssignments: {
-              spellenhance_rate: 'spellenhance_rate',
-              duration: 'duration',
-            },
           },
         },
         next: null,
@@ -7706,7 +7810,7 @@ const liinoBuff33ActionGraph = {
                         action: {
                           kind: 'applyBuff',
                           parameters: {
-                            buffId: 'buff_physical_no_guard',
+                            buffs: [{ buffId: 'buff_physical_no_guard' }],
                             target: 'enemy',
                             inheritSourceSkillCastInfo: true,
                           },
@@ -7800,7 +7904,7 @@ const liinoBuff33ActionGraph = {
                         action: {
                           kind: 'applyBuff',
                           parameters: {
-                            buffId: 'buff_physical_no_guard',
+                            buffs: [{ buffId: 'buff_physical_no_guard' }],
                             target: 'actionInputTarget',
                             inheritSourceSkillCastInfo: true,
                           },
@@ -8053,108 +8157,151 @@ const liinoBuff35: SkillBuffDefinition = {
 const liinoBuff36ActionGraph = {
   main: {
     nodes: {
-      applyBuff_1: {
+      finishBuffsById_1: {
         action: {
-          kind: 'applyBuff',
+          kind: 'finishBuffsById',
           parameters: {
-            buffId: 'buff_chr_0035_liino_ultskill_buff_atkup',
-            target: 'buffOwner',
-            source: 'buffSource',
-            inheritSourceSkillCastInfo: true,
-            finishByAction: true,
-            asChildBuff: true,
-            copiedBlackboardAssignments: {
-              spellenhance_rate: 'spellenhance_rate',
-              finish_duration: 'finish_duration',
-            },
+            target: 'currentTarget',
+            buffIds: ['buff_chr_0035_liino_ultskill_buff_atkup'],
+            reason: 'other',
           },
         },
         next: null,
       },
-      applyBuff_2: {
+      finishBuffsById_2: {
         action: {
-          kind: 'applyBuff',
+          kind: 'finishBuffsById',
           parameters: {
-            buffId: 'buff_chr_0035_liino_atkup_owner',
-            target: 'buffOwner',
-            source: 'buffSource',
-            inheritSourceSkillCastInfo: true,
-            finishByAction: true,
-            asChildBuff: true,
-            copiedBlackboardAssignments: { atk_up: 'atk_up', duration: 'duration_atkup' },
+            target: 'currentTarget',
+            buffIds: ['buff_chr_0035_liino_normalskill_buff_atkup'],
+            reason: 'other',
           },
         },
-        next: 'applyBuff_1',
+        next: 'finishBuffsById_1',
       },
       applyBuff_3: {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_ultskill_buff_atkup',
-            target: 'partyExceptCaster',
-            finishByAction: true,
+            buffs: [
+              {
+                buffId: 'buff_chr_0035_liino_ultskill_buff_atkup',
+                copiedBlackboardAssignments: {
+                  spellenhance_rate: 'spellenhance_rate',
+                  finish_duration: 'finish_duration',
+                },
+              },
+            ],
+            target: 'buffOwner',
+            source: 'buffSource',
             inheritSourceSkillCastInfo: true,
-            blackboardAssignments: {
-              spellenhance_rate: { kind: 'valueNode', nodeId: 'data_1' },
-              finish_duration: { kind: 'valueNode', nodeId: 'data_2' },
-            },
+            finishByAction: true,
+            asChildBuff: true,
           },
         },
-        next: 'applyBuff_2',
+        next: null,
       },
       applyBuff_4: {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_normalskill_buff_atkup',
-            target: 'partyExceptCaster',
-            finishByAction: true,
+            buffs: [
+              {
+                buffId: 'buff_chr_0035_liino_atkup_owner',
+                copiedBlackboardAssignments: { atk_up: 'atk_up', duration: 'duration_atkup' },
+              },
+            ],
+            target: 'buffOwner',
+            source: 'buffSource',
             inheritSourceSkillCastInfo: true,
-            blackboardAssignments: {
-              atk_up: { kind: 'valueNode', nodeId: 'data_3' },
-              finish_duration: { kind: 'valueNode', nodeId: 'data_4' },
-            },
+            finishByAction: true,
+            asChildBuff: true,
           },
         },
         next: 'applyBuff_3',
       },
-      applyBuff_5: {
+      aura_5: {
+        action: {
+          kind: 'aura',
+          parameters: {
+            target: 'partyExceptCaster',
+            inheritSourceSkillCastInfo: true,
+            buffs: [
+              {
+                buffId: 'buff_chr_0035_liino_normalskill_buff_atkup',
+                blackboardAssignments: {
+                  atk_up: { kind: 'valueNode', nodeId: 'data_1' },
+                  finish_duration: { kind: 'valueNode', nodeId: 'data_2' },
+                },
+                stringBlackboardAssignments: {},
+              },
+              {
+                buffId: 'buff_chr_0035_liino_ultskill_buff_atkup',
+                blackboardAssignments: {
+                  spellenhance_rate: { kind: 'valueNode', nodeId: 'data_3' },
+                  finish_duration: { kind: 'valueNode', nodeId: 'data_4' },
+                },
+                stringBlackboardAssignments: {},
+              },
+            ],
+          },
+          onEnter: { $sequence: null },
+          onExit: { $sequence: 'finishBuffsById_2' },
+        },
+        next: 'applyBuff_4',
+      },
+      applyBuff_6: {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0035_liino_talent_shelter_ultskill',
-            target: 'party',
-            finishByAction: true,
-            onActionEndBuffs: [
+            buffs: [
               {
                 buffId: 'buff_chr_0035_liino_talent_shelter_finishtime_ultskill',
-                target: 'party',
-                inheritSourceSkillCastInfo: true,
-                blackboardAssignments: {
-                  shelter: { kind: 'valueNode', nodeId: 'data_5' },
-                  duration: { kind: 'valueNode', nodeId: 'data_6' },
-                  heal_rate: { kind: 'valueNode', nodeId: 'data_7' },
+                copiedBlackboardAssignments: {
+                  shelter: 'shelter',
+                  duration: 'shelter_duration',
+                  heal_rate: 'healtaken_rate',
                 },
               },
             ],
+            target: 'currentTarget',
+            source: 'buffSource',
             inheritSourceSkillCastInfo: true,
-            blackboardAssignments: {
-              shelter: { kind: 'valueNode', nodeId: 'data_8' },
-              heal_rate: { kind: 'valueNode', nodeId: 'data_9' },
-            },
           },
         },
         next: null,
       },
-      conditional_6: {
+      aura_7: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_11' } },
-          whenTrue: { $sequence: 'applyBuff_5' },
+          kind: 'aura',
+          parameters: {
+            target: 'party',
+            inheritSourceSkillCastInfo: true,
+            buffs: [
+              {
+                buffId: 'buff_chr_0035_liino_talent_shelter_ultskill',
+                blackboardAssignments: {
+                  shelter: { kind: 'valueNode', nodeId: 'data_5' },
+                  heal_rate: { kind: 'valueNode', nodeId: 'data_6' },
+                },
+                stringBlackboardAssignments: {},
+              },
+            ],
+          },
+          onEnter: { $sequence: null },
+          onExit: { $sequence: 'applyBuff_6' },
         },
         next: null,
       },
-      withActionBlackboardScope_7: {
+      conditional_8: {
+        action: {
+          kind: 'conditional',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_8' } },
+          whenTrue: { $sequence: 'aura_7' },
+        },
+        next: null,
+      },
+      withActionBlackboardScope_9: {
         action: {
           kind: 'withActionBlackboardScope',
           parameters: {
@@ -8165,11 +8312,11 @@ const liinoBuff36ActionGraph = {
             initialValues: {},
             inheritParent: true,
           },
-          body: { $sequence: 'conditional_6' },
+          body: { $sequence: 'conditional_8' },
         },
         next: null,
       },
-      withActionBlackboardScope_8: {
+      withActionBlackboardScope_10: {
         action: {
           kind: 'withActionBlackboardScope',
           parameters: {
@@ -8180,27 +8327,24 @@ const liinoBuff36ActionGraph = {
             initialValues: {},
             inheritParent: true,
           },
-          body: { $sequence: 'applyBuff_4' },
+          body: { $sequence: 'aura_5' },
         },
-        next: 'withActionBlackboardScope_7',
+        next: 'withActionBlackboardScope_9',
       },
     },
     dataNodes: {
-      data_1: { type: 'number', expression: { kind: 'blackboard', key: 'spellenhance_rate' } },
+      data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atk_up' } },
       data_2: { type: 'number', expression: { kind: 'blackboard', key: 'finish_duration' } },
-      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atk_up' } },
+      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'spellenhance_rate' } },
       data_4: { type: 'number', expression: { kind: 'blackboard', key: 'finish_duration' } },
       data_5: { type: 'number', expression: { kind: 'blackboard', key: 'shelter' } },
-      data_6: { type: 'number', expression: { kind: 'blackboard', key: 'shelter_duration' } },
-      data_7: { type: 'number', expression: { kind: 'blackboard', key: 'healtaken_rate' } },
-      data_8: { type: 'number', expression: { kind: 'blackboard', key: 'shelter' } },
-      data_9: { type: 'number', expression: { kind: 'blackboard', key: 'healtaken_rate' } },
-      data_10: { type: 'number', expression: { kind: 'blackboard', key: 'talent_a', fallback: 0 } },
-      data_11: {
+      data_6: { type: 'number', expression: { kind: 'blackboard', key: 'healtaken_rate' } },
+      data_7: { type: 'number', expression: { kind: 'blackboard', key: 'talent_a', fallback: 0 } },
+      data_8: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_10' },
+          left: { kind: 'valueNode', nodeId: 'data_7' },
           operator: 'greaterOrEqual',
           right: { kind: 'constant', value: 1 },
         },
@@ -8250,7 +8394,7 @@ const liinoBuff36: SkillBuffDefinition = {
     talent_a: 0,
   },
   attributeModifiers: [],
-  lifecycleSequences: { enable: { $sequence: 'withActionBlackboardScope_8' } },
+  lifecycleSequences: { enable: { $sequence: 'withActionBlackboardScope_10' } },
   actionGraph: liinoBuff36ActionGraph,
 };
 
@@ -9675,41 +9819,16 @@ export const liino: OperatorDefinition = {
                         },
                         scheduledSequences: [
                           { startFrame: 0, endFrame: 4, sequence: { $sequence: null } },
-                          { startFrame: 0, endFrame: 4, sequence: { $sequence: 'conditional_5' } },
+                          {
+                            startFrame: 0,
+                            endFrame: 4,
+                            sequence: { $sequence: 'forceSpellStatus_3' },
+                          },
                         ],
                         actionGraph: {
                           main: {
                             nodes: {
-                              applyBuff_1: {
-                                action: {
-                                  kind: 'applyBuff',
-                                  parameters: {
-                                    buffId: 'buff_common_pulse_pulse_conduct_triggered',
-                                    target: 'enemy',
-                                    inheritSourceSkillCastInfo: true,
-                                    blackboardAssignments: {
-                                      consumed_type: { kind: 'constant', value: 1 },
-                                      consumed_layer: { kind: 'constant', value: 0 },
-                                      count: { kind: 'valueNode', nodeId: 'data_1' },
-                                    },
-                                  },
-                                },
-                                next: null,
-                              },
-                              finishBuffsByTag_2: {
-                                action: {
-                                  kind: 'finishBuffsByTag',
-                                  parameters: {
-                                    target: 'enemy',
-                                    tagQueryType: 'hasAny',
-                                    buffTags: ['Skill/Character/Common/SpellInflict/PulseInflict'],
-                                    reason: 'early',
-                                    count: { kind: 'constant', value: 0 },
-                                  },
-                                },
-                                next: 'applyBuff_1',
-                              },
-                              startTimeDilation_3: {
+                              startTimeDilation_1: {
                                 action: {
                                   kind: 'startTimeDilation',
                                   parameters: {
@@ -9724,55 +9843,48 @@ export const liino: OperatorDefinition = {
                                 },
                                 next: null,
                               },
-                              dealDamage_4: {
+                              dealDamage_2: {
                                 action: {
                                   kind: 'dealDamage',
                                   parameters: {
                                     damageType: 'electric',
-                                    attackScale: { kind: 'valueNode', nodeId: 'data_2' },
+                                    attackScale: { kind: 'valueNode', nodeId: 'data_1' },
                                     takeAttackSnapshot: true,
                                     tags: ['ultimateSkill'],
                                     features: ['canBreakWeakness'],
-                                    stagger: { kind: 'valueNode', nodeId: 'data_3' },
+                                    stagger: { kind: 'valueNode', nodeId: 'data_2' },
                                   },
-                                  key: 'abilityentity_chr_0035_liino_ult_skill_projhit:chr_0035_liino_ultimate_skill_projhit_abilityentity:/childSkill/actionGraph/main/nodes/launchProjectile_29/action/callbacks/0/skill/actionGraph/main/nodes/dealDamage_4/action',
+                                  key: 'abilityentity_chr_0035_liino_ult_skill_projhit:chr_0035_liino_ultimate_skill_projhit_abilityentity:/childSkill/actionGraph/main/nodes/launchProjectile_29/action/callbacks/0/skill/actionGraph/main/nodes/dealDamage_2/action',
                                 },
-                                next: 'startTimeDilation_3',
+                                next: 'startTimeDilation_1',
                               },
-                              conditional_5: {
+                              forceSpellStatus_3: {
                                 action: {
-                                  kind: 'conditional',
+                                  kind: 'forceSpellStatus',
                                   parameters: {
-                                    condition: { kind: 'conditionNode', nodeId: 'data_4' },
+                                    target: 'enemy',
+                                    element: 'electric',
+                                    consumedElement: 'electric',
+                                    consumedLayers: { kind: 'constant', value: 0 },
+                                    count: { kind: 'valueNode', nodeId: 'data_3' },
+                                    isExtra: false,
                                   },
-                                  whenTrue: { $sequence: 'finishBuffsByTag_2' },
                                 },
-                                next: 'dealDamage_4',
+                                next: 'dealDamage_2',
                               },
                             },
                             dataNodes: {
                               data_1: {
                                 type: 'number',
-                                expression: { kind: 'blackboard', key: 'count' },
+                                expression: { kind: 'blackboard', key: 'atk_scale_2' },
                               },
                               data_2: {
                                 type: 'number',
-                                expression: { kind: 'blackboard', key: 'atk_scale_2' },
+                                expression: { kind: 'blackboard', key: 'poise' },
                               },
                               data_3: {
                                 type: 'number',
-                                expression: { kind: 'blackboard', key: 'poise' },
-                              },
-                              data_4: {
-                                type: 'boolean',
-                                expression: {
-                                  kind: 'buffStackCompare',
-                                  target: 'enemy',
-                                  tagQueryType: 'hasAny',
-                                  buffTags: ['Skill/Character/Common/SpellInflict/PulseInflict'],
-                                  operator: 'greaterOrEqual',
-                                  value: { kind: 'constant', value: 0 },
-                                },
+                                expression: { kind: 'blackboard', key: 'count' },
                               },
                             },
                           },

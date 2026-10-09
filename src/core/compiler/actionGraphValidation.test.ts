@@ -20,7 +20,7 @@ describe('公共图结构校验', () => {
 
   it('拒绝动作内嵌 Buff 定义', () => {
     const parameters = {
-      buffId: 'test',
+      buffs: [{ buffId: 'test' }],
       target: 'caster' as const,
       definition: { stackingType: 'refresh' },
     };

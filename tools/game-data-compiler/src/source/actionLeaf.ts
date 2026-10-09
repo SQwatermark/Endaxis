@@ -561,7 +561,7 @@ export type KnownNativeActionLeafSource =
   | {
       readonly family: 'aura';
       readonly action:
-        | GlobalPartyAuraActionSource
+        | GlobalPartyAuraActionSource<KnownNativeActionLeafSource>
         | AuraReferenceActionSource
         | DirectRangedAuraActionSource<KnownNativeActionLeafSource>;
     }
@@ -1523,7 +1523,9 @@ export function tryParseKnownNativeActionLeafSource(
               ? parseDirectRangedAuraActionSource(value, path, (sequence, sequencePath) =>
                   parseKnownNativeActionSequenceSource(sequence, sequencePath, inheritedBlackboard),
                 )
-              : parseGlobalPartyAuraActionSource(value, path),
+              : parseGlobalPartyAuraActionSource(value, path, (sequence, sequencePath) =>
+                  parseKnownNativeActionSequenceSource(sequence, sequencePath, inheritedBlackboard),
+                ),
       };
     case 'SkillAffixAction':
       requireExactFields(

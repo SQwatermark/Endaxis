@@ -916,7 +916,7 @@ describe('主动技能正式时间轴投影', () => {
         {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_fixture_end',
+            buffs: [{ buffId: 'buff_chr_fixture_end' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
           },
@@ -2701,7 +2701,7 @@ describe('主动技能正式时间轴投影', () => {
       {
         kind: 'applyBuff',
         parameters: {
-          buffId: 'buff_fixture_entity_child',
+          buffs: [{ buffId: 'buff_fixture_entity_child' }],
           target: 'currentAbilityEntity',
           inheritSourceSkillCastInfo: true,
           iconDurationSource: { kind: 'actionOwnerAbilityEntity' },

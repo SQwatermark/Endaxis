@@ -53,39 +53,34 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_sword_0023_spelldmgup',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_sword_0023_intensityup',
+                      copiedBlackboardAssignments: {
+                        phy_spell_up: 'phy_spell_up',
+                        duration: 'duration',
+                      },
+                    },
+                    {
+                      buffId: 'buff_wpn_sword_0023_spelldmgup',
+                      copiedBlackboardAssignments: {
+                        spell_dmg_up: 'spell_dmg_up',
+                        duration: 'duration',
+                      },
+                    },
+                  ],
                   target: 'eventTarget',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: {
-                    spell_dmg_up: 'spell_dmg_up',
-                    duration: 'duration',
-                  },
                 },
               },
               next: null,
             },
-            applyBuff_2: {
-              action: {
-                kind: 'applyBuff',
-                parameters: {
-                  buffId: 'buff_wpn_sword_0023_intensityup',
-                  target: 'eventTarget',
-                  inheritSourceSkillCastInfo: true,
-                  asChildBuff: true,
-                  copiedBlackboardAssignments: {
-                    phy_spell_up: 'phy_spell_up',
-                    duration: 'duration',
-                  },
-                },
-              },
-              next: 'applyBuff_1',
-            },
-            conditional_3: {
+            conditional_2: {
               action: {
                 kind: 'conditional',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-                whenTrue: { $sequence: 'applyBuff_2' },
+                whenTrue: { $sequence: 'applyBuff_1' },
               },
               next: null,
             },
@@ -109,7 +104,7 @@ const definition = {
           key: 'skill3:event:0:sequence:0',
           abilityEvent: 'outputHeal',
           priority: 0,
-          sequence: { $sequence: 'conditional_3' },
+          sequence: { $sequence: 'conditional_2' },
         },
       ],
       blackboard: {

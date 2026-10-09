@@ -8,9 +8,9 @@ import type { OperatorDefinition } from '../../../packages/game-data-contract/sr
 export const chenQianyuChr_0005_chen_attack1ActionGraph = {
   main: {
     nodes: {
-      changeResourceByActionValue_1: {
+      changeResource_1: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -26,7 +26,7 @@ export const chenQianyuChr_0005_chen_attack1ActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResourceByActionValue_1' },
+          whenTrue: { $sequence: 'changeResource_1' },
         },
         next: null,
       },
@@ -41,23 +41,30 @@ export const chenQianyuChr_0005_chen_attack1ActionGraph = {
         },
         next: 'conditional_2',
       },
+      changeResource_4: {
+        action: {
+          kind: 'changeResource',
+          parameters: {
+            resource: 'sp',
+            amount: { kind: 'valueNode', nodeId: 'data_4' },
+            coefficient: { kind: 'constant', value: 0.5 },
+            recipient: 'team',
+            onlyMainOperator: true,
+            spGainKind: 'gain',
+            spGainSource: 'normalAttack',
+          },
+        },
+        next: null,
+      },
       conditional_5: {
         action: {
           kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_4' } },
-          whenTrue: { $sequence: 'changeResourceByActionValue_1' },
-        },
-        next: null,
-      },
-      conditional_6: {
-        action: {
-          kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' }, alwaysNext: true },
-          whenTrue: { $sequence: 'conditional_5' },
+          whenTrue: { $sequence: 'changeResource_4' },
         },
         next: null,
       },
-      dealDamage_7: {
+      dealDamage_6: {
         action: {
           kind: 'dealDamage',
           parameters: {
@@ -66,9 +73,9 @@ export const chenQianyuChr_0005_chen_attack1ActionGraph = {
             tags: ['normalAttack'],
           },
         },
-        next: 'conditional_6',
+        next: 'conditional_5',
       },
-      reachSkillOperableBoundary_8: {
+      reachSkillOperableBoundary_7: {
         action: {
           kind: 'reachSkillOperableBoundary',
           parameters: { skillIds: ['chr_0005_chen_attack2'] },
@@ -80,7 +87,7 @@ export const chenQianyuChr_0005_chen_attack1ActionGraph = {
       data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
       data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
       data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_4: { type: 'boolean', expression: { kind: 'casterControlled' } },
+      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
       data_5: { type: 'boolean', expression: { kind: 'casterControlled' } },
       data_6: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
     },
@@ -89,6 +96,7 @@ export const chenQianyuChr_0005_chen_attack1ActionGraph = {
 } as const satisfies ActionGraphResourceDefinition;
 
 export const chenQianyuChr_0005_chen_attack1: SkillDefinition = {
+  actionGraph: chenQianyuChr_0005_chen_attack1ActionGraph,
   key: 'chr_0005_chen_attack1',
   element: 'physical',
   blackboard: {
@@ -109,22 +117,21 @@ export const chenQianyuChr_0005_chen_attack1: SkillDefinition = {
   costFrame: 9,
   scheduledSequences: [
     { startFrame: 8, endFrame: 9, sequence: { $sequence: 'dealDamage_3' } },
-    { startFrame: 11, endFrame: 12, sequence: { $sequence: 'dealDamage_7' } },
-    { startFrame: 14, endFrame: 30, sequence: { $sequence: 'reachSkillOperableBoundary_8' } },
+    { startFrame: 11, endFrame: 12, sequence: { $sequence: 'dealDamage_6' } },
+    { startFrame: 14, endFrame: 30, sequence: { $sequence: 'reachSkillOperableBoundary_7' } },
   ],
   timelineContinuationSkillId: 'chr_0005_chen_attack2',
   skillType: 'basicAttack',
   levelSource: 'basicAttack',
   nativeSkillType: 'attack',
-  actionGraph: chenQianyuChr_0005_chen_attack1ActionGraph,
 };
 
 export const chenQianyuChr_0005_chen_attack2ActionGraph = {
   main: {
     nodes: {
-      changeResourceByActionValue_1: {
+      changeResource_1: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -140,7 +147,7 @@ export const chenQianyuChr_0005_chen_attack2ActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResourceByActionValue_1' },
+          whenTrue: { $sequence: 'changeResource_1' },
         },
         next: null,
       },
@@ -204,9 +211,9 @@ export const chenQianyuChr_0005_chen_attack2: SkillDefinition = {
 export const chenQianyuChr_0005_chen_attack3ActionGraph = {
   main: {
     nodes: {
-      changeResourceByActionValue_1: {
+      changeResource_1: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -222,7 +229,7 @@ export const chenQianyuChr_0005_chen_attack3ActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResourceByActionValue_1' },
+          whenTrue: { $sequence: 'changeResource_1' },
         },
         next: null,
       },
@@ -237,23 +244,30 @@ export const chenQianyuChr_0005_chen_attack3ActionGraph = {
         },
         next: 'conditional_2',
       },
+      changeResource_4: {
+        action: {
+          kind: 'changeResource',
+          parameters: {
+            resource: 'sp',
+            amount: { kind: 'valueNode', nodeId: 'data_4' },
+            coefficient: { kind: 'constant', value: 0.5 },
+            recipient: 'team',
+            onlyMainOperator: true,
+            spGainKind: 'gain',
+            spGainSource: 'normalAttack',
+          },
+        },
+        next: null,
+      },
       conditional_5: {
         action: {
           kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_4' } },
-          whenTrue: { $sequence: 'changeResourceByActionValue_1' },
-        },
-        next: null,
-      },
-      conditional_6: {
-        action: {
-          kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' }, alwaysNext: true },
-          whenTrue: { $sequence: 'conditional_5' },
+          whenTrue: { $sequence: 'changeResource_4' },
         },
         next: null,
       },
-      dealDamage_7: {
+      dealDamage_6: {
         action: {
           kind: 'dealDamage',
           parameters: {
@@ -262,9 +276,9 @@ export const chenQianyuChr_0005_chen_attack3ActionGraph = {
             tags: ['normalAttack'],
           },
         },
-        next: 'conditional_6',
+        next: 'conditional_5',
       },
-      reachSkillOperableBoundary_8: {
+      reachSkillOperableBoundary_7: {
         action: {
           kind: 'reachSkillOperableBoundary',
           parameters: { skillIds: ['chr_0005_chen_attack4'] },
@@ -276,7 +290,7 @@ export const chenQianyuChr_0005_chen_attack3ActionGraph = {
       data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
       data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
       data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_4: { type: 'boolean', expression: { kind: 'casterControlled' } },
+      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
       data_5: { type: 'boolean', expression: { kind: 'casterControlled' } },
       data_6: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
     },
@@ -285,6 +299,7 @@ export const chenQianyuChr_0005_chen_attack3ActionGraph = {
 } as const satisfies ActionGraphResourceDefinition;
 
 export const chenQianyuChr_0005_chen_attack3: SkillDefinition = {
+  actionGraph: chenQianyuChr_0005_chen_attack3ActionGraph,
   key: 'chr_0005_chen_attack3',
   element: 'physical',
   blackboard: {
@@ -305,22 +320,21 @@ export const chenQianyuChr_0005_chen_attack3: SkillDefinition = {
   costFrame: 12,
   scheduledSequences: [
     { startFrame: 9, endFrame: 10, sequence: { $sequence: 'dealDamage_3' } },
-    { startFrame: 12, endFrame: 13, sequence: { $sequence: 'dealDamage_7' } },
-    { startFrame: 18, endFrame: 30, sequence: { $sequence: 'reachSkillOperableBoundary_8' } },
+    { startFrame: 12, endFrame: 13, sequence: { $sequence: 'dealDamage_6' } },
+    { startFrame: 18, endFrame: 30, sequence: { $sequence: 'reachSkillOperableBoundary_7' } },
   ],
   timelineContinuationSkillId: 'chr_0005_chen_attack4',
   skillType: 'basicAttack',
   levelSource: 'basicAttack',
   nativeSkillType: 'attack',
-  actionGraph: chenQianyuChr_0005_chen_attack3ActionGraph,
 };
 
 export const chenQianyuChr_0005_chen_attack4ActionGraph = {
   main: {
     nodes: {
-      changeResourceByActionValue_1: {
+      changeResource_1: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -336,7 +350,7 @@ export const chenQianyuChr_0005_chen_attack4ActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResourceByActionValue_1' },
+          whenTrue: { $sequence: 'changeResource_1' },
         },
         next: null,
       },
@@ -351,23 +365,30 @@ export const chenQianyuChr_0005_chen_attack4ActionGraph = {
         },
         next: 'conditional_2',
       },
+      changeResource_4: {
+        action: {
+          kind: 'changeResource',
+          parameters: {
+            resource: 'sp',
+            amount: { kind: 'valueNode', nodeId: 'data_4' },
+            coefficient: { kind: 'constant', value: 0.5 },
+            recipient: 'team',
+            onlyMainOperator: true,
+            spGainKind: 'gain',
+            spGainSource: 'normalAttack',
+          },
+        },
+        next: null,
+      },
       conditional_5: {
         action: {
           kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_4' } },
-          whenTrue: { $sequence: 'changeResourceByActionValue_1' },
-        },
-        next: null,
-      },
-      conditional_6: {
-        action: {
-          kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' }, alwaysNext: true },
-          whenTrue: { $sequence: 'conditional_5' },
+          whenTrue: { $sequence: 'changeResource_4' },
         },
         next: null,
       },
-      dealDamage_7: {
+      dealDamage_6: {
         action: {
           kind: 'dealDamage',
           parameters: {
@@ -376,9 +397,9 @@ export const chenQianyuChr_0005_chen_attack4ActionGraph = {
             tags: ['normalAttack'],
           },
         },
-        next: 'conditional_6',
+        next: 'conditional_5',
       },
-      reachSkillOperableBoundary_8: {
+      reachSkillOperableBoundary_7: {
         action: {
           kind: 'reachSkillOperableBoundary',
           parameters: { skillIds: ['chr_0005_chen_attack5'] },
@@ -390,7 +411,7 @@ export const chenQianyuChr_0005_chen_attack4ActionGraph = {
       data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
       data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
       data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_4: { type: 'boolean', expression: { kind: 'casterControlled' } },
+      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
       data_5: { type: 'boolean', expression: { kind: 'casterControlled' } },
       data_6: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
     },
@@ -399,6 +420,7 @@ export const chenQianyuChr_0005_chen_attack4ActionGraph = {
 } as const satisfies ActionGraphResourceDefinition;
 
 export const chenQianyuChr_0005_chen_attack4: SkillDefinition = {
+  actionGraph: chenQianyuChr_0005_chen_attack4ActionGraph,
   key: 'chr_0005_chen_attack4',
   element: 'physical',
   blackboard: {
@@ -419,14 +441,13 @@ export const chenQianyuChr_0005_chen_attack4: SkillDefinition = {
   costFrame: 8,
   scheduledSequences: [
     { startFrame: 4, endFrame: 5, sequence: { $sequence: 'dealDamage_3' } },
-    { startFrame: 10, endFrame: 11, sequence: { $sequence: 'dealDamage_7' } },
-    { startFrame: 21, endFrame: 31, sequence: { $sequence: 'reachSkillOperableBoundary_8' } },
+    { startFrame: 10, endFrame: 11, sequence: { $sequence: 'dealDamage_6' } },
+    { startFrame: 21, endFrame: 31, sequence: { $sequence: 'reachSkillOperableBoundary_7' } },
   ],
   timelineContinuationSkillId: 'chr_0005_chen_attack5',
   skillType: 'basicAttack',
   levelSource: 'basicAttack',
   nativeSkillType: 'attack',
-  actionGraph: chenQianyuChr_0005_chen_attack4ActionGraph,
 };
 
 export const chenQianyuChr_0005_chen_attack5ActionGraph = {
@@ -439,9 +460,9 @@ export const chenQianyuChr_0005_chen_attack5ActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_2: {
+      changeResource_2: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -457,7 +478,7 @@ export const chenQianyuChr_0005_chen_attack5ActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
-          whenTrue: { $sequence: 'changeResourceByActionValue_2' },
+          whenTrue: { $sequence: 'changeResource_2' },
         },
         next: null,
       },
@@ -662,7 +683,7 @@ export const chenQianyuChr_0005_chen_power_attackActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_full_immune_medium',
+            buffs: [{ buffId: 'buff_common_full_immune_medium' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -674,7 +695,7 @@ export const chenQianyuChr_0005_chen_power_attackActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_power_attack_disable_cast_skill',
+            buffs: [{ buffId: 'buff_common_power_attack_disable_cast_skill' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -729,44 +750,36 @@ export const chenQianyuChr_0005_chen_power_attack: SkillDefinition = {
 export const chenQianyuChr_0005_chen_plunging_attack_endActionGraph = {
   main: {
     nodes: {
-      changeResourceByActionValue_1: {
+      changeResource_1: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
             coefficient: { kind: 'constant', value: 1 },
             recipient: 'team',
+            onlyMainOperator: true,
             spGainKind: 'gain',
             spGainSource: 'normalAttack',
           },
         },
         next: null,
       },
-      conditional_2: {
-        action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-          whenTrue: { $sequence: 'changeResourceByActionValue_1' },
-        },
-        next: null,
-      },
-      dealDamage_3: {
+      dealDamage_2: {
         action: {
           kind: 'dealDamage',
           parameters: {
             damageType: 'physical',
-            attackScale: { kind: 'valueNode', nodeId: 'data_3' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_2' },
             tags: ['normalAttack', 'plungingAttack'],
           },
         },
-        next: 'conditional_2',
+        next: 'changeResource_1',
       },
     },
     dataNodes: {
       data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
-      data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
-      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
+      data_2: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
     },
   },
   macros: {},
@@ -785,7 +798,7 @@ export const chenQianyuChr_0005_chen_plunging_attack_end: SkillDefinition = {
   exclusiveFrame: 20,
   offsetRecordFrame: 0,
   costFrame: 0,
-  scheduledSequences: [{ startFrame: 1, endFrame: 6, sequence: { $sequence: 'dealDamage_3' } }],
+  scheduledSequences: [{ startFrame: 1, endFrame: 6, sequence: { $sequence: 'dealDamage_2' } }],
   skillType: 'plungingAttack',
   levelSource: 'basicAttack',
   nativeSkillType: 'attack',
@@ -925,9 +938,9 @@ export const chenQianyuChr_0005_chen_combo_skillActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_2: {
+      changeResource_2: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'ultimateEnergy',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -942,7 +955,7 @@ export const chenQianyuChr_0005_chen_combo_skillActionGraph = {
           kind: 'modifyActionValue',
           parameters: { key: 'count', operation: 'add', value: { kind: 'constant', value: 1 } },
         },
-        next: 'changeResourceByActionValue_2',
+        next: 'changeResource_2',
       },
       startTimeDilation_4: {
         action: {
@@ -959,7 +972,7 @@ export const chenQianyuChr_0005_chen_combo_skillActionGraph = {
         },
         next: 'modifyActionValue_3',
       },
-      conditional_8: {
+      conditional_5: {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' }, alwaysNext: true },
@@ -967,7 +980,7 @@ export const chenQianyuChr_0005_chen_combo_skillActionGraph = {
         },
         next: null,
       },
-      dealDamage_9: {
+      dealDamage_6: {
         action: {
           kind: 'dealDamage',
           parameters: {
@@ -977,9 +990,9 @@ export const chenQianyuChr_0005_chen_combo_skillActionGraph = {
             features: ['canBreakWeakness'],
           },
         },
-        next: 'conditional_8',
+        next: 'conditional_5',
       },
-      applyPhysicalInfliction_10: {
+      applyPhysicalInfliction_7: {
         action: {
           kind: 'applyPhysicalInfliction',
           parameters: {
@@ -994,9 +1007,18 @@ export const chenQianyuChr_0005_chen_combo_skillActionGraph = {
             returnWhen: 'always',
           },
         },
-        next: 'dealDamage_9',
+        next: 'dealDamage_6',
       },
-      startTimeDilation_11: {
+      aura_8: {
+        action: {
+          kind: 'aura',
+          parameters: { target: 'enemy', buffs: [] },
+          onEnter: { $sequence: 'applyPhysicalInfliction_7' },
+          onExit: { $sequence: null },
+        },
+        next: null,
+      },
+      startTimeDilation_9: {
         action: {
           kind: 'startTimeDilation',
           parameters: {
@@ -1049,8 +1071,8 @@ export const chenQianyuChr_0005_chen_combo_skill: SkillDefinition = {
   costFrame: 0,
   scheduledSequences: [
     { startFrame: 0, endFrame: 1, sequence: { $sequence: 'findCharacterTeamTargets_1' } },
-    { startFrame: 17, endFrame: 27, sequence: { $sequence: 'applyPhysicalInfliction_10' } },
-    { startFrame: 0, endFrame: 16, sequence: { $sequence: 'startTimeDilation_11' } },
+    { startFrame: 17, endFrame: 27, sequence: { $sequence: 'aura_8' } },
+    { startFrame: 0, endFrame: 16, sequence: { $sequence: 'startTimeDilation_9' } },
   ],
   cooldownFrames: [480, 480, 480, 480, 480, 480, 480, 480, 480, 480, 480, 450],
   skillType: 'comboSkill',
@@ -1166,7 +1188,7 @@ export const chenQianyuChr_0005_chen_ultimate_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_damage_immune_ult_skill',
+            buffs: [{ buffId: 'buff_common_damage_immune_ult_skill' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -1392,12 +1414,16 @@ const chenQianyuBuff2ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0005_chen_talent_0_1',
+            buffs: [
+              {
+                buffId: 'buff_chr_0005_chen_talent_0_1',
+                copiedBlackboardAssignments: { atk: 'atk', duration: 'duration' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
-            copiedBlackboardAssignments: { atk: 'atk', duration: 'duration' },
           },
         },
         next: null,

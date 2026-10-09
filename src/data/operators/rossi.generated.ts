@@ -23,9 +23,9 @@ export const rossiChr_0028_wulfa_attack1ActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_2: {
+      changeResource_2: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -41,7 +41,7 @@ export const rossiChr_0028_wulfa_attack1ActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResourceByActionValue_2' },
+          whenTrue: { $sequence: 'changeResource_2' },
         },
         next: null,
       },
@@ -311,9 +311,9 @@ export const rossiChr_0028_wulfa_attack3ActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_6: {
+      changeResource_6: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_5' },
@@ -329,7 +329,7 @@ export const rossiChr_0028_wulfa_attack3ActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_6' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResourceByActionValue_6' },
+          whenTrue: { $sequence: 'changeResource_6' },
         },
         next: null,
       },
@@ -420,9 +420,9 @@ export const rossiChr_0028_wulfa_attack4ActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_3: {
+      changeResource_3: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_2' },
@@ -438,7 +438,7 @@ export const rossiChr_0028_wulfa_attack4ActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResourceByActionValue_3' },
+          whenTrue: { $sequence: 'changeResource_3' },
         },
         next: null,
       },
@@ -562,9 +562,9 @@ export const rossiChr_0028_wulfa_attack4: SkillDefinition = {
 export const rossiChr_0028_wulfa_attack5ActionGraph = {
   main: {
     nodes: {
-      changeResourceByActionValue_1: {
+      changeResource_1: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -682,7 +682,7 @@ export const rossiChr_0028_wulfa_attack5ActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_7' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResourceByActionValue_1' },
+          whenTrue: { $sequence: 'changeResource_1' },
         },
         next: null,
       },
@@ -752,9 +752,9 @@ export const rossiChr_0028_wulfa_attack5: SkillDefinition = {
 export const rossiChr_0028_wulfa_power_attackActionGraph = {
   main: {
     nodes: {
-      changeResourceByActionValue_1: {
+      changeResource_1: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'constant', value: 0 },
@@ -779,7 +779,7 @@ export const rossiChr_0028_wulfa_power_attackActionGraph = {
             targets: ['caster'],
           },
         },
-        next: 'changeResourceByActionValue_1',
+        next: 'changeResource_1',
       },
       conditional_3: {
         action: {
@@ -893,7 +893,7 @@ export const rossiChr_0028_wulfa_power_attackActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0028_wulfa_powerattack_resumecombo',
+            buffs: [{ buffId: 'buff_chr_0028_wulfa_powerattack_resumecombo' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -913,7 +913,7 @@ export const rossiChr_0028_wulfa_power_attackActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_full_immune_medium',
+            buffs: [{ buffId: 'buff_common_full_immune_medium' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -925,7 +925,7 @@ export const rossiChr_0028_wulfa_power_attackActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_power_attack_disable_cast_skill',
+            buffs: [{ buffId: 'buff_common_power_attack_disable_cast_skill' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -980,9 +980,9 @@ export const rossiChr_0028_wulfa_power_attack: SkillDefinition = {
 export const rossiChr_0028_wulfa_plunging_attack_endActionGraph = {
   main: {
     nodes: {
-      changeResourceByActionValue_1: {
+      changeResource_1: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -998,7 +998,7 @@ export const rossiChr_0028_wulfa_plunging_attack_endActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResourceByActionValue_1' },
+          whenTrue: { $sequence: 'changeResource_1' },
         },
         next: null,
       },
@@ -1321,18 +1321,22 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                         action: {
                           kind: 'applyBuff',
                           parameters: {
-                            buffId: 'buff_chr_0028_wulfa_normal_bleed',
+                            buffs: [
+                              {
+                                buffId: 'buff_chr_0028_wulfa_normal_bleed',
+                                blackboardAssignments: { talent_2: { kind: 'constant', value: 0 } },
+                                copiedBlackboardAssignments: {
+                                  duration: 'duration_bleed',
+                                  atk_scale: 'atk_scale_bleed',
+                                  extra_atk_scale: 'bleed_critical_damage_scale',
+                                  damage_cd: 'bleed_critical_damage_interval',
+                                  damage_up: 'damage_up',
+                                  heal_scale: 'heal_scale',
+                                  talent2_burning_damage_scale: 'talent2_burning_damage_scale',
+                                },
+                              },
+                            ],
                             target: 'enemy',
-                            blackboardAssignments: { talent_2: { kind: 'constant', value: 0 } },
-                            copiedBlackboardAssignments: {
-                              duration: 'duration_bleed',
-                              atk_scale: 'atk_scale_bleed',
-                              extra_atk_scale: 'bleed_critical_damage_scale',
-                              damage_cd: 'bleed_critical_damage_interval',
-                              damage_up: 'damage_up',
-                              heal_scale: 'heal_scale',
-                              talent2_burning_damage_scale: 'talent2_burning_damage_scale',
-                            },
                           },
                         },
                         next: 'dealDamage_40',
@@ -1341,18 +1345,22 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                         action: {
                           kind: 'applyBuff',
                           parameters: {
-                            buffId: 'buff_chr_0028_wulfa_normal_bleed',
+                            buffs: [
+                              {
+                                buffId: 'buff_chr_0028_wulfa_normal_bleed',
+                                blackboardAssignments: { talent_2: { kind: 'constant', value: 1 } },
+                                copiedBlackboardAssignments: {
+                                  duration: 'duration_bleed',
+                                  atk_scale: 'atk_scale_bleed',
+                                  extra_atk_scale: 'bleed_critical_damage_scale',
+                                  damage_cd: 'bleed_critical_damage_interval',
+                                  damage_up: 'damage_up',
+                                  heal_scale: 'heal_scale',
+                                  talent2_burning_damage_scale: 'talent2_burning_damage_scale',
+                                },
+                              },
+                            ],
                             target: 'enemy',
-                            blackboardAssignments: { talent_2: { kind: 'constant', value: 1 } },
-                            copiedBlackboardAssignments: {
-                              duration: 'duration_bleed',
-                              atk_scale: 'atk_scale_bleed',
-                              extra_atk_scale: 'bleed_critical_damage_scale',
-                              damage_cd: 'bleed_critical_damage_interval',
-                              damage_up: 'damage_up',
-                              heal_scale: 'heal_scale',
-                              talent2_burning_damage_scale: 'talent2_burning_damage_scale',
-                            },
                           },
                         },
                         next: 'dealDamage_40',
@@ -1479,9 +1487,9 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                         },
                         next: null,
                       },
-                      changeResourceByActionValue_46: {
+                      changeResource_46: {
                         action: {
-                          kind: 'changeResourceByActionValue',
+                          kind: 'changeResource',
                           parameters: {
                             resource: 'sp',
                             amount: { kind: 'valueNode', nodeId: 'data_18' },
@@ -1500,14 +1508,14 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                             condition: { kind: 'conditionNode', nodeId: 'data_20' },
                             alwaysNext: true,
                           },
-                          whenTrue: { $sequence: 'changeResourceByActionValue_46' },
+                          whenTrue: { $sequence: 'changeResource_46' },
                           whenFalse: { $sequence: 'finishBuffsById_47' },
                         },
                         next: null,
                       },
-                      changeResourceByActionValue_49: {
+                      changeResource_49: {
                         action: {
-                          kind: 'changeResourceByActionValue',
+                          kind: 'changeResource',
                           parameters: {
                             resource: 'ultimateEnergy',
                             amount: { kind: 'valueNode', nodeId: 'data_21' },
@@ -1521,7 +1529,7 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                         action: {
                           kind: 'conditional',
                           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_22' } },
-                          whenTrue: { $sequence: 'changeResourceByActionValue_49' },
+                          whenTrue: { $sequence: 'changeResource_49' },
                         },
                         next: null,
                       },
@@ -1749,18 +1757,22 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                         action: {
                           kind: 'applyBuff',
                           parameters: {
-                            buffId: 'buff_chr_0028_wulfa_normal_bleed',
+                            buffs: [
+                              {
+                                buffId: 'buff_chr_0028_wulfa_normal_bleed',
+                                blackboardAssignments: { talent_2: { kind: 'constant', value: 0 } },
+                                copiedBlackboardAssignments: {
+                                  duration: 'duration_bleed',
+                                  atk_scale: 'atk_scale_bleed',
+                                  extra_atk_scale: 'bleed_critical_damage_scale',
+                                  damage_cd: 'bleed_critical_damage_interval',
+                                  damage_up: 'damage_up',
+                                  heal_scale: 'heal_scale',
+                                  talent2_burning_damage_scale: 'talent2_burning_damage_scale',
+                                },
+                              },
+                            ],
                             target: 'enemy',
-                            blackboardAssignments: { talent_2: { kind: 'constant', value: 0 } },
-                            copiedBlackboardAssignments: {
-                              duration: 'duration_bleed',
-                              atk_scale: 'atk_scale_bleed',
-                              extra_atk_scale: 'bleed_critical_damage_scale',
-                              damage_cd: 'bleed_critical_damage_interval',
-                              damage_up: 'damage_up',
-                              heal_scale: 'heal_scale',
-                              talent2_burning_damage_scale: 'talent2_burning_damage_scale',
-                            },
                           },
                         },
                         next: 'dealDamage_40',
@@ -1769,18 +1781,22 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                         action: {
                           kind: 'applyBuff',
                           parameters: {
-                            buffId: 'buff_chr_0028_wulfa_normal_bleed',
+                            buffs: [
+                              {
+                                buffId: 'buff_chr_0028_wulfa_normal_bleed',
+                                blackboardAssignments: { talent_2: { kind: 'constant', value: 1 } },
+                                copiedBlackboardAssignments: {
+                                  duration: 'duration_bleed',
+                                  atk_scale: 'atk_scale_bleed',
+                                  extra_atk_scale: 'bleed_critical_damage_scale',
+                                  damage_cd: 'bleed_critical_damage_interval',
+                                  damage_up: 'damage_up',
+                                  heal_scale: 'heal_scale',
+                                  talent2_burning_damage_scale: 'talent2_burning_damage_scale',
+                                },
+                              },
+                            ],
                             target: 'enemy',
-                            blackboardAssignments: { talent_2: { kind: 'constant', value: 1 } },
-                            copiedBlackboardAssignments: {
-                              duration: 'duration_bleed',
-                              atk_scale: 'atk_scale_bleed',
-                              extra_atk_scale: 'bleed_critical_damage_scale',
-                              damage_cd: 'bleed_critical_damage_interval',
-                              damage_up: 'damage_up',
-                              heal_scale: 'heal_scale',
-                              talent2_burning_damage_scale: 'talent2_burning_damage_scale',
-                            },
                           },
                         },
                         next: 'dealDamage_40',
@@ -1861,7 +1877,7 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                         action: {
                           kind: 'applyBuff',
                           parameters: {
-                            buffId: 'buff_chr_0028_wulfa_tut_normalskill_success',
+                            buffs: [{ buffId: 'buff_chr_0028_wulfa_tut_normalskill_success' }],
                             target: 'caster',
                             inheritSourceSkillCastInfo: true,
                             finishByAction: true,
@@ -1939,9 +1955,9 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                         },
                         next: null,
                       },
-                      changeResourceByActionValue_50: {
+                      changeResource_50: {
                         action: {
-                          kind: 'changeResourceByActionValue',
+                          kind: 'changeResource',
                           parameters: {
                             resource: 'sp',
                             amount: { kind: 'valueNode', nodeId: 'data_20' },
@@ -1960,14 +1976,14 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                             condition: { kind: 'conditionNode', nodeId: 'data_22' },
                             alwaysNext: true,
                           },
-                          whenTrue: { $sequence: 'changeResourceByActionValue_50' },
+                          whenTrue: { $sequence: 'changeResource_50' },
                           whenFalse: { $sequence: 'finishBuffsById_51' },
                         },
                         next: null,
                       },
-                      changeResourceByActionValue_53: {
+                      changeResource_53: {
                         action: {
-                          kind: 'changeResourceByActionValue',
+                          kind: 'changeResource',
                           parameters: {
                             resource: 'ultimateEnergy',
                             amount: { kind: 'valueNode', nodeId: 'data_23' },
@@ -1981,7 +1997,7 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                         action: {
                           kind: 'conditional',
                           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_24' } },
-                          whenTrue: { $sequence: 'changeResourceByActionValue_53' },
+                          whenTrue: { $sequence: 'changeResource_53' },
                         },
                         next: null,
                       },
@@ -2222,18 +2238,22 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                         action: {
                           kind: 'applyBuff',
                           parameters: {
-                            buffId: 'buff_chr_0028_wulfa_normal_bleed',
+                            buffs: [
+                              {
+                                buffId: 'buff_chr_0028_wulfa_normal_bleed',
+                                blackboardAssignments: { talent_2: { kind: 'constant', value: 0 } },
+                                copiedBlackboardAssignments: {
+                                  duration: 'duration_bleed',
+                                  atk_scale: 'atk_scale_bleed',
+                                  extra_atk_scale: 'bleed_critical_damage_scale',
+                                  damage_cd: 'bleed_critical_damage_interval',
+                                  damage_up: 'damage_up',
+                                  heal_scale: 'heal_scale',
+                                  talent2_burning_damage_scale: 'talent2_burning_damage_scale',
+                                },
+                              },
+                            ],
                             target: 'enemy',
-                            blackboardAssignments: { talent_2: { kind: 'constant', value: 0 } },
-                            copiedBlackboardAssignments: {
-                              duration: 'duration_bleed',
-                              atk_scale: 'atk_scale_bleed',
-                              extra_atk_scale: 'bleed_critical_damage_scale',
-                              damage_cd: 'bleed_critical_damage_interval',
-                              damage_up: 'damage_up',
-                              heal_scale: 'heal_scale',
-                              talent2_burning_damage_scale: 'talent2_burning_damage_scale',
-                            },
                           },
                         },
                         next: 'dealDamage_40',
@@ -2242,18 +2262,22 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                         action: {
                           kind: 'applyBuff',
                           parameters: {
-                            buffId: 'buff_chr_0028_wulfa_normal_bleed',
+                            buffs: [
+                              {
+                                buffId: 'buff_chr_0028_wulfa_normal_bleed',
+                                blackboardAssignments: { talent_2: { kind: 'constant', value: 1 } },
+                                copiedBlackboardAssignments: {
+                                  duration: 'duration_bleed',
+                                  atk_scale: 'atk_scale_bleed',
+                                  extra_atk_scale: 'bleed_critical_damage_scale',
+                                  damage_cd: 'bleed_critical_damage_interval',
+                                  damage_up: 'damage_up',
+                                  heal_scale: 'heal_scale',
+                                  talent2_burning_damage_scale: 'talent2_burning_damage_scale',
+                                },
+                              },
+                            ],
                             target: 'enemy',
-                            blackboardAssignments: { talent_2: { kind: 'constant', value: 1 } },
-                            copiedBlackboardAssignments: {
-                              duration: 'duration_bleed',
-                              atk_scale: 'atk_scale_bleed',
-                              extra_atk_scale: 'bleed_critical_damage_scale',
-                              damage_cd: 'bleed_critical_damage_interval',
-                              damage_up: 'damage_up',
-                              heal_scale: 'heal_scale',
-                              talent2_burning_damage_scale: 'talent2_burning_damage_scale',
-                            },
                           },
                         },
                         next: 'dealDamage_40',
@@ -2380,9 +2404,9 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                         },
                         next: null,
                       },
-                      changeResourceByActionValue_46: {
+                      changeResource_46: {
                         action: {
-                          kind: 'changeResourceByActionValue',
+                          kind: 'changeResource',
                           parameters: {
                             resource: 'sp',
                             amount: { kind: 'valueNode', nodeId: 'data_18' },
@@ -2401,14 +2425,14 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                             condition: { kind: 'conditionNode', nodeId: 'data_20' },
                             alwaysNext: true,
                           },
-                          whenTrue: { $sequence: 'changeResourceByActionValue_46' },
+                          whenTrue: { $sequence: 'changeResource_46' },
                           whenFalse: { $sequence: 'finishBuffsById_47' },
                         },
                         next: null,
                       },
-                      changeResourceByActionValue_49: {
+                      changeResource_49: {
                         action: {
-                          kind: 'changeResourceByActionValue',
+                          kind: 'changeResource',
                           parameters: {
                             resource: 'ultimateEnergy',
                             amount: { kind: 'valueNode', nodeId: 'data_21' },
@@ -2422,7 +2446,7 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                         action: {
                           kind: 'conditional',
                           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_22' } },
-                          whenTrue: { $sequence: 'changeResourceByActionValue_49' },
+                          whenTrue: { $sequence: 'changeResource_49' },
                         },
                         next: null,
                       },
@@ -2649,18 +2673,22 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                         action: {
                           kind: 'applyBuff',
                           parameters: {
-                            buffId: 'buff_chr_0028_wulfa_normal_bleed',
+                            buffs: [
+                              {
+                                buffId: 'buff_chr_0028_wulfa_normal_bleed',
+                                blackboardAssignments: { talent_2: { kind: 'constant', value: 0 } },
+                                copiedBlackboardAssignments: {
+                                  duration: 'duration_bleed',
+                                  atk_scale: 'atk_scale_bleed',
+                                  extra_atk_scale: 'bleed_critical_damage_scale',
+                                  damage_cd: 'bleed_critical_damage_interval',
+                                  damage_up: 'damage_up',
+                                  heal_scale: 'heal_scale',
+                                  talent2_burning_damage_scale: 'talent2_burning_damage_scale',
+                                },
+                              },
+                            ],
                             target: 'enemy',
-                            blackboardAssignments: { talent_2: { kind: 'constant', value: 0 } },
-                            copiedBlackboardAssignments: {
-                              duration: 'duration_bleed',
-                              atk_scale: 'atk_scale_bleed',
-                              extra_atk_scale: 'bleed_critical_damage_scale',
-                              damage_cd: 'bleed_critical_damage_interval',
-                              damage_up: 'damage_up',
-                              heal_scale: 'heal_scale',
-                              talent2_burning_damage_scale: 'talent2_burning_damage_scale',
-                            },
                           },
                         },
                         next: 'dealDamage_40',
@@ -2669,18 +2697,22 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                         action: {
                           kind: 'applyBuff',
                           parameters: {
-                            buffId: 'buff_chr_0028_wulfa_normal_bleed',
+                            buffs: [
+                              {
+                                buffId: 'buff_chr_0028_wulfa_normal_bleed',
+                                blackboardAssignments: { talent_2: { kind: 'constant', value: 1 } },
+                                copiedBlackboardAssignments: {
+                                  duration: 'duration_bleed',
+                                  atk_scale: 'atk_scale_bleed',
+                                  extra_atk_scale: 'bleed_critical_damage_scale',
+                                  damage_cd: 'bleed_critical_damage_interval',
+                                  damage_up: 'damage_up',
+                                  heal_scale: 'heal_scale',
+                                  talent2_burning_damage_scale: 'talent2_burning_damage_scale',
+                                },
+                              },
+                            ],
                             target: 'enemy',
-                            blackboardAssignments: { talent_2: { kind: 'constant', value: 1 } },
-                            copiedBlackboardAssignments: {
-                              duration: 'duration_bleed',
-                              atk_scale: 'atk_scale_bleed',
-                              extra_atk_scale: 'bleed_critical_damage_scale',
-                              damage_cd: 'bleed_critical_damage_interval',
-                              damage_up: 'damage_up',
-                              heal_scale: 'heal_scale',
-                              talent2_burning_damage_scale: 'talent2_burning_damage_scale',
-                            },
                           },
                         },
                         next: 'dealDamage_40',
@@ -2807,9 +2839,9 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                         },
                         next: null,
                       },
-                      changeResourceByActionValue_46: {
+                      changeResource_46: {
                         action: {
-                          kind: 'changeResourceByActionValue',
+                          kind: 'changeResource',
                           parameters: {
                             resource: 'sp',
                             amount: { kind: 'valueNode', nodeId: 'data_18' },
@@ -2828,14 +2860,14 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                             condition: { kind: 'conditionNode', nodeId: 'data_20' },
                             alwaysNext: true,
                           },
-                          whenTrue: { $sequence: 'changeResourceByActionValue_46' },
+                          whenTrue: { $sequence: 'changeResource_46' },
                           whenFalse: { $sequence: 'finishBuffsById_47' },
                         },
                         next: null,
                       },
-                      changeResourceByActionValue_49: {
+                      changeResource_49: {
                         action: {
-                          kind: 'changeResourceByActionValue',
+                          kind: 'changeResource',
                           parameters: {
                             resource: 'ultimateEnergy',
                             amount: { kind: 'valueNode', nodeId: 'data_21' },
@@ -2849,7 +2881,7 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                         action: {
                           kind: 'conditional',
                           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_22' } },
-                          whenTrue: { $sequence: 'changeResourceByActionValue_49' },
+                          whenTrue: { $sequence: 'changeResource_49' },
                         },
                         next: null,
                       },
@@ -3060,7 +3092,7 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0028_wulfa_normal_wolf_timer',
+            buffs: [{ buffId: 'buff_chr_0028_wulfa_normal_wolf_timer' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
           },
@@ -3071,7 +3103,7 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0028_wulfa_normal_smarttarget',
+            buffs: [{ buffId: 'buff_chr_0028_wulfa_normal_smarttarget' }],
             target: 'enemy',
             inheritSourceSkillCastInfo: true,
           },
@@ -3131,7 +3163,7 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0028_wulfa_tut_normalskill_failure',
+            buffs: [{ buffId: 'buff_chr_0028_wulfa_tut_normalskill_failure' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -3152,7 +3184,7 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0028_wulfa_normal_defup',
+            buffs: [{ buffId: 'buff_chr_0028_wulfa_normal_defup' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -3458,15 +3490,19 @@ export const rossiChr_0028_wulfa_combo_2_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0028_wulfa_combo_2_damagewait',
+            buffs: [
+              {
+                buffId: 'buff_chr_0028_wulfa_combo_2_damagewait',
+                blackboardAssignments: {
+                  trigger_times: { kind: 'constant', value: 3 },
+                  damage_interval: { kind: 'constant', value: 0.125 },
+                  duration: { kind: 'constant', value: 0.3 },
+                },
+                copiedBlackboardAssignments: { atk_scale: 'atk_scale_once' },
+              },
+            ],
             target: 'enemy',
             inheritSourceSkillCastInfo: true,
-            blackboardAssignments: {
-              trigger_times: { kind: 'constant', value: 3 },
-              damage_interval: { kind: 'constant', value: 0.125 },
-              duration: { kind: 'constant', value: 0.3 },
-            },
-            copiedBlackboardAssignments: { atk_scale: 'atk_scale_once' },
           },
         },
         next: 'calculateActionValue_9',
@@ -3536,9 +3572,9 @@ export const rossiChr_0028_wulfa_combo_2_skillActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_16: {
+      changeResource_16: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'ultimateEnergy',
             amount: { kind: 'valueNode', nodeId: 'data_17' },
@@ -3552,7 +3588,7 @@ export const rossiChr_0028_wulfa_combo_2_skillActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_19' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResourceByActionValue_16' },
+          whenTrue: { $sequence: 'changeResource_16' },
         },
         next: null,
       },
@@ -3579,10 +3615,14 @@ export const rossiChr_0028_wulfa_combo_2_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0028_wulfa_combo_2_qte_timerlistening',
+            buffs: [
+              {
+                buffId: 'buff_chr_0028_wulfa_combo_2_qte_timerlistening',
+                copiedBlackboardAssignments: { time_succeed: 'time_succeed' },
+              },
+            ],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: { time_succeed: 'time_succeed' },
           },
         },
         next: null,
@@ -3639,7 +3679,7 @@ export const rossiChr_0028_wulfa_combo_2_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0028_wulfa_combo_usecount',
+            buffs: [{ buffId: 'buff_chr_0028_wulfa_combo_usecount' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
           },
@@ -3661,7 +3701,7 @@ export const rossiChr_0028_wulfa_combo_2_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0028_wulfa_combo_usetimer',
+            buffs: [{ buffId: 'buff_chr_0028_wulfa_combo_usetimer' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
           },
@@ -3723,7 +3763,7 @@ export const rossiChr_0028_wulfa_combo_2_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0028_wulfa_normal_defup',
+            buffs: [{ buffId: 'buff_chr_0028_wulfa_normal_defup' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -4017,7 +4057,7 @@ export const rossiChr_0028_wulfa_combo_3_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0028_wulfa_combo_hasinflict',
+            buffs: [{ buffId: 'buff_chr_0028_wulfa_combo_hasinflict' }],
             target: 'enemy',
             inheritSourceSkillCastInfo: true,
           },
@@ -4028,7 +4068,7 @@ export const rossiChr_0028_wulfa_combo_3_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0028_wulfa_combo_inflictnum',
+            buffs: [{ buffId: 'buff_chr_0028_wulfa_combo_inflictnum' }],
             target: 'enemy',
             count: { kind: 'valueNode', nodeId: 'data_3' },
             inheritSourceSkillCastInfo: true,
@@ -4426,16 +4466,16 @@ export const rossiChr_0028_wulfa_combo_3_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0028_wulfa_combo_usecount',
+            buffs: [{ buffId: 'buff_chr_0028_wulfa_combo_usecount' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
           },
         },
         next: 'adjustSkillCooldown_54',
       },
-      changeResourceByActionValue_56: {
+      changeResource_56: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'ultimateEnergy',
             amount: { kind: 'valueNode', nodeId: 'data_24' },
@@ -4449,7 +4489,7 @@ export const rossiChr_0028_wulfa_combo_3_skillActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_26' } },
-          whenTrue: { $sequence: 'changeResourceByActionValue_56' },
+          whenTrue: { $sequence: 'changeResource_56' },
         },
         next: null,
       },
@@ -4519,7 +4559,7 @@ export const rossiChr_0028_wulfa_combo_3_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_physical_no_guard',
+            buffs: [{ buffId: 'buff_physical_no_guard' }],
             target: 'enemy',
             inheritSourceSkillCastInfo: true,
           },
@@ -4871,7 +4911,7 @@ export const rossiChr_0028_wulfa_combo_3_skillActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_53' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResourceByActionValue_56' },
+          whenTrue: { $sequence: 'changeResource_56' },
         },
         next: null,
       },
@@ -4879,14 +4919,18 @@ export const rossiChr_0028_wulfa_combo_3_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0028_wulfa_combo_criticalrate',
+            buffs: [
+              {
+                buffId: 'buff_chr_0028_wulfa_combo_criticalrate',
+                copiedBlackboardAssignments: {
+                  duration: 'crit_increase_duration',
+                  critical_rate: 'crit_increase_rate',
+                  critical_damage_inc: 'crit_damage_increase_rate',
+                },
+              },
+            ],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: {
-              duration: 'crit_increase_duration',
-              critical_rate: 'crit_increase_rate',
-              critical_damage_inc: 'crit_damage_increase_rate',
-            },
           },
         },
         next: null,
@@ -4916,7 +4960,7 @@ export const rossiChr_0028_wulfa_combo_3_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0028_wulfa_tut_comboskill_failure',
+            buffs: [{ buffId: 'buff_chr_0028_wulfa_tut_comboskill_failure' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
           },
@@ -4927,7 +4971,7 @@ export const rossiChr_0028_wulfa_combo_3_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0028_wulfa_tut_comboskill_success',
+            buffs: [{ buffId: 'buff_chr_0028_wulfa_tut_comboskill_success' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -4948,7 +4992,7 @@ export const rossiChr_0028_wulfa_combo_3_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0028_wulfa_tut_comboskill_finish',
+            buffs: [{ buffId: 'buff_chr_0028_wulfa_tut_comboskill_finish' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -4969,7 +5013,7 @@ export const rossiChr_0028_wulfa_combo_3_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0028_wulfa_normal_defup',
+            buffs: [{ buffId: 'buff_chr_0028_wulfa_normal_defup' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -5363,11 +5407,15 @@ export const rossiChr_0028_wulfa_ultimate_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0028_wulfa_ult_stopenemy_elite',
+            buffs: [
+              {
+                buffId: 'buff_chr_0028_wulfa_ult_stopenemy_elite',
+                blackboardAssignments: { duration: { kind: 'constant', value: 3.099969 } },
+              },
+            ],
             target: 'enemy',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
-            blackboardAssignments: { duration: { kind: 'constant', value: 3.099969 } },
           },
         },
         next: null,
@@ -5393,11 +5441,15 @@ export const rossiChr_0028_wulfa_ultimate_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0028_wulfa_ult_stopenemy',
+            buffs: [
+              {
+                buffId: 'buff_chr_0028_wulfa_ult_stopenemy',
+                blackboardAssignments: { duration: { kind: 'constant', value: 2.866664 } },
+              },
+            ],
             target: 'enemy',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
-            blackboardAssignments: { duration: { kind: 'constant', value: 2.866664 } },
           },
         },
         next: null,
@@ -5423,7 +5475,7 @@ export const rossiChr_0028_wulfa_ultimate_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0028_wulfa_ult_addtional_battleshape',
+            buffs: [{ buffId: 'buff_chr_0028_wulfa_ult_addtional_battleshape' }],
             target: 'enemy',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -5580,7 +5632,7 @@ export const rossiChr_0028_wulfa_ultimate_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_damage_immune_ult_skill',
+            buffs: [{ buffId: 'buff_common_damage_immune_ult_skill' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -5660,11 +5712,17 @@ export const rossiChr_0028_wulfa_ultimate_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0028_wulfa_ult_crit_damage_up_to_bleed',
+            buffs: [
+              {
+                buffId: 'buff_chr_0028_wulfa_ult_crit_damage_up_to_bleed',
+                copiedBlackboardAssignments: {
+                  critical_damage_up_to_bleed: 'crit_damage_up_to_bleed',
+                },
+              },
+            ],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
-            copiedBlackboardAssignments: { critical_damage_up_to_bleed: 'crit_damage_up_to_bleed' },
           },
         },
         next: null,
@@ -6066,16 +6124,20 @@ const rossiBuff2ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0028_wulfa_combo_2_damage',
+            buffs: [
+              {
+                buffId: 'buff_chr_0028_wulfa_combo_2_damage',
+                copiedBlackboardAssignments: {
+                  atk_scale: 'atk_scale',
+                  poise: 'poise',
+                  trigger_times: 'trigger_times',
+                  damage_interval: 'damage_interval',
+                },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: {
-              atk_scale: 'atk_scale',
-              poise: 'poise',
-              trigger_times: 'trigger_times',
-              damage_interval: 'damage_interval',
-            },
           },
         },
         next: null,
@@ -6184,11 +6246,15 @@ const rossiBuff3ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0028_wulfa_tut_comboskill_failure',
+            buffs: [
+              {
+                buffId: 'buff_chr_0028_wulfa_tut_comboskill_failure',
+                blackboardAssignments: { duration: { kind: 'constant', value: 0.2 } },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
-            blackboardAssignments: { duration: { kind: 'constant', value: 0.2 } },
           },
         },
         next: 'finishBuffsById_7',
@@ -6221,11 +6287,15 @@ const rossiBuff3ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0028_wulfa_tut_comboskill_success',
+            buffs: [
+              {
+                buffId: 'buff_chr_0028_wulfa_tut_comboskill_success',
+                blackboardAssignments: { duration: { kind: 'constant', value: 0.2 } },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
-            blackboardAssignments: { duration: { kind: 'constant', value: 0.2 } },
           },
         },
         next: null,
@@ -6563,7 +6633,7 @@ const rossiBuff9ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0028_wulfa_normal_bleed_effect',
+            buffs: [{ buffId: 'buff_chr_0028_wulfa_normal_bleed_effect' }],
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
@@ -6588,15 +6658,19 @@ const rossiBuff9ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0028_wulfa_normal_bleed_crit_extra_damage',
+            buffs: [
+              {
+                buffId: 'buff_chr_0028_wulfa_normal_bleed_crit_extra_damage',
+                copiedBlackboardAssignments: {
+                  atk_scale: 'extra_atk_scale',
+                  damage_cd: 'damage_cd',
+                  heal_scale: 'heal_scale',
+                  burning_damage_scale: 'talent2_burning_damage_scale',
+                },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffSource',
-            copiedBlackboardAssignments: {
-              atk_scale: 'extra_atk_scale',
-              damage_cd: 'damage_cd',
-              heal_scale: 'heal_scale',
-              burning_damage_scale: 'talent2_burning_damage_scale',
-            },
           },
         },
         next: null,
@@ -6766,7 +6840,7 @@ const rossiBuff10ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0028_wulfa_talent2_heal_effect',
+            buffs: [{ buffId: 'buff_chr_0028_wulfa_talent2_heal_effect' }],
             target: 'buffSource',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,

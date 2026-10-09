@@ -631,159 +631,6 @@ export function compileActionNode(
     }
     throw new Error(`${node.sourcePath}: unsupported combat-visible EventListenerAction`);
   }
-  if (node.body.value.family === 'aura') {
-    const aura = node.body.value.action;
-    if (aura.kind !== 'globalPartyAura') {
-      throw new Error(`${node.sourcePath}: Aura reference slice cannot enter runtime projection`);
-    }
-    // 原生排除当前动作 Owner；能力实体不是队员，不能沿 Source 排除其来源干员。
-    const ownerTarget =
-      context.actionOwnerTarget === 'buffOwner'
-        ? context.fixedBuffOwnerTarget
-        : context.actionOwnerTarget;
-    const auraTarget: 'party' | 'partyExceptCaster' | 'enemy' =
-      aura.target !== 'partyExceptOwner'
-        ? aura.target
-        : ownerTarget === 'caster'
-          ? 'partyExceptCaster'
-          : ownerTarget === 'currentAbilityEntity' || ownerTarget === 'enemy'
-            ? 'party'
-            : (() => {
-                throw new Error(`${node.sourcePath}: Aura exclusion requires a known action owner`);
-              })();
-    const auraBuffSource =
-      aura.buffSource === 'ActionOwner'
-        ? context.actionOwnerTarget === 'currentAbilityEntity'
-          ? ('currentAbilityEntity' as const)
-          : context.actionOwnerTarget === 'buffOwner'
-            ? ('buffOwner' as const)
-            : context.actionOwnerTarget === 'caster'
-              ? undefined
-              : null
-        : context.actionSourceTarget === 'buffSource'
-          ? ('buffSource' as const)
-          : undefined;
-    if (auraBuffSource === null) {
-      throw new Error(`${node.sourcePath}: Aura Buff source is unavailable`);
-    }
-    const iconDurationSource =
-      aura.iconDurationOverride === undefined
-        ? undefined
-        : context.actionOwnerTarget !== 'currentAbilityEntity'
-          ? (() => {
-              throw new Error(
-                `${node.sourcePath}: Aura icon duration source requires an AbilityEntity action owner`,
-              );
-            })()
-          : aura.iconDurationOverride.durationSourceType === 'AbilityEntity'
-            ? ({ kind: 'actionOwnerAbilityEntity' } as const)
-            : ({
-                kind: 'actionOwnerTimedMarker',
-                markerId: aura.iconDurationOverride.timedMarkerId,
-              } as const);
-    const exitBuffs = aura.exitBuffs.flatMap((entry, index) => {
-      if (visualOnlyIds.has(entry.buffId)) return [];
-      const assignments = entry.assignBlackboard
-        ? projectBuffAssignments(
-            entry.assignments,
-            `${node.sourcePath}.actionWhenExitAura[${index}]`,
-          )
-        : {};
-      const stringAssignments = entry.assignBlackboard
-        ? projectStringBuffAssignments(entry.assignments)
-        : {};
-      if (!entry.assignBlackboard && entry.assignments.length > 0) {
-        throw new Error(
-          `${node.sourcePath}.actionWhenExitAura[${index}]: disabled assignment is nonempty`,
-        );
-      }
-      return [
-        {
-          buffId: entry.buffId,
-          target: auraTarget,
-          ...(auraBuffSource === undefined ? {} : { source: auraBuffSource }),
-          inheritSourceSkillCastInfo: true,
-          ...(Object.keys(assignments).length === 0 ? {} : { blackboardAssignments: assignments }),
-          ...(Object.keys(stringAssignments).length === 0
-            ? {}
-            : { stringBlackboardAssignments: stringAssignments }),
-        },
-      ];
-    });
-    const activeBuffs = aura.buffs.filter(entry => !visualOnlyIds.has(entry.buffId));
-    const ownerCleanupIds = (aura.exitOwnerCleanupBuffIds ?? []).filter(
-      id => !visualOnlyIds.has(id),
-    );
-    const cleanupTarget = context.actionOwnerTarget;
-    if (
-      ownerCleanupIds.length > 0 &&
-      cleanupTarget !== 'caster' &&
-      cleanupTarget !== 'buffOwner' &&
-      cleanupTarget !== 'currentAbilityEntity'
-    ) {
-      throw new Error(`${node.sourcePath}: Aura exit cleanup requires a supported action owner`);
-    }
-    const enterCleanupSteps =
-      (aura.enterCleanupBuffIds ?? []).length === 0
-        ? []
-        : [
-            {
-              kind: 'finishBuffsById' as const,
-              parameters: {
-                target: auraTarget,
-                buffIds: aura.enterCleanupBuffIds!,
-                reason: 'other' as const,
-              },
-            },
-          ];
-    const applicationSteps = activeBuffs.flatMap((entry, index) => {
-      const assignments = entry.assignBlackboard
-        ? projectBuffAssignments(entry.assignments, `${node.sourcePath}.buffInput[${index}]`)
-        : {};
-      const stringAssignments = entry.assignBlackboard
-        ? projectStringBuffAssignments(entry.assignments)
-        : {};
-      if (!entry.assignBlackboard && entry.assignments.length > 0) {
-        throw new Error(
-          `${node.sourcePath}.buffInput[${index}]: disabled Aura assignment is nonempty`,
-        );
-      }
-      return [
-        {
-          kind: 'applyBuff' as const,
-          parameters: {
-            buffId: entry.buffId,
-            target: auraTarget,
-            ...(auraBuffSource === undefined ? {} : { source: auraBuffSource }),
-            finishByAction: true,
-            ...(index === 0 && ownerCleanupIds.length > 0
-              ? {
-                  onActionEndFinishBuffs: {
-                    target: cleanupTarget as 'caster' | 'buffOwner' | 'currentAbilityEntity',
-                    buffIds: ownerCleanupIds,
-                  },
-                }
-              : {}),
-            ...(iconDurationSource === undefined ? {} : { iconDurationSource }),
-            ...(index === 0 && exitBuffs.length > 0 ? { onActionEndBuffs: exitBuffs } : {}),
-            ...(aura.inheritSourceSkillCastInfo ? { inheritSourceSkillCastInfo: true } : {}),
-            ...(Object.keys(assignments).length === 0
-              ? {}
-              : { blackboardAssignments: assignments }),
-            ...(Object.keys(stringAssignments).length === 0
-              ? {}
-              : { stringBlackboardAssignments: stringAssignments }),
-          },
-        },
-      ];
-    });
-    // fixedWhenStart 和 RangedAura 的空间黑板只决定 Aura 中心/覆盖范围；固定零空间中
-    // 唯一敌人或既定友方集合从动作开始即在范围内。Good+All 额外覆盖的友方非角色
-    // 没有可编辑轨道实例；其移动/表现状态不进入木桩账本，但来源事实已由 Aura IR 保留。
-    // 图标倒计时覆盖只把稳定实例身份传给展示回执，不改变这里由动作寿命控制的
-    // Buff 安装与离场清理。
-    return [...enterCleanupSteps, ...applicationSteps];
-  }
   if (node.body.value.family === 'buffFinish') {
     const action = node.body.value.action;
     const ownerIsPartyInstantSearch = isPartyInstantSearch(action.owner);
@@ -840,16 +687,18 @@ export function compileActionNode(
                 ? ('caster' as const)
                 : action.owner.targetSource === 'Source'
                   ? 'caster'
-                  : context.actionTargetTarget === 'enemy' ||
-                      context.actionTargetTarget === 'buffOwner' ||
-                      context.actionTargetTarget === 'caster' ||
-                      context.actionTargetTarget === 'currentAbilityEntity'
-                    ? context.actionTargetTarget
-                    : (() => {
-                        throw new Error(
-                          `${node.sourcePath}: Buff finish Target projection is unavailable`,
-                        );
-                      })();
+                  : context.actionTargetTarget === 'currentOperator'
+                    ? ('currentTarget' as const)
+                    : context.actionTargetTarget === 'enemy' ||
+                        context.actionTargetTarget === 'buffOwner' ||
+                        context.actionTargetTarget === 'caster' ||
+                        context.actionTargetTarget === 'currentAbilityEntity'
+                      ? context.actionTargetTarget
+                      : (() => {
+                          throw new Error(
+                            `${node.sourcePath}: Buff finish Target projection is unavailable`,
+                          );
+                        })();
     if (
       action.kind === 'buffFinishByQuery' &&
       action.settings.checkType === 'Tag' &&
@@ -1199,58 +1048,23 @@ export function compileActionNode(
     if (consumedElement === undefined) {
       throw new Error(`${node.sourcePath}.consumedType: unknown element index`);
     }
-    const tags = {
-      Fire: 'Skill/Character/Common/SpellInflict/FireInflict',
-      Pulse: 'Skill/Character/Common/SpellInflict/PulseInflict',
-      Cryst: 'Skill/Character/Common/SpellInflict/CrystInflict',
-      Natural: 'Skill/Character/Common/SpellInflict/NaturalInflict',
+    const elementsByNative = {
+      Fire: 'heat',
+      Pulse: 'electric',
+      Cryst: 'cryo',
+      Natural: 'nature',
     } as const;
-    const forcedBuffIds = {
-      Fire: 'buff_common_fire_fire_burning_triggered',
-      Pulse: 'buff_common_pulse_pulse_conduct_triggered',
-      Cryst: 'buff_common_cryst_cryst_frozen_triggered',
-      Natural: 'buff_common_natural_natural_corrupt_triggered',
-    } as const;
-    const consumedLayers = actionValueOperand(action.consumedLayers);
-    const body: CompiledBuffStepSource[] = [
-      {
-        kind: 'finishBuffsByTag',
-        parameters: {
-          target: 'enemy',
-          tagQueryType: 'hasAny',
-          buffTags: [tags[consumedElement]],
-          reason: 'early',
-          count: consumedLayers,
-        },
-      },
-      {
-        kind: 'applyBuff' as const,
-        parameters: {
-          buffId: forcedBuffIds[action.statusElement],
-          target: 'enemy',
-          inheritSourceSkillCastInfo: true,
-          blackboardAssignments: {
-            consumed_type: { kind: 'constant', value: action.consumedElement.value },
-            consumed_layer: consumedLayers,
-            count: actionValueOperand(action.statusCount),
-          },
-        },
-      },
-    ];
     return [
       {
-        kind: 'conditional',
+        kind: 'forceSpellStatus',
         parameters: {
-          condition: {
-            kind: 'buffStackCompare',
-            target: 'enemy',
-            tagQueryType: 'hasAny',
-            buffTags: [tags[consumedElement]],
-            operator: 'greaterOrEqual',
-            value: consumedLayers,
-          },
+          target: 'enemy',
+          element: elementsByNative[action.statusElement],
+          consumedElement: elementsByNative[consumedElement],
+          consumedLayers: actionValueOperand(action.consumedLayers),
+          count: actionValueOperand(action.statusCount),
+          isExtra: action.isExtra,
         },
-        whenTrue: context.graph.sequence(body),
       },
     ];
   }
@@ -1859,12 +1673,13 @@ export function compileActionNode(
       throw new Error(`${node.sourcePath}: unsupported resource gain source/target`);
     }
     const operation: CompiledBuffStepSource = {
-      kind: 'changeResourceByActionValue',
+      kind: 'changeResource',
       parameters: {
         resource: action.resource,
         amount: actionValueOperand(action.amount),
         coefficient: actionValueOperand(action.coefficient),
         recipient: action.resource === 'sp' ? 'team' : 'caster',
+        ...(action.onlyMainOperator ? { onlyMainOperator: true } : {}),
         ...(action.spGainKind === null ? {} : { spGainKind: action.spGainKind }),
         ...(action.spGainSource === null ? {} : { spGainSource: action.spGainSource }),
         ...(action.isPercentValue ? { isPercentValue: true } : {}),
@@ -1880,16 +1695,7 @@ export function compileActionNode(
         ...(action.ignoreUltimateGainScalar ? { ignoreUltimateEnergyGainMultiplier: true } : {}),
       },
     };
-    // ObtainCostAction checks atbOnlyMainChar inside ObtainAtb, not its UltimateSp branch.
-    return action.resource === 'sp' && action.onlyMainOperator
-      ? [
-          {
-            kind: 'conditional',
-            parameters: { condition: { kind: 'casterControlled' } },
-            whenTrue: context.graph.sequence([operation]),
-          },
-        ]
-      : [operation];
+    return [operation];
   }
   if (node.body.value.family === 'dashEnergyRecovery') {
     return [
@@ -2252,10 +2058,12 @@ export function compileActionNode(
         `${node.sourcePath}: unsupported Buff command mapping lifetime or empty target`,
       );
     }
-    return mappings.map(mapping => ({
-      kind: 'overrideBasicAttackMapping',
-      parameters: { skillId: mapping.skillId },
-    }));
+    return [
+      {
+        kind: 'overrideBasicAttackMapping',
+        parameters: { skillIds: mappings.map(mapping => mapping.skillId) },
+      },
+    ];
   }
   if (node.body.value.family === 'comboPending') {
     const action = node.body.value.action;
@@ -2592,7 +2400,7 @@ function compileBuffApplication(
               : null;
   if (target === null || source === null)
     throw new Error(`${sourcePath}: unsupported Buff target/source`);
-  const steps = action.buffs.flatMap((entry, index) => {
+  const buffs = action.buffs.flatMap((entry, index) => {
     if (isPresentationOnlyEntry(entry)) return [];
     const assignments = entry.assignBlackboard
       ? projectDirectNumericBuffAssignments(entry.assignments, `${sourcePath}.buffs[${index}]`)
@@ -2603,88 +2411,60 @@ function compileBuffApplication(
     const copiedAssignments = entry.assignBlackboard
       ? projectCopiedBuffAssignments(entry.assignments)
       : {};
-    const reactionDuration =
-      assignments.duration ??
-      (copiedAssignments.duration === undefined
-        ? undefined
-        : ({ kind: 'blackboard', key: copiedAssignments.duration } as const));
-    const reactionSteps: CompiledBuffStepSource[] = [];
-    if (
-      !entry.readIdFromBlackboard &&
-      entry.buffId === 'buff_common_pulse_pulse_conduct_triggered_do'
-    ) {
-      const reactionTargetIsEnemy =
-        target === 'enemy' || (target === 'buffOwner' && context.fixedBuffOwnerTarget === 'enemy');
-      if (
-        !reactionTargetIsEnemy ||
-        action.count.blackboardKey !== null ||
-        action.count.value !== 1 ||
-        reactionDuration === undefined
-      ) {
-        throw new Error(`${sourcePath}: unsupported electrification trigger Buff shape`);
-      }
-      // 外层 trigger Buff 会先按直接 duration 或 count/SkillSetting 得出 real_duration，
-      // 再创建这个真实导电状态 Buff。反应状态必须在此处使用最终时长，不能在外层
-      // 只有 count 时猜测列值；同时保留完整 Buff 生命周期供图标和标签查询消费。
-      reactionSteps.push({
-        kind: 'applyElementalReaction',
-        parameters: {
-          reaction: 'electrification',
-          target: 'enemy',
-          durationSeconds: reactionDuration,
-          effectiveness: 1,
-        },
-      });
-    }
     return [
-      ...reactionSteps,
       {
-        kind: 'applyBuff' as const,
-        parameters: {
-          buffId: entry.readIdFromBlackboard ? { blackboardKey: entry.buffIdKey } : entry.buffId,
-          target,
-          ...(source === undefined ? {} : { source }),
-          ...(action.buffSource === 'ContextTarget' &&
-          partyTargetGroups.get(action.contextKey) === 'sourceFinderResult'
-            ? { sourceContextKey: action.contextKey }
-            : {}),
-          ...(action.count.blackboardKey === null && action.count.value === 1
-            ? {}
-            : { count: actionValueOperand(action.count) }),
-          ...(action.inheritSourceSkillCastInfo ? { inheritSourceSkillCastInfo: true } : {}),
-          ...(action.isExtra ? { isExtra: true } : {}),
-          ...(action.overrideBuffIconDuration
-            ? { iconDurationSource: { kind: 'actionOwnerAbilityEntity' as const } }
-            : {}),
-          ...(action.autoFinishByAction ? { finishByAction: true } : {}),
-          ...(action.inheritSkillIds.length === 0
-            ? {}
-            : { inheritToNextSkillIds: action.inheritSkillIds }),
-          ...(action.asChildBuff ? { asChildBuff: true } : {}),
-          ...(action.passTargetGroupsToBuff
-            ? {
-                [COMPILED_BUFF_CAPTURED_TARGET_GROUPS]: {
-                  enemyKeys: [...(context.staticEnemyTargetGroupKeys ?? [])].sort(),
-                  zeroSpaceKeys: [...(context.staticZeroSpaceTargetGroupKeys ?? [])]
-                    .filter(key => context.staticEnemyTargetGroupKeys?.has(key) !== true)
-                    .sort(),
-                },
-              }
-            : {}),
-          ...(action.lifetimeOwner === 'currentCastSkill'
-            ? { lifetimeOwner: action.lifetimeOwner }
-            : {}),
-          ...(Object.keys(assignments).length === 0 ? {} : { blackboardAssignments: assignments }),
-          ...(Object.keys(stringAssignments).length === 0
-            ? {}
-            : { stringBlackboardAssignments: stringAssignments }),
-          ...(Object.keys(copiedAssignments).length === 0
-            ? {}
-            : { copiedBlackboardAssignments: copiedAssignments }),
-        },
+        buffId: entry.readIdFromBlackboard ? { blackboardKey: entry.buffIdKey } : entry.buffId,
+        ...(Object.keys(assignments).length === 0 ? {} : { blackboardAssignments: assignments }),
+        ...(Object.keys(stringAssignments).length === 0
+          ? {}
+          : { stringBlackboardAssignments: stringAssignments }),
+        ...(Object.keys(copiedAssignments).length === 0
+          ? {}
+          : { copiedBlackboardAssignments: copiedAssignments }),
       },
     ];
   });
+  if (buffs.length === 0) return [];
+  const steps: CompiledBuffStepSource[] = [
+    {
+      kind: 'applyBuff',
+      parameters: {
+        buffs,
+        target,
+        ...(source === undefined ? {} : { source }),
+        ...(action.buffSource === 'ContextTarget' &&
+        partyTargetGroups.get(action.contextKey) === 'sourceFinderResult'
+          ? { sourceContextKey: action.contextKey }
+          : {}),
+        ...(action.count.blackboardKey === null && action.count.value === 1
+          ? {}
+          : { count: actionValueOperand(action.count) }),
+        ...(action.inheritSourceSkillCastInfo ? { inheritSourceSkillCastInfo: true } : {}),
+        ...(action.isExtra ? { isExtra: true } : {}),
+        ...(action.overrideBuffIconDuration
+          ? { iconDurationSource: { kind: 'actionOwnerAbilityEntity' as const } }
+          : {}),
+        ...(action.autoFinishByAction ? { finishByAction: true } : {}),
+        ...(action.inheritSkillIds.length === 0
+          ? {}
+          : { inheritToNextSkillIds: action.inheritSkillIds }),
+        ...(action.asChildBuff ? { asChildBuff: true } : {}),
+        ...(action.passTargetGroupsToBuff
+          ? {
+              [COMPILED_BUFF_CAPTURED_TARGET_GROUPS]: {
+                enemyKeys: [...(context.staticEnemyTargetGroupKeys ?? [])].sort(),
+                zeroSpaceKeys: [...(context.staticZeroSpaceTargetGroupKeys ?? [])]
+                  .filter(key => context.staticEnemyTargetGroupKeys?.has(key) !== true)
+                  .sort(),
+              },
+            }
+          : {}),
+        ...(action.lifetimeOwner === 'currentCastSkill'
+          ? { lifetimeOwner: action.lifetimeOwner }
+          : {}),
+      },
+    },
+  ];
   if (!targetsAbilityEntityGroup && !targetsQueriedSource && !targetsDynamicEnemyGroup)
     return steps;
   return [
@@ -2707,3 +2487,82 @@ const ACTION_VALUE_OPERATIONS: Readonly<
   Ceil: 'ceil',
   RoundToInt: 'roundToInt',
 };
+/** 光环参数与原生回调分开投影；回调由序列编译器保留为入口。 */
+export function projectAuraParameters(
+  node: NativeActionNodeSource<KnownNativeActionLeafSource>,
+  visualOnlyIds: ReadonlySet<string>,
+  context: CombatActionProjectionContextSource,
+): Extract<CompiledBuffStepSource, { kind: 'aura' }>['parameters'] {
+  if (node.body.kind !== 'leaf' || node.body.value.family !== 'aura')
+    throw new Error('expected Aura');
+  const aura = node.body.value.action;
+  if (aura.kind !== 'globalPartyAura') {
+    throw new Error(`${node.sourcePath}: Aura reference slice cannot enter runtime projection`);
+  }
+  // 原生排除当前动作 Owner；能力实体不是队员，不能沿 Source 排除其来源干员。
+  const ownerTarget =
+    context.actionOwnerTarget === 'buffOwner'
+      ? context.fixedBuffOwnerTarget
+      : context.actionOwnerTarget;
+  const auraTarget: 'party' | 'partyExceptCaster' | 'enemy' =
+    aura.target !== 'partyExceptOwner'
+      ? aura.target
+      : ownerTarget === 'caster'
+        ? 'partyExceptCaster'
+        : ownerTarget === 'currentAbilityEntity' || ownerTarget === 'enemy'
+          ? 'party'
+          : (() => {
+              throw new Error(`${node.sourcePath}: Aura exclusion requires a known action owner`);
+            })();
+  const auraBuffSource =
+    aura.buffSource === 'ActionOwner'
+      ? context.actionOwnerTarget === 'currentAbilityEntity'
+        ? ('currentAbilityEntity' as const)
+        : context.actionOwnerTarget === 'buffOwner'
+          ? ('buffOwner' as const)
+          : context.actionOwnerTarget === 'caster'
+            ? undefined
+            : null
+      : context.actionSourceTarget === 'buffSource'
+        ? ('buffSource' as const)
+        : undefined;
+  if (auraBuffSource === null) {
+    throw new Error(`${node.sourcePath}: Aura Buff source is unavailable`);
+  }
+  const iconDurationSource =
+    aura.iconDurationOverride === undefined
+      ? undefined
+      : context.actionOwnerTarget !== 'currentAbilityEntity'
+        ? (() => {
+            throw new Error(
+              `${node.sourcePath}: Aura icon duration source requires an AbilityEntity action owner`,
+            );
+          })()
+        : aura.iconDurationOverride.durationSourceType === 'AbilityEntity'
+          ? ({ kind: 'actionOwnerAbilityEntity' } as const)
+          : ({
+              kind: 'actionOwnerTimedMarker',
+              markerId: aura.iconDurationOverride.timedMarkerId,
+            } as const);
+
+  return {
+    target: auraTarget,
+    ...(auraBuffSource === undefined ? {} : { source: auraBuffSource }),
+    ...(iconDurationSource === undefined ? {} : { iconDurationSource }),
+    inheritSourceSkillCastInfo: aura.inheritSourceSkillCastInfo,
+    buffs: aura.buffs
+      .filter(entry => !visualOnlyIds.has(entry.buffId))
+      .map((entry, index) => ({
+        buffId: entry.buffId,
+        ...(entry.assignBlackboard
+          ? {
+              blackboardAssignments: projectBuffAssignments(
+                entry.assignments,
+                `${node.sourcePath}.buffInput[${index}]`,
+              ),
+              stringBlackboardAssignments: projectStringBuffAssignments(entry.assignments),
+            }
+          : {}),
+      })),
+  };
+}

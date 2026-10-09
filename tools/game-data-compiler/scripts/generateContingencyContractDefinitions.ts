@@ -256,9 +256,8 @@ export function compileContingencyContractDefinitionsFromFiles(
           ? {
               kind: 'applyBuff',
               parameters: {
-                buffId: term.buffId,
+                buffs: [{ buffId: term.buffId, blackboardAssignments: assignments(term) }],
                 target: 'enemy',
-                blackboardAssignments: assignments(term),
               },
             }
           : {

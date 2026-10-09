@@ -47,14 +47,18 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_funnel_0008_magic_damage_taken_up',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_funnel_0008_magic_damage_taken_up',
+                      copiedBlackboardAssignments: {
+                        spell_damage_taken_up: 'spell_damage_taken_up',
+                        duration: 'duration',
+                        lv: 'lv',
+                      },
+                    },
+                  ],
                   target: 'eventTarget',
                   inheritSourceSkillCastInfo: true,
-                  copiedBlackboardAssignments: {
-                    spell_damage_taken_up: 'spell_damage_taken_up',
-                    duration: 'duration',
-                    lv: 'lv',
-                  },
                 },
               },
               next: null,

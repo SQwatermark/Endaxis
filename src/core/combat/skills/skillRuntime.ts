@@ -207,6 +207,8 @@ export interface CombatOperationContext {
 }
 
 export interface CombatOperationExecutor {
+  /** 图光环复用 Buff 实例管线；接口只处理影响，不创建子动作或生命周期。 */
+  readonly aura?: import('../buffs/buffOperationExecutor').AuraInfluenceOperations;
   readonly executionTrace?: {
     readonly recorder: import('../actions/actionExecutionTrace').ActionExecutionTrace;
     readonly frame: () => number;

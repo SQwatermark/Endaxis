@@ -259,7 +259,6 @@ export function analyzeConditionUsage(condition: CombatCondition): DefinitionVal
     case 'buffSourceMatchesOwner':
     case 'ownerSpawnedAbilityEntityPresent':
     case 'elementalInflictionPresent':
-    case 'elementalReactionActive':
     case 'deckAttributeCompare':
     case 'eventProjectilePerfectDodgeCooldownEquals':
     case 'eventProjectileIgnoreImmuneLevelCompare':
@@ -366,8 +365,8 @@ export function analyzeStepUsage(
               ? [step.parameters.damageMultiplier]
               : [],
       );
-    case 'applyElementalReaction':
-      return effect([step.parameters.durationSeconds]);
+    case 'forceSpellStatus':
+      return effect([step.parameters.consumedLayers, step.parameters.count]);
     case 'readSkillSettingData':
       return effect(
         step.parameters.items.map(item => item.column),
@@ -430,30 +429,33 @@ export function analyzeStepUsage(
       ]);
     case 'startUltimateTimeDilation':
       return effect([step.parameters.targetScale]);
-    case 'changeResourceByActionValue':
+    case 'changeResource':
       return effect([step.parameters.amount, step.parameters.coefficient]);
     case 'showComboRingQte':
       return effect([step.parameters.earlyDurationSeconds, step.parameters.activeDurationSeconds]);
     case 'applyCharacterInfliction':
       return effect([step.parameters.count]);
-    case 'applyBuff': {
-      const usage = effect([
-        step.parameters.count,
-        ...Object.values(step.parameters.blackboardAssignments ?? {}),
-        ...(step.parameters.keywordEnhancements?.map(enhancement => enhancement.value) ?? []),
-        ...(step.parameters.onActionEndBuffs?.flatMap(buff =>
-          Object.values(buff.blackboardAssignments ?? {}),
-        ) ?? []),
-      ]);
-      const reads = new Set([
-        ...usage.reads,
-        ...Object.values(step.parameters.copiedBlackboardAssignments ?? {}),
-      ]);
+    case 'aura':
+    case 'applyBuff':
       return mergeDefinitionValueUsage([
-        { ...usage, reads },
-        actionStringUsage(step.parameters.buffId),
+        effect([step.kind === 'applyBuff' ? step.parameters.count : undefined]),
+        ...step.parameters.buffs.map(entry => {
+          const usage = effect([
+            ...Object.values(entry.blackboardAssignments ?? {}),
+            ...(entry.keywordEnhancements?.map(enhancement => enhancement.value) ?? []),
+          ]);
+          return mergeDefinitionValueUsage([
+            {
+              ...usage,
+              reads: new Set([
+                ...usage.reads,
+                ...Object.values(entry.copiedBlackboardAssignments ?? {}),
+              ]),
+            },
+            actionStringUsage(entry.buffId),
+          ]);
+        }),
       ]);
-    }
     case 'createGlobalBuff':
       return effect([
         step.parameters.count,
@@ -487,7 +489,6 @@ export function analyzeStepUsage(
     case 'applyElementalInfliction':
     case 'triggerSpellBurst':
     case 'triggerCustomAbilityEvent':
-    case 'consumeElementalReaction':
     case 'outputAirborne':
     case 'outputKnockDown':
     case 'finishParentGlobalBuff':
@@ -502,7 +503,6 @@ export function analyzeStepUsage(
     case 'restrictUltimateEnergyRecovery':
     case 'hideUi':
     case 'setIgnoreGlobalTimeScale':
-    case 'changeResource':
     case 'gainSquadUltimateEnergyFromSkillCost':
     case 'gainFinisherSp':
     case 'applyStatus':

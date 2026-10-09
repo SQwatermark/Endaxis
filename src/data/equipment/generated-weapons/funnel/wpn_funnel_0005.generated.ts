@@ -50,11 +50,19 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_funnel_0005_atk_up',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_funnel_0005_atk_up',
+                      copiedBlackboardAssignments: {
+                        duration: 'duration',
+                        atk_up: 'atk_up',
+                        lv: 'lv',
+                      },
+                    },
+                  ],
                   target: 'partyExceptCasterAndSameCharacterType',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: { duration: 'duration', atk_up: 'atk_up', lv: 'lv' },
                 },
               },
               next: null,

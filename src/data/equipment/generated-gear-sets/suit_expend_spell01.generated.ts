@@ -12,13 +12,17 @@ const definition = {
           action: {
             kind: 'applyBuff',
             parameters: {
-              buffId: 'buff_equipsuit_expend_spell01',
+              buffs: [
+                {
+                  buffId: 'buff_equipsuit_expend_spell01',
+                  blackboardAssignments: {
+                    spell_dmg_up: { kind: 'constant', value: 0.15 },
+                    max_stack: { kind: 'constant', value: 3 },
+                    duration: { kind: 'constant', value: 25 },
+                  },
+                },
+              ],
               target: 'caster',
-              blackboardAssignments: {
-                spell_dmg_up: { kind: 'constant', value: 0.15 },
-                max_stack: { kind: 'constant', value: 3 },
-                duration: { kind: 'constant', value: 25 },
-              },
             },
           },
           next: null,
@@ -50,17 +54,21 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_equipsuit_expend_spelldamage',
+                  buffs: [
+                    {
+                      buffId: 'buff_equipsuit_expend_spelldamage',
+                      copiedBlackboardAssignments: {
+                        spell_dmg_up: 'spell_dmg_up',
+                        duration: 'duration',
+                        max_stack: 'max_stack',
+                      },
+                    },
+                  ],
                   target: 'buffOwner',
                   source: 'buffOwner',
                   count: { kind: 'valueNode', nodeId: 'data_1' },
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: {
-                    spell_dmg_up: 'spell_dmg_up',
-                    duration: 'duration',
-                    max_stack: 'max_stack',
-                  },
                 },
               },
               next: null,

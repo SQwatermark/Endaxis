@@ -95,9 +95,9 @@ export const akekuriChr_0019_karin_attack1: SkillDefinition = {
 export const akekuriChr_0019_karin_attack2ActionGraph = {
   main: {
     nodes: {
-      changeResourceByActionValue_1: {
+      changeResource_1: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -113,7 +113,7 @@ export const akekuriChr_0019_karin_attack2ActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResourceByActionValue_1' },
+          whenTrue: { $sequence: 'changeResource_1' },
         },
         next: null,
       },
@@ -143,9 +143,9 @@ export const akekuriChr_0019_karin_attack2ActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_5: {
+      changeResource_5: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_4' },
@@ -161,7 +161,7 @@ export const akekuriChr_0019_karin_attack2ActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResourceByActionValue_5' },
+          whenTrue: { $sequence: 'changeResource_5' },
         },
         next: null,
       },
@@ -251,9 +251,9 @@ export const akekuriChr_0019_karin_attack3ActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_2: {
+      changeResource_2: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -269,7 +269,7 @@ export const akekuriChr_0019_karin_attack3ActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResourceByActionValue_2' },
+          whenTrue: { $sequence: 'changeResource_2' },
         },
         next: null,
       },
@@ -398,9 +398,9 @@ export const akekuriChr_0019_karin_attack4ActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_6: {
+      changeResource_6: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_4' },
@@ -416,7 +416,7 @@ export const akekuriChr_0019_karin_attack4ActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResourceByActionValue_6' },
+          whenTrue: { $sequence: 'changeResource_6' },
         },
         next: null,
       },
@@ -575,7 +575,7 @@ export const akekuriChr_0019_karin_power_attackActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_full_immune_medium',
+            buffs: [{ buffId: 'buff_common_full_immune_medium' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -587,7 +587,7 @@ export const akekuriChr_0019_karin_power_attackActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_power_attack_disable_cast_skill',
+            buffs: [{ buffId: 'buff_common_power_attack_disable_cast_skill' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -640,9 +640,9 @@ export const akekuriChr_0019_karin_power_attack: SkillDefinition = {
 export const akekuriChr_0019_karin_plunging_attack_endActionGraph = {
   main: {
     nodes: {
-      changeResourceByActionValue_1: {
+      changeResource_1: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -658,7 +658,7 @@ export const akekuriChr_0019_karin_plunging_attack_endActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResourceByActionValue_1' },
+          whenTrue: { $sequence: 'changeResource_1' },
         },
         next: null,
       },
@@ -795,11 +795,15 @@ export const akekuriChr_0019_karin_ultimate_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0019_karin_potential_3',
+            buffs: [
+              {
+                buffId: 'buff_chr_0019_karin_potential_3',
+                copiedBlackboardAssignments: { atk: 'atk' },
+              },
+            ],
             target: 'party',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
-            copiedBlackboardAssignments: { atk: 'atk' },
           },
         },
         next: null,
@@ -924,9 +928,9 @@ export const akekuriChr_0019_karin_ultimate_skillActionGraph = {
         },
         next: 'modifyActionValue_11',
       },
-      changeResourceByActionValue_13: {
+      changeResource_13: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_13' },
@@ -938,9 +942,9 @@ export const akekuriChr_0019_karin_ultimate_skillActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_14: {
+      changeResource_14: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_14' },
@@ -952,9 +956,9 @@ export const akekuriChr_0019_karin_ultimate_skillActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_15: {
+      changeResource_15: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_15' },
@@ -977,10 +981,14 @@ export const akekuriChr_0019_karin_ultimate_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0019_karin_talent_2_combo',
+            buffs: [
+              {
+                buffId: 'buff_chr_0019_karin_talent_2_combo',
+                copiedBlackboardAssignments: { imbue_scale: 'imbue_scale', duration: 'duration' },
+              },
+            ],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: { imbue_scale: 'imbue_scale', duration: 'duration' },
           },
         },
         next: null,
@@ -989,11 +997,15 @@ export const akekuriChr_0019_karin_ultimate_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0019_karin_talent_2',
+            buffs: [
+              {
+                buffId: 'buff_chr_0019_karin_talent_2',
+                copiedBlackboardAssignments: { potential_5_duration: 'potential_5_duration' },
+              },
+            ],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
-            copiedBlackboardAssignments: { potential_5_duration: 'potential_5_duration' },
           },
         },
         next: 'applyBuff_17',
@@ -1010,7 +1022,7 @@ export const akekuriChr_0019_karin_ultimate_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_damage_immune_ult_skill',
+            buffs: [{ buffId: 'buff_common_damage_immune_ult_skill' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -1132,9 +1144,9 @@ export const akekuriChr_0019_karin_ultimate_skill: SkillDefinition = {
     { startFrame: 0, endFrame: 150, sequence: { $sequence: 'conditional_2' } },
     { startFrame: 0, endFrame: 3, sequence: { $sequence: 'startTimeDilation_3' } },
     { startFrame: 0, endFrame: 12, sequence: { $sequence: 'storeSourceAttributeValue_12' } },
-    { startFrame: 59, endFrame: 83, sequence: { $sequence: 'changeResourceByActionValue_13' } },
-    { startFrame: 86, endFrame: 115, sequence: { $sequence: 'changeResourceByActionValue_14' } },
-    { startFrame: 119, endFrame: 159, sequence: { $sequence: 'changeResourceByActionValue_15' } },
+    { startFrame: 59, endFrame: 83, sequence: { $sequence: 'changeResource_13' } },
+    { startFrame: 86, endFrame: 115, sequence: { $sequence: 'changeResource_14' } },
+    { startFrame: 119, endFrame: 159, sequence: { $sequence: 'changeResource_15' } },
     { startFrame: 0, endFrame: 1, sequence: { $sequence: 'findCharacterTeamTargets_16' } },
     { startFrame: 1, endFrame: 150, sequence: { $sequence: 'conditional_19' } },
     { startFrame: 0, endFrame: 83, sequence: { $sequence: 'applyBuff_20' } },
@@ -1180,9 +1192,9 @@ export const akekuriChr_0019_karin_combo_skillActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_4: {
+      changeResource_4: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'ultimateEnergy',
             amount: { kind: 'valueNode', nodeId: 'data_3' },
@@ -1197,7 +1209,7 @@ export const akekuriChr_0019_karin_combo_skillActionGraph = {
           kind: 'modifyActionValue',
           parameters: { key: 'count', operation: 'add', value: { kind: 'constant', value: 1 } },
         },
-        next: 'changeResourceByActionValue_4',
+        next: 'changeResource_4',
       },
       startTimeDilation_6: {
         action: {
@@ -1235,9 +1247,9 @@ export const akekuriChr_0019_karin_combo_skillActionGraph = {
         },
         next: 'conditional_7',
       },
-      changeResourceByActionValue_9: {
+      changeResource_9: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_8' },
@@ -1256,7 +1268,7 @@ export const akekuriChr_0019_karin_combo_skillActionGraph = {
           whenTrue: { $sequence: 'modifyActionValue_2' },
           whenFalse: { $sequence: 'modifyActionValue_3' },
         },
-        next: 'changeResourceByActionValue_9',
+        next: 'changeResource_9',
       },
       modifyActionValue_11: {
         action: {
@@ -1304,7 +1316,7 @@ export const akekuriChr_0019_karin_combo_skillActionGraph = {
             targets: ['enemy', 'caster'],
           },
         },
-        next: 'changeResourceByActionValue_4',
+        next: 'changeResource_4',
       },
       modifyActionValue_16: {
         action: {
@@ -1334,9 +1346,9 @@ export const akekuriChr_0019_karin_combo_skillActionGraph = {
         },
         next: 'conditional_17',
       },
-      changeResourceByActionValue_19: {
+      changeResource_19: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_18' },
@@ -1353,7 +1365,7 @@ export const akekuriChr_0019_karin_combo_skillActionGraph = {
           kind: 'modifyActionValue',
           parameters: { key: 'count', operation: 'assign', value: { kind: 'constant', value: 0 } },
         },
-        next: 'changeResourceByActionValue_19',
+        next: 'changeResource_19',
       },
       startTimeDilation_21: {
         action: {
@@ -1558,11 +1570,15 @@ const akekuriBuff1ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0019_karin_potential_1_1',
+            buffs: [
+              {
+                buffId: 'buff_chr_0019_karin_potential_1_1',
+                copiedBlackboardAssignments: { duration: 'duration', atk_up: 'atk_up' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: { duration: 'duration', atk_up: 'atk_up' },
           },
         },
         next: null,
@@ -1734,11 +1750,15 @@ const akekuriBuff6ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0019_karin_potential_5_combo',
+            buffs: [
+              {
+                buffId: 'buff_chr_0019_karin_potential_5_combo',
+                copiedBlackboardAssignments: { potential_5_duration: 'potential_5_duration' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: { potential_5_duration: 'potential_5_duration' },
           },
         },
         next: null,

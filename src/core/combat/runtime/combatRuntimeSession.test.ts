@@ -245,7 +245,7 @@ function createFixture(
             {
               kind: 'applyBuff',
               parameters: {
-                buffId: 'switch-counter',
+                buffs: [{ buffId: 'switch-counter' }],
                 target: 'caster',
                 asChildBuff: true,
               },

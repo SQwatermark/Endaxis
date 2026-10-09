@@ -325,7 +325,10 @@ describe('compile equipment contributions', () => {
         main: {
           nodes: {
             init: {
-              action: { kind: 'applyBuff', parameters: { buffId: 'marker', target: 'caster' } },
+              action: {
+                kind: 'applyBuff',
+                parameters: { buffs: [{ buffId: 'marker' }], target: 'caster' },
+              },
               next: null,
             },
           },

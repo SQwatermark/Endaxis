@@ -75,13 +75,17 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_claym_0013_normal_skill',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_claym_0013_normal_skill',
+                      copiedBlackboardAssignments: {
+                        cryst_dmg_up: 'cryst_dmg_up',
+                        duration: 'duration',
+                      },
+                    },
+                  ],
                   target: 'caster',
                   inheritSourceSkillCastInfo: true,
-                  copiedBlackboardAssignments: {
-                    cryst_dmg_up: 'cryst_dmg_up',
-                    duration: 'duration',
-                  },
                 },
               },
               next: 'createTimedMarker_1',
@@ -126,13 +130,17 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_claym_0013_combo_skill',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_claym_0013_combo_skill',
+                      copiedBlackboardAssignments: {
+                        cryst_dmg_up2: 'cryst_dmg_up2',
+                        duration2: 'duration2',
+                      },
+                    },
+                  ],
                   target: 'caster',
                   inheritSourceSkillCastInfo: true,
-                  copiedBlackboardAssignments: {
-                    cryst_dmg_up2: 'cryst_dmg_up2',
-                    duration2: 'duration2',
-                  },
                 },
               },
               next: 'createTimedMarker_6',

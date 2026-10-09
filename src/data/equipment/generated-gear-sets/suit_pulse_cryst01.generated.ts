@@ -12,15 +12,19 @@ const definition = {
           action: {
             kind: 'applyBuff',
             parameters: {
-              buffId: 'buff_equipsuit_cpinflict_01',
+              buffs: [
+                {
+                  buffId: 'buff_equipsuit_cpinflict_01',
+                  blackboardAssignments: {
+                    phy_spell_up: { kind: 'constant', value: 30 },
+                    pulse_dmg_up: { kind: 'constant', value: 0.5 },
+                    cryst_dmg_up: { kind: 'constant', value: 0.5 },
+                    duration: { kind: 'constant', value: 10 },
+                    duration2: { kind: 'constant', value: 10 },
+                  },
+                },
+              ],
               target: 'caster',
-              blackboardAssignments: {
-                phy_spell_up: { kind: 'constant', value: 30 },
-                pulse_dmg_up: { kind: 'constant', value: 0.5 },
-                cryst_dmg_up: { kind: 'constant', value: 0.5 },
-                duration: { kind: 'constant', value: 10 },
-                duration2: { kind: 'constant', value: 10 },
-              },
             },
           },
           next: null,
@@ -59,14 +63,18 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_equipsuit_cpinflict_01_elecdamageadd',
+                  buffs: [
+                    {
+                      buffId: 'buff_equipsuit_cpinflict_01_elecdamageadd',
+                      copiedBlackboardAssignments: {
+                        duration: 'duration',
+                        pulse_dmg_up: 'pulse_dmg_up',
+                      },
+                    },
+                  ],
                   target: 'buffOwner',
                   source: 'buffOwner',
                   inheritSourceSkillCastInfo: true,
-                  copiedBlackboardAssignments: {
-                    duration: 'duration',
-                    pulse_dmg_up: 'pulse_dmg_up',
-                  },
                 },
               },
               next: null,
@@ -83,14 +91,18 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_equipsuit_cpinflict_01_crystdamageadd',
+                  buffs: [
+                    {
+                      buffId: 'buff_equipsuit_cpinflict_01_crystdamageadd',
+                      copiedBlackboardAssignments: {
+                        duration: 'duration2',
+                        cryst_dmg_up: 'cryst_dmg_up',
+                      },
+                    },
+                  ],
                   target: 'buffOwner',
                   source: 'buffOwner',
                   inheritSourceSkillCastInfo: true,
-                  copiedBlackboardAssignments: {
-                    duration: 'duration2',
-                    cryst_dmg_up: 'cryst_dmg_up',
-                  },
                 },
               },
               next: null,

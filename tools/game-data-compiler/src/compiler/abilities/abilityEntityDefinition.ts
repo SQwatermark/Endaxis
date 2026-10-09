@@ -177,11 +177,17 @@ function compileAbilityEntityPassiveSkill(
     return {
       kind: 'applyBuff' as const,
       parameters: {
-        buffId: materialized.buffId,
+        buffs: [
+          {
+            buffId: materialized.buffId,
+            ...(Object.keys(assignments).length === 0
+              ? {}
+              : { blackboardAssignments: assignments }),
+          },
+        ],
         target: 'currentAbilityEntity' as const,
         source: 'currentAbilityEntity' as const,
         inheritSourceSkillCastInfo: false,
-        ...(Object.keys(assignments).length === 0 ? {} : { blackboardAssignments: assignments }),
       },
     };
   });

@@ -17,13 +17,17 @@ const definition = {
           action: {
             kind: 'applyBuff',
             parameters: {
-              buffId: 'buff_equipsuit_spellburst_01',
+              buffs: [
+                {
+                  buffId: 'buff_equipsuit_spellburst_01',
+                  blackboardAssignments: {
+                    phy_spell_up: { kind: 'constant', value: 16 },
+                    max_stack: { kind: 'constant', value: 3 },
+                    duration: { kind: 'constant', value: 20 },
+                  },
+                },
+              ],
               target: 'caster',
-              blackboardAssignments: {
-                phy_spell_up: { kind: 'constant', value: 16 },
-                max_stack: { kind: 'constant', value: 3 },
-                duration: { kind: 'constant', value: 20 },
-              },
             },
           },
           next: null,
@@ -66,16 +70,20 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_equipsuit_spellburst_01_physpellup',
+                  buffs: [
+                    {
+                      buffId: 'buff_equipsuit_spellburst_01_physpellup',
+                      copiedBlackboardAssignments: {
+                        phy_spell_up: 'phy_spell_up',
+                        duration: 'duration',
+                        max_stack: 'max_stack',
+                      },
+                    },
+                  ],
                   target: 'buffOwner',
                   source: 'buffOwner',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: {
-                    phy_spell_up: 'phy_spell_up',
-                    duration: 'duration',
-                    max_stack: 'max_stack',
-                  },
                 },
               },
               next: 'setGlobalCooldown_1',

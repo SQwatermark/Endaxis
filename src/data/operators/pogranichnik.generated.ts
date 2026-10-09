@@ -26,9 +26,9 @@ export const pogranichnikChr_0029_pograni_attack1ActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_2: {
+      changeResource_2: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -44,7 +44,7 @@ export const pogranichnikChr_0029_pograni_attack1ActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResourceByActionValue_2' },
+          whenTrue: { $sequence: 'changeResource_2' },
         },
         next: null,
       },
@@ -128,9 +128,9 @@ export const pogranichnikChr_0029_pograni_attack2ActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_2: {
+      changeResource_2: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -146,7 +146,7 @@ export const pogranichnikChr_0029_pograni_attack2ActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResourceByActionValue_2' },
+          whenTrue: { $sequence: 'changeResource_2' },
         },
         next: null,
       },
@@ -176,9 +176,9 @@ export const pogranichnikChr_0029_pograni_attack2ActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_6: {
+      changeResource_6: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_4' },
@@ -194,7 +194,7 @@ export const pogranichnikChr_0029_pograni_attack2ActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResourceByActionValue_6' },
+          whenTrue: { $sequence: 'changeResource_6' },
         },
         next: null,
       },
@@ -283,9 +283,9 @@ export const pogranichnikChr_0029_pograni_attack3ActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_2: {
+      changeResource_2: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -301,7 +301,7 @@ export const pogranichnikChr_0029_pograni_attack3ActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResourceByActionValue_2' },
+          whenTrue: { $sequence: 'changeResource_2' },
         },
         next: null,
       },
@@ -333,9 +333,9 @@ export const pogranichnikChr_0029_pograni_attack3ActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_6: {
+      changeResource_6: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_5' },
@@ -351,7 +351,7 @@ export const pogranichnikChr_0029_pograni_attack3ActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_6' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResourceByActionValue_6' },
+          whenTrue: { $sequence: 'changeResource_6' },
         },
         next: null,
       },
@@ -430,9 +430,9 @@ export const pogranichnikChr_0029_pograni_attack3: SkillDefinition = {
 export const pogranichnikChr_0029_pograni_attack4ActionGraph = {
   main: {
     nodes: {
-      changeResourceByActionValue_1: {
+      changeResource_1: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -448,7 +448,7 @@ export const pogranichnikChr_0029_pograni_attack4ActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResourceByActionValue_1' },
+          whenTrue: { $sequence: 'changeResource_1' },
         },
         next: null,
       },
@@ -592,9 +592,9 @@ export const pogranichnikChr_0029_pograni_attack4: SkillDefinition = {
 export const pogranichnikChr_0029_pograni_attack5ActionGraph = {
   main: {
     nodes: {
-      changeResourceByActionValue_1: {
+      changeResource_1: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -615,7 +615,7 @@ export const pogranichnikChr_0029_pograni_attack5ActionGraph = {
             value: { kind: 'constant', value: 1 },
           },
         },
-        next: 'changeResourceByActionValue_1',
+        next: 'changeResource_1',
       },
       conditional_3: {
         action: {
@@ -848,7 +848,7 @@ export const pogranichnikChr_0029_pograni_power_attackActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_full_immune_medium',
+            buffs: [{ buffId: 'buff_common_full_immune_medium' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -860,7 +860,7 @@ export const pogranichnikChr_0029_pograni_power_attackActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_power_attack_disable_cast_skill',
+            buffs: [{ buffId: 'buff_common_power_attack_disable_cast_skill' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -925,9 +925,9 @@ export const pogranichnikChr_0029_pograni_power_attack: SkillDefinition = {
 export const pogranichnikChr_0029_pograni_plunging_attack_endActionGraph = {
   main: {
     nodes: {
-      changeResourceByActionValue_1: {
+      changeResource_1: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -943,7 +943,7 @@ export const pogranichnikChr_0029_pograni_plunging_attack_endActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResourceByActionValue_1' },
+          whenTrue: { $sequence: 'changeResource_1' },
         },
         next: null,
       },
@@ -1046,9 +1046,9 @@ export const pogranichnikChr_0029_pograni_normal_skillActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_6: {
+      changeResource_6: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_5' },
@@ -1060,9 +1060,9 @@ export const pogranichnikChr_0029_pograni_normal_skillActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_7: {
+      changeResource_7: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_6' },
@@ -1074,9 +1074,9 @@ export const pogranichnikChr_0029_pograni_normal_skillActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_8: {
+      changeResource_8: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_7' },
@@ -1088,9 +1088,9 @@ export const pogranichnikChr_0029_pograni_normal_skillActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_9: {
+      changeResource_9: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_8' },
@@ -1107,22 +1107,10 @@ export const pogranichnikChr_0029_pograni_normal_skillActionGraph = {
           kind: 'switch',
           parameters: { choice: { kind: 'valueNode', nodeId: 'data_9' }, alwaysNext: true },
           options: [
-            {
-              value: { kind: 'constant', value: 1 },
-              sequence: { $sequence: 'changeResourceByActionValue_6' },
-            },
-            {
-              value: { kind: 'constant', value: 2 },
-              sequence: { $sequence: 'changeResourceByActionValue_7' },
-            },
-            {
-              value: { kind: 'constant', value: 3 },
-              sequence: { $sequence: 'changeResourceByActionValue_8' },
-            },
-            {
-              value: { kind: 'constant', value: 4 },
-              sequence: { $sequence: 'changeResourceByActionValue_9' },
-            },
+            { value: { kind: 'constant', value: 1 }, sequence: { $sequence: 'changeResource_6' } },
+            { value: { kind: 'constant', value: 2 }, sequence: { $sequence: 'changeResource_7' } },
+            { value: { kind: 'constant', value: 3 }, sequence: { $sequence: 'changeResource_8' } },
+            { value: { kind: 'constant', value: 4 }, sequence: { $sequence: 'changeResource_9' } },
           ],
         },
         next: null,
@@ -1243,7 +1231,7 @@ export const pogranichnikChr_0029_pograni_normal_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_obtain_ultimate_sp',
+            buffs: [{ buffId: 'buff_common_obtain_ultimate_sp' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
           },
@@ -1470,9 +1458,9 @@ export const pogranichnikChr_0029_pograni_combo_skillActionGraph = {
         next: null,
       },
       finishTimeline_23: { action: { kind: 'finishTimeline', parameters: {} }, next: null },
-      changeResourceByActionValue_28: {
+      changeResource_28: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'ultimateEnergy',
             amount: { kind: 'valueNode', nodeId: 'data_10' },
@@ -1495,7 +1483,7 @@ export const pogranichnikChr_0029_pograni_combo_skillActionGraph = {
             targets: ['enemy', 'caster'],
           },
         },
-        next: 'changeResourceByActionValue_28',
+        next: 'changeResource_28',
       },
       dealDamage_30: {
         action: {
@@ -1510,9 +1498,9 @@ export const pogranichnikChr_0029_pograni_combo_skillActionGraph = {
         },
         next: 'startTimeDilation_29',
       },
-      changeResourceByActionValue_31: {
+      changeResource_31: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_13' },
@@ -1534,7 +1522,7 @@ export const pogranichnikChr_0029_pograni_combo_skillActionGraph = {
             right: { kind: 'valueNode', nodeId: 'data_15' },
           },
         },
-        next: 'changeResourceByActionValue_31',
+        next: 'changeResource_31',
       },
       startTimeDilation_33: {
         action: {
@@ -1564,9 +1552,9 @@ export const pogranichnikChr_0029_pograni_combo_skillActionGraph = {
         },
         next: 'startTimeDilation_33',
       },
-      changeResourceByActionValue_35: {
+      changeResource_35: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_18' },
@@ -1588,7 +1576,7 @@ export const pogranichnikChr_0029_pograni_combo_skillActionGraph = {
             right: { kind: 'valueNode', nodeId: 'data_20' },
           },
         },
-        next: 'changeResourceByActionValue_35',
+        next: 'changeResource_35',
       },
       startTimeDilation_37: {
         action: {
@@ -1658,9 +1646,9 @@ export const pogranichnikChr_0029_pograni_combo_skillActionGraph = {
         },
         next: 'startTimeDilation_37',
       },
-      changeResourceByActionValue_39: {
+      changeResource_39: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_23' },
@@ -1682,7 +1670,7 @@ export const pogranichnikChr_0029_pograni_combo_skillActionGraph = {
             right: { kind: 'valueNode', nodeId: 'data_25' },
           },
         },
-        next: 'changeResourceByActionValue_39',
+        next: 'changeResource_39',
       },
       dealDamage_51: {
         action: {
@@ -1697,9 +1685,9 @@ export const pogranichnikChr_0029_pograni_combo_skillActionGraph = {
         },
         next: 'startTimeDilation_37',
       },
-      changeResourceByActionValue_52: {
+      changeResource_52: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_28' },
@@ -1721,7 +1709,7 @@ export const pogranichnikChr_0029_pograni_combo_skillActionGraph = {
             right: { kind: 'valueNode', nodeId: 'data_30' },
           },
         },
-        next: 'changeResourceByActionValue_52',
+        next: 'changeResource_52',
       },
       startTimeDilation_68: {
         action: {
@@ -2124,7 +2112,7 @@ export const pogranichnikChr_0029_pograni_ultimate_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_damage_immune_ult_skill',
+            buffs: [{ buffId: 'buff_common_damage_immune_ult_skill' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -2252,16 +2240,20 @@ const pogranichnikPassive1ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0029_pograni_talent1',
+            buffs: [
+              {
+                buffId: 'buff_chr_0029_pograni_talent1',
+                copiedBlackboardAssignments: {
+                  duration: 'duration',
+                  atk_up: 'atk_up',
+                  physpell_up: 'physpell_up',
+                  max_stack: 'max_stack_owner',
+                },
+              },
+            ],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
-            copiedBlackboardAssignments: {
-              duration: 'duration',
-              atk_up: 'atk_up',
-              physpell_up: 'physpell_up',
-              max_stack: 'max_stack_owner',
-            },
           },
         },
         next: null,
@@ -2324,14 +2316,18 @@ const pogranichnikPassive1ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0029_pograni_talent1_exist',
+            buffs: [
+              {
+                buffId: 'buff_chr_0029_pograni_talent1_exist',
+                blackboardAssignments: {
+                  atk_up: { kind: 'valueNode', nodeId: 'data_8' },
+                  max_stack_owner: { kind: 'valueNode', nodeId: 'data_9' },
+                  physpell_up: { kind: 'valueNode', nodeId: 'data_10' },
+                },
+              },
+            ],
             target: 'caster',
             inheritSourceSkillCastInfo: false,
-            blackboardAssignments: {
-              atk_up: { kind: 'valueNode', nodeId: 'data_8' },
-              max_stack_owner: { kind: 'valueNode', nodeId: 'data_9' },
-              physpell_up: { kind: 'valueNode', nodeId: 'data_10' },
-            },
           },
         },
         next: null,
@@ -2391,7 +2387,7 @@ const pogranichnikComboCondition1ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0029_pograni_combo_skill_count2',
+            buffs: [{ buffId: 'buff_chr_0029_pograni_combo_skill_count2' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
           },
@@ -2402,7 +2398,7 @@ const pogranichnikComboCondition1ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0029_pograni_combo_skill_count1',
+            buffs: [{ buffId: 'buff_chr_0029_pograni_combo_skill_count1' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
           },
@@ -2413,7 +2409,7 @@ const pogranichnikComboCondition1ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0029_pograni_combo_skill_count3',
+            buffs: [{ buffId: 'buff_chr_0029_pograni_combo_skill_count3' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
           },
@@ -2433,7 +2429,7 @@ const pogranichnikComboCondition1ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0029_pograni_combo_skill_count4',
+            buffs: [{ buffId: 'buff_chr_0029_pograni_combo_skill_count4' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
           },
@@ -2726,24 +2722,30 @@ const pogranichnikBuff7: SkillBuffDefinition = {
 const pogranichnikBuff8ActionGraph = {
   main: {
     nodes: {
-      applyBuff_1: {
+      aura_1: {
         action: {
-          kind: 'applyBuff',
+          kind: 'aura',
           parameters: {
-            buffId: 'buff_chr_0029_pograni_ultimate_skill_abilityentity_inaura',
             target: 'enemy',
             source: 'buffOwner',
-            finishByAction: true,
             inheritSourceSkillCastInfo: true,
-            blackboardAssignments: {
-              duration: { kind: 'valueNode', nodeId: 'data_1' },
-              atk_scale_trigger: { kind: 'valueNode', nodeId: 'data_2' },
-              atk_scale_final: { kind: 'valueNode', nodeId: 'data_3' },
-              atb_trigger: { kind: 'valueNode', nodeId: 'data_4' },
-              atb_final: { kind: 'valueNode', nodeId: 'data_5' },
-              poise_final: { kind: 'valueNode', nodeId: 'data_6' },
-            },
+            buffs: [
+              {
+                buffId: 'buff_chr_0029_pograni_ultimate_skill_abilityentity_inaura',
+                blackboardAssignments: {
+                  duration: { kind: 'valueNode', nodeId: 'data_1' },
+                  atk_scale_trigger: { kind: 'valueNode', nodeId: 'data_2' },
+                  atk_scale_final: { kind: 'valueNode', nodeId: 'data_3' },
+                  atb_trigger: { kind: 'valueNode', nodeId: 'data_4' },
+                  atb_final: { kind: 'valueNode', nodeId: 'data_5' },
+                  poise_final: { kind: 'valueNode', nodeId: 'data_6' },
+                },
+                stringBlackboardAssignments: {},
+              },
+            ],
           },
+          onEnter: { $sequence: null },
+          onExit: { $sequence: null },
         },
         next: null,
       },
@@ -2751,13 +2753,17 @@ const pogranichnikBuff8ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0029_pograni_ultimate_skill_count',
+            buffs: [
+              {
+                buffId: 'buff_chr_0029_pograni_ultimate_skill_count',
+                copiedBlackboardAssignments: { duration: 'duration' },
+              },
+            ],
             target: 'buffSource',
             source: 'buffSource',
             count: { kind: 'valueNode', nodeId: 'data_7' },
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
-            copiedBlackboardAssignments: { duration: 'duration' },
           },
         },
         next: null,
@@ -2807,7 +2813,7 @@ const pogranichnikBuff8: SkillBuffDefinition = {
   attributeModifiers: [],
   lifecycleSequences: {
     start: { $sequence: 'applyBuff_2' },
-    enable: { $sequence: 'applyBuff_1' },
+    enable: { $sequence: 'aura_1' },
     finish: { $sequence: 'finishBuffsById_3' },
   },
   actionGraph: pogranichnikBuff8ActionGraph,
@@ -2820,16 +2826,20 @@ const pogranichnikBuff9ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0029_pograni_talent1',
+            buffs: [
+              {
+                buffId: 'buff_chr_0029_pograni_talent1',
+                copiedBlackboardAssignments: {
+                  duration: 'duration_temp',
+                  atk_up: 'atk_up_temp',
+                  physpell_up: 'physpell_up_temp',
+                  max_stack: 'max_stack_team_temp',
+                },
+              },
+            ],
             target: 'eventSource',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: {
-              duration: 'duration_temp',
-              atk_up: 'atk_up_temp',
-              physpell_up: 'physpell_up_temp',
-              max_stack: 'max_stack_team_temp',
-            },
           },
         },
         next: null,
@@ -2838,16 +2848,20 @@ const pogranichnikBuff9ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0029_pograni_talent1',
+            buffs: [
+              {
+                buffId: 'buff_chr_0029_pograni_talent1',
+                copiedBlackboardAssignments: {
+                  duration: 'duration_temp',
+                  atk_up: 'atk_up_temp',
+                  physpell_up: 'physpell_up_temp',
+                  max_stack: 'max_stack_owner_temp',
+                },
+              },
+            ],
             target: 'eventSource',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: {
-              duration: 'duration_temp',
-              atk_up: 'atk_up_temp',
-              physpell_up: 'physpell_up_temp',
-              max_stack: 'max_stack_owner_temp',
-            },
           },
         },
         next: null,
@@ -2953,15 +2967,19 @@ const pogranichnikBuff9ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0029_pograni_ultimate_skill_finall_rush',
+            buffs: [
+              {
+                buffId: 'buff_chr_0029_pograni_ultimate_skill_finall_rush',
+                copiedBlackboardAssignments: {
+                  atk_scale_final: 'atk_scale_final',
+                  atb_final: 'atb_final',
+                  poise_final: 'poise_final',
+                },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: {
-              atk_scale_final: 'atk_scale_final',
-              atb_final: 'atb_final',
-              poise_final: 'poise_final',
-            },
           },
         },
         next: 'createTimedMarker_11',
@@ -3039,16 +3057,20 @@ const pogranichnikBuff9ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0029_pograni_talent1',
+            buffs: [
+              {
+                buffId: 'buff_chr_0029_pograni_talent1',
+                copiedBlackboardAssignments: {
+                  duration: 'duration_temp',
+                  atk_up: 'atk_up_temp',
+                  physpell_up: 'physpell_up_temp',
+                  max_stack: 'max_stack_owner_temp',
+                },
+              },
+            ],
             target: 'buffSource',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: {
-              duration: 'duration_temp',
-              atk_up: 'atk_up_temp',
-              physpell_up: 'physpell_up_temp',
-              max_stack: 'max_stack_owner_temp',
-            },
           },
         },
         next: null,
@@ -3133,15 +3155,19 @@ const pogranichnikBuff9ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0029_pograni_ultimate_skill_finall_rush',
+            buffs: [
+              {
+                buffId: 'buff_chr_0029_pograni_ultimate_skill_finall_rush',
+                copiedBlackboardAssignments: {
+                  atk_scale_final: 'atk_scale_final',
+                  atb_final: 'atb_final',
+                  poise_final: 'poise_final',
+                },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: {
-              atk_scale_final: 'atk_scale_final',
-              atb_final: 'atb_final',
-              poise_final: 'poise_final',
-            },
           },
         },
         next: 'createTimedMarker_38',
@@ -3749,17 +3775,21 @@ export const pogranichnik: OperatorDefinition = {
                   action: {
                     kind: 'applyBuff',
                     parameters: {
-                      buffId: 'buff_chr_0029_pograni_ultimate_skill',
+                      buffs: [
+                        {
+                          buffId: 'buff_chr_0029_pograni_ultimate_skill',
+                          copiedBlackboardAssignments: {
+                            duration: 'duration',
+                            atk_scale_trigger: 'atk_scale_trigger',
+                            atk_scale_final: 'atk_scale_final',
+                            atb_trigger: 'atb_trigger',
+                            atb_final: 'atb_final',
+                            poise_final: 'poise_final',
+                          },
+                        },
+                      ],
                       target: 'caster',
                       inheritSourceSkillCastInfo: true,
-                      copiedBlackboardAssignments: {
-                        duration: 'duration',
-                        atk_scale_trigger: 'atk_scale_trigger',
-                        atk_scale_final: 'atk_scale_final',
-                        atb_trigger: 'atb_trigger',
-                        atb_final: 'atb_final',
-                        poise_final: 'poise_final',
-                      },
                     },
                   },
                   next: null,
@@ -3857,26 +3887,10 @@ export const pogranichnik: OperatorDefinition = {
               endFrame: 360,
               sequence: { $sequence: 'finishActionOwnerAbilityEntity_8' },
             },
-            {
-              startFrame: 9,
-              endFrame: 13,
-              sequence: { $sequence: 'changeResourceByActionValue_14' },
-            },
-            {
-              startFrame: 108,
-              endFrame: 112,
-              sequence: { $sequence: 'changeResourceByActionValue_17' },
-            },
-            {
-              startFrame: 209,
-              endFrame: 213,
-              sequence: { $sequence: 'changeResourceByActionValue_20' },
-            },
-            {
-              startFrame: 307,
-              endFrame: 311,
-              sequence: { $sequence: 'changeResourceByActionValue_23' },
-            },
+            { startFrame: 9, endFrame: 13, sequence: { $sequence: 'changeResource_14' } },
+            { startFrame: 108, endFrame: 112, sequence: { $sequence: 'changeResource_17' } },
+            { startFrame: 209, endFrame: 213, sequence: { $sequence: 'changeResource_20' } },
+            { startFrame: 307, endFrame: 311, sequence: { $sequence: 'changeResource_23' } },
             { startFrame: 0, endFrame: 3, sequence: { $sequence: 'startTimeDilation_24' } },
             { startFrame: 100, endFrame: 103, sequence: { $sequence: 'startTimeDilation_24' } },
             { startFrame: 200, endFrame: 203, sequence: { $sequence: 'startTimeDilation_24' } },
@@ -3976,9 +3990,9 @@ export const pogranichnik: OperatorDefinition = {
                   },
                   next: 'startTimeDilation_12',
                 },
-                changeResourceByActionValue_14: {
+                changeResource_14: {
                   action: {
-                    kind: 'changeResourceByActionValue',
+                    kind: 'changeResource',
                     parameters: {
                       resource: 'sp',
                       amount: { kind: 'valueNode', nodeId: 'data_6' },
@@ -4002,9 +4016,9 @@ export const pogranichnik: OperatorDefinition = {
                   },
                   next: 'startTimeDilation_12',
                 },
-                changeResourceByActionValue_17: {
+                changeResource_17: {
                   action: {
-                    kind: 'changeResourceByActionValue',
+                    kind: 'changeResource',
                     parameters: {
                       resource: 'sp',
                       amount: { kind: 'valueNode', nodeId: 'data_8' },
@@ -4028,9 +4042,9 @@ export const pogranichnik: OperatorDefinition = {
                   },
                   next: 'startTimeDilation_12',
                 },
-                changeResourceByActionValue_20: {
+                changeResource_20: {
                   action: {
-                    kind: 'changeResourceByActionValue',
+                    kind: 'changeResource',
                     parameters: {
                       resource: 'sp',
                       amount: { kind: 'valueNode', nodeId: 'data_10' },
@@ -4054,9 +4068,9 @@ export const pogranichnik: OperatorDefinition = {
                   },
                   next: 'startTimeDilation_12',
                 },
-                changeResourceByActionValue_23: {
+                changeResource_23: {
                   action: {
-                    kind: 'changeResourceByActionValue',
+                    kind: 'changeResource',
                     parameters: {
                       resource: 'sp',
                       amount: { kind: 'valueNode', nodeId: 'data_12' },
@@ -4205,9 +4219,9 @@ export const pogranichnik: OperatorDefinition = {
                   },
                   next: null,
                 },
-                changeResourceByActionValue_3: {
+                changeResource_3: {
                   action: {
-                    kind: 'changeResourceByActionValue',
+                    kind: 'changeResource',
                     parameters: {
                       resource: 'sp',
                       amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -4229,7 +4243,7 @@ export const pogranichnik: OperatorDefinition = {
                     },
                     key: 'abilityentity_chr_0029_pograni_ultimate_skill:chr_0029_pograni_ultimate_skill_abilityentity|chr_0029_pograni_ultimate_skill_abilityentity_attack2|chr_0029_pograni_ultimate_skill_abilityentity_finish1|chr_0029_pograni_ultimate_skill_abilityentity_finish2|chr_0029_pograni_ultimate_skill_abilityentity_finish3|chr_0029_pograni_ultimate_skill_abilityentity_finish4:/childSkills/chr_0029_pograni_ultimate_skill_abilityentity_finish1/actionGraph/main/nodes/dealDamage_4/action',
                   },
-                  next: 'changeResourceByActionValue_3',
+                  next: 'changeResource_3',
                 },
                 startTimeDilation_5: {
                   action: {
@@ -4291,9 +4305,9 @@ export const pogranichnik: OperatorDefinition = {
                   action: { kind: 'finishActionOwnerAbilityEntity', parameters: {} },
                   next: null,
                 },
-                changeResourceByActionValue_2: {
+                changeResource_2: {
                   action: {
-                    kind: 'changeResourceByActionValue',
+                    kind: 'changeResource',
                     parameters: {
                       resource: 'sp',
                       amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -4315,7 +4329,7 @@ export const pogranichnik: OperatorDefinition = {
                     },
                     key: 'abilityentity_chr_0029_pograni_ultimate_skill:chr_0029_pograni_ultimate_skill_abilityentity|chr_0029_pograni_ultimate_skill_abilityentity_attack2|chr_0029_pograni_ultimate_skill_abilityentity_finish1|chr_0029_pograni_ultimate_skill_abilityentity_finish2|chr_0029_pograni_ultimate_skill_abilityentity_finish3|chr_0029_pograni_ultimate_skill_abilityentity_finish4:/childSkills/chr_0029_pograni_ultimate_skill_abilityentity_finish2/actionGraph/main/nodes/dealDamage_3/action',
                   },
-                  next: 'changeResourceByActionValue_2',
+                  next: 'changeResource_2',
                 },
               },
               dataNodes: {
@@ -4360,9 +4374,9 @@ export const pogranichnik: OperatorDefinition = {
                   action: { kind: 'finishActionOwnerAbilityEntity', parameters: {} },
                   next: null,
                 },
-                changeResourceByActionValue_2: {
+                changeResource_2: {
                   action: {
-                    kind: 'changeResourceByActionValue',
+                    kind: 'changeResource',
                     parameters: {
                       resource: 'sp',
                       amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -4384,7 +4398,7 @@ export const pogranichnik: OperatorDefinition = {
                     },
                     key: 'abilityentity_chr_0029_pograni_ultimate_skill:chr_0029_pograni_ultimate_skill_abilityentity|chr_0029_pograni_ultimate_skill_abilityentity_attack2|chr_0029_pograni_ultimate_skill_abilityentity_finish1|chr_0029_pograni_ultimate_skill_abilityentity_finish2|chr_0029_pograni_ultimate_skill_abilityentity_finish3|chr_0029_pograni_ultimate_skill_abilityentity_finish4:/childSkills/chr_0029_pograni_ultimate_skill_abilityentity_finish3/actionGraph/main/nodes/dealDamage_3/action',
                   },
-                  next: 'changeResourceByActionValue_2',
+                  next: 'changeResource_2',
                 },
               },
               dataNodes: {
@@ -4466,9 +4480,9 @@ export const pogranichnik: OperatorDefinition = {
                   },
                   next: 'dealDamage_3',
                 },
-                changeResourceByActionValue_5: {
+                changeResource_5: {
                   action: {
-                    kind: 'changeResourceByActionValue',
+                    kind: 'changeResource',
                     parameters: {
                       resource: 'sp',
                       amount: { kind: 'valueNode', nodeId: 'data_3' },
@@ -4487,7 +4501,7 @@ export const pogranichnik: OperatorDefinition = {
                       condition: { kind: 'conditionNode', nodeId: 'data_5' },
                       alwaysNext: true,
                     },
-                    whenTrue: { $sequence: 'changeResourceByActionValue_5' },
+                    whenTrue: { $sequence: 'changeResource_5' },
                   },
                   next: null,
                 },

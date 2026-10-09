@@ -78,7 +78,12 @@ export interface ActionGraphExecutionHost {
   targets(
     parameters: ResolvedCombatStepForKind<'forEachContextTarget'>['parameters'],
   ): RuntimeTargetGroup;
-  withTarget(target: RuntimeTargetRef): ActionGraphExecutionHost;
+  withTarget(target: RuntimeTargetRef, asInput?: boolean): ActionGraphExecutionHost;
+  aura?(parameters: import('../../compiler/combatProgram').ResolvedCombatStepParameters['aura']): {
+    targets(): readonly RuntimeTargetRef[];
+    apply(target: RuntimeTargetRef): import('../state/foundationState').BuffReference[];
+    finish(references: readonly import('../state/foundationState').BuffReference[]): void;
+  };
   bindOperation(
     action: CompiledGraphOperation,
   ): CombatStep & { readonly executionData: GraphLeafStepData };
@@ -151,7 +156,14 @@ function wrapMacroHost(
         create(reference, index, wrapMacroHost(inner, args), saved),
       ),
     targets: parameters => host.targets(substitute(parameters)),
-    withTarget: target => wrapMacroHost(host.withTarget(target), args),
+    withTarget: (target, asInput) => wrapMacroHost(host.withTarget(target, asInput), args),
+    ...(host.aura === undefined
+      ? {}
+      : {
+          aura: (
+            parameters: import('../../compiler/combatProgram').ResolvedCombatStepParameters['aura'],
+          ) => host.aura!(substitute(parameters)),
+        }),
     bindOperation: action => host.bindOperation(substitute(action)),
     canExecute: () => host.canExecute(),
     evaluate: condition => host.evaluate(substitute(condition)),
@@ -419,6 +431,94 @@ export class ActionGraphExecution extends CombatStep {
         reset: () => listener.reset(),
         tick() {},
       };
+    } else if (action.kind === 'aura') {
+      if (saved && saved.kind !== 'graphAura') throw new Error(`expected Aura state: ${id}`);
+      const data = saved ?? { kind: 'graphAura' as const, active: false, influences: [] };
+      const influence = this.host.aura?.(action.parameters);
+      if (!influence) throw new Error('Aura runtime is not configured');
+      const callbacks = new Map<
+        number,
+        { enter: ActionGraphExecution; exit: ActionGraphExecution }
+      >();
+      const bind = (index: number) => {
+        let pair = callbacks.get(index);
+        if (pair) return pair;
+        const item = data.influences[index]!;
+        const host = this.host.withTarget(item.target, true);
+        pair = {
+          enter: this.#child(id, 0, action.onEnter.$sequence, item.enter ?? undefined, host, index),
+          exit: this.#child(id, 1, action.onExit.$sequence, item.exit ?? undefined, host, index),
+        };
+        item.enter = pair.enter.runtimeState;
+        item.exit = pair.exit.runtimeState;
+        callbacks.set(index, pair);
+        return pair;
+      };
+      // 恢复只重新绑定已有程序和状态，不执行进入、退出或重新施加。
+      data.influences.forEach((_item, index) => bind(index));
+      const leave = (index: number, context: CombatExecutionContext) => {
+        const item = data.influences[index]!;
+        if (!item.active) return;
+        item.active = false;
+        influence.finish(item.buffs);
+        item.buffs.length = 0;
+        bind(index).exit.tryExecute(context, true);
+      };
+      const synchronize = (context: CombatExecutionContext) => {
+        if (!data.active) return;
+        const targets = influence.targets();
+        const key = (target: RuntimeTargetRef) => JSON.stringify(target);
+        const current = new Set(targets.map(key));
+        for (let index = data.influences.length - 1; index >= 0; index--)
+          if (!current.has(key(data.influences[index]!.target))) leave(index, context);
+        for (const target of targets) {
+          if (!data.active) break;
+          if (data.influences.some(item => item.active && key(item.target) === key(target)))
+            continue;
+          const index = data.influences.length;
+          const item: import('../state/actionState').AuraInfluenceState = {
+            target: { ...target },
+            buffs: [],
+            active: true,
+            enter: null,
+            exit: null,
+          };
+          data.influences.push(item);
+          const references = influence.apply(target);
+          if (!data.active || !item.active) {
+            influence.finish(references);
+            continue;
+          }
+          item.buffs.push(...references);
+          bind(index).enter.tryExecute(context, true);
+        }
+      };
+      binding = {
+        data,
+        execute: context => {
+          data.active = true;
+          synchronize(context);
+          return true;
+        },
+        tick: (_delta, context) => synchronize(context),
+        end: context => {
+          data.active = false;
+          for (let index = data.influences.length - 1; index >= 0; index--) leave(index, context);
+          for (const pair of callbacks.values()) {
+            pair.enter.end(context);
+            pair.exit.end(context);
+          }
+        },
+        reset: context => {
+          data.active = false;
+          for (const pair of callbacks.values()) {
+            pair.enter.reset(context);
+            pair.exit.reset(context);
+          }
+          callbacks.clear();
+          data.influences.length = 0;
+        },
+      };
     } else if (action.kind === 'forEachContextTarget') {
       if (saved && saved.kind !== 'graphTargets')
         throw new Error(`expected target loop state: ${id}`);
@@ -610,6 +710,7 @@ export class ActionGraphExecution extends CombatStep {
       }
     } else {
       if (
+        saved?.kind === 'graphAura' ||
         saved?.kind === 'graphBranch' ||
         saved?.kind === 'graphMacro' ||
         saved?.kind === 'graphGuard' ||

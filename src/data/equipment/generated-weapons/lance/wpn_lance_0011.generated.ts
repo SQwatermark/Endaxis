@@ -69,14 +69,18 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_lance_0011_normal_magic_up',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_lance_0011_normal_magic_up',
+                      copiedBlackboardAssignments: {
+                        spell_dmg_up2: 'spell_dmg_up2',
+                        duration: 'duration',
+                      },
+                    },
+                  ],
                   target: 'caster',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: {
-                    spell_dmg_up2: 'spell_dmg_up2',
-                    duration: 'duration',
-                  },
                 },
               },
               next: null,
@@ -93,14 +97,18 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_lance_0011_combo_magic_up',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_lance_0011_combo_magic_up',
+                      copiedBlackboardAssignments: {
+                        spell_dmg_up3: 'spell_dmg_up3',
+                        duration2: 'duration2',
+                      },
+                    },
+                  ],
                   target: 'caster',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: {
-                    spell_dmg_up3: 'spell_dmg_up3',
-                    duration2: 'duration2',
-                  },
                 },
               },
               next: null,

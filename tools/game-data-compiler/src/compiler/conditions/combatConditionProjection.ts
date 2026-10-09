@@ -585,7 +585,8 @@ function compileConditionLeaf(
       condition.targetGroupKey === '' &&
       (context.actionTargetTarget === 'eventSource' ||
         context.actionTargetTarget === 'eventTarget' ||
-        context.actionTargetTarget === 'actionInputTarget')
+        context.actionTargetTarget === 'actionInputTarget' ||
+        context.actionTargetTarget === 'currentOperator')
     ) {
       return {
         kind: 'actionInputTargetIdentityMatch',

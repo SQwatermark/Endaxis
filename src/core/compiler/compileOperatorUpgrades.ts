@@ -7,7 +7,6 @@ import type {
   CompiledOperatorPassiveProgram,
   CompiledOperatorUpgradeEventProgram,
   CompiledSkillProgram,
-  ResolvedCombatStepForKind,
 } from './combatProgram';
 import type {
   LevelValues,
@@ -318,24 +317,28 @@ function compileOperatorInitializationProgramsWithEntry(
                     action: {
                       kind: 'applyBuff' as const,
                       parameters: {
-                        buffId: installation.buffId,
+                        buffs: [
+                          {
+                            buffId: installation.buffId,
+                            blackboardAssignments: Object.fromEntries(
+                              Object.entries(installation.blackboardAssignments ?? {}).map(
+                                ([key, value]) => [
+                                  key,
+                                  {
+                                    kind: 'constant' as const,
+                                    value: resolveUpgradeLevelValue(
+                                      value,
+                                      upgrade.level,
+                                      `${path}.attachedBuffs[${index}].blackboardAssignments.${key}`,
+                                    ),
+                                  },
+                                ],
+                              ),
+                            ),
+                          },
+                        ],
                         target: 'caster' as const,
                         inheritSourceSkillCastInfo: false,
-                        blackboardAssignments: Object.fromEntries(
-                          Object.entries(installation.blackboardAssignments ?? {}).map(
-                            ([key, value]) => [
-                              key,
-                              {
-                                kind: 'constant' as const,
-                                value: resolveUpgradeLevelValue(
-                                  value,
-                                  upgrade.level,
-                                  `${path}.attachedBuffs[${index}].blackboardAssignments.${key}`,
-                                ),
-                              },
-                            ],
-                          ),
-                        ),
                       },
                     },
                     next: index + 1 < attachedBuffs.length ? `install:${index + 1}` : null,
@@ -453,99 +456,6 @@ function addSkillCooldownFrames(
   );
 }
 
-type CompiledReactionStep = ResolvedCombatStepForKind<'applyElementalReaction'>;
-
-function patchKeyedReactionStep(
-  programs: readonly CompiledSkillProgram[],
-  skillKey: string,
-  stepKey: string,
-  path: string,
-  patch: (step: CompiledReactionStep) => CompiledReactionStep,
-): readonly CompiledSkillProgram[] {
-  const isTarget = (program: CompiledSkillProgram): boolean =>
-    (program.executionSkillId ?? program.skillId) === skillKey;
-  const targets = programs.filter(isTarget);
-  if (targets.length === 0) {
-    throw new Error(`${path} references missing skill '${skillKey}'`);
-  }
-  let matchCount = 0;
-  const result = programs.map(program => {
-    if (!isTarget(program)) return program;
-    let programMatchCount = 0;
-    const patchedProgram = {
-      ...program,
-      timelineActions: program.timelineActions.map(action => {
-        const entry = action.sequence;
-        const nodes = new Map(entry.graph.nodes);
-        let changed = false;
-        for (let id = entry.entry; id !== null; id = entry.graph.nodes.get(id)!.next) {
-          const node = entry.graph.nodes.get(id)!;
-          if (node.action.key !== stepKey) continue;
-          if (node.action.kind !== 'applyElementalReaction')
-            throw new Error(
-              `${path} step '${stepKey}' is '${node.action.kind}', expected 'applyElementalReaction'`,
-            );
-          matchCount++;
-          programMatchCount++;
-          changed = true;
-          nodes.set(id, { ...node, action: patch(node.action) });
-        }
-        if (!changed) return action;
-        // 养成补丁只修改该入口根节点；原程序和旧结果仍持有旧节点目录。
-        const graph = {
-          ...entry.graph,
-          nodes,
-          operationBindings: new Map(),
-          revision: JSON.stringify([
-            entry.graph.revision,
-            path,
-            stepKey,
-            [...nodes].filter(([id]) => entry.graph.nodes.get(id) !== nodes.get(id)),
-          ]),
-        };
-        return { ...action, sequence: { ...entry, graph } };
-      }),
-    };
-    if (programMatchCount > 1) {
-      throw new Error(
-        `${path} expected at most one root reaction step '${stepKey}' per execution body`,
-      );
-    }
-    return patchedProgram;
-  });
-  if (matchCount === 0) {
-    throw new Error(`${path} expected exactly one root reaction step '${stepKey}', found 0`);
-  }
-  return result;
-}
-
-function multiplyEffectDuration(
-  programs: readonly CompiledSkillProgram[],
-  modifier: Extract<UpgradeModifierDefinition, { kind: 'multiplyEffectDuration' }>,
-  path: string,
-): readonly CompiledSkillProgram[] {
-  requireMultiplier(modifier.multiplier, `${path}.multiplier`);
-  return patchKeyedReactionStep(programs, modifier.skillKey, modifier.stepKey, path, step => ({
-    ...step,
-    parameters: {
-      ...step.parameters,
-      durationMultiplier: (step.parameters.durationMultiplier ?? 1) * modifier.multiplier,
-    },
-  }));
-}
-
-function setEffectiveness(
-  programs: readonly CompiledSkillProgram[],
-  modifier: Extract<UpgradeModifierDefinition, { kind: 'setEffectiveness' }>,
-  path: string,
-): readonly CompiledSkillProgram[] {
-  requireMultiplier(modifier.value, `${path}.value`);
-  return patchKeyedReactionStep(programs, modifier.skillKey, modifier.stepKey, path, step => ({
-    ...step,
-    parameters: { ...step.parameters, effectiveness: modifier.value },
-  }));
-}
-
 function addSkillStat(
   programs: readonly CompiledSkillProgram[],
   modifier: Extract<UpgradeModifierDefinition, { kind: 'addSkillStat' }>,
@@ -617,12 +527,9 @@ export function applyOperatorUpgradeSkillPatches(
         options.skipUncompiledSkills === true &&
         'skillKey' in modifier &&
         !patched.some(program => {
-          const usesExecutionIdentity = [
-            'patchSkillBlackboard',
-            'multiplyEffectDuration',
-            'setEffectiveness',
-            'addSkillStat',
-          ].includes(modifier.kind);
+          const usesExecutionIdentity = ['patchSkillBlackboard', 'addSkillStat'].includes(
+            modifier.kind,
+          );
           return (
             (usesExecutionIdentity
               ? (program.executionSkillId ?? program.skillId)
@@ -660,14 +567,6 @@ export function applyOperatorUpgradeSkillPatches(
         continue;
       }
       if (modifier.kind === 'patchPassiveBlackboard') continue;
-      if (modifier.kind === 'multiplyEffectDuration') {
-        patched = multiplyEffectDuration(patched, modifier, path);
-        continue;
-      }
-      if (modifier.kind === 'setEffectiveness') {
-        patched = setEffectiveness(patched, modifier, path);
-        continue;
-      }
       if (modifier.kind === 'addSkillStat') {
         patched = addSkillStat(patched, modifier, path);
         continue;

@@ -41,7 +41,7 @@ describe('observed Buff identities survive presentation pruning', () => {
   it('does not promote every apply edge or unrelated identifier to an observed signal', () => {
     expect([
       ...collectCompiledBuffIdentityReadIds([
-        { kind: 'applyBuff', parameters: { buffId: 'visual' } },
+        { kind: 'applyBuff', parameters: { buffs: [{ buffId: 'visual' }] } },
         { kind: 'eventBuffIdMatch', buffIds: ['', null, 'signal', 'signal'] },
       ]),
     ]).toEqual(['signal']);

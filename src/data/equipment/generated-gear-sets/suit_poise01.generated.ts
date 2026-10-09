@@ -12,17 +12,21 @@ const definition = {
           action: {
             kind: 'applyBuff',
             parameters: {
-              buffId: 'buff_equipsuit_poisedmg_01',
+              buffs: [
+                {
+                  buffId: 'buff_equipsuit_poisedmg_01',
+                  blackboardAssignments: {
+                    atk_up: { kind: 'constant', value: 0.08 },
+                    phy_dmg_up: { kind: 'constant', value: 0.08 },
+                    duration: { kind: 'constant', value: 15 },
+                    max_stack: { kind: 'constant', value: 4 },
+                    phy_dmg_up2: { kind: 'constant', value: 0.16 },
+                    duration2: { kind: 'constant', value: 10 },
+                    stack_cond: { kind: 'constant', value: 4 },
+                  },
+                },
+              ],
               target: 'caster',
-              blackboardAssignments: {
-                atk_up: { kind: 'constant', value: 0.08 },
-                phy_dmg_up: { kind: 'constant', value: 0.08 },
-                duration: { kind: 'constant', value: 15 },
-                max_stack: { kind: 'constant', value: 4 },
-                phy_dmg_up2: { kind: 'constant', value: 0.16 },
-                duration2: { kind: 'constant', value: 10 },
-                stack_cond: { kind: 'constant', value: 4 },
-              },
             },
           },
           next: null,
@@ -59,14 +63,18 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_equipsuit_poisedmg_01_attackbuff',
+                  buffs: [
+                    {
+                      buffId: 'buff_equipsuit_poisedmg_01_attackbuff',
+                      copiedBlackboardAssignments: {
+                        phy_dmg_up2: 'phy_dmg_up2',
+                        duration: 'duration2',
+                      },
+                    },
+                  ],
                   target: 'buffOwner',
                   source: 'buffOwner',
                   inheritSourceSkillCastInfo: true,
-                  copiedBlackboardAssignments: {
-                    phy_dmg_up2: 'phy_dmg_up2',
-                    duration: 'duration2',
-                  },
                 },
               },
               next: null,
@@ -83,11 +91,18 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_equipsuit_poisedmg_01_damagebuff',
+                  buffs: [
+                    {
+                      buffId: 'buff_equipsuit_poisedmg_01_damagebuff',
+                      copiedBlackboardAssignments: {
+                        phy_dmg_up: 'phy_dmg_up',
+                        duration: 'duration',
+                      },
+                    },
+                  ],
                   target: 'buffOwner',
                   source: 'buffOwner',
                   inheritSourceSkillCastInfo: true,
-                  copiedBlackboardAssignments: { phy_dmg_up: 'phy_dmg_up', duration: 'duration' },
                 },
               },
               next: 'conditional_2',

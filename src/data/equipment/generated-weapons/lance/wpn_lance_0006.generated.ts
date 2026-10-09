@@ -55,11 +55,15 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_lance_0006_exist',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_lance_0006_exist',
+                      copiedBlackboardAssignments: { duration: 'duration', max_stack: 'max_stack' },
+                    },
+                  ],
                   target: 'caster',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: { duration: 'duration', max_stack: 'max_stack' },
                 },
               },
               next: null,
@@ -76,11 +80,15 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_lance_0006_skill_pulse01',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_lance_0006_skill_pulse01',
+                      copiedBlackboardAssignments: { pulse_dmg_up: 'pulse_dmg' },
+                    },
+                  ],
                   target: 'caster',
                   inheritSourceSkillCastInfo: true,
                   lifetimeOwner: 'currentCastSkill',
-                  copiedBlackboardAssignments: { pulse_dmg_up: 'pulse_dmg' },
                 },
               },
               next: null,

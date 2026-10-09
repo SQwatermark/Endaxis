@@ -41,8 +41,7 @@ const actionGroups: Readonly<Record<string, readonly string[]>> = {
     'applyPhysicalInfliction',
     'triggerSpellBurst',
     'applyElementalInfliction',
-    'applyElementalReaction',
-    'consumeElementalReaction',
+    'forceSpellStatus',
   ],
   buffs: [
     'applyBuff',
@@ -101,7 +100,6 @@ const actionGroups: Readonly<Record<string, readonly string[]>> = {
   resources: [
     'setHealthFloor',
     'changeResource',
-    'changeResourceByActionValue',
     'recoverDashEnergy',
     'restrictUltimateEnergyRecovery',
     'gainSquadUltimateEnergyFromSkillCost',

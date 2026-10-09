@@ -42,14 +42,18 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_claym_0014_pdi_up',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_claym_0014_pdi_up',
+                      copiedBlackboardAssignments: {
+                        phy_dmg_up_mult: 'phy_dmg_up',
+                        duration: 'duration',
+                      },
+                    },
+                  ],
                   target: 'caster',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: {
-                    phy_dmg_up_mult: 'phy_dmg_up',
-                    duration: 'duration',
-                  },
                 },
               },
               next: null,

@@ -5,7 +5,7 @@
  * 它不负责校验初始配置，也不执行资源、生命或时间推进；这些操作留在 runtime 目录。
  */
 import { type ActionBlackboardValue } from '../../../../packages/game-data-contract/src/primitives';
-import { type ElementalReaction, type PlayerSkillInput } from '../../game-data/operatorDefinition';
+import { type PlayerSkillInput } from '../../game-data/operatorDefinition';
 import { type GameplayTag } from '../../../../packages/game-data-contract/src/gameplayTags';
 import {
   type CombatObjectRef,
@@ -339,7 +339,6 @@ export interface StandardCombatEnvironmentState {
   readonly random: SimulationRandomState | null;
   readonly enemyVitals: CombatVitalsState;
   readonly operatorVitals: Map<string, CombatVitalsState>;
-  readonly reactions: Map<ElementalReaction, ElementalReactionState>;
   readonly knockDown: OrdinaryKnockDownState | null;
   readonly buffProgress: BuffProgressRecorderState;
   readonly poiseBreakBuffs: Set<number>;
@@ -479,15 +478,6 @@ export interface ExternalCombatEventInput {
 
 export interface ScheduledExternalCombatEventInput extends ExternalCombatEventInput {
   readonly frame: number;
-}
-
-/** 敌人身上一个反应状态的当前取值。 */
-export interface ElementalReactionState {
-  readonly reaction: ElementalReaction;
-  readonly level: number;
-  /** 到期时间（战斗时钟的秒）；查询时已过期即视为不存在。 */
-  readonly expiresAt: number;
-  readonly sourceId: string;
 }
 
 /** 可完整恢复后续随机序列的原生减法随机状态；不补造未知的初始化规则。 */

@@ -27,12 +27,10 @@ import type { PositionedDisplayBuffTimelineSegment } from '../../../core/project
 import type { EnemyCombatHudSnapshot as EnemyCombatHudSnapshotModel } from '../../../core/projection/combatHudSnapshot';
 import EnemyCombatHudSnapshot from './EnemyCombatHudSnapshot.vue';
 import { resolveBuffDisplayName } from './buffDisplayName';
-import { commonBuffPresentationNameKeys } from '../../../data/buffs/generated/commonBuffPresentationNames.generated';
 import { resolveBuffEffectSummary, showBuffLayerBadge } from './buffDisplayName';
 import type { BuffDetailTarget } from './buffDetail';
 import {
   DEFAULT_GAME_ICON_PATH,
-  getElementalReactionIconPath,
   getSpellBurstIconPath,
 } from '../../gameAssetPaths';
 import { frameToCondensedTimelinePx } from '../timelineGeometry';
@@ -68,8 +66,6 @@ const props = defineProps<{
   prepExpanded: boolean;
   labels: {
     burst: string;
-    reaction: string;
-    reactionConsumed: string;
   };
   snapshotFrame: number | null;
   hudSnapshot: EnemyCombatHudSnapshotModel;
@@ -125,22 +121,6 @@ const iconSize = computed(() =>
 const rowPitch = computed(() => iconSize.value + 4);
 const durationBarColor = useDurationBarColor();
 const ICON_TOP = 0;
-
-const REACTION_BUFF_IDS: Readonly<Record<string, keyof typeof commonBuffPresentationNameKeys>> = {
-  electrification: 'buff_common_pulse_pulse_conduct_triggered_do',
-  corrosion: 'buff_common_natural_natural_corrupt_do',
-};
-
-function configuredNameKey(
-  buffId: keyof typeof commonBuffPresentationNameKeys | undefined,
-): string | undefined {
-  return buffId === undefined ? undefined : commonBuffPresentationNameKeys[buffId];
-}
-
-function effectName(nameKey: string | undefined, fallback: string): string {
-  const key = nameKey === undefined ? '' : `effects.name.${nameKey}`;
-  return key !== '' && te(key) ? t(key) : fallback;
-}
 
 function spellBurstTitle(burstType: string | undefined): string {
   if (burstType === undefined) return props.labels.burst;
@@ -215,21 +195,17 @@ const markers = computed(() =>
     const icon =
       marker.kind === 'attachmentTrigger'
         ? (resolveImage(attachment?.presentation?.icon) ?? DEFAULT_GAME_ICON_PATH)
-        : marker.kind === 'burst'
-          ? (getSpellBurstIconPath(marker.burstType) ?? DEFAULT_GAME_ICON_PATH)
-          : (getElementalReactionIconPath(marker.reaction) ?? DEFAULT_GAME_ICON_PATH);
+        : (getSpellBurstIconPath(marker.burstType) ?? DEFAULT_GAME_ICON_PATH);
     const title =
       marker.kind === 'attachmentTrigger'
         ? resolveBuffDisplayName(attachment?.id ?? marker.element ?? '', { t, te })
-        : marker.kind === 'burst'
-          ? spellBurstTitle(marker.burstType)
-          : `${props.labels.reactionConsumed} ${effectName(configuredNameKey(REACTION_BUFF_IDS[marker.reaction ?? '']), marker.reaction ?? '')}`;
+        : spellBurstTitle(marker.burstType);
     return {
-      key: `${index}:${marker.kind}:${marker.frame}:${marker.reaction ?? marker.burstType ?? ''}`,
+      key: `${index}:${marker.kind}:${marker.frame}:${marker.burstType ?? ''}`,
       icon,
       // Legacy markers also carry a badge. For an instantaneous input/burst this
       // denotes one occurrence, not a newly created persistent attachment layer.
-      badge: marker.kind === 'reactionConsumed' ? marker.level : 1,
+      badge: 1,
       x:
         pointX(marker.frame) +
         (statusRows.value.markerPositions[index]?.slot ?? 0) * (iconSize.value + 2),

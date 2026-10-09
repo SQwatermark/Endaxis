@@ -163,24 +163,18 @@ function compile(
 }
 
 describe('DoOnce 技能资源回复的窄投影', () => {
-  it.each(['Atb', 'UltimateSp'])('主控限制只作用于技力而非终结技能量：%s', costType => {
-    const compiled = compile(
-      parse(sequence([{ ...gain, costType, atbOnlyMainChar: true }])),
-    ).compiled();
-    let calls = 0;
-    const runtime = new CombatActionSequenceRuntime(
-      {
-        execute: () => {
-          calls++;
-          return true;
-        },
-        evaluate: () => false,
-      },
-      { blackboard: new ActionBlackboard({ atb: 10 }) },
-    );
-    runtime.createSequence(compiled).executeInstant({});
-    expect(calls).toBe(costType === 'Atb' ? 0 : 1);
-  });
+  it.each(['Atb', 'UltimateSp'])(
+    '主控限制保存在资源动作参数中，不额外生成条件节点：%s',
+    costType => {
+      const projected = compile(parse(sequence([{ ...gain, costType, atbOnlyMainChar: true }])));
+      expect(projected.steps).toHaveLength(1);
+      expect(projected.steps[0]).toMatchObject({
+        kind: 'changeResource',
+        parameters: { onlyMainOperator: true },
+      });
+      expect(Object.keys(projected.graph.nodes)).toHaveLength(1);
+    },
+  );
 
   it('转换结果经正式编译执行：重复命中不重复回复，新施法重新获得机会', () => {
     const compiled = compile(parse(sequence([once(), once()]))).compiled();
@@ -222,7 +216,7 @@ describe('DoOnce 技能资源回复的窄投影', () => {
       expect(step.parameters.scopeKey).toBe(`skill.sequence.actionData[${index}]`);
       expect(readActionGraphChain(compiled.graph, step.body)).toMatchObject([
         {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'blackboard', key: 'atb' },
@@ -271,7 +265,7 @@ describe('DoOnce 技能资源回复的窄投影', () => {
       right: { kind: 'constant', value: 0 },
     });
     expect(readActionGraphChain(compiled.graph, guard.whenTrue).map(item => item.kind)).toEqual([
-      'changeResourceByActionValue',
+      'changeResource',
     ]);
   });
 
@@ -335,7 +329,7 @@ describe('TickIntervalAction 调度投影', () => {
     });
     if (step?.kind !== 'repeatEachTick') throw new Error('expected repeatEachTick');
     expect(readActionGraphChain(compiled.graph, step.body).map(item => item.kind)).toEqual([
-      'changeResourceByActionValue',
+      'changeResource',
     ]);
   });
 
@@ -381,7 +375,7 @@ describe('ChannelingAction 单目标身份投影', () => {
     expect(readActionGraphChain(compiled.graph, step.body)).toMatchObject([
       {
         kind: 'applyBuff',
-        parameters: { buffId: 'buff_common_obtain_ultimate_sp', target: 'caster' },
+        parameters: { buffs: [{ buffId: 'buff_common_obtain_ultimate_sp' }], target: 'caster' },
       },
     ]);
   });
@@ -431,7 +425,7 @@ describe('ChannelingAction 单目标身份投影', () => {
     expect(readActionGraphChain(compiled.graph, step.body)).toMatchObject([
       {
         kind: 'applyBuff',
-        parameters: { buffId: 'buff_common_obtain_ultimate_sp', target: 'enemy' },
+        parameters: { buffs: [{ buffId: 'buff_common_obtain_ultimate_sp' }], target: 'enemy' },
       },
     ]);
   });

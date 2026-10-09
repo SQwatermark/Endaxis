@@ -279,6 +279,10 @@ function collectLeafReferences(
       return;
     }
     case 'aura': {
+      if (leaf.action.kind === 'globalPartyAura') {
+        collectSequenceReferences(leaf.action.actionOnEnter, enabled, output);
+        collectSequenceReferences(leaf.action.actionOnExit, enabled, output);
+      }
       if (leaf.action.kind === 'directRangedAura') {
         collectSequenceReferences(leaf.action.actionOnEnter, enabled, output);
         return;

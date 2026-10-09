@@ -36,9 +36,9 @@ export const perlicaChr_0004_pelica_attack1ActionGraph = {
                 actionGraph: {
                   main: {
                     nodes: {
-                      changeResourceByActionValue_1: {
+                      changeResource_1: {
                         action: {
-                          kind: 'changeResourceByActionValue',
+                          kind: 'changeResource',
                           parameters: {
                             resource: 'sp',
                             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -57,7 +57,7 @@ export const perlicaChr_0004_pelica_attack1ActionGraph = {
                             condition: { kind: 'conditionNode', nodeId: 'data_2' },
                             alwaysNext: true,
                           },
-                          whenTrue: { $sequence: 'changeResourceByActionValue_1' },
+                          whenTrue: { $sequence: 'changeResource_1' },
                         },
                         next: null,
                       },
@@ -180,9 +180,9 @@ export const perlicaChr_0004_pelica_attack2ActionGraph = {
                 actionGraph: {
                   main: {
                     nodes: {
-                      changeResourceByActionValue_1: {
+                      changeResource_1: {
                         action: {
-                          kind: 'changeResourceByActionValue',
+                          kind: 'changeResource',
                           parameters: {
                             resource: 'sp',
                             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -201,7 +201,7 @@ export const perlicaChr_0004_pelica_attack2ActionGraph = {
                             condition: { kind: 'conditionNode', nodeId: 'data_2' },
                             alwaysNext: true,
                           },
-                          whenTrue: { $sequence: 'changeResourceByActionValue_1' },
+                          whenTrue: { $sequence: 'changeResource_1' },
                         },
                         next: null,
                       },
@@ -326,9 +326,9 @@ export const perlicaChr_0004_pelica_attack3ActionGraph = {
                 actionGraph: {
                   main: {
                     nodes: {
-                      changeResourceByActionValue_1: {
+                      changeResource_1: {
                         action: {
-                          kind: 'changeResourceByActionValue',
+                          kind: 'changeResource',
                           parameters: {
                             resource: 'sp',
                             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -347,7 +347,7 @@ export const perlicaChr_0004_pelica_attack3ActionGraph = {
                             condition: { kind: 'conditionNode', nodeId: 'data_2' },
                             alwaysNext: true,
                           },
-                          whenTrue: { $sequence: 'changeResourceByActionValue_1' },
+                          whenTrue: { $sequence: 'changeResource_1' },
                         },
                         next: null,
                       },
@@ -473,9 +473,9 @@ export const perlicaChr_0004_pelica_attack4ActionGraph = {
                 actionGraph: {
                   main: {
                     nodes: {
-                      changeResourceByActionValue_1: {
+                      changeResource_1: {
                         action: {
-                          kind: 'changeResourceByActionValue',
+                          kind: 'changeResource',
                           parameters: {
                             resource: 'sp',
                             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -494,7 +494,7 @@ export const perlicaChr_0004_pelica_attack4ActionGraph = {
                             condition: { kind: 'conditionNode', nodeId: 'data_2' },
                             alwaysNext: true,
                           },
-                          whenTrue: { $sequence: 'changeResourceByActionValue_1' },
+                          whenTrue: { $sequence: 'changeResource_1' },
                         },
                         next: null,
                       },
@@ -660,7 +660,7 @@ export const perlicaChr_0004_pelica_power_attackActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_full_immune_medium',
+            buffs: [{ buffId: 'buff_common_full_immune_medium' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -672,7 +672,7 @@ export const perlicaChr_0004_pelica_power_attackActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_power_attack_disable_cast_skill',
+            buffs: [{ buffId: 'buff_common_power_attack_disable_cast_skill' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -723,38 +723,39 @@ export const perlicaChr_0004_pelica_power_attack: SkillDefinition = {
 export const perlicaChr_0004_pelica_plunging_attack_endActionGraph = {
   main: {
     nodes: {
-      changeResourceByActionValue_1: {
+      changeResource_1: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
             coefficient: { kind: 'constant', value: 1 },
             recipient: 'team',
+            onlyMainOperator: true,
             spGainKind: 'gain',
             spGainSource: 'normalAttack',
           },
         },
         next: null,
       },
-      conditional_2: {
-        action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-          whenTrue: { $sequence: 'changeResourceByActionValue_1' },
-        },
-        next: null,
-      },
-      dealDamage_3: {
+      dealDamage_2: {
         action: {
           kind: 'dealDamage',
           parameters: {
             damageType: 'electric',
-            attackScale: { kind: 'valueNode', nodeId: 'data_3' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_2' },
             tags: ['normalAttack', 'plungingAttack'],
           },
         },
-        next: 'conditional_2',
+        next: 'changeResource_1',
+      },
+      launchProjectile_3: {
+        action: {
+          kind: 'launchProjectile',
+          parameters: { finish: 'firstTickReach', recycleDelaySeconds: 0.0333333350718021 },
+          callbacks: [],
+        },
+        next: null,
       },
       launchProjectile_4: {
         action: {
@@ -762,7 +763,7 @@ export const perlicaChr_0004_pelica_plunging_attack_endActionGraph = {
           parameters: { finish: 'firstTickReach', recycleDelaySeconds: 0.0333333350718021 },
           callbacks: [],
         },
-        next: null,
+        next: 'launchProjectile_3',
       },
       launchProjectile_5: {
         action: {
@@ -780,19 +781,10 @@ export const perlicaChr_0004_pelica_plunging_attack_endActionGraph = {
         },
         next: 'launchProjectile_5',
       },
-      launchProjectile_7: {
-        action: {
-          kind: 'launchProjectile',
-          parameters: { finish: 'firstTickReach', recycleDelaySeconds: 0.0333333350718021 },
-          callbacks: [],
-        },
-        next: 'launchProjectile_6',
-      },
     },
     dataNodes: {
       data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
-      data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
-      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
+      data_2: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
     },
   },
   macros: {},
@@ -812,8 +804,8 @@ export const perlicaChr_0004_pelica_plunging_attack_end: SkillDefinition = {
   offsetRecordFrame: 0,
   costFrame: 0,
   scheduledSequences: [
-    { startFrame: 3, endFrame: 8, sequence: { $sequence: 'dealDamage_3' } },
-    { startFrame: 1, endFrame: 1, sequence: { $sequence: 'launchProjectile_7' } },
+    { startFrame: 3, endFrame: 8, sequence: { $sequence: 'dealDamage_2' } },
+    { startFrame: 1, endFrame: 1, sequence: { $sequence: 'launchProjectile_6' } },
   ],
   skillType: 'plungingAttack',
   levelSource: 'basicAttack',
@@ -931,9 +923,9 @@ export const perlicaChr_0004_pelica_combo_skillActionGraph = {
                 actionGraph: {
                   main: {
                     nodes: {
-                      changeResourceByActionValue_3: {
+                      changeResource_3: {
                         action: {
-                          kind: 'changeResourceByActionValue',
+                          kind: 'changeResource',
                           parameters: {
                             resource: 'ultimateEnergy',
                             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -954,19 +946,23 @@ export const perlicaChr_0004_pelica_combo_skillActionGraph = {
                             stagger: { kind: 'valueNode', nodeId: 'data_3' },
                           },
                         },
-                        next: 'changeResourceByActionValue_3',
+                        next: 'changeResource_3',
                       },
                       applyBuff_opt2: {
                         action: {
                           kind: 'applyBuff',
                           parameters: {
-                            buffId: 'buff_common_pulse_pulse_conduct_triggered',
+                            buffs: [
+                              {
+                                buffId: 'buff_common_pulse_pulse_conduct_triggered',
+                                copiedBlackboardAssignments: {
+                                  duration: 'duration',
+                                  extra_scaling: 'extra_scaling',
+                                },
+                              },
+                            ],
                             target: 'enemy',
                             inheritSourceSkillCastInfo: true,
-                            copiedBlackboardAssignments: {
-                              duration: 'duration',
-                              extra_scaling: 'extra_scaling',
-                            },
                           },
                         },
                         next: 'dealDamage_opt1',
@@ -1103,7 +1099,7 @@ export const perlicaChr_0004_pelica_ultimate_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_damage_immune_ult_skill',
+            buffs: [{ buffId: 'buff_common_damage_immune_ult_skill' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -1261,11 +1257,15 @@ const perlicaBuff1ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0004_pelica_potential_3_atkup',
+            buffs: [
+              {
+                buffId: 'buff_chr_0004_pelica_potential_3_atkup',
+                copiedBlackboardAssignments: { atk_up: 'atk_up', atk_duration: 'atk_duration' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: { atk_up: 'atk_up', atk_duration: 'atk_duration' },
           },
         },
         next: null,

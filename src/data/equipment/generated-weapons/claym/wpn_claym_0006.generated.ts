@@ -49,7 +49,7 @@ const definition = {
             applyBuff_1: {
               action: {
                 kind: 'applyBuff',
-                parameters: { buffId: 'buff_wpn_claym_0006_icon', target: 'caster' },
+                parameters: { buffs: [{ buffId: 'buff_wpn_claym_0006_icon' }], target: 'caster' },
               },
               next: null,
             },
@@ -84,7 +84,7 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_claym_0006_icon',
+                  buffs: [{ buffId: 'buff_wpn_claym_0006_icon' }],
                   target: 'caster',
                   inheritSourceSkillCastInfo: true,
                 },

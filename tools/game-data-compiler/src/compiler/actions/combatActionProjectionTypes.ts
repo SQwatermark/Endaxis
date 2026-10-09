@@ -387,6 +387,10 @@ export type CompiledBuffStepSource =
         readonly sources: readonly ContextTargetSource[];
       }
     >
+  | (Step<'aura'> & {
+      readonly onEnter: CompiledBuffSequenceSource;
+      readonly onExit: CompiledBuffSequenceSource;
+    })
   | Step<'applyBuff', BuffApplicationParameters>
   | Step<'createGlobalBuff'>
   | Step<'finishParentGlobalBuff'>
@@ -396,12 +400,7 @@ export type CompiledBuffStepSource =
   | Step<'limitMovementGait'>
   | Step<'applyCharacterInfliction'>
   | Step<'applyElementalInfliction'>
-  | Step<
-      'applyElementalReaction',
-      Omit<Parameters<'applyElementalReaction'>, 'durationSeconds'> & {
-        readonly durationSeconds: CompiledActionValueOperandSource;
-      }
-    >
+  | Step<'forceSpellStatus'>
   | (Step<
       'conditional',
       Pick<Parameters<'conditional'>, 'alwaysNext'> & {
@@ -440,8 +439,8 @@ export type CompiledBuffStepSource =
   | Step<'setCurrentBuffRemainingDuration'>
   | Step<'refreshCurrentBuffAttributeModifiers'>
   | Step<
-      'changeResourceByActionValue',
-      Parameters<'changeResourceByActionValue'> & {
+      'changeResource',
+      Parameters<'changeResource'> & {
         readonly coefficient: CompiledActionValueOperandSource;
       }
     >

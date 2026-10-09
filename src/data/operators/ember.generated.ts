@@ -317,9 +317,9 @@ export const emberChr_0009_azrila_attack3: SkillDefinition = {
 export const emberChr_0009_azrila_attack4ActionGraph = {
   main: {
     nodes: {
-      changeResourceByActionValue_1: {
+      changeResource_1: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -332,11 +332,7 @@ export const emberChr_0009_azrila_attack4ActionGraph = {
         next: null,
       },
       once_2: {
-        action: {
-          kind: 'once',
-          parameters: {},
-          body: { $sequence: 'changeResourceByActionValue_1' },
-        },
+        action: { kind: 'once', parameters: {}, body: { $sequence: 'changeResource_1' } },
         next: null,
       },
       startTimeDilation_3: {
@@ -513,7 +509,7 @@ export const emberChr_0009_azrila_power_attackActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_full_immune_medium',
+            buffs: [{ buffId: 'buff_common_full_immune_medium' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -525,7 +521,7 @@ export const emberChr_0009_azrila_power_attackActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_power_attack_disable_cast_skill',
+            buffs: [{ buffId: 'buff_common_power_attack_disable_cast_skill' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -577,14 +573,15 @@ export const emberChr_0009_azrila_power_attack: SkillDefinition = {
 export const emberChr_0009_azrila_plunging_attack_endActionGraph = {
   main: {
     nodes: {
-      changeResourceByActionValue_1: {
+      changeResource_1: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
             coefficient: { kind: 'constant', value: 1 },
             recipient: 'team',
+            onlyMainOperator: true,
             spGainKind: 'gain',
             spGainSource: 'normalAttack',
           },
@@ -594,36 +591,27 @@ export const emberChr_0009_azrila_plunging_attack_endActionGraph = {
       conditional_2: {
         action: {
           kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-          whenTrue: { $sequence: 'changeResourceByActionValue_1' },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' }, alwaysNext: true },
+          whenTrue: { $sequence: 'changeResource_1' },
         },
         next: null,
       },
-      conditional_3: {
-        action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' }, alwaysNext: true },
-          whenTrue: { $sequence: 'conditional_2' },
-        },
-        next: null,
-      },
-      dealDamage_4: {
+      dealDamage_3: {
         action: {
           kind: 'dealDamage',
           parameters: {
             damageType: 'physical',
-            attackScale: { kind: 'valueNode', nodeId: 'data_4' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_3' },
             tags: ['normalAttack', 'plungingAttack'],
           },
         },
-        next: 'conditional_3',
+        next: 'conditional_2',
       },
     },
     dataNodes: {
       data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
       data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
-      data_3: { type: 'boolean', expression: { kind: 'casterControlled' } },
-      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
+      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
     },
   },
   macros: {},
@@ -645,7 +633,7 @@ export const emberChr_0009_azrila_plunging_attack_end: SkillDefinition = {
     allowedNextSkills: [{ startFrame: 12, endFrame: 21, skillIds: ['chr_0009_azrila_attack1'] }],
   },
   costFrame: 0,
-  scheduledSequences: [{ startFrame: 1, endFrame: 6, sequence: { $sequence: 'dealDamage_4' } }],
+  scheduledSequences: [{ startFrame: 1, endFrame: 6, sequence: { $sequence: 'dealDamage_3' } }],
   skillType: 'plungingAttack',
   levelSource: 'basicAttack',
   nativeSkillType: 'attack',
@@ -665,7 +653,7 @@ export const emberChr_0009_azrila_normal_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0009_azrila_normal_skill_gpsuccess',
+            buffs: [{ buffId: 'buff_chr_0009_azrila_normal_skill_gpsuccess' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
           },
@@ -712,12 +700,16 @@ export const emberChr_0009_azrila_normal_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0009_azrila_normal_skill_shelter',
+            buffs: [
+              {
+                buffId: 'buff_chr_0009_azrila_normal_skill_shelter',
+                blackboardAssignments: { duration: { kind: 'constant', value: -1 } },
+                copiedBlackboardAssignments: { rate: 'shelterrate' },
+              },
+            ],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
-            blackboardAssignments: { duration: { kind: 'constant', value: -1 } },
-            copiedBlackboardAssignments: { rate: 'shelterrate' },
           },
         },
         next: null,
@@ -784,10 +776,14 @@ export const emberChr_0009_azrila_normal_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0009_azrila_normal_skill_shelter',
+            buffs: [
+              {
+                buffId: 'buff_chr_0009_azrila_normal_skill_shelter',
+                copiedBlackboardAssignments: { rate: 'shelterrate', duration: 'extratime' },
+              },
+            ],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: { rate: 'shelterrate', duration: 'extratime' },
           },
         },
         next: null,
@@ -1032,16 +1028,20 @@ export const emberChr_0009_azrila_ultimate_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0009_azrila_ultimateshield',
+            buffs: [
+              {
+                buffId: 'buff_chr_0009_azrila_ultimateshield',
+                copiedBlackboardAssignments: {
+                  duration: 'duration',
+                  hp_percent: 'hp_percent',
+                  potential_5: 'potential_5',
+                  extraattack: 'extraattack',
+                  FinalShield: 'FinalShield',
+                },
+              },
+            ],
             target: 'party',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: {
-              duration: 'duration',
-              hp_percent: 'hp_percent',
-              potential_5: 'potential_5',
-              extraattack: 'extraattack',
-              FinalShield: 'FinalShield',
-            },
           },
         },
         next: null,
@@ -1097,7 +1097,7 @@ export const emberChr_0009_azrila_ultimate_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_damage_immune_ult_skill',
+            buffs: [{ buffId: 'buff_common_damage_immune_ult_skill' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -1201,12 +1201,16 @@ export const emberChr_0009_azrila_combo_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0009_azrila_normal_skill_shelter',
+            buffs: [
+              {
+                buffId: 'buff_chr_0009_azrila_normal_skill_shelter',
+                blackboardAssignments: { duration: { kind: 'constant', value: -1 } },
+                copiedBlackboardAssignments: { rate: 'shelterrate' },
+              },
+            ],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
-            blackboardAssignments: { duration: { kind: 'constant', value: -1 } },
-            copiedBlackboardAssignments: { rate: 'shelterrate' },
           },
         },
         next: null,
@@ -1231,10 +1235,14 @@ export const emberChr_0009_azrila_combo_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0009_azrila_normal_skill_shelter',
+            buffs: [
+              {
+                buffId: 'buff_chr_0009_azrila_normal_skill_shelter',
+                copiedBlackboardAssignments: { rate: 'shelterrate', duration: 'extratime' },
+              },
+            ],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: { rate: 'shelterrate', duration: 'extratime' },
           },
         },
         next: null,
@@ -1293,9 +1301,9 @@ export const emberChr_0009_azrila_combo_skillActionGraph = {
         },
         next: 'findCharacterTeamTargets_9',
       },
-      changeResourceByActionValue_11: {
+      changeResource_11: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'ultimateEnergy',
             amount: { kind: 'valueNode', nodeId: 'data_10' },
@@ -1311,7 +1319,7 @@ export const emberChr_0009_azrila_combo_skillActionGraph = {
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_12' }, alwaysNext: true },
           whenTrue: { $sequence: 'findCharacterTeamTargets_10' },
         },
-        next: 'changeResourceByActionValue_11',
+        next: 'changeResource_11',
       },
       heal_13: {
         action: {
@@ -1531,13 +1539,17 @@ const emberPassive1ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0009_azrila_talent_2',
+            buffs: [
+              {
+                buffId: 'buff_chr_0009_azrila_talent_2',
+                blackboardAssignments: {
+                  attack: { kind: 'valueNode', nodeId: 'data_1' },
+                  duration: { kind: 'valueNode', nodeId: 'data_2' },
+                },
+              },
+            ],
             target: 'caster',
             inheritSourceSkillCastInfo: false,
-            blackboardAssignments: {
-              attack: { kind: 'valueNode', nodeId: 'data_1' },
-              duration: { kind: 'valueNode', nodeId: 'data_2' },
-            },
           },
         },
         next: null,
@@ -1692,14 +1704,18 @@ const emberBuff2ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_affixes_shelter',
+            buffs: [
+              {
+                buffId: 'buff_common_affixes_shelter',
+                blackboardAssignments: {
+                  duration: { kind: 'valueNode', nodeId: 'data_1' },
+                  rate: { kind: 'valueNode', nodeId: 'data_2' },
+                },
+              },
+            ],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
-            blackboardAssignments: {
-              duration: { kind: 'valueNode', nodeId: 'data_1' },
-              rate: { kind: 'valueNode', nodeId: 'data_2' },
-            },
           },
         },
         next: null,
@@ -1754,12 +1770,16 @@ const emberBuff3ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0009_azrila_talent_2_buff',
+            buffs: [
+              {
+                buffId: 'buff_chr_0009_azrila_talent_2_buff',
+                copiedBlackboardAssignments: { attack: 'attack', duration: 'duration' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
-            copiedBlackboardAssignments: { attack: 'attack', duration: 'duration' },
           },
         },
         next: null,
@@ -1876,12 +1896,16 @@ const emberBuff6ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0009_azrila_ultimate_skill_shield_extraattack',
+            buffs: [
+              {
+                buffId: 'buff_chr_0009_azrila_ultimate_skill_shield_extraattack',
+                copiedBlackboardAssignments: { extraattack: 'extraattack' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
-            copiedBlackboardAssignments: { extraattack: 'extraattack' },
           },
         },
         next: null,

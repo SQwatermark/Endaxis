@@ -115,8 +115,8 @@ it('shared and aliased string reads retain every call scope and entity read-site
     action: {
       kind: 'applyBuff' as const,
       parameters: {
+        buffs: [{ buffId: { kind: 'stringNode' as const, nodeId: 'alias' } }],
         target: 'caster' as const,
-        buffId: { kind: 'stringNode' as const, nodeId: 'alias' },
       },
     },
     next: null,

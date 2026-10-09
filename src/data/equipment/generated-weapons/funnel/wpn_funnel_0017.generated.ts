@@ -66,15 +66,19 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_funnel_0017_layer',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_funnel_0017_layer',
+                      copiedBlackboardAssignments: {
+                        pulse_dmg_up2: 'pulse_dmg_up2',
+                        max_stack: 'max_stack',
+                        duration: 'duration',
+                      },
+                    },
+                  ],
                   target: 'caster',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: {
-                    pulse_dmg_up2: 'pulse_dmg_up2',
-                    max_stack: 'max_stack',
-                    duration: 'duration',
-                  },
                 },
               },
               next: 'createTimedMarker_1',

@@ -15,7 +15,6 @@ import {
   DAMAGE_ELEMENTS_SET,
   DAMAGE_TYPES_SET,
   INFLICTION_ELEMENTS_SET,
-  ELEMENTAL_REACTIONS_SET,
   COMBAT_TARGETS_SET,
   TIMED_MARKER_TARGETS_SET,
   OPERATOR_ATTRIBUTES_SET,
@@ -446,12 +445,6 @@ export function validateCombatCondition(
       validateElements(record.elements, `${path}.elements`, out);
       if (record.minimumStacks !== undefined) {
         requireNonNegativeInteger(record, 'minimumStacks', path, out);
-      }
-      break;
-    case 'elementalReactionActive':
-      requireEnum(record, 'reaction', ELEMENTAL_REACTIONS_SET, path, out);
-      if (record.minimumLevel !== undefined) {
-        requireNonNegativeInteger(record, 'minimumLevel', path, out);
       }
       break;
     case 'not':

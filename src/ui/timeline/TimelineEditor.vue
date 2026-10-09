@@ -3504,12 +3504,6 @@ function gaugeCurveFor(trackIndex: TrackIndex): OperatorUltimateEnergyCurve | nu
     ) ?? null
   );
 }
-function reactionName(reaction: string): string {
-  const key = `effects.name.${reaction}`;
-  const translated = t(key);
-  return translated === key ? reaction : translated;
-}
-
 function hitMarkerTitle(label: TimelineHitEffectLabel | undefined): string {
   if (label === undefined) return '';
   const parts: string[] = [];
@@ -3520,14 +3514,6 @@ function hitMarkerTitle(label: TimelineHitEffectLabel | undefined): string {
   }
   for (const infliction of label.infliction) {
     parts.push(`${damageElementLabel(infliction.element)}${t('timeline.hitInflictionSuffix')}`);
-  }
-  for (const reaction of label.reactions) {
-    const name = reactionName(reaction.reaction);
-    parts.push(
-      reaction.applied
-        ? `${name} Lv${reaction.level}`
-        : `${name}${t('timeline.hitReactionConsumed')}`,
-    );
   }
   return parts.join(' · ');
 }
@@ -7645,8 +7631,6 @@ function setMobileGuideFrame(frame: number | null): void {
                 }"
                 :labels="{
                   burst: t('timeline.effect.burst'),
-                  reaction: t('timeline.effect.reaction'),
-                  reactionConsumed: t('timeline.effect.reactionConsumed'),
                 }"
                 @open-buff-detail="openBuffDetail"
               />

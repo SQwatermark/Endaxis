@@ -292,6 +292,11 @@ function processAction(
       const body = processChain(action.body, `${path}.body`, context);
       return [body === action.body ? action : { ...action, body }];
     }
+    case 'aura': {
+      const onEnter = processChain(action.onEnter, `${path}.onEnter`, context);
+      const onExit = processChain(action.onExit, `${path}.onExit`, context);
+      return [{ ...action, onEnter, onExit }];
+    }
     case 'listenForCombatEvents': {
       const responses = action.parameters.responses.map((response, index) => {
         const sequence = processChain(

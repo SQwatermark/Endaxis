@@ -115,7 +115,6 @@ describe('enemy status presentation rows', () => {
     const markers = [
       { kind: 'burst' as const, frame: 10 },
       { kind: 'attachmentTrigger' as const, frame: 10, element: 'heat' },
-      { kind: 'reactionConsumed' as const, frame: 10, level: 2 },
       { kind: 'burst' as const, frame: 11 },
     ];
     const before = JSON.stringify({ attachment, anomaly, markers });
@@ -123,7 +122,6 @@ describe('enemy status presentation rows', () => {
     expect(result.markerPositions).toEqual([
       { row: 1, slot: 1 },
       { row: 1, slot: 2 },
-      { row: 2, slot: 1 },
       { row: 1, slot: 0 },
     ]);
     expect(JSON.stringify({ attachment, anomaly, markers })).toBe(before);
@@ -136,16 +134,10 @@ describe('enemy status presentation rows', () => {
     const secondAnomaly = buff('burn', { startFrame: 10, iconStyleInSquad: 'SpellAbnormal' });
     const result = layoutEnemyStatusRows(
       [ended, firstAnomaly, secondAnomaly],
-      [
-        { kind: 'burst', frame: 10 },
-        { kind: 'reactionConsumed', frame: 10, level: 1 },
-      ],
+      [{ kind: 'burst', frame: 10 }],
       attachmentIds,
     );
-    expect(result.markerPositions).toEqual([
-      { row: 1, slot: 0 },
-      { row: 2, slot: 0 },
-    ]);
+    expect(result.markerPositions).toEqual([{ row: 1, slot: 0 }]);
   });
 
   it('grows for dense overlapping states instead of clipping them into fixed lanes', () => {
@@ -250,7 +242,6 @@ describe('enemy status presentation rows', () => {
       [buff('ordinary')],
       [
         { kind: 'burst', frame: 10 },
-        { kind: 'reactionConsumed', frame: 10 },
         { kind: 'burst', frame: 10 },
         { kind: 'burst', frame: 20 },
       ],
@@ -258,7 +249,6 @@ describe('enemy status presentation rows', () => {
     );
     expect(result.markerPositions).toEqual([
       { row: 1, slot: 0 },
-      { row: 2, slot: 0 },
       { row: 1, slot: 1 },
       { row: 1, slot: 0 },
     ]);

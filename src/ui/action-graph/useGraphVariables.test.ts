@@ -77,7 +77,7 @@ it('isolated scope and numeric data inputs reject root-only, string and non-inpu
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'existing',
+            buffs: [{ buffId: 'existing' }],
             target: 'caster',
             count: { kind: 'constant', value: 1 },
           },
@@ -128,8 +128,8 @@ it('string variable creation and drop match only string inputs and keep numeric 
         action: {
           kind: 'applyBuff',
           parameters: {
+            buffs: [{ buffId: { kind: 'stringNode', nodeId: 'text' } }],
             target: 'caster',
-            buffId: { kind: 'stringNode', nodeId: 'text' },
             count: { kind: 'constant', value: 1 },
           },
         },
@@ -144,7 +144,7 @@ it('string variable creation and drop match only string inputs and keep numeric 
         next: null,
       },
       inside: {
-        action: { kind: 'applyBuff', parameters: { target: 'caster', buffId: 'old' } },
+        action: { kind: 'applyBuff', parameters: { buffs: [{ buffId: 'old' }], target: 'caster' } },
         next: null,
       },
     },
@@ -206,8 +206,8 @@ it('a declared string target constrains an unknown runtime key without granting 
         action: {
           kind: 'applyBuff',
           parameters: {
+            buffs: [{ buffId: { kind: 'stringNode', nodeId: 'buffId' } }],
             target: 'caster',
-            buffId: { kind: 'stringNode', nodeId: 'buffId' },
             count: { kind: 'constant', value: 1 },
           },
         },
@@ -263,11 +263,11 @@ it('connecting existing string sources rejects known open-board mismatches and m
         next: 'outside',
       },
       inside: {
-        action: { kind: 'applyBuff', parameters: { target: 'caster', buffId: read } },
+        action: { kind: 'applyBuff', parameters: { buffs: [{ buffId: read }], target: 'caster' } },
         next: null,
       },
       outside: {
-        action: { kind: 'applyBuff', parameters: { target: 'caster', buffId: read } },
+        action: { kind: 'applyBuff', parameters: { buffs: [{ buffId: read }], target: 'caster' } },
         next: null,
       },
     },

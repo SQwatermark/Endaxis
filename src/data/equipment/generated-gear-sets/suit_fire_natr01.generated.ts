@@ -12,15 +12,19 @@ const definition = {
           action: {
             kind: 'applyBuff',
             parameters: {
-              buffId: 'buff_equipsuit_fninflict_01',
+              buffs: [
+                {
+                  buffId: 'buff_equipsuit_fninflict_01',
+                  blackboardAssignments: {
+                    phy_spell_up: { kind: 'constant', value: 30 },
+                    fire_dmg_up: { kind: 'constant', value: 0.5 },
+                    nature_dmg_up: { kind: 'constant', value: 0.5 },
+                    duration: { kind: 'constant', value: 10 },
+                    duration2: { kind: 'constant', value: 10 },
+                  },
+                },
+              ],
               target: 'caster',
-              blackboardAssignments: {
-                phy_spell_up: { kind: 'constant', value: 30 },
-                fire_dmg_up: { kind: 'constant', value: 0.5 },
-                nature_dmg_up: { kind: 'constant', value: 0.5 },
-                duration: { kind: 'constant', value: 10 },
-                duration2: { kind: 'constant', value: 10 },
-              },
             },
           },
           next: null,
@@ -59,11 +63,18 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_equipsuit_fninflict_01_firedamageadd',
+                  buffs: [
+                    {
+                      buffId: 'buff_equipsuit_fninflict_01_firedamageadd',
+                      copiedBlackboardAssignments: {
+                        duration: 'duration',
+                        fire_dmg_up: 'fire_dmg_up',
+                      },
+                    },
+                  ],
                   target: 'buffOwner',
                   source: 'buffOwner',
                   inheritSourceSkillCastInfo: true,
-                  copiedBlackboardAssignments: { duration: 'duration', fire_dmg_up: 'fire_dmg_up' },
                 },
               },
               next: null,
@@ -80,14 +91,18 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_equipsuit_fninflict_01_poisedamageadd',
+                  buffs: [
+                    {
+                      buffId: 'buff_equipsuit_fninflict_01_poisedamageadd',
+                      copiedBlackboardAssignments: {
+                        duration: 'duration2',
+                        nature_dmg_up: 'nature_dmg_up',
+                      },
+                    },
+                  ],
                   target: 'buffOwner',
                   source: 'buffOwner',
                   inheritSourceSkillCastInfo: true,
-                  copiedBlackboardAssignments: {
-                    duration: 'duration2',
-                    nature_dmg_up: 'nature_dmg_up',
-                  },
                 },
               },
               next: null,

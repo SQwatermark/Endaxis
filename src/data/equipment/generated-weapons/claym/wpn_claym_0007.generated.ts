@@ -44,14 +44,18 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_claym_0007_valid',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_claym_0007_valid',
+                      copiedBlackboardAssignments: {
+                        shield_valid: 'shield_valid',
+                        duration: 'duration',
+                      },
+                    },
+                  ],
                   target: 'controlledOperator',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: {
-                    shield_valid: 'shield_valid',
-                    duration: 'duration',
-                  },
                 },
               },
               next: null,

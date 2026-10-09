@@ -380,7 +380,7 @@ describe('standardPlayerDamageCompatibility', () => {
             {
               kind: 'applyBuff',
               parameters: {
-                buffId: 'buff:attached',
+                buffs: [{ buffId: 'buff:attached' }],
                 target: 'caster',
                 lifetimeOwner: 'currentCastSkill',
               },
@@ -544,7 +544,7 @@ describe('standardPlayerDamageCompatibility', () => {
   it('does not reject unsupported skills that cannot run before the requested end frame', () => {
     const entry = operator(
       chainEntry('compat-missing-buff', [
-        { kind: 'applyBuff', parameters: { buffId: 'buff:missing', target: 'enemy' } },
+        { kind: 'applyBuff', parameters: { buffs: [{ buffId: 'buff:missing' }], target: 'enemy' } },
       ]),
     );
 
@@ -618,7 +618,7 @@ describe('standardPlayerDamageCompatibility', () => {
               sequence: chainEntry('compat-late-action', [
                 {
                   kind: 'applyBuff',
-                  parameters: { buffId: 'buff:missing', target: 'enemy' },
+                  parameters: { buffs: [{ buffId: 'buff:missing' }], target: 'enemy' },
                 },
               ]),
             },
@@ -800,7 +800,7 @@ describe('standardPlayerDamageCompatibility', () => {
           { kind: 'dealStagger', parameters: { value: 10 } },
           {
             kind: 'applyBuff',
-            parameters: { buffId: 'buff:missing', target: 'enemy' },
+            parameters: { buffs: [{ buffId: 'buff:missing' }], target: 'enemy' },
           },
           { kind: 'setContextFlag', parameters: { flag: 'ready', value: true, target: 'caster' } },
         ]),

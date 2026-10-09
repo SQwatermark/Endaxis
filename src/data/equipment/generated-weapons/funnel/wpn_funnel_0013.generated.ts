@@ -54,15 +54,19 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_funnel_0013_valid',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_funnel_0013_valid',
+                      copiedBlackboardAssignments: {
+                        spell_taken_up: 'spell_dmg_taken_up',
+                        duration: 'duration',
+                        lv: 'lv',
+                      },
+                    },
+                  ],
                   target: 'eventTarget',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: {
-                    spell_taken_up: 'spell_dmg_taken_up',
-                    duration: 'duration',
-                    lv: 'lv',
-                  },
                 },
               },
               next: null,

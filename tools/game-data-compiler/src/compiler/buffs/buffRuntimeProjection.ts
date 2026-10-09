@@ -1,3 +1,4 @@
+import { projectAuraParameters } from '../actions/combatActionLeafProjection.ts';
 import { imageRefFromPath } from '../publication/imageResources.ts';
 import { isPresentationOnlyActionSequence } from '../skills/skillPresentationTargets.ts';
 import { projectGameplayTags } from '../combatProjectionCommon.ts';
@@ -1292,6 +1293,48 @@ function createBuffSequenceProjection(
     node: NativeActionNodeSource<KnownNativeActionLeafSource>,
     partyTargetGroups: ReadonlyMap<string, BuffProjectionTargetGroup>,
   ) => {
+    if (
+      node.body.kind === 'leaf' &&
+      node.body.value.family === 'aura' &&
+      node.body.value.action.kind !== 'auraReference'
+    ) {
+      const aura = node.body.value.action;
+      const callbackContext: CombatActionProjectionContextSource = {
+        ...context,
+        actionTargetTarget: aura.target === 'enemy' ? 'enemy' : 'currentOperator',
+        ...(aura.kind === 'directRangedAura' && aura.targetGroupKey !== undefined
+          ? {
+              staticEnemyTargetGroupKeys: new Set([
+                ...(context.staticEnemyTargetGroupKeys ?? []),
+                aura.targetGroupKey,
+              ]),
+            }
+          : {}),
+      };
+      const compileCallback = (sequence: typeof aura.actionOnEnter) =>
+        compileActionSequenceProgram(sequence, {
+          ...createBuffSequenceProjection(visualOnlyIds, callbackContext, extensions),
+          initialState: () => partyTargetGroups,
+        });
+      return {
+        steps: [
+          {
+            kind: 'aura' as const,
+            parameters:
+              aura.kind === 'globalPartyAura'
+                ? projectAuraParameters(node, visualOnlyIds, context)
+                : { target: aura.target, buffs: [] },
+            onEnter: compileCallback(aura.actionOnEnter),
+            onExit:
+              aura.kind === 'globalPartyAura'
+                ? compileCallback(aura.actionOnExit)
+                : { $sequence: null },
+          },
+        ],
+        state: partyTargetGroups,
+      };
+    }
+
     const visibleTargetGroups = runtimeTargetGroups(partyTargetGroups);
     const compiled =
       node.body.kind === 'leaf' &&
@@ -1583,87 +1626,6 @@ function createBuffSequenceProjection(
         }
         return {
           steps: [{ kind: 'finishTimeline', parameters: {} }],
-          state: partyTargetGroups,
-          consumedNodeCount: 1,
-        };
-      }
-      if (
-        first.body.kind === 'leaf' &&
-        first.body.value.family === 'aura' &&
-        first.body.value.action.kind === 'directRangedAura' &&
-        first.body.value.action.target === 'party'
-      ) {
-        const aura = first.body.value.action;
-        const enabledEnterActions = aura.actionOnEnter.actions.filter(
-          node => node.metadata.enabled,
-        );
-        const mainCharacterGuard = enabledEnterActions[0];
-        if (
-          mainCharacterGuard?.body.kind !== 'leaf' ||
-          mainCharacterGuard.body.value.family !== 'condition' ||
-          mainCharacterGuard.body.value.action.kind !== 'mainOperator' ||
-          mainCharacterGuard.body.value.action.targetSource !== 'Target' ||
-          mainCharacterGuard.body.value.action.targetGroupKey !== ''
-        ) {
-          throw new Error(
-            `${first.sourcePath}: party Aura requires a leading Target main-character guard`,
-          );
-        }
-        // Aura 候选为全队，但原生进入序列的第一个条件只让主控干员
-        // 继续。直接查询当时主控的稳定身份与逐人执行后被该守卫截断等价，
-        // 同时使后续 ExcludeTarget 能明确排除这一当前迭代目标。
-        const auraContextKey = `__auraParty:${first.sourcePath}`;
-        const auraContext: CombatActionProjectionContextSource = {
-          ...context,
-          actionTargetTarget: 'currentOperator',
-        };
-        const body = compileActionSequenceProgram(
-          { ...aura.actionOnEnter, actions: enabledEnterActions.slice(1) },
-          {
-            ...createBuffSequenceProjection(visualOnlyIds, auraContext, extensions),
-            initialState: () => partyTargetGroups,
-          },
-        );
-        return {
-          steps: [
-            {
-              kind: 'findCharacterTeamTargets',
-              parameters: {
-                saveToContextKey: auraContextKey,
-                selection: { kind: 'controlledOperator' },
-              },
-            },
-            {
-              kind: 'forEachContextTarget',
-              parameters: { contextKey: auraContextKey },
-              body,
-            },
-          ],
-          state: partyTargetGroups,
-          consumedNodeCount: 1,
-        };
-      }
-      if (
-        first.body.kind === 'leaf' &&
-        first.body.value.family === 'aura' &&
-        first.body.value.action.kind === 'directRangedAura' &&
-        first.body.value.action.target === 'enemy'
-      ) {
-        const aura = first.body.value.action;
-        const auraContext: CombatActionProjectionContextSource = {
-          ...context,
-          actionTargetTarget: 'enemy',
-          staticEnemyTargetGroupKeys: new Set([
-            ...(context.staticEnemyTargetGroupKeys ?? []),
-            aura.targetGroupKey!,
-          ]),
-        };
-        const body = compileActionSequenceProgram(aura.actionOnEnter, {
-          ...createBuffSequenceProjection(visualOnlyIds, auraContext, extensions),
-          initialState: () => partyTargetGroups,
-        });
-        return {
-          steps: context.graph.actions(body),
           state: partyTargetGroups,
           consumedNodeCount: 1,
         };

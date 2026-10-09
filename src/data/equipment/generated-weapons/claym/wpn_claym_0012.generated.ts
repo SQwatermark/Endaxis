@@ -51,9 +51,13 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_claym_0012_up',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_claym_0012_up',
+                      blackboardAssignments: { heal_up: { kind: 'valueNode', nodeId: 'data_1' } },
+                    },
+                  ],
                   target: 'caster',
-                  blackboardAssignments: { heal_up: { kind: 'valueNode', nodeId: 'data_1' } },
                 },
               },
               next: null,

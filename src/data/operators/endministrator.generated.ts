@@ -26,9 +26,9 @@ export const endministratorChr_0003_endminf_attack1ActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_2: {
+      changeResource_2: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -44,7 +44,7 @@ export const endministratorChr_0003_endminf_attack1ActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResourceByActionValue_2' },
+          whenTrue: { $sequence: 'changeResource_2' },
         },
         next: null,
       },
@@ -129,9 +129,9 @@ export const endministratorChr_0003_endminf_attack2ActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_2: {
+      changeResource_2: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -147,7 +147,7 @@ export const endministratorChr_0003_endminf_attack2ActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResourceByActionValue_2' },
+          whenTrue: { $sequence: 'changeResource_2' },
         },
         next: null,
       },
@@ -232,9 +232,9 @@ export const endministratorChr_0003_endminf_attack3ActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_2: {
+      changeResource_2: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -250,7 +250,7 @@ export const endministratorChr_0003_endminf_attack3ActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResourceByActionValue_2' },
+          whenTrue: { $sequence: 'changeResource_2' },
         },
         next: null,
       },
@@ -282,9 +282,9 @@ export const endministratorChr_0003_endminf_attack3ActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_6: {
+      changeResource_6: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_5' },
@@ -300,7 +300,7 @@ export const endministratorChr_0003_endminf_attack3ActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_6' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResourceByActionValue_6' },
+          whenTrue: { $sequence: 'changeResource_6' },
         },
         next: null,
       },
@@ -394,9 +394,9 @@ export const endministratorChr_0003_endminf_attack4ActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_2: {
+      changeResource_2: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -412,7 +412,7 @@ export const endministratorChr_0003_endminf_attack4ActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResourceByActionValue_2' },
+          whenTrue: { $sequence: 'changeResource_2' },
         },
         next: null,
       },
@@ -442,9 +442,9 @@ export const endministratorChr_0003_endminf_attack4ActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_10: {
+      changeResource_10: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_4' },
@@ -460,7 +460,7 @@ export const endministratorChr_0003_endminf_attack4ActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResourceByActionValue_10' },
+          whenTrue: { $sequence: 'changeResource_10' },
         },
         next: null,
       },
@@ -490,9 +490,9 @@ export const endministratorChr_0003_endminf_attack4ActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_14: {
+      changeResource_14: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_7' },
@@ -508,7 +508,7 @@ export const endministratorChr_0003_endminf_attack4ActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_8' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResourceByActionValue_14' },
+          whenTrue: { $sequence: 'changeResource_14' },
         },
         next: null,
       },
@@ -595,9 +595,9 @@ export const endministratorChr_0003_endminf_attack5ActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_2: {
+      changeResource_2: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -618,7 +618,7 @@ export const endministratorChr_0003_endminf_attack5ActionGraph = {
             value: { kind: 'constant', value: 1 },
           },
         },
-        next: 'changeResourceByActionValue_2',
+        next: 'changeResource_2',
       },
       conditional_4: {
         action: {
@@ -749,9 +749,9 @@ export const endministratorChr_0003_endminf_attack5: SkillDefinition = {
 export const endministratorChr_0003_endminf_power_attack2ActionGraph = {
   main: {
     nodes: {
-      changeResourceByActionValue_1: {
+      changeResource_1: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'constant', value: 0 },
@@ -767,7 +767,7 @@ export const endministratorChr_0003_endminf_power_attack2ActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResourceByActionValue_1' },
+          whenTrue: { $sequence: 'changeResource_1' },
         },
         next: null,
       },
@@ -843,7 +843,7 @@ export const endministratorChr_0003_endminf_power_attack2ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_full_immune_medium',
+            buffs: [{ buffId: 'buff_common_full_immune_medium' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -855,7 +855,7 @@ export const endministratorChr_0003_endminf_power_attack2ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_power_attack_disable_cast_skill',
+            buffs: [{ buffId: 'buff_common_power_attack_disable_cast_skill' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -927,9 +927,9 @@ export const endministratorChr_0003_endminf_power_attack2: SkillDefinition = {
 export const endministratorChr_0003_endminf_plunging_attack_endActionGraph = {
   main: {
     nodes: {
-      changeResourceByActionValue_1: {
+      changeResource_1: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -945,7 +945,7 @@ export const endministratorChr_0003_endminf_plunging_attack_endActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResourceByActionValue_1' },
+          whenTrue: { $sequence: 'changeResource_1' },
         },
         next: null,
       },
@@ -1106,9 +1106,9 @@ export const endministratorChr_0003_endminf_normal_skillActionGraph = {
         },
         next: 'dealDamage_14',
       },
-      changeResourceByActionValue_7: {
+      changeResource_7: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_5' },
@@ -1131,7 +1131,7 @@ export const endministratorChr_0003_endminf_normal_skillActionGraph = {
             ignoreHitEffect: false,
           },
         },
-        next: 'changeResourceByActionValue_7',
+        next: 'changeResource_7',
       },
       readBuffBlackboard_9: {
         action: {
@@ -1185,7 +1185,7 @@ export const endministratorChr_0003_endminf_normal_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0003_endminf_potential5_trigger',
+            buffs: [{ buffId: 'buff_chr_0003_endminf_potential5_trigger' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
           },
@@ -1417,7 +1417,7 @@ export const endministratorChr_0003_endminf_ultimate_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0003_endminf_potential5_trigger',
+            buffs: [{ buffId: 'buff_chr_0003_endminf_potential5_trigger' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
           },
@@ -1436,7 +1436,7 @@ export const endministratorChr_0003_endminf_ultimate_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_damage_immune_ult_skill',
+            buffs: [{ buffId: 'buff_common_damage_immune_ult_skill' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -1549,9 +1549,9 @@ export const endministratorChr_0003_endminf_combo_skillActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_2: {
+      changeResource_2: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'ultimateEnergy',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -1574,7 +1574,7 @@ export const endministratorChr_0003_endminf_combo_skillActionGraph = {
             targets: ['enemy', 'caster'],
           },
         },
-        next: 'changeResourceByActionValue_2',
+        next: 'changeResource_2',
       },
       dealDamage_4: {
         action: {
@@ -1593,14 +1593,18 @@ export const endministratorChr_0003_endminf_combo_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_originum_frozen',
+            buffs: [
+              {
+                buffId: 'buff_common_originum_frozen',
+                copiedBlackboardAssignments: {
+                  duration: 'duration',
+                  atk_scale_trigger: 'atk_scale_trigger',
+                  originum_ult_break_scale: 'originum_ult_break_scale',
+                },
+              },
+            ],
             target: 'enemy',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: {
-              duration: 'duration',
-              atk_scale_trigger: 'atk_scale_trigger',
-              originum_ult_break_scale: 'originum_ult_break_scale',
-            },
           },
         },
         next: 'dealDamage_4',
@@ -1760,10 +1764,14 @@ const endministratorPassive1ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0003_endminf_talent_0_aura',
+            buffs: [
+              {
+                buffId: 'buff_chr_0003_endminf_talent_0_aura',
+                blackboardAssignments: { dmg: { kind: 'valueNode', nodeId: 'data_1' } },
+              },
+            ],
             target: 'caster',
             inheritSourceSkillCastInfo: false,
-            blackboardAssignments: { dmg: { kind: 'valueNode', nodeId: 'data_1' } },
           },
         },
         next: null,
@@ -2046,16 +2054,22 @@ const endministratorBuff6: SkillBuffDefinition = {
 const endministratorBuff7ActionGraph = {
   main: {
     nodes: {
-      applyBuff_1: {
+      aura_1: {
         action: {
-          kind: 'applyBuff',
+          kind: 'aura',
           parameters: {
-            buffId: 'buff_chr_0003_endminf_talent_0',
             target: 'party',
-            finishByAction: true,
             inheritSourceSkillCastInfo: true,
-            blackboardAssignments: { dmg: { kind: 'valueNode', nodeId: 'data_1' } },
+            buffs: [
+              {
+                buffId: 'buff_chr_0003_endminf_talent_0',
+                blackboardAssignments: { dmg: { kind: 'valueNode', nodeId: 'data_1' } },
+                stringBlackboardAssignments: {},
+              },
+            ],
           },
+          onEnter: { $sequence: null },
+          onExit: { $sequence: null },
         },
         next: null,
       },
@@ -2073,7 +2087,7 @@ const endministratorBuff7: SkillBuffDefinition = {
   extendTags: [],
   blackboard: { dmg: 0 },
   attributeModifiers: [],
-  lifecycleSequences: { enable: { $sequence: 'applyBuff_1' } },
+  lifecycleSequences: { enable: { $sequence: 'aura_1' } },
   actionGraph: endministratorBuff7ActionGraph,
 };
 

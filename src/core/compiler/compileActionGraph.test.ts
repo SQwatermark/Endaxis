@@ -36,12 +36,16 @@ const graph: ActionGraphDefinition = {
       action: {
         kind: 'applyBuff',
         parameters: {
-          buffId: 'shared',
+          buffs: [
+            {
+              buffId: 'shared',
+              blackboardAssignments: {
+                constant: [10, 20],
+                dynamic: { kind: 'valueNode', nodeId: 'test_data_1' },
+              },
+            },
+          ],
           target: 'caster',
-          blackboardAssignments: {
-            constant: [10, 20],
-            dynamic: { kind: 'valueNode', nodeId: 'test_data_1' },
-          },
         },
       },
       next: null,
@@ -259,7 +263,7 @@ describe('嵌套宿主直接图编译', () => {
     expectEntry(buff.scheduledSequences?.[0]?.sequence, buffGraph, 'hit');
     expectEntry(buff.abilityEventResponses?.[0]?.sequence, buffGraph, 'hit');
     expectEntry(buff.igniteEventResponses?.[0]?.sequence, buffGraph, 'hit');
-    expect(action.parameters.blackboardAssignments).toMatchObject({
+    expect(action.parameters.buffs[0]?.blackboardAssignments).toMatchObject({
       constant: { kind: 'constant', value: 20 },
       dynamic: { kind: 'valueNode', node: { expression: { kind: 'blackboard', key: 'power' } } },
     });

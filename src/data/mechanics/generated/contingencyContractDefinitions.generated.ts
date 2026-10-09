@@ -88,7 +88,7 @@ const commonBuff2ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_cc_chr_combo_skill_cryst_inflict_stack',
+            buffs: [{ buffId: 'buff_cc_chr_combo_skill_cryst_inflict_stack' }],
             target: 'controlledOperator',
             inheritSourceSkillCastInfo: true,
           },
@@ -324,11 +324,15 @@ const commonBuff6ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_cc_chr_phy_dmg_down',
+            buffs: [
+              {
+                buffId: 'buff_cc_chr_phy_dmg_down',
+                copiedBlackboardAssignments: { dmg_scale: 'dmg_scale', duration: 'duration' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: { dmg_scale: 'dmg_scale', duration: 'duration' },
           },
         },
         next: null,
@@ -345,11 +349,15 @@ const commonBuff6ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_cc_chr_fire_dmg_down',
+            buffs: [
+              {
+                buffId: 'buff_cc_chr_fire_dmg_down',
+                copiedBlackboardAssignments: { dmg_scale: 'dmg_scale', duration: 'duration' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: { dmg_scale: 'dmg_scale', duration: 'duration' },
           },
         },
         next: null,
@@ -366,11 +374,15 @@ const commonBuff6ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_cc_chr_pulse_dmg_down',
+            buffs: [
+              {
+                buffId: 'buff_cc_chr_pulse_dmg_down',
+                copiedBlackboardAssignments: { dmg_scale: 'dmg_scale', duration: 'duration' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: { dmg_scale: 'dmg_scale', duration: 'duration' },
           },
         },
         next: null,
@@ -387,11 +399,15 @@ const commonBuff6ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_cc_chr_cryst_dmg_down',
+            buffs: [
+              {
+                buffId: 'buff_cc_chr_cryst_dmg_down',
+                copiedBlackboardAssignments: { dmg_scale: 'dmg_scale', duration: 'duration' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: { dmg_scale: 'dmg_scale', duration: 'duration' },
           },
         },
         next: null,
@@ -408,11 +424,15 @@ const commonBuff6ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_cc_chr_natural_dmg_down',
+            buffs: [
+              {
+                buffId: 'buff_cc_chr_natural_dmg_down',
+                copiedBlackboardAssignments: { dmg_scale: 'dmg_scale', duration: 'duration' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: { dmg_scale: 'dmg_scale', duration: 'duration' },
           },
         },
         next: null,
@@ -689,33 +709,28 @@ const commonBuff10ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_cc_chr_heal_reflect_to_eny_shield',
+            buffs: [
+              {
+                buffId: 'buff_cc_chr_heal_reflect_to_eny_heal',
+                copiedBlackboardAssignments: {
+                  chr_heal_ratio: 'chr_heal_ratio',
+                  eny_heal_ratio: 'eny_heal_ratio',
+                },
+              },
+              {
+                buffId: 'buff_cc_chr_heal_reflect_to_eny_shield',
+                copiedBlackboardAssignments: {
+                  chr_heal_ratio: 'chr_shield_ratio',
+                  eny_heal_ratio: 'eny_heal_ratio',
+                },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: {
-              chr_heal_ratio: 'chr_shield_ratio',
-              eny_heal_ratio: 'eny_heal_ratio',
-            },
           },
         },
         next: null,
-      },
-      applyBuff_2: {
-        action: {
-          kind: 'applyBuff',
-          parameters: {
-            buffId: 'buff_cc_chr_heal_reflect_to_eny_heal',
-            target: 'buffOwner',
-            source: 'buffOwner',
-            inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: {
-              chr_heal_ratio: 'chr_heal_ratio',
-              eny_heal_ratio: 'eny_heal_ratio',
-            },
-          },
-        },
-        next: 'applyBuff_1',
       },
     },
   },
@@ -730,7 +745,7 @@ const commonBuff10: SkillBuffDefinition = {
   extendTags: [],
   blackboard: { chr_heal_ratio: 0.1, chr_shield_ratio: 0.2, eny_heal_ratio: 0.05 },
   attributeModifiers: [],
-  lifecycleSequences: { enable: { $sequence: 'applyBuff_2' } },
+  lifecycleSequences: { enable: { $sequence: 'applyBuff_1' } },
   actionGraph: commonBuff10ActionGraph,
 };
 
@@ -824,12 +839,16 @@ const commonBuff11ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_cc_chr_heal_reflect_to_eny_stack_heal',
+            buffs: [
+              {
+                buffId: 'buff_cc_chr_heal_reflect_to_eny_stack_heal',
+                copiedBlackboardAssignments: { eny_heal_ratio: 'eny_heal_ratio' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffOwner',
             count: { kind: 'valueNode', nodeId: 'data_7' },
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: { eny_heal_ratio: 'eny_heal_ratio' },
           },
         },
         next: 'modifyActionValue_8',
@@ -1077,12 +1096,16 @@ const commonBuff12ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_cc_chr_heal_reflect_to_eny_stack_shield',
+            buffs: [
+              {
+                buffId: 'buff_cc_chr_heal_reflect_to_eny_stack_shield',
+                copiedBlackboardAssignments: { eny_heal_ratio: 'eny_heal_ratio' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffOwner',
             count: { kind: 'valueNode', nodeId: 'data_7' },
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: { eny_heal_ratio: 'eny_heal_ratio' },
           },
         },
         next: 'modifyActionValue_8',
@@ -1250,11 +1273,15 @@ const commonBuff13ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_cc_chr_heal_reflect_to_eny_stack_heal_do',
+            buffs: [
+              {
+                buffId: 'buff_cc_chr_heal_reflect_to_eny_stack_heal_do',
+                copiedBlackboardAssignments: { eny_heal_ratio: 'eny_heal_ratio' },
+              },
+            ],
             target: 'enemy',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: { eny_heal_ratio: 'eny_heal_ratio' },
           },
         },
         next: null,
@@ -1331,11 +1358,15 @@ const commonBuff15ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_cc_chr_heal_reflect_to_eny_stack_heal_do',
+            buffs: [
+              {
+                buffId: 'buff_cc_chr_heal_reflect_to_eny_stack_heal_do',
+                copiedBlackboardAssignments: { eny_heal_ratio: 'eny_heal_ratio' },
+              },
+            ],
             target: 'enemy',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: { eny_heal_ratio: 'eny_heal_ratio' },
           },
         },
         next: null,
@@ -1522,11 +1553,15 @@ const commonBuff19ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_cc_chr_no_lastcombo_stop_atb_recover_countdown',
+            buffs: [
+              {
+                buffId: 'buff_cc_chr_no_lastcombo_stop_atb_recover_countdown',
+                copiedBlackboardAssignments: { ratio: 'ratio', duration: 'duration' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: { ratio: 'ratio', duration: 'duration' },
           },
         },
         next: null,
@@ -1535,12 +1570,16 @@ const commonBuff19ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_cc_chr_no_lastcombo_stop_atb_recover_countdown',
+            buffs: [
+              {
+                buffId: 'buff_cc_chr_no_lastcombo_stop_atb_recover_countdown',
+                copiedBlackboardAssignments: { ratio: 'ratio', duration: 'duration' },
+              },
+            ],
             target: 'party',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
-            copiedBlackboardAssignments: { ratio: 'ratio', duration: 'duration' },
           },
         },
         next: null,
@@ -1698,11 +1737,15 @@ const commonBuff21ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_cc_chr_no_lastcombo_stop_atb_recover',
+            buffs: [
+              {
+                buffId: 'buff_cc_chr_no_lastcombo_stop_atb_recover',
+                copiedBlackboardAssignments: { ratio: 'ratio', duration: 'duration' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: { ratio: 'ratio', duration: 'duration' },
           },
         },
         next: null,
@@ -1818,7 +1861,7 @@ const commonBuff23ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_cc_chr_normal_skill_cryst_inflict_stack',
+            buffs: [{ buffId: 'buff_cc_chr_normal_skill_cryst_inflict_stack' }],
             target: 'controlledOperator',
             inheritSourceSkillCastInfo: true,
           },
@@ -2274,7 +2317,7 @@ const commonBuff30ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_cc_chr_ult_dmg_down_gradual_stack',
+            buffs: [{ buffId: 'buff_cc_chr_ult_dmg_down_gradual_stack' }],
             target: 'buffOwner',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
@@ -2418,11 +2461,15 @@ const commonBuff33ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_cc_enemy_common_movespeedup_dmg_limit_base',
+            buffs: [
+              {
+                buffId: 'buff_cc_enemy_common_movespeedup_dmg_limit_base',
+                copiedBlackboardAssignments: { dmg_scale: 'dmg_scale' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: { dmg_scale: 'dmg_scale' },
           },
         },
         next: null,
@@ -2463,11 +2510,15 @@ const commonBuff34ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_cc_enemy_common_movespeedup_dmg_limit_instance',
+            buffs: [
+              {
+                buffId: 'buff_cc_enemy_common_movespeedup_dmg_limit_instance',
+                copiedBlackboardAssignments: { hp_ratio: 'hp_ratio' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: { hp_ratio: 'hp_ratio' },
           },
         },
         next: null,
@@ -2607,12 +2658,16 @@ const commonBuff35ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_cc_enemy_common_movespeedup_dmg_limit_instance',
+            buffs: [
+              {
+                buffId: 'buff_cc_enemy_common_movespeedup_dmg_limit_instance',
+                copiedBlackboardAssignments: { hp_ratio: 'hp_ratio' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
-            copiedBlackboardAssignments: { hp_ratio: 'hp_ratio' },
           },
         },
         next: null,
@@ -2726,7 +2781,7 @@ const commonBuff36ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_cc_enemy_heal_under_control_stack',
+            buffs: [{ buffId: 'buff_cc_enemy_heal_under_control_stack' }],
             target: 'buffOwner',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
@@ -2754,7 +2809,7 @@ const commonBuff36ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_cc_enemy_heal_under_control_stack',
+            buffs: [{ buffId: 'buff_cc_enemy_heal_under_control_stack' }],
             target: 'buffOwner',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
@@ -2782,7 +2837,7 @@ const commonBuff36ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_cc_enemy_heal_under_control_stack',
+            buffs: [{ buffId: 'buff_cc_enemy_heal_under_control_stack' }],
             target: 'buffOwner',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
@@ -2810,7 +2865,7 @@ const commonBuff36ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_cc_enemy_heal_under_control_stack',
+            buffs: [{ buffId: 'buff_cc_enemy_heal_under_control_stack' }],
             target: 'buffOwner',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
@@ -2934,11 +2989,15 @@ const commonBuff36ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_cc_enemy_heal_under_control_instance',
+            buffs: [
+              {
+                buffId: 'buff_cc_enemy_heal_under_control_instance',
+                copiedBlackboardAssignments: { hp_ratio: 'hp_ratio' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: { hp_ratio: 'hp_ratio' },
           },
         },
         next: null,
@@ -3165,11 +3224,15 @@ const commonBuff37ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_cc_enemy_heal_under_control_timer',
+            buffs: [
+              {
+                buffId: 'buff_cc_enemy_heal_under_control_timer',
+                copiedBlackboardAssignments: { hp_ratio: 'hp_ratio' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: { hp_ratio: 'hp_ratio' },
           },
         },
         next: null,
@@ -3319,24 +3382,18 @@ const commonBuff40ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_cc_enemy_inflict_stack_resist_consume_listener',
+            buffs: [
+              {
+                buffId: 'buff_cc_enemy_inflict_stack_resist_add_listener',
+                copiedBlackboardAssignments: { dmg_scale: 'dmg_scale' },
+              },
+              { buffId: 'buff_cc_enemy_inflict_stack_resist_consume_listener' },
+            ],
             target: 'buffOwner',
             inheritSourceSkillCastInfo: true,
           },
         },
         next: null,
-      },
-      applyBuff_2: {
-        action: {
-          kind: 'applyBuff',
-          parameters: {
-            buffId: 'buff_cc_enemy_inflict_stack_resist_add_listener',
-            target: 'buffOwner',
-            inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: { dmg_scale: 'dmg_scale' },
-          },
-        },
-        next: 'applyBuff_1',
       },
     },
   },
@@ -3351,7 +3408,7 @@ const commonBuff40: SkillBuffDefinition = {
   extendTags: [],
   blackboard: { dmg_scale: -0.1 },
   attributeModifiers: [],
-  lifecycleSequences: { enable: { $sequence: 'applyBuff_2' } },
+  lifecycleSequences: { enable: { $sequence: 'applyBuff_1' } },
   actionGraph: commonBuff40ActionGraph,
 };
 
@@ -3362,11 +3419,15 @@ const commonBuff41ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_cc_enemy_inflict_stack_resist_fire',
+            buffs: [
+              {
+                buffId: 'buff_cc_enemy_inflict_stack_resist_fire',
+                copiedBlackboardAssignments: { dmg_scale: 'd_dmg_scale' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: { dmg_scale: 'd_dmg_scale' },
           },
         },
         next: null,
@@ -3432,11 +3493,15 @@ const commonBuff41ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_cc_enemy_inflict_stack_resist_pulse',
+            buffs: [
+              {
+                buffId: 'buff_cc_enemy_inflict_stack_resist_pulse',
+                copiedBlackboardAssignments: { dmg_scale: 'd_dmg_scale' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: { dmg_scale: 'd_dmg_scale' },
           },
         },
         next: null,
@@ -3502,11 +3567,15 @@ const commonBuff41ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_cc_enemy_inflict_stack_resist_cryst',
+            buffs: [
+              {
+                buffId: 'buff_cc_enemy_inflict_stack_resist_cryst',
+                copiedBlackboardAssignments: { dmg_scale: 'd_dmg_scale' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: { dmg_scale: 'd_dmg_scale' },
           },
         },
         next: null,
@@ -3572,11 +3641,15 @@ const commonBuff41ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_cc_enemy_inflict_stack_resist_natural',
+            buffs: [
+              {
+                buffId: 'buff_cc_enemy_inflict_stack_resist_natural',
+                copiedBlackboardAssignments: { dmg_scale: 'd_dmg_scale' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: { dmg_scale: 'd_dmg_scale' },
           },
         },
         next: null,
@@ -3642,11 +3715,15 @@ const commonBuff41ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_cc_enemy_inflict_stack_resist_phy',
+            buffs: [
+              {
+                buffId: 'buff_cc_enemy_inflict_stack_resist_phy',
+                copiedBlackboardAssignments: { dmg_scale: 'd_dmg_scale' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: { dmg_scale: 'd_dmg_scale' },
           },
         },
         next: null,
@@ -3881,11 +3958,15 @@ const commonBuff43ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_cc_enemy_inflict_stack_resist_consume_delay',
+            buffs: [
+              {
+                buffId: 'buff_cc_enemy_inflict_stack_resist_consume_delay',
+                blackboardAssignments: { index: { kind: 'constant', value: 0 } },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
-            blackboardAssignments: { index: { kind: 'constant', value: 0 } },
           },
         },
         next: null,
@@ -3902,11 +3983,15 @@ const commonBuff43ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_cc_enemy_inflict_stack_resist_consume_delay',
+            buffs: [
+              {
+                buffId: 'buff_cc_enemy_inflict_stack_resist_consume_delay',
+                blackboardAssignments: { index: { kind: 'constant', value: 1 } },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
-            blackboardAssignments: { index: { kind: 'constant', value: 1 } },
           },
         },
         next: null,
@@ -3923,11 +4008,15 @@ const commonBuff43ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_cc_enemy_inflict_stack_resist_consume_delay',
+            buffs: [
+              {
+                buffId: 'buff_cc_enemy_inflict_stack_resist_consume_delay',
+                blackboardAssignments: { index: { kind: 'constant', value: 2 } },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
-            blackboardAssignments: { index: { kind: 'constant', value: 2 } },
           },
         },
         next: null,
@@ -3944,11 +4033,15 @@ const commonBuff43ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_cc_enemy_inflict_stack_resist_consume_delay',
+            buffs: [
+              {
+                buffId: 'buff_cc_enemy_inflict_stack_resist_consume_delay',
+                blackboardAssignments: { index: { kind: 'constant', value: 3 } },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
-            blackboardAssignments: { index: { kind: 'constant', value: 3 } },
           },
         },
         next: null,
@@ -3965,11 +4058,15 @@ const commonBuff43ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_cc_enemy_inflict_stack_resist_consume_delay',
+            buffs: [
+              {
+                buffId: 'buff_cc_enemy_inflict_stack_resist_consume_delay',
+                blackboardAssignments: { index: { kind: 'constant', value: 4 } },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
-            blackboardAssignments: { index: { kind: 'constant', value: 4 } },
           },
         },
         next: null,
@@ -4283,11 +4380,15 @@ const commonBuff49ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_cc_enemy_periodic_inflict_resist_fire',
+            buffs: [
+              {
+                buffId: 'buff_cc_enemy_periodic_inflict_resist_fire',
+                copiedBlackboardAssignments: { duration: 'duration' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: { duration: 'duration' },
           },
         },
         next: null,
@@ -4296,11 +4397,15 @@ const commonBuff49ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_cc_enemy_periodic_inflict_resist_pulse',
+            buffs: [
+              {
+                buffId: 'buff_cc_enemy_periodic_inflict_resist_pulse',
+                copiedBlackboardAssignments: { duration: 'duration' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: { duration: 'duration' },
           },
         },
         next: null,
@@ -4309,11 +4414,15 @@ const commonBuff49ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_cc_enemy_periodic_inflict_resist_cryst',
+            buffs: [
+              {
+                buffId: 'buff_cc_enemy_periodic_inflict_resist_cryst',
+                copiedBlackboardAssignments: { duration: 'duration' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: { duration: 'duration' },
           },
         },
         next: null,
@@ -4322,11 +4431,15 @@ const commonBuff49ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_cc_enemy_periodic_inflict_resist_natural',
+            buffs: [
+              {
+                buffId: 'buff_cc_enemy_periodic_inflict_resist_natural',
+                copiedBlackboardAssignments: { duration: 'duration' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: { duration: 'duration' },
           },
         },
         next: null,
@@ -4367,11 +4480,15 @@ const commonBuff49ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_cc_enemy_periodic_inflict_resist_phy',
+            buffs: [
+              {
+                buffId: 'buff_cc_enemy_periodic_inflict_resist_phy',
+                copiedBlackboardAssignments: { duration: 'duration' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: { duration: 'duration' },
           },
         },
         next: null,
@@ -4638,7 +4755,7 @@ const commonBuff55ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_enemy_spell_cryst_triggered_frozen',
+            buffs: [{ buffId: 'buff_common_enemy_spell_cryst_triggered_frozen' }],
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
@@ -4731,7 +4848,7 @@ const commonBuff56ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_enemy_spell_status_frozen',
+            buffs: [{ buffId: 'buff_common_enemy_spell_status_frozen' }],
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
@@ -4847,12 +4964,16 @@ const commonBuff58ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_enemy_spell_status_do_frozen',
+            buffs: [
+              {
+                buffId: 'buff_common_enemy_spell_status_do_frozen',
+                copiedBlackboardAssignments: { duration: 'duration' },
+              },
+            ],
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
-            copiedBlackboardAssignments: { duration: 'duration' },
           },
         },
         next: null,
@@ -5916,9 +6037,13 @@ export const contingencyContractInitializationPlans = Object.freeze<
             action: {
               kind: 'applyBuff',
               parameters: {
-                buffId: 'buff_cc_enemy_periodic_inflict_resist',
+                buffs: [
+                  {
+                    buffId: 'buff_cc_enemy_periodic_inflict_resist',
+                    blackboardAssignments: { duration: { kind: 'constant', value: 5 } },
+                  },
+                ],
                 target: 'enemy',
-                blackboardAssignments: { duration: { kind: 'constant', value: 5 } },
               },
             },
             next: null,
@@ -5938,9 +6063,13 @@ export const contingencyContractInitializationPlans = Object.freeze<
             action: {
               kind: 'applyBuff',
               parameters: {
-                buffId: 'buff_cc_enemy_heal_under_control',
+                buffs: [
+                  {
+                    buffId: 'buff_cc_enemy_heal_under_control',
+                    blackboardAssignments: { hp_ratio: { kind: 'constant', value: 0.05 } },
+                  },
+                ],
                 target: 'enemy',
-                blackboardAssignments: { hp_ratio: { kind: 'constant', value: 0.05 } },
               },
             },
             next: null,
@@ -5960,9 +6089,13 @@ export const contingencyContractInitializationPlans = Object.freeze<
             action: {
               kind: 'applyBuff',
               parameters: {
-                buffId: 'buff_cc_enemy_heal_under_control',
+                buffs: [
+                  {
+                    buffId: 'buff_cc_enemy_heal_under_control',
+                    blackboardAssignments: { hp_ratio: { kind: 'constant', value: 0.15 } },
+                  },
+                ],
                 target: 'enemy',
-                blackboardAssignments: { hp_ratio: { kind: 'constant', value: 0.15 } },
               },
             },
             next: null,
@@ -6132,12 +6265,16 @@ export const contingencyContractInitializationPlans = Object.freeze<
             action: {
               kind: 'applyBuff',
               parameters: {
-                buffId: 'buff_cc_enemy_common_movespeedup',
+                buffs: [
+                  {
+                    buffId: 'buff_cc_enemy_common_movespeedup',
+                    blackboardAssignments: {
+                      speedup_scale: { kind: 'constant', value: 2 },
+                      dmg_scale: { kind: 'constant', value: 0.25 },
+                    },
+                  },
+                ],
                 target: 'enemy',
-                blackboardAssignments: {
-                  speedup_scale: { kind: 'constant', value: 2 },
-                  dmg_scale: { kind: 'constant', value: 0.25 },
-                },
               },
             },
             next: null,
@@ -6306,9 +6443,13 @@ export const contingencyContractInitializationPlans = Object.freeze<
             action: {
               kind: 'applyBuff',
               parameters: {
-                buffId: 'buff_cc_enemy_inflict_stack_resist',
+                buffs: [
+                  {
+                    buffId: 'buff_cc_enemy_inflict_stack_resist',
+                    blackboardAssignments: { dmg_scale: { kind: 'constant', value: -0.1 } },
+                  },
+                ],
                 target: 'enemy',
-                blackboardAssignments: { dmg_scale: { kind: 'constant', value: -0.1 } },
               },
             },
             next: null,

@@ -54,13 +54,17 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_sword_0010',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_sword_0010',
+                      blackboardAssignments: {
+                        dmg_up: { kind: 'valueNode', nodeId: 'data_1' },
+                        duration: { kind: 'valueNode', nodeId: 'data_2' },
+                        max_stack: { kind: 'valueNode', nodeId: 'data_3' },
+                      },
+                    },
+                  ],
                   target: 'caster',
-                  blackboardAssignments: {
-                    dmg_up: { kind: 'valueNode', nodeId: 'data_1' },
-                    duration: { kind: 'valueNode', nodeId: 'data_2' },
-                    max_stack: { kind: 'valueNode', nodeId: 'data_3' },
-                  },
                 },
               },
               next: null,
@@ -103,24 +107,30 @@ const definition = {
       extendTags: [],
       blackboard: { dmg_up: 0, duration: 0, max_stack: 3, radius: 40 },
       attributeModifiers: [],
-      lifecycleSequences: { enable: { $sequence: 'applyBuff_1' } },
+      lifecycleSequences: { enable: { $sequence: 'aura_1' } },
       actionGraph: {
         main: {
           nodes: {
-            applyBuff_1: {
+            aura_1: {
               action: {
-                kind: 'applyBuff',
+                kind: 'aura',
                 parameters: {
-                  buffId: 'buff_wpn_sword_0010_inaura',
                   target: 'enemy',
-                  finishByAction: true,
                   inheritSourceSkillCastInfo: true,
-                  blackboardAssignments: {
-                    dmg_up: { kind: 'valueNode', nodeId: 'data_1' },
-                    max_stack: { kind: 'valueNode', nodeId: 'data_2' },
-                    duration: { kind: 'valueNode', nodeId: 'data_3' },
-                  },
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_sword_0010_inaura',
+                      blackboardAssignments: {
+                        dmg_up: { kind: 'valueNode', nodeId: 'data_1' },
+                        max_stack: { kind: 'valueNode', nodeId: 'data_2' },
+                        duration: { kind: 'valueNode', nodeId: 'data_3' },
+                      },
+                      stringBlackboardAssignments: {},
+                    },
+                  ],
                 },
+                onEnter: { $sequence: null },
+                onExit: { $sequence: null },
               },
               next: null,
             },
@@ -167,15 +177,19 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_sword_0010_valid',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_sword_0010_valid',
+                      copiedBlackboardAssignments: {
+                        dmg_up: 'dmg_up',
+                        max_stack: 'max_stack',
+                        duration: 'duration',
+                      },
+                    },
+                  ],
                   target: 'buffSource',
                   source: 'buffSource',
                   inheritSourceSkillCastInfo: true,
-                  copiedBlackboardAssignments: {
-                    dmg_up: 'dmg_up',
-                    max_stack: 'max_stack',
-                    duration: 'duration',
-                  },
                 },
               },
               next: 'createTimedMarker_1',

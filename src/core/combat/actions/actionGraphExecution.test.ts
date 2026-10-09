@@ -56,6 +56,82 @@ function fixture(execute?: CombatOperationExecutor['execute']) {
 }
 
 describe('直接图执行', () => {
+  it('Aura 恢复不重入，并逆序清理目标后执行保留 Target 的退出回调', () => {
+    const program = createActionGraphCompilation(
+      {
+        nodes: {
+          aura: {
+            action: {
+              kind: 'aura',
+              parameters: { target: 'party', buffs: [] },
+              onEnter: { $sequence: 'enter' },
+              onExit: { $sequence: 'exit' },
+            },
+            next: null,
+          },
+          enter: {
+            action: {
+              kind: 'setContextFlag',
+              parameters: { flag: 'enter', value: true, target: 'caster' },
+            },
+            next: null,
+          },
+          exit: {
+            action: {
+              kind: 'setContextFlag',
+              parameters: { flag: 'exit', value: true, target: 'caster' },
+            },
+            next: null,
+          },
+        },
+      },
+      1,
+    ).compileAll();
+    const events: string[] = [];
+    const targets = [
+      { kind: 'operator' as const, operatorId: 'a' },
+      { kind: 'operator' as const, operatorId: 'b' },
+    ];
+    const operations: CombatOperationExecutor = {
+      evaluate: () => true,
+      execute: (step, context) => {
+        if (step.kind === 'setContextFlag') {
+          const target = context!.actionInputTarget!;
+          events.push(
+            `${step.parameters.flag}:${target.kind === 'operator' ? target.operatorId : target.kind}`,
+          );
+        }
+        return true;
+      },
+      aura: {
+        targets: () => targets,
+        apply: (_parameters, target) => {
+          const ownerId = target.kind === 'operator' ? target.operatorId : 'enemy';
+          events.push(`apply:${ownerId}`);
+          return [{ ownerId, instanceId: 1 }];
+        },
+        finish: references => events.push(`finish:${references[0]!.ownerId}`),
+      },
+    };
+    const runtime = new CombatActionSequenceRuntime(operations, {
+      blackboard: new ActionBlackboard(),
+    });
+    const action = runtime.createGraphSequence(program, 'aura', 'root');
+    action.tryExecute({});
+    expect(events).toEqual(['apply:a', 'enter:a', 'apply:b', 'enter:b']);
+    const restored = runtime.createGraphSequence(
+      program,
+      'aura',
+      'root',
+      undefined,
+      structuredClone(action.runtimeState),
+    );
+    restored.tick(1 / 30, {});
+    expect(events).toHaveLength(4);
+    restored.end({});
+    expect(events.slice(4)).toEqual(['finish:b', 'exit:b', 'finish:a', 'exit:a']);
+  });
+
   it('诊断记录不重放动作，区分共享图调用，并在异常后恢复观察作用域', () => {
     const program = createActionGraphCompilation(graph, 1).compileAll();
     const trace = new ActionExecutionTrace('cast');

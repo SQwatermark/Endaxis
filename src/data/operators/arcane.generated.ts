@@ -123,9 +123,9 @@ export const arcaneChr_0032_lizhiyan_attack2ActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_4: {
+      changeResource_4: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_2' },
@@ -141,7 +141,7 @@ export const arcaneChr_0032_lizhiyan_attack2ActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResourceByActionValue_4' },
+          whenTrue: { $sequence: 'changeResource_4' },
         },
         next: null,
       },
@@ -225,9 +225,9 @@ export const arcaneChr_0032_lizhiyan_attack3ActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_2: {
+      changeResource_2: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_2' },
@@ -243,7 +243,7 @@ export const arcaneChr_0032_lizhiyan_attack3ActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResourceByActionValue_2' },
+          whenTrue: { $sequence: 'changeResource_2' },
         },
         next: null,
       },
@@ -439,9 +439,9 @@ export const arcaneChr_0032_lizhiyan_attack4: SkillDefinition = {
 export const arcaneChr_0032_lizhiyan_attack5ActionGraph = {
   main: {
     nodes: {
-      changeResourceByActionValue_1: {
+      changeResource_1: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -462,7 +462,7 @@ export const arcaneChr_0032_lizhiyan_attack5ActionGraph = {
             value: { kind: 'constant', value: 1 },
           },
         },
-        next: 'changeResourceByActionValue_1',
+        next: 'changeResource_1',
       },
       conditional_3: {
         action: {
@@ -805,7 +805,7 @@ export const arcaneChr_0032_lizhiyan_power_attackActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_full_immune_medium',
+            buffs: [{ buffId: 'buff_common_full_immune_medium' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -817,7 +817,7 @@ export const arcaneChr_0032_lizhiyan_power_attackActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_power_attack_disable_cast_skill',
+            buffs: [{ buffId: 'buff_common_power_attack_disable_cast_skill' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -871,14 +871,15 @@ export const arcaneChr_0032_lizhiyan_power_attack: SkillDefinition = {
 export const arcaneChr_0032_lizhiyan_plunging_attack_endActionGraph = {
   main: {
     nodes: {
-      changeResourceByActionValue_1: {
+      changeResource_1: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
             coefficient: { kind: 'constant', value: 1 },
             recipient: 'team',
+            onlyMainOperator: true,
             spGainKind: 'gain',
             spGainSource: 'normalAttack',
           },
@@ -888,36 +889,27 @@ export const arcaneChr_0032_lizhiyan_plunging_attack_endActionGraph = {
       conditional_2: {
         action: {
           kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-          whenTrue: { $sequence: 'changeResourceByActionValue_1' },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' }, alwaysNext: true },
+          whenTrue: { $sequence: 'changeResource_1' },
         },
         next: null,
       },
-      conditional_3: {
-        action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' }, alwaysNext: true },
-          whenTrue: { $sequence: 'conditional_2' },
-        },
-        next: null,
-      },
-      dealDamage_4: {
+      dealDamage_3: {
         action: {
           kind: 'dealDamage',
           parameters: {
             damageType: 'nature',
-            attackScale: { kind: 'valueNode', nodeId: 'data_4' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_3' },
             tags: ['normalAttack', 'plungingAttack'],
           },
         },
-        next: 'conditional_3',
+        next: 'conditional_2',
       },
     },
     dataNodes: {
       data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
       data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
-      data_3: { type: 'boolean', expression: { kind: 'casterControlled' } },
-      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
+      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
     },
   },
   macros: {},
@@ -936,7 +928,7 @@ export const arcaneChr_0032_lizhiyan_plunging_attack_end: SkillDefinition = {
   exclusiveFrame: 12,
   offsetRecordFrame: 0,
   costFrame: 0,
-  scheduledSequences: [{ startFrame: 1, endFrame: 6, sequence: { $sequence: 'dealDamage_4' } }],
+  scheduledSequences: [{ startFrame: 1, endFrame: 6, sequence: { $sequence: 'dealDamage_3' } }],
   skillType: 'plungingAttack',
   levelSource: 'basicAttack',
   nativeSkillType: 'attack',
@@ -1312,7 +1304,7 @@ export const arcaneChr_0032_lizhiyan_combo_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0032_lizhiyan_combo_skill_precheck',
+            buffs: [{ buffId: 'buff_chr_0032_lizhiyan_combo_skill_precheck' }],
             target: 'enemy',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -1336,25 +1328,29 @@ export const arcaneChr_0032_lizhiyan_combo_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0032_lizhiyan_combo_skill_seal_total',
+            buffs: [
+              {
+                buffId: 'buff_chr_0032_lizhiyan_combo_skill_seal_total',
+                copiedBlackboardAssignments: {
+                  duration_total: 'duration_total',
+                  duration_final: 'duration_final',
+                  rate_final: 'rate_final',
+                  trigger_time: 'trigger_time',
+                  isWisd: 'EntityBB_wisd_greater_will',
+                  atk_scale_boom: 'atk_scale_boom',
+                  poise_boom: 'poise_boom',
+                  radius: 'radius',
+                  duration_seal2: 'duration',
+                  rate_pre: 'rate_pre',
+                  atk_scale_touch: 'atk_scale_touch',
+                  poise_touch: 'poise_touch',
+                  usp: 'usp',
+                  atb_return_wisd: 'atb_return_wisd',
+                },
+              },
+            ],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: {
-              duration_total: 'duration_total',
-              duration_final: 'duration_final',
-              rate_final: 'rate_final',
-              trigger_time: 'trigger_time',
-              isWisd: 'EntityBB_wisd_greater_will',
-              atk_scale_boom: 'atk_scale_boom',
-              poise_boom: 'poise_boom',
-              radius: 'radius',
-              duration_seal2: 'duration',
-              rate_pre: 'rate_pre',
-              atk_scale_touch: 'atk_scale_touch',
-              poise_touch: 'poise_touch',
-              usp: 'usp',
-              atb_return_wisd: 'atb_return_wisd',
-            },
           },
         },
         next: null,
@@ -1544,7 +1540,7 @@ export const arcaneChr_0032_lizhiyan_ultimate_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_time_dilation_listener',
+            buffs: [{ buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_time_dilation_listener' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -1755,13 +1751,17 @@ export const arcaneChr_0032_lizhiyan_ultimate_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_listener_owner',
+            buffs: [
+              {
+                buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_listener_owner',
+                copiedBlackboardAssignments: {
+                  duration: 'duration',
+                  isWisd: 'EntityBB_wisd_greater_will',
+                },
+              },
+            ],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: {
-              duration: 'duration',
-              isWisd: 'EntityBB_wisd_greater_will',
-            },
           },
         },
         next: null,
@@ -1844,10 +1844,14 @@ export const arcaneChr_0032_lizhiyan_ultimate_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_natural_natural_corrupt_triggered',
+            buffs: [
+              {
+                buffId: 'buff_common_natural_natural_corrupt_triggered',
+                copiedBlackboardAssignments: { count: 'count', duration: 'duration2' },
+              },
+            ],
             target: 'enemy',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: { count: 'count', duration: 'duration2' },
           },
         },
         next: null,
@@ -1864,10 +1868,17 @@ export const arcaneChr_0032_lizhiyan_ultimate_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0032_lizhiyan_talent1_vulnerable',
+            buffs: [
+              {
+                buffId: 'buff_chr_0032_lizhiyan_talent1_vulnerable',
+                copiedBlackboardAssignments: {
+                  rate: 'spell_vul_rate_calc',
+                  duration: 'duration_vul',
+                },
+              },
+            ],
             target: 'enemy',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: { rate: 'spell_vul_rate_calc', duration: 'duration_vul' },
           },
         },
         next: null,
@@ -1887,10 +1898,14 @@ export const arcaneChr_0032_lizhiyan_ultimate_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0032_lizhiyan_talent1_vulnerable',
+            buffs: [
+              {
+                buffId: 'buff_chr_0032_lizhiyan_talent1_vulnerable',
+                copiedBlackboardAssignments: { rate: 'spell_vul_rate', duration: 'duration_vul' },
+              },
+            ],
             target: 'enemy',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: { rate: 'spell_vul_rate', duration: 'duration_vul' },
           },
         },
         next: null,
@@ -2053,7 +2068,7 @@ export const arcaneChr_0032_lizhiyan_ultimate_skillActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_damage_immune_ult_skill',
+            buffs: [{ buffId: 'buff_common_damage_immune_ult_skill' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -2378,12 +2393,16 @@ export const arcaneChr_0032_lizhiyan_ultimate_skill2ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0032_lizhiyan_talent1_enhance',
+            buffs: [
+              {
+                buffId: 'buff_chr_0032_lizhiyan_talent1_enhance',
+                copiedBlackboardAssignments: { enhance_rate: 'enhance_rate' },
+              },
+            ],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
             asChildBuff: true,
-            copiedBlackboardAssignments: { enhance_rate: 'enhance_rate' },
           },
         },
         next: null,
@@ -2492,7 +2511,7 @@ export const arcaneChr_0032_lizhiyan_ultimate_skill2ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_time_dilation_listener',
+            buffs: [{ buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_time_dilation_listener' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -2565,10 +2584,14 @@ export const arcaneChr_0032_lizhiyan_ultimate_skill2ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0032_lizhiyan_talent1_vulnerable',
+            buffs: [
+              {
+                buffId: 'buff_chr_0032_lizhiyan_talent1_vulnerable',
+                copiedBlackboardAssignments: { rate: 'spell_vul_rate', duration: 'duration_vul' },
+              },
+            ],
             target: 'enemy',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: { rate: 'spell_vul_rate', duration: 'duration_vul' },
           },
         },
         next: null,
@@ -2695,7 +2718,7 @@ export const arcaneChr_0032_lizhiyan_ultimate_skill2ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_damage_immune_ult_skill',
+            buffs: [{ buffId: 'buff_common_damage_immune_ult_skill' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -2707,7 +2730,7 @@ export const arcaneChr_0032_lizhiyan_ultimate_skill2ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_damage_immune_medium',
+            buffs: [{ buffId: 'buff_common_damage_immune_medium' }],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
@@ -2948,7 +2971,7 @@ const arcanePassive1ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0032_lizhiyan_passive',
+            buffs: [{ buffId: 'buff_chr_0032_lizhiyan_passive' }],
             target: 'caster',
             inheritSourceSkillCastInfo: false,
           },
@@ -2973,17 +2996,21 @@ const arcanePassive2ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0032_lizhiyan_talent1',
+            buffs: [
+              {
+                buffId: 'buff_chr_0032_lizhiyan_talent1',
+                blackboardAssignments: {
+                  duration: { kind: 'valueNode', nodeId: 'data_1' },
+                  enhance_rate: { kind: 'valueNode', nodeId: 'data_2' },
+                  lv: { kind: 'valueNode', nodeId: 'data_3' },
+                  spell_vul_rate: { kind: 'valueNode', nodeId: 'data_4' },
+                  spell_vul_rate_per_will: { kind: 'valueNode', nodeId: 'data_5' },
+                  spell_vul_rate_potential: { kind: 'valueNode', nodeId: 'data_6' },
+                },
+              },
+            ],
             target: 'caster',
             inheritSourceSkillCastInfo: false,
-            blackboardAssignments: {
-              duration: { kind: 'valueNode', nodeId: 'data_1' },
-              enhance_rate: { kind: 'valueNode', nodeId: 'data_2' },
-              lv: { kind: 'valueNode', nodeId: 'data_3' },
-              spell_vul_rate: { kind: 'valueNode', nodeId: 'data_4' },
-              spell_vul_rate_per_will: { kind: 'valueNode', nodeId: 'data_5' },
-              spell_vul_rate_potential: { kind: 'valueNode', nodeId: 'data_6' },
-            },
           },
         },
         next: null,
@@ -3353,12 +3380,16 @@ const arcaneBuff2ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0032_lizhiyan_combo_skill_spell_vulnerable_pre',
+            buffs: [
+              {
+                buffId: 'buff_chr_0032_lizhiyan_combo_skill_spell_vulnerable_pre',
+                copiedBlackboardAssignments: { duration_vul: 'duration', rate: 'rate_pre' },
+              },
+            ],
             target: 'enemy',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
-            copiedBlackboardAssignments: { duration_vul: 'duration', rate: 'rate_pre' },
           },
         },
         next: null,
@@ -3468,9 +3499,9 @@ const arcaneBuff4ActionGraph = {
         },
         next: 'createTimedMarker_2',
       },
-      changeResourceByActionValue_4: {
+      changeResource_4: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_3' },
@@ -3486,7 +3517,7 @@ const arcaneBuff4ActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_4' } },
-          whenTrue: { $sequence: 'changeResourceByActionValue_4' },
+          whenTrue: { $sequence: 'changeResource_4' },
         },
         next: null,
       },
@@ -4117,16 +4148,20 @@ const arcaneBuff9ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0032_lizhiyan_combo_skill_seal_listener',
+            buffs: [
+              {
+                buffId: 'buff_chr_0032_lizhiyan_combo_skill_seal_listener',
+                copiedBlackboardAssignments: {
+                  duration: 'duration_final',
+                  wisd_greater_will: 'EntityBB_wisd_greater_will',
+                  atk_scale_early_finish: 'atk_scale_boom',
+                  poise_early_finish: 'poise_boom',
+                },
+              },
+            ],
             target: 'enemy',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: {
-              duration: 'duration_final',
-              wisd_greater_will: 'EntityBB_wisd_greater_will',
-              atk_scale_early_finish: 'atk_scale_boom',
-              poise_early_finish: 'poise_boom',
-            },
           },
         },
         next: null,
@@ -4135,16 +4170,20 @@ const arcaneBuff9ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0032_lizhiyan_combo_skill_seal',
+            buffs: [
+              {
+                buffId: 'buff_chr_0032_lizhiyan_combo_skill_seal',
+                copiedBlackboardAssignments: {
+                  duration: 'duration_final',
+                  rate_pre: 'rate_final',
+                  trigger_time: 'trigger_time',
+                  isWisd: 'EntityBB_wisd_greater_will',
+                },
+              },
+            ],
             target: 'enemy',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: {
-              duration: 'duration_final',
-              rate_pre: 'rate_final',
-              trigger_time: 'trigger_time',
-              isWisd: 'EntityBB_wisd_greater_will',
-            },
           },
         },
         next: 'applyBuff_1',
@@ -4153,7 +4192,7 @@ const arcaneBuff9ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0032_lizhiyan_combo_skill_precheck',
+            buffs: [{ buffId: 'buff_chr_0032_lizhiyan_combo_skill_precheck' }],
             target: 'enemy',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
@@ -4252,9 +4291,9 @@ const arcaneBuff9ActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_12: {
+      changeResource_12: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'ultimateEnergy',
             amount: { kind: 'valueNode', nodeId: 'data_5' },
@@ -4270,24 +4309,28 @@ const arcaneBuff9ActionGraph = {
           parameters: { target: 'enemy' },
           body: { $sequence: 'dealDamage_9' },
         },
-        next: 'changeResourceByActionValue_12',
+        next: 'changeResource_12',
       },
       applyBuff_14: {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0032_lizhiyan_combo_skill_seal2',
+            buffs: [
+              {
+                buffId: 'buff_chr_0032_lizhiyan_combo_skill_seal2',
+                copiedBlackboardAssignments: {
+                  duration: 'duration_seal2',
+                  isWisd: 'EntityBB_wisd_greater_will',
+                  rate_pre: 'rate_pre',
+                  atk_scale_early_finish: 'atk_scale_boom',
+                  poise_early_finish: 'poise_boom',
+                  atb_return_wisd: 'atb_return_wisd',
+                },
+              },
+            ],
             target: 'enemy',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: {
-              duration: 'duration_seal2',
-              isWisd: 'EntityBB_wisd_greater_will',
-              rate_pre: 'rate_pre',
-              atk_scale_early_finish: 'atk_scale_boom',
-              poise_early_finish: 'poise_boom',
-              atb_return_wisd: 'atb_return_wisd',
-            },
           },
         },
         next: 'forEachContextTarget_13',
@@ -4410,7 +4453,7 @@ const arcaneBuff10ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0032_lizhiyan_combo_skill_seal_atb',
+            buffs: [{ buffId: 'buff_chr_0032_lizhiyan_combo_skill_seal_atb' }],
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
@@ -4431,9 +4474,9 @@ const arcaneBuff10ActionGraph = {
         },
         next: 'applyBuff_3',
       },
-      changeResourceByActionValue_5: {
+      changeResource_5: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_3' },
@@ -4449,7 +4492,7 @@ const arcaneBuff10ActionGraph = {
         action: {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_4' } },
-          whenTrue: { $sequence: 'changeResourceByActionValue_5' },
+          whenTrue: { $sequence: 'changeResource_5' },
         },
         next: null,
       },
@@ -4554,17 +4597,21 @@ const arcaneBuff11ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_affixes_vulnerable_crystal',
+            buffs: [
+              {
+                buffId: 'buff_common_affixes_vulnerable_crystal',
+                blackboardAssignments: {
+                  duration: { kind: 'valueNode', nodeId: 'data_1' },
+                  rate: { kind: 'valueNode', nodeId: 'data_2' },
+                },
+                stringBlackboardAssignments: {
+                  child_buff_id: 'buff_common_affixes_vulnerable_crystal_lizhiyan_child',
+                },
+              },
+            ],
             target: 'enemy',
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
-            blackboardAssignments: {
-              duration: { kind: 'valueNode', nodeId: 'data_1' },
-              rate: { kind: 'valueNode', nodeId: 'data_2' },
-            },
-            stringBlackboardAssignments: {
-              child_buff_id: 'buff_common_affixes_vulnerable_crystal_lizhiyan_child',
-            },
           },
         },
         next: null,
@@ -4573,17 +4620,21 @@ const arcaneBuff11ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_affixes_vulnerable_natural',
+            buffs: [
+              {
+                buffId: 'buff_common_affixes_vulnerable_natural',
+                blackboardAssignments: {
+                  duration: { kind: 'valueNode', nodeId: 'data_3' },
+                  rate: { kind: 'valueNode', nodeId: 'data_4' },
+                },
+                stringBlackboardAssignments: {
+                  child_buff_id: 'buff_common_affixes_vulnerable_natural_lizhiyan_child',
+                },
+              },
+            ],
             target: 'enemy',
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
-            blackboardAssignments: {
-              duration: { kind: 'valueNode', nodeId: 'data_3' },
-              rate: { kind: 'valueNode', nodeId: 'data_4' },
-            },
-            stringBlackboardAssignments: {
-              child_buff_id: 'buff_common_affixes_vulnerable_natural_lizhiyan_child',
-            },
           },
         },
         next: 'applyBuff_1',
@@ -4649,17 +4700,21 @@ const arcaneBuff12ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_affixes_vulnerable_crystal',
+            buffs: [
+              {
+                buffId: 'buff_common_affixes_vulnerable_crystal',
+                blackboardAssignments: {
+                  duration: { kind: 'valueNode', nodeId: 'data_1' },
+                  rate: { kind: 'valueNode', nodeId: 'data_2' },
+                },
+                stringBlackboardAssignments: {
+                  child_buff_id: 'buff_common_affixes_vulnerable_crystal_lizhiyan_child',
+                },
+              },
+            ],
             target: 'buffOwner',
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
-            blackboardAssignments: {
-              duration: { kind: 'valueNode', nodeId: 'data_1' },
-              rate: { kind: 'valueNode', nodeId: 'data_2' },
-            },
-            stringBlackboardAssignments: {
-              child_buff_id: 'buff_common_affixes_vulnerable_crystal_lizhiyan_child',
-            },
           },
         },
         next: null,
@@ -4668,17 +4723,21 @@ const arcaneBuff12ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_affixes_vulnerable_natural',
+            buffs: [
+              {
+                buffId: 'buff_common_affixes_vulnerable_natural',
+                blackboardAssignments: {
+                  duration: { kind: 'valueNode', nodeId: 'data_3' },
+                  rate: { kind: 'valueNode', nodeId: 'data_4' },
+                },
+                stringBlackboardAssignments: {
+                  child_buff_id: 'buff_common_affixes_vulnerable_natural_lizhiyan_child',
+                },
+              },
+            ],
             target: 'buffOwner',
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
-            blackboardAssignments: {
-              duration: { kind: 'valueNode', nodeId: 'data_3' },
-              rate: { kind: 'valueNode', nodeId: 'data_4' },
-            },
-            stringBlackboardAssignments: {
-              child_buff_id: 'buff_common_affixes_vulnerable_natural_lizhiyan_child',
-            },
           },
         },
         next: 'applyBuff_1',
@@ -4735,7 +4794,7 @@ const arcaneBuff13ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0032_lizhiyan_normal_skill_listener',
+            buffs: [{ buffId: 'buff_chr_0032_lizhiyan_normal_skill_listener' }],
             target: 'buffSource',
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
@@ -4871,14 +4930,18 @@ const arcaneBuff17ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_affixes_enhance_spell',
+            buffs: [
+              {
+                buffId: 'buff_common_affixes_enhance_spell',
+                blackboardAssignments: {
+                  duration: { kind: 'constant', value: -1 },
+                  rate: { kind: 'valueNode', nodeId: 'data_1' },
+                },
+              },
+            ],
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
-            blackboardAssignments: {
-              duration: { kind: 'constant', value: -1 },
-              rate: { kind: 'valueNode', nodeId: 'data_1' },
-            },
           },
         },
         next: null,
@@ -4910,17 +4973,21 @@ const arcaneBuff18ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_affixes_vulnerable_crystal',
+            buffs: [
+              {
+                buffId: 'buff_common_affixes_vulnerable_crystal',
+                blackboardAssignments: {
+                  duration: { kind: 'valueNode', nodeId: 'data_1' },
+                  rate: { kind: 'valueNode', nodeId: 'data_2' },
+                },
+                stringBlackboardAssignments: {
+                  child_buff_id: 'buff_common_affixes_vulnerable_crystal_lizhiyan_child',
+                },
+              },
+            ],
             target: 'enemy',
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
-            blackboardAssignments: {
-              duration: { kind: 'valueNode', nodeId: 'data_1' },
-              rate: { kind: 'valueNode', nodeId: 'data_2' },
-            },
-            stringBlackboardAssignments: {
-              child_buff_id: 'buff_common_affixes_vulnerable_crystal_lizhiyan_child',
-            },
           },
         },
         next: null,
@@ -4929,17 +4996,21 @@ const arcaneBuff18ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_common_affixes_vulnerable_natural',
+            buffs: [
+              {
+                buffId: 'buff_common_affixes_vulnerable_natural',
+                blackboardAssignments: {
+                  duration: { kind: 'valueNode', nodeId: 'data_3' },
+                  rate: { kind: 'valueNode', nodeId: 'data_4' },
+                },
+                stringBlackboardAssignments: {
+                  child_buff_id: 'buff_common_affixes_vulnerable_natural_lizhiyan_child',
+                },
+              },
+            ],
             target: 'enemy',
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
-            blackboardAssignments: {
-              duration: { kind: 'valueNode', nodeId: 'data_3' },
-              rate: { kind: 'valueNode', nodeId: 'data_4' },
-            },
-            stringBlackboardAssignments: {
-              child_buff_id: 'buff_common_affixes_vulnerable_natural_lizhiyan_child',
-            },
           },
         },
         next: 'applyBuff_1',
@@ -5048,14 +5119,18 @@ const arcaneBuff20ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_target_mark',
+            buffs: [
+              {
+                buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_target_mark',
+                copiedBlackboardAssignments: {
+                  atk_scale_laser: 'atk_scale_laser',
+                  usp_step: 'usp_step',
+                },
+              },
+            ],
             target: 'currentAbilityEntity',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: {
-              atk_scale_laser: 'atk_scale_laser',
-              usp_step: 'usp_step',
-            },
           },
         },
         next: null,
@@ -5109,18 +5184,22 @@ const arcaneBuff20ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_inaura_laser2',
+            buffs: [
+              {
+                buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_inaura_laser2',
+                copiedBlackboardAssignments: { atk_scale_laser: 'atk_scale_laser' },
+              },
+            ],
             target: 'currentAbilityEntity',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: { atk_scale_laser: 'atk_scale_laser' },
           },
         },
         next: null,
       },
-      changeResourceByActionValue_11: {
+      changeResource_11: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'ultimateEnergy',
             amount: { kind: 'valueNode', nodeId: 'data_5' },
@@ -5138,7 +5217,7 @@ const arcaneBuff20ActionGraph = {
           parameters: { contextKey: 'laser_target2' },
           body: { $sequence: 'applyBuff_10' },
         },
-        next: 'changeResourceByActionValue_11',
+        next: 'changeResource_11',
       },
       spawnAbilityEntity_13: {
         action: {
@@ -5164,11 +5243,15 @@ const arcaneBuff20ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_inaura_laser1',
+            buffs: [
+              {
+                buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_inaura_laser1',
+                copiedBlackboardAssignments: { atk_scale_laser: 'atk_scale_laser' },
+              },
+            ],
             target: 'currentAbilityEntity',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: { atk_scale_laser: 'atk_scale_laser' },
           },
         },
         next: null,
@@ -5179,7 +5262,7 @@ const arcaneBuff20ActionGraph = {
           parameters: { contextKey: 'laser_target1' },
           body: { $sequence: 'applyBuff_9' },
         },
-        next: 'changeResourceByActionValue_11',
+        next: 'changeResource_11',
       },
       spawnAbilityEntity_16: {
         action: {
@@ -5197,7 +5280,7 @@ const arcaneBuff20ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_layer',
+            buffs: [{ buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_layer' }],
             target: 'buffSource',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
@@ -5924,9 +6007,9 @@ const arcaneBuff24ActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_2: {
+      changeResource_2: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'ultimateEnergy',
             amount: { kind: 'constant', value: -999 },
@@ -5945,7 +6028,7 @@ const arcaneBuff24ActionGraph = {
             reason: 'other',
           },
         },
-        next: 'changeResourceByActionValue_2',
+        next: 'changeResource_2',
       },
       setCharacterPassiveUiValue_4: {
         action: {
@@ -5954,9 +6037,9 @@ const arcaneBuff24ActionGraph = {
         },
         next: 'finishBuffsById_3',
       },
-      changeResourceByActionValue_5: {
+      changeResource_5: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'ultimateEnergy',
             amount: { kind: 'constant', value: 1 },
@@ -5977,18 +6060,22 @@ const arcaneBuff24ActionGraph = {
             reason: 'other',
           },
         },
-        next: 'changeResourceByActionValue_5',
+        next: 'changeResource_5',
       },
       applyBuff_7: {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0032_lizhiyan_talent1_enhance',
+            buffs: [
+              {
+                buffId: 'buff_chr_0032_lizhiyan_talent1_enhance',
+                copiedBlackboardAssignments: { enhance_rate: 'enhance_rate' },
+              },
+            ],
             target: 'buffSource',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
-            copiedBlackboardAssignments: { enhance_rate: 'enhance_rate' },
           },
         },
         next: null,
@@ -6241,12 +6328,16 @@ const arcaneBuff26ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0032_lizhiyan_talent1_enhance',
+            buffs: [
+              {
+                buffId: 'buff_chr_0032_lizhiyan_talent1_enhance',
+                copiedBlackboardAssignments: { enhance_rate: 'enhance_rate' },
+              },
+            ],
             target: 'buffSource',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
-            copiedBlackboardAssignments: { enhance_rate: 'enhance_rate' },
           },
         },
         next: null,
@@ -6305,9 +6396,9 @@ const arcaneBuff26ActionGraph = {
         },
         next: null,
       },
-      changeResourceByActionValue_9: {
+      changeResource_9: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'ultimateEnergy',
             amount: { kind: 'constant', value: -999 },
@@ -6321,7 +6412,7 @@ const arcaneBuff26ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_abilityentity_finish_self',
+            buffs: [{ buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_abilityentity_finish_self' }],
             target: 'currentAbilityEntity',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
@@ -6353,7 +6444,7 @@ const arcaneBuff26ActionGraph = {
           kind: 'conditional',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_6' }, alwaysNext: true },
           whenTrue: { $sequence: null },
-          whenFalse: { $sequence: 'changeResourceByActionValue_9' },
+          whenFalse: { $sequence: 'changeResource_9' },
         },
         next: 'findOwnerSpawnedAbilityEntities_12',
       },
@@ -6361,7 +6452,7 @@ const arcaneBuff26ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_listener',
+            buffs: [{ buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_listener' }],
             target: 'buffSource',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
@@ -6523,18 +6614,22 @@ const arcaneBuff27ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_inaura_laser2',
+            buffs: [
+              {
+                buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_inaura_laser2',
+                copiedBlackboardAssignments: { atk_scale_laser: 'atk_scale_laser' },
+              },
+            ],
             target: 'currentAbilityEntity',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: { atk_scale_laser: 'atk_scale_laser' },
           },
         },
         next: null,
       },
-      changeResourceByActionValue_3: {
+      changeResource_3: {
         action: {
-          kind: 'changeResourceByActionValue',
+          kind: 'changeResource',
           parameters: {
             resource: 'ultimateEnergy',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
@@ -6552,7 +6647,7 @@ const arcaneBuff27ActionGraph = {
           parameters: { contextKey: 'laser_target2' },
           body: { $sequence: 'applyBuff_2' },
         },
-        next: 'changeResourceByActionValue_3',
+        next: 'changeResource_3',
       },
       spawnAbilityEntity_5: {
         action: {
@@ -6578,11 +6673,15 @@ const arcaneBuff27ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_inaura_laser1',
+            buffs: [
+              {
+                buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_inaura_laser1',
+                copiedBlackboardAssignments: { atk_scale_laser: 'atk_scale_laser' },
+              },
+            ],
             target: 'currentAbilityEntity',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
-            copiedBlackboardAssignments: { atk_scale_laser: 'atk_scale_laser' },
           },
         },
         next: null,
@@ -6593,7 +6692,7 @@ const arcaneBuff27ActionGraph = {
           parameters: { contextKey: 'laser_target1' },
           body: { $sequence: 'applyBuff_1' },
         },
-        next: 'changeResourceByActionValue_3',
+        next: 'changeResource_3',
       },
       spawnAbilityEntity_8: {
         action: {
@@ -6611,7 +6710,7 @@ const arcaneBuff27ActionGraph = {
         action: {
           kind: 'applyBuff',
           parameters: {
-            buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_layer',
+            buffs: [{ buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_layer' }],
             target: 'buffSource',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
@@ -7288,15 +7387,19 @@ export const arcane: OperatorDefinition = {
                   action: {
                     kind: 'applyBuff',
                     parameters: {
-                      buffId: 'buff_chr_0032_lizhiyan_combo_skill_seal_bunshin_end_listener',
+                      buffs: [
+                        {
+                          buffId: 'buff_chr_0032_lizhiyan_combo_skill_seal_bunshin_end_listener',
+                          copiedBlackboardAssignments: {
+                            atk_scale_early_finish: 'atk_scale_boom',
+                            poise_early_finish: 'poise_boom',
+                            atb_return_wisd: 'atb_return_wisd',
+                          },
+                        },
+                      ],
                       target: 'enemy',
                       inheritSourceSkillCastInfo: true,
                       finishByAction: true,
-                      copiedBlackboardAssignments: {
-                        atk_scale_early_finish: 'atk_scale_boom',
-                        poise_early_finish: 'poise_boom',
-                        atb_return_wisd: 'atb_return_wisd',
-                      },
                     },
                   },
                   next: 'createTimedMarker_5',
@@ -7640,17 +7743,21 @@ export const arcane: OperatorDefinition = {
                   action: {
                     kind: 'applyBuff',
                     parameters: {
-                      buffId: 'buff_chr_0032_lizhiyan_combo_skill_seal_finisher_wisd',
+                      buffs: [
+                        {
+                          buffId: 'buff_chr_0032_lizhiyan_combo_skill_seal_finisher_wisd',
+                          copiedBlackboardAssignments: {
+                            atk_scale_laser1: 'atk_scale_laser1',
+                            atk_scale_laser2: 'atk_scale_laser2',
+                            poise_final: 'poise_laser',
+                            isWisd: 'isWisd',
+                            cd_reduce: 'cd_reduce',
+                            atb_return_wisd: 'atb_return_wisd',
+                          },
+                        },
+                      ],
                       target: 'currentAbilityEntity',
                       inheritSourceSkillCastInfo: true,
-                      copiedBlackboardAssignments: {
-                        atk_scale_laser1: 'atk_scale_laser1',
-                        atk_scale_laser2: 'atk_scale_laser2',
-                        poise_final: 'poise_laser',
-                        isWisd: 'isWisd',
-                        cd_reduce: 'cd_reduce',
-                        atb_return_wisd: 'atb_return_wisd',
-                      },
                     },
                   },
                   next: null,
@@ -7685,7 +7792,7 @@ export const arcane: OperatorDefinition = {
                   action: {
                     kind: 'applyBuff',
                     parameters: {
-                      buffId: 'buff_chr_0032_lizhiyan_combo_skill_seal_finish_count',
+                      buffs: [{ buffId: 'buff_chr_0032_lizhiyan_combo_skill_seal_finish_count' }],
                       target: 'caster',
                       source: 'currentAbilityEntity',
                       inheritSourceSkillCastInfo: true,
@@ -7747,14 +7854,18 @@ export const arcane: OperatorDefinition = {
                   action: {
                     kind: 'applyBuff',
                     parameters: {
-                      buffId: 'buff_chr_0032_lizhiyan_combo_skill_seal_finisher',
+                      buffs: [
+                        {
+                          buffId: 'buff_chr_0032_lizhiyan_combo_skill_seal_finisher',
+                          copiedBlackboardAssignments: {
+                            atk_scale_laser2: 'atk_scale_laser2',
+                            poise_final: 'poise_laser',
+                            isWisd: 'isWisd',
+                          },
+                        },
+                      ],
                       target: 'enemy',
                       inheritSourceSkillCastInfo: true,
-                      copiedBlackboardAssignments: {
-                        atk_scale_laser2: 'atk_scale_laser2',
-                        poise_final: 'poise_laser',
-                        isWisd: 'isWisd',
-                      },
                     },
                   },
                   next: 'createTimedMarker_16',
@@ -7787,18 +7898,22 @@ export const arcane: OperatorDefinition = {
                   action: {
                     kind: 'applyBuff',
                     parameters: {
-                      buffId: 'buff_chr_0032_lizhiyan_combo_skill_spell_vulnerable',
+                      buffs: [
+                        {
+                          buffId: 'buff_chr_0032_lizhiyan_combo_skill_spell_vulnerable',
+                          copiedBlackboardAssignments: {
+                            rate: 'rate_final',
+                            duration_vul: 'duration_calc',
+                            atk_scale_calc: 'atk_scale_calc',
+                            poise_final: 'poise_laser',
+                            isWisd: 'isWisd',
+                            atk_scale_laser1: 'atk_scale_laser1',
+                            atk_scale_laser2: 'atk_scale_laser2',
+                          },
+                        },
+                      ],
                       target: 'enemy',
                       inheritSourceSkillCastInfo: true,
-                      copiedBlackboardAssignments: {
-                        rate: 'rate_final',
-                        duration_vul: 'duration_calc',
-                        atk_scale_calc: 'atk_scale_calc',
-                        poise_final: 'poise_laser',
-                        isWisd: 'isWisd',
-                        atk_scale_laser1: 'atk_scale_laser1',
-                        atk_scale_laser2: 'atk_scale_laser2',
-                      },
                     },
                   },
                   next: null,
@@ -8274,7 +8389,7 @@ export const arcane: OperatorDefinition = {
           },
           blackboard: { atk_scale: 0, duration: 6, isJumped: 0, poise: 0, radius: 5 },
           scheduledSequences: [
-            { startFrame: 21, endFrame: 180, sequence: { $sequence: 'applyBuff_1' } },
+            { startFrame: 21, endFrame: 180, sequence: { $sequence: 'aura_1' } },
             { startFrame: 21, endFrame: 180, sequence: { $sequence: 'listenForCombatEvents_5' } },
             {
               startFrame: 187,
@@ -8287,15 +8402,23 @@ export const arcane: OperatorDefinition = {
           actionGraph: {
             main: {
               nodes: {
-                applyBuff_1: {
+                aura_1: {
                   action: {
-                    kind: 'applyBuff',
+                    kind: 'aura',
                     parameters: {
-                      buffId: 'buff_chr_0032_lizhiyan_normal_skill_aura',
                       target: 'enemy',
                       source: 'currentAbilityEntity',
-                      finishByAction: true,
+                      inheritSourceSkillCastInfo: false,
+                      buffs: [
+                        {
+                          buffId: 'buff_chr_0032_lizhiyan_normal_skill_aura',
+                          blackboardAssignments: {},
+                          stringBlackboardAssignments: {},
+                        },
+                      ],
                     },
+                    onEnter: { $sequence: null },
+                    onExit: { $sequence: null },
                   },
                   next: null,
                 },
@@ -8443,6 +8566,26 @@ export const arcane: OperatorDefinition = {
       ],
       lifetime: { kind: 'limited', durationSeconds: 30 },
       childSkill: {
+        skillId: 'chr_0032_lizhiyan_ultimate_skill_abilityrange',
+        nativeSkillType: 'normalSkill',
+        naturalDurationFrames: 1800,
+        castResource: {
+          costFrame: 0,
+          cooldownSeconds: 0,
+          maxChargeTime: 1,
+          cost: { resource: 'ultimateEnergy', value: 0, availabilityThreshold: 0 },
+        },
+        blackboard: {
+          atk_scale_laser: 0.5,
+          atk_scale_laser_will: 0.2,
+          duration: 0,
+          isWisd: 0,
+          radius: 5,
+        },
+        scheduledSequences: [
+          { startFrame: 0, endFrame: 1800, sequence: { $sequence: 'applyBuff_1' } },
+          { startFrame: 0, endFrame: 1800, sequence: { $sequence: 'conditional_4' } },
+        ],
         actionGraph: {
           main: {
             nodes: {
@@ -8450,7 +8593,9 @@ export const arcane: OperatorDefinition = {
                 action: {
                   kind: 'applyBuff',
                   parameters: {
-                    buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_listener_abilityentity',
+                    buffs: [
+                      { buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_listener_abilityentity' },
+                    ],
                     target: 'currentAbilityEntity',
                     inheritSourceSkillCastInfo: true,
                     asChildBuff: true,
@@ -8458,33 +8603,45 @@ export const arcane: OperatorDefinition = {
                 },
                 next: null,
               },
-              applyBuff_2: {
+              aura_2: {
                 action: {
-                  kind: 'applyBuff',
+                  kind: 'aura',
                   parameters: {
-                    buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_inaura',
                     target: 'enemy',
-                    finishByAction: true,
                     inheritSourceSkillCastInfo: true,
-                    blackboardAssignments: {
-                      atk_scale_laser: { kind: 'valueNode', nodeId: 'data_1' },
-                    },
+                    buffs: [
+                      {
+                        buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_inaura',
+                        blackboardAssignments: {
+                          atk_scale_laser: { kind: 'valueNode', nodeId: 'data_1' },
+                        },
+                        stringBlackboardAssignments: {},
+                      },
+                    ],
                   },
+                  onEnter: { $sequence: null },
+                  onExit: { $sequence: null },
                 },
                 next: null,
               },
-              applyBuff_3: {
+              aura_3: {
                 action: {
-                  kind: 'applyBuff',
+                  kind: 'aura',
                   parameters: {
-                    buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_inaura',
                     target: 'enemy',
-                    finishByAction: true,
                     inheritSourceSkillCastInfo: true,
-                    blackboardAssignments: {
-                      atk_scale_laser: { kind: 'valueNode', nodeId: 'data_2' },
-                    },
+                    buffs: [
+                      {
+                        buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_inaura',
+                        blackboardAssignments: {
+                          atk_scale_laser: { kind: 'valueNode', nodeId: 'data_2' },
+                        },
+                        stringBlackboardAssignments: {},
+                      },
+                    ],
                   },
+                  onEnter: { $sequence: null },
+                  onExit: { $sequence: null },
                 },
                 next: null,
               },
@@ -8495,8 +8652,8 @@ export const arcane: OperatorDefinition = {
                     condition: { kind: 'conditionNode', nodeId: 'data_4' },
                     alwaysNext: true,
                   },
-                  whenTrue: { $sequence: 'applyBuff_2' },
-                  whenFalse: { $sequence: 'applyBuff_3' },
+                  whenTrue: { $sequence: 'aura_2' },
+                  whenFalse: { $sequence: 'aura_3' },
                 },
                 next: null,
               },
@@ -8527,26 +8684,6 @@ export const arcane: OperatorDefinition = {
           },
           macros: {},
         },
-        skillId: 'chr_0032_lizhiyan_ultimate_skill_abilityrange',
-        nativeSkillType: 'normalSkill',
-        naturalDurationFrames: 1800,
-        castResource: {
-          costFrame: 0,
-          cooldownSeconds: 0,
-          maxChargeTime: 1,
-          cost: { resource: 'ultimateEnergy', value: 0, availabilityThreshold: 0 },
-        },
-        blackboard: {
-          atk_scale_laser: 0.5,
-          atk_scale_laser_will: 0.2,
-          duration: 0,
-          isWisd: 0,
-          radius: 5,
-        },
-        scheduledSequences: [
-          { startFrame: 0, endFrame: 1800, sequence: { $sequence: 'applyBuff_1' } },
-          { startFrame: 0, endFrame: 1800, sequence: { $sequence: 'conditional_4' } },
-        ],
       },
     },
     abilityentity_chr_0032_lizhiyan_ultimate_skill_place: {

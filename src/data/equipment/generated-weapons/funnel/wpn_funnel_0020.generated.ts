@@ -50,14 +50,18 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_funnel_0020_maxup',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_funnel_0020_maxup',
+                      copiedBlackboardAssignments: {
+                        nature_dmg_up2: 'nature_dmg_up2',
+                        duration: 'duration',
+                      },
+                    },
+                  ],
                   target: 'caster',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: {
-                    nature_dmg_up2: 'nature_dmg_up2',
-                    duration: 'duration',
-                  },
                 },
               },
               next: null,
@@ -86,14 +90,18 @@ const definition = {
               action: {
                 kind: 'applyBuff',
                 parameters: {
-                  buffId: 'buff_wpn_funnel_0020_intensityup',
+                  buffs: [
+                    {
+                      buffId: 'buff_wpn_funnel_0020_intensityup',
+                      copiedBlackboardAssignments: {
+                        nature_dmg_up: 'nature_dmg_up',
+                        duration: 'duration',
+                      },
+                    },
+                  ],
                   target: 'caster',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  copiedBlackboardAssignments: {
-                    nature_dmg_up: 'nature_dmg_up',
-                    duration: 'duration',
-                  },
                 },
               },
               next: 'createTimedMarker_3',
