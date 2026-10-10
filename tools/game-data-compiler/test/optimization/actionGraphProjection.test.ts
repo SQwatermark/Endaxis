@@ -48,7 +48,7 @@ describe('prepareActionGraphIdentities', () => {
     expect(a.actionGraph.main.nodes.hit!.action).toEqual(finish);
   });
 
-  it('preserves explicit step references and shared once scopes, while isolating independent ones', () => {
+  it('preserves explicit step references and shared variable scopes, while isolating independent ones', () => {
     const source = {
       modifiers: [{ stepKey: 'SkillData.hit' }],
       actionGraph: {
@@ -64,24 +64,32 @@ describe('prepareActionGraphIdentities', () => {
             },
             'once-shared-1': {
               action: {
-                kind: 'once',
-                parameters: { scopeKey: 'SkillData.shared' },
+                kind: 'withActionBlackboardScope',
+                parameters: {
+                  scopeKey: 'SkillData.shared',
+                  initialValues: {},
+                  inheritParent: true,
+                },
                 body: { $sequence: 'end' },
               },
               next: 'once-shared-2',
             },
             'once-shared-2': {
               action: {
-                kind: 'once',
-                parameters: { scopeKey: 'SkillData.shared' },
+                kind: 'withActionBlackboardScope',
+                parameters: {
+                  scopeKey: 'SkillData.shared',
+                  initialValues: {},
+                  inheritParent: true,
+                },
                 body: { $sequence: 'end' },
               },
               next: 'once-other',
             },
             'once-other': {
               action: {
-                kind: 'once',
-                parameters: { scopeKey: 'SkillData.other' },
+                kind: 'withActionBlackboardScope',
+                parameters: { scopeKey: 'SkillData.other', initialValues: {}, inheritParent: true },
                 body: { $sequence: 'end' },
               },
               next: null,
@@ -97,15 +105,18 @@ describe('prepareActionGraphIdentities', () => {
     const damage = prepared.actionGraph.main.nodes.hit!.action;
     if (damage.kind !== 'dealDamage') throw new Error('damage');
     expect(damage.key).toBe(prepared.modifiers[0]!.stepKey);
-    // 两个共享 scopeKey 的 once 调用保留相同的作用域身份；单人 scopeKey 被删去。
+    // 两个共享 scopeKey 的 变量作用域保留相同的作用域身份；单人 scopeKey 被删去。
     const onceActions = [
       prepared.actionGraph.main.nodes['once-shared-1']!.action,
       prepared.actionGraph.main.nodes['once-shared-2']!.action,
       prepared.actionGraph.main.nodes['once-other']!.action,
     ];
     for (const action of onceActions)
-      if (action.kind !== 'once') throw new Error('once fixture broken');
-    const [shared1, shared2, other] = onceActions as Extract<ActionGraphStep, { kind: 'once' }>[];
+      if (action.kind !== 'withActionBlackboardScope') throw new Error('scope fixture broken');
+    const [shared1, shared2, other] = onceActions as Extract<
+      ActionGraphStep,
+      { kind: 'withActionBlackboardScope' }
+    >[];
     expect(shared1.parameters.scopeKey).toBeDefined();
     expect(shared1.parameters.scopeKey).toBe(shared2.parameters.scopeKey);
     expect(other.parameters.scopeKey).toBeUndefined();

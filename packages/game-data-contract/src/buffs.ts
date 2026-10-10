@@ -65,6 +65,7 @@ export const BUFF_ABILITY_EVENTS = [
   'beforeCastSkill',
   'afterSkillApplyCost',
   'skillEnd',
+  'skillInterrupted',
   'beforeOutputBuff',
   'beforeAddedBuff',
   'outputBuff',

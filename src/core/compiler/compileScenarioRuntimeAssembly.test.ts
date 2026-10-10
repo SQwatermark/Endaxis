@@ -802,7 +802,12 @@ describe('compileScenarioRuntimeAssembly', () => {
             enable: {
               action: {
                 kind: 'changeResource',
-                parameters: { resource: 'sp', amount: 2, recipient: 'team' },
+                parameters: {
+                  resource: 'sp',
+                  amount: 2,
+                  source: { kind: 'fixed' as const, target: 'caster' as const },
+                  targets: { kind: 'fixed' as const, target: 'caster' as const },
+                },
               },
               next: null,
             },
@@ -843,7 +848,15 @@ describe('compileScenarioRuntimeAssembly', () => {
       key: 'gear-set:runtime-set',
       equipmentContributionIndex: compiled.operators[0]!.equipmentContributions!.length - 1,
       enableSequence: actionSteps([
-        { kind: 'changeResource', parameters: { resource: 'sp', amount: 2, recipient: 'team' } },
+        {
+          kind: 'changeResource',
+          parameters: {
+            resource: 'sp',
+            amount: 2,
+            source: { kind: 'fixed' as const, target: 'caster' as const },
+            targets: { kind: 'fixed' as const, target: 'caster' as const },
+          },
+        },
       ]),
       sequence: actionSteps([
         { kind: 'applyBuff', parameters: { buffs: [{ buffId: 'buff.runtime-set' }] } },

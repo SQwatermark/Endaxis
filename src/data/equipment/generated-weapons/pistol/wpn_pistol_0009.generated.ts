@@ -108,25 +108,25 @@ const definition = {
           key: 'skill3:event:0:sequence:0',
           abilityEvent: 'buffConsumed',
           priority: 0,
-          sequence: { $sequence: 'conditional_5' },
+          sequence: { $sequence: 'checkCondition_5' },
         },
         {
           key: 'skill3:event:1:sequence:0',
           abilityEvent: 'buffConsumed',
           priority: 0,
-          sequence: { $sequence: 'conditional_10' },
+          sequence: { $sequence: 'checkCondition_10' },
         },
         {
           key: 'skill3:event:2:sequence:0',
           abilityEvent: 'buffConsumed',
           priority: 0,
-          sequence: { $sequence: 'conditional_15' },
+          sequence: { $sequence: 'checkCondition_15' },
         },
         {
           key: 'skill3:event:3:sequence:0',
           abilityEvent: 'buffConsumed',
           priority: 0,
-          sequence: { $sequence: 'conditional_20' },
+          sequence: { $sequence: 'checkCondition_20' },
         },
       ],
       actionGraph: {
@@ -179,21 +179,19 @@ const definition = {
               },
               next: 'applyBuff_2',
             },
-            conditional_4: {
+            checkCondition_4: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
-                whenTrue: { $sequence: 'applyBuff_3' },
               },
-              next: null,
+              next: 'applyBuff_3',
             },
-            conditional_5: {
+            checkCondition_5: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_4' } },
-                whenTrue: { $sequence: 'conditional_4' },
               },
-              next: null,
+              next: 'checkCondition_4',
             },
             applyBuff_7: {
               action: {
@@ -231,21 +229,19 @@ const definition = {
               },
               next: 'applyBuff_7',
             },
-            conditional_9: {
+            checkCondition_9: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_6' } },
-                whenTrue: { $sequence: 'applyBuff_8' },
               },
-              next: null,
+              next: 'applyBuff_8',
             },
-            conditional_10: {
+            checkCondition_10: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_7' } },
-                whenTrue: { $sequence: 'conditional_9' },
               },
-              next: null,
+              next: 'checkCondition_9',
             },
             applyBuff_12: {
               action: {
@@ -283,21 +279,19 @@ const definition = {
               },
               next: 'applyBuff_12',
             },
-            conditional_14: {
+            checkCondition_14: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_9' } },
-                whenTrue: { $sequence: 'applyBuff_13' },
               },
-              next: null,
+              next: 'applyBuff_13',
             },
-            conditional_15: {
+            checkCondition_15: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_10' } },
-                whenTrue: { $sequence: 'conditional_14' },
               },
-              next: null,
+              next: 'checkCondition_14',
             },
             applyBuff_17: {
               action: {
@@ -335,21 +329,19 @@ const definition = {
               },
               next: 'applyBuff_17',
             },
-            conditional_19: {
+            checkCondition_19: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_12' } },
-                whenTrue: { $sequence: 'applyBuff_18' },
               },
-              next: null,
+              next: 'applyBuff_18',
             },
-            conditional_20: {
+            checkCondition_20: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_13' } },
-                whenTrue: { $sequence: 'conditional_19' },
               },
-              next: null,
+              next: 'checkCondition_19',
             },
           },
           dataNodes: {
@@ -499,7 +491,7 @@ const definition = {
       damageModifiers: [
         {
           enabledSide: 'defender',
-          condition: { $sequence: 'conditional_1' },
+          condition: { $sequence: 'checkCondition_1' },
           processors: [
             {
               kind: 'damageScale',
@@ -513,11 +505,10 @@ const definition = {
       actionGraph: {
         main: {
           nodes: {
-            conditional_1: {
+            checkCondition_1: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-                whenTrue: { $sequence: null },
               },
               next: null,
             },
@@ -568,7 +559,7 @@ const definition = {
       damageModifiers: [
         {
           enabledSide: 'defender',
-          condition: { $sequence: 'conditional_1' },
+          condition: { $sequence: 'checkCondition_1' },
           processors: [
             {
               kind: 'damageScale',
@@ -582,11 +573,10 @@ const definition = {
       actionGraph: {
         main: {
           nodes: {
-            conditional_1: {
+            checkCondition_1: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-                whenTrue: { $sequence: null },
               },
               next: null,
             },
@@ -637,7 +627,7 @@ const definition = {
       damageModifiers: [
         {
           enabledSide: 'defender',
-          condition: { $sequence: 'conditional_1' },
+          condition: { $sequence: 'checkCondition_1' },
           processors: [
             {
               kind: 'damageScale',
@@ -651,11 +641,10 @@ const definition = {
       actionGraph: {
         main: {
           nodes: {
-            conditional_1: {
+            checkCondition_1: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-                whenTrue: { $sequence: null },
               },
               next: null,
             },
@@ -706,7 +695,7 @@ const definition = {
       damageModifiers: [
         {
           enabledSide: 'defender',
-          condition: { $sequence: 'conditional_1' },
+          condition: { $sequence: 'checkCondition_1' },
           processors: [
             {
               kind: 'damageScale',
@@ -720,11 +709,10 @@ const definition = {
       actionGraph: {
         main: {
           nodes: {
-            conditional_1: {
+            checkCondition_1: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-                whenTrue: { $sequence: null },
               },
               next: null,
             },

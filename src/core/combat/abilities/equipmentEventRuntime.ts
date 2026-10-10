@@ -279,6 +279,11 @@ export class EquipmentEventRuntime {
     // 原生队列保存 SequenceAction 实例；不能在同步重入时重新创建 Pending 状态。
     const sequence = new CombatActionSequenceRuntime(
       {
+        queryTargets: (query, context) => {
+          const executor = operations();
+          if (!executor.queryTargets) throw new Error('equipment response requires target queries');
+          return executor.queryTargets(query, context);
+        },
         prepare: (step, context) => operations().prepare?.(step, context),
         execute: (step, context) => operations().execute(step, context),
         end: (step, context) => operations().end?.(step, context),

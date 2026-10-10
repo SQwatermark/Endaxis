@@ -14,25 +14,28 @@ function expressionType(value: object, stringInput: boolean): ActionGraphDataNod
   if (value.kind === 'blackboard' || value.kind === 'parameter') return 'number';
   return conditionKinds.has(String(value.kind)) ? 'boolean' : null;
 }
-function stringField(kind: unknown): string | undefined {
+function stringFields(kind: unknown): readonly string[] {
   switch (kind) {
     case 'applyBuff':
-      return 'buffId';
+      return ['buffId'];
     case 'castSkillDuringAction':
-      return 'skillId';
+      return ['skillId'];
     case 'createTimedMarker':
     case 'createAbilityEntityTimedMarker':
     case 'timedMarkerPresent':
     case 'abilityEntityTimedMarkerPresent':
-      return 'markerId';
+      return ['markerId'];
+    case 'stringEquals':
+      return ['left', 'right'];
   }
+  return [];
 }
 
 function graphExtractor(graph: IntermediateDefinition<ActionGraphDefinition>) {
   const dataNodes: Record<string, ActionGraphDataNode> = {};
   const reserved = new Set(Object.keys(graph.dataNodes ?? {}));
   let serial = 1;
-  function children(value: object, parameterStringField?: string): object {
+  function children(value: object, parameterStringField: readonly string[] = []): object {
     const kind = 'kind' in value ? value.kind : undefined;
     const entries = Object.entries(value);
     const result = entries.map(
@@ -41,9 +44,9 @@ function graphExtractor(graph: IntermediateDefinition<ActionGraphDefinition>) {
           key,
           visit(
             item,
-            key === parameterStringField || key === stringField(kind),
+            parameterStringField.includes(key) || stringFields(kind).includes(key),
             key === 'parameters'
-              ? stringField(kind)
+              ? stringFields(kind)
               : key === 'buffs'
                 ? parameterStringField
                 : undefined,
@@ -54,7 +57,11 @@ function graphExtractor(graph: IntermediateDefinition<ActionGraphDefinition>) {
       ? value
       : Object.fromEntries(result);
   }
-  function visit(value: unknown, stringInput = false, parameterStringField?: string): unknown {
+  function visit(
+    value: unknown,
+    stringInput = false,
+    parameterStringField: readonly string[] = [],
+  ): unknown {
     if (!value || typeof value !== 'object' || 'actionGraph' in value) return value;
     if (
       'kind' in value &&
@@ -89,13 +96,19 @@ function graphExtractor(graph: IntermediateDefinition<ActionGraphDefinition>) {
     dataNodes[id] = { ...node, expression } as ActionGraphDataNode;
   }
   const nodes = Object.fromEntries(
-    Object.entries(graph.nodes).map(([id, node]) => [
-      id,
-      {
-        ...node,
-        action: visit(node.action),
-      },
-    ]),
+    Object.entries(graph.nodes).map(([id, node]) => {
+      if (node.action.kind === 'saveTwoDirectionAngle')
+        throw new Error(
+          `Action graph node ${id}: direction angle still affects combat and cannot be published`,
+        );
+      return [
+        id,
+        {
+          ...node,
+          action: visit(node.action),
+        },
+      ];
+    }),
   );
   return {
     input: visit,

@@ -45,7 +45,7 @@ const definition = {
       blackboard: { addstack: 1, buffid: 0, duration: 10, max_stack: 4, spell_dmg_up: 0.2 },
       attributeModifiers: [],
       abilityEventResponses: [
-        { event: 'buffConsumed', priority: 0, sequence: { $sequence: 'conditional_3' } },
+        { event: 'buffConsumed', priority: 0, sequence: { $sequence: 'checkCondition_3' } },
       ],
       actionGraph: {
         main: {
@@ -80,13 +80,12 @@ const definition = {
               },
               next: 'applyBuff_1',
             },
-            conditional_3: {
+            checkCondition_3: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-                whenTrue: { $sequence: 'readEventBuffBlackboard_2' },
               },
-              next: null,
+              next: 'readEventBuffBlackboard_2',
             },
           },
           dataNodes: {

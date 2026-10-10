@@ -177,7 +177,7 @@ describe('同步直线中间段宏提取', () => {
     { kind: 'finishTimeline', parameters: {} },
     {
       kind: 'launchProjectile',
-      parameters: { finish: 1, recycleDelaySeconds: 2 },
+      parameters: { inheritActionBlackboard: true, finish: 1, recycleDelaySeconds: 2 },
       callbacks: [
         {
           event: 'finish',

@@ -46,7 +46,7 @@ const definition = {
       blackboard: { cd: 30, comboskill_cooldown: 0.1, dmg_up: 0.2, duration: 12 },
       attributeModifiers: [],
       abilityEventResponses: [
-        { event: 'skillSpGained', priority: 0, sequence: { $sequence: 'conditional_2' } },
+        { event: 'skillSpGained', priority: 0, sequence: { $sequence: 'checkCondition_2' } },
       ],
       actionGraph: {
         main: {
@@ -69,13 +69,12 @@ const definition = {
               },
               next: null,
             },
-            conditional_2: {
+            checkCondition_2: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-                whenTrue: { $sequence: 'applyBuff_1' },
               },
-              next: null,
+              next: 'applyBuff_1',
             },
           },
           dataNodes: {

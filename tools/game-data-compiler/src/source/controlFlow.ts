@@ -46,6 +46,10 @@ export interface NativeSwitchOptionSource<TLeaf> {
 export type NativeTickIntervalModeSource = 'EachFrame' | 'Interval' | 'FixedCount';
 
 export interface NativeActionBodySourceMap<TLeaf> {
+  readonly anyCondition: {
+    readonly kind: 'anyCondition';
+    readonly conditions: readonly NativeSequenceSource<TLeaf>[];
+  };
   readonly leaf: { readonly kind: 'leaf'; readonly value: TLeaf };
   readonly actionWithCallback: {
     /** 动作持有的条件回调不是同步后继；保留子树供公共投影由内向外分析。 */
@@ -138,12 +142,25 @@ export type NativeLeafParser<TLeaf> = (value: unknown, path: string) => TLeaf;
 export function collectNativeActionNodes<TLeaf>(
   sequence: NativeSequenceSource<TLeaf>,
 ): NativeActionNodeSource<TLeaf>[] {
+  return collectNativeActionNodesWithLeafSequences(sequence, () => []);
+}
+
+/** 叶内事件响应使用同一遍历规则；枚举顺序不是运行时调度顺序。 */
+export function collectNativeActionNodesWithLeafSequences<TLeaf>(
+  sequence: NativeSequenceSource<TLeaf>,
+  leafSequences: (leaf: TLeaf) => readonly NativeSequenceSource<TLeaf>[],
+  enabledOnly = false,
+): NativeActionNodeSource<TLeaf>[] {
   const result: NativeActionNodeSource<TLeaf>[] = [];
   const visitSequence = (current: NativeSequenceSource<TLeaf>): void => {
     for (const node of current.actions) {
+      if (enabledOnly && !node.metadata.enabled) continue;
       result.push(node);
       const body = node.body;
       switch (body.kind) {
+        case 'anyCondition':
+          body.conditions.forEach(visitSequence);
+          break;
         case 'actionWithCallback':
           visitSequence(body.callback);
           break;
@@ -176,6 +193,8 @@ export function collectNativeActionNodes<TLeaf>(
           visitSequence(body.action);
           break;
         case 'leaf':
+          leafSequences(body.value).forEach(visitSequence);
+          break;
         case 'negateNextResult':
           break;
       }
@@ -285,6 +304,19 @@ function parseNativeActionNodeSource<TLeaf>(
     };
   } else if (nativeName === 'IfElseAction') {
     body = parseIfElseBody(action, path, inheritedBlackboard, parseLeaf);
+  } else if (nativeName === 'OrConditionAction') {
+    requireExactFields(action, new Set([...ACTION_META_FIELDS, 'conditionList']), path);
+    body = {
+      kind: 'anyCondition',
+      conditions: requireArray(action.conditionList, `${path}.conditionList`).map((value, index) =>
+        parseNativeSequenceSource(
+          value,
+          `${path}.conditionList[${index}]`,
+          inheritedBlackboard,
+          parseLeaf,
+        ),
+      ),
+    };
   } else if (nativeName === 'SwitchAction') {
     body = parseSwitchBody(action, path, inheritedBlackboard, parseLeaf);
   } else if (nativeName === 'ForEachAction') {

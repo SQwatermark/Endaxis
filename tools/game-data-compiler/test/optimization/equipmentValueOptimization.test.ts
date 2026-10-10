@@ -261,6 +261,7 @@ describe('有运行入口的装备贡献按键裁剪初值', () => {
         action: {
           kind: 'spawnAbilityEntity',
           parameters: {
+            bornAt: { kind: 'owner' as const },
             abilityEntityId: 'unresolved',
             dieWhenSourceDies: false,
             inheritActionBlackboard: true,
@@ -275,7 +276,7 @@ describe('有运行入口的装备贡献按键裁剪初值', () => {
     };
     const callback: ActionGraphStep = {
       kind: 'launchProjectile',
-      parameters: { finish: 1, recycleDelaySeconds: 1 },
+      parameters: { inheritActionBlackboard: true, finish: 1, recycleDelaySeconds: 1 },
       callbacks: [
         {
           event: 'finish',

@@ -52,15 +52,35 @@ const definition = {
           key: 'skill3:event:1:sequence:0',
           abilityEvent: 'enterFight',
           priority: 0,
-          sequence: { $sequence: 'conditional_5' },
+          sequence: { $sequence: 'ifElse_6' },
         },
       ],
-      enableSequence: { $sequence: 'applyBuff_11' },
-      initializationSequence: { $sequence: 'conditional_5' },
+      enableSequence: { $sequence: 'applyBuff_13' },
+      initializationSequence: { $sequence: 'ifElse_6' },
+      blackboard: {
+        atk_up2: [0.2, 0.24, 0.28, 0.32, 0.36, 0.4, 0.44, 0.48, 0.56],
+        duration: [20, 20, 20, 20, 20, 20, 20, 20, 20],
+        duration2: [20, 20, 20, 20, 20, 20, 20, 20, 20],
+        duration3: [25, 25, 25, 25, 25, 25, 25, 25, 25],
+        duration4: [25, 25, 25, 25, 25, 25, 25, 25, 25],
+        spell_dmg_taken_up: [0.06, 0.072, 0.084, 0.096, 0.108, 0.12, 0.132, 0.144, 0.168],
+        spell_dmg_taken_up2: [0.06, 0.072, 0.084, 0.096, 0.108, 0.12, 0.132, 0.144, 0.168],
+        spell_dmg_up: [0.2, 0.24, 0.28, 0.32, 0.36, 0.4, 0.44, 0.48, 0.56],
+        install_0_atk_up2: [0.2, 0.24, 0.28, 0.32, 0.36, 0.4, 0.44, 0.48, 0.56],
+        install_0_duration: [20, 20, 20, 20, 20, 20, 20, 20, 20],
+        install_0_duration2: [20, 20, 20, 20, 20, 20, 20, 20, 20],
+        install_0_duration3: [25, 25, 25, 25, 25, 25, 25, 25, 25],
+        install_0_duration4: [25, 25, 25, 25, 25, 25, 25, 25, 25],
+        install_0_spell_dmg_taken_up: [0.06, 0.072, 0.084, 0.096, 0.108, 0.12, 0.132, 0.144, 0.168],
+        install_0_spell_dmg_taken_up2: [
+          0.06, 0.072, 0.084, 0.096, 0.108, 0.12, 0.132, 0.144, 0.168,
+        ],
+        install_0_spell_dmg_up: [0.2, 0.24, 0.28, 0.32, 0.36, 0.4, 0.44, 0.48, 0.56],
+      },
       actionGraph: {
         main: {
           nodes: {
-            applyBuff_3: {
+            applyBuff_4: {
               action: {
                 kind: 'applyBuff',
                 parameters: {
@@ -82,7 +102,7 @@ const definition = {
               },
               next: null,
             },
-            finishBuffsById_4: {
+            finishBuffsById_5: {
               action: {
                 kind: 'finishBuffsById',
                 parameters: {
@@ -91,9 +111,9 @@ const definition = {
                   reason: 'other',
                 },
               },
-              next: 'applyBuff_3',
+              next: 'applyBuff_4',
             },
-            applyBuff_1: {
+            applyBuff_2: {
               action: {
                 kind: 'applyBuff',
                 parameters: {
@@ -115,7 +135,7 @@ const definition = {
               },
               next: null,
             },
-            finishBuffsById_2: {
+            finishBuffsById_3: {
               action: {
                 kind: 'finishBuffsById',
                 parameters: {
@@ -124,21 +144,26 @@ const definition = {
                   reason: 'other',
                 },
               },
-              next: 'applyBuff_1',
+              next: 'applyBuff_2',
             },
-            conditional_5: {
+            checkCondition_1: {
               action: {
-                kind: 'conditional',
-                parameters: {
-                  condition: { kind: 'conditionNode', nodeId: 'data_1' },
-                  alwaysNext: true,
-                },
-                whenTrue: { $sequence: 'finishBuffsById_2' },
-                whenFalse: { $sequence: 'finishBuffsById_4' },
+                kind: 'checkCondition',
+                parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
               },
               next: null,
             },
-            applyBuff_11: {
+            ifElse_6: {
+              action: {
+                kind: 'ifElse',
+                parameters: { alwaysNext: true },
+                condition: { $sequence: 'checkCondition_1' },
+                whenTrue: { $sequence: 'finishBuffsById_3' },
+                whenFalse: { $sequence: 'finishBuffsById_5' },
+              },
+              next: null,
+            },
+            applyBuff_13: {
               action: {
                 kind: 'applyBuff',
                 parameters: {
@@ -209,26 +234,6 @@ const definition = {
         },
         macros: {},
       },
-      blackboard: {
-        atk_up2: [0.2, 0.24, 0.28, 0.32, 0.36, 0.4, 0.44, 0.48, 0.56],
-        duration: [20, 20, 20, 20, 20, 20, 20, 20, 20],
-        duration2: [20, 20, 20, 20, 20, 20, 20, 20, 20],
-        duration3: [25, 25, 25, 25, 25, 25, 25, 25, 25],
-        duration4: [25, 25, 25, 25, 25, 25, 25, 25, 25],
-        spell_dmg_taken_up: [0.06, 0.072, 0.084, 0.096, 0.108, 0.12, 0.132, 0.144, 0.168],
-        spell_dmg_taken_up2: [0.06, 0.072, 0.084, 0.096, 0.108, 0.12, 0.132, 0.144, 0.168],
-        spell_dmg_up: [0.2, 0.24, 0.28, 0.32, 0.36, 0.4, 0.44, 0.48, 0.56],
-        install_0_atk_up2: [0.2, 0.24, 0.28, 0.32, 0.36, 0.4, 0.44, 0.48, 0.56],
-        install_0_duration: [20, 20, 20, 20, 20, 20, 20, 20, 20],
-        install_0_duration2: [20, 20, 20, 20, 20, 20, 20, 20, 20],
-        install_0_duration3: [25, 25, 25, 25, 25, 25, 25, 25, 25],
-        install_0_duration4: [25, 25, 25, 25, 25, 25, 25, 25, 25],
-        install_0_spell_dmg_taken_up: [0.06, 0.072, 0.084, 0.096, 0.108, 0.12, 0.132, 0.144, 0.168],
-        install_0_spell_dmg_taken_up2: [
-          0.06, 0.072, 0.084, 0.096, 0.108, 0.12, 0.132, 0.144, 0.168,
-        ],
-        install_0_spell_dmg_up: [0.2, 0.24, 0.28, 0.32, 0.36, 0.4, 0.44, 0.48, 0.56],
-      },
     },
   ],
   assetSlug: 'wpn_funnel_0016',
@@ -254,11 +259,18 @@ const definition = {
         spell_dmg_up: 0,
       },
       attributeModifiers: [],
-      lifecycleSequences: { start: { $sequence: 'conditional_5' } },
+      lifecycleSequences: { start: { $sequence: 'ifElse_6' } },
       actionGraph: {
         main: {
           nodes: {
-            applyBuff_1: {
+            checkCondition_1: {
+              action: {
+                kind: 'checkCondition',
+                parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
+              },
+              next: null,
+            },
+            applyBuff_2: {
               action: {
                 kind: 'applyBuff',
                 parameters: {
@@ -280,7 +292,7 @@ const definition = {
               },
               next: null,
             },
-            finishBuffsById_2: {
+            finishBuffsById_3: {
               action: {
                 kind: 'finishBuffsById',
                 parameters: {
@@ -289,9 +301,9 @@ const definition = {
                   reason: 'other',
                 },
               },
-              next: 'applyBuff_1',
+              next: 'applyBuff_2',
             },
-            applyBuff_3: {
+            applyBuff_4: {
               action: {
                 kind: 'applyBuff',
                 parameters: {
@@ -313,7 +325,7 @@ const definition = {
               },
               next: null,
             },
-            finishBuffsById_4: {
+            finishBuffsById_5: {
               action: {
                 kind: 'finishBuffsById',
                 parameters: {
@@ -322,17 +334,15 @@ const definition = {
                   reason: 'other',
                 },
               },
-              next: 'applyBuff_3',
+              next: 'applyBuff_4',
             },
-            conditional_5: {
+            ifElse_6: {
               action: {
-                kind: 'conditional',
-                parameters: {
-                  condition: { kind: 'conditionNode', nodeId: 'data_1' },
-                  alwaysNext: true,
-                },
-                whenTrue: { $sequence: 'finishBuffsById_2' },
-                whenFalse: { $sequence: 'finishBuffsById_4' },
+                kind: 'ifElse',
+                parameters: { alwaysNext: true },
+                condition: { $sequence: 'checkCondition_1' },
+                whenTrue: { $sequence: 'finishBuffsById_3' },
+                whenFalse: { $sequence: 'finishBuffsById_5' },
               },
               next: null,
             },
@@ -364,8 +374,12 @@ const definition = {
       blackboard: { duration3: 0, duration4: 0, spell_dmg_taken_up: 0, spell_dmg_taken_up2: 0 },
       attributeModifiers: [],
       abilityEventResponses: [
-        { event: 'beforeOutputSpellBurst', priority: 0, sequence: { $sequence: 'conditional_2' } },
-        { event: 'beforeOutputBuff', priority: 0, sequence: { $sequence: 'conditional_5' } },
+        {
+          event: 'beforeOutputSpellBurst',
+          priority: 0,
+          sequence: { $sequence: 'checkCondition_2' },
+        },
+        { event: 'beforeOutputBuff', priority: 0, sequence: { $sequence: 'checkCondition_5' } },
       ],
       actionGraph: {
         main: {
@@ -390,13 +404,12 @@ const definition = {
               },
               next: null,
             },
-            conditional_2: {
+            checkCondition_2: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-                whenTrue: { $sequence: 'applyBuff_1' },
               },
-              next: null,
+              next: 'applyBuff_1',
             },
             applyBuff_3: {
               action: {
@@ -418,21 +431,19 @@ const definition = {
               },
               next: null,
             },
-            conditional_4: {
+            checkCondition_4: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-                whenTrue: { $sequence: 'applyBuff_3' },
               },
-              next: null,
+              next: 'applyBuff_3',
             },
-            conditional_5: {
+            checkCondition_5: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
-                whenTrue: { $sequence: 'conditional_4' },
               },
-              next: null,
+              next: 'checkCondition_4',
             },
           },
           dataNodes: {
@@ -499,7 +510,7 @@ const definition = {
       damageModifiers: [
         {
           enabledSide: 'defender',
-          condition: { $sequence: 'conditional_3' },
+          condition: { $sequence: 'checkCondition_3' },
           processors: [
             {
               kind: 'damageScale',
@@ -510,7 +521,7 @@ const definition = {
           ],
         },
       ],
-      lifecycleSequences: { enable: { $sequence: 'readCurrentBuffRemainingDuration_2' } },
+      lifecycleSequences: { enable: { $sequence: 'readBuffRemainingDuration_2' } },
       actionGraph: {
         main: {
           nodes: {
@@ -535,18 +546,21 @@ const definition = {
               },
               next: null,
             },
-            readCurrentBuffRemainingDuration_2: {
+            readBuffRemainingDuration_2: {
               action: {
-                kind: 'readCurrentBuffRemainingDuration',
-                parameters: { outputKey: 'duration_dynamic' },
+                kind: 'readBuffRemainingDuration',
+                parameters: {
+                  target: { kind: 'owner' },
+                  query: { kind: 'environment' },
+                  outputKey: 'duration_dynamic',
+                },
               },
               next: 'applyBuff_1',
             },
-            conditional_3: {
+            checkCondition_3: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-                whenTrue: { $sequence: null },
               },
               next: null,
             },
@@ -600,7 +614,7 @@ const definition = {
       damageModifiers: [
         {
           enabledSide: 'defender',
-          condition: { $sequence: 'conditional_3' },
+          condition: { $sequence: 'checkCondition_3' },
           processors: [
             {
               kind: 'damageScale',
@@ -611,7 +625,7 @@ const definition = {
           ],
         },
       ],
-      lifecycleSequences: { enable: { $sequence: 'readCurrentBuffRemainingDuration_2' } },
+      lifecycleSequences: { enable: { $sequence: 'readBuffRemainingDuration_2' } },
       actionGraph: {
         main: {
           nodes: {
@@ -636,18 +650,21 @@ const definition = {
               },
               next: null,
             },
-            readCurrentBuffRemainingDuration_2: {
+            readBuffRemainingDuration_2: {
               action: {
-                kind: 'readCurrentBuffRemainingDuration',
-                parameters: { outputKey: 'duration_dynamic' },
+                kind: 'readBuffRemainingDuration',
+                parameters: {
+                  target: { kind: 'owner' },
+                  query: { kind: 'environment' },
+                  outputKey: 'duration_dynamic',
+                },
               },
               next: 'applyBuff_1',
             },
-            conditional_3: {
+            checkCondition_3: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-                whenTrue: { $sequence: null },
               },
               next: null,
             },
@@ -729,8 +746,12 @@ const definition = {
       blackboard: { atk_up2: 0, duration: 0, duration2: 0, spell_dmg_up: 0 },
       attributeModifiers: [],
       abilityEventResponses: [
-        { event: 'beforeOutputInfliction', priority: 0, sequence: { $sequence: 'conditional_2' } },
-        { event: 'beforeOutputBuff', priority: 0, sequence: { $sequence: 'conditional_5' } },
+        {
+          event: 'beforeOutputInfliction',
+          priority: 0,
+          sequence: { $sequence: 'checkCondition_2' },
+        },
+        { event: 'beforeOutputBuff', priority: 0, sequence: { $sequence: 'checkCondition_5' } },
       ],
       actionGraph: {
         main: {
@@ -755,13 +776,12 @@ const definition = {
               },
               next: null,
             },
-            conditional_2: {
+            checkCondition_2: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-                whenTrue: { $sequence: 'applyBuff_1' },
               },
-              next: null,
+              next: 'applyBuff_1',
             },
             applyBuff_3: {
               action: {
@@ -780,21 +800,19 @@ const definition = {
               },
               next: null,
             },
-            conditional_4: {
+            checkCondition_4: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-                whenTrue: { $sequence: 'applyBuff_3' },
               },
-              next: null,
+              next: 'applyBuff_3',
             },
-            conditional_5: {
+            checkCondition_5: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
-                whenTrue: { $sequence: 'conditional_4' },
               },
-              next: null,
+              next: 'checkCondition_4',
             },
           },
           dataNodes: {

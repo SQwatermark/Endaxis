@@ -158,7 +158,6 @@
     "action/mergeContextTargets/parameters/sources",
     "action/reachSkillOperableBoundary/parameters/skillIds",
     "action/readBuffBlackboard/parameters/query",
-    "action/readBuffRemainingDuration/parameters/buffIds",
     "action/readBuffStackCount/parameters/query",
     "action/repeatEachTick/parameters/nativeChanneling",
     "action/repeatEachTick/parameters/nativeExecuteInterval",

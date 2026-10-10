@@ -118,7 +118,7 @@ it('同名作用域只在各自技能内判断共享，不跨干员目录合并'
           scope: {
             action: {
               kind: 'once',
-              parameters: { scopeKey: 'SkillData.sharedScope' },
+              parameters: {},
               body: entryOf('end'),
             },
             next: null,

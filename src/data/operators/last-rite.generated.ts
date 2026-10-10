@@ -18,7 +18,8 @@ export const lastRiteChr_0026_lastrite_attack1ActionGraph = {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
             coefficient: { kind: 'constant', value: 1 },
-            recipient: 'team',
+            source: { kind: 'source' },
+            targets: { kind: 'source' },
             onlyMainOperator: true,
             spGainKind: 'gain',
             spGainSource: 'normalAttack',
@@ -41,15 +42,34 @@ export const lastRiteChr_0026_lastrite_attack1ActionGraph = {
         },
         next: 'changeResource_1',
       },
-      conditional_3: {
+      checkCondition_3: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' }, alwaysNext: true },
-          whenTrue: { $sequence: 'startTimeDilation_2' },
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
         },
         next: null,
       },
-      dealDamage_4: {
+      ifElse_4: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: null },
+          whenTrue: { $sequence: 'startTimeDilation_2' },
+          whenFalse: { $sequence: null },
+        },
+        next: null,
+      },
+      ifElse_5: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_3' },
+          whenTrue: { $sequence: 'ifElse_4' },
+          whenFalse: { $sequence: null },
+        },
+        next: null,
+      },
+      dealDamage_6: {
         action: {
           kind: 'dealDamage',
           parameters: {
@@ -58,9 +78,9 @@ export const lastRiteChr_0026_lastrite_attack1ActionGraph = {
             tags: ['normalAttack'],
           },
         },
-        next: 'conditional_3',
+        next: 'ifElse_5',
       },
-      reachSkillOperableBoundary_5: {
+      reachSkillOperableBoundary_7: {
         action: {
           kind: 'reachSkillOperableBoundary',
           parameters: { skillIds: ['chr_0026_lastrite_attack2'] },
@@ -78,13 +98,11 @@ export const lastRiteChr_0026_lastrite_attack1ActionGraph = {
 } as const satisfies ActionGraphResourceDefinition;
 
 export const lastRiteChr_0026_lastrite_attack1: SkillDefinition = {
-  actionGraph: lastRiteChr_0026_lastrite_attack1ActionGraph,
   key: 'chr_0026_lastrite_attack1',
   element: 'cryo',
   blackboard: {
     atb: 0,
     atk_scale: [0.3, 0.33, 0.36, 0.39, 0.42, 0.45, 0.48, 0.51, 0.54, 0.58, 0.62, 0.68],
-    env_dmg: 20,
   },
   timelineBlockFrames: 20,
   naturalDurationFrames: 171,
@@ -103,13 +121,14 @@ export const lastRiteChr_0026_lastrite_attack1: SkillDefinition = {
   },
   costFrame: 9,
   scheduledSequences: [
-    { startFrame: 12, endFrame: 13, sequence: { $sequence: 'dealDamage_4' } },
-    { startFrame: 20, endFrame: 35, sequence: { $sequence: 'reachSkillOperableBoundary_5' } },
+    { startFrame: 12, endFrame: 13, sequence: { $sequence: 'dealDamage_6' } },
+    { startFrame: 20, endFrame: 35, sequence: { $sequence: 'reachSkillOperableBoundary_7' } },
   ],
   timelineContinuationSkillId: 'chr_0026_lastrite_attack2',
   skillType: 'basicAttack',
   levelSource: 'basicAttack',
   nativeSkillType: 'attack',
+  actionGraph: lastRiteChr_0026_lastrite_attack1ActionGraph,
 };
 
 export const lastRiteChr_0026_lastrite_attack2ActionGraph = {
@@ -122,7 +141,8 @@ export const lastRiteChr_0026_lastrite_attack2ActionGraph = {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
             coefficient: { kind: 'constant', value: 1 },
-            recipient: 'team',
+            source: { kind: 'source' },
+            targets: { kind: 'source' },
             spGainKind: 'gain',
             spGainSource: 'normalAttack',
           },
@@ -144,15 +164,34 @@ export const lastRiteChr_0026_lastrite_attack2ActionGraph = {
         },
         next: 'changeResource_1',
       },
-      conditional_3: {
+      ifElse_4: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' }, alwaysNext: true },
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: null },
           whenTrue: { $sequence: 'startTimeDilation_2' },
+          whenFalse: { $sequence: null },
         },
         next: null,
       },
-      dealDamage_4: {
+      checkCondition_3: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
+        },
+        next: null,
+      },
+      ifElse_5: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_3' },
+          whenTrue: { $sequence: 'ifElse_4' },
+          whenFalse: { $sequence: null },
+        },
+        next: null,
+      },
+      dealDamage_6: {
         action: {
           kind: 'dealDamage',
           parameters: {
@@ -161,9 +200,9 @@ export const lastRiteChr_0026_lastrite_attack2ActionGraph = {
             tags: ['normalAttack'],
           },
         },
-        next: 'conditional_3',
+        next: 'ifElse_5',
       },
-      reachSkillOperableBoundary_9: {
+      reachSkillOperableBoundary_13: {
         action: {
           kind: 'reachSkillOperableBoundary',
           parameters: { skillIds: ['chr_0026_lastrite_attack3'] },
@@ -186,8 +225,6 @@ export const lastRiteChr_0026_lastrite_attack2: SkillDefinition = {
   blackboard: {
     atb: 0,
     atk_scale: [0.28, 0.3, 0.33, 0.36, 0.39, 0.41, 0.44, 0.47, 0.5, 0.53, 0.57, 0.62],
-    env_dmg: 12.5,
-    display_atk_scale: [0.55, 0.61, 0.66, 0.72, 0.77, 0.83, 0.88, 0.94, 0.99, 1.06, 1.14, 1.24],
   },
   timelineBlockFrames: 29,
   naturalDurationFrames: 175,
@@ -206,9 +243,9 @@ export const lastRiteChr_0026_lastrite_attack2: SkillDefinition = {
   },
   costFrame: 9,
   scheduledSequences: [
-    { startFrame: 10, endFrame: 11, sequence: { $sequence: 'dealDamage_4' } },
-    { startFrame: 24, endFrame: 25, sequence: { $sequence: 'dealDamage_4' } },
-    { startFrame: 29, endFrame: 44, sequence: { $sequence: 'reachSkillOperableBoundary_9' } },
+    { startFrame: 10, endFrame: 11, sequence: { $sequence: 'dealDamage_6' } },
+    { startFrame: 24, endFrame: 25, sequence: { $sequence: 'dealDamage_6' } },
+    { startFrame: 29, endFrame: 44, sequence: { $sequence: 'reachSkillOperableBoundary_13' } },
   ],
   timelineContinuationSkillId: 'chr_0026_lastrite_attack3',
   skillType: 'basicAttack',
@@ -227,7 +264,8 @@ export const lastRiteChr_0026_lastrite_attack3ActionGraph = {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
             coefficient: { kind: 'constant', value: 1 },
-            recipient: 'team',
+            source: { kind: 'source' },
+            targets: { kind: 'source' },
             spGainKind: 'gain',
             spGainSource: 'normalAttack',
           },
@@ -249,15 +287,34 @@ export const lastRiteChr_0026_lastrite_attack3ActionGraph = {
         },
         next: 'changeResource_1',
       },
-      conditional_3: {
+      ifElse_4: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' }, alwaysNext: true },
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: null },
           whenTrue: { $sequence: 'startTimeDilation_2' },
+          whenFalse: { $sequence: null },
         },
         next: null,
       },
-      dealDamage_4: {
+      checkCondition_3: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
+        },
+        next: null,
+      },
+      ifElse_5: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_3' },
+          whenTrue: { $sequence: 'ifElse_4' },
+          whenFalse: { $sequence: null },
+        },
+        next: null,
+      },
+      dealDamage_6: {
         action: {
           kind: 'dealDamage',
           parameters: {
@@ -266,9 +323,9 @@ export const lastRiteChr_0026_lastrite_attack3ActionGraph = {
             tags: ['normalAttack'],
           },
         },
-        next: 'conditional_3',
+        next: 'ifElse_5',
       },
-      dealDamage_5: {
+      dealDamage_7: {
         action: {
           kind: 'dealDamage',
           parameters: {
@@ -279,7 +336,7 @@ export const lastRiteChr_0026_lastrite_attack3ActionGraph = {
         },
         next: null,
       },
-      startTimeDilation_6: {
+      startTimeDilation_8: {
         action: {
           kind: 'startTimeDilation',
           parameters: {
@@ -334,15 +391,27 @@ export const lastRiteChr_0026_lastrite_attack3ActionGraph = {
         },
         next: null,
       },
-      conditional_7: {
+      ifElse_10: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' }, alwaysNext: true },
-          whenTrue: { $sequence: 'startTimeDilation_6' },
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: null },
+          whenTrue: { $sequence: 'startTimeDilation_8' },
+          whenFalse: { $sequence: null },
         },
         next: null,
       },
-      reachSkillOperableBoundary_8: {
+      ifElse_11: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_3' },
+          whenTrue: { $sequence: 'ifElse_10' },
+          whenFalse: { $sequence: null },
+        },
+        next: null,
+      },
+      reachSkillOperableBoundary_12: {
         action: {
           kind: 'reachSkillOperableBoundary',
           parameters: { skillIds: ['chr_0026_lastrite_attack4'] },
@@ -355,21 +424,17 @@ export const lastRiteChr_0026_lastrite_attack3ActionGraph = {
       data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
       data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
       data_4: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_5: { type: 'boolean', expression: { kind: 'casterControlled' } },
     },
   },
   macros: {},
 } as const satisfies ActionGraphResourceDefinition;
 
 export const lastRiteChr_0026_lastrite_attack3: SkillDefinition = {
-  actionGraph: lastRiteChr_0026_lastrite_attack3ActionGraph,
   key: 'chr_0026_lastrite_attack3',
   element: 'cryo',
   blackboard: {
     atb: 0,
     atk_scale: [0.34, 0.37, 0.41, 0.44, 0.48, 0.51, 0.54, 0.58, 0.61, 0.65, 0.71, 0.77],
-    env_dmg: 10,
-    display_atk_scale: [0.68, 0.75, 0.82, 0.88, 0.95, 1.02, 1.09, 1.16, 1.22, 1.31, 1.41, 1.53],
   },
   timelineBlockFrames: 36,
   naturalDurationFrames: 230,
@@ -388,75 +453,77 @@ export const lastRiteChr_0026_lastrite_attack3: SkillDefinition = {
   },
   costFrame: 9,
   scheduledSequences: [
-    { startFrame: 9, endFrame: 10, sequence: { $sequence: 'dealDamage_4' } },
-    { startFrame: 27, endFrame: 28, sequence: { $sequence: 'dealDamage_5' } },
-    { startFrame: 26, endFrame: 28, sequence: { $sequence: 'conditional_7' } },
-    { startFrame: 36, endFrame: 48, sequence: { $sequence: 'reachSkillOperableBoundary_8' } },
+    { startFrame: 9, endFrame: 10, sequence: { $sequence: 'dealDamage_6' } },
+    { startFrame: 27, endFrame: 28, sequence: { $sequence: 'dealDamage_7' } },
+    { startFrame: 26, endFrame: 28, sequence: { $sequence: 'ifElse_11' } },
+    { startFrame: 36, endFrame: 48, sequence: { $sequence: 'reachSkillOperableBoundary_12' } },
   ],
   timelineContinuationSkillId: 'chr_0026_lastrite_attack4',
   skillType: 'basicAttack',
   levelSource: 'basicAttack',
   nativeSkillType: 'attack',
+  actionGraph: lastRiteChr_0026_lastrite_attack3ActionGraph,
 };
 
 export const lastRiteChr_0026_lastrite_attack4ActionGraph = {
   main: {
     nodes: {
-      modifyActionValue_1: {
+      checkCondition_1: {
         action: {
-          kind: 'modifyActionValue',
-          parameters: {
-            key: 'isBuffed',
-            operation: 'assign',
-            value: { kind: 'constant', value: 1 },
-          },
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
         },
         next: null,
       },
-      conditional_2: {
-        action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' }, alwaysNext: true },
-          whenTrue: { $sequence: 'modifyActionValue_1' },
-        },
-        next: null,
-      },
-      changeResource_5: {
+      changeResource_9: {
         action: {
           kind: 'changeResource',
           parameters: {
             resource: 'sp',
-            amount: { kind: 'valueNode', nodeId: 'data_4' },
+            amount: { kind: 'valueNode', nodeId: 'data_2' },
             coefficient: { kind: 'constant', value: 1 },
-            recipient: 'team',
+            source: { kind: 'source' },
+            targets: { kind: 'source' },
             spGainKind: 'gain',
             spGainSource: 'normalAttack',
           },
         },
         next: null,
       },
-      conditional_6: {
+      ifElse_11: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResource_5' },
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: null },
+          whenTrue: { $sequence: 'changeResource_9' },
+          whenFalse: { $sequence: null },
         },
         next: null,
       },
-      dealDamage_7: {
+      ifElse_12: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_1' },
+          whenTrue: { $sequence: 'ifElse_11' },
+          whenFalse: { $sequence: null },
+        },
+        next: null,
+      },
+      dealDamage_13: {
         action: {
           kind: 'dealDamage',
           parameters: {
             damageType: 'cryo',
-            attackScale: { kind: 'valueNode', nodeId: 'data_6' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_3' },
             tags: ['normalAttack', 'normalAttackLastCombo'],
-            stagger: { kind: 'valueNode', nodeId: 'data_7' },
+            stagger: { kind: 'valueNode', nodeId: 'data_4' },
             staggerOnlyWhenCasterControlled: true,
           },
         },
-        next: 'conditional_6',
+        next: 'ifElse_12',
       },
-      startTimeDilation_8: {
+      startTimeDilation_14: {
         action: {
           kind: 'startTimeDilation',
           parameters: {
@@ -502,24 +569,57 @@ export const lastRiteChr_0026_lastrite_attack4ActionGraph = {
         },
         next: null,
       },
-      conditional_9: {
+      ifElse_16: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_8' }, alwaysNext: true },
-          whenTrue: { $sequence: 'startTimeDilation_8' },
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: null },
+          whenTrue: { $sequence: 'startTimeDilation_14' },
+          whenFalse: { $sequence: null },
         },
         next: null,
       },
-      reachSkillOperableBoundary_10: {
+      ifElse_17: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_1' },
+          whenTrue: { $sequence: 'ifElse_16' },
+          whenFalse: { $sequence: null },
+        },
+        next: null,
+      },
+      reachSkillOperableBoundary_18: {
         action: {
           kind: 'reachSkillOperableBoundary',
           parameters: { skillIds: ['chr_0026_lastrite_attack1'] },
         },
         next: null,
       },
+      checkCondition_opt1: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
+        },
+        next: null,
+      },
+      ifElse_opt2: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_opt1' },
+          whenTrue: { $sequence: null },
+          whenFalse: { $sequence: null },
+        },
+        next: null,
+      },
     },
     dataNodes: {
-      data_1: {
+      data_1: { type: 'boolean', expression: { kind: 'casterControlled' } },
+      data_2: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
+      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
+      data_5: {
         type: 'boolean',
         expression: {
           kind: 'buffIdStackCompare',
@@ -529,22 +629,6 @@ export const lastRiteChr_0026_lastrite_attack4ActionGraph = {
           value: { kind: 'constant', value: 1 },
         },
       },
-      data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
-      data_3: {
-        type: 'boolean',
-        expression: {
-          kind: 'all',
-          conditions: [
-            { kind: 'conditionNode', nodeId: 'data_1' },
-            { kind: 'conditionNode', nodeId: 'data_2' },
-          ],
-        },
-      },
-      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
-      data_5: { type: 'boolean', expression: { kind: 'casterControlled' } },
-      data_6: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_7: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
-      data_8: { type: 'boolean', expression: { kind: 'casterControlled' } },
     },
   },
   macros: {},
@@ -557,8 +641,6 @@ export const lastRiteChr_0026_lastrite_attack4: SkillDefinition = {
     atb: 30,
     atk_scale: [0.9, 0.99, 1.08, 1.17, 1.26, 1.35, 1.44, 1.53, 1.62, 1.73, 1.87, 2.03],
     atk_scale2: 0.2,
-    env_dmg: 35,
-    isBuffed: 0,
     poise: 25,
   },
   timelineBlockFrames: 46,
@@ -578,11 +660,11 @@ export const lastRiteChr_0026_lastrite_attack4: SkillDefinition = {
   },
   costFrame: 9,
   scheduledSequences: [
-    { startFrame: 0, endFrame: 1, sequence: { $sequence: 'conditional_2' } },
-    { startFrame: 17, endFrame: 18, sequence: { $sequence: 'conditional_2' } },
-    { startFrame: 21, endFrame: 22, sequence: { $sequence: 'dealDamage_7' } },
-    { startFrame: 22, endFrame: 23, sequence: { $sequence: 'conditional_9' } },
-    { startFrame: 46, endFrame: 54, sequence: { $sequence: 'reachSkillOperableBoundary_10' } },
+    { startFrame: 0, endFrame: 1, sequence: { $sequence: 'ifElse_opt2' } },
+    { startFrame: 17, endFrame: 18, sequence: { $sequence: 'ifElse_opt2' } },
+    { startFrame: 21, endFrame: 22, sequence: { $sequence: 'dealDamage_13' } },
+    { startFrame: 22, endFrame: 23, sequence: { $sequence: 'ifElse_17' } },
+    { startFrame: 46, endFrame: 54, sequence: { $sequence: 'reachSkillOperableBoundary_18' } },
   ],
   timelineContinuationSkillId: 'chr_0026_lastrite_attack1',
   skillType: 'basicAttack',
@@ -594,7 +676,14 @@ export const lastRiteChr_0026_lastrite_attack4: SkillDefinition = {
 export const lastRiteChr_0026_lastrite_power_attackActionGraph = {
   main: {
     nodes: {
-      startTimeDilation_1: {
+      checkCondition_1: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
+        },
+        next: null,
+      },
+      startTimeDilation_2: {
         action: {
           kind: 'startTimeDilation',
           parameters: {
@@ -609,19 +698,21 @@ export const lastRiteChr_0026_lastrite_power_attackActionGraph = {
         },
         next: null,
       },
-      conditional_2: {
+      ifElse_3: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' }, alwaysNext: true },
-          whenTrue: { $sequence: 'startTimeDilation_1' },
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_1' },
+          whenTrue: { $sequence: 'startTimeDilation_2' },
+          whenFalse: { $sequence: null },
         },
         next: null,
       },
-      gainFinisherSp_3: {
+      gainFinisherSp_4: {
         action: { kind: 'gainFinisherSp', parameters: { factor: 1, recipient: 'team' } },
         next: null,
       },
-      dealDamage_4: {
+      dealDamage_5: {
         action: {
           kind: 'dealDamage',
           parameters: {
@@ -632,9 +723,9 @@ export const lastRiteChr_0026_lastrite_power_attackActionGraph = {
             tags: ['normalAttack', 'powerAttack'],
           },
         },
-        next: 'gainFinisherSp_3',
+        next: 'gainFinisherSp_4',
       },
-      applyBuff_5: {
+      applyBuff_6: {
         action: {
           kind: 'applyBuff',
           parameters: {
@@ -646,7 +737,7 @@ export const lastRiteChr_0026_lastrite_power_attackActionGraph = {
         },
         next: null,
       },
-      applyBuff_6: {
+      applyBuff_7: {
         action: {
           kind: 'applyBuff',
           parameters: {
@@ -668,7 +759,6 @@ export const lastRiteChr_0026_lastrite_power_attackActionGraph = {
 } as const satisfies ActionGraphResourceDefinition;
 
 export const lastRiteChr_0026_lastrite_power_attack: SkillDefinition = {
-  actionGraph: lastRiteChr_0026_lastrite_power_attackActionGraph,
   key: 'chr_0026_lastrite_power_attack',
   element: 'cryo',
   blackboard: { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
@@ -687,14 +777,15 @@ export const lastRiteChr_0026_lastrite_power_attack: SkillDefinition = {
   },
   costFrame: 4,
   scheduledSequences: [
-    { startFrame: 41, endFrame: 42, sequence: { $sequence: 'conditional_2' } },
-    { startFrame: 40, endFrame: 40, sequence: { $sequence: 'dealDamage_4' } },
-    { startFrame: 0, endFrame: 40, sequence: { $sequence: 'applyBuff_5' } },
-    { startFrame: 0, endFrame: 58, sequence: { $sequence: 'applyBuff_6' } },
+    { startFrame: 41, endFrame: 42, sequence: { $sequence: 'ifElse_3' } },
+    { startFrame: 40, endFrame: 40, sequence: { $sequence: 'dealDamage_5' } },
+    { startFrame: 0, endFrame: 40, sequence: { $sequence: 'applyBuff_6' } },
+    { startFrame: 0, endFrame: 58, sequence: { $sequence: 'applyBuff_7' } },
   ],
   skillType: 'finisher',
   levelSource: 'basicAttack',
   nativeSkillType: 'breakingAttack',
+  actionGraph: lastRiteChr_0026_lastrite_power_attackActionGraph,
 };
 
 export const lastRiteChr_0026_lastrite_plunging_attack_endActionGraph = {
@@ -707,7 +798,8 @@ export const lastRiteChr_0026_lastrite_plunging_attack_endActionGraph = {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
             coefficient: { kind: 'constant', value: 1 },
-            recipient: 'team',
+            source: { kind: 'source' },
+            targets: { kind: 'source' },
             onlyMainOperator: true,
             spGainKind: 'gain',
             spGainSource: 'normalAttack',
@@ -825,32 +917,45 @@ export const lastRiteChr_0026_lastrite_normal_skillActionGraph = {
         },
         next: 'modifyActionValue_4',
       },
-      jumpTimeline_6: {
+      checkCondition_6: {
         action: {
-          kind: 'jumpTimeline',
-          parameters: {
-            destinationFrame: 300,
-            condition: { kind: 'conditionNode', nodeId: 'data_12' },
-          },
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_11' } },
         },
         next: null,
       },
-      markCurrentSkillCanInterrupt_7: {
+      invertNextResult_7: {
+        action: { kind: 'invertNextResult', parameters: {} },
+        next: 'checkCondition_6',
+      },
+      jumpTimeline_8: {
+        action: {
+          kind: 'jumpTimeline',
+          parameters: { destinationFrame: 300 },
+          condition: { $sequence: 'invertNextResult_7' },
+        },
+        next: null,
+      },
+      markCurrentSkillCanInterrupt_9: {
         action: { kind: 'markCurrentSkillCanInterrupt', parameters: {} },
         next: null,
       },
-      jumpTimeline_8: {
-        action: { kind: 'jumpTimeline', parameters: { destinationFrame: 429 } },
+      jumpTimeline_10: {
+        action: {
+          kind: 'jumpTimeline',
+          parameters: { destinationFrame: 429 },
+          condition: { $sequence: null },
+        },
         next: null,
       },
-      findCharacterTeamTargets_9: {
+      findCharacterTeamTargets_11: {
         action: {
           kind: 'findCharacterTeamTargets',
           parameters: { saveToContextKey: 'mainchar', selection: { kind: 'controlledOperator' } },
         },
         next: null,
       },
-      applyBuff_10: {
+      applyBuff_12: {
         action: {
           kind: 'applyBuff',
           parameters: {
@@ -873,10 +978,16 @@ export const lastRiteChr_0026_lastrite_normal_skillActionGraph = {
         },
         next: null,
       },
-      launchProjectile_11: {
+      launchProjectile_13: {
         action: {
           kind: 'launchProjectile',
-          parameters: { finish: 'firstTickReach', source: 'actionOwner', recycleDelaySeconds: 1 },
+          parameters: {
+            inheritActionBlackboard: true,
+            entityInitialValues: {},
+            finish: 'firstTickReach',
+            source: 'actionOwner',
+            recycleDelaySeconds: 1,
+          },
           callbacks: [
             {
               event: 'reach',
@@ -902,37 +1013,32 @@ export const lastRiteChr_0026_lastrite_normal_skillActionGraph = {
         },
         next: null,
       },
-      withActionBlackboardScope_12: {
-        action: {
-          kind: 'withActionBlackboardScope',
-          parameters: {
-            lifetime: 'execution',
-            initialValues: {},
-            inheritParent: true,
-            entityInitialValues: {},
-          },
-          body: { $sequence: 'launchProjectile_11' },
-        },
-        next: null,
-      },
-      changeResource_13: {
+      changeResource_14: {
         action: {
           kind: 'changeResource',
           parameters: {
             resource: 'ultimateEnergy',
-            amount: { kind: 'valueNode', nodeId: 'data_13' },
+            amount: { kind: 'valueNode', nodeId: 'data_12' },
             coefficient: { kind: 'constant', value: 1 },
-            recipient: 'caster',
+            source: { kind: 'source' },
+            targets: { kind: 'source' },
             ultimateRecoveryTag: 'Skill/Character/chr_0026_lastrite',
           },
         },
         next: null,
       },
-      gainSquadUltimateEnergyFromSkillCost_14: {
+      gainSquadUltimateEnergyFromSkillCost_15: {
         action: { kind: 'gainSquadUltimateEnergyFromSkillCost', parameters: { coefficient: 1 } },
-        next: 'changeResource_13',
+        next: 'changeResource_14',
       },
-      applyBuff_15: {
+      checkCondition_16: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'constant', value: true } },
+        },
+        next: 'gainSquadUltimateEnergyFromSkillCost_15',
+      },
+      applyBuff_17: {
         action: {
           kind: 'applyBuff',
           parameters: {
@@ -953,9 +1059,9 @@ export const lastRiteChr_0026_lastrite_normal_skillActionGraph = {
             inheritSourceSkillCastInfo: true,
           },
         },
-        next: 'gainSquadUltimateEnergyFromSkillCost_14',
+        next: 'checkCondition_16',
       },
-      finishBuffsById_16: {
+      finishBuffsById_18: {
         action: {
           kind: 'finishBuffsById',
           parameters: {
@@ -964,7 +1070,7 @@ export const lastRiteChr_0026_lastrite_normal_skillActionGraph = {
             reason: 'other',
           },
         },
-        next: 'applyBuff_15',
+        next: 'applyBuff_17',
       },
     },
     dataNodes: {
@@ -979,19 +1085,14 @@ export const lastRiteChr_0026_lastrite_normal_skillActionGraph = {
       data_9: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
       data_10: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
       data_11: { type: 'boolean', expression: { kind: 'casterControlled' } },
-      data_12: {
-        type: 'boolean',
-        expression: { kind: 'not', condition: { kind: 'conditionNode', nodeId: 'data_11' } },
-      },
-      data_13: { type: 'number', expression: { kind: 'blackboard', key: 'usp' } },
-      data_14: { type: 'boolean', expression: { kind: 'casterControlled' } },
+      data_12: { type: 'number', expression: { kind: 'blackboard', key: 'usp' } },
+      data_13: { type: 'boolean', expression: { kind: 'casterControlled' } },
     },
   },
   macros: {},
 } as const satisfies ActionGraphResourceDefinition;
 
 export const lastRiteChr_0026_lastrite_normal_skill: SkillDefinition = {
-  actionGraph: lastRiteChr_0026_lastrite_normal_skillActionGraph,
   key: 'chr_0026_lastrite_normal_skill',
   element: 'cryo',
   blackboard: {
@@ -1024,18 +1125,18 @@ export const lastRiteChr_0026_lastrite_normal_skill: SkillDefinition = {
   costFrame: 0,
   scheduledSequences: [
     { startFrame: 0, endFrame: 1, sequence: { $sequence: 'modifyActionValue_5' } },
-    { startFrame: 0, endFrame: 2, sequence: { $sequence: 'jumpTimeline_6' } },
-    { startFrame: 51, endFrame: 52, sequence: { $sequence: 'markCurrentSkillCanInterrupt_7' } },
-    { startFrame: 187, endFrame: 188, sequence: { $sequence: 'jumpTimeline_8' } },
-    { startFrame: 300, endFrame: 301, sequence: { $sequence: 'findCharacterTeamTargets_9' } },
-    { startFrame: 6, endFrame: 7, sequence: { $sequence: 'applyBuff_10' } },
-    { startFrame: 300, endFrame: 301, sequence: { $sequence: 'withActionBlackboardScope_12' } },
-    { startFrame: 300, endFrame: 301, sequence: { $sequence: 'finishBuffsById_16' } },
+    { startFrame: 0, endFrame: 2, sequence: { $sequence: 'jumpTimeline_8' } },
+    { startFrame: 51, endFrame: 52, sequence: { $sequence: 'markCurrentSkillCanInterrupt_9' } },
+    { startFrame: 187, endFrame: 188, sequence: { $sequence: 'jumpTimeline_10' } },
+    { startFrame: 300, endFrame: 301, sequence: { $sequence: 'findCharacterTeamTargets_11' } },
+    { startFrame: 6, endFrame: 7, sequence: { $sequence: 'applyBuff_12' } },
+    { startFrame: 300, endFrame: 301, sequence: { $sequence: 'launchProjectile_13' } },
+    { startFrame: 300, endFrame: 301, sequence: { $sequence: 'finishBuffsById_18' } },
   ],
   switchToBuffCast: {
     currentSkillTypes: ['basicAttack'],
     requiresCurrentSkillNotInterruptible: true,
-    condition: { kind: 'conditionNode', nodeId: 'data_14' },
+    condition: { kind: 'conditionNode', nodeId: 'data_13' },
     asSkillCast: true,
     sequence: { $sequence: 'applyBuff_1' },
   },
@@ -1043,6 +1144,7 @@ export const lastRiteChr_0026_lastrite_normal_skill: SkillDefinition = {
   skillType: 'battleSkill',
   levelSource: 'battleSkill',
   nativeSkillType: 'normalSkill',
+  actionGraph: lastRiteChr_0026_lastrite_normal_skillActionGraph,
 };
 
 export const lastRiteChr_0026_lastrite_ultimate_skillActionGraph = {
@@ -1070,7 +1172,18 @@ export const lastRiteChr_0026_lastrite_ultimate_skillActionGraph = {
         },
         next: null,
       },
-      startUltimateTimeDilation_3: {
+      findTargets_3: {
+        action: {
+          kind: 'findTargets',
+          parameters: {
+            owner: { kind: 'owner' },
+            query: { kind: 'mainTarget', owner: { kind: 'owner' } },
+            saveToContextKey: 'maintar',
+          },
+        },
+        next: 'findCharacterTeamTargets_2',
+      },
+      startUltimateTimeDilation_4: {
         action: {
           kind: 'startUltimateTimeDilation',
           parameters: {
@@ -1081,8 +1194,8 @@ export const lastRiteChr_0026_lastrite_ultimate_skillActionGraph = {
         },
         next: null,
       },
-      hideUi_4: { action: { kind: 'hideUi', parameters: { onlyBlockInput: false } }, next: null },
-      applyBuff_5: {
+      hideUi_5: { action: { kind: 'hideUi', parameters: { onlyBlockInput: false } }, next: null },
+      applyBuff_6: {
         action: {
           kind: 'applyBuff',
           parameters: {
@@ -1094,7 +1207,7 @@ export const lastRiteChr_0026_lastrite_ultimate_skillActionGraph = {
         },
         next: null,
       },
-      dealDamage_7: {
+      dealDamage_9: {
         action: {
           kind: 'dealDamage',
           parameters: {
@@ -1107,7 +1220,7 @@ export const lastRiteChr_0026_lastrite_ultimate_skillActionGraph = {
         },
         next: null,
       },
-      dealDamage_6: {
+      dealDamage_8: {
         action: {
           kind: 'dealDamage',
           parameters: {
@@ -1129,49 +1242,75 @@ export const lastRiteChr_0026_lastrite_ultimate_skillActionGraph = {
         },
         next: null,
       },
-      conditional_8: {
+      checkCondition_7: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_7' }, alwaysNext: true },
-          whenTrue: { $sequence: 'dealDamage_6' },
-          whenFalse: { $sequence: 'dealDamage_7' },
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_7' } },
         },
         next: null,
       },
-      repeatEachTick_9: {
+      checkCondition_10: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_8' } },
+        },
+        next: null,
+      },
+      ifElse_11: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_10' },
+          whenTrue: { $sequence: null },
+          whenFalse: { $sequence: null },
+        },
+        next: null,
+      },
+      ifElse_12: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_7' },
+          whenTrue: { $sequence: 'dealDamage_8' },
+          whenFalse: { $sequence: 'dealDamage_9' },
+        },
+        next: 'ifElse_11',
+      },
+      repeatEachTick_13: {
         action: {
           kind: 'repeatEachTick',
           parameters: {
             nativeChanneling: {
+              target: { kind: 'fixed', target: 'enemy' },
               executeEachFrame: true,
               triggerIntervalSeconds: 0.033,
               maxCountPerTarget: 1,
               targetTriggerIntervalSeconds: 0.033,
             },
           },
-          body: { $sequence: 'conditional_8' },
+          body: { $sequence: 'ifElse_12' },
         },
         next: null,
       },
-      dealDamage_15: {
+      dealDamage_23: {
         action: {
           kind: 'dealDamage',
           parameters: {
             damageType: 'cryo',
-            attackScale: { kind: 'valueNode', nodeId: 'data_8' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_9' },
             tags: ['ultimateSkill'],
             features: ['canBreakWeakness'],
-            stagger: { kind: 'valueNode', nodeId: 'data_9' },
+            stagger: { kind: 'valueNode', nodeId: 'data_10' },
           },
         },
         next: null,
       },
-      dealDamage_14: {
+      dealDamage_22: {
         action: {
           kind: 'dealDamage',
           parameters: {
             damageType: 'cryo',
-            attackScale: { kind: 'valueNode', nodeId: 'data_10' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_11' },
             tags: ['ultimateSkill'],
             features: ['canBreakWeakness'],
             instantAttributeModifiers: [
@@ -1179,40 +1318,42 @@ export const lastRiteChr_0026_lastrite_ultimate_skillActionGraph = {
                 targetSide: 'defender',
                 attribute: 'cryoVulnerabilityIncrease',
                 slot: 'baseFinalMultiplier',
-                value: { kind: 'valueNode', nodeId: 'data_11' },
+                value: { kind: 'valueNode', nodeId: 'data_12' },
                 attributeTiming: 'runtime',
               },
             ],
-            stagger: { kind: 'valueNode', nodeId: 'data_12' },
+            stagger: { kind: 'valueNode', nodeId: 'data_13' },
           },
         },
         next: null,
       },
-      conditional_16: {
+      ifElse_24: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_14' }, alwaysNext: true },
-          whenTrue: { $sequence: 'dealDamage_14' },
-          whenFalse: { $sequence: 'dealDamage_15' },
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_7' },
+          whenTrue: { $sequence: 'dealDamage_22' },
+          whenFalse: { $sequence: 'dealDamage_23' },
         },
         next: null,
       },
-      repeatEachTick_17: {
+      repeatEachTick_25: {
         action: {
           kind: 'repeatEachTick',
           parameters: {
             nativeChanneling: {
+              target: { kind: 'fixed', target: 'enemy' },
               executeEachFrame: true,
               triggerIntervalSeconds: 0.033,
               maxCountPerTarget: 1,
               targetTriggerIntervalSeconds: 0.033,
             },
           },
-          body: { $sequence: 'conditional_16' },
+          body: { $sequence: 'ifElse_24' },
         },
         next: null,
       },
-      startTimeDilation_18: {
+      startTimeDilation_26: {
         action: {
           kind: 'startTimeDilation',
           parameters: {
@@ -1228,7 +1369,7 @@ export const lastRiteChr_0026_lastrite_ultimate_skillActionGraph = {
         },
         next: null,
       },
-      startTimeDilation_19: {
+      startTimeDilation_27: {
         action: {
           kind: 'startTimeDilation',
           parameters: {
@@ -1260,21 +1401,12 @@ export const lastRiteChr_0026_lastrite_ultimate_skillActionGraph = {
           right: { kind: 'constant', value: 1 },
         },
       },
-      data_8: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale2' } },
-      data_9: { type: 'number', expression: { kind: 'blackboard', key: 'poise2' } },
-      data_10: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale2' } },
-      data_11: { type: 'number', expression: { kind: 'blackboard', key: 'rate' } },
-      data_12: { type: 'number', expression: { kind: 'blackboard', key: 'poise2' } },
-      data_13: { type: 'number', expression: { kind: 'blackboard', key: 'talent_2', fallback: 0 } },
-      data_14: {
-        type: 'boolean',
-        expression: {
-          kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_13' },
-          operator: 'equal',
-          right: { kind: 'constant', value: 1 },
-        },
-      },
+      data_8: { type: 'boolean', expression: { kind: 'enemyRankIn', ranks: ['mob'] } },
+      data_9: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale2' } },
+      data_10: { type: 'number', expression: { kind: 'blackboard', key: 'poise2' } },
+      data_11: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale2' } },
+      data_12: { type: 'number', expression: { kind: 'blackboard', key: 'rate' } },
+      data_13: { type: 'number', expression: { kind: 'blackboard', key: 'poise2' } },
     },
   },
   macros: {},
@@ -1315,15 +1447,15 @@ export const lastRiteChr_0026_lastrite_ultimate_skill: SkillDefinition = {
   costFrame: 0,
   scheduledSequences: [
     { startFrame: 0, endFrame: 3, sequence: { $sequence: 'startTimeDilation_1' } },
-    { startFrame: 0, endFrame: 1, sequence: { $sequence: 'findCharacterTeamTargets_2' } },
-    { startFrame: 0, endFrame: 85, sequence: { $sequence: 'startUltimateTimeDilation_3' } },
-    { startFrame: 0, endFrame: 85, sequence: { $sequence: 'hideUi_4' } },
-    { startFrame: 0, endFrame: 172, sequence: { $sequence: 'applyBuff_5' } },
-    { startFrame: 86, endFrame: 89, sequence: { $sequence: 'repeatEachTick_9' } },
-    { startFrame: 105, endFrame: 108, sequence: { $sequence: 'repeatEachTick_9' } },
-    { startFrame: 134, endFrame: 137, sequence: { $sequence: 'repeatEachTick_17' } },
-    { startFrame: 86, endFrame: 86, sequence: { $sequence: 'startTimeDilation_18' } },
-    { startFrame: 85, endFrame: 145, sequence: { $sequence: 'startTimeDilation_19' } },
+    { startFrame: 0, endFrame: 1, sequence: { $sequence: 'findTargets_3' } },
+    { startFrame: 0, endFrame: 85, sequence: { $sequence: 'startUltimateTimeDilation_4' } },
+    { startFrame: 0, endFrame: 85, sequence: { $sequence: 'hideUi_5' } },
+    { startFrame: 0, endFrame: 172, sequence: { $sequence: 'applyBuff_6' } },
+    { startFrame: 86, endFrame: 89, sequence: { $sequence: 'repeatEachTick_13' } },
+    { startFrame: 105, endFrame: 108, sequence: { $sequence: 'repeatEachTick_13' } },
+    { startFrame: 134, endFrame: 137, sequence: { $sequence: 'repeatEachTick_25' } },
+    { startFrame: 86, endFrame: 86, sequence: { $sequence: 'startTimeDilation_26' } },
+    { startFrame: 85, endFrame: 145, sequence: { $sequence: 'startTimeDilation_27' } },
   ],
   cooldownFrames: 600,
   costs: [{ resource: 'ultimateEnergy', value: 240 }],
@@ -1336,7 +1468,14 @@ export const lastRiteChr_0026_lastrite_ultimate_skill: SkillDefinition = {
 export const lastRiteChr_0026_lastrite_combo_skillActionGraph = {
   main: {
     nodes: {
-      modifyActionValue_1: {
+      checkCondition_1: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
+        },
+        next: null,
+      },
+      modifyActionValue_2: {
         action: {
           kind: 'modifyActionValue',
           parameters: {
@@ -1347,41 +1486,45 @@ export const lastRiteChr_0026_lastrite_combo_skillActionGraph = {
         },
         next: null,
       },
-      changeResource_2: {
+      changeResource_3: {
         action: {
           kind: 'changeResource',
           parameters: {
             resource: 'ultimateEnergy',
-            amount: { kind: 'valueNode', nodeId: 'data_1' },
-            coefficient: { kind: 'valueNode', nodeId: 'data_2' },
-            recipient: 'caster',
+            amount: { kind: 'valueNode', nodeId: 'data_2' },
+            coefficient: { kind: 'valueNode', nodeId: 'data_3' },
+            source: { kind: 'source' },
+            targets: { kind: 'source' },
             ultimateRecoveryTag: 'Skill/Character/chr_0026_lastrite',
           },
         },
-        next: 'modifyActionValue_1',
+        next: 'modifyActionValue_2',
       },
-      conditional_3: {
+      ifElse_4: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResource_2' },
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_1' },
+          whenTrue: { $sequence: 'changeResource_3' },
+          whenFalse: { $sequence: null },
         },
         next: null,
       },
-      changeResource_4: {
+      changeResource_5: {
         action: {
           kind: 'changeResource',
           parameters: {
             resource: 'ultimateEnergy',
             amount: { kind: 'valueNode', nodeId: 'data_4' },
             coefficient: { kind: 'constant', value: 1 },
-            recipient: 'caster',
+            source: { kind: 'source' },
+            targets: { kind: 'source' },
             ultimateRecoveryTag: 'Skill/Character/chr_0026_lastrite',
           },
         },
-        next: 'conditional_3',
+        next: 'ifElse_4',
       },
-      dealDamage_5: {
+      dealDamage_6: {
         action: {
           kind: 'dealDamage',
           parameters: {
@@ -1390,9 +1533,9 @@ export const lastRiteChr_0026_lastrite_combo_skillActionGraph = {
             tags: ['comboSkill'],
           },
         },
-        next: 'changeResource_4',
+        next: 'changeResource_5',
       },
-      readBuffStackCount_6: {
+      readBuffStackCount_7: {
         action: {
           kind: 'readBuffStackCount',
           parameters: {
@@ -1405,9 +1548,9 @@ export const lastRiteChr_0026_lastrite_combo_skillActionGraph = {
             },
           },
         },
-        next: 'dealDamage_5',
+        next: 'dealDamage_6',
       },
-      finishBuffsByTag_7: {
+      finishBuffsByTag_8: {
         action: {
           kind: 'finishBuffsByTag',
           parameters: {
@@ -1419,7 +1562,7 @@ export const lastRiteChr_0026_lastrite_combo_skillActionGraph = {
         },
         next: null,
       },
-      dealDamage_8: {
+      dealDamage_9: {
         action: {
           kind: 'dealDamage',
           parameters: {
@@ -1430,9 +1573,9 @@ export const lastRiteChr_0026_lastrite_combo_skillActionGraph = {
             stagger: { kind: 'valueNode', nodeId: 'data_7' },
           },
         },
-        next: 'finishBuffsByTag_7',
+        next: 'finishBuffsByTag_8',
       },
-      dealDamage_9: {
+      dealDamage_10: {
         action: {
           kind: 'dealDamage',
           parameters: {
@@ -1442,9 +1585,9 @@ export const lastRiteChr_0026_lastrite_combo_skillActionGraph = {
             features: ['canBreakWeakness'],
           },
         },
-        next: 'dealDamage_8',
+        next: 'dealDamage_9',
       },
-      modifyActionValue_10: {
+      modifyActionValue_11: {
         action: {
           kind: 'modifyActionValue',
           parameters: {
@@ -1453,9 +1596,9 @@ export const lastRiteChr_0026_lastrite_combo_skillActionGraph = {
             value: { kind: 'valueNode', nodeId: 'data_9' },
           },
         },
-        next: 'dealDamage_9',
+        next: 'dealDamage_10',
       },
-      calculateActionValue_11: {
+      calculateActionValue_12: {
         action: {
           kind: 'calculateActionValue',
           parameters: {
@@ -1465,9 +1608,9 @@ export const lastRiteChr_0026_lastrite_combo_skillActionGraph = {
             right: { kind: 'valueNode', nodeId: 'data_11' },
           },
         },
-        next: 'modifyActionValue_10',
+        next: 'modifyActionValue_11',
       },
-      readBuffStackCount_12: {
+      readBuffStackCount_13: {
         action: {
           kind: 'readBuffStackCount',
           parameters: {
@@ -1480,17 +1623,17 @@ export const lastRiteChr_0026_lastrite_combo_skillActionGraph = {
             },
           },
         },
-        next: 'calculateActionValue_11',
+        next: 'calculateActionValue_12',
       },
-      forEachContextTarget_13: {
+      forEachContextTarget_14: {
         action: {
           kind: 'forEachContextTarget',
-          parameters: { target: 'enemy' },
-          body: { $sequence: 'readBuffStackCount_12' },
+          parameters: { targets: { kind: 'fixed', target: 'enemy' } },
+          body: { $sequence: 'readBuffStackCount_13' },
         },
         next: null,
       },
-      applyBuff_14: {
+      applyBuff_15: {
         action: {
           kind: 'applyBuff',
           parameters: {
@@ -1501,50 +1644,79 @@ export const lastRiteChr_0026_lastrite_combo_skillActionGraph = {
         },
         next: null,
       },
-      changeResource_15: {
+      ifElse_16: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: null },
+          whenTrue: { $sequence: 'applyBuff_15' },
+          whenFalse: { $sequence: null },
+        },
+        next: null,
+      },
+      checkCondition_17: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_13' } },
+        },
+        next: null,
+      },
+      changeResource_18: {
         action: {
           kind: 'changeResource',
           parameters: {
             resource: 'ultimateEnergy',
-            amount: { kind: 'valueNode', nodeId: 'data_12' },
+            amount: { kind: 'valueNode', nodeId: 'data_14' },
             coefficient: { kind: 'constant', value: 4 },
-            recipient: 'caster',
+            source: { kind: 'source' },
+            targets: { kind: 'source' },
             ultimateRecoveryTag: 'Skill/Character/chr_0026_lastrite',
           },
         },
         next: null,
       },
-      changeResource_16: {
+      changeResource_19: {
         action: {
           kind: 'changeResource',
           parameters: {
             resource: 'ultimateEnergy',
-            amount: { kind: 'valueNode', nodeId: 'data_13' },
-            coefficient: { kind: 'valueNode', nodeId: 'data_14' },
-            recipient: 'caster',
+            amount: { kind: 'valueNode', nodeId: 'data_15' },
+            coefficient: { kind: 'valueNode', nodeId: 'data_16' },
+            source: { kind: 'source' },
+            targets: { kind: 'source' },
             ultimateRecoveryTag: 'Skill/Character/chr_0026_lastrite',
           },
         },
         next: null,
       },
-      conditional_17: {
+      checkCondition_20: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_16' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResource_15' },
-          whenFalse: { $sequence: 'changeResource_16' },
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_18' } },
         },
         next: null,
       },
-      conditional_18: {
+      ifElse_21: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_18' }, alwaysNext: true },
-          whenTrue: { $sequence: 'conditional_17' },
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_17' },
+          whenTrue: { $sequence: 'changeResource_18' },
+          whenFalse: { $sequence: 'changeResource_19' },
         },
         next: null,
       },
-      startTimeDilation_19: {
+      ifElse_22: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_20' },
+          whenTrue: { $sequence: 'ifElse_21' },
+          whenFalse: { $sequence: null },
+        },
+        next: null,
+      },
+      startTimeDilation_23: {
         action: {
           kind: 'startTimeDilation',
           parameters: {
@@ -1559,7 +1731,17 @@ export const lastRiteChr_0026_lastrite_combo_skillActionGraph = {
         },
         next: null,
       },
-      startTimeDilation_20: {
+      ifElse_24: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: null },
+          whenTrue: { $sequence: 'startTimeDilation_23' },
+          whenFalse: { $sequence: null },
+        },
+        next: null,
+      },
+      startTimeDilation_25: {
         action: {
           kind: 'startTimeDilation',
           parameters: {
@@ -1577,9 +1759,7 @@ export const lastRiteChr_0026_lastrite_combo_skillActionGraph = {
       },
     },
     dataNodes: {
-      data_1: { type: 'number', expression: { kind: 'blackboard', key: 'usp' } },
-      data_2: { type: 'number', expression: { kind: 'blackboard', key: 'infliction_num' } },
-      data_3: {
+      data_1: {
         type: 'boolean',
         expression: {
           kind: 'healthCompare',
@@ -1589,6 +1769,8 @@ export const lastRiteChr_0026_lastrite_combo_skillActionGraph = {
           value: { kind: 'constant', value: 0 },
         },
       },
+      data_2: { type: 'number', expression: { kind: 'blackboard', key: 'usp' } },
+      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'infliction_num' } },
       data_4: { type: 'number', expression: { kind: 'blackboard', key: 'usp_base' } },
       data_5: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
       data_6: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale2' } },
@@ -1597,22 +1779,22 @@ export const lastRiteChr_0026_lastrite_combo_skillActionGraph = {
       data_9: { type: 'number', expression: { kind: 'blackboard', key: 'infliction_num' } },
       data_10: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale3' } },
       data_11: { type: 'number', expression: { kind: 'blackboard', key: 'infliction_num' } },
-      data_12: { type: 'number', expression: { kind: 'blackboard', key: 'usp' } },
-      data_13: { type: 'number', expression: { kind: 'blackboard', key: 'usp' } },
-      data_14: { type: 'number', expression: { kind: 'blackboard', key: 'infliction_num_total' } },
-      data_15: {
+      data_12: {
         type: 'number',
         expression: { kind: 'blackboard', key: 'infliction_num_total', fallback: 0 },
       },
-      data_16: {
+      data_13: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_15' },
+          left: { kind: 'valueNode', nodeId: 'data_12' },
           operator: 'greaterOrEqual',
           right: { kind: 'constant', value: 4 },
         },
       },
+      data_14: { type: 'number', expression: { kind: 'blackboard', key: 'usp' } },
+      data_15: { type: 'number', expression: { kind: 'blackboard', key: 'usp' } },
+      data_16: { type: 'number', expression: { kind: 'blackboard', key: 'infliction_num_total' } },
       data_17: {
         type: 'number',
         expression: { kind: 'blackboard', key: 'recover_usp', fallback: 0 },
@@ -1632,7 +1814,6 @@ export const lastRiteChr_0026_lastrite_combo_skillActionGraph = {
 } as const satisfies ActionGraphResourceDefinition;
 
 export const lastRiteChr_0026_lastrite_combo_skill: SkillDefinition = {
-  actionGraph: lastRiteChr_0026_lastrite_combo_skillActionGraph,
   key: 'chr_0026_lastrite_combo_skill',
   element: 'cryo',
   blackboard: {
@@ -1659,18 +1840,19 @@ export const lastRiteChr_0026_lastrite_combo_skill: SkillDefinition = {
   },
   costFrame: 0,
   scheduledSequences: [
-    { startFrame: 13, endFrame: 13, sequence: { $sequence: 'readBuffStackCount_6' } },
-    { startFrame: 63, endFrame: 63, sequence: { $sequence: 'forEachContextTarget_13' } },
-    { startFrame: 2, endFrame: 3, sequence: { $sequence: 'applyBuff_14' } },
-    { startFrame: 63, endFrame: 63, sequence: { $sequence: 'conditional_18' } },
-    { startFrame: 64, endFrame: 64, sequence: { $sequence: 'startTimeDilation_19' } },
-    { startFrame: 0, endFrame: 15, sequence: { $sequence: 'startTimeDilation_20' } },
+    { startFrame: 13, endFrame: 13, sequence: { $sequence: 'readBuffStackCount_7' } },
+    { startFrame: 63, endFrame: 63, sequence: { $sequence: 'forEachContextTarget_14' } },
+    { startFrame: 2, endFrame: 3, sequence: { $sequence: 'ifElse_16' } },
+    { startFrame: 63, endFrame: 63, sequence: { $sequence: 'ifElse_22' } },
+    { startFrame: 64, endFrame: 64, sequence: { $sequence: 'ifElse_24' } },
+    { startFrame: 0, endFrame: 15, sequence: { $sequence: 'startTimeDilation_25' } },
   ],
   smartTarget: 'trigger',
   cooldownFrames: [270, 270, 270, 270, 270, 270, 270, 270, 270, 270, 270, 240],
   skillType: 'comboSkill',
   levelSource: 'comboSkill',
   nativeSkillType: 'comboSkill',
+  actionGraph: lastRiteChr_0026_lastrite_combo_skillActionGraph,
 };
 
 export const lastRiteCommon_character_perfect_dodgeActionGraph = {
@@ -1720,21 +1902,19 @@ const lastRitePassive1: OperatorPassiveSkillDefinition = {
 const lastRiteComboCondition1ActionGraph = {
   main: {
     nodes: {
-      conditional_1: {
+      checkCondition_1: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-          whenTrue: { $sequence: null },
         },
         next: null,
       },
-      conditional_2: {
+      checkCondition_2: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-          whenTrue: { $sequence: 'conditional_1' },
         },
-        next: null,
+        next: 'checkCondition_1',
       },
     },
     dataNodes: {
@@ -1764,7 +1944,7 @@ const lastRiteComboCondition1: ComboSkillConditionDefinition = {
   event: 'beforeTakeInfliction',
   immediately: false,
   initialValues: null,
-  sequence: { $sequence: 'conditional_2' },
+  sequence: { $sequence: 'checkCondition_2' },
   actionGraph: lastRiteComboCondition1ActionGraph,
 };
 
@@ -1829,29 +2009,26 @@ const lastRiteBuff1: SkillBuffDefinition = {
 const lastRiteBuff2ActionGraph = {
   main: {
     nodes: {
-      conditional_16: {
+      checkCondition_17: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-          whenTrue: { $sequence: null },
         },
         next: null,
       },
-      conditional_17: {
+      checkCondition_18: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
-          whenTrue: { $sequence: 'conditional_16' },
         },
-        next: null,
+        next: 'checkCondition_17',
       },
-      conditional_18: {
+      checkCondition_19: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_4' } },
-          whenTrue: { $sequence: 'conditional_17' },
         },
-        next: null,
+        next: 'checkCondition_18',
       },
       dealStagger_1: {
         action: {
@@ -1860,39 +2037,35 @@ const lastRiteBuff2ActionGraph = {
         },
         next: null,
       },
-      conditional_2: {
+      checkCondition_2: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_7' } },
-          whenTrue: { $sequence: 'dealStagger_1' },
         },
-        next: null,
+        next: 'dealStagger_1',
       },
-      conditional_3: {
+      checkCondition_3: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_8' } },
-          whenTrue: { $sequence: 'conditional_2' },
         },
-        next: null,
+        next: 'checkCondition_2',
       },
-      conditional_4: {
+      checkCondition_4: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_9' } },
-          whenTrue: { $sequence: 'conditional_3' },
         },
-        next: null,
+        next: 'checkCondition_3',
       },
-      conditional_5: {
+      checkCondition_5: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_10' } },
-          whenTrue: { $sequence: 'conditional_4' },
         },
-        next: null,
+        next: 'checkCondition_4',
       },
-      applyBuff_8: {
+      applyBuff_9: {
         action: {
           kind: 'applyBuff',
           parameters: {
@@ -1904,7 +2077,7 @@ const lastRiteBuff2ActionGraph = {
         },
         next: null,
       },
-      applyBuff_9: {
+      applyBuff_10: {
         action: {
           kind: 'applyBuff',
           parameters: {
@@ -1919,9 +2092,9 @@ const lastRiteBuff2ActionGraph = {
             inheritSourceSkillCastInfo: true,
           },
         },
-        next: 'applyBuff_8',
+        next: 'applyBuff_9',
       },
-      applyBuff_7: {
+      applyBuff_8: {
         action: {
           kind: 'applyBuff',
           parameters: {
@@ -1936,9 +2109,16 @@ const lastRiteBuff2ActionGraph = {
             inheritSourceSkillCastInfo: true,
           },
         },
-        next: 'applyBuff_8',
+        next: 'applyBuff_9',
       },
-      createTimedMarker_10: {
+      checkCondition_6: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_11' } },
+        },
+        next: null,
+      },
+      createTimedMarker_11: {
         action: {
           kind: 'createTimedMarker',
           parameters: {
@@ -1950,46 +2130,43 @@ const lastRiteBuff2ActionGraph = {
         },
         next: null,
       },
-      conditional_11: {
+      ifElse_12: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_11' }, alwaysNext: true },
-          whenTrue: { $sequence: 'applyBuff_7' },
-          whenFalse: { $sequence: 'applyBuff_9' },
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_6' },
+          whenTrue: { $sequence: 'applyBuff_8' },
+          whenFalse: { $sequence: 'applyBuff_10' },
         },
-        next: 'createTimedMarker_10',
+        next: 'createTimedMarker_11',
       },
-      conditional_12: {
+      checkCondition_13: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_12' } },
-          whenTrue: { $sequence: 'conditional_11' },
         },
-        next: null,
+        next: 'ifElse_12',
       },
-      conditional_13: {
+      checkCondition_14: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_13' } },
-          whenTrue: { $sequence: 'conditional_12' },
         },
-        next: null,
+        next: 'checkCondition_13',
       },
-      conditional_14: {
+      checkCondition_15: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_15' } },
-          whenTrue: { $sequence: 'conditional_13' },
         },
-        next: null,
+        next: 'checkCondition_14',
       },
-      conditional_15: {
+      checkCondition_16: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_16' } },
-          whenTrue: { $sequence: 'conditional_14' },
         },
-        next: null,
+        next: 'checkCondition_15',
       },
     },
     dataNodes: {
@@ -2126,7 +2303,7 @@ const lastRiteBuff2: SkillBuffDefinition = {
   damageModifiers: [
     {
       enabledSide: 'attacker',
-      condition: { $sequence: 'conditional_18' },
+      condition: { $sequence: 'checkCondition_19' },
       processors: [
         {
           kind: 'damageScale',
@@ -2138,8 +2315,8 @@ const lastRiteBuff2: SkillBuffDefinition = {
     },
   ],
   abilityEventResponses: [
-    { event: 'beforeOutputDamage', priority: 0, sequence: { $sequence: 'conditional_5' } },
-    { event: 'beforeOutputDamage', priority: 0, sequence: { $sequence: 'conditional_15' } },
+    { event: 'beforeOutputDamage', priority: 0, sequence: { $sequence: 'checkCondition_5' } },
+    { event: 'beforeOutputDamage', priority: 0, sequence: { $sequence: 'checkCondition_16' } },
   ],
   actionGraph: lastRiteBuff2ActionGraph,
 };
@@ -2200,7 +2377,8 @@ const lastRiteBuff3ActionGraph = {
             resource: 'ultimateEnergy',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
             coefficient: { kind: 'constant', value: 1 },
-            recipient: 'caster',
+            source: { kind: 'source' },
+            targets: { kind: 'source' },
             ultimateRecoveryTag: 'Skill/Character/chr_0026_lastrite',
           },
         },
@@ -2210,7 +2388,14 @@ const lastRiteBuff3ActionGraph = {
         action: { kind: 'gainSquadUltimateEnergyFromSkillCost', parameters: { coefficient: 1 } },
         next: 'changeResource_4',
       },
-      withActionBlackboardScope_6: {
+      checkCondition_6: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'constant', value: true } },
+        },
+        next: 'gainSquadUltimateEnergyFromSkillCost_5',
+      },
+      withActionBlackboardScope_7: {
         action: {
           kind: 'withActionBlackboardScope',
           parameters: {
@@ -2221,11 +2406,11 @@ const lastRiteBuff3ActionGraph = {
             initialValues: {},
             inheritParent: true,
           },
-          body: { $sequence: 'gainSquadUltimateEnergyFromSkillCost_5' },
+          body: { $sequence: 'checkCondition_6' },
         },
         next: null,
       },
-      withActionBlackboardScope_7: {
+      withActionBlackboardScope_8: {
         action: {
           kind: 'withActionBlackboardScope',
           parameters: {
@@ -2238,7 +2423,7 @@ const lastRiteBuff3ActionGraph = {
           },
           body: { $sequence: 'modifyActionValue_3' },
         },
-        next: 'withActionBlackboardScope_6',
+        next: 'withActionBlackboardScope_7',
       },
     },
     dataNodes: { data_1: { type: 'number', expression: { kind: 'blackboard', key: 'usp' } } },
@@ -2255,7 +2440,7 @@ const lastRiteBuff3: SkillBuffDefinition = {
   extendTags: [],
   blackboard: { atb: 0, atk_scale: 0, atk_up: 0, duration: 0, poise: 0, potential_1: 0, usp: 0 },
   attributeModifiers: [],
-  lifecycleSequences: { start: { $sequence: 'withActionBlackboardScope_7' } },
+  lifecycleSequences: { start: { $sequence: 'withActionBlackboardScope_8' } },
   actionGraph: lastRiteBuff3ActionGraph,
 };
 
@@ -2269,7 +2454,8 @@ const lastRiteBuff4ActionGraph = {
             resource: 'ultimateEnergy',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
             coefficient: { kind: 'constant', value: 1 },
-            recipient: 'caster',
+            source: { kind: 'source' },
+            targets: { kind: 'source' },
             ultimateRecoveryTag: 'Skill/Character/chr_0026_lastrite',
           },
         },
@@ -2279,7 +2465,14 @@ const lastRiteBuff4ActionGraph = {
         action: { kind: 'gainSquadUltimateEnergyFromSkillCost', parameters: { coefficient: 1 } },
         next: 'changeResource_1',
       },
-      applyBuff_3: {
+      checkCondition_3: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'constant', value: true } },
+        },
+        next: 'gainSquadUltimateEnergyFromSkillCost_2',
+      },
+      applyBuff_4: {
         action: {
           kind: 'applyBuff',
           parameters: {
@@ -2300,9 +2493,9 @@ const lastRiteBuff4ActionGraph = {
             inheritSourceSkillCastInfo: true,
           },
         },
-        next: 'gainSquadUltimateEnergyFromSkillCost_2',
+        next: 'checkCondition_3',
       },
-      finishBuffsById_4: {
+      finishBuffsById_5: {
         action: {
           kind: 'finishBuffsById',
           parameters: {
@@ -2311,7 +2504,7 @@ const lastRiteBuff4ActionGraph = {
             reason: 'other',
           },
         },
-        next: 'applyBuff_3',
+        next: 'applyBuff_4',
       },
     },
     dataNodes: { data_1: { type: 'number', expression: { kind: 'blackboard', key: 'usp' } } },
@@ -2329,7 +2522,7 @@ const lastRiteBuff4: SkillBuffDefinition = {
   blackboard: { atb: 0, atk_scale: 0, atk_up: 0, duration: 0, potential_1: 0, usp: 0 },
   attributeModifiers: [],
   scheduledSequences: [
-    { startFrame: 26, endFrame: 27, sequence: { $sequence: 'finishBuffsById_4' } },
+    { startFrame: 26, endFrame: 27, sequence: { $sequence: 'finishBuffsById_5' } },
   ],
   actionGraph: lastRiteBuff4ActionGraph,
 };
@@ -2494,7 +2687,8 @@ const lastRiteBuff7ActionGraph = {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
             coefficient: { kind: 'constant', value: 1 },
-            recipient: 'team',
+            source: { kind: 'source' },
+            targets: { kind: 'source' },
             spGainKind: 'refund',
             spGainSource: 'skill',
           },
@@ -2569,13 +2763,12 @@ const lastRiteBuff8ActionGraph = {
         },
         next: 'finishBuffsById_1',
       },
-      conditional_3: {
+      checkCondition_3: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-          whenTrue: { $sequence: 'finishBuffsById_2' },
         },
-        next: null,
+        next: 'finishBuffsById_2',
       },
     },
     dataNodes: {
@@ -2603,7 +2796,7 @@ const lastRiteBuff8: SkillBuffDefinition = {
   blackboard: {},
   attributeModifiers: [],
   abilityEventResponses: [
-    { event: 'addedBuff', priority: 0, sequence: { $sequence: 'conditional_3' } },
+    { event: 'addedBuff', priority: 0, sequence: { $sequence: 'checkCondition_3' } },
   ],
   actionGraph: lastRiteBuff8ActionGraph,
 };
@@ -2671,21 +2864,19 @@ const lastRiteBuff10ActionGraph = {
         },
         next: 'applyBuff_1',
       },
-      conditional_3: {
+      checkCondition_3: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
-          whenTrue: { $sequence: 'calculateActionValue_2' },
         },
-        next: null,
+        next: 'calculateActionValue_2',
       },
-      conditional_4: {
+      checkCondition_4: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_4' } },
-          whenTrue: { $sequence: 'conditional_3' },
         },
-        next: null,
+        next: 'checkCondition_3',
       },
     },
     dataNodes: {
@@ -2722,7 +2913,7 @@ const lastRiteBuff10: SkillBuffDefinition = {
   blackboard: { crystal_up: 0, crystal_vul: 0, duration: 0, infliction_num: 0 },
   attributeModifiers: [],
   abilityEventResponses: [
-    { event: 'buffConsumed', priority: 0, sequence: { $sequence: 'conditional_4' } },
+    { event: 'buffConsumed', priority: 0, sequence: { $sequence: 'checkCondition_4' } },
   ],
   actionGraph: lastRiteBuff10ActionGraph,
 };
@@ -2751,10 +2942,14 @@ const lastRiteBuff11ActionGraph = {
         },
         next: null,
       },
-      readCurrentBuffRemainingDuration_2: {
+      readBuffRemainingDuration_2: {
         action: {
-          kind: 'readCurrentBuffRemainingDuration',
-          parameters: { outputKey: 'real_duration' },
+          kind: 'readBuffRemainingDuration',
+          parameters: {
+            target: { kind: 'owner' },
+            query: { kind: 'environment' },
+            outputKey: 'real_duration',
+          },
         },
         next: 'applyBuff_1',
       },
@@ -2776,7 +2971,7 @@ const lastRiteBuff11: SkillBuffDefinition = {
   extendTags: [],
   blackboard: { crystal_vul: 0, duration: 0, real_duration: 0 },
   attributeModifiers: [],
-  lifecycleSequences: { enable: { $sequence: 'readCurrentBuffRemainingDuration_2' } },
+  lifecycleSequences: { enable: { $sequence: 'readBuffRemainingDuration_2' } },
   actionGraph: lastRiteBuff11ActionGraph,
 };
 
@@ -2786,6 +2981,7 @@ export const lastRite: OperatorDefinition = {
   rarity: 6,
   weaponType: 'claym',
   element: 'cryo',
+  characterTypeId: 'Cryst',
   role: 'striker',
   mainAttribute: 'strength',
   secondaryAttribute: 'will',

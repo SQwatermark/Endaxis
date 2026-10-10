@@ -573,12 +573,15 @@ export class AbilitySystemRuntime implements FrameRuntime {
   }
 
   /** 控制标签新增时的原生中断；移除标签不会恢复此前技能。 */
+  /** 按原生默认原因中断当前施法；结束回调可能已切换到另一技能，不能清除新实例。 */
+  interruptCurrentSkill(): void {
+    const current = this.#currentSkill;
+    if (current?.state === 'casting') current.interrupt('default');
+    if (this.#currentSkill === current && current?.state !== 'casting') this.#currentSkill = null;
+  }
+
   applyControlTagChange(interrupt: boolean, clearCombo: boolean): void {
-    if (interrupt) {
-      const current = this.#currentSkill;
-      if (current?.state === 'casting') current.interrupt('default');
-      if (this.#currentSkill === current && current?.state !== 'casting') this.#currentSkill = null;
-    }
+    if (interrupt) this.interruptCurrentSkill();
     if (clearCombo) this.#clearComboOffset(true);
   }
 
@@ -1087,8 +1090,7 @@ export class AbilitySystemRuntime implements FrameRuntime {
     interruptCurrentSkill = false,
     prepareStart?: () => CombatSkillCastInfo,
   ): boolean {
-    const current = this.#currentSkill?.state === 'casting' ? this.#currentSkill : null;
-    if (interruptCurrentSkill) current?.interrupt('default');
+    if (interruptCurrentSkill) this.interruptCurrentSkill();
     const skill = this.#skillsById.get(abilitySkillKey({ skillId }));
     if (skill === undefined || !skill.canStart() || skill.cooldown?.ready === false) return false;
     if (skill.prepareCastInput === undefined)

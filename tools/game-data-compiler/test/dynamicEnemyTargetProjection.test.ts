@@ -118,12 +118,16 @@ describe('动态敌人集合的投影', () => {
     ['applyBuff', 'another_group', true],
   ] as const)('%s 保留 %s 的零次或一次执行（实体事件=%s）', (kind, group, entityEvent) => {
     const projected = project(kind, group, entityEvent);
+    expect(projected.steps[0]).toMatchObject({
+      kind: 'findTargets',
+      parameters: { query: { kind: 'enemyByTags' }, saveToContextKey: group },
+    });
     const loopStep = projected.steps[1]!;
     if (loopStep.kind !== 'forEachContextTarget')
       throw new Error('expected a forEachContextTarget step');
     expect(loopStep).toMatchObject({
       kind: 'forEachContextTarget',
-      parameters: { contextKey: group },
+      parameters: { targets: { kind: 'context', key: group } },
     });
     expect(loopStep.parameters).not.toHaveProperty('target');
     // 生命周期闭包需要知道被创建 Buff 的宿主种类；外层循环继续负责零次或一次执行。
@@ -153,6 +157,8 @@ describe('动态敌人集合的投影', () => {
     const runtime = new CombatActionSequenceRuntime(executor, {
       blackboard: new ActionBlackboard(),
       targetContext: targets,
+      actionOwnerId: 'operator',
+      actionSourceId: 'operator',
     });
     const compiled = runtime.createSequence(projected.compiled());
 
@@ -207,11 +213,7 @@ describe('跨时间段的目标组读写', () => {
         [
           branch(
             count('Target'),
-            [
-              query({
-                $type: 'Example.Selector+AllEnemyFinder+Data, Example',
-              }),
-            ],
+            [query({ $type: 'Example.Selector+AllEnemyFinder+Data, Example' })],
             [
               query({
                 $type: 'Example.Selector+FixedPointFinder+Data, Example',
@@ -259,25 +261,35 @@ describe('跨时间段的目标组读写', () => {
       const targets = new RuntimeTargetContext();
       const applications: string[] = [];
       const runtime = new CombatActionSequenceRuntime(
-        new TargetContextOperationExecutor('operator', {
-          evaluate: condition => {
-            if (condition.kind === 'casterControlled') return controlled;
-            expect(condition).toEqual({
-              kind: 'contextTargetCountCompare',
-              contextKey: group,
-              operator: 'greaterOrEqual',
-              value: 1,
-            });
-            // 使用正式 Context 读取；缺少 writer 必须失败，不能将未创建的组默认为空。
-            return targets.get(group).length >= 1;
+        new TargetContextOperationExecutor(
+          'operator',
+          {
+            evaluate: condition => {
+              if (condition.kind === 'casterControlled') return controlled;
+              throw new Error(`unexpected ${condition.kind}`);
+            },
+            execute: step => {
+              if (step.kind !== 'applyBuff') throw new Error(`unexpected ${step.kind}`);
+              applications.push(step.parameters.target);
+              return true;
+            },
           },
-          execute: step => {
-            if (step.kind !== 'applyBuff') throw new Error(`unexpected ${step.kind}`);
-            applications.push(step.parameters.target);
-            return true;
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          {
+            entityLifeState: () => 'alive',
+            mainTarget: () => undefined,
+            ownerSpawned: () => [],
           },
-        }),
-        { blackboard: new ActionBlackboard(), targetContext: targets },
+        ),
+        {
+          blackboard: new ActionBlackboard(),
+          targetContext: targets,
+          actionInputTarget: { kind: 'enemy' },
+        },
       );
       for (const scheduled of projected.scheduledSequences) {
         runtime

@@ -121,7 +121,8 @@ describe('compile equipment contributions', () => {
       parameters: {
         resource: 'sp',
         amount: [2, 5],
-        recipient: 'team',
+        source: { kind: 'fixed' as const, target: 'caster' as const },
+        targets: { kind: 'fixed' as const, target: 'caster' as const },
       },
     } as const;
     const [result] = compileWeaponContributions(

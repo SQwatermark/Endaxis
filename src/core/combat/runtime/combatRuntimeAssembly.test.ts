@@ -173,7 +173,8 @@ it('被动写入EntityBB由同角色主动技能读取，而非留在被动局�
               kind: 'changeResource',
               parameters: {
                 resource: 'ultimateEnergy',
-                recipient: 'caster',
+                source: { kind: 'fixed' as const, target: 'caster' as const },
+                targets: { kind: 'fixed' as const, target: 'caster' as const },
                 amount: { kind: 'valueNode', nodeId: 'input_1' },
                 coefficient: { kind: 'constant', value: 1 },
               },
@@ -1233,6 +1234,7 @@ describe('CombatRuntimeAssembly', () => {
         action: {
           kind: 'launchProjectile',
           parameters: {
+            inheritActionBlackboard: true,
             source,
             finish: event === 'reach' ? 'firstTickReach' : event === 'hit' ? 10 : 0.01,
             recycleDelaySeconds: 10,
@@ -1381,7 +1383,11 @@ describe('CombatRuntimeAssembly', () => {
                 'step-0': {
                   action: {
                     kind: 'launchProjectile',
-                    parameters: { finish: 0.1, recycleDelaySeconds: 0 },
+                    parameters: {
+                      inheritActionBlackboard: true,
+                      finish: 0.1,
+                      recycleDelaySeconds: 0,
+                    },
                     callbacks: [
                       {
                         event: 'finish',
@@ -1488,7 +1494,11 @@ describe('CombatRuntimeAssembly', () => {
                   sequence: chainEntry('recycle-delay-launch', [
                     {
                       kind: 'launchProjectile',
-                      parameters: { finish: 'firstTickReach', recycleDelaySeconds },
+                      parameters: {
+                        inheritActionBlackboard: true,
+                        finish: 'firstTickReach',
+                        recycleDelaySeconds,
+                      },
                       callbacks: [],
                     },
                     { kind: 'finishTimeline', parameters: {} },
@@ -2271,6 +2281,7 @@ describe('CombatRuntimeAssembly', () => {
             {
               kind: 'spawnAbilityEntity',
               parameters: {
+                bornAt: { kind: 'owner' as const },
                 abilityEntityId: 'fixture_entity',
                 definition: {
                   lifetime: { kind: 'limited', durationSeconds: 5 },
@@ -2384,6 +2395,7 @@ describe('CombatRuntimeAssembly', () => {
               action: {
                 kind: 'spawnAbilityEntity',
                 parameters: {
+                  bornAt: { kind: 'owner' as const },
                   abilityEntityId: 'passive-host',
                   dieWhenSourceDies: false,
                   definition: {
@@ -2407,7 +2419,12 @@ describe('CombatRuntimeAssembly', () => {
                               'passive-added-buff-response': {
                                 action: {
                                   kind: 'changeResource',
-                                  parameters: { resource: 'sp', amount: 10, recipient: 'team' },
+                                  parameters: {
+                                    resource: 'sp',
+                                    amount: 10,
+                                    source: { kind: 'fixed' as const, target: 'caster' as const },
+                                    targets: { kind: 'fixed' as const, target: 'caster' as const },
+                                  },
                                 },
                                 next: null,
                               },
@@ -2472,6 +2489,7 @@ describe('CombatRuntimeAssembly', () => {
               action: {
                 kind: 'spawnAbilityEntity',
                 parameters: {
+                  bornAt: { kind: 'owner' as const },
                   abilityEntityId: 'fixture_entity',
                   dieWhenSourceDies: false,
                   definition: {
@@ -2503,7 +2521,12 @@ describe('CombatRuntimeAssembly', () => {
                             'child-resource': {
                               action: {
                                 kind: 'changeResource',
-                                parameters: { resource: 'sp', amount: 10, recipient: 'team' },
+                                parameters: {
+                                  resource: 'sp',
+                                  amount: 10,
+                                  source: { kind: 'fixed' as const, target: 'caster' as const },
+                                  targets: { kind: 'fixed' as const, target: 'caster' as const },
+                                },
                               },
                               next: null,
                             },
@@ -2570,6 +2593,7 @@ describe('CombatRuntimeAssembly', () => {
               action: {
                 kind: 'spawnAbilityEntity',
                 parameters: {
+                  bornAt: { kind: 'owner' as const },
                   abilityEntityId: 'projectile-child-host',
                   dieWhenSourceDies: false,
                   definition: {
@@ -2601,7 +2625,10 @@ describe('CombatRuntimeAssembly', () => {
                             'child-launch': {
                               action: {
                                 kind: 'launchProjectile',
-                                parameters: { finish: 'firstTickReach' },
+                                parameters: {
+                                  inheritActionBlackboard: true,
+                                  finish: 'firstTickReach',
+                                },
                                 callbacks: [],
                               },
                               next: null,
@@ -2677,6 +2704,7 @@ describe('CombatRuntimeAssembly', () => {
               action: {
                 kind: 'spawnAbilityEntity',
                 parameters: {
+                  bornAt: { kind: 'owner' as const },
                   abilityEntityId: 'buff-host',
                   dieWhenSourceDies: false,
                   definition: {
@@ -2758,7 +2786,7 @@ describe('CombatRuntimeAssembly', () => {
                   inheritSourceSkillCastInfo: true,
                 },
               },
-              { kind: 'finishCurrentAbilityEntity', parameters: {} },
+              { kind: 'finishOwner', parameters: { targets: { kind: 'owner' } } },
             ]),
           },
         },
@@ -3541,7 +3569,8 @@ describe('CombatRuntimeAssembly', () => {
                         parameters: {
                           resource: 'sp',
                           amount: { kind: 'valueNode', nodeId: 'input_1' },
-                          recipient: 'team',
+                          source: { kind: 'fixed' as const, target: 'caster' as const },
+                          targets: { kind: 'fixed' as const, target: 'caster' as const },
                         },
                       },
                     ],
@@ -3589,7 +3618,8 @@ describe('CombatRuntimeAssembly', () => {
         parameters: {
           resource: 'sp',
           amount: 1,
-          recipient: 'team',
+          source: { kind: 'fixed' as const, target: 'caster' as const },
+          targets: { kind: 'fixed' as const, target: 'caster' as const },
         },
       },
     ]);
@@ -3837,7 +3867,8 @@ describe('CombatRuntimeAssembly', () => {
                 parameters: {
                   resource: 'sp',
                   amount: 20,
-                  recipient: 'team',
+                  source: { kind: 'fixed' as const, target: 'caster' as const },
+                  targets: { kind: 'fixed' as const, target: 'caster' as const },
                 },
               },
             ]),
@@ -3910,7 +3941,8 @@ describe('CombatRuntimeAssembly', () => {
                   parameters: {
                     resource: 'sp',
                     amount: 7,
-                    recipient: 'team',
+                    source: { kind: 'fixed' as const, target: 'caster' as const },
+                    targets: { kind: 'fixed' as const, target: 'caster' as const },
                   },
                 },
                 next: null,
@@ -3960,7 +3992,8 @@ describe('CombatRuntimeAssembly', () => {
               parameters: {
                 resource: 'sp',
                 amount: 10,
-                recipient: 'team',
+                source: { kind: 'fixed' as const, target: 'caster' as const },
+                targets: { kind: 'fixed' as const, target: 'caster' as const },
                 spGainKind: 'gain',
                 spGainSource: 'skill',
               },
@@ -3997,7 +4030,8 @@ describe('CombatRuntimeAssembly', () => {
               parameters: {
                 resource: 'ultimateEnergy',
                 amount: 9,
-                recipient: 'caster',
+                source: { kind: 'fixed' as const, target: 'caster' as const },
+                targets: { kind: 'fixed' as const, target: 'caster' as const },
               },
             },
             next: null,
@@ -4056,14 +4090,24 @@ describe('CombatRuntimeAssembly', () => {
             'step-2': {
               action: {
                 kind: 'changeResource',
-                parameters: { resource: 'sp', amount: 1, recipient: 'team' },
+                parameters: {
+                  resource: 'sp',
+                  amount: 1,
+                  source: { kind: 'fixed' as const, target: 'caster' as const },
+                  targets: { kind: 'fixed' as const, target: 'caster' as const },
+                },
               },
               next: null,
             },
             'respond-airborne': {
               action: {
                 kind: 'changeResource',
-                parameters: { resource: 'sp', amount: 9, recipient: 'team' },
+                parameters: {
+                  resource: 'sp',
+                  amount: 9,
+                  source: { kind: 'fixed' as const, target: 'caster' as const },
+                  targets: { kind: 'fixed' as const, target: 'caster' as const },
+                },
               },
               next: null,
             },
@@ -4169,7 +4213,8 @@ describe('CombatRuntimeAssembly', () => {
                     parameters: {
                       resource: 'ultimateEnergy',
                       amount: 10,
-                      recipient: 'caster',
+                      source: { kind: 'fixed' as const, target: 'caster' as const },
+                      targets: { kind: 'fixed' as const, target: 'caster' as const },
                     },
                   },
                 ]),
@@ -4375,7 +4420,8 @@ describe('CombatRuntimeAssembly', () => {
                     parameters: {
                       resource: 'sp',
                       amount: 20,
-                      recipient: 'team',
+                      source: { kind: 'fixed' as const, target: 'caster' as const },
+                      targets: { kind: 'fixed' as const, target: 'caster' as const },
                     },
                   },
                 ]),
@@ -4527,7 +4573,7 @@ describe('CombatRuntimeAssembly', () => {
     const event = {
       event: 'skillSpGained' as const,
       payload: {
-        sourceOperatorId: 'operator',
+        sourceId: 'operator',
         source: 'skill' as const,
         gainKind: 'gain' as const,
         requestedAmount: 1,
@@ -4572,7 +4618,8 @@ describe('CombatRuntimeAssembly', () => {
               parameters: {
                 resource: 'sp',
                 amount: 20,
-                recipient: 'team',
+                source: { kind: 'fixed' as const, target: 'caster' as const },
+                targets: { kind: 'fixed' as const, target: 'caster' as const },
                 spGainKind: 'gain',
                 spGainSource: 'skill',
               },
@@ -4846,7 +4893,12 @@ describe('CombatRuntimeAssembly', () => {
               'grant-sp': {
                 action: {
                   kind: 'changeResource',
-                  parameters: { resource: 'sp', amount: 20, recipient: 'team' },
+                  parameters: {
+                    resource: 'sp',
+                    amount: 20,
+                    source: { kind: 'fixed' as const, target: 'caster' as const },
+                    targets: { kind: 'fixed' as const, target: 'caster' as const },
+                  },
                 },
                 next: null,
               },
@@ -4897,7 +4949,12 @@ describe('CombatRuntimeAssembly', () => {
               'rank-grant': {
                 action: {
                   kind: 'changeResource',
-                  parameters: { resource: 'sp', amount: 20, recipient: 'team' },
+                  parameters: {
+                    resource: 'sp',
+                    amount: 20,
+                    source: { kind: 'fixed' as const, target: 'caster' as const },
+                    targets: { kind: 'fixed' as const, target: 'caster' as const },
+                  },
                 },
                 next: null,
               },
@@ -4956,7 +5013,12 @@ describe('CombatRuntimeAssembly', () => {
               'status-grant': {
                 action: {
                   kind: 'changeResource',
-                  parameters: { resource: 'sp', amount: 1, recipient: 'team' },
+                  parameters: {
+                    resource: 'sp',
+                    amount: 1,
+                    source: { kind: 'fixed' as const, target: 'caster' as const },
+                    targets: { kind: 'fixed' as const, target: 'caster' as const },
+                  },
                 },
                 next: null,
               },
@@ -5040,7 +5102,12 @@ describe('CombatRuntimeAssembly', () => {
               'control-grant': {
                 action: {
                   kind: 'changeResource',
-                  parameters: { resource: 'sp', amount: 20, recipient: 'team' },
+                  parameters: {
+                    resource: 'sp',
+                    amount: 20,
+                    source: { kind: 'fixed' as const, target: 'caster' as const },
+                    targets: { kind: 'fixed' as const, target: 'caster' as const },
+                  },
                 },
                 next: null,
               },
@@ -5121,7 +5188,8 @@ describe('CombatRuntimeAssembly', () => {
               parameters: {
                 resource: 'sp',
                 amount: 20,
-                recipient: 'team',
+                source: { kind: 'fixed' as const, target: 'caster' as const },
+                targets: { kind: 'fixed' as const, target: 'caster' as const },
                 spGainKind: 'refund',
               },
             },

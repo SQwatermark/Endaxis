@@ -171,18 +171,8 @@ export const imageCatalog: readonly {
     category: 'contingency_contract',
   },
   {
-    ref: 'endaxis:contingency_contract/1/icon_activity_contract_tag_111',
-    path: '/contingency_contract/1/icon_activity_contract_tag_111.webp',
-    category: 'contingency_contract',
-  },
-  {
     ref: 'endaxis:contingency_contract/1/icon_activity_contract_tag_112_2',
     path: '/contingency_contract/1/icon_activity_contract_tag_112_2.webp',
-    category: 'contingency_contract',
-  },
-  {
-    ref: 'endaxis:contingency_contract/1/icon_activity_contract_tag_112',
-    path: '/contingency_contract/1/icon_activity_contract_tag_112.webp',
     category: 'contingency_contract',
   },
   {
@@ -2433,16 +2423,6 @@ export const imageCatalog: readonly {
   {
     ref: 'endaxis:icons/icon_battle_dapan_buff',
     path: '/icons/icon_battle_dapan_buff.webp',
-    category: 'icons',
-  },
-  {
-    ref: 'endaxis:icons/icon_battle_debuff_conduct',
-    path: '/icons/icon_battle_debuff_conduct.webp',
-    category: 'icons',
-  },
-  {
-    ref: 'endaxis:icons/icon_battle_debuff_corrupt',
-    path: '/icons/icon_battle_debuff_corrupt.webp',
     category: 'icons',
   },
   {

@@ -45,7 +45,7 @@ const definition = {
       blackboard: { duration: 30, max_stack: 2, spell_up: 0.1 },
       attributeModifiers: [],
       abilityEventResponses: [
-        { event: 'beforeCastSkill', priority: 0, sequence: { $sequence: 'conditional_2' } },
+        { event: 'beforeCastSkill', priority: 0, sequence: { $sequence: 'checkCondition_2' } },
       ],
       actionGraph: {
         main: {
@@ -72,13 +72,12 @@ const definition = {
               },
               next: null,
             },
-            conditional_2: {
+            checkCondition_2: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-                whenTrue: { $sequence: 'applyBuff_1' },
               },
-              next: null,
+              next: 'applyBuff_1',
             },
           },
           dataNodes: {

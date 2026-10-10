@@ -156,7 +156,7 @@ const definition = {
       blackboard: { dmg_up: 0, duration: 10, max_stack: 3 },
       attributeModifiers: [],
       abilityEventResponses: [
-        { event: 'beforeAddedBuff', priority: 0, sequence: { $sequence: 'conditional_4' } },
+        { event: 'beforeAddedBuff', priority: 0, sequence: { $sequence: 'checkCondition_4' } },
       ],
       actionGraph: {
         main: {
@@ -194,21 +194,19 @@ const definition = {
               },
               next: 'createTimedMarker_1',
             },
-            conditional_3: {
+            checkCondition_3: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-                whenTrue: { $sequence: 'applyBuff_2' },
               },
-              next: null,
+              next: 'applyBuff_2',
             },
-            conditional_4: {
+            checkCondition_4: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
-                whenTrue: { $sequence: 'conditional_3' },
               },
-              next: null,
+              next: 'checkCondition_3',
             },
           },
           dataNodes: {

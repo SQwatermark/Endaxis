@@ -1,4 +1,5 @@
 import type { CompiledCondition } from '../../compiler/compiledGraphData.ts';
+import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
 
 import type { ResolvedCombatStepForKind } from '../../compiler/combatProgram';
 /** 把普通治疗步骤写入干员生命账本；目标选择和面板来源由场景环境提供。 */
@@ -64,10 +65,10 @@ export class HealOperationExecutor implements CombatOperationExecutor {
     if (step.kind !== 'heal') return this.dependencies.delegate.execute(step, context);
     const target =
       step.parameters.target === 'currentTarget' || step.parameters.target === 'actionInputTarget'
-        ? this.#resolveCurrentTarget(
-            step.parameters.target === 'actionInputTarget' && context !== undefined
-              ? { ...context, currentTarget: context.actionInputTarget }
-              : context,
+        ? this.#resolveRuntimeTarget(
+            step.parameters.target === 'actionInputTarget'
+              ? context?.actionInputTarget
+              : context?.currentTarget,
           )
         : step.parameters.target === 'contextTarget'
           ? this.#resolveContextTarget(step, context)
@@ -205,12 +206,13 @@ export class HealOperationExecutor implements CombatOperationExecutor {
     return resolve(target.operatorId);
   }
 
-  #resolveCurrentTarget(context: CombatOperationContext | undefined): ResolvedHealTarget {
-    if (context?.currentTarget?.kind !== 'operator') {
-      throw new Error("heal target 'currentTarget' requires a current operator target");
+  #resolveRuntimeTarget(target: RuntimeTargetRef | undefined): ResolvedHealTarget | null {
+    if (target === undefined) return null;
+    if (target.kind !== 'operator') {
+      throw new Error('heal runtime target requires an operator');
     }
     const resolve = this.dependencies.resolveContextTarget;
     if (resolve === undefined) throw new Error('current heal target resolver is not configured');
-    return resolve(context.currentTarget.operatorId);
+    return resolve(target.operatorId);
   }
 }

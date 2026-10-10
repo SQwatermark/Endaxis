@@ -23,6 +23,185 @@ function operation(flag: string): ActionGraphStep {
   };
 }
 
+it('OR 条件组按序即时执行并短路；恢复后保留独立子序列状态', () => {
+  const seen: string[] = [];
+  const context = { blackboard: new ActionBlackboard() };
+  const runtime = new CombatActionSequenceRuntime(
+    {
+      execute: step => {
+        if (step.kind !== 'setContextFlag') throw new Error('unexpected operation');
+        seen.push(`execute:${step.parameters.flag}`);
+        return step.parameters.flag !== 'fail';
+      },
+      end: step => {
+        if (step.kind !== 'setContextFlag') throw new Error('unexpected operation');
+        seen.push(`end:${step.parameters.flag}`);
+      },
+      evaluate: () => true,
+    },
+    context,
+  );
+  const program = compileGraphEntry('native-or', 'or', {
+    or: {
+      action: {
+        kind: 'anyCondition',
+        parameters: {},
+        conditions: [{ $sequence: 'fail' }, { $sequence: 'pass' }, { $sequence: 'unused' }],
+      },
+      next: null,
+    },
+    fail: { action: operation('fail'), next: 'unreachable' },
+    unreachable: { action: operation('unreachable'), next: null },
+    pass: { action: operation('pass'), next: null },
+    unused: { action: operation('unused'), next: null },
+  });
+  const original = runtime.createSequence(program);
+  expect(original.executeInstant({})).toBe(true);
+  expect(seen).toEqual(['execute:fail', 'end:fail', 'execute:pass', 'end:pass']);
+  seen.length = 0;
+  const restored = runtime.createSequence(program, context, structuredClone(original.runtimeState));
+  expect(seen).toEqual([]);
+  expect(restored.executeInstant({})).toBe(true);
+  expect(seen).toEqual(['execute:fail', 'end:fail', 'execute:pass', 'end:pass']);
+  expect(
+    runtime
+      .createSequence(
+        chainEntry('empty-or', [{ kind: 'anyCondition', parameters: {}, conditions: [] }]),
+      )
+      .executeInstant({}),
+  ).toBe(false);
+});
+
+it.each([false, true])(
+  'IfElse 即时结束条件动作，分支寿命留到父序列结束，alwaysNext=%s',
+  alwaysNext => {
+    const seen: string[] = [];
+    const context = { blackboard: new ActionBlackboard() };
+    const runtime = new CombatActionSequenceRuntime(
+      {
+        execute: step => {
+          if (step.kind !== 'setContextFlag') throw new Error('unexpected operation');
+          seen.push(`execute:${step.parameters.flag}`);
+          return step.parameters.flag !== 'true';
+        },
+        end: step => {
+          if (step.kind !== 'setContextFlag') throw new Error('unexpected operation');
+          seen.push(`end:${step.parameters.flag}`);
+        },
+        evaluate: () => {
+          seen.push('check');
+          return true;
+        },
+      },
+      context,
+    );
+    const program = compileGraphEntry('native-if-else', 'branch', {
+      branch: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext },
+          condition: { $sequence: 'write' },
+          whenTrue: { $sequence: 'true' },
+          whenFalse: { $sequence: 'false' },
+        },
+        next: 'after',
+      },
+      write: { action: operation('condition'), next: 'check' },
+      check: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'constant', value: true } },
+        },
+        next: null,
+      },
+      true: { action: operation('true'), next: null },
+      false: { action: operation('false'), next: null },
+      after: { action: operation('after'), next: null },
+    });
+    const action = runtime.createSequence(program);
+    expect(action.tryExecute({})).toBe(alwaysNext);
+    expect(seen).toEqual([
+      'execute:condition',
+      'end:condition',
+      'check',
+      'execute:true',
+      ...(alwaysNext ? ['execute:after'] : []),
+    ]);
+    seen.length = 0;
+    const restored = runtime.createSequence(program, context, structuredClone(action.runtimeState));
+    restored.end({});
+    expect(seen).toEqual(['end:true', ...(alwaysNext ? ['end:after'] : [])]);
+  },
+);
+
+it.each([true, false])('NotNext 反转普通动作返回值 %s，且下次执行不残留反转状态', result => {
+  const seen: string[] = [];
+  const runtime = new CombatActionSequenceRuntime(
+    {
+      execute: step => {
+        if (step.kind !== 'setContextFlag') throw new Error('unexpected operation');
+        const flag = step.parameters.flag as string;
+        seen.push(flag);
+        return flag === 'first' ? result : true;
+      },
+      evaluate: () => false,
+    },
+    { blackboard: new ActionBlackboard() },
+  );
+  const sequence = runtime.createSequence(
+    chainEntry('native-not-next', [
+      { kind: 'invertNextResult', parameters: {} },
+      operation('first'),
+      operation('after'),
+    ]),
+  );
+  expect(sequence.executeInstant({})).toBe(!result);
+  expect(sequence.executeInstant({})).toBe(!result);
+  expect(seen).toEqual(result ? ['first', 'first'] : ['first', 'after', 'first', 'after']);
+});
+
+it('独立条件动作失败时短路，检查通过才执行后继', () => {
+  let permitted = false;
+  const execute = vi.fn(() => true);
+  const runtime = new CombatActionSequenceRuntime(
+    { execute, evaluate: () => permitted },
+    { blackboard: new ActionBlackboard() },
+  );
+  const sequence = runtime.createSequence(
+    chainEntry('native-check', [
+      { kind: 'checkCondition', parameters: { condition: { kind: 'constant', value: true } } },
+      operation('after'),
+    ]),
+  );
+  expect(sequence.executeInstant({})).toBe(false);
+  expect(execute).not.toHaveBeenCalled();
+  permitted = true;
+  expect(sequence.executeInstant({})).toBe(true);
+  expect(execute).toHaveBeenCalledTimes(1);
+});
+
+it('恢复条件动作的执行状态，不重新检查或重放后继', () => {
+  const evaluate = vi.fn(() => true);
+  const execute = vi.fn(() => true);
+  const context = { blackboard: new ActionBlackboard() };
+  const runtime = new CombatActionSequenceRuntime({ execute, evaluate }, context);
+  const program = chainEntry('saved-check', [
+    { kind: 'checkCondition', parameters: { condition: { kind: 'constant', value: true } } },
+    operation('after'),
+  ]);
+  const original = runtime.createSequence(program);
+  expect(original.tryExecute({})).toBe(true);
+  const restored = runtime.createSequence(program, context, structuredClone(original.runtimeState));
+  restored.tick(1, {});
+  restored.end({});
+  expect(evaluate).toHaveBeenCalledTimes(1);
+  expect(execute).toHaveBeenCalledTimes(1);
+  restored.reset({});
+  expect(restored.tryExecute({})).toBe(true);
+  expect(evaluate).toHaveBeenCalledTimes(2);
+  expect(execute).toHaveBeenCalledTimes(2);
+});
+
 const compileGraphEntry = (
   revision: string,
   entry: string | null,
@@ -52,6 +231,7 @@ const chainEntry = (
 function createFixture(conditionResult = true) {
   const executed: string[] = [];
   const operations: CombatOperationExecutor = {
+    frame: () => 0,
     execute: vi.fn(step => {
       executed.push(step.parameters.flag as string);
       return true;
@@ -59,12 +239,76 @@ function createFixture(conditionResult = true) {
     evaluate: vi.fn(() => conditionResult),
   };
   const runtime = new CombatActionSequenceRuntime(operations, {
+    actionOwnerId: 'caster',
     blackboard: new ActionBlackboard(),
   });
   return { executed, operations, runtime };
 }
 
 describe('CombatActionSequenceRuntime', () => {
+  it('Channeling 每轮查询目标，按身份限次，切面恢复不重放且 Reset 不清空记录', () => {
+    let frame = 10;
+    const seen: unknown[] = [];
+    const targets = new RuntimeTargetContext();
+    targets.set('targets', [{ kind: 'operator', operatorId: 'a' }]);
+    const context = { blackboard: new ActionBlackboard(), targetContext: targets };
+    const runtime = new CombatActionSequenceRuntime(
+      {
+        frame: () => frame,
+        execute: (_step, context) => {
+          seen.push(context?.actionInputTarget);
+          return false;
+        },
+        evaluate: () => true,
+      },
+      context,
+    );
+    const program = compileGraphEntry('channeling-targets', 'channel', {
+      channel: {
+        action: {
+          kind: 'repeatEachTick',
+          parameters: {
+            nativeChanneling: {
+              target: { kind: 'context', key: 'targets' },
+              executeEachFrame: true,
+              triggerIntervalSeconds: 0.1,
+              maxCountPerTarget: 1,
+              targetTriggerIntervalSeconds: -1,
+            },
+          },
+          body: { $sequence: 'body' },
+        },
+        next: null,
+      },
+      body: { action: operation('hit'), next: null },
+    });
+    const action = runtime.createSequence(program);
+    action.execute({});
+    targets.set('targets', [
+      { kind: 'operator', operatorId: 'a' },
+      { kind: 'operator', operatorId: 'b' },
+    ]);
+    action.tick(0, {});
+    expect(seen).toEqual([{ kind: 'operator', operatorId: 'a' }]);
+    // 同帧仍检查周期；不能无条件跳过。
+    action.tick(0.1, {});
+    expect(seen).toHaveLength(2);
+    const saved = structuredClone(action.runtimeState);
+    const restored = runtime.createSequence(program, context, saved);
+    expect(seen).toHaveLength(2);
+    frame++;
+    restored.tick(0, {});
+    expect(seen).toHaveLength(2);
+    const state = saved.nodes.get('channel')!.data;
+    if (state.kind !== 'channeling') throw new Error('expected channeling');
+    restored.reset({});
+    expect(state.channeling.targets.size).toBe(2);
+    restored.execute({});
+    expect(seen).toHaveLength(4);
+    restored.end({});
+    expect(state.channeling.targets.size).toBe(0);
+  });
+
   it('ExecuteInterval 保留子动作到下一周期，切面恢复后仍能结束原登记', () => {
     const bind = () => {
       const finish = vi.fn();
@@ -457,7 +701,7 @@ describe('CombatActionSequenceRuntime', () => {
       once: {
         action: {
           kind: 'once',
-          parameters: { scopeKey: 'once' },
+          parameters: {},
           body: { $sequence: 'apply' },
         },
         next: null,
@@ -467,8 +711,10 @@ describe('CombatActionSequenceRuntime', () => {
         next: null,
       },
     });
-    original.runtime.createSequence(definition).executeInstant({});
+    const originalSequence = original.runtime.createSequence(definition);
+    originalSequence.executeInstant({});
     const saved = structuredClone({
+      execution: originalSequence.runtimeState,
       parent: parent.runtimeState,
       scopes: original.runtime.scopeState,
     });
@@ -488,14 +734,18 @@ describe('CombatActionSequenceRuntime', () => {
       saved.scopes.blackboards.get(saved.parent)!.get('shared'),
     );
     expect(restoredBoard.getNumber('value')).toBe(9);
-    restored.createSequence(definition).executeInstant({});
+    const restoredSequence = restored.createSequence(definition, undefined, saved.execution);
+    restoredSequence.executeInstant({});
     expect(execute).not.toHaveBeenCalled();
     restoredBoard.assignDynamic('value', 12);
     expect(board.getNumber('value')).toBe(9);
-    restored.reset();
-    restored.createSequence(definition).executeInstant({});
+    restoredSequence.reset({});
+    restoredSequence.executeInstant({});
     expect(execute).toHaveBeenCalledTimes(1);
-    expect(original.runtime.scopeState.executedOnce.has('once')).toBe(true);
+    expect(originalSequence.runtimeState.nodes.get('once')!.data).toMatchObject({
+      kind: 'graphOnce',
+      executed: true,
+    });
   });
 
   it('无状态投射物步骤可绑定，序列长度仍必须匹配', () => {
@@ -504,6 +754,7 @@ describe('CombatActionSequenceRuntime', () => {
       {
         kind: 'launchProjectile',
         parameters: {
+          inheritActionBlackboard: true,
           finish: { reachAfterTicks: 2, maxDurationSeconds: 2 },
           recycleDelaySeconds: 0,
         },
@@ -581,12 +832,12 @@ describe('CombatActionSequenceRuntime', () => {
     expect(original.finish).toHaveBeenCalledOnce();
   });
 
-  it('恢复目标循环中的作用域和计时器，不重选目标或重新初始化黑板', () => {
+  it('目标循环中的计时器随即时执行结束，恢复后不重新查询或继续 Tick', () => {
     const definition = compileGraphEntry('restored-target-loop', 'loop', {
       loop: {
         action: {
           kind: 'forEachContextTarget',
-          parameters: { contextKey: 'targets' },
+          parameters: { targets: { kind: 'context', key: 'targets' } },
           body: { $sequence: 'scope' },
         },
         next: null,
@@ -650,16 +901,13 @@ describe('CombatActionSequenceRuntime', () => {
     const resumed = restored.runtime.createSequence(definition, undefined, structuredClone(saved));
     expect(restored.seen).toEqual([]);
     resumed.tick(1 / 30, {});
-    expect(restored.seen).toEqual([
-      [{ kind: 'abilityEntity', instanceId: 3 }, 2],
-      [{ kind: 'abilityEntity', instanceId: 7 }, 2],
-    ]);
+    expect(restored.seen).toEqual([]);
     action.tick(1 / 30, {});
     expect(resumed.runtimeState).toEqual(action.runtimeState);
     resumed.end({});
     const loop = saved.nodes.get('loop');
     if (loop?.data.kind !== 'graphTargets') throw new Error('expected target loop');
-    expect(loop.data.loop.bodies.size).toBe(2);
+    expect(loop.data.body).not.toBeNull();
   });
 
   it('重新绑定分支循环后只继续 Tick，不重放 Execute 或重新求值分支', () => {
@@ -774,6 +1022,7 @@ describe('CombatActionSequenceRuntime', () => {
     const seen: string[] = [];
     const runtime = new CombatActionSequenceRuntime(
       {
+        frame: () => 0,
         execute: () => {
           seen.push('apply');
           return true;
@@ -783,7 +1032,7 @@ describe('CombatActionSequenceRuntime', () => {
         },
         evaluate: () => true,
       },
-      { blackboard: new ActionBlackboard() },
+      { blackboard: new ActionBlackboard(), actionOwnerId: 'caster' },
     );
     const timeline = runtime.createTimeline([
       {
@@ -795,6 +1044,7 @@ describe('CombatActionSequenceRuntime', () => {
               kind: 'repeatEachTick',
               parameters: {
                 nativeChanneling: {
+                  target: { kind: 'owner' },
                   executeEachFrame: true,
                   triggerIntervalSeconds: 0.033,
                   maxCountPerTarget: 1,
@@ -1216,7 +1466,7 @@ describe('CombatActionSequenceRuntime', () => {
         loop: {
           action: {
             kind: 'forEachContextTarget',
-            parameters: { contextKey: 'items' },
+            parameters: { targets: { kind: 'context', key: 'items' } },
             body: { $sequence: 'launch' },
           },
           next: null,
@@ -1224,7 +1474,7 @@ describe('CombatActionSequenceRuntime', () => {
         launch: {
           action: {
             kind: 'launchProjectile',
-            parameters: { finish, recycleDelaySeconds: 1.5, source },
+            parameters: { inheritActionBlackboard: true, finish, recycleDelaySeconds: 1.5, source },
             callbacks: [],
           },
           next: null,
@@ -1271,7 +1521,7 @@ describe('CombatActionSequenceRuntime', () => {
               loop: {
                 action: {
                   kind: 'forEachContextTarget',
-                  parameters: { target: 'enemy' },
+                  parameters: { targets: { kind: 'fixed', target: 'enemy' } },
                   body: { $sequence: 'guard' },
                 },
                 next: 'outside',
@@ -1342,7 +1592,7 @@ describe('CombatActionSequenceRuntime', () => {
               loop: {
                 action: {
                   kind: 'forEachContextTarget',
-                  parameters: { contextKey: 'items' },
+                  parameters: { targets: { kind: 'context', key: 'items' } },
                   body: { $sequence: 'guard' },
                 },
                 next: 'after',
@@ -1392,7 +1642,7 @@ describe('CombatActionSequenceRuntime', () => {
       loop: {
         action: {
           kind: 'forEachContextTarget',
-          parameters: { contextKey: 'items' },
+          parameters: { targets: { kind: 'context', key: 'items' } },
           body: { $sequence: 'bad' },
         },
         next: null,
@@ -1407,7 +1657,7 @@ describe('CombatActionSequenceRuntime', () => {
     expect(() => runtime.createSequence(definition).executeInstant({})).toThrow('invalid data');
   });
 
-  it('keeps per-target body operations alive until the enclosing action ends', () => {
+  it('每个目标的循环体即时结束，外层 End 不重复清理', () => {
     const end = vi.fn();
     const runtime = new CombatActionSequenceRuntime(
       {
@@ -1422,7 +1672,7 @@ describe('CombatActionSequenceRuntime', () => {
         loop: {
           action: {
             kind: 'forEachContextTarget',
-            parameters: { target: 'enemy' },
+            parameters: { targets: { kind: 'fixed', target: 'enemy' } },
             body: { $sequence: 'scoped' },
           },
           next: null,
@@ -1436,7 +1686,7 @@ describe('CombatActionSequenceRuntime', () => {
 
     action.execute({});
     action.tick(1 / 30, {});
-    expect(end).not.toHaveBeenCalled();
+    expect(end).toHaveBeenCalledTimes(1);
 
     action.end({});
     expect(end).toHaveBeenCalledTimes(1);
@@ -1535,7 +1785,7 @@ describe('CombatActionSequenceRuntime', () => {
           loop: {
             action: {
               kind: 'forEachContextTarget',
-              parameters: { contextKey: 'lances' },
+              parameters: { targets: { kind: 'context', key: 'lances' } },
               body: { $sequence: 'launch' },
             },
             next: null,
@@ -2165,13 +2415,13 @@ describe('CombatActionSequenceRuntime', () => {
     expect(fixture.executed).toEqual(['after']);
   });
 
-  it('在当前状态所有者内去重 once，并允许显式重置', () => {
+  it('同一 once 实例跨瞬时执行保留标记，正常重置后允许再次执行', () => {
     const fixture = createFixture();
     const action = compileGraphEntry('once-dedup', 'once', {
       once: {
         action: {
           kind: 'once',
-          parameters: { scopeKey: 'shared-effect' },
+          parameters: {},
           body: { $sequence: 'apply' },
         },
         next: null,
@@ -2182,12 +2432,13 @@ describe('CombatActionSequenceRuntime', () => {
       },
     });
 
-    fixture.runtime.createSequence(action).executeInstant({});
-    fixture.runtime.createSequence(action).executeInstant({});
+    const sequence = fixture.runtime.createSequence(action);
+    sequence.executeInstant({});
+    sequence.executeInstant({});
     expect(fixture.executed).toEqual(['once']);
 
-    fixture.runtime.reset();
-    fixture.runtime.createSequence(action).executeInstant({});
+    sequence.reset({});
+    sequence.executeInstant({});
     expect(fixture.executed).toEqual(['once', 'once']);
   });
 
@@ -2218,6 +2469,35 @@ describe('CombatActionSequenceRuntime', () => {
     expect(fixture.executed).toEqual(['frame', 'frame', 'frame']);
   });
 
+  it('周期子序列复用 once 实例，正常重置后重新执行', () => {
+    const fixture = createFixture();
+    const action = fixture.runtime.createSequence(
+      compileGraphEntry('periodic-once', 'loop', {
+        loop: {
+          action: {
+            kind: 'repeatEachTick',
+            parameters: { nativeTickInterval: { executeEachFrame: true, intervalSeconds: 0.1 } },
+            body: { $sequence: 'once' },
+          },
+          next: null,
+        },
+        once: {
+          action: { kind: 'once', parameters: {}, body: { $sequence: 'apply' } },
+          next: null,
+        },
+        apply: { action: operation('apply'), next: null },
+      }),
+    );
+    action.execute({});
+    action.tick(1 / 30, {});
+    action.tick(1 / 30, {});
+    expect(fixture.executed).toEqual(['apply']);
+    action.end({});
+    action.reset({});
+    action.execute({});
+    expect(fixture.executed).toEqual(['apply', 'apply']);
+  });
+
   it('按原生单精度扫描门槛驱动固定单目标 Channeling', () => {
     const fixture = createFixture();
     const action = fixture.runtime.createSequence(
@@ -2227,6 +2507,7 @@ describe('CombatActionSequenceRuntime', () => {
             kind: 'repeatEachTick',
             parameters: {
               nativeChanneling: {
+                target: { kind: 'owner' },
                 executeEachFrame: false,
                 triggerIntervalSeconds: 0.06,
                 maxCountPerTarget: 3,
@@ -2267,6 +2548,7 @@ describe('CombatActionSequenceRuntime', () => {
               kind: 'repeatEachTick',
               parameters: {
                 nativeChanneling: {
+                  target: { kind: 'owner' },
                   executeEachFrame: false,
                   triggerIntervalSeconds: 0.1,
                   maxCountPerTarget: -1,
@@ -2404,7 +2686,7 @@ describe('CombatActionSequenceRuntime', () => {
           loop: {
             action: {
               kind: 'forEachContextTarget',
-              parameters: { contextKey: 'lances' },
+              parameters: { targets: { kind: 'context', key: 'lances' } },
               body: { $sequence: 'visit' },
             },
             next: null,
@@ -2429,7 +2711,11 @@ describe('CombatActionSequenceRuntime', () => {
     });
     const action = runtime.createSequence(
       chainEntry('unconditional-jump', [
-        { kind: 'jumpTimeline', parameters: { destinationFrame: 150 } },
+        {
+          kind: 'jumpTimeline',
+          parameters: { destinationFrame: 150 },
+          condition: { $sequence: null },
+        },
       ]),
     );
 
@@ -2475,18 +2761,24 @@ describe('CombatActionSequenceRuntime', () => {
       requestTimelineJump,
     });
     const condition = { kind: 'conditionNode', nodeId: 'active' } as const;
-    const action = runtime.createSequence(
-      chainEntry(
-        'conditional-jump',
-        [
-          {
+    const program = compileGraphEntry(
+      'conditional-jump',
+      'jump',
+      {
+        jump: {
+          action: {
             kind: 'jumpTimeline',
-            parameters: { destinationFrame: 89, condition },
+            parameters: { destinationFrame: 89 },
+            condition: { $sequence: 'write' },
           },
-        ],
-        { active: { type: 'boolean', expression: { kind: 'combatActive' } } },
-      ),
+          next: null,
+        },
+        write: { action: operation('condition-write'), next: 'check' },
+        check: { action: { kind: 'checkCondition', parameters: { condition } }, next: null },
+      },
+      { active: { type: 'boolean', expression: { kind: 'combatActive' } } },
     );
+    const action = runtime.createSequence(program);
 
     action.execute({});
     action.tick(0, {});
@@ -2496,7 +2788,120 @@ describe('CombatActionSequenceRuntime', () => {
     action.tick(1 / 30, {});
 
     expect(operations.evaluate).toHaveBeenCalledTimes(2);
+    expect(operations.execute).toHaveBeenCalledTimes(2);
+    const restored = runtime.createSequence(
+      program,
+      undefined,
+      structuredClone(action.runtimeState),
+    );
+    restored.tick(1 / 30, {});
+    restored.end({});
+    expect(operations.evaluate).toHaveBeenCalledTimes(2);
     expect(requestTimelineJump).toHaveBeenCalledTimes(1);
     expect(requestTimelineJump).toHaveBeenCalledWith(89);
   });
+});
+
+it('循环查询一次并捕获列表，子序列失败不阻止后继', () => {
+  const team = ['first', 'second'];
+  const calls: string[] = [];
+  const board = new ActionBlackboard();
+  const query = vi.fn((excludedOwnerId?: string) => {
+    expect(excludedOwnerId).toBe('owner');
+    return team.map(operatorId => ({ kind: 'operator' as const, operatorId }));
+  });
+  const runtime = new CombatActionSequenceRuntime(
+    {
+      queryTargets: (selection, context) => {
+        expect(selection).toEqual({ kind: 'characterTeam', excludeOwner: true });
+        return query(context.actionOwnerId);
+      },
+      evaluate: () => true,
+      execute: (step, context) => {
+        if (step.kind !== 'setContextFlag') throw new Error('unexpected operation');
+        const target = context?.currentTarget;
+        const id = target?.kind === 'operator' ? target.operatorId : 'outside';
+        calls.push(`execute:${step.parameters.flag}:${id}`);
+        expect(context?.blackboard).toBe(board);
+        if (id !== 'outside') expect(context?.actionInputTarget).toEqual(target);
+        team.pop();
+        return id !== 'first';
+      },
+      end: (step, context) => {
+        if (step.kind !== 'setContextFlag') return;
+        const target = context?.currentTarget;
+        calls.push(
+          `end:${step.parameters.flag}:${target?.kind === 'operator' ? target.operatorId : 'outside'}`,
+        );
+      },
+    },
+    { blackboard: board, actionOwnerId: 'owner' },
+  );
+  const action = runtime.createSequence(
+    compileGraphEntry('party-loop', 'loop', {
+      loop: {
+        action: {
+          kind: 'forEachContextTarget',
+          parameters: { targets: { kind: 'characterTeam', excludeOwner: true } },
+          body: { $sequence: 'body' },
+        },
+        next: 'outside',
+      },
+      body: { action: operation('body'), next: null },
+      outside: { action: operation('after'), next: null },
+    }),
+  );
+  action.execute({});
+  expect(query).toHaveBeenCalledTimes(1);
+  expect(calls).toEqual([
+    'execute:body:first',
+    'end:body:first',
+    'execute:body:second',
+    'end:body:second',
+    'execute:after:outside',
+  ]);
+  action.end({});
+  expect(calls.at(-1)).toBe('end:after:outside');
+  expect(calls).toHaveLength(6);
+});
+
+it('末尾 NotNext 跨同一环境入口保留；切面恢复保留待消费策略且不同宿主互不影响', () => {
+  const program = createActionGraphCompilation(
+    {
+      nodes: {
+        invert: { action: { kind: 'invertNextResult', parameters: {} }, next: null },
+        pass: {
+          action: {
+            kind: 'checkCondition',
+            parameters: { condition: { kind: 'constant', value: true } },
+          },
+          next: null,
+        },
+      },
+    },
+    1,
+  );
+  const operations = { execute: () => true, evaluate: () => true };
+  const context = { blackboard: new ActionBlackboard() };
+  const runtime = new CombatActionSequenceRuntime(operations, context);
+  const invert = runtime.createSequence(program.compileEntry({ $sequence: 'invert' }, 'invert'));
+  expect(invert.executeInstant({})).toBe(true);
+  invert.reset({});
+  const saved = structuredClone(runtime.scopeState);
+  const probe = program.compileEntry({ $sequence: 'pass' }, 'probe');
+  expect(
+    new CombatActionSequenceRuntime(operations, context).createSequence(probe).executeInstant({}),
+  ).toBe(true);
+  const restored = new CombatActionSequenceRuntime(
+    operations,
+    context,
+    {},
+    undefined,
+    undefined,
+    saved,
+  );
+  const resumed = restored.createSequence(probe);
+  expect(resumed.executeInstant({})).toBe(false);
+  expect(resumed.executeInstant({})).toBe(true);
+  expect(runtime.createSequence(probe).executeInstant({})).toBe(false);
 });

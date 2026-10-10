@@ -381,7 +381,12 @@ it('正式装配从活动技能切面恢复后继续得到相同逐帧结果', (
             'entity-child-sp': {
               action: {
                 kind: 'changeResource' as const,
-                parameters: { resource: 'sp' as const, amount: 3, recipient: 'team' as const },
+                parameters: {
+                  resource: 'sp' as const,
+                  amount: 3,
+                  source: { kind: 'fixed' as const, target: 'caster' as const },
+                  targets: { kind: 'fixed' as const, target: 'caster' as const },
+                },
               },
               next: null,
             },
@@ -410,7 +415,12 @@ it('正式装配从活动技能切面恢复后继续得到相同逐帧结果', (
           sequence: chainEntry('entity-child-sp', [
             {
               kind: 'changeResource' as const,
-              parameters: { resource: 'sp' as const, amount: 3, recipient: 'team' as const },
+              parameters: {
+                resource: 'sp' as const,
+                amount: 3,
+                source: { kind: 'fixed' as const, target: 'caster' as const },
+                targets: { kind: 'fixed' as const, target: 'caster' as const },
+              },
             },
           ]),
         },
@@ -432,7 +442,7 @@ it('正式装配从活动技能切面恢复后继续得到相同逐帧结果', (
     'schedule-callback': {
       action: {
         kind: 'launchProjectile' as const,
-        parameters: { finish: 0.05, recycleDelaySeconds: 0.05 },
+        parameters: { inheritActionBlackboard: true, finish: 0.05, recycleDelaySeconds: 0.05 },
         callbacks: [
           {
             event: 'finish' as const,
@@ -477,6 +487,7 @@ it('正式装配从活动技能切面恢复后继续得到相同逐帧结果', (
       action: {
         kind: 'spawnAbilityEntity' as const,
         parameters: {
+          bornAt: { kind: 'owner' as const },
           abilityEntityId: 'restored_entity',
           definition: spawnedEntityDefinition,
           dieWhenSourceDies: false,

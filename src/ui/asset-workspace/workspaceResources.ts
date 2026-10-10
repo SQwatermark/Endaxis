@@ -128,8 +128,9 @@ function actionReferences(action: ActionGraphStep): readonly { kind: string; id:
     }
     case 'finishBuffsById':
     case 'holdBuffsById':
-    case 'readBuffRemainingDuration':
       return buffs(action.parameters.buffIds);
+    case 'readBuffRemainingDuration':
+      return action.parameters.query.kind === 'id' ? buffs(action.parameters.query.buffIds) : [];
     case 'inheritBuffById':
       return [
         ...buffs([action.parameters.buffId]),

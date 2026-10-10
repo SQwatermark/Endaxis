@@ -4,6 +4,6 @@ export interface SkillValueOptimizationReport {
   readonly removedWrites: readonly { readonly path: string; readonly key: string }[];
   readonly removedInitialKeys: readonly string[];
   readonly retainedReason?: 'unresolved-blackboard-access';
-  /** 删除整个序列会改变重复执行的返回值，至少保留原有一个步骤。 */
+  /** 嵌套入口仍可能消费重复执行的返回值，因此保留的写入位置。 */
   readonly retainedLifetimePaths: readonly string[];
 }

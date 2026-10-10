@@ -80,29 +80,26 @@ const definition = {
               },
               next: 'createTimedMarker_1',
             },
-            conditional_3: {
+            checkCondition_3: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-                whenTrue: { $sequence: 'applyBuff_2' },
               },
-              next: null,
+              next: 'applyBuff_2',
             },
-            conditional_4: {
+            checkCondition_4: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
-                whenTrue: { $sequence: 'conditional_3' },
               },
-              next: null,
+              next: 'checkCondition_3',
             },
-            conditional_5: {
+            checkCondition_5: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
-                whenTrue: { $sequence: 'conditional_4' },
               },
-              next: null,
+              next: 'checkCondition_4',
             },
             applyBuff_6: {
               action: {
@@ -124,13 +121,12 @@ const definition = {
               },
               next: null,
             },
-            conditional_7: {
+            checkCondition_7: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_6' } },
-                whenTrue: { $sequence: 'applyBuff_6' },
               },
-              next: null,
+              next: 'applyBuff_6',
             },
           },
           dataNodes: {
@@ -173,13 +169,13 @@ const definition = {
           key: 'skill3:event:0:sequence:0',
           abilityEvent: 'buffConsumed',
           priority: 0,
-          sequence: { $sequence: 'conditional_5' },
+          sequence: { $sequence: 'checkCondition_5' },
         },
         {
           key: 'skill3:event:1:sequence:0',
           abilityEvent: 'beforeCastSkill',
           priority: 0,
-          sequence: { $sequence: 'conditional_7' },
+          sequence: { $sequence: 'checkCondition_7' },
         },
       ],
       blackboard: {
@@ -231,7 +227,7 @@ const definition = {
       damageModifiers: [
         {
           enabledSide: 'attacker',
-          condition: { $sequence: 'conditional_2' },
+          condition: { $sequence: 'checkCondition_2' },
           processors: [
             {
               kind: 'damageScale',
@@ -245,21 +241,19 @@ const definition = {
       actionGraph: {
         main: {
           nodes: {
-            conditional_1: {
+            checkCondition_1: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-                whenTrue: { $sequence: null },
               },
               next: null,
             },
-            conditional_2: {
+            checkCondition_2: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-                whenTrue: { $sequence: 'conditional_1' },
               },
-              next: null,
+              next: 'checkCondition_1',
             },
           },
           dataNodes: {
@@ -312,7 +306,7 @@ const definition = {
       damageModifiers: [
         {
           enabledSide: 'attacker',
-          condition: { $sequence: 'conditional_2' },
+          condition: { $sequence: 'checkCondition_2' },
           processors: [
             {
               kind: 'damageScale',
@@ -326,21 +320,19 @@ const definition = {
       actionGraph: {
         main: {
           nodes: {
-            conditional_1: {
+            checkCondition_1: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-                whenTrue: { $sequence: null },
               },
               next: null,
             },
-            conditional_2: {
+            checkCondition_2: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-                whenTrue: { $sequence: 'conditional_1' },
               },
-              next: null,
+              next: 'checkCondition_1',
             },
           },
           dataNodes: {

@@ -45,7 +45,7 @@ const definition = {
       blackboard: { atk_up: 0.05, dmg_up: 0.3, max_stack: 2 },
       attributeModifiers: [],
       abilityEventResponses: [
-        { event: 'beforeCastSkill', priority: 0, sequence: { $sequence: 'conditional_2' } },
+        { event: 'beforeCastSkill', priority: 0, sequence: { $sequence: 'checkCondition_2' } },
       ],
       actionGraph: {
         main: {
@@ -68,13 +68,12 @@ const definition = {
               },
               next: null,
             },
-            conditional_2: {
+            checkCondition_2: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-                whenTrue: { $sequence: 'applyBuff_1' },
               },
-              next: null,
+              next: 'applyBuff_1',
             },
           },
           dataNodes: {
@@ -120,7 +119,7 @@ const definition = {
       blackboard: { dmg_up: 0.05, max_stack: 2, stack: 0 },
       attributeModifiers: [],
       abilityEventResponses: [
-        { event: 'beforeCastSkill', priority: 0, sequence: { $sequence: 'conditional_5' } },
+        { event: 'beforeCastSkill', priority: 0, sequence: { $sequence: 'checkCondition_5' } },
       ],
       actionGraph: {
         main: {
@@ -175,13 +174,12 @@ const definition = {
               },
               next: 'modifyActionValue_3',
             },
-            conditional_5: {
+            checkCondition_5: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-                whenTrue: { $sequence: 'readBuffStackCount_4' },
               },
-              next: null,
+              next: 'readBuffStackCount_4',
             },
           },
           dataNodes: {
@@ -209,7 +207,7 @@ const definition = {
       damageModifiers: [
         {
           enabledSide: 'attacker',
-          condition: { $sequence: 'conditional_3' },
+          condition: { $sequence: 'checkCondition_3' },
           processors: [
             {
               kind: 'damageScale',
@@ -225,21 +223,19 @@ const definition = {
         main: {
           nodes: {
             skillAffix_1: { action: { kind: 'skillAffix', parameters: {} }, next: null },
-            conditional_2: {
+            checkCondition_2: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-                whenTrue: { $sequence: null },
               },
               next: null,
             },
-            conditional_3: {
+            checkCondition_3: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-                whenTrue: { $sequence: 'conditional_2' },
               },
-              next: null,
+              next: 'checkCondition_2',
             },
           },
           dataNodes: {

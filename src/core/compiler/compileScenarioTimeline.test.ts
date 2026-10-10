@@ -223,14 +223,22 @@ describe('compileScenarioTimeline', () => {
             'spawn-generated': {
               action: {
                 kind: 'spawnAbilityEntity',
-                parameters: { abilityEntityId: 'generated', dieWhenSourceDies: false },
+                parameters: {
+                  bornAt: { kind: 'owner' as const },
+                  abilityEntityId: 'generated',
+                  dieWhenSourceDies: false,
+                },
               },
               next: 'spawn-custom',
             },
             'spawn-custom': {
               action: {
                 kind: 'spawnAbilityEntity',
-                parameters: { abilityEntityId: 'custom', dieWhenSourceDies: false },
+                parameters: {
+                  bornAt: { kind: 'owner' as const },
+                  abilityEntityId: 'custom',
+                  dieWhenSourceDies: false,
+                },
               },
               next: null,
             },
@@ -683,6 +691,7 @@ describe('compileScenarioTimeline', () => {
               action: {
                 kind: 'spawnAbilityEntity',
                 parameters: {
+                  bornAt: { kind: 'owner' as const },
                   abilityEntityId: 'ability:test',
                   dieWhenSourceDies: false,
                   inheritActionBlackboard: true,
@@ -799,7 +808,11 @@ it('场景中的技能、Buff 和实体各自编译自己的图', () => {
           spawnLocal: {
             action: {
               kind: 'spawnAbilityEntity' as const,
-              parameters: { abilityEntityId: 'localChild', dieWhenSourceDies: false },
+              parameters: {
+                bornAt: { kind: 'owner' as const },
+                abilityEntityId: 'localChild',
+                dieWhenSourceDies: false,
+              },
             },
             next: null,
           },
@@ -1038,7 +1051,11 @@ it('keeps common ability entity child programs in their own graph across ID coll
                     'shared-id': {
                       action: {
                         kind: 'spawnAbilityEntity' as const,
-                        parameters: { abilityEntityId: 'external', dieWhenSourceDies: false },
+                        parameters: {
+                          bornAt: { kind: 'owner' as const },
+                          abilityEntityId: 'external',
+                          dieWhenSourceDies: false,
+                        },
                       },
                       next: null,
                     },

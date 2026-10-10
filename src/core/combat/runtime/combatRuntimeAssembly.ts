@@ -79,7 +79,7 @@ import { PassiveAbilityEventRuntime } from '../abilities/passiveAbilityEventRunt
 import type { ProjectileCallbackPrograms } from '../abilities/projectileCallbackPrograms';
 import { ProjectileLifecycleRuntime } from '../abilities/projectileLifecycleRuntime';
 import {
-  CameraTargetAngleConditionExecutor,
+  CameraConditionExecutor,
   EnemyRankConditionExecutor,
   EnemySuperArmorConditionExecutor,
 } from '../abilities/targetConditionExecutors';
@@ -236,7 +236,9 @@ export interface CombatOperatorProgram {
   /** CharacterTable.profession 的一一映射；仅职业筛选实际出现时要求提供。 */
   readonly operatorRole?: import('../../game-data/operatorDefinition').OperatorRole;
   /** CharacterTable.charTypeId 的一一映射；仅角色类型筛选实际出现时要求提供。 */
-  readonly characterTypeId?: DamageElement;
+  readonly element?: DamageElement;
+  /** CharacterTable.charTypeId 原字符串，不从技能或展示属性推断。 */
+  readonly characterTypeId?: string;
   readonly skills: readonly CompiledSkillProgram[];
   /** 时间轴施放身份与固定技能定义的显式绑定；定义本身不携带单次施放状态。 */
   readonly skillCasts?: readonly CombatSkillCastProgram[];
@@ -649,10 +651,14 @@ function withTerminalPreparation(
   operationHost?: CombatOperationExecutor['operationHost'],
   executionTrace?: CombatOperationExecutor['executionTrace'],
   aura?: CombatOperationExecutor['aura'],
+  frame?: () => number,
+  queryTargets?: CombatOperationExecutor['queryTargets'],
 ): CombatOperationExecutor {
   return {
     ...(executionTrace === undefined ? {} : { executionTrace }),
     ...(aura === undefined ? {} : { aura }),
+    frame,
+    queryTargets,
     ...(operationHost === undefined ? {} : { operationHost }),
     prepare: (step, context) => terminal.prepare?.(step, context),
     execute: (step, context) => chain.execute(step, context),
@@ -948,6 +954,7 @@ export class CombatRuntimeAssembly {
       this.timeDilation = sharedRuntime.timeDilation;
       this.#globalCooldowns = sharedRuntime.globalCooldowns;
       this.#abilityEntityInstanceIds = sharedRuntime.abilityEntityInstanceIds;
+      this.sharedState = sharedRuntime.runtimeState;
       this.#skillCastIds = sharedRuntime.skillCastIds;
       this.#basicAttackSkillCastInheritance = sharedRuntime.basicAttackInheritance;
       this.semanticEvents = foundation.semanticEvents;
@@ -1397,7 +1404,6 @@ export class CombatRuntimeAssembly {
         },
         externalEvents: () => this.#externalEventRuntime.applyCurrentFrame(),
       };
-      this.sharedState = sharedRuntime.runtimeState;
       this.stateGraph = preparation.graph;
       return;
     }
@@ -1443,6 +1449,7 @@ export class CombatRuntimeAssembly {
     this.timeDilation = sharedRuntime.timeDilation;
     this.#globalCooldowns = sharedRuntime.globalCooldowns;
     this.#abilityEntityInstanceIds = sharedRuntime.abilityEntityInstanceIds;
+    this.sharedState = sharedRuntime.runtimeState;
     this.#skillCastIds = sharedRuntime.skillCastIds;
     this.#basicAttackSkillCastInheritance = sharedRuntime.basicAttackInheritance;
     this.simulation = new CombatSimulation(this.clock);
@@ -1979,7 +1986,6 @@ export class CombatRuntimeAssembly {
         () => this.disposeComboSkillConditions(),
       ]);
     }
-    this.sharedState = sharedRuntime.runtimeState;
     this.stateGraph = {
       shared: this.sharedState,
       inputs: {
@@ -2896,7 +2902,13 @@ export class CombatRuntimeAssembly {
         if (hitTarget.kind === 'operator' && hitTarget.operatorId === undefined)
           throw new Error('projectile target requires a controlled operator');
         for (const callback of request.callbacks)
-          if (callback.runtime.runtimeState.event === 'hit') {
+          if (callback.runtime.runtimeState.event === 'block') {
+            // 原生 Block 将阻挡位置作为回调输入；零空间模型只保留位置身份。
+            callback.runtime.runtimeState.inputTarget = {
+              kind: 'spatialPoint',
+              pointId: this.sharedState.identities.spatialPoints.nextSpatialPointId++,
+            };
+          } else if (callback.runtime.runtimeState.event === 'hit') {
             callback.runtime.runtimeState.inputTarget = hitTarget;
             if (request.hit?.target === 'allOperators')
               callback.runtime.runtimeState.inputTargets = this.#operatorOrder.map(operatorId => ({
@@ -3191,6 +3203,11 @@ export class CombatRuntimeAssembly {
           NonNullable<ConstructorParameters<typeof SkillRuntime>[1]['emitSkillEnd']>
         >[0],
       ) => this.#options.emitAbilityEvent?.(operatorId, 'skillEnd', payload),
+      emitSkillInterrupted: (
+        payload: Parameters<
+          NonNullable<ConstructorParameters<typeof SkillRuntime>[1]['emitSkillInterrupted']>
+        >[0],
+      ) => this.#options.emitAbilityEvent?.(operatorId, 'skillInterrupted', payload),
       emitAfterSkillApplyCost: (
         payload: Parameters<
           NonNullable<ConstructorParameters<typeof SkillRuntime>[1]['emitAfterSkillApplyCost']>
@@ -3922,6 +3939,7 @@ export class CombatRuntimeAssembly {
   #wrapSkillControlOperations(
     operatorId: string,
     delegate: CombatOperationExecutor,
+    queryTargets: TargetContextOperationExecutor['queryTargets'],
   ): CombatOperationExecutor {
     const cooldownDelegate = new SkillCooldownOperationExecutor({
       reduceByBaseDurationRatio: (skill, ratio) =>
@@ -3957,6 +3975,13 @@ export class CombatRuntimeAssembly {
     });
     return new SkillCastOperationExecutor({
       casterId: operatorId,
+      queryTargets,
+      interruptCurrentSkill: target => {
+        if (target.kind === 'operator')
+          this.#requireAbilitySystem(target.operatorId).interruptCurrentSkill();
+        else if (target.kind === 'abilityEntity')
+          this.abilityEntities.childSkillHosts(target).ability.interruptCurrentSkill();
+      },
       request: request => this.requestPostNativeSkillCast(operatorId, request),
       delegate: baseDelegate,
     });
@@ -4029,7 +4054,11 @@ export class CombatRuntimeAssembly {
       receipt: this.receipt,
       delegate: terminalDelegate,
     });
-    const deferredSkillCasts = this.#wrapSkillControlOperations(operatorId, semanticOutputDelegate);
+    const deferredSkillCasts = this.#wrapSkillControlOperations(
+      operatorId,
+      semanticOutputDelegate,
+      (query, context) => targetContextOperations.queryTargets(query, context),
+    );
     const customAbilityEvents = new CustomAbilityEventOperationExecutor({
       sourceId: operatorId,
       emit: (entityId, payload) => {
@@ -4064,6 +4093,14 @@ export class CombatRuntimeAssembly {
       id => this.#findAbilitySystemSource(id),
       id => this.#resolveAbilityEntityObjectType(id),
       () => this.projectileLifetimes.getUnfinishedTargets(),
+      {
+        // MainTargetFinder 读取全局主目标；单敌场景固定为木桩。
+        mainTarget: () => ({ kind: 'enemy' }),
+        ownerSpawned: query => this.abilityEntities.findOwnerSpawned(query),
+        ownerSpawnedProjectiles: ownerId => this.projectileLifetimes.findOwnerSpawned(ownerId),
+        entityLifeState: target => this.#queryEntityLifeState(target),
+      },
+      this.sharedState.identities.spatialPoints,
     );
     const abilityEntityOperations = new AbilityEntityOperationExecutor(
       operatorId,
@@ -4079,6 +4116,7 @@ export class CombatRuntimeAssembly {
         installPassiveSkills: (entity, definition) =>
           this.#installAbilityEntityPassiveSkills(entity, definition),
         programs: this.abilityEntityChildSkillPrograms,
+        finishProjectile: target => this.projectileLifetimes.finishByAction(target),
         ...this.#projectileRuntimeDependencies(operatorId),
       },
       abilityEntityId =>
@@ -4093,6 +4131,7 @@ export class CombatRuntimeAssembly {
       operationHost,
     );
     const buffOperations = new BuffOperationExecutor({
+      queryTargets: (query, context) => targetContextOperations.queryTargets(query, context),
       triggerCharacterInflictionEvent: (ownerId, sourceId, event, element) =>
         this.#publishCharacterInfliction(ownerId, sourceId, event, element),
       isCharacterTarget: id => this.#operators.has(id),
@@ -4171,10 +4210,10 @@ export class CombatRuntimeAssembly {
       },
       { state: operationHost.state.timedMarkers, programs: operationHost.programs },
     );
-    const angleConditions = new CameraTargetAngleConditionExecutor(0, timedMarkerOperations);
+    const cameraConditions = new CameraConditionExecutor('Default', timedMarkerOperations);
     const superArmorConditions = new EnemySuperArmorConditionExecutor(
       enemy.superArmor,
-      angleConditions,
+      cameraConditions,
     );
     const rankConditions = new EnemyRankConditionExecutor(enemy.rank, superArmorConditions);
     const vitalsConditions = new CombatVitalsConditionExecutor({
@@ -4248,7 +4287,8 @@ export class CombatRuntimeAssembly {
       operator.panel?.attributes,
       {
         sourceId: operatorId,
-        resolve: entityId => this.#operators.get(entityId)?.characterTypeId,
+        resolve: entityId => this.#operators.get(entityId)?.element,
+        readTypeId: entityId => this.#operators.get(entityId)?.characterTypeId,
       },
       {
         sourceId: operatorId,
@@ -4306,7 +4346,7 @@ export class CombatRuntimeAssembly {
         onSpGained: event => {
           if (this.#options.emitAbilityEvent === undefined)
             throw new Error('SP gain requires an ability event publisher');
-          this.#options.emitAbilityEvent(event.sourceOperatorId, 'skillSpGained', event);
+          this.#options.emitAbilityEvent(event.sourceId, 'skillSpGained', event);
         },
         onPerfectDodge: sourceOperatorId => {
           if (this.#options.emitAbilityEvent === undefined)
@@ -4332,6 +4372,8 @@ export class CombatRuntimeAssembly {
             receiptCount: () => this.receipt.history.length,
           },
       buffOperations.aura,
+      () => this.clock.frame,
+      (query, context) => targetContextOperations.queryTargets(query, context),
     );
   }
 
@@ -4383,6 +4425,7 @@ export class CombatRuntimeAssembly {
     const deferredSkillCasts = this.#wrapSkillControlOperations(
       operatorId,
       semanticOutputOperations,
+      (query, context) => targetContextOperations.queryTargets(query, context),
     );
     const customAbilityEvents = new CustomAbilityEventOperationExecutor({
       sourceId: operatorId,
@@ -4418,6 +4461,14 @@ export class CombatRuntimeAssembly {
       id => this.#findAbilitySystemSource(id),
       id => this.#resolveAbilityEntityObjectType(id),
       () => this.projectileLifetimes.getUnfinishedTargets(),
+      {
+        // MainTargetFinder 读取全局主目标；单敌场景固定为木桩。
+        mainTarget: () => ({ kind: 'enemy' }),
+        ownerSpawned: query => this.abilityEntities.findOwnerSpawned(query),
+        ownerSpawnedProjectiles: ownerId => this.projectileLifetimes.findOwnerSpawned(ownerId),
+        entityLifeState: target => this.#queryEntityLifeState(target),
+      },
+      this.sharedState.identities.spatialPoints,
     );
     const abilityEntityOperations = new AbilityEntityOperationExecutor(
       operatorId,
@@ -4430,6 +4481,7 @@ export class CombatRuntimeAssembly {
         installPassiveSkills: (entity, definition) =>
           this.#installAbilityEntityPassiveSkills(entity, definition),
         programs: this.abilityEntityChildSkillPrograms,
+        finishProjectile: target => this.projectileLifetimes.finishByAction(target),
         ...this.#projectileRuntimeDependencies(operatorId),
       },
       abilityEntityId => this.#resolveOperatorAbilityEntityDefinition(operator, abilityEntityId),
@@ -4443,6 +4495,7 @@ export class CombatRuntimeAssembly {
       operationHost,
     );
     const buffOperations = new BuffOperationExecutor({
+      queryTargets: (query, context) => targetContextOperations.queryTargets(query, context),
       triggerCharacterInflictionEvent: (ownerId, sourceId, event, element) =>
         this.#publishCharacterInfliction(ownerId, sourceId, event, element),
       isCharacterTarget: id => this.#operators.has(id),
@@ -4519,10 +4572,10 @@ export class CombatRuntimeAssembly {
       },
       { state: operationHost.state.timedMarkers, programs: operationHost.programs },
     );
-    const angleConditions = new CameraTargetAngleConditionExecutor(undefined, markerOperations);
+    const cameraConditions = new CameraConditionExecutor('Default', markerOperations);
     const superArmorConditions = new EnemySuperArmorConditionExecutor(
       options.enemy.superArmor,
-      angleConditions,
+      cameraConditions,
     );
     const rankConditions = new EnemyRankConditionExecutor(options.enemy.rank, superArmorConditions);
     const vitalsConditions = new CombatVitalsConditionExecutor({
@@ -4596,7 +4649,8 @@ export class CombatRuntimeAssembly {
       operator.panel?.attributes,
       {
         sourceId: operatorId,
-        resolve: entityId => this.#operators.get(entityId)?.characterTypeId,
+        resolve: entityId => this.#operators.get(entityId)?.element,
+        readTypeId: entityId => this.#operators.get(entityId)?.characterTypeId,
       },
       {
         sourceId: operatorId,
@@ -4660,7 +4714,7 @@ export class CombatRuntimeAssembly {
         onSpGained: event => {
           if (this.#options.emitAbilityEvent === undefined)
             throw new Error('SP gain requires an ability event publisher');
-          this.#options.emitAbilityEvent(event.sourceOperatorId, 'skillSpGained', event);
+          this.#options.emitAbilityEvent(event.sourceId, 'skillSpGained', event);
         },
         onPerfectDodge: sourceOperatorId => {
           if (this.#options.emitAbilityEvent === undefined)
@@ -4686,6 +4740,8 @@ export class CombatRuntimeAssembly {
             receiptCount: () => this.receipt.history.length,
           },
       buffOperations.aura,
+      () => this.clock.frame,
+      (query, context) => targetContextOperations.queryTargets(query, context),
     );
     const bindingKey = `${operatorId}\u0000${sourceActionId}`;
     if (!this.#reactiveOperationBindings.has(bindingKey)) {
@@ -5205,7 +5261,21 @@ export class CombatRuntimeAssembly {
     return fixedCandidates.length === 1 ? fixedCandidates[0]!.definition : undefined;
   }
 
-  /** SourceFinder 读取一层 source；能力实体来源仍是实体时保留身份，不递归追祖先。 */
+  /** 查询句柄有效性与存活标记，不以血量或投射物飞行阶段代替。 */
+  #queryEntityLifeState(target: RuntimeTargetRef): 'alive' | 'dead' | 'unknown' | undefined {
+    if (target.kind === 'spatialPoint') return undefined;
+    if (target.kind === 'abilityEntity') {
+      const alive = this.abilityEntities.isAlive(target);
+      if (alive !== undefined) return alive ? 'alive' : 'dead';
+      // 飞行结束不等于原生实体死亡，未闭合死亡接口前不替换为 phase 判断。
+      return this.projectileLifetimes.findSource(target.instanceId) === undefined
+        ? undefined
+        : 'unknown';
+    }
+    if (target.kind === 'operator' && !this.#operators.has(target.operatorId)) return undefined;
+    return this.abilityEntities.isMarkedDead(target) ? 'dead' : 'alive';
+  }
+
   #resolveAbilityEntityObjectType(
     instanceId: number,
   ): import('../../../../packages/game-data-contract/src/primitives').CombatObjectType {
@@ -5376,7 +5446,7 @@ export class CombatRuntimeAssembly {
       return this.#requirePartyBuffTargets(target === 'partyExceptCaster' ? casterId : undefined);
     }
     if (target === 'partyExceptCasterAndSameCharacterType') {
-      const casterType = this.#operators.get(casterId)?.characterTypeId;
+      const casterType = this.#operators.get(casterId)?.element;
       if (casterType === undefined) {
         throw new Error(`combat operator '${casterId}' has no character type identity`);
       }
@@ -5384,8 +5454,7 @@ export class CombatRuntimeAssembly {
         .reverse()
         .filter(
           operatorId =>
-            operatorId !== casterId &&
-            this.#operators.get(operatorId)?.characterTypeId !== casterType,
+            operatorId !== casterId && this.#operators.get(operatorId)?.element !== casterType,
         );
       return targets.map(operatorId => {
         const resolved = this.#operatorBuffs.get(operatorId);

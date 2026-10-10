@@ -88,6 +88,11 @@ function collectRequiredActionSequenceReferences(
     } else if (data.kind === 'graphBranch') {
       for (const branch of data.branches.values())
         collectRequiredActionSequenceReferences(branch, references);
+    } else if (data.kind === 'channeling') {
+      collectRequiredActionSequenceReferences(data.channeling.body, references);
+    } else if (data.kind === 'graphConditions') {
+      for (const sequence of data.sequences.values())
+        collectRequiredActionSequenceReferences(sequence, references);
     } else if (data.kind === 'graphGuard') {
       collectRequiredActionSequenceReferences(data.body, references);
     } else if (data.kind === 'graphScope') {
@@ -97,10 +102,10 @@ function collectRequiredActionSequenceReferences(
         collectRequiredActionSequenceReferences(influence.enter, references);
         collectRequiredActionSequenceReferences(influence.exit, references);
       }
-    } else if (data.kind === 'graphTargets') {
-      for (const body of data.loop.bodies.values()) {
-        collectRequiredActionSequenceReferences(body.sequence, references);
-      }
+    } else if (data.kind === 'graphJump') {
+      collectRequiredActionSequenceReferences(data.condition, references);
+    } else if (data.kind === 'graphTargets' || data.kind === 'graphOnce') {
+      collectRequiredActionSequenceReferences(data.body, references);
     } else if (data.kind === 'repeat') {
       collectRequiredActionSequenceReferences(data.repetition.body, references);
     } else if (data.kind === 'graphListener') {
@@ -254,6 +259,8 @@ export function prepareCombatBuffRestore(graph: CombatStateGraph): PreparedComba
       if (host === null) continue;
       collectRequiredActionSequenceReferences(host.enable, actionReferences);
       collectRequiredActionSequenceReferences(host.trigger, actionReferences);
+      for (const sequence of host.instantSequences.values())
+        collectRequiredActionSequenceReferences(sequence, actionReferences);
       collectTimelineReferences(host.scheduled?.timeline ?? null, actionReferences);
       for (const response of host.eventResponses) {
         collectRequiredActionSequenceReferences(response.sequence, actionReferences);

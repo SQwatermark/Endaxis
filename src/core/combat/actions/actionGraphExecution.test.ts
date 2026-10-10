@@ -358,7 +358,11 @@ describe('直接图执行', () => {
       nodes: {
         finish: { action: { kind: 'finishTimeline', parameters: {} }, next: 'damage' },
         jump: {
-          action: { kind: 'jumpTimeline', parameters: { destinationFrame: 30 } },
+          action: {
+            kind: 'jumpTimeline',
+            parameters: { destinationFrame: 30 },
+            condition: { $sequence: null },
+          },
           next: null,
         },
         damage: graph.nodes.damage!,
@@ -392,13 +396,13 @@ describe('直接图执行', () => {
     resumed.tick(1 / 30, {});
     expect(jump).toHaveBeenCalledTimes(1);
   });
-  it('逐目标调用共享静态 once 位置但隔离动态进度，恢复后按目标结束', () => {
+  it('逐目标调用共享子序列与 once 位置，即时结束后恢复不重复清理', () => {
     const source: ActionGraphDefinition = {
       nodes: {
         loop: {
           action: {
             kind: 'forEachContextTarget',
-            parameters: { contextKey: 'items' },
+            parameters: { targets: { kind: 'context', key: 'items' } },
             body: { $sequence: 'once' },
           },
           next: null,
@@ -447,13 +451,13 @@ describe('直接图执行', () => {
       'execute:first:1',
       'end:first:1',
       'execute:second:1',
+      'end:second:1',
       'execute:second:2',
+      'end:second:2',
     ]);
     const loop = execution.runtimeState.nodes.get('loop')!.data;
     if (loop.kind !== 'graphTargets') throw new Error('expected target loop');
-    const [a, b] = [...loop.loop.bodies.values()].map(body => body.sequence);
-    expect(a!.callSite).toBe(b!.callSite);
-    expect(a!.invocation).not.toBe(b!.invocation);
+    expect(loop.body).not.toBeNull();
     targets.set('items', []);
     const restored = make();
     const resumed = restored.runtime.createGraphSequence(
@@ -465,8 +469,9 @@ describe('直接图执行', () => {
     );
     expect(restored.seen).toEqual([]);
     resumed.end({});
-    expect(restored.seen).toEqual(['end:second:1', 'end:second:2']);
-    expect(loop.loop.activeBodies).toEqual([1, 2]);
+    expect(restored.seen).toEqual([]);
+    execution.end({});
+    expect(resumed.runtimeState.nodes.get('loop')!.data).toEqual(loop);
   });
 
   it('多目标循环内匿名伤害共享静态身份，目标由回执目标区分而非 stepKey', () => {
@@ -478,7 +483,7 @@ describe('直接图执行', () => {
         loop: {
           action: {
             kind: 'forEachContextTarget',
-            parameters: { contextKey: 'items' },
+            parameters: { targets: { kind: 'context', key: 'items' } },
             body: { $sequence: 'hit' },
           },
           next: 'outside',
@@ -767,11 +772,11 @@ describe('直接图执行', () => {
     },
   );
 
-  it('once 的共享键跨入口有效，省略键时调用位置独立', () => {
+  it('once 的状态属于调用实例，相同图入口的不同实例互不抑制', () => {
     const source: ActionGraphDefinition = {
       nodes: {
         shared: {
-          action: { kind: 'once', parameters: { scopeKey: 'shared' }, body: { $sequence: 'body' } },
+          action: { kind: 'once', parameters: {}, body: { $sequence: 'body' } },
           next: null,
         },
         local: {
@@ -791,8 +796,7 @@ describe('直接图执行', () => {
         execution.end({});
       }
     }
-    expect(operations.execute).toHaveBeenCalledTimes(3);
-    expect(runtime.scopeState.executedOnce.size).toBe(3);
+    expect(operations.execute).toHaveBeenCalledTimes(4);
   });
 
   it('原生重复动作恢复计时和首次 Tick 标记，不重放 Execute', () => {
@@ -1256,7 +1260,11 @@ describe('直接图执行', () => {
             a: {
               action: {
                 kind: 'spawnAbilityEntity',
-                parameters: { abilityEntityId: 'fixture', dieWhenSourceDies: false },
+                parameters: {
+                  bornAt: { kind: 'owner' },
+                  abilityEntityId: 'fixture',
+                  dieWhenSourceDies: false,
+                },
               },
               next: null,
             },
@@ -1273,6 +1281,7 @@ describe('直接图执行', () => {
             action: {
               kind: 'spawnAbilityEntity',
               parameters: {
+                bornAt: { kind: 'owner' as const },
                 abilityEntityId: 'fixture',
                 dieWhenSourceDies: false,
                 definition: { lifetime: { kind: 'infinite' } },
@@ -1318,6 +1327,7 @@ it('宏参数绑定保留独立子技能的可执行图，子技能仍能单独�
               action: {
                 kind: 'spawnAbilityEntity',
                 parameters: {
+                  bornAt: { kind: 'owner' as const },
                   abilityEntityId: 'child',
                   dieWhenSourceDies: false,
                   overrideDurationSeconds: { kind: 'valueNode', nodeId: 'duration' },

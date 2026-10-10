@@ -4,8 +4,21 @@
  * 每个条件只保存判断所需的数据，不执行代码。模拟器根据 `kind` 读取当前动作、事件、角色、
  * 敌人或 Buff 状态并返回真假；条件通过 `not`、`all` 和 `any` 节点的输入连线组合。
  */
+export const SKILL_INTERRUPT_REASONS = [
+  'default',
+  'enterFreeState',
+  'aiManual',
+  'mud',
+  'detachSkill',
+  'interruptAction',
+  'dash',
+  'castNextSkill',
+] as const;
+export type SkillInterruptReason = (typeof SKILL_INTERRUPT_REASONS)[number];
+
 import type { GameplayTag, GameplayTagMatchType, GameplayTagQueryType } from './gameplayTags.ts';
 import {
+  type ActionDirectionType,
   type BuffSingleTarget,
   type CombatObjectTypeSelection,
   type CombatTarget,
@@ -28,7 +41,47 @@ import {
 } from './primitives.ts';
 
 /** Buff 条件可以检查的单体目标，包含事件动作的输入目标。 */
+export const COMBO_CAMERA_ALPHA_SETTINGS = ['Default', 'Strong', 'Weak'] as const;
+export type ComboCameraAlphaSetting = (typeof COMBO_CAMERA_ALPHA_SETTINGS)[number];
+
 export type BuffConditionTarget = BuffSingleTarget | 'actionInputTarget';
+
+/** 从动作环境读取首个实体；命名组为空时不产生目标。 */
+export type ActionEntitySelection =
+  | { readonly kind: 'owner' | 'source' | 'inputTarget' }
+  | { readonly kind: 'context'; readonly key: string };
+
+/** 动作内部解析的目标配置，不增加图中的调用或临时目标组。 */
+export type ActionTargetQuery =
+  | ActionEntitySelection
+  | { readonly kind: 'mainCharacter' }
+  | { readonly kind: 'battleMainTarget' }
+  /** 战斗全局机制对象，独立于主控和敌人。 */
+  | { readonly kind: 'godEntity' }
+  /** 零空间模型中已证明查询范围覆盖的未结束投射物。 */
+  | { readonly kind: 'unfinishedProjectiles' }
+  | { readonly kind: 'fixed'; readonly target: 'enemy' | 'caster' }
+  /** 固定单敌人候选经原生 TagValidator 筛选，空结果仍覆盖目标组。 */
+  | {
+      readonly kind: 'enemyByTags';
+      readonly tagQueryType: GameplayTagQueryType;
+      readonly tags: readonly GameplayTag[];
+    }
+  | { readonly kind: 'characterTeam'; readonly excludeOwner: boolean }
+  | { readonly kind: 'mainTarget'; readonly owner: ActionEntitySelection }
+  | {
+      readonly kind: 'fixedPoint';
+      readonly owner: ActionEntitySelection;
+      readonly center: ActionEntitySelection;
+      readonly directionTarget: ActionEntitySelection;
+    }
+  | {
+      readonly kind: 'ownerSpawned';
+      readonly owner: ActionEntitySelection;
+      readonly objectType: 'abilityEntity' | 'all';
+      readonly abilityEntityIds?: readonly string[];
+      readonly sameSourceSkillCast: boolean;
+    };
 
 /**
  * 模拟器在技能实例黑板中记录“当前技能是否已经命中过”的内部键。
@@ -47,6 +100,31 @@ export type CombatCondition =
 /** 布尔数据节点的操作。子条件通过输入引用连接，不能内嵌另一个条件操作。 */
 export type CombatConditionExpression =
   | CombatCondition
+  | {
+      kind: 'entityCountCompare';
+      target: ActionTargetQuery;
+      containsHittableTarget: boolean;
+      excludeDeadEntity: boolean;
+      operator: ComparisonOperator;
+      value: number;
+      outputKey?: string;
+    }
+  | {
+      /** 比较两个查询首项目标的距离；任一目标没有位置则失败。 */
+      kind: 'targetDistance';
+      source: ActionTargetQuery;
+      target: ActionTargetQuery;
+      distance: number;
+      lessThan: boolean;
+      includeTargetRadius: boolean;
+      containsHittableObject: boolean;
+    }
+  | {
+      /** 区分大小写地比较两个字符串。 */
+      kind: 'stringEquals';
+      left: ActionStringOperand;
+      right: ActionStringOperand;
+    }
   /** 时间轴模拟始终处于战斗阶段，用于承接原生的队伍战斗状态检查。 */
   | {
       /** 条件种类判别值。 */
@@ -96,12 +174,35 @@ export type CombatConditionExpression =
       value: ActionValueOperand;
     }
   | {
-      /** 比较镜头前向到施法者→目标方向、绕世界上轴的有符号角度。 */
-      kind: 'cameraToTargetAngleCompare';
+      /** 与游戏连携镜头强度设置比较。 */
+      kind: 'comboCameraAlphaSetting';
+      setting: ComboCameraAlphaSetting;
+    }
+  | {
+      /** 比较两个查询方向绕世界上轴的有符号夹角。 */
+      kind: 'twoDirectionAngleCompare';
+      direction1Source: ActionTargetQuery;
+      direction1Target: ActionTargetQuery;
+      direction1Type: ActionDirectionType;
+      direction2Source: ActionTargetQuery;
+      direction2Target: ActionTargetQuery;
+      direction2Type: ActionDirectionType;
       /** 角度比较符。 */
       operator: ComparisonOperator;
       /** 与有符号角度比较的度数。 */
       value: ActionValueOperand;
+    }
+  | {
+      /** 原生目标朝向扇区检查。 */
+      kind: 'targetFacingAngle';
+      /** 用于判断方位的来源实体。 */
+      origin: ActionEntitySelection;
+      /** 提供朝向的目标实体。 */
+      target: ActionEntitySelection;
+      /** 检查目标前方还是后方。 */
+      angleType: 'forward' | 'backward';
+      /** 扇区的完整角度，单位为度。 */
+      angle: ActionValueOperand;
     }
   | {
       /** 检查构筑是否启用了一个技能动作分支。 */
@@ -208,18 +309,6 @@ export type CombatConditionExpression =
       operator: ComparisonOperator;
       /** 原生免疫忽略等级枚举的整数值。 */
       value: number;
-    }
-  | {
-      /** 比较本次释放 Context 中已查询目标组的实例数量。 */
-      kind: 'contextTargetCountCompare';
-      /** 动作环境中的目标组名称。 */
-      contextKey: string;
-      /** 数量比较符。 */
-      operator: ComparisonOperator;
-      /** 与实际目标数量比较的值。 */
-      value: number;
-      /** 原生 CheckEntityNum.storeKey：判断时同步保存实际数量。 */
-      outputKey?: string;
     }
   | {
       /** 命名组中任一对象匹配可读类型集合；enemy 同时接受 enemyPart。 */
@@ -483,6 +572,11 @@ export type CombatConditionExpression =
       skillTypes: readonly SkillType[];
     }
   | {
+      /** 当前中断事件的原因是否在给定列表中。 */
+      kind: 'skillInterruptReasonIn';
+      reasons: readonly SkillInterruptReason[];
+    }
+  | {
       /** 当前 Context 目标组是否包含事件目标。 */
       kind: 'contextTargetContains';
       /** 要检查的动作目标组。 */
@@ -659,16 +753,20 @@ export const COMBAT_CONDITION_KINDS = [
   'operatorRoleIn',
   'enemyRankIn',
   'enemySuperArmorCompare',
-  'cameraToTargetAngleCompare',
+  'twoDirectionAngleCompare',
+  'comboCameraAlphaSetting',
+  'targetFacingAngle',
+  'targetDistance',
   'skillBranchEnabled',
   'targetStaggered',
   'healthCompare',
   'poiseCompare',
   'contextFlagEquals',
   'actionValueCompare',
+  'stringEquals',
   'buffBlackboardValueCompare',
   'probability',
-  'contextTargetCountCompare',
+  'entityCountCompare',
   'contextTargetObjectTypeMatch',
   'actionInputTargetObjectTypeMatch',
   'actionInputTargetIdentityMatch',
@@ -701,6 +799,7 @@ export const COMBAT_CONDITION_KINDS = [
   'eventCustomAbilityNameMatch',
   'currentSkillTypeIn',
   'originSkillTypeIn',
+  'skillInterruptReasonIn',
   'contextTargetContains',
   'eventSkillIdIn',
   'eventSkillCastMatchesBuffSource',

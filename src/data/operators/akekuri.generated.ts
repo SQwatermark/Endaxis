@@ -8,7 +8,14 @@ import type { OperatorDefinition } from '../../../packages/game-data-contract/sr
 export const akekuriChr_0019_karin_attack1ActionGraph = {
   main: {
     nodes: {
-      startTimeDilation_1: {
+      checkCondition_1: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
+        },
+        next: null,
+      },
+      startTimeDilation_2: {
         action: {
           kind: 'startTimeDilation',
           parameters: {
@@ -23,15 +30,17 @@ export const akekuriChr_0019_karin_attack1ActionGraph = {
         },
         next: null,
       },
-      conditional_2: {
+      ifElse_3: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' }, alwaysNext: true },
-          whenTrue: { $sequence: 'startTimeDilation_1' },
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_1' },
+          whenTrue: { $sequence: 'startTimeDilation_2' },
+          whenFalse: { $sequence: null },
         },
         next: null,
       },
-      dealDamage_3: {
+      dealDamage_4: {
         action: {
           kind: 'dealDamage',
           parameters: {
@@ -40,9 +49,9 @@ export const akekuriChr_0019_karin_attack1ActionGraph = {
             tags: ['normalAttack'],
           },
         },
-        next: 'conditional_2',
+        next: 'ifElse_3',
       },
-      reachSkillOperableBoundary_4: {
+      reachSkillOperableBoundary_5: {
         action: {
           kind: 'reachSkillOperableBoundary',
           parameters: { skillIds: ['chr_0019_karin_attack2'] },
@@ -59,13 +68,9 @@ export const akekuriChr_0019_karin_attack1ActionGraph = {
 } as const satisfies ActionGraphResourceDefinition;
 
 export const akekuriChr_0019_karin_attack1: SkillDefinition = {
-  actionGraph: akekuriChr_0019_karin_attack1ActionGraph,
   key: 'chr_0019_karin_attack1',
   element: 'physical',
-  blackboard: {
-    atb: 0,
-    atk_scale: [0.2, 0.22, 0.24, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.39, 0.42, 0.45],
-  },
+  blackboard: { atk_scale: [0.2, 0.22, 0.24, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.39, 0.42, 0.45] },
   timelineBlockFrames: 14,
   naturalDurationFrames: 90,
   exclusiveFrame: 17,
@@ -83,41 +88,52 @@ export const akekuriChr_0019_karin_attack1: SkillDefinition = {
   },
   costFrame: 9,
   scheduledSequences: [
-    { startFrame: 9, endFrame: 10, sequence: { $sequence: 'dealDamage_3' } },
-    { startFrame: 14, endFrame: 32, sequence: { $sequence: 'reachSkillOperableBoundary_4' } },
+    { startFrame: 9, endFrame: 10, sequence: { $sequence: 'dealDamage_4' } },
+    { startFrame: 14, endFrame: 32, sequence: { $sequence: 'reachSkillOperableBoundary_5' } },
   ],
   timelineContinuationSkillId: 'chr_0019_karin_attack2',
   skillType: 'basicAttack',
   levelSource: 'basicAttack',
   nativeSkillType: 'attack',
+  actionGraph: akekuriChr_0019_karin_attack1ActionGraph,
 };
 
 export const akekuriChr_0019_karin_attack2ActionGraph = {
   main: {
     nodes: {
-      changeResource_1: {
+      changeResource_2: {
         action: {
           kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
             coefficient: { kind: 'constant', value: 1 },
-            recipient: 'team',
+            source: { kind: 'source' },
+            targets: { kind: 'source' },
             spGainKind: 'gain',
             spGainSource: 'normalAttack',
           },
         },
         next: null,
       },
-      conditional_2: {
+      checkCondition_1: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResource_1' },
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
         },
         next: null,
       },
-      dealDamage_3: {
+      ifElse_3: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_1' },
+          whenTrue: { $sequence: 'changeResource_2' },
+          whenFalse: { $sequence: null },
+        },
+        next: null,
+      },
+      dealDamage_4: {
         action: {
           kind: 'dealDamage',
           parameters: {
@@ -126,9 +142,9 @@ export const akekuriChr_0019_karin_attack2ActionGraph = {
             tags: ['normalAttack'],
           },
         },
-        next: 'conditional_2',
+        next: 'ifElse_3',
       },
-      startTimeDilation_4: {
+      startTimeDilation_6: {
         action: {
           kind: 'startTimeDilation',
           parameters: {
@@ -143,40 +159,43 @@ export const akekuriChr_0019_karin_attack2ActionGraph = {
         },
         next: null,
       },
-      changeResource_5: {
+      changeResource_7: {
         action: {
           kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_4' },
             coefficient: { kind: 'constant', value: 1 },
-            recipient: 'team',
+            source: { kind: 'source' },
+            targets: { kind: 'source' },
             spGainKind: 'gain',
             spGainSource: 'normalAttack',
           },
         },
-        next: 'startTimeDilation_4',
+        next: 'startTimeDilation_6',
       },
-      conditional_6: {
+      ifElse_8: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResource_5' },
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_1' },
+          whenTrue: { $sequence: 'changeResource_7' },
+          whenFalse: { $sequence: null },
         },
         next: null,
       },
-      dealDamage_7: {
+      dealDamage_9: {
         action: {
           kind: 'dealDamage',
           parameters: {
             damageType: 'physical',
-            attackScale: { kind: 'valueNode', nodeId: 'data_6' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_5' },
             tags: ['normalAttack'],
           },
         },
-        next: 'conditional_6',
+        next: 'ifElse_8',
       },
-      reachSkillOperableBoundary_8: {
+      reachSkillOperableBoundary_10: {
         action: {
           kind: 'reachSkillOperableBoundary',
           parameters: { skillIds: ['chr_0019_karin_attack3'] },
@@ -189,22 +208,19 @@ export const akekuriChr_0019_karin_attack2ActionGraph = {
       data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
       data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
       data_4: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
-      data_5: { type: 'boolean', expression: { kind: 'casterControlled' } },
-      data_6: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_2' } },
+      data_5: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_2' } },
     },
   },
   macros: {},
 } as const satisfies ActionGraphResourceDefinition;
 
 export const akekuriChr_0019_karin_attack2: SkillDefinition = {
-  actionGraph: akekuriChr_0019_karin_attack2ActionGraph,
   key: 'chr_0019_karin_attack2',
   element: 'physical',
   blackboard: {
     atb: 0,
     atk_scale: [0.13, 0.14, 0.15, 0.16, 0.18, 0.19, 0.2, 0.21, 0.23, 0.24, 0.26, 0.28],
     atk_scale_2: [0.15, 0.17, 0.18, 0.2, 0.21, 0.23, 0.24, 0.26, 0.27, 0.29, 0.31, 0.34],
-    display_atk_scale: [0.28, 0.3, 0.33, 0.36, 0.39, 0.41, 0.44, 0.47, 0.5, 0.53, 0.57, 0.62],
   },
   timelineBlockFrames: 22,
   naturalDurationFrames: 112,
@@ -223,20 +239,28 @@ export const akekuriChr_0019_karin_attack2: SkillDefinition = {
   },
   costFrame: 9,
   scheduledSequences: [
-    { startFrame: 8, endFrame: 9, sequence: { $sequence: 'dealDamage_3' } },
-    { startFrame: 16, endFrame: 17, sequence: { $sequence: 'dealDamage_7' } },
-    { startFrame: 22, endFrame: 38, sequence: { $sequence: 'reachSkillOperableBoundary_8' } },
+    { startFrame: 8, endFrame: 9, sequence: { $sequence: 'dealDamage_4' } },
+    { startFrame: 16, endFrame: 17, sequence: { $sequence: 'dealDamage_9' } },
+    { startFrame: 22, endFrame: 38, sequence: { $sequence: 'reachSkillOperableBoundary_10' } },
   ],
   timelineContinuationSkillId: 'chr_0019_karin_attack3',
   skillType: 'basicAttack',
   levelSource: 'basicAttack',
   nativeSkillType: 'attack',
+  actionGraph: akekuriChr_0019_karin_attack2ActionGraph,
 };
 
 export const akekuriChr_0019_karin_attack3ActionGraph = {
   main: {
     nodes: {
-      startTimeDilation_1: {
+      checkCondition_1: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
+        },
+        next: null,
+      },
+      startTimeDilation_2: {
         action: {
           kind: 'startTimeDilation',
           parameters: {
@@ -251,29 +275,32 @@ export const akekuriChr_0019_karin_attack3ActionGraph = {
         },
         next: null,
       },
-      changeResource_2: {
+      changeResource_3: {
         action: {
           kind: 'changeResource',
           parameters: {
             resource: 'sp',
-            amount: { kind: 'valueNode', nodeId: 'data_1' },
+            amount: { kind: 'valueNode', nodeId: 'data_2' },
             coefficient: { kind: 'constant', value: 1 },
-            recipient: 'team',
+            source: { kind: 'source' },
+            targets: { kind: 'source' },
             spGainKind: 'gain',
             spGainSource: 'normalAttack',
           },
         },
-        next: 'startTimeDilation_1',
+        next: 'startTimeDilation_2',
       },
-      conditional_3: {
+      ifElse_4: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResource_2' },
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_1' },
+          whenTrue: { $sequence: 'changeResource_3' },
+          whenFalse: { $sequence: null },
         },
         next: null,
       },
-      dealDamage_4: {
+      dealDamage_5: {
         action: {
           kind: 'dealDamage',
           parameters: {
@@ -282,9 +309,9 @@ export const akekuriChr_0019_karin_attack3ActionGraph = {
             tags: ['normalAttack'],
           },
         },
-        next: 'conditional_3',
+        next: 'ifElse_4',
       },
-      reachSkillOperableBoundary_5: {
+      reachSkillOperableBoundary_6: {
         action: {
           kind: 'reachSkillOperableBoundary',
           parameters: { skillIds: ['chr_0019_karin_attack4'] },
@@ -293,8 +320,8 @@ export const akekuriChr_0019_karin_attack3ActionGraph = {
       },
     },
     dataNodes: {
-      data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
-      data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
+      data_1: { type: 'boolean', expression: { kind: 'casterControlled' } },
+      data_2: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
       data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
     },
   },
@@ -302,7 +329,6 @@ export const akekuriChr_0019_karin_attack3ActionGraph = {
 } as const satisfies ActionGraphResourceDefinition;
 
 export const akekuriChr_0019_karin_attack3: SkillDefinition = {
-  actionGraph: akekuriChr_0019_karin_attack3ActionGraph,
   key: 'chr_0019_karin_attack3',
   element: 'physical',
   blackboard: {
@@ -326,13 +352,14 @@ export const akekuriChr_0019_karin_attack3: SkillDefinition = {
   },
   costFrame: 9,
   scheduledSequences: [
-    { startFrame: 10, endFrame: 11, sequence: { $sequence: 'dealDamage_4' } },
-    { startFrame: 21, endFrame: 36, sequence: { $sequence: 'reachSkillOperableBoundary_5' } },
+    { startFrame: 10, endFrame: 11, sequence: { $sequence: 'dealDamage_5' } },
+    { startFrame: 21, endFrame: 36, sequence: { $sequence: 'reachSkillOperableBoundary_6' } },
   ],
   timelineContinuationSkillId: 'chr_0019_karin_attack4',
   skillType: 'basicAttack',
   levelSource: 'basicAttack',
   nativeSkillType: 'attack',
+  actionGraph: akekuriChr_0019_karin_attack3ActionGraph,
 };
 
 export const akekuriChr_0019_karin_attack4ActionGraph = {
@@ -349,7 +376,7 @@ export const akekuriChr_0019_karin_attack4ActionGraph = {
         },
         next: null,
       },
-      startTimeDilation_2: {
+      startTimeDilation_3: {
         action: {
           kind: 'startTimeDilation',
           parameters: {
@@ -364,15 +391,24 @@ export const akekuriChr_0019_karin_attack4ActionGraph = {
         },
         next: null,
       },
-      conditional_3: {
+      checkCondition_2: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' }, alwaysNext: true },
-          whenTrue: { $sequence: 'startTimeDilation_2' },
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
         },
         next: null,
       },
-      dealDamage_4: {
+      ifElse_4: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_2' },
+          whenTrue: { $sequence: 'startTimeDilation_3' },
+          whenFalse: { $sequence: null },
+        },
+        next: null,
+      },
+      dealDamage_5: {
         action: {
           kind: 'dealDamage',
           parameters: {
@@ -381,9 +417,9 @@ export const akekuriChr_0019_karin_attack4ActionGraph = {
             tags: ['normalAttack'],
           },
         },
-        next: 'conditional_3',
+        next: 'ifElse_4',
       },
-      startTimeDilation_5: {
+      startTimeDilation_7: {
         action: {
           kind: 'startTimeDilation',
           parameters: {
@@ -398,42 +434,45 @@ export const akekuriChr_0019_karin_attack4ActionGraph = {
         },
         next: null,
       },
-      changeResource_6: {
+      changeResource_8: {
         action: {
           kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_4' },
             coefficient: { kind: 'constant', value: 1 },
-            recipient: 'team',
+            source: { kind: 'source' },
+            targets: { kind: 'source' },
             spGainKind: 'gain',
             spGainSource: 'normalAttack',
           },
         },
-        next: 'startTimeDilation_5',
+        next: 'startTimeDilation_7',
       },
-      conditional_7: {
+      ifElse_9: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResource_6' },
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_2' },
+          whenTrue: { $sequence: 'changeResource_8' },
+          whenFalse: { $sequence: null },
         },
         next: null,
       },
-      dealDamage_8: {
+      dealDamage_10: {
         action: {
           kind: 'dealDamage',
           parameters: {
             damageType: 'physical',
-            attackScale: { kind: 'valueNode', nodeId: 'data_6' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_5' },
             tags: ['normalAttack', 'normalAttackLastCombo'],
-            stagger: { kind: 'valueNode', nodeId: 'data_7' },
+            stagger: { kind: 'valueNode', nodeId: 'data_6' },
             staggerOnlyWhenCasterControlled: true,
           },
         },
-        next: 'conditional_7',
+        next: 'ifElse_9',
       },
-      reachSkillOperableBoundary_9: {
+      reachSkillOperableBoundary_11: {
         action: {
           kind: 'reachSkillOperableBoundary',
           parameters: { skillIds: ['chr_0019_karin_attack1'] },
@@ -446,23 +485,20 @@ export const akekuriChr_0019_karin_attack4ActionGraph = {
       data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
       data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
       data_4: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
-      data_5: { type: 'boolean', expression: { kind: 'casterControlled' } },
-      data_6: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_7: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
+      data_5: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
+      data_6: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
     },
   },
   macros: {},
 } as const satisfies ActionGraphResourceDefinition;
 
 export const akekuriChr_0019_karin_attack4: SkillDefinition = {
-  actionGraph: akekuriChr_0019_karin_attack4ActionGraph,
   key: 'chr_0019_karin_attack4',
   element: 'physical',
   blackboard: {
     atb: 19,
     atk_scale: [0.17, 0.18, 0.2, 0.21, 0.23, 0.25, 0.26, 0.28, 0.3, 0.32, 0.34, 0.37],
     poise: 17,
-    display_atk_scale: [0.5, 0.54, 0.59, 0.64, 0.69, 0.74, 0.79, 0.84, 0.89, 0.95, 1.03, 1.11],
   },
   timelineBlockFrames: 35,
   naturalDurationFrames: 110,
@@ -482,20 +518,21 @@ export const akekuriChr_0019_karin_attack4: SkillDefinition = {
   costFrame: 9,
   scheduledSequences: [
     { startFrame: 19, endFrame: 20, sequence: { $sequence: 'dealDamage_1' } },
-    { startFrame: 20, endFrame: 21, sequence: { $sequence: 'dealDamage_4' } },
-    { startFrame: 21, endFrame: 22, sequence: { $sequence: 'dealDamage_8' } },
-    { startFrame: 35, endFrame: 52, sequence: { $sequence: 'reachSkillOperableBoundary_9' } },
+    { startFrame: 20, endFrame: 21, sequence: { $sequence: 'dealDamage_5' } },
+    { startFrame: 21, endFrame: 22, sequence: { $sequence: 'dealDamage_10' } },
+    { startFrame: 35, endFrame: 52, sequence: { $sequence: 'reachSkillOperableBoundary_11' } },
   ],
   timelineContinuationSkillId: 'chr_0019_karin_attack1',
   skillType: 'basicAttack',
   levelSource: 'basicAttack',
   nativeSkillType: 'attack',
+  actionGraph: akekuriChr_0019_karin_attack4ActionGraph,
 };
 
 export const akekuriChr_0019_karin_power_attackActionGraph = {
   main: {
     nodes: {
-      startTimeDilation_1: {
+      startTimeDilation_2: {
         action: {
           kind: 'startTimeDilation',
           parameters: {
@@ -510,15 +547,24 @@ export const akekuriChr_0019_karin_power_attackActionGraph = {
         },
         next: null,
       },
-      conditional_2: {
+      checkCondition_1: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' }, alwaysNext: true },
-          whenTrue: { $sequence: 'startTimeDilation_1' },
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
         },
         next: null,
       },
-      dealDamage_3: {
+      ifElse_3: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_1' },
+          whenTrue: { $sequence: 'startTimeDilation_2' },
+          whenFalse: { $sequence: null },
+        },
+        next: null,
+      },
+      dealDamage_4: {
         action: {
           kind: 'dealDamage',
           parameters: {
@@ -529,34 +575,36 @@ export const akekuriChr_0019_karin_power_attackActionGraph = {
             tags: ['normalAttack', 'powerAttack'],
           },
         },
-        next: 'conditional_2',
+        next: 'ifElse_3',
       },
-      gainFinisherSp_4: {
+      gainFinisherSp_6: {
         action: { kind: 'gainFinisherSp', parameters: { factor: 1, recipient: 'team' } },
         next: null,
       },
-      conditional_5: {
+      ifElse_7: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' }, alwaysNext: true },
-          whenTrue: { $sequence: 'gainFinisherSp_4' },
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_1' },
+          whenTrue: { $sequence: 'gainFinisherSp_6' },
+          whenFalse: { $sequence: null },
         },
         next: null,
       },
-      dealDamage_6: {
+      dealDamage_8: {
         action: {
           kind: 'dealDamage',
           parameters: {
             damageType: 'physical',
-            attackScale: { kind: 'valueNode', nodeId: 'data_4' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_3' },
             calculation: 'breakingAttack',
             calculationMultiplier: 0.8,
             tags: ['normalAttack', 'powerAttack'],
           },
         },
-        next: 'conditional_5',
+        next: 'ifElse_7',
       },
-      startTimeDilation_7: {
+      startTimeDilation_9: {
         action: {
           kind: 'startTimeDilation',
           parameters: {
@@ -571,7 +619,7 @@ export const akekuriChr_0019_karin_power_attackActionGraph = {
         },
         next: null,
       },
-      applyBuff_8: {
+      applyBuff_10: {
         action: {
           kind: 'applyBuff',
           parameters: {
@@ -583,7 +631,7 @@ export const akekuriChr_0019_karin_power_attackActionGraph = {
         },
         next: null,
       },
-      applyBuff_9: {
+      applyBuff_11: {
         action: {
           kind: 'applyBuff',
           parameters: {
@@ -599,15 +647,13 @@ export const akekuriChr_0019_karin_power_attackActionGraph = {
     dataNodes: {
       data_1: { type: 'boolean', expression: { kind: 'casterControlled' } },
       data_2: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_3: { type: 'boolean', expression: { kind: 'casterControlled' } },
-      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
+      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
     },
   },
   macros: {},
 } as const satisfies ActionGraphResourceDefinition;
 
 export const akekuriChr_0019_karin_power_attack: SkillDefinition = {
-  actionGraph: akekuriChr_0019_karin_power_attackActionGraph,
   key: 'chr_0019_karin_power_attack',
   element: 'physical',
   blackboard: { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
@@ -626,43 +672,54 @@ export const akekuriChr_0019_karin_power_attack: SkillDefinition = {
   },
   costFrame: 4,
   scheduledSequences: [
-    { startFrame: 13, endFrame: 14, sequence: { $sequence: 'dealDamage_3' } },
-    { startFrame: 36, endFrame: 37, sequence: { $sequence: 'dealDamage_6' } },
-    { startFrame: 40, endFrame: 43, sequence: { $sequence: 'startTimeDilation_7' } },
-    { startFrame: 0, endFrame: 60, sequence: { $sequence: 'applyBuff_8' } },
-    { startFrame: 0, endFrame: 36, sequence: { $sequence: 'applyBuff_9' } },
+    { startFrame: 13, endFrame: 14, sequence: { $sequence: 'dealDamage_4' } },
+    { startFrame: 36, endFrame: 37, sequence: { $sequence: 'dealDamage_8' } },
+    { startFrame: 40, endFrame: 43, sequence: { $sequence: 'startTimeDilation_9' } },
+    { startFrame: 0, endFrame: 60, sequence: { $sequence: 'applyBuff_10' } },
+    { startFrame: 0, endFrame: 36, sequence: { $sequence: 'applyBuff_11' } },
   ],
   skillType: 'finisher',
   levelSource: 'basicAttack',
   nativeSkillType: 'breakingAttack',
+  actionGraph: akekuriChr_0019_karin_power_attackActionGraph,
 };
 
 export const akekuriChr_0019_karin_plunging_attack_endActionGraph = {
   main: {
     nodes: {
-      changeResource_1: {
+      checkCondition_1: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
+        },
+        next: null,
+      },
+      changeResource_2: {
         action: {
           kind: 'changeResource',
           parameters: {
             resource: 'sp',
-            amount: { kind: 'valueNode', nodeId: 'data_1' },
+            amount: { kind: 'valueNode', nodeId: 'data_2' },
             coefficient: { kind: 'constant', value: 1 },
-            recipient: 'team',
+            source: { kind: 'source' },
+            targets: { kind: 'source' },
             spGainKind: 'gain',
             spGainSource: 'normalAttack',
           },
         },
         next: null,
       },
-      conditional_2: {
+      ifElse_3: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResource_1' },
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_1' },
+          whenTrue: { $sequence: 'changeResource_2' },
+          whenFalse: { $sequence: null },
         },
         next: null,
       },
-      dealDamage_3: {
+      dealDamage_4: {
         action: {
           kind: 'dealDamage',
           parameters: {
@@ -671,12 +728,12 @@ export const akekuriChr_0019_karin_plunging_attack_endActionGraph = {
             tags: ['normalAttack', 'plungingAttack'],
           },
         },
-        next: 'conditional_2',
+        next: 'ifElse_3',
       },
     },
     dataNodes: {
-      data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
-      data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
+      data_1: { type: 'boolean', expression: { kind: 'casterControlled' } },
+      data_2: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
       data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
     },
   },
@@ -684,7 +741,6 @@ export const akekuriChr_0019_karin_plunging_attack_endActionGraph = {
 } as const satisfies ActionGraphResourceDefinition;
 
 export const akekuriChr_0019_karin_plunging_attack_end: SkillDefinition = {
-  actionGraph: akekuriChr_0019_karin_plunging_attack_endActionGraph,
   key: 'chr_0019_karin_plunging_attack_end',
   element: 'physical',
   blackboard: {
@@ -696,23 +752,89 @@ export const akekuriChr_0019_karin_plunging_attack_end: SkillDefinition = {
   exclusiveFrame: 13,
   offsetRecordFrame: 0,
   costFrame: 0,
-  scheduledSequences: [{ startFrame: 1, endFrame: 6, sequence: { $sequence: 'dealDamage_3' } }],
+  scheduledSequences: [{ startFrame: 1, endFrame: 6, sequence: { $sequence: 'dealDamage_4' } }],
   skillType: 'plungingAttack',
   levelSource: 'basicAttack',
   nativeSkillType: 'attack',
+  actionGraph: akekuriChr_0019_karin_plunging_attack_endActionGraph,
 };
 
 export const akekuriChr_0019_karin_normal_skillActionGraph = {
   main: {
     nodes: {
-      findCharacterTeamTargets_1: {
+      findTargets_1: {
         action: {
-          kind: 'findCharacterTeamTargets',
-          parameters: { saveToContextKey: 'mainchar', selection: { kind: 'controlledOperator' } },
+          kind: 'findTargets',
+          parameters: {
+            owner: { kind: 'owner' },
+            query: { kind: 'mainTarget', owner: { kind: 'owner' } },
+            saveToContextKey: 'mainTar',
+          },
         },
         next: null,
       },
-      startTimeDilation_2: {
+      checkCondition_6: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
+        },
+        next: null,
+      },
+      ifElse_8: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_6' },
+          whenTrue: { $sequence: null },
+          whenFalse: { $sequence: null },
+        },
+        next: null,
+      },
+      checkCondition_7: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
+        },
+        next: null,
+      },
+      ifElse_10: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_7' },
+          whenTrue: { $sequence: null },
+          whenFalse: { $sequence: 'ifElse_8' },
+        },
+        next: null,
+      },
+      ifElse_12: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: null },
+          whenTrue: { $sequence: 'ifElse_10' },
+          whenFalse: { $sequence: 'ifElse_10' },
+        },
+        next: null,
+      },
+      checkCondition_11: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
+        },
+        next: null,
+      },
+      ifElse_14: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_11' },
+          whenTrue: { $sequence: null },
+          whenFalse: { $sequence: 'ifElse_12' },
+        },
+        next: null,
+      },
+      startTimeDilation_20: {
         action: {
           kind: 'startTimeDilation',
           parameters: {
@@ -727,41 +849,85 @@ export const akekuriChr_0019_karin_normal_skillActionGraph = {
         },
         next: null,
       },
-      dealDamage_3: {
+      dealDamage_21: {
         action: {
           kind: 'dealDamage',
           parameters: {
             damageType: 'heat',
-            attackScale: { kind: 'valueNode', nodeId: 'data_1' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_4' },
             tags: ['normalSkill'],
             features: ['canBreakWeakness'],
-            stagger: { kind: 'valueNode', nodeId: 'data_2' },
+            stagger: { kind: 'valueNode', nodeId: 'data_5' },
           },
         },
-        next: 'startTimeDilation_2',
+        next: 'startTimeDilation_20',
       },
-      applyElementalInfliction_4: {
+      applyElementalInfliction_22: {
         action: {
           kind: 'applyElementalInfliction',
           parameters: { element: 'heat', isExtra: false },
         },
-        next: 'dealDamage_3',
+        next: 'dealDamage_21',
       },
-      gainSquadUltimateEnergyFromSkillCost_5: {
+      gainSquadUltimateEnergyFromSkillCost_23: {
         action: { kind: 'gainSquadUltimateEnergyFromSkillCost', parameters: { coefficient: 1 } },
+        next: null,
+      },
+      ifElse_24: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: null },
+          whenTrue: { $sequence: 'gainSquadUltimateEnergyFromSkillCost_23' },
+          whenFalse: { $sequence: null },
+        },
+        next: null,
+      },
+      ifElse_opt1: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: null },
+          whenTrue: { $sequence: null },
+          whenFalse: { $sequence: null },
+        },
         next: null,
       },
     },
     dataNodes: {
-      data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_2: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
+      data_1: {
+        type: 'boolean',
+        expression: {
+          kind: 'targetDistance',
+          source: { kind: 'owner' },
+          target: { kind: 'mainCharacter' },
+          distance: 8,
+          lessThan: true,
+          includeTargetRadius: false,
+          containsHittableObject: false,
+        },
+      },
+      data_2: {
+        type: 'boolean',
+        expression: {
+          kind: 'targetDistance',
+          source: { kind: 'owner' },
+          target: { kind: 'mainCharacter' },
+          distance: 4,
+          lessThan: true,
+          includeTargetRadius: false,
+          containsHittableObject: false,
+        },
+      },
+      data_3: { type: 'boolean', expression: { kind: 'casterControlled' } },
+      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
+      data_5: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
     },
   },
   macros: {},
 } as const satisfies ActionGraphResourceDefinition;
 
 export const akekuriChr_0019_karin_normal_skill: SkillDefinition = {
-  actionGraph: akekuriChr_0019_karin_normal_skillActionGraph,
   key: 'chr_0019_karin_normal_skill',
   element: 'heat',
   blackboard: {
@@ -774,18 +940,18 @@ export const akekuriChr_0019_karin_normal_skill: SkillDefinition = {
   offsetRecordFrame: 0,
   costFrame: 0,
   scheduledSequences: [
-    { startFrame: 0, endFrame: 7, sequence: { $sequence: 'findCharacterTeamTargets_1' } },
-    { startFrame: 20, endFrame: 21, sequence: { $sequence: 'applyElementalInfliction_4' } },
-    {
-      startFrame: 20,
-      endFrame: 21,
-      sequence: { $sequence: 'gainSquadUltimateEnergyFromSkillCost_5' },
-    },
+    { startFrame: 0, endFrame: 125, sequence: { $sequence: 'findTargets_1' } },
+    { startFrame: 16, endFrame: 21, sequence: { $sequence: 'findTargets_1' } },
+    { startFrame: 0, endFrame: 45, sequence: { $sequence: 'ifElse_14' } },
+    { startFrame: 0, endFrame: 20, sequence: { $sequence: 'ifElse_opt1' } },
+    { startFrame: 20, endFrame: 21, sequence: { $sequence: 'applyElementalInfliction_22' } },
+    { startFrame: 20, endFrame: 21, sequence: { $sequence: 'ifElse_24' } },
   ],
   costs: [{ resource: 'sp', value: 100 }],
   skillType: 'battleSkill',
   levelSource: 'battleSkill',
   nativeSkillType: 'normalSkill',
+  actionGraph: akekuriChr_0019_karin_normal_skillActionGraph,
 };
 
 export const akekuriChr_0019_karin_ultimate_skillActionGraph = {
@@ -808,13 +974,12 @@ export const akekuriChr_0019_karin_ultimate_skillActionGraph = {
         },
         next: null,
       },
-      conditional_2: {
+      checkCondition_2: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-          whenTrue: { $sequence: 'applyBuff_1' },
         },
-        next: null,
+        next: 'applyBuff_1',
       },
       startTimeDilation_3: {
         action: {
@@ -831,40 +996,14 @@ export const akekuriChr_0019_karin_ultimate_skillActionGraph = {
         },
         next: null,
       },
-      modifyActionValue_4: {
+      checkCondition_4: {
         action: {
-          kind: 'modifyActionValue',
-          parameters: {
-            key: 'atb_3',
-            operation: 'multiply',
-            value: { kind: 'valueNode', nodeId: 'data_3' },
-          },
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
         },
         next: null,
       },
       modifyActionValue_5: {
-        action: {
-          kind: 'modifyActionValue',
-          parameters: {
-            key: 'atb_2',
-            operation: 'multiply',
-            value: { kind: 'valueNode', nodeId: 'data_4' },
-          },
-        },
-        next: 'modifyActionValue_4',
-      },
-      modifyActionValue_6: {
-        action: {
-          kind: 'modifyActionValue',
-          parameters: {
-            key: 'atb_1',
-            operation: 'multiply',
-            value: { kind: 'valueNode', nodeId: 'data_5' },
-          },
-        },
-        next: 'modifyActionValue_5',
-      },
-      modifyActionValue_7: {
         action: {
           kind: 'modifyActionValue',
           parameters: {
@@ -875,7 +1014,7 @@ export const akekuriChr_0019_karin_ultimate_skillActionGraph = {
         },
         next: null,
       },
-      modifyActionValue_8: {
+      modifyActionValue_6: {
         action: {
           kind: 'modifyActionValue',
           parameters: {
@@ -884,9 +1023,9 @@ export const akekuriChr_0019_karin_ultimate_skillActionGraph = {
             value: { kind: 'valueNode', nodeId: 'data_7' },
           },
         },
-        next: 'modifyActionValue_7',
+        next: 'modifyActionValue_5',
       },
-      modifyActionValue_9: {
+      modifyActionValue_7: {
         action: {
           kind: 'modifyActionValue',
           parameters: {
@@ -895,25 +1034,59 @@ export const akekuriChr_0019_karin_ultimate_skillActionGraph = {
             value: { kind: 'valueNode', nodeId: 'data_8' },
           },
         },
-        next: 'modifyActionValue_8',
+        next: 'modifyActionValue_6',
       },
-      conditional_10: {
+      modifyActionValue_8: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_11' }, alwaysNext: true },
-          whenTrue: { $sequence: 'modifyActionValue_6' },
-          whenFalse: { $sequence: 'modifyActionValue_9' },
+          kind: 'modifyActionValue',
+          parameters: {
+            key: 'atb_3',
+            operation: 'multiply',
+            value: { kind: 'valueNode', nodeId: 'data_9' },
+          },
         },
         next: null,
       },
-      modifyActionValue_11: {
+      modifyActionValue_9: {
+        action: {
+          kind: 'modifyActionValue',
+          parameters: {
+            key: 'atb_2',
+            operation: 'multiply',
+            value: { kind: 'valueNode', nodeId: 'data_10' },
+          },
+        },
+        next: 'modifyActionValue_8',
+      },
+      modifyActionValue_10: {
+        action: {
+          kind: 'modifyActionValue',
+          parameters: {
+            key: 'atb_1',
+            operation: 'multiply',
+            value: { kind: 'valueNode', nodeId: 'data_11' },
+          },
+        },
+        next: 'modifyActionValue_9',
+      },
+      ifElse_11: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_4' },
+          whenTrue: { $sequence: 'modifyActionValue_7' },
+          whenFalse: { $sequence: 'modifyActionValue_10' },
+        },
+        next: null,
+      },
+      modifyActionValue_12: {
         action: {
           kind: 'modifyActionValue',
           parameters: { key: 'max_ratio', operation: 'add', value: { kind: 'constant', value: 1 } },
         },
-        next: 'conditional_10',
+        next: 'ifElse_11',
       },
-      storeSourceAttributeValue_12: {
+      storeSourceAttributeValue_13: {
         action: {
           kind: 'storeSourceAttributeValue',
           parameters: {
@@ -926,30 +1099,17 @@ export const akekuriChr_0019_karin_ultimate_skillActionGraph = {
             targetKey: 'atb_up',
           },
         },
-        next: 'modifyActionValue_11',
-      },
-      changeResource_13: {
-        action: {
-          kind: 'changeResource',
-          parameters: {
-            resource: 'sp',
-            amount: { kind: 'valueNode', nodeId: 'data_13' },
-            coefficient: { kind: 'constant', value: 1 },
-            recipient: 'team',
-            spGainKind: 'gain',
-            spGainSource: 'skill',
-          },
-        },
-        next: null,
+        next: 'modifyActionValue_12',
       },
       changeResource_14: {
         action: {
           kind: 'changeResource',
           parameters: {
             resource: 'sp',
-            amount: { kind: 'valueNode', nodeId: 'data_14' },
+            amount: { kind: 'valueNode', nodeId: 'data_13' },
             coefficient: { kind: 'constant', value: 1 },
-            recipient: 'team',
+            source: { kind: 'source' },
+            targets: { kind: 'source' },
             spGainKind: 'gain',
             spGainSource: 'skill',
           },
@@ -961,19 +1121,28 @@ export const akekuriChr_0019_karin_ultimate_skillActionGraph = {
           kind: 'changeResource',
           parameters: {
             resource: 'sp',
-            amount: { kind: 'valueNode', nodeId: 'data_15' },
+            amount: { kind: 'valueNode', nodeId: 'data_14' },
             coefficient: { kind: 'constant', value: 1 },
-            recipient: 'team',
+            source: { kind: 'source' },
+            targets: { kind: 'source' },
             spGainKind: 'gain',
             spGainSource: 'skill',
           },
         },
         next: null,
       },
-      findCharacterTeamTargets_16: {
+      changeResource_16: {
         action: {
-          kind: 'findCharacterTeamTargets',
-          parameters: { saveToContextKey: 'main_char', selection: { kind: 'controlledOperator' } },
+          kind: 'changeResource',
+          parameters: {
+            resource: 'sp',
+            amount: { kind: 'valueNode', nodeId: 'data_15' },
+            coefficient: { kind: 'constant', value: 1 },
+            source: { kind: 'source' },
+            targets: { kind: 'source' },
+            spGainKind: 'gain',
+            spGainSource: 'skill',
+          },
         },
         next: null,
       },
@@ -1010,13 +1179,12 @@ export const akekuriChr_0019_karin_ultimate_skillActionGraph = {
         },
         next: 'applyBuff_17',
       },
-      conditional_19: {
+      checkCondition_19: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_17' } },
-          whenTrue: { $sequence: 'applyBuff_18' },
         },
-        next: null,
+        next: 'applyBuff_18',
       },
       applyBuff_20: {
         action: {
@@ -1057,26 +1225,23 @@ export const akekuriChr_0019_karin_ultimate_skillActionGraph = {
           right: { kind: 'constant', value: 0 },
         },
       },
-      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atb_up' } },
-      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'atb_up' } },
-      data_5: { type: 'number', expression: { kind: 'blackboard', key: 'atb_up' } },
-      data_6: { type: 'number', expression: { kind: 'blackboard', key: 'max_ratio' } },
-      data_7: { type: 'number', expression: { kind: 'blackboard', key: 'max_ratio' } },
-      data_8: { type: 'number', expression: { kind: 'blackboard', key: 'max_ratio' } },
-      data_9: { type: 'number', expression: { kind: 'blackboard', key: 'atb_up', fallback: 0 } },
-      data_10: {
-        type: 'number',
-        expression: { kind: 'blackboard', key: 'max_ratio', fallback: 0 },
-      },
-      data_11: {
+      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atb_up', fallback: 0 } },
+      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'max_ratio', fallback: 0 } },
+      data_5: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_9' },
+          left: { kind: 'valueNode', nodeId: 'data_3' },
           operator: 'less',
-          right: { kind: 'valueNode', nodeId: 'data_10' },
+          right: { kind: 'valueNode', nodeId: 'data_4' },
         },
       },
+      data_6: { type: 'number', expression: { kind: 'blackboard', key: 'atb_up' } },
+      data_7: { type: 'number', expression: { kind: 'blackboard', key: 'atb_up' } },
+      data_8: { type: 'number', expression: { kind: 'blackboard', key: 'atb_up' } },
+      data_9: { type: 'number', expression: { kind: 'blackboard', key: 'max_ratio' } },
+      data_10: { type: 'number', expression: { kind: 'blackboard', key: 'max_ratio' } },
+      data_11: { type: 'number', expression: { kind: 'blackboard', key: 'max_ratio' } },
       data_12: { type: 'number', expression: { kind: 'blackboard', key: 'sub_ratio' } },
       data_13: { type: 'number', expression: { kind: 'blackboard', key: 'atb_1' } },
       data_14: { type: 'number', expression: { kind: 'blackboard', key: 'atb_2' } },
@@ -1097,7 +1262,6 @@ export const akekuriChr_0019_karin_ultimate_skillActionGraph = {
 } as const satisfies ActionGraphResourceDefinition;
 
 export const akekuriChr_0019_karin_ultimate_skill: SkillDefinition = {
-  actionGraph: akekuriChr_0019_karin_ultimate_skillActionGraph,
   key: 'chr_0019_karin_ultimate_skill',
   element: 'heat',
   blackboard: {
@@ -1141,14 +1305,13 @@ export const akekuriChr_0019_karin_ultimate_skill: SkillDefinition = {
   },
   costFrame: 0,
   scheduledSequences: [
-    { startFrame: 0, endFrame: 150, sequence: { $sequence: 'conditional_2' } },
+    { startFrame: 0, endFrame: 150, sequence: { $sequence: 'checkCondition_2' } },
     { startFrame: 0, endFrame: 3, sequence: { $sequence: 'startTimeDilation_3' } },
-    { startFrame: 0, endFrame: 12, sequence: { $sequence: 'storeSourceAttributeValue_12' } },
-    { startFrame: 59, endFrame: 83, sequence: { $sequence: 'changeResource_13' } },
-    { startFrame: 86, endFrame: 115, sequence: { $sequence: 'changeResource_14' } },
-    { startFrame: 119, endFrame: 159, sequence: { $sequence: 'changeResource_15' } },
-    { startFrame: 0, endFrame: 1, sequence: { $sequence: 'findCharacterTeamTargets_16' } },
-    { startFrame: 1, endFrame: 150, sequence: { $sequence: 'conditional_19' } },
+    { startFrame: 0, endFrame: 12, sequence: { $sequence: 'storeSourceAttributeValue_13' } },
+    { startFrame: 59, endFrame: 83, sequence: { $sequence: 'changeResource_14' } },
+    { startFrame: 86, endFrame: 115, sequence: { $sequence: 'changeResource_15' } },
+    { startFrame: 119, endFrame: 159, sequence: { $sequence: 'changeResource_16' } },
+    { startFrame: 1, endFrame: 150, sequence: { $sequence: 'checkCondition_19' } },
     { startFrame: 0, endFrame: 83, sequence: { $sequence: 'applyBuff_20' } },
     { startFrame: 0, endFrame: 55, sequence: { $sequence: 'hideUi_21' } },
     { startFrame: 0, endFrame: 55, sequence: { $sequence: 'startUltimateTimeDilation_22' } },
@@ -1158,6 +1321,7 @@ export const akekuriChr_0019_karin_ultimate_skill: SkillDefinition = {
   skillType: 'ultimate',
   levelSource: 'ultimate',
   nativeSkillType: 'ultimateSkill',
+  actionGraph: akekuriChr_0019_karin_ultimate_skillActionGraph,
 };
 
 export const akekuriChr_0019_karin_combo_skillActionGraph = {
@@ -1170,7 +1334,18 @@ export const akekuriChr_0019_karin_combo_skillActionGraph = {
         },
         next: null,
       },
-      modifyActionValue_3: {
+      findTargets_2: {
+        action: {
+          kind: 'findTargets',
+          parameters: {
+            owner: { kind: 'owner' },
+            query: { kind: 'mainTarget', owner: { kind: 'owner' } },
+            saveToContextKey: 'tar',
+          },
+        },
+        next: 'findCharacterTeamTargets_1',
+      },
+      modifyActionValue_5: {
         action: {
           kind: 'modifyActionValue',
           parameters: {
@@ -1181,7 +1356,7 @@ export const akekuriChr_0019_karin_combo_skillActionGraph = {
         },
         next: null,
       },
-      modifyActionValue_2: {
+      modifyActionValue_4: {
         action: {
           kind: 'modifyActionValue',
           parameters: {
@@ -1192,92 +1367,46 @@ export const akekuriChr_0019_karin_combo_skillActionGraph = {
         },
         next: null,
       },
-      changeResource_4: {
+      checkCondition_3: {
         action: {
-          kind: 'changeResource',
-          parameters: {
-            resource: 'ultimateEnergy',
-            amount: { kind: 'valueNode', nodeId: 'data_3' },
-            coefficient: { kind: 'constant', value: 1 },
-            recipient: 'caster',
-          },
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
         },
         next: null,
       },
-      modifyActionValue_5: {
-        action: {
-          kind: 'modifyActionValue',
-          parameters: { key: 'count', operation: 'add', value: { kind: 'constant', value: 1 } },
-        },
-        next: 'changeResource_4',
-      },
-      startTimeDilation_6: {
-        action: {
-          kind: 'startTimeDilation',
-          parameters: {
-            scope: 'entity',
-            durationSeconds: { kind: 'constant', value: 0.1 },
-            slot: 'TimeDilation/Layer/Entity/HitStop',
-            priority: 10,
-            curve: { kind: 'named', key: 'char_normal_attack' },
-            finishByAction: false,
-            targets: ['enemy', 'caster'],
-          },
-        },
-        next: 'modifyActionValue_5',
-      },
-      conditional_7: {
-        action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' }, alwaysNext: true },
-          whenTrue: { $sequence: 'startTimeDilation_6' },
-        },
-        next: null,
-      },
-      dealDamage_8: {
-        action: {
-          kind: 'dealDamage',
-          parameters: {
-            damageType: 'physical',
-            attackScale: { kind: 'valueNode', nodeId: 'data_6' },
-            tags: ['comboSkill'],
-            features: ['canBreakWeakness'],
-            stagger: { kind: 'valueNode', nodeId: 'data_7' },
-          },
-        },
-        next: 'conditional_7',
-      },
-      changeResource_9: {
+      changeResource_opt1: {
         action: {
           kind: 'changeResource',
           parameters: {
             resource: 'sp',
-            amount: { kind: 'valueNode', nodeId: 'data_8' },
+            amount: { kind: 'valueNode', nodeId: 'data_6' },
             coefficient: { kind: 'constant', value: 1 },
-            recipient: 'team',
+            source: { kind: 'source' },
+            targets: { kind: 'source' },
             spGainKind: 'gain',
             spGainSource: 'skill',
           },
         },
-        next: 'dealDamage_8',
+        next: null,
       },
-      conditional_10: {
+      ifElse_opt2: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_11' }, alwaysNext: true },
-          whenTrue: { $sequence: 'modifyActionValue_2' },
-          whenFalse: { $sequence: 'modifyActionValue_3' },
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_3' },
+          whenTrue: { $sequence: 'modifyActionValue_4' },
+          whenFalse: { $sequence: 'modifyActionValue_5' },
         },
-        next: 'changeResource_9',
+        next: 'changeResource_opt1',
       },
-      modifyActionValue_11: {
+      modifyActionValue_opt3: {
         action: {
           kind: 'modifyActionValue',
           parameters: { key: 'max_ratio', operation: 'add', value: { kind: 'constant', value: 1 } },
         },
-        next: 'conditional_10',
+        next: 'ifElse_opt2',
       },
-      storeSourceAttributeValue_12: {
+      storeSourceAttributeValue_opt4: {
         action: {
           kind: 'storeSourceAttributeValue',
           parameters: {
@@ -1285,25 +1414,45 @@ export const akekuriChr_0019_karin_combo_skillActionGraph = {
             stage: 'finalNonConverted',
             useFloor: false,
             divisor: { kind: 'constant', value: 1 },
-            multiplier: { kind: 'valueNode', nodeId: 'data_12' },
+            multiplier: { kind: 'valueNode', nodeId: 'data_7' },
             base: { kind: 'constant', value: 1 },
             targetKey: 'atb_up',
           },
         },
-        next: 'modifyActionValue_11',
+        next: 'modifyActionValue_opt3',
       },
-      modifyActionValue_13: {
+      modifyActionValue_opt5: {
         action: {
           kind: 'modifyActionValue',
           parameters: {
             key: 'sub_ratio',
             operation: 'divide',
-            value: { kind: 'valueNode', nodeId: 'data_13' },
+            value: { kind: 'valueNode', nodeId: 'data_8' },
           },
         },
-        next: 'storeSourceAttributeValue_12',
+        next: 'storeSourceAttributeValue_opt4',
       },
-      startTimeDilation_15: {
+      changeResource_12: {
+        action: {
+          kind: 'changeResource',
+          parameters: {
+            resource: 'ultimateEnergy',
+            amount: { kind: 'valueNode', nodeId: 'data_9' },
+            coefficient: { kind: 'constant', value: 1 },
+            source: { kind: 'source' },
+            targets: { kind: 'source' },
+          },
+        },
+        next: null,
+      },
+      modifyActionValue_13: {
+        action: {
+          kind: 'modifyActionValue',
+          parameters: { key: 'count', operation: 'add', value: { kind: 'constant', value: 1 } },
+        },
+        next: 'changeResource_12',
+      },
+      startTimeDilation_14: {
         action: {
           kind: 'startTimeDilation',
           parameters: {
@@ -1316,58 +1465,111 @@ export const akekuriChr_0019_karin_combo_skillActionGraph = {
             targets: ['enemy', 'caster'],
           },
         },
-        next: 'changeResource_4',
+        next: 'modifyActionValue_13',
       },
-      modifyActionValue_16: {
+      checkCondition_11: {
         action: {
-          kind: 'modifyActionValue',
-          parameters: { key: 'count', operation: 'add', value: { kind: 'constant', value: 1 } },
-        },
-        next: 'startTimeDilation_15',
-      },
-      conditional_17: {
-        action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_15' }, alwaysNext: true },
-          whenTrue: { $sequence: 'modifyActionValue_16' },
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_11' } },
         },
         next: null,
       },
-      dealDamage_18: {
+      ifElse_15: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_11' },
+          whenTrue: { $sequence: 'startTimeDilation_14' },
+          whenFalse: { $sequence: null },
+        },
+        next: null,
+      },
+      dealDamage_16: {
         action: {
           kind: 'dealDamage',
           parameters: {
             damageType: 'physical',
-            attackScale: { kind: 'valueNode', nodeId: 'data_16' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_12' },
             tags: ['comboSkill'],
             features: ['canBreakWeakness'],
-            stagger: { kind: 'valueNode', nodeId: 'data_17' },
+            stagger: { kind: 'valueNode', nodeId: 'data_13' },
           },
         },
-        next: 'conditional_17',
+        next: 'ifElse_15',
       },
-      changeResource_19: {
+      ifElse_opt6: {
         action: {
-          kind: 'changeResource',
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: null },
+          whenTrue: { $sequence: 'modifyActionValue_opt5' },
+          whenFalse: { $sequence: null },
+        },
+        next: 'dealDamage_16',
+      },
+      startTimeDilation_21: {
+        action: {
+          kind: 'startTimeDilation',
           parameters: {
-            resource: 'sp',
-            amount: { kind: 'valueNode', nodeId: 'data_18' },
-            coefficient: { kind: 'constant', value: 1 },
-            recipient: 'team',
-            spGainKind: 'gain',
-            spGainSource: 'skill',
+            scope: 'entity',
+            durationSeconds: { kind: 'constant', value: 0.1 },
+            slot: 'TimeDilation/Layer/Entity/HitStop',
+            priority: 10,
+            curve: { kind: 'named', key: 'char_normal_attack' },
+            finishByAction: false,
+            targets: ['enemy', 'caster'],
           },
         },
-        next: 'dealDamage_18',
+        next: 'changeResource_12',
       },
-      modifyActionValue_20: {
+      modifyActionValue_22: {
+        action: {
+          kind: 'modifyActionValue',
+          parameters: { key: 'count', operation: 'add', value: { kind: 'constant', value: 1 } },
+        },
+        next: 'startTimeDilation_21',
+      },
+      ifElse_23: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_11' },
+          whenTrue: { $sequence: 'modifyActionValue_22' },
+          whenFalse: { $sequence: null },
+        },
+        next: null,
+      },
+      dealDamage_24: {
+        action: {
+          kind: 'dealDamage',
+          parameters: {
+            damageType: 'physical',
+            attackScale: { kind: 'valueNode', nodeId: 'data_14' },
+            tags: ['comboSkill'],
+            features: ['canBreakWeakness'],
+            stagger: { kind: 'valueNode', nodeId: 'data_15' },
+          },
+        },
+        next: 'ifElse_23',
+      },
+      ifElse_25: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: null },
+          whenTrue: { $sequence: 'changeResource_opt1' },
+          whenFalse: { $sequence: null },
+        },
+        next: 'dealDamage_24',
+      },
+      modifyActionValue_26: {
         action: {
           kind: 'modifyActionValue',
           parameters: { key: 'count', operation: 'assign', value: { kind: 'constant', value: 0 } },
         },
-        next: 'changeResource_19',
+        next: 'ifElse_25',
       },
-      startTimeDilation_21: {
+      startTimeDilation_27: {
         action: {
           kind: 'startTimeDilation',
           parameters: {
@@ -1387,49 +1589,35 @@ export const akekuriChr_0019_karin_combo_skillActionGraph = {
     dataNodes: {
       data_1: { type: 'number', expression: { kind: 'blackboard', key: 'max_ratio' } },
       data_2: { type: 'number', expression: { kind: 'blackboard', key: 'atb_up' } },
-      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'usp' } },
-      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'count', fallback: 0 } },
+      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atb_up', fallback: 0 } },
+      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'max_ratio', fallback: 0 } },
       data_5: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_4' },
-          operator: 'equal',
-          right: { kind: 'constant', value: 0 },
+          left: { kind: 'valueNode', nodeId: 'data_3' },
+          operator: 'less',
+          right: { kind: 'valueNode', nodeId: 'data_4' },
         },
       },
-      data_6: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_7: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
-      data_8: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
-      data_9: { type: 'number', expression: { kind: 'blackboard', key: 'atb_up', fallback: 0 } },
-      data_10: {
-        type: 'number',
-        expression: { kind: 'blackboard', key: 'max_ratio', fallback: 0 },
-      },
+      data_6: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+      data_7: { type: 'number', expression: { kind: 'blackboard', key: 'sub_ratio' } },
+      data_8: { type: 'number', expression: { kind: 'blackboard', key: 'rate' } },
+      data_9: { type: 'number', expression: { kind: 'blackboard', key: 'usp' } },
+      data_10: { type: 'number', expression: { kind: 'blackboard', key: 'count', fallback: 0 } },
       data_11: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_9' },
-          operator: 'less',
-          right: { kind: 'valueNode', nodeId: 'data_10' },
-        },
-      },
-      data_12: { type: 'number', expression: { kind: 'blackboard', key: 'sub_ratio' } },
-      data_13: { type: 'number', expression: { kind: 'blackboard', key: 'rate' } },
-      data_14: { type: 'number', expression: { kind: 'blackboard', key: 'count', fallback: 0 } },
-      data_15: {
-        type: 'boolean',
-        expression: {
-          kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_14' },
+          left: { kind: 'valueNode', nodeId: 'data_10' },
           operator: 'equal',
           right: { kind: 'constant', value: 0 },
         },
       },
-      data_16: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_17: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
-      data_18: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+      data_12: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
+      data_13: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
+      data_14: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
+      data_15: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
     },
   },
   macros: {},
@@ -1460,10 +1648,10 @@ export const akekuriChr_0019_karin_combo_skill: SkillDefinition = {
   },
   costFrame: 0,
   scheduledSequences: [
-    { startFrame: 0, endFrame: 1, sequence: { $sequence: 'findCharacterTeamTargets_1' } },
-    { startFrame: 22, endFrame: 26, sequence: { $sequence: 'modifyActionValue_13' } },
-    { startFrame: 31, endFrame: 36, sequence: { $sequence: 'modifyActionValue_20' } },
-    { startFrame: 0, endFrame: 15, sequence: { $sequence: 'startTimeDilation_21' } },
+    { startFrame: 0, endFrame: 1, sequence: { $sequence: 'findTargets_2' } },
+    { startFrame: 22, endFrame: 26, sequence: { $sequence: 'ifElse_opt6' } },
+    { startFrame: 31, endFrame: 36, sequence: { $sequence: 'modifyActionValue_26' } },
+    { startFrame: 0, endFrame: 15, sequence: { $sequence: 'startTimeDilation_27' } },
   ],
   cooldownFrames: [300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 270],
   skillType: 'comboSkill',
@@ -1494,11 +1682,10 @@ export const akekuriCommon_character_perfect_dodge: SkillDefinition = {
 const akekuriComboCondition1ActionGraph = {
   main: {
     nodes: {
-      conditional_1: {
+      checkCondition_1: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-          whenTrue: { $sequence: null },
         },
         next: null,
       },
@@ -1523,18 +1710,17 @@ const akekuriComboCondition1: ComboSkillConditionDefinition = {
   event: 'poiseZero',
   immediately: false,
   initialValues: null,
-  sequence: { $sequence: 'conditional_1' },
+  sequence: { $sequence: 'checkCondition_1' },
   actionGraph: akekuriComboCondition1ActionGraph,
 };
 
 const akekuriComboCondition2ActionGraph = {
   main: {
     nodes: {
-      conditional_1: {
+      checkCondition_1: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-          whenTrue: { $sequence: null },
         },
         next: null,
       },
@@ -1559,7 +1745,7 @@ const akekuriComboCondition2: ComboSkillConditionDefinition = {
   event: 'poiseKnotBreak',
   immediately: false,
   initialValues: null,
-  sequence: { $sequence: 'conditional_1' },
+  sequence: { $sequence: 'checkCondition_1' },
   actionGraph: akekuriComboCondition2ActionGraph,
 };
 
@@ -1583,13 +1769,12 @@ const akekuriBuff1ActionGraph = {
         },
         next: null,
       },
-      conditional_2: {
+      checkCondition_2: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-          whenTrue: { $sequence: 'applyBuff_1' },
         },
-        next: null,
+        next: 'applyBuff_1',
       },
     },
     dataNodes: {
@@ -1611,7 +1796,7 @@ const akekuriBuff1: SkillBuffDefinition = {
   blackboard: { atk_up: 0, duration: 0, max_stack: 1 },
   attributeModifiers: [],
   abilityEventResponses: [
-    { event: 'skillSpGained', priority: 0, sequence: { $sequence: 'conditional_2' } },
+    { event: 'skillSpGained', priority: 0, sequence: { $sequence: 'checkCondition_2' } },
   ],
   actionGraph: akekuriBuff1ActionGraph,
 };
@@ -1746,7 +1931,14 @@ const akekuriBuff5: SkillBuffDefinition = {
 const akekuriBuff6ActionGraph = {
   main: {
     nodes: {
-      applyBuff_1: {
+      checkCondition_1: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
+        },
+        next: null,
+      },
+      applyBuff_2: {
         action: {
           kind: 'applyBuff',
           parameters: {
@@ -1763,7 +1955,7 @@ const akekuriBuff6ActionGraph = {
         },
         next: null,
       },
-      finishBuffsById_2: {
+      finishBuffsById_3: {
         action: {
           kind: 'finishBuffsById',
           parameters: {
@@ -1774,12 +1966,13 @@ const akekuriBuff6ActionGraph = {
         },
         next: null,
       },
-      conditional_3: {
+      ifElse_4: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' }, alwaysNext: true },
-          whenTrue: { $sequence: 'applyBuff_1' },
-          whenFalse: { $sequence: 'finishBuffsById_2' },
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_1' },
+          whenTrue: { $sequence: 'applyBuff_2' },
+          whenFalse: { $sequence: 'finishBuffsById_3' },
         },
         next: null,
       },
@@ -1808,7 +2001,7 @@ const akekuriBuff6: SkillBuffDefinition = {
   extendTags: [],
   blackboard: { potential_5_duration: 0 },
   attributeModifiers: [],
-  lifecycleSequences: { finish: { $sequence: 'conditional_3' } },
+  lifecycleSequences: { finish: { $sequence: 'ifElse_4' } },
   actionGraph: akekuriBuff6ActionGraph,
 };
 
@@ -1870,6 +2063,7 @@ export const akekuri: OperatorDefinition = {
   rarity: 4,
   weaponType: 'sword',
   element: 'heat',
+  characterTypeId: 'Fire',
   role: 'vanguard',
   mainAttribute: 'agility',
   secondaryAttribute: 'intellect',

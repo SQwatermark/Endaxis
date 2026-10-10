@@ -69,7 +69,12 @@ it('被动能力事件按所属技能等级编译，不在编译期执行或改�
               response: {
                 action: {
                   kind: 'changeResource',
-                  parameters: { resource: 'sp', amount: [3, 7], recipient: 'team' },
+                  parameters: {
+                    resource: 'sp',
+                    amount: [3, 7],
+                    source: { kind: 'fixed' as const, target: 'caster' as const },
+                    targets: { kind: 'fixed' as const, target: 'caster' as const },
+                  },
                 },
                 next: null,
               },
@@ -737,7 +742,12 @@ it('compiles graph upgrade hosts with shared nodes, distinct entries and level-s
         entry: {
           action: {
             kind: 'changeResource',
-            parameters: { resource: 'sp', amount: [3, 7], recipient: 'team' },
+            parameters: {
+              resource: 'sp',
+              amount: [3, 7],
+              source: { kind: 'fixed' as const, target: 'caster' as const },
+              targets: { kind: 'fixed' as const, target: 'caster' as const },
+            },
           },
           next: null,
         },

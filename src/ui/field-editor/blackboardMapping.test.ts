@@ -43,7 +43,7 @@ describe('blackboard mapping declaration metadata', () => {
         ...original,
         valueSchema: {
           ...original.valueSchema,
-          declaration: 'CombatStepParameters.applyBuff.stringBlackboardAssignments',
+          declaration: 'BuffApplicationEntry.stringBlackboardAssignments',
         },
       }),
     ).toBeUndefined();

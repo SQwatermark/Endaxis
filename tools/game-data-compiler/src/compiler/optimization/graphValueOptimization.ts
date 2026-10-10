@@ -1,24 +1,9 @@
 import type { SkillDefinition } from '../intermediateDefinitions.ts';
 /**
- * 三块树分析/优化的图侧对应，与 graphSequenceOptimization.ts 并列：
- *
- * - pruneUnusedGraphSkillValues ↔ skillValueOptimization.ts 的 pruneUnusedSkillValues：
- *   删除技能黑板中无读取者的初始值声明/写入步骤。用途收集与删除判定改为图遍历
- *   （沿 next 与全部 $sequence 引用，visited 防环，共享子图只统计一次）。裁剪发生在宏提取
- *   之前，图中尚无 callMacro；防御性遇到时保守标成未知访问。删除写入在共享 DAG 上全局安全：
- *   只裁剪整个资源（该定义主图）内无读取的键，前驱 next 与入口/字段引用 copy-on-write
- *   重接到下一个幸存节点，所有共享该节点的引用方看到同一份结果，最后剔除不可达节点。
- *   retainedLifetimePaths（"序列留一命"）语义保留：一条引用的整条链都被删除时保留首节点。
- *   报告坐标从 path.steps[i] 改为节点 id 链：`scheduledSequences[0].sequence→modifyActionValue_1`。
- *
- * - createGraphEntityUsageContext / collectGraphSharedEntityValueUsage /
- *   createGraphSharedEntityValueUsageCollector ↔ definitionEntityUsageContext.ts：
- *   收集能力实体/子技能对黑板与 Buff 的跨定义用途。图版入口遍历
- *   OperatorDefinition 的 abilityEntityDefinitions、各技能/被动/养成/
- *   连携条件自己的 actionGraph，以及携带 actionGraph 的 Buff 与装备贡献。
- *
- * - pruneUnusedGraphEquipmentContributionBlackboard ↔ equipmentValueOptimization.ts：
- *   只删除装备黑板初值，用途按 enableSequence/initializationSequence/eventHandlers 的图遍历汇总。
+ * 汇总资源图及其外部接收者的变量用途，删除无人读取的初值和可省略的写入。
+ * 共享节点只分析一次；重接所有入口与后继后清除不可达节点。
+ * 同步控制流做反向活性分析；跨调度用途与未建模控制保守保留。
+ * 动态写入保留旧值依赖，不将容差写入当作必然覆盖。
  */
 import type {
   ActionGraphDefinition,
@@ -46,6 +31,7 @@ import type {
 } from '../intermediateDefinitions.ts';
 
 import {
+  isReadOnlyTargetQuery,
   actionValueUsage,
   analyzeConditionUsage,
   analyzeStepUsage,
@@ -102,22 +88,36 @@ function scanGraphReferences(
 function walkGraphActions(
   graph: ActionGraphDefinition,
   entry: ActionGraphReference,
-  visit: (action: ActionGraphStep) => void,
-): void {
+  visit: (action: ActionGraphStep, nodeId: string) => void,
+): boolean {
   const visited = new Set<string>();
+  const active = new Set<string>();
+  let complete = true;
   const walk = (reference: ActionGraphReference): void => {
+    const chain: string[] = [];
     let cursor = reference.$sequence;
     while (cursor !== null) {
-      if (visited.has(cursor)) return;
-      visited.add(cursor);
+      if (active.has(cursor)) {
+        complete = false;
+        break;
+      }
+      if (visited.has(cursor)) break;
       const node = graph.nodes[cursor];
-      if (!node) return;
-      visit(node.action);
+      if (!node) {
+        complete = false;
+        break;
+      }
+      visited.add(cursor);
+      active.add(cursor);
+      chain.push(cursor);
+      visit(node.action, cursor);
       scanGraphReferences(node.action, walk);
       cursor = node.next;
     }
+    chain.forEach(id => active.delete(id));
   };
   walk(entry);
+  return complete;
 }
 
 // ---------------------------------------------------------------------------
@@ -131,9 +131,143 @@ interface GraphWriteCandidate {
   readonly usage: DefinitionValueUsage;
 }
 
+/** 返回值无用途的条件计算，只在其写入也没有外部消费者时整体删除。 */
+function pruneUnobservedConditionComputations(
+  skill: SkillDefinition,
+  protectedKeys: ReadonlySet<string>,
+  context: DefinitionUsageContext | undefined,
+): {
+  readonly skill: SkillDefinition;
+  readonly removedWrites: SkillValueOptimizationReport['removedWrites'];
+} {
+  const removedWrites: { path: string; key: string }[] = [];
+  let graph = skill.actionGraph.main;
+  const entries = [
+    ...skill.scheduledSequences.map(item => item.sequence),
+    ...(skill.eventHandlers?.flatMap(handler =>
+      handler.scheduledSequences.map(item => item.sequence),
+    ) ?? []),
+    ...(skill.switchToBuffCast ? [skill.switchToBuffCast.sequence] : []),
+  ];
+  const outsideConditions = [
+    skill.availability,
+    skill.switchToBuffCast?.condition,
+    ...(skill.eventHandlers?.map(handler => handler.condition) ?? []),
+  ].filter(value => value !== undefined);
+  for (const [id, node] of Object.entries(graph.nodes)) {
+    const action = node.action;
+    if (
+      action.kind !== 'ifElse' ||
+      action.key !== undefined ||
+      !action.parameters.alwaysNext ||
+      action.whenTrue.$sequence !== action.whenFalse.$sequence ||
+      action.condition.$sequence === null
+    )
+      continue;
+    const writes = new Set<string>();
+    let safe = true;
+    const regionWrites: { path: string; key: string }[] = [];
+    const complete = walkGraphActions(graph, action.condition, (step, nodeId) => {
+      if (!safe || step.key !== undefined) {
+        safe = false;
+        return;
+      }
+      if (step.kind === 'ifElse') return;
+      if (step.kind === 'checkCondition') {
+        const condition = step.parameters.condition;
+        if (
+          ![
+            'constant',
+            'actionValueCompare',
+            'casterControlled',
+            'comboCameraAlphaSetting',
+            'entityCountCompare',
+          ].includes(condition.kind)
+        ) {
+          safe = false;
+          return;
+        }
+        const usage = analyzeConditionUsage(condition);
+        safe =
+          !usage.observable &&
+          !usage.unknownAccess &&
+          usage.writes.size === 0 &&
+          usage.externalReads.length === 0 &&
+          [...usage.reads].every(key => Object.hasOwn(skill.blackboard ?? {}, key));
+        return;
+      }
+      if (
+        !['modifyActionValue', 'calculateActionValue', 'saveTwoDirectionAngle'].includes(step.kind)
+      ) {
+        safe = false;
+        return;
+      }
+      if (
+        step.kind === 'saveTwoDirectionAngle' &&
+        [
+          step.parameters.direction1Source,
+          step.parameters.direction1Target,
+          step.parameters.direction2Source,
+          step.parameters.direction2Target,
+        ].some(query => !isReadOnlyTargetQuery(query))
+      ) {
+        safe = false;
+        return;
+      }
+      const usage = analyzeStepUsage(step as CombatStepDefinition, context);
+      safe =
+        !usage.unknownAccess &&
+        usage.externalReads.length === 0 &&
+        [...usage.reads].every(key => Object.hasOwn(skill.blackboard ?? {}, key));
+      for (const key of usage.writes) {
+        if (
+          protectedKeys.has(key) ||
+          key === NATIVE_SKILL_HAS_HIT_BLACKBOARD_KEY ||
+          key.startsWith('EntityBB_')
+        )
+          safe = false;
+        writes.add(key);
+        regionWrites.push({ path: `condition:${id}→${nodeId}`, key });
+      }
+    });
+    if (!complete || !safe || writes.size === 0) continue;
+    const candidate = {
+      ...graph,
+      nodes: {
+        ...graph.nodes,
+        [id]: { ...node, action: { ...action, condition: { $sequence: null } } },
+      },
+    };
+    // 从全部真实入口分析。共享调用、事件和继承接收方仍会看到这些写入，不能一起剪掉。
+    const outside = mergeDefinitionValueUsage([
+      ...entries.map(entry => analyzeGraphSequenceUsage(candidate, entry, context)),
+      ...outsideConditions.map(analyzeConditionUsage),
+    ]);
+    if (
+      outside.unknownAccess ||
+      [...writes].some(
+        key =>
+          outside.reads.has(key) ||
+          outside.writes.has(key) ||
+          outside.externalReads.some(read => read.key === key),
+      )
+    )
+      continue;
+    graph = candidate;
+    removedWrites.push(...regionWrites);
+  }
+  return {
+    skill:
+      graph === skill.actionGraph.main
+        ? skill
+        : { ...skill, actionGraph: { ...skill.actionGraph, main: graph } },
+    removedWrites,
+  };
+}
+
 /**
  * 删除图形态技能程序中无人使用的算术写入节点和黑板初值。
- * 入口与树版 mapRoots 一致：scheduledSequences、eventHandlers、switchToBuffCast，
+ * 覆盖 scheduledSequences、eventHandlers、switchToBuffCast，
  * 以及 availability/switchToBuffCast/eventHandlers 条件。
  */
 export function pruneUnusedGraphSkillValues(
@@ -144,10 +278,13 @@ export function pruneUnusedGraphSkillValues(
   readonly skill: SkillDefinition;
   readonly report: SkillValueOptimizationReport;
 } {
+  const conditionPruning = pruneUnobservedConditionComputations(skill, protectedKeys, usageContext);
+  skill = conditionPruning.skill;
   const graph = skill.actionGraph.main;
   const live = new Set([...protectedKeys, NATIVE_SKILL_HAS_HIT_BLACKBOARD_KEY]);
   const candidates: GraphWriteCandidate[] = [];
   const candidateByNode = new Map<string, GraphWriteCandidate>();
+  const requiredWrites = new Set<string>();
   const initial = skill.blackboard ?? {};
   let unresolvedAccess = false;
   const observe = (usage: DefinitionValueUsage) => {
@@ -157,10 +294,18 @@ export function pruneUnusedGraphSkillValues(
     unresolvedAccess ||= usage.unknownAccess;
   };
   const visited = new Set<string>();
-  /** 全图所有序列位置（入口引用与动作内 $sequence 字段），供"序列留一命"判定。 */
-  const positions: { readonly reference: ActionGraphReference; readonly path: string }[] = [];
-  const collectReference = (reference: ActionGraphReference, path: string): void => {
-    positions.push({ reference, path });
+  /** 记录入口返回值是否可能被消费，避免仅为内部执行状态保留无用写入。 */
+  const positions: {
+    readonly reference: ActionGraphReference;
+    readonly path: string;
+    readonly resultIsConsumed: boolean;
+  }[] = [];
+  const collectReference = (
+    reference: ActionGraphReference,
+    path: string,
+    resultIsConsumed = true,
+  ): void => {
+    positions.push({ reference, path, resultIsConsumed });
     let cursor = reference.$sequence;
     while (cursor !== null) {
       if (visited.has(cursor)) break;
@@ -174,13 +319,18 @@ export function pruneUnusedGraphSkillValues(
   const collectAction = (action: ActionGraphStep, path: string, nodeId: string): void => {
     switch (action.kind) {
       case 'modifyActionValue':
-      case 'calculateActionValue': {
+      case 'calculateActionValue':
+      case 'saveTwoDirectionAngle': {
         // 图节点的叶动作形态与树相同，直接复用逐步用途分析。
         const usage = analyzeStepUsage(action as unknown as CombatStepDefinition, usageContext);
+        const outputKey =
+          action.kind === 'saveTwoDirectionAngle'
+            ? action.parameters.outputKey
+            : action.parameters.key;
         const candidate: GraphWriteCandidate = {
           nodeId,
           path,
-          key: action.parameters.key,
+          key: outputKey,
           usage,
         };
         candidates.push(candidate);
@@ -188,28 +338,70 @@ export function pruneUnusedGraphSkillValues(
         const operands =
           action.kind === 'modifyActionValue'
             ? [action.parameters.value]
-            : [action.parameters.left, action.parameters.right];
+            : action.kind === 'calculateActionValue'
+              ? [action.parameters.left, action.parameters.right]
+              : [];
         const canResolveInputs = operands.every(
           operand =>
             operand.kind === 'constant' ||
             (operand.kind === 'blackboard' &&
               (operand.fallback !== undefined || Object.hasOwn(initial, operand.key))),
         );
+        const queryMayHaveEffects =
+          action.kind === 'saveTwoDirectionAngle' &&
+          [
+            action.parameters.direction1Source,
+            action.parameters.direction1Target,
+            action.parameters.direction2Source,
+            action.parameters.direction2Target,
+          ].some(query => !isReadOnlyTargetQuery(query));
         // EntityBB_ 是原生动态写入路由，不是对象特例；它可能被同一实体的其他技能读取。
         if (
           action.key !== undefined ||
-          action.parameters.key.startsWith('EntityBB_') ||
-          protectedKeys.has(action.parameters.key) ||
+          outputKey.startsWith('EntityBB_') ||
+          protectedKeys.has(outputKey) ||
+          queryMayHaveEffects ||
           !canResolveInputs
         ) {
-          live.add(action.parameters.key);
+          live.add(outputKey);
+          requiredWrites.add(nodeId);
         }
         return;
       }
+      case 'anyCondition':
+        action.conditions.forEach((condition, index) =>
+          collectReference(condition, `${path}.conditions[${index}]`),
+        );
+        return;
+      case 'jumpTimeline':
+        collectReference(action.condition, `${path}.condition`);
+        return;
+      case 'ifElse':
+        collectReference(action.condition, `${path}.condition`);
+        collectReference(
+          action.whenTrue,
+          `${path}.whenTrue`,
+          action.parameters.alwaysNext !== true,
+        );
+        collectReference(
+          action.whenFalse,
+          `${path}.whenFalse`,
+          action.parameters.alwaysNext !== true,
+        );
+        return;
       case 'conditional':
         observe(analyzeConditionUsage(action.parameters.condition));
-        collectReference(action.whenTrue, `${path}.whenTrue`);
-        if (action.whenFalse !== undefined) collectReference(action.whenFalse, `${path}.whenFalse`);
+        collectReference(
+          action.whenTrue,
+          `${path}.whenTrue`,
+          action.parameters.alwaysNext !== true,
+        );
+        if (action.whenFalse !== undefined)
+          collectReference(
+            action.whenFalse,
+            `${path}.whenFalse`,
+            action.parameters.alwaysNext !== true,
+          );
         return;
       case 'switch':
         observe(
@@ -219,7 +411,11 @@ export function pruneUnusedGraphSkillValues(
           ]),
         );
         action.options.forEach((option, optionIndex) =>
-          collectReference(option.sequence, `${path}.options[${optionIndex}].sequence`),
+          collectReference(
+            option.sequence,
+            `${path}.options[${optionIndex}].sequence`,
+            action.parameters.alwaysNext !== true,
+          ),
         );
         return;
       case 'aura':
@@ -260,8 +456,12 @@ export function pruneUnusedGraphSkillValues(
       case 'launchProjectile':
         // 回调沿自己的图分析；回调 direct 板继承创建时父快照，回调体读取上传为父板读取。
         observe(
-          mergeDefinitionValueUsage(
-            action.callbacks.flatMap(callback =>
+          mergeDefinitionValueUsage([
+            ...(action.parameters.targets?.kind === 'count'
+              ? [actionValueUsage(action.parameters.targets.count)]
+              : []),
+            ...Object.values(action.parameters.entityAssignments ?? {}).map(actionValueUsage),
+            ...action.callbacks.flatMap(callback =>
               callback.skill.scheduledSequences.map(item =>
                 analyzeGraphSequenceUsage(
                   callback.skill.actionGraph.main,
@@ -270,7 +470,7 @@ export function pruneUnusedGraphSkillValues(
                 ),
               ),
             ),
-          ),
+          ]),
         );
         return;
       case 'callResource':
@@ -289,18 +489,19 @@ export function pruneUnusedGraphSkillValues(
     if (handler.condition !== undefined) observe(analyzeConditionUsage(handler.condition));
   });
   skill.scheduledSequences.forEach((item, index) =>
-    collectReference(item.sequence, `scheduledSequences[${index}].sequence`),
+    collectReference(item.sequence, `scheduledSequences[${index}].sequence`, false),
   );
   skill.eventHandlers?.forEach((handler, handlerIndex) =>
     handler.scheduledSequences.forEach((item, index) =>
       collectReference(
         item.sequence,
         `eventHandlers[${handlerIndex}].scheduledSequences[${index}].sequence`,
+        false,
       ),
     ),
   );
   if (skill.switchToBuffCast !== undefined)
-    collectReference(skill.switchToBuffCast.sequence, 'switchToBuffCast.sequence');
+    collectReference(skill.switchToBuffCast.sequence, 'switchToBuffCast.sequence', false);
   const skillId = skill.key;
   if (unresolvedAccess)
     return {
@@ -343,29 +544,213 @@ export function pruneUnusedGraphSkillValues(
     }
     return ids;
   };
-  // 若删空某条引用链，先把其首节点及输入加回保留集合，与树版一样迭代到不动点，
-  // 不能留下新的缺键读取，也不能改变重复执行的返回值。
+  /** 分支调用的所有返回位置参与汇合；未知控制流不参与逐写入删除。 */
+  const findDeadWrites = (): Set<string> => {
+    if (!skill.scheduledSequences.length) return new Set();
+    type Successor = string | symbol;
+    const successors = new Map<string, Set<Successor>>();
+    const boundaries = new Map<symbol, ReadonlySet<string>>();
+    const reads = new Map<string, ReadonlySet<string>>();
+    const calls = new Set<string>();
+    const active = new Set<string>();
+    let supported = true;
+    const deferredUses = new Set<string>();
+    const retainDeferred = (reference: ActionGraphReference): void => {
+      const usage = analyzeGraphSequenceUsage(graph, reference, usageContext);
+      if (usage.unknownAccess) supported = false;
+      [...usage.reads, ...usage.writes].forEach(key => deferredUses.add(key));
+    };
+    const connect = (reference: ActionGraphReference, returns: readonly Successor[]): void => {
+      if (reference.$sequence === null) return;
+      const identity = JSON.stringify([reference.$sequence, returns.map(String)]);
+      if (active.has(reference.$sequence)) {
+        supported = false;
+        return;
+      }
+      if (calls.has(identity)) return;
+      calls.add(identity);
+      active.add(reference.$sequence);
+      const chain = chainFrom(reference.$sequence);
+      if (chain.length === 0 || graph.nodes[chain.at(-1)!]?.next !== null) supported = false;
+      for (const id of chain) {
+        const node = graph.nodes[id]!;
+        const after = node.next === null ? returns : [node.next];
+        const edges = successors.get(id) ?? new Set<Successor>();
+        after.forEach(next => edges.add(next));
+        successors.set(id, edges);
+        const action = node.action;
+        if (action.kind === 'ifElse' || action.kind === 'conditional') {
+          const branches = [action.whenTrue, action.whenFalse].filter(
+            (ref): ref is ActionGraphReference => ref !== undefined,
+          );
+          for (const branch of branches) {
+            if (branch.$sequence !== null) edges.add(branch.$sequence);
+            connect(branch, after);
+          }
+          if (action.kind === 'ifElse') {
+            if (action.condition.$sequence !== null) edges.add(action.condition.$sequence);
+            connect(action.condition, [
+              ...after,
+              ...branches.flatMap(branch => (branch.$sequence === null ? [] : [branch.$sequence])),
+            ]);
+            reads.set(id, new Set());
+          } else {
+            const usage = analyzeConditionUsage(action.parameters.condition);
+            reads.set(id, new Set([...usage.reads, ...usage.writes]));
+          }
+        } else if (action.kind === 'switch') {
+          for (const option of action.options) {
+            if (option.sequence.$sequence !== null) edges.add(option.sequence.$sequence);
+            connect(option.sequence, after);
+          }
+          reads.set(
+            id,
+            mergeDefinitionValueUsage([
+              actionValueUsage(action.parameters.choice),
+              ...action.options.map(option => actionValueUsage(option.value)),
+            ]).reads,
+          );
+        } else if (action.kind === 'anyCondition') {
+          action.conditions.forEach((condition, index) => {
+            if (condition.$sequence !== null) edges.add(condition.$sequence);
+            // 条件成功直接返回，失败才继续后续条件；两种去向都必须保留。
+            connect(condition, [
+              ...after,
+              ...action.conditions
+                .slice(index + 1)
+                .flatMap(next => (next.$sequence === null ? [] : [next.$sequence])),
+            ]);
+          });
+          reads.set(id, new Set());
+        } else if (
+          action.kind === 'once' ||
+          action.kind === 'repeatByActionValue' ||
+          action.kind === 'forEachContextTarget'
+        ) {
+          if (action.body.$sequence !== null) edges.add(action.body.$sequence);
+          const repeats =
+            action.kind !== 'once' && action.body.$sequence !== null
+              ? [action.body.$sequence!]
+              : [];
+          connect(action.body, [...after, ...repeats]);
+          reads.set(
+            id,
+            action.kind === 'repeatByActionValue'
+              ? actionValueUsage(action.parameters.count).reads
+              : new Set(),
+          );
+        } else if (!candidateByNode.has(id)) {
+          // 子序列的时机未纳入同步控制流；保留其用途，不阻断其他区域分析。
+          scanGraphReferences(action, retainDeferred);
+          if (action.kind === 'jumpTimeline') live.forEach(key => deferredUses.add(key));
+          // 非控制动作可能同步发布事件或保存变量快照，保守保留整图用途。
+          reads.set(id, live);
+        }
+      }
+      active.delete(reference.$sequence);
+    };
+    const exit = new Set([...protectedKeys, NATIVE_SKILL_HAS_HIT_BLACKBOARD_KEY]);
+    if (skill.availability) {
+      const usage = analyzeConditionUsage(skill.availability);
+      [...usage.reads, ...usage.writes].forEach(key => exit.add(key));
+    }
+    const entryUsages = skill.scheduledSequences.map(entry =>
+      analyzeGraphSequenceUsage(graph, entry.sequence, usageContext),
+    );
+    skill.scheduledSequences.forEach((entry, index) => {
+      const boundary = Symbol(`schedule-${index}`);
+      const needed = new Set(exit);
+      // 调度可能跨帧交错；其他入口的读写都作为可观察用途保留。
+      entryUsages.forEach((usage, other) => {
+        if (other !== index) [...usage.reads, ...usage.writes].forEach(key => needed.add(key));
+      });
+      boundaries.set(boundary, needed);
+      connect(entry.sequence, [boundary]);
+    });
+    for (const handler of skill.eventHandlers ?? []) {
+      if (handler.condition) {
+        const usage = analyzeConditionUsage(handler.condition);
+        [...usage.reads, ...usage.writes].forEach(key => deferredUses.add(key));
+      }
+      handler.scheduledSequences.forEach(entry => retainDeferred(entry.sequence));
+    }
+    if (skill.switchToBuffCast) {
+      retainDeferred(skill.switchToBuffCast.sequence);
+      if (skill.switchToBuffCast.condition) {
+        const usage = analyzeConditionUsage(skill.switchToBuffCast.condition);
+        [...usage.reads, ...usage.writes].forEach(key => deferredUses.add(key));
+      }
+    }
+    for (const [boundary, needed] of boundaries)
+      boundaries.set(boundary, new Set([...needed, ...deferredUses]));
+    if (!supported) return new Set();
+    const inputs = new Map([...successors.keys()].map(id => [id, new Set<string>()]));
+    const outputs = new Map<string, Set<string>>();
+    let changed: boolean;
+    do {
+      changed = false;
+      for (const [id, edges] of successors) {
+        const output = new Set<string>();
+        for (const next of edges)
+          for (const key of typeof next === 'symbol'
+            ? boundaries.get(next)!
+            : (inputs.get(next) ?? []))
+            output.add(key);
+        outputs.set(id, output);
+        const candidate = candidateByNode.get(id);
+        const input = inputs.get(id)!;
+        const neededReads = candidate
+          ? requiredWrites.has(id) || output.has(candidate.key)
+            ? candidate.usage.reads
+            : []
+          : (reads.get(id) ?? []);
+        // 容差赋值不能 kill 目的键：后继读取仍依赖进入该写入时的旧值。
+        for (const key of [...output, ...neededReads]) {
+          if (!input.has(key)) {
+            input.add(key);
+            changed = true;
+          }
+        }
+      }
+    } while (changed);
+    return new Set(
+      candidates
+        .filter(
+          candidate =>
+            outputs.has(candidate.nodeId) &&
+            !requiredWrites.has(candidate.nodeId) &&
+            !outputs.get(candidate.nodeId)!.has(candidate.key),
+        )
+        .map(candidate => candidate.nodeId),
+    );
+  };
+  // 嵌套控制仍可能观察重复执行的返回值；根调度及施放旁路忽略返回值，可删空。
+  // 需要保留时连同输入一起恢复，避免留下缺键读取。
   const retainedLifetimePaths = new Set<string>();
   let deletable = new Set<string>();
   let retained: boolean;
   do {
     retained = false;
+    const deadWrites = findDeadWrites();
     deletable = new Set(
-      candidates.filter(candidate => !live.has(candidate.key)).map(candidate => candidate.nodeId),
+      candidates
+        .filter(candidate => !live.has(candidate.key) || deadWrites.has(candidate.nodeId))
+        .map(candidate => candidate.nodeId),
     );
-    for (const { reference, path } of positions) {
-      if (reference.$sequence === null) continue;
+    for (const { reference, path, resultIsConsumed } of positions) {
+      if (!resultIsConsumed || reference.$sequence === null) continue;
       const chain = chainFrom(reference.$sequence);
       if (chain.length === 0 || !chain.every(id => deletable.has(id))) continue;
       const first = candidateByNode.get(chain[0]!);
-      if (first === undefined || live.has(first.key)) continue;
+      if (first === undefined || requiredWrites.has(first.nodeId)) continue;
+      requiredWrites.add(first.nodeId);
       live.add(first.key);
       retainedLifetimePaths.add(`${path}→${chain[0]}`);
       retained = true;
     }
     if (retained) retainInputs();
   } while (retained);
-  /** 跳过连续的被删节点，返回下一个幸存节点；留一命保证被保留引用的结果不为 null。 */
+  /** 跳过连续的被删节点，返回下一个幸存节点；允许无有效结果的根入口重接为空。 */
   const skip = (start: string): string | null => {
     const seen = new Set<string>();
     let cursor: string | null = start;
@@ -393,9 +778,12 @@ export function pruneUnusedGraphSkillValues(
       ? value
       : Object.fromEntries(entries);
   };
-  const removedWrites = candidates
-    .filter(candidate => deletable.has(candidate.nodeId))
-    .map(candidate => ({ path: candidate.path, key: candidate.key }));
+  const removedWrites = [
+    ...conditionPruning.removedWrites,
+    ...candidates
+      .filter(candidate => deletable.has(candidate.nodeId))
+      .map(candidate => ({ path: candidate.path, key: candidate.key })),
+  ];
   const nextNodes: Record<string, ActionGraphNode> = {};
   for (const [id, node] of Object.entries(graph.nodes)) {
     if (deletable.has(id)) continue;
@@ -612,8 +1000,6 @@ export function collectGraphSharedEntityValueUsage(
   return collector.finish();
 }
 
-type GraphAbilityEntity = AbilityEntityDefinition | AbilityEntityDefinition;
-
 /** 只强引用读键和公共实体目录；用于去重的 WeakSet/WeakMap 不阻止调用方释放已分析的定义。 */
 export function createGraphSharedEntityValueUsageCollector(
   commonAbilityEntityDefinitions: OperatorAbilityEntityDefinitions,
@@ -650,7 +1036,7 @@ export function createGraphSharedEntityValueUsageCollector(
     observe(analyzeGraphSequenceUsage(source.graph, source.entry, fallbackContext));
     walkGraphActions(source.graph, source.entry, action => {
       if (action.kind === 'spawnAbilityEntity' && action.parameters.definition !== undefined)
-        entity(action.parameters.definition as GraphAbilityEntity);
+        entity(action.parameters.definition as AbilityEntityDefinition);
     });
   };
   /** 程序引用存在却找不到所属图时是残缺输入；保守标成未知访问。 */
@@ -672,7 +1058,7 @@ export function createGraphSharedEntityValueUsageCollector(
     const { graph, entries } = graphBuffPrograms(value);
     entries.forEach(entry => program(graph, entry));
   };
-  const entity = (value: GraphAbilityEntity) => {
+  const entity = (value: AbilityEntityDefinition) => {
     if (observedEntities.has(value)) return;
     observedEntities.add(value);
     value.childSkill?.scheduledSequences.forEach(item =>
@@ -796,8 +1182,8 @@ export function createGraphEntityUsageContext(
   shared: GraphSharedEntityValueUsage | undefined,
 ): DefinitionUsageContext | undefined {
   if (shared === undefined) return undefined;
-  const cache = new WeakMap<GraphAbilityEntity, DefinitionValueUsage>();
-  const visiting = new WeakSet<GraphAbilityEntity>();
+  const cache = new WeakMap<AbilityEntityDefinition, DefinitionValueUsage>();
+  const visiting = new WeakSet<AbilityEntityDefinition>();
   const sharedUsage: DefinitionValueUsage = {
     ...empty(),
     reads: shared.reads,
@@ -807,7 +1193,7 @@ export function createGraphEntityUsageContext(
   const context: DefinitionUsageContext = {
     inheritedAbilityEntityUsage(step) {
       const id = step.parameters.abilityEntityId;
-      const inline = step.parameters.definition as GraphAbilityEntity | undefined;
+      const inline = step.parameters.definition as AbilityEntityDefinition | undefined;
       const definition = inline ?? definitions?.[id] ?? shared.commonAbilityEntityDefinitions[id];
       if (definition === undefined || visiting.has(definition)) return unresolved();
       const previous = cache.get(definition);

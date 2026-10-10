@@ -125,6 +125,7 @@ export class CombatSharedRuntime {
       identities: {
         abilityEntities: this.abilityEntityInstanceIds.runtimeState,
         skillCasts: this.skillCastIds.runtimeState,
+        spatialPoints: { nextSpatialPointId: 1 },
       },
     };
   }

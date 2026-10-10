@@ -258,6 +258,7 @@ export function projectOperatorDefinition(
           },
         ]);
   const candidate = assembleOperatorDefinition({
+    externalBuffBlackboardReads: args.sources.externalBuffReads(args.sourceRoot),
     foundation,
     productPassiveUi: row.passiveUi,
     activeSkills,
@@ -832,9 +833,6 @@ function collectObservedBuffIdsFromPassiveSkill(
       return condition.matcher.buffIds.flatMap(id =>
         id.kind === 'constant' && id.value.length > 0 ? [id.value] : [],
       );
-    }
-    if (condition.kind === 'any') {
-      return condition.groups.flatMap(group => group.conditions.flatMap(collectCondition));
     }
     return [];
   };

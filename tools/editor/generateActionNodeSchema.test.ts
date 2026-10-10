@@ -49,7 +49,6 @@ test('keeps contract optionality in the value schema, enum values and documentat
     Boolean(field('dealDamage', 'parameters', 'damageType').valueSchema.optional),
     false,
   );
-  assert.equal(Boolean(field('once', 'parameters', 'scopeKey').valueSchema.optional), true);
 });
 
 test('retains fields found in only some alternatives of a parameter union', () => {

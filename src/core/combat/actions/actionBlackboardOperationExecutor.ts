@@ -1,4 +1,4 @@
-import { valueInputBlackboardKey } from '../../compiler/compiledGraphData';
+import { stringInputExpression, valueInputBlackboardKey } from '../../compiler/compiledGraphData';
 import type { CompiledCondition } from '../../compiler/compiledGraphData.ts';
 import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
 import { abilityEventTargetId } from '../events/combatAbilityEvent';
@@ -50,6 +50,7 @@ export class ActionBlackboardOperationExecutor implements CombatOperationExecuto
     readonly characterTypes?: {
       readonly sourceId: string;
       readonly resolve: (entityId: string) => DamageElement | undefined;
+      readonly readTypeId?: (entityId: string) => string | undefined;
     },
     /** CharacterTable.profession 的静态投影；仅职业条件实际执行时读取。 */
     readonly operatorRoles?: {
@@ -78,6 +79,25 @@ export class ActionBlackboardOperationExecutor implements CombatOperationExecuto
   }
 
   execute(step: ResolvedCombatOperationStep, context?: CombatOperationContext): boolean {
+    if (step.kind === 'storeCharacterTypeId') {
+      if (!context || !step.parameters.outputKey) return false;
+      const target = step.parameters.target;
+      const entityId =
+        target === 'caster'
+          ? this.characterTypes?.sourceId
+          : target === 'buffOwner'
+            ? context.buffOwnerId
+            : target === 'buffSource'
+              ? context.buffSourceId
+              : target === 'currentTarget' && context.currentTarget?.kind === 'operator'
+                ? context.currentTarget.operatorId
+                : undefined;
+      const value =
+        entityId === undefined ? undefined : this.characterTypes?.readTypeId?.(entityId);
+      if (value === undefined) return false;
+      context.blackboard.assignDynamicUnconditionally(step.parameters.outputKey, value);
+      return true;
+    }
     if (step.kind === 'storeCurrentTimelineFrame') {
       const hostFrame = context?.getCurrentTimelineFrame?.();
       const ownerFrame =
@@ -391,6 +411,17 @@ export class ActionBlackboardOperationExecutor implements CombatOperationExecuto
   evaluate(condition: CompiledCondition, context?: CombatOperationContext): boolean {
     if (condition.kind === 'conditionNode')
       return this.evaluate(condition.node.expression, context);
+    if (condition.kind === 'stringEquals') {
+      const read = (input: typeof condition.left): string => {
+        const expression = stringInputExpression(input);
+        if (typeof expression === 'string') return expression;
+        const value = context?.blackboard.getString(expression.blackboardKey);
+        if (value === undefined)
+          throw new Error(`missing string variable '${expression.blackboardKey}'`);
+        return value;
+      };
+      return read(condition.left) === read(condition.right);
+    }
     if (condition.kind === 'constant') return condition.value;
     if (condition.kind === 'combatActive') return true;
     if (condition.kind === 'singleEnemyPresent') return true;

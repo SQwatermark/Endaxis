@@ -216,6 +216,13 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
     return target.kind === 'abilityEntity' && this.#instances.has(target.instanceId);
   }
 
+  /** 未回收实体的原生存活标记；不存在与已标记死亡分开返回。 */
+  isAlive(target: RuntimeTargetRef): boolean | undefined {
+    return target.kind === 'abilityEntity'
+      ? this.#instances.get(target.instanceId)?.state.isAlive
+      : undefined;
+  }
+
   spawn(request: LogicalAbilityEntitySpawnRequest): AbilityEntityTargetRef {
     if (request.abilityEntityId.length === 0) throw new Error('AbilityEntity id must not be empty');
     if (
@@ -426,7 +433,11 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
 
   isSourceDead(entity: RuntimeTargetRef): boolean {
     const source = this.#requireInstance(entity).state.source;
-    return this.runtimeState.deadSources.some(dead => this.#sameTarget(dead, source));
+    return this.isMarkedDead(source);
+  }
+
+  isMarkedDead(target: RuntimeTargetRef): boolean {
+    return this.runtimeState.deadSources.some(dead => this.#sameTarget(dead, target));
   }
 
   /** SetAbilityEntityDuration 的 Assign 路径设置当前剩余时长。 */

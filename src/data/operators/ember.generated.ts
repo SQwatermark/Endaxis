@@ -11,7 +11,14 @@ import type { OperatorDefinition } from '../../../packages/game-data-contract/sr
 export const emberChr_0009_azrila_attack1ActionGraph = {
   main: {
     nodes: {
-      startTimeDilation_1: {
+      checkCondition_1: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
+        },
+        next: null,
+      },
+      startTimeDilation_2: {
         action: {
           kind: 'startTimeDilation',
           parameters: {
@@ -26,15 +33,17 @@ export const emberChr_0009_azrila_attack1ActionGraph = {
         },
         next: null,
       },
-      conditional_2: {
+      ifElse_3: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' }, alwaysNext: true },
-          whenTrue: { $sequence: 'startTimeDilation_1' },
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_1' },
+          whenTrue: { $sequence: 'startTimeDilation_2' },
+          whenFalse: { $sequence: null },
         },
         next: null,
       },
-      dealDamage_3: {
+      dealDamage_4: {
         action: {
           kind: 'dealDamage',
           parameters: {
@@ -43,24 +52,25 @@ export const emberChr_0009_azrila_attack1ActionGraph = {
             tags: ['normalAttack'],
           },
         },
-        next: 'conditional_2',
+        next: 'ifElse_3',
       },
-      repeatEachTick_4: {
+      repeatEachTick_5: {
         action: {
           kind: 'repeatEachTick',
           parameters: {
             nativeChanneling: {
+              target: { kind: 'fixed', target: 'enemy' },
               executeEachFrame: true,
               triggerIntervalSeconds: 0.033,
               maxCountPerTarget: 1,
               targetTriggerIntervalSeconds: 0.033,
             },
           },
-          body: { $sequence: 'dealDamage_3' },
+          body: { $sequence: 'dealDamage_4' },
         },
         next: null,
       },
-      reachSkillOperableBoundary_5: {
+      reachSkillOperableBoundary_6: {
         action: {
           kind: 'reachSkillOperableBoundary',
           parameters: { skillIds: ['chr_0009_azrila_attack2'] },
@@ -77,11 +87,9 @@ export const emberChr_0009_azrila_attack1ActionGraph = {
 } as const satisfies ActionGraphResourceDefinition;
 
 export const emberChr_0009_azrila_attack1: SkillDefinition = {
-  actionGraph: emberChr_0009_azrila_attack1ActionGraph,
   key: 'chr_0009_azrila_attack1',
   element: 'physical',
   blackboard: {
-    atb: 0,
     atk_scale: [0.38, 0.42, 0.46, 0.5, 0.54, 0.57, 0.61, 0.65, 0.69, 0.74, 0.79, 0.86],
   },
   timelineBlockFrames: 24,
@@ -101,19 +109,27 @@ export const emberChr_0009_azrila_attack1: SkillDefinition = {
   },
   costFrame: 15,
   scheduledSequences: [
-    { startFrame: 13, endFrame: 18, sequence: { $sequence: 'repeatEachTick_4' } },
-    { startFrame: 24, endFrame: 38, sequence: { $sequence: 'reachSkillOperableBoundary_5' } },
+    { startFrame: 13, endFrame: 18, sequence: { $sequence: 'repeatEachTick_5' } },
+    { startFrame: 24, endFrame: 38, sequence: { $sequence: 'reachSkillOperableBoundary_6' } },
   ],
   timelineContinuationSkillId: 'chr_0009_azrila_attack2',
   skillType: 'basicAttack',
   levelSource: 'basicAttack',
   nativeSkillType: 'attack',
+  actionGraph: emberChr_0009_azrila_attack1ActionGraph,
 };
 
 export const emberChr_0009_azrila_attack2ActionGraph = {
   main: {
     nodes: {
-      startTimeDilation_1: {
+      checkCondition_1: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
+        },
+        next: null,
+      },
+      startTimeDilation_2: {
         action: {
           kind: 'startTimeDilation',
           parameters: {
@@ -128,15 +144,17 @@ export const emberChr_0009_azrila_attack2ActionGraph = {
         },
         next: null,
       },
-      conditional_2: {
+      ifElse_3: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' }, alwaysNext: true },
-          whenTrue: { $sequence: 'startTimeDilation_1' },
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_1' },
+          whenTrue: { $sequence: 'startTimeDilation_2' },
+          whenFalse: { $sequence: null },
         },
         next: null,
       },
-      dealDamage_3: {
+      dealDamage_4: {
         action: {
           kind: 'dealDamage',
           parameters: {
@@ -145,24 +163,25 @@ export const emberChr_0009_azrila_attack2ActionGraph = {
             tags: ['normalAttack'],
           },
         },
-        next: 'conditional_2',
+        next: 'ifElse_3',
       },
-      repeatEachTick_4: {
+      repeatEachTick_5: {
         action: {
           kind: 'repeatEachTick',
           parameters: {
             nativeChanneling: {
+              target: { kind: 'fixed', target: 'enemy' },
               executeEachFrame: true,
               triggerIntervalSeconds: 0.033,
               maxCountPerTarget: 1,
               targetTriggerIntervalSeconds: 0.033,
             },
           },
-          body: { $sequence: 'dealDamage_3' },
+          body: { $sequence: 'dealDamage_4' },
         },
         next: null,
       },
-      reachSkillOperableBoundary_5: {
+      reachSkillOperableBoundary_6: {
         action: {
           kind: 'reachSkillOperableBoundary',
           parameters: { skillIds: ['chr_0009_azrila_attack3'] },
@@ -179,13 +198,9 @@ export const emberChr_0009_azrila_attack2ActionGraph = {
 } as const satisfies ActionGraphResourceDefinition;
 
 export const emberChr_0009_azrila_attack2: SkillDefinition = {
-  actionGraph: emberChr_0009_azrila_attack2ActionGraph,
   key: 'chr_0009_azrila_attack2',
   element: 'physical',
-  blackboard: {
-    atb: 0,
-    atk_scale: [0.54, 0.59, 0.64, 0.7, 0.75, 0.8, 0.86, 0.91, 0.96, 1.03, 1.11, 1.2],
-  },
+  blackboard: { atk_scale: [0.54, 0.59, 0.64, 0.7, 0.75, 0.8, 0.86, 0.91, 0.96, 1.03, 1.11, 1.2] },
   timelineBlockFrames: 18,
   naturalDurationFrames: 151,
   exclusiveFrame: 26,
@@ -203,19 +218,27 @@ export const emberChr_0009_azrila_attack2: SkillDefinition = {
   },
   costFrame: 6,
   scheduledSequences: [
-    { startFrame: 6, endFrame: 12, sequence: { $sequence: 'repeatEachTick_4' } },
-    { startFrame: 18, endFrame: 41, sequence: { $sequence: 'reachSkillOperableBoundary_5' } },
+    { startFrame: 6, endFrame: 12, sequence: { $sequence: 'repeatEachTick_5' } },
+    { startFrame: 18, endFrame: 41, sequence: { $sequence: 'reachSkillOperableBoundary_6' } },
   ],
   timelineContinuationSkillId: 'chr_0009_azrila_attack3',
   skillType: 'basicAttack',
   levelSource: 'basicAttack',
   nativeSkillType: 'attack',
+  actionGraph: emberChr_0009_azrila_attack2ActionGraph,
 };
 
 export const emberChr_0009_azrila_attack3ActionGraph = {
   main: {
     nodes: {
-      startTimeDilation_1: {
+      checkCondition_1: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
+        },
+        next: null,
+      },
+      startTimeDilation_2: {
         action: {
           kind: 'startTimeDilation',
           parameters: {
@@ -230,15 +253,17 @@ export const emberChr_0009_azrila_attack3ActionGraph = {
         },
         next: null,
       },
-      conditional_2: {
+      ifElse_3: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' }, alwaysNext: true },
-          whenTrue: { $sequence: 'startTimeDilation_1' },
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_1' },
+          whenTrue: { $sequence: 'startTimeDilation_2' },
+          whenFalse: { $sequence: null },
         },
         next: null,
       },
-      dealDamage_3: {
+      dealDamage_4: {
         action: {
           kind: 'dealDamage',
           parameters: {
@@ -247,24 +272,25 @@ export const emberChr_0009_azrila_attack3ActionGraph = {
             tags: ['normalAttack'],
           },
         },
-        next: 'conditional_2',
+        next: 'ifElse_3',
       },
-      repeatEachTick_4: {
+      repeatEachTick_5: {
         action: {
           kind: 'repeatEachTick',
           parameters: {
             nativeChanneling: {
+              target: { kind: 'fixed', target: 'enemy' },
               executeEachFrame: true,
               triggerIntervalSeconds: 0.033,
               maxCountPerTarget: 1,
               targetTriggerIntervalSeconds: 0.033,
             },
           },
-          body: { $sequence: 'dealDamage_3' },
+          body: { $sequence: 'dealDamage_4' },
         },
         next: null,
       },
-      reachSkillOperableBoundary_5: {
+      reachSkillOperableBoundary_6: {
         action: {
           kind: 'reachSkillOperableBoundary',
           parameters: { skillIds: ['chr_0009_azrila_attack4'] },
@@ -281,11 +307,9 @@ export const emberChr_0009_azrila_attack3ActionGraph = {
 } as const satisfies ActionGraphResourceDefinition;
 
 export const emberChr_0009_azrila_attack3: SkillDefinition = {
-  actionGraph: emberChr_0009_azrila_attack3ActionGraph,
   key: 'chr_0009_azrila_attack3',
   element: 'physical',
   blackboard: {
-    atb: 0,
     atk_scale: [0.66, 0.73, 0.8, 0.86, 0.93, 0.99, 1.06, 1.13, 1.19, 1.28, 1.38, 1.49],
   },
   timelineBlockFrames: 35,
@@ -305,13 +329,14 @@ export const emberChr_0009_azrila_attack3: SkillDefinition = {
   },
   costFrame: 0,
   scheduledSequences: [
-    { startFrame: 18, endFrame: 22, sequence: { $sequence: 'repeatEachTick_4' } },
-    { startFrame: 35, endFrame: 50, sequence: { $sequence: 'reachSkillOperableBoundary_5' } },
+    { startFrame: 18, endFrame: 22, sequence: { $sequence: 'repeatEachTick_5' } },
+    { startFrame: 35, endFrame: 50, sequence: { $sequence: 'reachSkillOperableBoundary_6' } },
   ],
   timelineContinuationSkillId: 'chr_0009_azrila_attack4',
   skillType: 'basicAttack',
   levelSource: 'basicAttack',
   nativeSkillType: 'attack',
+  actionGraph: emberChr_0009_azrila_attack3ActionGraph,
 };
 
 export const emberChr_0009_azrila_attack4ActionGraph = {
@@ -324,18 +349,26 @@ export const emberChr_0009_azrila_attack4ActionGraph = {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
             coefficient: { kind: 'constant', value: 1 },
-            recipient: 'team',
+            source: { kind: 'source' },
+            targets: { kind: 'source' },
             spGainKind: 'gain',
             spGainSource: 'normalAttack',
           },
         },
         next: null,
       },
-      once_2: {
+      checkCondition_2: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
+        },
+        next: null,
+      },
+      once_3: {
         action: { kind: 'once', parameters: {}, body: { $sequence: 'changeResource_1' } },
         next: null,
       },
-      startTimeDilation_3: {
+      startTimeDilation_4: {
         action: {
           kind: 'startTimeDilation',
           parameters: {
@@ -348,17 +381,19 @@ export const emberChr_0009_azrila_attack4ActionGraph = {
             targets: ['enemy', 'caster'],
           },
         },
-        next: 'once_2',
+        next: 'once_3',
       },
-      conditional_4: {
+      ifElse_5: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' }, alwaysNext: true },
-          whenTrue: { $sequence: 'startTimeDilation_3' },
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_2' },
+          whenTrue: { $sequence: 'startTimeDilation_4' },
+          whenFalse: { $sequence: null },
         },
         next: null,
       },
-      dealDamage_5: {
+      dealDamage_6: {
         action: {
           kind: 'dealDamage',
           parameters: {
@@ -369,20 +404,21 @@ export const emberChr_0009_azrila_attack4ActionGraph = {
             staggerOnlyWhenCasterControlled: true,
           },
         },
-        next: 'conditional_4',
+        next: 'ifElse_5',
       },
-      repeatEachTick_6: {
+      repeatEachTick_7: {
         action: {
           kind: 'repeatEachTick',
           parameters: {
             nativeChanneling: {
+              target: { kind: 'fixed', target: 'enemy' },
               executeEachFrame: true,
               triggerIntervalSeconds: 0.033,
               maxCountPerTarget: 1,
               targetTriggerIntervalSeconds: 0.033,
             },
           },
-          body: { $sequence: 'dealDamage_5' },
+          body: { $sequence: 'dealDamage_6' },
         },
         next: null,
       },
@@ -398,7 +434,6 @@ export const emberChr_0009_azrila_attack4ActionGraph = {
 } as const satisfies ActionGraphResourceDefinition;
 
 export const emberChr_0009_azrila_attack4: SkillDefinition = {
-  actionGraph: emberChr_0009_azrila_attack4ActionGraph,
   key: 'chr_0009_azrila_attack4',
   element: 'physical',
   blackboard: {
@@ -412,11 +447,12 @@ export const emberChr_0009_azrila_attack4: SkillDefinition = {
   offsetRecordFrame: 26,
   costFrame: 12,
   scheduledSequences: [
-    { startFrame: 26, endFrame: 29, sequence: { $sequence: 'repeatEachTick_6' } },
+    { startFrame: 26, endFrame: 29, sequence: { $sequence: 'repeatEachTick_7' } },
   ],
   skillType: 'basicAttack',
   levelSource: 'basicAttack',
   nativeSkillType: 'attack',
+  actionGraph: emberChr_0009_azrila_attack4ActionGraph,
 };
 
 export const emberChr_0009_azrila_power_attackActionGraph = {
@@ -439,7 +475,14 @@ export const emberChr_0009_azrila_power_attackActionGraph = {
         },
         next: 'gainFinisherSp_1',
       },
-      startTimeDilation_3: {
+      checkCondition_3: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
+        },
+        next: null,
+      },
+      startTimeDilation_4: {
         action: {
           kind: 'startTimeDilation',
           parameters: {
@@ -454,15 +497,17 @@ export const emberChr_0009_azrila_power_attackActionGraph = {
         },
         next: null,
       },
-      conditional_4: {
+      ifElse_5: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' }, alwaysNext: true },
-          whenTrue: { $sequence: 'startTimeDilation_3' },
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_3' },
+          whenTrue: { $sequence: 'startTimeDilation_4' },
+          whenFalse: { $sequence: null },
         },
         next: null,
       },
-      startTimeDilation_5: {
+      startTimeDilation_6: {
         action: {
           kind: 'startTimeDilation',
           parameters: {
@@ -477,22 +522,23 @@ export const emberChr_0009_azrila_power_attackActionGraph = {
         },
         next: null,
       },
-      repeatEachTick_6: {
+      repeatEachTick_7: {
         action: {
           kind: 'repeatEachTick',
           parameters: {
             nativeChanneling: {
+              target: { kind: 'fixed', target: 'enemy' },
               executeEachFrame: true,
               triggerIntervalSeconds: 0.033,
               maxCountPerTarget: 1,
               targetTriggerIntervalSeconds: 0.033,
             },
           },
-          body: { $sequence: 'startTimeDilation_5' },
+          body: { $sequence: 'startTimeDilation_6' },
         },
         next: null,
       },
-      dealDamage_7: {
+      dealDamage_8: {
         action: {
           kind: 'dealDamage',
           parameters: {
@@ -503,9 +549,9 @@ export const emberChr_0009_azrila_power_attackActionGraph = {
             tags: ['normalAttack', 'powerAttack'],
           },
         },
-        next: 'repeatEachTick_6',
+        next: 'repeatEachTick_7',
       },
-      applyBuff_8: {
+      applyBuff_9: {
         action: {
           kind: 'applyBuff',
           parameters: {
@@ -517,7 +563,7 @@ export const emberChr_0009_azrila_power_attackActionGraph = {
         },
         next: null,
       },
-      applyBuff_9: {
+      applyBuff_10: {
         action: {
           kind: 'applyBuff',
           parameters: {
@@ -540,7 +586,6 @@ export const emberChr_0009_azrila_power_attackActionGraph = {
 } as const satisfies ActionGraphResourceDefinition;
 
 export const emberChr_0009_azrila_power_attack: SkillDefinition = {
-  actionGraph: emberChr_0009_azrila_power_attackActionGraph,
   key: 'chr_0009_azrila_power_attack',
   element: 'physical',
   blackboard: { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
@@ -560,27 +605,36 @@ export const emberChr_0009_azrila_power_attack: SkillDefinition = {
   costFrame: 4,
   scheduledSequences: [
     { startFrame: 23, endFrame: 32, sequence: { $sequence: 'dealDamage_2' } },
-    { startFrame: 23, endFrame: 26, sequence: { $sequence: 'conditional_4' } },
-    { startFrame: 9, endFrame: 13, sequence: { $sequence: 'dealDamage_7' } },
-    { startFrame: 0, endFrame: 50, sequence: { $sequence: 'applyBuff_8' } },
-    { startFrame: 0, endFrame: 28, sequence: { $sequence: 'applyBuff_9' } },
+    { startFrame: 23, endFrame: 26, sequence: { $sequence: 'ifElse_5' } },
+    { startFrame: 9, endFrame: 13, sequence: { $sequence: 'dealDamage_8' } },
+    { startFrame: 0, endFrame: 50, sequence: { $sequence: 'applyBuff_9' } },
+    { startFrame: 0, endFrame: 28, sequence: { $sequence: 'applyBuff_10' } },
   ],
   skillType: 'finisher',
   levelSource: 'basicAttack',
   nativeSkillType: 'breakingAttack',
+  actionGraph: emberChr_0009_azrila_power_attackActionGraph,
 };
 
 export const emberChr_0009_azrila_plunging_attack_endActionGraph = {
   main: {
     nodes: {
-      changeResource_1: {
+      checkCondition_1: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
+        },
+        next: null,
+      },
+      changeResource_2: {
         action: {
           kind: 'changeResource',
           parameters: {
             resource: 'sp',
-            amount: { kind: 'valueNode', nodeId: 'data_1' },
+            amount: { kind: 'valueNode', nodeId: 'data_2' },
             coefficient: { kind: 'constant', value: 1 },
-            recipient: 'team',
+            source: { kind: 'source' },
+            targets: { kind: 'source' },
             onlyMainOperator: true,
             spGainKind: 'gain',
             spGainSource: 'normalAttack',
@@ -588,15 +642,17 @@ export const emberChr_0009_azrila_plunging_attack_endActionGraph = {
         },
         next: null,
       },
-      conditional_2: {
+      ifElse_3: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResource_1' },
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_1' },
+          whenTrue: { $sequence: 'changeResource_2' },
+          whenFalse: { $sequence: null },
         },
         next: null,
       },
-      dealDamage_3: {
+      dealDamage_4: {
         action: {
           kind: 'dealDamage',
           parameters: {
@@ -605,12 +661,12 @@ export const emberChr_0009_azrila_plunging_attack_endActionGraph = {
             tags: ['normalAttack', 'plungingAttack'],
           },
         },
-        next: 'conditional_2',
+        next: 'ifElse_3',
       },
     },
     dataNodes: {
-      data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
-      data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
+      data_1: { type: 'boolean', expression: { kind: 'casterControlled' } },
+      data_2: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
       data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
     },
   },
@@ -618,7 +674,6 @@ export const emberChr_0009_azrila_plunging_attack_endActionGraph = {
 } as const satisfies ActionGraphResourceDefinition;
 
 export const emberChr_0009_azrila_plunging_attack_end: SkillDefinition = {
-  actionGraph: emberChr_0009_azrila_plunging_attack_endActionGraph,
   key: 'chr_0009_azrila_plunging_attack_end',
   element: 'physical',
   blackboard: {
@@ -633,23 +688,17 @@ export const emberChr_0009_azrila_plunging_attack_end: SkillDefinition = {
     allowedNextSkills: [{ startFrame: 12, endFrame: 21, skillIds: ['chr_0009_azrila_attack1'] }],
   },
   costFrame: 0,
-  scheduledSequences: [{ startFrame: 1, endFrame: 6, sequence: { $sequence: 'dealDamage_3' } }],
+  scheduledSequences: [{ startFrame: 1, endFrame: 6, sequence: { $sequence: 'dealDamage_4' } }],
   skillType: 'plungingAttack',
   levelSource: 'basicAttack',
   nativeSkillType: 'attack',
+  actionGraph: emberChr_0009_azrila_plunging_attack_endActionGraph,
 };
 
 export const emberChr_0009_azrila_normal_skillActionGraph = {
   main: {
     nodes: {
-      findCharacterTeamTargets_1: {
-        action: {
-          kind: 'findCharacterTeamTargets',
-          parameters: { saveToContextKey: 'MainChar', selection: { kind: 'controlledOperator' } },
-        },
-        next: null,
-      },
-      applyBuff_2: {
+      applyBuff_6: {
         action: {
           kind: 'applyBuff',
           parameters: {
@@ -660,15 +709,14 @@ export const emberChr_0009_azrila_normal_skillActionGraph = {
         },
         next: null,
       },
-      conditional_3: {
+      checkCondition_7: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-          whenTrue: { $sequence: 'applyBuff_2' },
         },
-        next: null,
+        next: 'applyBuff_6',
       },
-      listenForCombatEvents_4: {
+      listenForCombatEvents_8: {
         action: {
           kind: 'listenForCombatEvents',
           parameters: {
@@ -678,14 +726,14 @@ export const emberChr_0009_azrila_normal_skillActionGraph = {
                 event: { kind: 'operatorHit' },
                 phase: 'dataAction',
                 priority: 0,
-                sequence: { $sequence: 'conditional_3' },
+                sequence: { $sequence: 'checkCondition_7' },
               },
             ],
           },
         },
         next: null,
       },
-      modifyActionValue_5: {
+      modifyActionValue_10: {
         action: {
           kind: 'modifyActionValue',
           parameters: {
@@ -696,7 +744,14 @@ export const emberChr_0009_azrila_normal_skillActionGraph = {
         },
         next: null,
       },
-      applyBuff_6: {
+      checkCondition_9: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_4' } },
+        },
+        next: null,
+      },
+      applyBuff_12: {
         action: {
           kind: 'applyBuff',
           parameters: {
@@ -714,23 +769,34 @@ export const emberChr_0009_azrila_normal_skillActionGraph = {
         },
         next: null,
       },
-      conditional_7: {
+      ifElse_13: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_4' }, alwaysNext: true },
-          whenTrue: { $sequence: 'modifyActionValue_5' },
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_9' },
+          whenTrue: { $sequence: 'modifyActionValue_10' },
+          whenFalse: { $sequence: null },
         },
-        next: 'applyBuff_6',
+        next: 'applyBuff_12',
       },
-      conditional_8: {
+      checkCondition_11: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_6' }, alwaysNext: true },
-          whenTrue: { $sequence: 'conditional_7' },
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_6' } },
         },
         next: null,
       },
-      startTimeDilation_9: {
+      ifElse_14: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_11' },
+          whenTrue: { $sequence: 'ifElse_13' },
+          whenFalse: { $sequence: null },
+        },
+        next: null,
+      },
+      startTimeDilation_15: {
         action: {
           kind: 'startTimeDilation',
           parameters: {
@@ -745,7 +811,7 @@ export const emberChr_0009_azrila_normal_skillActionGraph = {
         },
         next: null,
       },
-      dealDamage_10: {
+      dealDamage_16: {
         action: {
           kind: 'dealDamage',
           parameters: {
@@ -755,24 +821,25 @@ export const emberChr_0009_azrila_normal_skillActionGraph = {
             features: ['canBreakWeakness'],
           },
         },
-        next: 'startTimeDilation_9',
+        next: 'startTimeDilation_15',
       },
-      repeatEachTick_11: {
+      repeatEachTick_17: {
         action: {
           kind: 'repeatEachTick',
           parameters: {
             nativeChanneling: {
+              target: { kind: 'fixed', target: 'enemy' },
               executeEachFrame: true,
               triggerIntervalSeconds: 0.033,
               maxCountPerTarget: 1,
               targetTriggerIntervalSeconds: 0.033,
             },
           },
-          body: { $sequence: 'dealDamage_10' },
+          body: { $sequence: 'dealDamage_16' },
         },
         next: null,
       },
-      applyBuff_12: {
+      applyBuff_21: {
         action: {
           kind: 'applyBuff',
           parameters: {
@@ -788,14 +855,35 @@ export const emberChr_0009_azrila_normal_skillActionGraph = {
         },
         next: null,
       },
-      dealStagger_13: {
+      checkCondition_19: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_8' } },
+        },
+        next: 'checkCondition_11',
+      },
+      checkCondition_20: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_10' } },
+        },
+        next: 'checkCondition_19',
+      },
+      dealStagger_23: {
         action: {
           kind: 'dealStagger',
-          parameters: { value: { kind: 'valueNode', nodeId: 'data_8' } },
+          parameters: { value: { kind: 'valueNode', nodeId: 'data_11' } },
         },
         next: null,
       },
-      startTimeDilation_14: {
+      checkCondition_22: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_12' } },
+        },
+        next: null,
+      },
+      startTimeDilation_25: {
         action: {
           kind: 'startTimeDilation',
           parameters: {
@@ -810,32 +898,51 @@ export const emberChr_0009_azrila_normal_skillActionGraph = {
         },
         next: null,
       },
-      gainSquadUltimateEnergyFromSkillCost_15: {
+      gainSquadUltimateEnergyFromSkillCost_26: {
         action: { kind: 'gainSquadUltimateEnergyFromSkillCost', parameters: { coefficient: 1 } },
-        next: 'startTimeDilation_14',
+        next: 'startTimeDilation_25',
       },
-      conditional_16: {
+      checkCondition_24: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_9' }, alwaysNext: true },
-          whenTrue: { $sequence: 'dealStagger_13' },
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_13' } },
         },
-        next: 'gainSquadUltimateEnergyFromSkillCost_15',
+        next: null,
       },
-      dealDamage_17: {
+      ifElse_27: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_24' },
+          whenTrue: { $sequence: 'gainSquadUltimateEnergyFromSkillCost_26' },
+          whenFalse: { $sequence: null },
+        },
+        next: null,
+      },
+      ifElse_28: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_22' },
+          whenTrue: { $sequence: 'dealStagger_23' },
+          whenFalse: { $sequence: null },
+        },
+        next: 'ifElse_27',
+      },
+      dealDamage_29: {
         action: {
           kind: 'dealDamage',
           parameters: {
             damageType: 'heat',
-            attackScale: { kind: 'valueNode', nodeId: 'data_10' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_14' },
             tags: ['normalSkill'],
             features: ['canBreakWeakness'],
-            stagger: { kind: 'valueNode', nodeId: 'data_11' },
+            stagger: { kind: 'valueNode', nodeId: 'data_15' },
           },
         },
-        next: 'conditional_16',
+        next: 'ifElse_28',
       },
-      applyPhysicalInfliction_18: {
+      applyPhysicalInfliction_30: {
         action: {
           kind: 'applyPhysicalInfliction',
           parameters: {
@@ -848,26 +955,45 @@ export const emberChr_0009_azrila_normal_skillActionGraph = {
             returnWhen: 'always',
           },
         },
-        next: 'dealDamage_17',
+        next: 'dealDamage_29',
       },
-      modifyActionValue_20: {
+      ifElse_31: {
         action: {
-          kind: 'modifyActionValue',
-          parameters: {
-            key: 'input_angle',
-            operation: 'assign',
-            value: { kind: 'constant', value: 100 },
-          },
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_20' },
+          whenTrue: { $sequence: 'applyBuff_21' },
+          whenFalse: { $sequence: null },
+        },
+        next: 'applyPhysicalInfliction_30',
+      },
+      ifElse_opt1: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: null },
+          whenTrue: { $sequence: null },
+          whenFalse: { $sequence: null },
         },
         next: null,
       },
-      conditional_opt1: {
+      findCharacterTeamTargets_opt2: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_16' }, alwaysNext: true },
-          whenTrue: { $sequence: 'applyBuff_12' },
+          kind: 'findCharacterTeamTargets',
+          parameters: { saveToContextKey: 'MainChar', selection: { kind: 'controlledOperator' } },
         },
-        next: 'applyPhysicalInfliction_18',
+        next: 'ifElse_opt1',
+      },
+      findTargets_opt3: {
+        action: {
+          kind: 'findTargets',
+          parameters: {
+            owner: { kind: 'owner' },
+            query: { kind: 'mainTarget', owner: { kind: 'owner' } },
+            saveToContextKey: 'MainTar',
+          },
+        },
+        next: 'findCharacterTeamTargets_opt2',
       },
     },
     dataNodes: {
@@ -904,8 +1030,32 @@ export const emberChr_0009_azrila_normal_skillActionGraph = {
         },
       },
       data_7: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_8: { type: 'number', expression: { kind: 'blackboard', key: 'extrapoise' } },
+      data_8: {
+        type: 'boolean',
+        expression: {
+          kind: 'entityCountCompare',
+          target: { kind: 'fixed', target: 'enemy' },
+          containsHittableTarget: false,
+          excludeDeadEntity: false,
+          operator: 'greaterOrEqual',
+          value: 1,
+        },
+      },
       data_9: {
+        type: 'number',
+        expression: { kind: 'blackboard', key: 'potential_1', fallback: 0 },
+      },
+      data_10: {
+        type: 'boolean',
+        expression: {
+          kind: 'actionValueCompare',
+          left: { kind: 'valueNode', nodeId: 'data_9' },
+          operator: 'greater',
+          right: { kind: 'constant', value: 0 },
+        },
+      },
+      data_11: { type: 'number', expression: { kind: 'blackboard', key: 'extrapoise' } },
+      data_12: {
         type: 'boolean',
         expression: {
           kind: 'buffIdStackCompare',
@@ -915,41 +1065,19 @@ export const emberChr_0009_azrila_normal_skillActionGraph = {
           value: { kind: 'constant', value: 1 },
         },
       },
-      data_10: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale2' } },
-      data_11: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
-      data_12: {
-        type: 'number',
-        expression: { kind: 'blackboard', key: 'potential_1', fallback: 0 },
-      },
       data_13: {
         type: 'boolean',
         expression: {
-          kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_12' },
-          operator: 'greater',
-          right: { kind: 'constant', value: 0 },
+          kind: 'entityCountCompare',
+          target: { kind: 'fixed', target: 'enemy' },
+          containsHittableTarget: false,
+          excludeDeadEntity: false,
+          operator: 'greaterOrEqual',
+          value: 1,
         },
       },
-      data_14: { type: 'number', expression: { kind: 'blackboard', key: 'talent1', fallback: 0 } },
-      data_15: {
-        type: 'boolean',
-        expression: {
-          kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_14' },
-          operator: 'greater',
-          right: { kind: 'constant', value: 0 },
-        },
-      },
-      data_16: {
-        type: 'boolean',
-        expression: {
-          kind: 'all',
-          conditions: [
-            { kind: 'conditionNode', nodeId: 'data_13' },
-            { kind: 'conditionNode', nodeId: 'data_15' },
-          ],
-        },
-      },
+      data_14: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale2' } },
+      data_15: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
     },
   },
   macros: {},
@@ -964,7 +1092,6 @@ export const emberChr_0009_azrila_normal_skill: SkillDefinition = {
     extrapoise: 10,
     extrashelter: 0,
     extratime: 0,
-    input_angle: 0,
     poise: 10,
     potential_1: 0,
     shelterrate: 0,
@@ -981,12 +1108,13 @@ export const emberChr_0009_azrila_normal_skill: SkillDefinition = {
   },
   costFrame: 0,
   scheduledSequences: [
-    { startFrame: 0, endFrame: 3, sequence: { $sequence: 'findCharacterTeamTargets_1' } },
-    { startFrame: 0, endFrame: 38, sequence: { $sequence: 'listenForCombatEvents_4' } },
-    { startFrame: 0, endFrame: 38, sequence: { $sequence: 'conditional_8' } },
-    { startFrame: 10, endFrame: 15, sequence: { $sequence: 'repeatEachTick_11' } },
-    { startFrame: 38, endFrame: 41, sequence: { $sequence: 'conditional_opt1' } },
-    { startFrame: 0, endFrame: 3, sequence: { $sequence: 'modifyActionValue_20' } },
+    { startFrame: 0, endFrame: 3, sequence: { $sequence: 'findTargets_opt3' } },
+    { startFrame: 0, endFrame: 38, sequence: { $sequence: 'listenForCombatEvents_8' } },
+    { startFrame: 0, endFrame: 38, sequence: { $sequence: 'ifElse_14' } },
+    { startFrame: 10, endFrame: 15, sequence: { $sequence: 'repeatEachTick_17' } },
+    { startFrame: 38, endFrame: 41, sequence: { $sequence: 'ifElse_31' } },
+    { startFrame: 0, endFrame: 3, sequence: { $sequence: null } },
+    { startFrame: 0, endFrame: 35, sequence: { $sequence: 'ifElse_opt1' } },
   ],
   costs: [{ resource: 'sp', value: 100 }],
   skillType: 'battleSkill',
@@ -1013,18 +1141,25 @@ export const emberChr_0009_azrila_ultimate_skillActionGraph = {
         },
         next: null,
       },
-      modifyActionValue_2: {
+      checkCondition_2: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
+        },
+        next: null,
+      },
+      modifyActionValue_3: {
         action: {
           kind: 'modifyActionValue',
           parameters: {
             key: 'hp_percent',
             operation: 'multiply',
-            value: { kind: 'valueNode', nodeId: 'data_1' },
+            value: { kind: 'valueNode', nodeId: 'data_3' },
           },
         },
         next: null,
       },
-      applyBuff_3: {
+      applyBuff_4: {
         action: {
           kind: 'applyBuff',
           parameters: {
@@ -1046,31 +1181,31 @@ export const emberChr_0009_azrila_ultimate_skillActionGraph = {
         },
         next: null,
       },
-      dealDamage_4: {
+      dealDamage_5: {
         action: {
           kind: 'dealDamage',
           parameters: {
             damageType: 'heat',
-            attackScale: { kind: 'valueNode', nodeId: 'data_2' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_4' },
             tags: ['ultimateSkill'],
             features: ['canBreakWeakness'],
-            stagger: { kind: 'valueNode', nodeId: 'data_3' },
+            stagger: { kind: 'valueNode', nodeId: 'data_5' },
           },
         },
-        next: 'applyBuff_3',
+        next: 'applyBuff_4',
       },
-      modifyActionValue_5: {
+      modifyActionValue_6: {
         action: {
           kind: 'modifyActionValue',
           parameters: {
             key: 'FinalShield',
             operation: 'multiply',
-            value: { kind: 'valueNode', nodeId: 'data_4' },
+            value: { kind: 'valueNode', nodeId: 'data_6' },
           },
         },
-        next: 'dealDamage_4',
+        next: 'dealDamage_5',
       },
-      storeSourceAttributeValue_6: {
+      storeSourceAttributeValue_7: {
         action: {
           kind: 'storeSourceAttributeValue',
           parameters: {
@@ -1083,17 +1218,19 @@ export const emberChr_0009_azrila_ultimate_skillActionGraph = {
             targetKey: 'FinalShield',
           },
         },
-        next: 'modifyActionValue_5',
+        next: 'modifyActionValue_6',
       },
-      conditional_7: {
+      ifElse_8: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_6' }, alwaysNext: true },
-          whenTrue: { $sequence: 'modifyActionValue_2' },
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_2' },
+          whenTrue: { $sequence: 'modifyActionValue_3' },
+          whenFalse: { $sequence: null },
         },
-        next: 'storeSourceAttributeValue_6',
+        next: 'storeSourceAttributeValue_7',
       },
-      applyBuff_8: {
+      applyBuff_9: {
         action: {
           kind: 'applyBuff',
           parameters: {
@@ -1105,8 +1242,8 @@ export const emberChr_0009_azrila_ultimate_skillActionGraph = {
         },
         next: null,
       },
-      hideUi_9: { action: { kind: 'hideUi', parameters: { onlyBlockInput: false } }, next: null },
-      startUltimateTimeDilation_10: {
+      hideUi_10: { action: { kind: 'hideUi', parameters: { onlyBlockInput: false } }, next: null },
+      startUltimateTimeDilation_11: {
         action: {
           kind: 'startUltimateTimeDilation',
           parameters: {
@@ -1119,30 +1256,29 @@ export const emberChr_0009_azrila_ultimate_skillActionGraph = {
       },
     },
     dataNodes: {
-      data_1: { type: 'number', expression: { kind: 'blackboard', key: 'extrashield' } },
-      data_2: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
-      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'hp_percent' } },
-      data_5: {
+      data_1: {
         type: 'number',
         expression: { kind: 'blackboard', key: 'potential_5', fallback: 0 },
       },
-      data_6: {
+      data_2: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_5' },
+          left: { kind: 'valueNode', nodeId: 'data_1' },
           operator: 'greater',
           right: { kind: 'constant', value: 0 },
         },
       },
+      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'extrashield' } },
+      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
+      data_5: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
+      data_6: { type: 'number', expression: { kind: 'blackboard', key: 'hp_percent' } },
     },
   },
   macros: {},
 } as const satisfies ActionGraphResourceDefinition;
 
 export const emberChr_0009_azrila_ultimate_skill: SkillDefinition = {
-  actionGraph: emberChr_0009_azrila_ultimate_skillActionGraph,
   key: 'chr_0009_azrila_ultimate_skill',
   element: 'heat',
   blackboard: {
@@ -1171,33 +1307,48 @@ export const emberChr_0009_azrila_ultimate_skill: SkillDefinition = {
   costFrame: 0,
   scheduledSequences: [
     { startFrame: 0, endFrame: 3, sequence: { $sequence: 'startTimeDilation_1' } },
-    { startFrame: 50, endFrame: 51, sequence: { $sequence: 'conditional_7' } },
-    { startFrame: 0, endFrame: 90, sequence: { $sequence: 'applyBuff_8' } },
-    { startFrame: 0, endFrame: 48, sequence: { $sequence: 'hideUi_9' } },
-    { startFrame: 0, endFrame: 48, sequence: { $sequence: 'startUltimateTimeDilation_10' } },
+    { startFrame: 50, endFrame: 51, sequence: { $sequence: 'ifElse_8' } },
+    { startFrame: 0, endFrame: 90, sequence: { $sequence: 'applyBuff_9' } },
+    { startFrame: 0, endFrame: 48, sequence: { $sequence: 'hideUi_10' } },
+    { startFrame: 0, endFrame: 48, sequence: { $sequence: 'startUltimateTimeDilation_11' } },
   ],
   cooldownFrames: 600,
   costs: [{ resource: 'ultimateEnergy', value: 100 }],
   skillType: 'ultimate',
   levelSource: 'ultimate',
   nativeSkillType: 'ultimateSkill',
+  actionGraph: emberChr_0009_azrila_ultimate_skillActionGraph,
 };
 
 export const emberChr_0009_azrila_combo_skillActionGraph = {
   main: {
     nodes: {
-      modifyActionValue_1: {
+      checkCondition_1: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
+        },
+        next: null,
+      },
+      modifyActionValue_2: {
         action: {
           kind: 'modifyActionValue',
           parameters: {
             key: 'shelterrate',
             operation: 'add',
-            value: { kind: 'valueNode', nodeId: 'data_1' },
+            value: { kind: 'valueNode', nodeId: 'data_3' },
           },
         },
         next: null,
       },
-      applyBuff_2: {
+      checkCondition_3: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
+        },
+        next: null,
+      },
+      applyBuff_4: {
         action: {
           kind: 'applyBuff',
           parameters: {
@@ -1215,23 +1366,48 @@ export const emberChr_0009_azrila_combo_skillActionGraph = {
         },
         next: null,
       },
-      conditional_3: {
+      ifElse_5: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' }, alwaysNext: true },
-          whenTrue: { $sequence: 'modifyActionValue_1' },
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_1' },
+          whenTrue: { $sequence: 'modifyActionValue_2' },
+          whenFalse: { $sequence: null },
         },
-        next: 'applyBuff_2',
+        next: 'applyBuff_4',
       },
-      conditional_4: {
+      ifElse_6: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' }, alwaysNext: true },
-          whenTrue: { $sequence: 'conditional_3' },
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_3' },
+          whenTrue: { $sequence: 'ifElse_5' },
+          whenFalse: { $sequence: null },
         },
         next: null,
       },
-      applyBuff_5: {
+      checkCondition_10: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_6' } },
+        },
+        next: null,
+      },
+      checkCondition_11: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_8' } },
+        },
+        next: 'checkCondition_10',
+      },
+      checkCondition_12: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_10' } },
+        },
+        next: 'checkCondition_11',
+      },
+      applyBuff_13: {
         action: {
           kind: 'applyBuff',
           parameters: {
@@ -1247,7 +1423,14 @@ export const emberChr_0009_azrila_combo_skillActionGraph = {
         },
         next: null,
       },
-      heal_6: {
+      checkCondition_14: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_12' } },
+        },
+        next: null,
+      },
+      heal_15: {
         action: {
           kind: 'heal',
           parameters: {
@@ -1256,35 +1439,35 @@ export const emberChr_0009_azrila_combo_skillActionGraph = {
             alwaysNext: true,
             tags: ['Skill/Character/Common/Heal/ComboSkillHeal'],
             attribute: 'will',
-            multiplier: { kind: 'valueNode', nodeId: 'data_6' },
-            addition: { kind: 'valueNode', nodeId: 'data_7' },
+            multiplier: { kind: 'valueNode', nodeId: 'data_13' },
+            addition: { kind: 'valueNode', nodeId: 'data_14' },
           },
         },
         next: null,
       },
-      modifyActionValue_7: {
+      modifyActionValue_16: {
         action: {
           kind: 'modifyActionValue',
           parameters: {
             key: 'heal_base',
             operation: 'multiply',
-            value: { kind: 'valueNode', nodeId: 'data_8' },
+            value: { kind: 'valueNode', nodeId: 'data_15' },
           },
         },
-        next: 'heal_6',
+        next: 'heal_15',
       },
-      modifyActionValue_8: {
+      modifyActionValue_17: {
         action: {
           kind: 'modifyActionValue',
           parameters: {
             key: 'will_additive',
             operation: 'multiply',
-            value: { kind: 'valueNode', nodeId: 'data_9' },
+            value: { kind: 'valueNode', nodeId: 'data_16' },
           },
         },
-        next: 'modifyActionValue_7',
+        next: 'modifyActionValue_16',
       },
-      findCharacterTeamTargets_9: {
+      findCharacterTeamTargets_18: {
         action: {
           kind: 'findCharacterTeamTargets',
           parameters: {
@@ -1292,36 +1475,49 @@ export const emberChr_0009_azrila_combo_skillActionGraph = {
             selection: { kind: 'lowestHealthRatioOperator', excludedContextKey: 'Main' },
           },
         },
-        next: 'modifyActionValue_8',
+        next: 'modifyActionValue_17',
       },
-      findCharacterTeamTargets_10: {
+      findCharacterTeamTargets_19: {
         action: {
           kind: 'findCharacterTeamTargets',
           parameters: { saveToContextKey: 'Main', selection: { kind: 'controlledOperator' } },
         },
-        next: 'findCharacterTeamTargets_9',
+        next: 'findCharacterTeamTargets_18',
       },
-      changeResource_11: {
+      changeResource_20: {
         action: {
           kind: 'changeResource',
           parameters: {
             resource: 'ultimateEnergy',
-            amount: { kind: 'valueNode', nodeId: 'data_10' },
+            amount: { kind: 'valueNode', nodeId: 'data_17' },
             coefficient: { kind: 'constant', value: 1 },
-            recipient: 'caster',
+            source: { kind: 'source' },
+            targets: { kind: 'source' },
           },
         },
         next: null,
       },
-      conditional_12: {
+      ifElse_21: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_12' }, alwaysNext: true },
-          whenTrue: { $sequence: 'findCharacterTeamTargets_10' },
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: null },
+          whenTrue: { $sequence: 'changeResource_20' },
+          whenFalse: { $sequence: null },
         },
-        next: 'changeResource_11',
+        next: null,
       },
-      heal_13: {
+      ifElse_22: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_14' },
+          whenTrue: { $sequence: 'findCharacterTeamTargets_19' },
+          whenFalse: { $sequence: null },
+        },
+        next: 'ifElse_21',
+      },
+      heal_23: {
         action: {
           kind: 'heal',
           parameters: {
@@ -1329,26 +1525,26 @@ export const emberChr_0009_azrila_combo_skillActionGraph = {
             alwaysNext: true,
             tags: ['Skill/Character/Common/Heal/ComboSkillHeal'],
             attribute: 'will',
-            multiplier: { kind: 'valueNode', nodeId: 'data_13' },
-            addition: { kind: 'valueNode', nodeId: 'data_14' },
+            multiplier: { kind: 'valueNode', nodeId: 'data_18' },
+            addition: { kind: 'valueNode', nodeId: 'data_19' },
           },
         },
-        next: 'conditional_12',
+        next: 'ifElse_22',
       },
-      dealDamage_14: {
+      dealDamage_24: {
         action: {
           kind: 'dealDamage',
           parameters: {
             damageType: 'physical',
-            attackScale: { kind: 'valueNode', nodeId: 'data_15' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_20' },
             tags: ['comboSkill'],
             features: ['canBreakWeakness'],
-            stagger: { kind: 'valueNode', nodeId: 'data_16' },
+            stagger: { kind: 'valueNode', nodeId: 'data_21' },
           },
         },
-        next: 'heal_13',
+        next: 'heal_23',
       },
-      applyPhysicalInfliction_15: {
+      applyPhysicalInfliction_25: {
         action: {
           kind: 'applyPhysicalInfliction',
           parameters: {
@@ -1361,9 +1557,19 @@ export const emberChr_0009_azrila_combo_skillActionGraph = {
             returnWhen: 'always',
           },
         },
-        next: 'dealDamage_14',
+        next: 'dealDamage_24',
       },
-      startTimeDilation_17: {
+      ifElse_26: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_12' },
+          whenTrue: { $sequence: 'applyBuff_13' },
+          whenFalse: { $sequence: null },
+        },
+        next: 'applyPhysicalInfliction_25',
+      },
+      startTimeDilation_27: {
         action: {
           kind: 'startTimeDilation',
           parameters: {
@@ -1379,30 +1585,32 @@ export const emberChr_0009_azrila_combo_skillActionGraph = {
         },
         next: null,
       },
-      conditional_opt1: {
+      ifElse_opt1: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_21' }, alwaysNext: true },
-          whenTrue: { $sequence: 'applyBuff_5' },
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: null },
+          whenTrue: { $sequence: null },
+          whenFalse: { $sequence: null },
         },
-        next: 'applyPhysicalInfliction_15',
+        next: null,
       },
     },
     dataNodes: {
-      data_1: { type: 'number', expression: { kind: 'blackboard', key: 'extrashelter' } },
-      data_2: {
+      data_1: {
         type: 'number',
         expression: { kind: 'blackboard', key: 'potential_1', fallback: 0 },
       },
-      data_3: {
+      data_2: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_2' },
+          left: { kind: 'valueNode', nodeId: 'data_1' },
           operator: 'greater',
           right: { kind: 'constant', value: 0 },
         },
       },
+      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'extrashelter' } },
       data_4: { type: 'number', expression: { kind: 'blackboard', key: 'talent1', fallback: 0 } },
       data_5: {
         type: 'boolean',
@@ -1413,11 +1621,40 @@ export const emberChr_0009_azrila_combo_skillActionGraph = {
           right: { kind: 'constant', value: 0 },
         },
       },
-      data_6: { type: 'number', expression: { kind: 'blackboard', key: 'will_additive' } },
-      data_7: { type: 'number', expression: { kind: 'blackboard', key: 'heal_base' } },
-      data_8: { type: 'number', expression: { kind: 'blackboard', key: 'extracure' } },
-      data_9: { type: 'number', expression: { kind: 'blackboard', key: 'extracure' } },
-      data_10: { type: 'number', expression: { kind: 'blackboard', key: 'usp' } },
+      data_6: {
+        type: 'boolean',
+        expression: {
+          kind: 'entityCountCompare',
+          target: { kind: 'fixed', target: 'enemy' },
+          containsHittableTarget: false,
+          excludeDeadEntity: false,
+          operator: 'greaterOrEqual',
+          value: 1,
+        },
+      },
+      data_7: { type: 'number', expression: { kind: 'blackboard', key: 'talent1', fallback: 0 } },
+      data_8: {
+        type: 'boolean',
+        expression: {
+          kind: 'actionValueCompare',
+          left: { kind: 'valueNode', nodeId: 'data_7' },
+          operator: 'greater',
+          right: { kind: 'constant', value: 0 },
+        },
+      },
+      data_9: {
+        type: 'number',
+        expression: { kind: 'blackboard', key: 'potential_1', fallback: 0 },
+      },
+      data_10: {
+        type: 'boolean',
+        expression: {
+          kind: 'actionValueCompare',
+          left: { kind: 'valueNode', nodeId: 'data_9' },
+          operator: 'greater',
+          right: { kind: 'constant', value: 0 },
+        },
+      },
       data_11: {
         type: 'number',
         expression: { kind: 'blackboard', key: 'potential_3', fallback: 0 },
@@ -1433,41 +1670,13 @@ export const emberChr_0009_azrila_combo_skillActionGraph = {
       },
       data_13: { type: 'number', expression: { kind: 'blackboard', key: 'will_additive' } },
       data_14: { type: 'number', expression: { kind: 'blackboard', key: 'heal_base' } },
-      data_15: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_16: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
-      data_17: {
-        type: 'number',
-        expression: { kind: 'blackboard', key: 'potential_1', fallback: 0 },
-      },
-      data_18: {
-        type: 'boolean',
-        expression: {
-          kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_17' },
-          operator: 'greater',
-          right: { kind: 'constant', value: 0 },
-        },
-      },
-      data_19: { type: 'number', expression: { kind: 'blackboard', key: 'talent1', fallback: 0 } },
-      data_20: {
-        type: 'boolean',
-        expression: {
-          kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_19' },
-          operator: 'greater',
-          right: { kind: 'constant', value: 0 },
-        },
-      },
-      data_21: {
-        type: 'boolean',
-        expression: {
-          kind: 'all',
-          conditions: [
-            { kind: 'conditionNode', nodeId: 'data_18' },
-            { kind: 'conditionNode', nodeId: 'data_20' },
-          ],
-        },
-      },
+      data_15: { type: 'number', expression: { kind: 'blackboard', key: 'extracure' } },
+      data_16: { type: 'number', expression: { kind: 'blackboard', key: 'extracure' } },
+      data_17: { type: 'number', expression: { kind: 'blackboard', key: 'usp' } },
+      data_18: { type: 'number', expression: { kind: 'blackboard', key: 'will_additive' } },
+      data_19: { type: 'number', expression: { kind: 'blackboard', key: 'heal_base' } },
+      data_20: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
+      data_21: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
     },
   },
   macros: {},
@@ -1501,9 +1710,10 @@ export const emberChr_0009_azrila_combo_skill: SkillDefinition = {
   },
   costFrame: 0,
   scheduledSequences: [
-    { startFrame: 0, endFrame: 26, sequence: { $sequence: 'conditional_4' } },
-    { startFrame: 26, endFrame: 27, sequence: { $sequence: 'conditional_opt1' } },
-    { startFrame: 0, endFrame: 12, sequence: { $sequence: 'startTimeDilation_17' } },
+    { startFrame: 0, endFrame: 26, sequence: { $sequence: 'ifElse_6' } },
+    { startFrame: 0, endFrame: 17, sequence: { $sequence: 'ifElse_opt1' } },
+    { startFrame: 26, endFrame: 27, sequence: { $sequence: 'ifElse_26' } },
+    { startFrame: 0, endFrame: 12, sequence: { $sequence: 'startTimeDilation_27' } },
   ],
   smartTarget: 'input',
   cooldownFrames: [570, 570, 570, 570, 570, 570, 570, 570, 570, 570, 570, 540],
@@ -1573,29 +1783,26 @@ const emberPassive1: OperatorPassiveSkillDefinition = {
 const emberComboCondition1ActionGraph = {
   main: {
     nodes: {
-      conditional_1: {
+      checkCondition_1: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-          whenTrue: { $sequence: null },
         },
         next: null,
       },
-      conditional_2: {
+      checkCondition_2: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-          whenTrue: { $sequence: 'conditional_1' },
         },
-        next: null,
+        next: 'checkCondition_1',
       },
-      conditional_3: {
+      checkCondition_3: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
-          whenTrue: { $sequence: 'conditional_2' },
         },
-        next: null,
+        next: 'checkCondition_2',
       },
     },
     dataNodes: {
@@ -1631,7 +1838,7 @@ const emberComboCondition1: ComboSkillConditionDefinition = {
   event: 'takeDamage',
   immediately: false,
   initialValues: null,
-  sequence: { $sequence: 'conditional_3' },
+  sequence: { $sequence: 'checkCondition_3' },
   actionGraph: emberComboCondition1ActionGraph,
 };
 
@@ -1660,13 +1867,12 @@ const emberBuff1ActionGraph = {
         },
         next: null,
       },
-      conditional_3: {
+      checkCondition_3: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-          whenTrue: { $sequence: 'finishCurrentBuff_2' },
         },
-        next: null,
+        next: 'finishCurrentBuff_2',
       },
     },
     dataNodes: {
@@ -1692,7 +1898,7 @@ const emberBuff1: SkillBuffDefinition = {
     { startFrame: 0, endFrame: 96, sequence: { $sequence: 'startTimeDilation_1' } },
   ],
   abilityEventResponses: [
-    { event: 'skillEnd', priority: 0, sequence: { $sequence: 'conditional_3' } },
+    { event: 'skillEnd', priority: 0, sequence: { $sequence: 'checkCondition_3' } },
   ],
   actionGraph: emberBuff1ActionGraph,
 };
@@ -1910,13 +2116,12 @@ const emberBuff6ActionGraph = {
         },
         next: null,
       },
-      conditional_2: {
+      checkCondition_2: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-          whenTrue: { $sequence: 'applyBuff_1' },
         },
-        next: null,
+        next: 'applyBuff_1',
       },
     },
     dataNodes: {
@@ -1988,7 +2193,7 @@ const emberBuff6: SkillBuffDefinition = {
       replaceHitEffect: false,
     },
   ],
-  lifecycleSequences: { start: { $sequence: 'conditional_2' } },
+  lifecycleSequences: { start: { $sequence: 'checkCondition_2' } },
   actionGraph: emberBuff6ActionGraph,
 };
 
@@ -1998,6 +2203,7 @@ export const ember: OperatorDefinition = {
   rarity: 6,
   weaponType: 'claym',
   element: 'heat',
+  characterTypeId: 'Fire',
   role: 'defender',
   mainAttribute: 'strength',
   secondaryAttribute: 'will',

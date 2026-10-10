@@ -5,18 +5,38 @@
 import type * as Contract from '../../../../packages/game-data-contract/src/index.ts';
 export * from '../../../../packages/game-data-contract/src/index.ts';
 
-/** 只扩展数据输入；动作种类、参数字段和资源归属仍来自正式契约。 */
-export type IntermediateDefinition<T> = T extends { readonly kind: 'valueNode' }
-  ? ActionValueOperand
-  : T extends { readonly kind: 'conditionNode' }
-    ? CombatCondition
-    : T extends { readonly kind: 'stringNode' }
-      ? ActionStringOperand
-      : T extends readonly unknown[]
-        ? { [K in keyof T]: IntermediateDefinition<T[K]> }
-        : T extends object
+/** 仅供用途分析；必须在正式化前消除，不能发布为运行节点。 */
+interface AnalysisStepParameters {
+  saveTwoDirectionAngle: {
+    direction1Source: Contract.ActionTargetQuery;
+    direction1Target: Contract.ActionTargetQuery;
+    direction1Type: Contract.ActionDirectionType;
+    direction2Source: Contract.ActionTargetQuery;
+    direction2Target: Contract.ActionTargetQuery;
+    direction2Type: Contract.ActionDirectionType;
+    outputKey: string;
+  };
+}
+type AnalysisStep = {
+  kind: 'saveTwoDirectionAngle';
+  parameters: AnalysisStepParameters['saveTwoDirectionAngle'];
+  key?: string;
+};
+
+/** 中间图允许内联输入及尚待证明无用途的原生计算。 */
+export type IntermediateDefinition<T> = T extends Contract.ActionGraphNode
+  ? { [K in keyof T]: K extends 'action' ? ActionGraphStep : IntermediateDefinition<T[K]> }
+  : T extends { readonly kind: 'valueNode' }
+    ? ActionValueOperand
+    : T extends { readonly kind: 'conditionNode' }
+      ? CombatCondition
+      : T extends { readonly kind: 'stringNode' }
+        ? ActionStringOperand
+        : T extends readonly unknown[]
           ? { [K in keyof T]: IntermediateDefinition<T[K]> }
-          : T;
+          : T extends object
+            ? { [K in keyof T]: IntermediateDefinition<T[K]> }
+            : T;
 
 export type ActionValueOperand = Contract.ActionValueOperand | Contract.ActionValueExpression;
 export type ActionStringOperand = Contract.ActionStringOperand | Contract.ActionStringExpression;
@@ -35,16 +55,20 @@ export type ActionGraphMacroDefinition =
 export type ActionGraphNode = IntermediateDefinition<Contract.ActionGraphNode>;
 export type ActionGraphResourceDefinition =
   IntermediateDefinition<Contract.ActionGraphResourceDefinition>;
-export type ActionGraphStep = IntermediateDefinition<Contract.ActionGraphStep>;
+export type ActionGraphStep = IntermediateDefinition<Contract.ActionGraphStep> | AnalysisStep;
 export type ActionSwitchOptionDefinition =
   IntermediateDefinition<Contract.ActionSwitchOptionDefinition>;
 export type CombatEventResponseDefinition =
   IntermediateDefinition<Contract.CombatEventResponseDefinition>;
-export type CombatStepDefinition = IntermediateDefinition<Contract.CombatStepDefinition>;
-export type CombatStepForKind<K extends Contract.CombatStepKind> = IntermediateDefinition<
-  Contract.CombatStepForKind<K>
+export type CombatStepDefinition =
+  IntermediateDefinition<Contract.CombatStepDefinition> | AnalysisStep;
+export type CombatStepKind = Contract.CombatStepKind | keyof AnalysisStepParameters;
+export type CombatStepForKind<K extends CombatStepKind> = Extract<
+  CombatStepDefinition,
+  { kind: K }
 >;
-export type CombatStepParameters = IntermediateDefinition<Contract.CombatStepParameters>;
+export type CombatStepParameters = IntermediateDefinition<Contract.CombatStepParameters> &
+  AnalysisStepParameters;
 export type EquipmentContributionDefinition =
   IntermediateDefinition<Contract.EquipmentContributionDefinition>;
 export type GearSetDefinition = IntermediateDefinition<Contract.GearSetDefinition>;

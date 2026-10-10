@@ -106,13 +106,12 @@ const definition = {
               },
               next: null,
             },
-            conditional_2: {
+            checkCondition_2: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-                whenTrue: { $sequence: 'applyBuff_1' },
               },
-              next: null,
+              next: 'applyBuff_1',
             },
             applyBuff_3: {
               action: {
@@ -134,13 +133,12 @@ const definition = {
               },
               next: null,
             },
-            conditional_4: {
+            checkCondition_4: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-                whenTrue: { $sequence: 'applyBuff_3' },
               },
-              next: null,
+              next: 'applyBuff_3',
             },
           },
           dataNodes: {
@@ -162,13 +160,13 @@ const definition = {
           key: 'skill3:event:0:sequence:0',
           abilityEvent: 'beforeCastSkill',
           priority: 0,
-          sequence: { $sequence: 'conditional_2' },
+          sequence: { $sequence: 'checkCondition_2' },
         },
         {
           key: 'skill3:event:0:sequence:1',
           abilityEvent: 'beforeCastSkill',
           priority: 0,
-          sequence: { $sequence: 'conditional_4' },
+          sequence: { $sequence: 'checkCondition_4' },
         },
       ],
       blackboard: {

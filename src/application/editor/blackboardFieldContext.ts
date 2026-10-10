@@ -330,7 +330,6 @@ export function blackboardRequestForField(
     readBuffStackCount: ['parameters.outputKey'],
     readBuffBlackboard: ['parameters.outputKey'],
     readEventBuffBlackboard: ['parameters.outputKey'],
-    readCurrentBuffRemainingDuration: ['parameters.outputKey'],
     readBuffRemainingDuration: ['parameters.outputKey'],
     storeSourceAttributeValue: ['parameters.targetKey'],
     storeEntityPropertyValue: ['parameters.targetKey'],

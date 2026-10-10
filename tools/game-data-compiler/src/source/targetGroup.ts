@@ -147,6 +147,8 @@ export interface TargetGroupWriteSource {
   /** ConvertToTargetContext 的原生操作；空间变换分支仍保持失败关闭。 */
   readonly conversionOperation?:
     'None' | 'ConvertEntityToPosition' | 'ConvertEntityToSlot' | 'ExcludeTarget';
+  /** 完整的 convertFrom；查询中心、方向和 finder 参数不能由摘要反推。 */
+  readonly conversionSource?: TargetReferenceSource;
   /** None 分支不消费这些字段，但来源 IR 仍完整保留，避免把原生事实吞掉。 */
   readonly conversionTransform?: TargetContextTransformSource;
   /** TargetPostProcessorAction 不重新搜索，而是复制候选组后依次执行 validator/postprocessor。 */
@@ -553,6 +555,7 @@ function parseConvertToTargetContextAction(
       ? {}
       : { targetContainsParents: summary.targetContainsParents }),
     conversionOperation: operation,
+    conversionSource: source,
     conversionTransform: {
       translateOperation,
       translationRef,

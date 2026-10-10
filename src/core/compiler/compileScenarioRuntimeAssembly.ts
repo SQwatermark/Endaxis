@@ -482,7 +482,8 @@ export function compileScenarioRuntimeAssembly(
             : { cooldownFrames: program.cooldownFrames }),
           ...(program.costFrame === undefined ? {} : { costFrame: program.costFrame }),
         })),
-        characterTypeId: build.operator.element,
+        element: build.operator.element,
+        characterTypeId: build.operator.characterTypeId,
         operatorRole: build.operator.role,
         ...(Object.keys(equipmentBuffDefinitions).length === 0
           ? {}

@@ -11,6 +11,33 @@ const terminal = {
 };
 
 describe('EventContextConditionExecutor', () => {
+  it('中断原因只读取当前事件载荷，切换技能与闪避分别判断', () => {
+    const executor = new EventContextConditionExecutor(terminal);
+    const condition = {
+      kind: 'skillInterruptReasonIn' as const,
+      reasons: ['castNextSkill'] as const,
+    };
+    const blackboard = new ActionBlackboard();
+    expect(executor.evaluate(condition, { blackboard })).toBe(false);
+    for (const reason of ['default', 'dash', 'castNextSkill'] as const) {
+      expect(
+        executor.evaluate(condition, {
+          blackboard,
+          event: {
+            event: 'skillInterrupted',
+            payload: {
+              sourceId: 'operator',
+              targetId: 'operator',
+              skillId: 'attack',
+              skillCastId: 1,
+              reason,
+            },
+          },
+        }),
+      ).toBe(reason === 'castNextSkill');
+    }
+  });
+
   it('技能属性读取事件技能，再回退执行技能，不读取命中属性', () => {
     const executor = new EventContextConditionExecutor(terminal);
     const condition = { kind: 'skillDamageTypeIn' as const, damageTypes: ['heat'] as const };
@@ -935,7 +962,7 @@ describe('EventContextConditionExecutor', () => {
         event: {
           event: 'skillSpGained',
           payload: {
-            sourceOperatorId: 'operator',
+            sourceId: 'operator',
             source: 'skill',
             gainKind: 'gain',
             requestedAmount: 1,
@@ -1070,7 +1097,7 @@ describe('EventContextConditionExecutor', () => {
       event: {
         event: 'skillSpGained' as const,
         payload: {
-          sourceOperatorId: 'operator',
+          sourceId: 'operator',
           source: 'skill' as const,
           gainKind: 'gain' as const,
           requestedAmount: 10,

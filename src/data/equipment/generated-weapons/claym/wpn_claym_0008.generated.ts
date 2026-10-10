@@ -57,23 +57,25 @@ const definition = {
               },
               next: null,
             },
-            conditional_2: {
+            checkCondition_2: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
+                parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
+              },
+              next: 'applyBuff_1',
+            },
+            invertNextResult_3: {
+              action: { kind: 'invertNextResult', parameters: {} },
+              next: 'checkCondition_2',
+            },
+            checkCondition_4: {
+              action: {
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-                whenTrue: { $sequence: 'applyBuff_1' },
               },
-              next: null,
+              next: 'invertNextResult_3',
             },
-            conditional_3: {
-              action: {
-                kind: 'conditional',
-                parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
-                whenTrue: { $sequence: 'conditional_2' },
-              },
-              next: null,
-            },
-            applyBuff_4: {
+            applyBuff_5: {
               action: {
                 kind: 'applyBuff',
                 parameters: {
@@ -93,42 +95,40 @@ const definition = {
               },
               next: null,
             },
-            calculateActionValue_5: {
+            calculateActionValue_6: {
               action: {
                 kind: 'calculateActionValue',
                 parameters: {
                   key: 'atk_up_dynamic',
                   operation: 'multiply',
-                  left: { kind: 'valueNode', nodeId: 'data_4' },
-                  right: { kind: 'valueNode', nodeId: 'data_5' },
+                  left: { kind: 'valueNode', nodeId: 'data_3' },
+                  right: { kind: 'valueNode', nodeId: 'data_4' },
                 },
               },
-              next: 'applyBuff_4',
+              next: 'applyBuff_5',
             },
-            conditional_6: {
+            checkCondition_7: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
+                parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
+              },
+              next: 'calculateActionValue_6',
+            },
+            checkCondition_8: {
+              action: {
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_6' } },
-                whenTrue: { $sequence: 'calculateActionValue_5' },
               },
-              next: null,
+              next: 'checkCondition_7',
             },
-            conditional_7: {
-              action: {
-                kind: 'conditional',
-                parameters: { condition: { kind: 'conditionNode', nodeId: 'data_7' } },
-                whenTrue: { $sequence: 'conditional_6' },
-              },
-              next: null,
-            },
-            applyBuff_8: {
+            applyBuff_9: {
               action: {
                 kind: 'applyBuff',
                 parameters: {
                   buffs: [
                     {
                       buffId: 'buff_wpn_claym_0008',
-                      blackboardAssignments: { poise_up: { kind: 'valueNode', nodeId: 'data_8' } },
+                      blackboardAssignments: { poise_up: { kind: 'valueNode', nodeId: 'data_7' } },
                     },
                   ],
                   target: 'caster',
@@ -141,9 +141,16 @@ const definition = {
             data_1: { type: 'boolean', expression: { kind: 'casterControlled' } },
             data_2: {
               type: 'boolean',
-              expression: { kind: 'not', condition: { kind: 'conditionNode', nodeId: 'data_1' } },
+              expression: {
+                kind: 'eventDamageTagsMatch',
+                match: 'hasAll',
+                tags: ['normalAttackLastCombo'],
+              },
             },
-            data_3: {
+            data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atk_up' } },
+            data_4: { type: 'number', expression: { kind: 'blackboard', key: 'multi' } },
+            data_5: { type: 'boolean', expression: { kind: 'casterControlled' } },
+            data_6: {
               type: 'boolean',
               expression: {
                 kind: 'eventDamageTagsMatch',
@@ -151,18 +158,7 @@ const definition = {
                 tags: ['normalAttackLastCombo'],
               },
             },
-            data_4: { type: 'number', expression: { kind: 'blackboard', key: 'atk_up' } },
-            data_5: { type: 'number', expression: { kind: 'blackboard', key: 'multi' } },
-            data_6: { type: 'boolean', expression: { kind: 'casterControlled' } },
             data_7: {
-              type: 'boolean',
-              expression: {
-                kind: 'eventDamageTagsMatch',
-                match: 'hasAll',
-                tags: ['normalAttackLastCombo'],
-              },
-            },
-            data_8: {
               type: 'number',
               expression: { kind: 'blackboard', key: 'install_0_poise_up' },
             },
@@ -176,16 +172,16 @@ const definition = {
           key: 'skill3:event:0:sequence:0',
           abilityEvent: 'beforeOutputDamage',
           priority: 0,
-          sequence: { $sequence: 'conditional_3' },
+          sequence: { $sequence: 'checkCondition_4' },
         },
         {
           key: 'skill3:event:0:sequence:1',
           abilityEvent: 'beforeOutputDamage',
           priority: 0,
-          sequence: { $sequence: 'conditional_7' },
+          sequence: { $sequence: 'checkCondition_8' },
         },
       ],
-      enableSequence: { $sequence: 'applyBuff_8' },
+      enableSequence: { $sequence: 'applyBuff_9' },
       blackboard: {
         atk_up: [0.1, 0.12, 0.14, 0.16, 0.18, 0.2, 0.22, 0.24, 0.28],
         duration: [8, 8, 8, 8, 8, 8, 8, 8, 8],
@@ -211,7 +207,7 @@ const definition = {
       poiseModifiers: [
         {
           enabledSide: 'attacker',
-          condition: { $sequence: 'conditional_2' },
+          condition: { $sequence: 'checkCondition_2' },
           processors: [
             {
               kind: 'modifyPoiseScalar',
@@ -225,21 +221,19 @@ const definition = {
       actionGraph: {
         main: {
           nodes: {
-            conditional_1: {
+            checkCondition_1: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-                whenTrue: { $sequence: null },
               },
               next: null,
             },
-            conditional_2: {
+            checkCondition_2: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-                whenTrue: { $sequence: 'conditional_1' },
               },
-              next: null,
+              next: 'checkCondition_1',
             },
           },
           dataNodes: {

@@ -111,8 +111,8 @@ const definition = {
       blackboard: { dmg_taken_down: -0.2, dmg_taken_down2: -0.4, duration: 0 },
       attributeModifiers: [],
       abilityEventResponses: [
-        { event: 'outputHeal', priority: 0, sequence: { $sequence: 'conditional_2' } },
-        { event: 'outputHeal', priority: 0, sequence: { $sequence: 'conditional_4' } },
+        { event: 'outputHeal', priority: 0, sequence: { $sequence: 'checkCondition_2' } },
+        { event: 'outputHeal', priority: 0, sequence: { $sequence: 'invertNextResult_5' } },
       ],
       actionGraph: {
         main: {
@@ -139,13 +139,12 @@ const definition = {
               },
               next: null,
             },
-            conditional_2: {
+            checkCondition_2: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-                whenTrue: { $sequence: 'applyBuff_1' },
               },
-              next: null,
+              next: 'applyBuff_1',
             },
             applyBuff_3: {
               action: {
@@ -168,22 +167,21 @@ const definition = {
               },
               next: null,
             },
-            conditional_4: {
+            checkCondition_4: {
               action: {
-                kind: 'conditional',
-                parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
-                whenTrue: { $sequence: 'applyBuff_3' },
+                kind: 'checkCondition',
+                parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
               },
-              next: null,
+              next: 'applyBuff_3',
+            },
+            invertNextResult_5: {
+              action: { kind: 'invertNextResult', parameters: {} },
+              next: 'checkCondition_4',
             },
           },
           dataNodes: {
             data_1: { type: 'boolean', expression: { kind: 'eventOverheal' } },
             data_2: { type: 'boolean', expression: { kind: 'eventOverheal' } },
-            data_3: {
-              type: 'boolean',
-              expression: { kind: 'not', condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-            },
           },
         },
         macros: {},

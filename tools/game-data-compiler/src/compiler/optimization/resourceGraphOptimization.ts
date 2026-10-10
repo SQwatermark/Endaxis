@@ -1,4 +1,5 @@
 /** 优化各资源自己的完整图。遍历目录只寻找资源，绝不把目录中的节点合到一起。 */
+import { isDeepStrictEqual } from 'node:util';
 import type {
   ActionGraphReference,
   ActionGraphResourceDefinition,
@@ -56,6 +57,21 @@ export function optimizeResourceGraphs<T>(
 } {
   const reports: DefinitionOptimizationReport[] = [];
   const reportLocations = new Map<string, number>();
+  function recordReport(path: string, report: DefinitionOptimizationReport) {
+    const index = reportLocations.get(path);
+    if (index === undefined) {
+      reportLocations.set(path, reports.length);
+      reports.push({ ...report, mode });
+      return;
+    }
+    const previous = reports[index]!;
+    reports[index] = {
+      ...report,
+      mode,
+      before: previous.before,
+      changes: [...previous.changes, ...report.changes],
+    };
+  }
   function visit(value: unknown, path: string, phase: 'simplify' | 'extract'): unknown {
     if (Array.isArray(value)) {
       let changed = false;
@@ -125,8 +141,7 @@ export function optimizeResourceGraphs<T>(
     });
     const deduplicated =
       mode === 'off' ? optimized : deduplicateActionGraph(optimized.graph, optimized.entries);
-    reportLocations.set(path, reports.length);
-    reports.push({ ...optimized.report, mode });
+    recordReport(path, optimized.report);
     let index = 0;
     let entriesChanged = false;
     const metadata = mapEntries(fields, entry => {
@@ -154,7 +169,7 @@ export function optimizeResourceGraphs<T>(
           mode: mode === 'off' ? 'off' : 'apply',
           definitionId: `${path}.macro.${id}`,
         });
-        reports.push({ ...result.report, mode });
+        recordReport(`${path}.macro.${id}`, result.report);
         const shared =
           mode === 'off' ? result : deduplicateActionGraph(result.graph, result.entries);
         const next =
@@ -173,9 +188,16 @@ export function optimizeResourceGraphs<T>(
     if (!changed) return value;
     return { ...(metadata as object), actionGraph: finalResource };
   }
-  const simplified = visit(value, 'definition', 'simplify') as T;
-  // 宏会隐藏内部读写，因此先让领域入口裁剪无用值，再在剩下的图上统计重复中间段。
-  const pruned = mode === 'off' ? simplified : (pruneValues?.(simplified) ?? simplified);
-  const candidate = mode === 'off' ? pruned : (visit(pruned, 'definition', 'extract') as T);
+  let simplified = visit(value, 'definition', 'simplify') as T;
+  // 无用写入消失后，条件可能失去用途；条件消失后，其输入也可能成为死值。
+  // 宏提取放在收敛之后，避免宏调用隐藏读写关系。
+  if (mode !== 'off' && pruneValues) {
+    for (;;) {
+      const pruned = pruneValues(simplified);
+      if (isDeepStrictEqual(pruned, simplified)) break;
+      simplified = visit(pruned, 'definition', 'simplify') as T;
+    }
+  }
+  const candidate = mode === 'off' ? simplified : (visit(simplified, 'definition', 'extract') as T);
   return { value: mode === 'apply' ? candidate : value, reports };
 }

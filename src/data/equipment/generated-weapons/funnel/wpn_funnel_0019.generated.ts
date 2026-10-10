@@ -95,13 +95,12 @@ const definition = {
               },
               next: 'applyBuff_1',
             },
-            conditional_3: {
+            checkCondition_3: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-                whenTrue: { $sequence: 'applyBuff_2' },
               },
-              next: null,
+              next: 'applyBuff_2',
             },
             createTimedMarker_4: {
               action: {
@@ -144,21 +143,19 @@ const definition = {
               },
               next: 'applyBuff_5',
             },
-            conditional_7: {
+            checkCondition_7: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
-                whenTrue: { $sequence: 'finishBuffsById_6' },
               },
-              next: null,
+              next: 'finishBuffsById_6',
             },
-            conditional_8: {
+            checkCondition_8: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
-                whenTrue: { $sequence: 'conditional_7' },
               },
-              next: null,
+              next: 'checkCondition_7',
             },
           },
           dataNodes: {
@@ -199,13 +196,13 @@ const definition = {
           key: 'skill3:event:0:sequence:0',
           abilityEvent: 'beforeCastSkill',
           priority: 0,
-          sequence: { $sequence: 'conditional_3' },
+          sequence: { $sequence: 'checkCondition_3' },
         },
         {
           key: 'skill3:event:1:sequence:0',
           abilityEvent: 'beforeOutputSpellBurst',
           priority: 0,
-          sequence: { $sequence: 'conditional_8' },
+          sequence: { $sequence: 'checkCondition_8' },
         },
       ],
       blackboard: {

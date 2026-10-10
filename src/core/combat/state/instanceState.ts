@@ -109,6 +109,7 @@ export interface BuffActionHostState {
   readonly damageSnapshots: DamageCalculationSnapshotState;
   enable: ActionSequenceState | null;
   trigger: ActionSequenceState | null;
+  readonly instantSequences: Map<string, ActionSequenceState>;
   scheduled: BuffScheduledActionState | null;
   skillSlotsReplaced: boolean;
 }

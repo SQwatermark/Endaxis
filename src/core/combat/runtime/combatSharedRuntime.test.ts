@@ -51,6 +51,7 @@ it('binds every shared runtime to one copied graph without replaying business ev
   original.globalCooldowns.set('operator', 'marker', 3);
   original.abilityEntityInstanceIds.allocate();
   original.skillCastIds.allocate();
+  original.runtimeState.identities.spatialPoints.nextSpatialPointId++;
   original.basicAttackInheritance.register('operator', {
     skillCastId: 1,
     originSkillId: 'skill',
@@ -88,4 +89,6 @@ it('binds every shared runtime to one copied graph without replaying business ev
   expect(observer.ended).not.toHaveBeenCalled();
   expect(restored.abilityEntityInstanceIds.allocate()).toBe(2);
   expect(restored.skillCastIds.allocate()).toBe(2);
+  expect(restored.runtimeState.identities.spatialPoints.nextSpatialPointId++).toBe(2);
+  expect(original.runtimeState.identities.spatialPoints.nextSpatialPointId).toBe(2);
 });

@@ -1,3 +1,8 @@
+import {
+  collectBuffActionReferences,
+  parseReferenceAwareBuffActionGraphSource,
+} from '../../source/buffActionGraph.ts';
+import { inspectExternalBlackboardUsage } from '../references/externalBlackboardUsage.ts';
 import { CHARACTER_INFLICTION_BUFFS } from '../../../../../src/core/combat/infliction/characterInfliction.ts';
 import type { GameplayTagRegistry } from '../../source/nativeGameplayTags.ts';
 import { requireRecord } from '../../source/primitives.ts';
@@ -75,6 +80,7 @@ export function compileStandardStumpBuffClosure(
     CompiledBuffCapturedTargetGroupsSource
   > = new Map(),
   rootBuffBlackboards: ReadonlyMap<string, Readonly<Record<string, number | string>>> = new Map(),
+  externalBuffBlackboardReads?: ReadonlySet<string>,
 ): CompiledStandardStumpBuffClosure {
   const buffData =
     typeof buffDataValue === 'function'
@@ -201,6 +207,22 @@ export function compileStandardStumpBuffClosure(
             : [];
         }),
       );
+      const externalUsage = inspectExternalBlackboardUsage(
+        collectBuffActionReferences(source.graph),
+        reference => {
+          if (reference.kind !== 'buff' || reference.id === null) return undefined;
+          if (!sources.has(reference.id)) return undefined;
+          const value =
+            typeof buffData === 'function' ? buffData(reference.id) : buffData[reference.id];
+          if (value === undefined) return undefined;
+          return {
+            value,
+            references: collectBuffActionReferences(
+              parseReferenceAwareBuffActionGraphSource(value, `BuffData.${reference.id}`, {}),
+            ),
+          };
+        },
+      );
       definitions[buffId] = compileBuffRuntimeDefinitionSource(
         source,
         omittedBuffIds,
@@ -208,6 +230,11 @@ export function compileStandardStumpBuffClosure(
         extensions,
         abilityEntityQueries,
         {
+          isBlackboardKeyUnusedByExternalResources: key =>
+            externalBuffBlackboardReads !== undefined &&
+            !externalBuffBlackboardReads.has(key) &&
+            externalUsage.unresolved.length === 0 &&
+            !externalUsage.mentionedKeys.has(key),
           gameplayTagRegistry: gameplayTagRegistry ?? abilityEntityQueries?.gameplayTagRegistry,
           ...(combatInvisibleDynamicBuffBlackboardKeys.size === 0
             ? {}

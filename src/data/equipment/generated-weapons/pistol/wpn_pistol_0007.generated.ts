@@ -71,13 +71,12 @@ const definition = {
               },
               next: null,
             },
-            conditional_2: {
+            checkCondition_2: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-                whenTrue: { $sequence: 'applyBuff_1' },
               },
-              next: null,
+              next: 'applyBuff_1',
             },
           },
           dataNodes: {
@@ -95,7 +94,7 @@ const definition = {
           key: 'skill3:event:0:sequence:0',
           abilityEvent: 'beforeCastSkill',
           priority: 0,
-          sequence: { $sequence: 'conditional_2' },
+          sequence: { $sequence: 'checkCondition_2' },
         },
       ],
       blackboard: {
@@ -144,7 +143,7 @@ const definition = {
       damageModifiers: [
         {
           enabledSide: 'attacker',
-          condition: { $sequence: 'conditional_2' },
+          condition: { $sequence: 'checkCondition_2' },
           processors: [
             {
               kind: 'damageScale',
@@ -158,21 +157,19 @@ const definition = {
       actionGraph: {
         main: {
           nodes: {
-            conditional_1: {
+            checkCondition_1: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-                whenTrue: { $sequence: null },
               },
               next: null,
             },
-            conditional_2: {
+            checkCondition_2: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-                whenTrue: { $sequence: 'conditional_1' },
               },
-              next: null,
+              next: 'checkCondition_1',
             },
           },
           dataNodes: {

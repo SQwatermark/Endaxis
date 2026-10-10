@@ -223,6 +223,7 @@ function description(node: CombatObjectNode): string {
       return `#${object.sequence}`;
     case 'spatialPoint':
       return String(object.pointId);
+    case 'godEntity':
     case 'enemy':
       return '—';
   }

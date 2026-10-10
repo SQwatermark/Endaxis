@@ -146,7 +146,7 @@ const definition = {
         },
         { attribute: 'Def', slot: 'baseMultiplier', value: { blackboardKey: 'def_up' } },
       ],
-      lifecycleSequences: { finish: { $sequence: 'conditional_3' } },
+      lifecycleSequences: { finish: { $sequence: 'checkCondition_3' } },
       actionGraph: {
         main: {
           nodes: {
@@ -174,13 +174,12 @@ const definition = {
               },
               next: 'createTimedMarker_1',
             },
-            conditional_3: {
+            checkCondition_3: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
-                whenTrue: { $sequence: 'heal_2' },
               },
-              next: null,
+              next: 'heal_2',
             },
           },
           dataNodes: {

@@ -85,13 +85,22 @@ export function finalizeOperatorDefinition(
     ),
   );
   const skillValues: SkillValueOptimizationReport[] = [];
+  let skillIndex = 0;
   const skill = (value: SkillDefinition) => {
     const pruned = pruneUnusedGraphSkillValues(
       value,
       protectedKeys,
       createGraphEntityUsageContext(operator.abilityEntityDefinitions, sharedEntityUsage),
     );
-    skillValues.push(pruned.report);
+    // 每轮遍历顺序固定；同 ID 的不同变体也各自保留报告。
+    const previous = skillValues[skillIndex];
+    skillValues[skillIndex++] = previous
+      ? {
+          ...pruned.report,
+          removedWrites: [...previous.removedWrites, ...pruned.report.removedWrites],
+          removedInitialKeys: [...previous.removedInitialKeys, ...pruned.report.removedInitialKeys],
+        }
+      : pruned.report;
     return pruned.skill;
   };
   const skills = (values: SkillDefinition | readonly SkillDefinition[]) =>
@@ -99,32 +108,35 @@ export function finalizeOperatorDefinition(
   const result = finalizeDefinitionResources<Contract.OperatorDefinition>(
     operator,
     mode,
-    simplified => ({
-      ...simplified,
-      skillGroups: simplified.skillGroups.map(group => ({
-        ...group,
-        skills: skills(group.skills),
-        ...(group.variants === undefined
-          ? {}
-          : {
-              variants: group.variants.map(variant => ({
-                ...variant,
-                skills: skills(variant.skills),
-              })),
-            }),
-        ...(group.replacementSkills === undefined
-          ? {}
-          : { replacementSkills: group.replacementSkills.map(skill) }),
-        ...(group.routedReplacementSkills === undefined
-          ? {}
-          : {
-              routedReplacementSkills: group.routedReplacementSkills.map(route => ({
-                ...route,
-                skill: skill(route.skill),
-              })),
-            }),
-      })),
-    }),
+    simplified => {
+      skillIndex = 0;
+      return {
+        ...simplified,
+        skillGroups: simplified.skillGroups.map(group => ({
+          ...group,
+          skills: skills(group.skills),
+          ...(group.variants === undefined
+            ? {}
+            : {
+                variants: group.variants.map(variant => ({
+                  ...variant,
+                  skills: skills(variant.skills),
+                })),
+              }),
+          ...(group.replacementSkills === undefined
+            ? {}
+            : { replacementSkills: group.replacementSkills.map(skill) }),
+          ...(group.routedReplacementSkills === undefined
+            ? {}
+            : {
+                routedReplacementSkills: group.routedReplacementSkills.map(route => ({
+                  ...route,
+                  skill: skill(route.skill),
+                })),
+              }),
+        })),
+      };
+    },
   );
   return {
     operator: result.value,
@@ -161,6 +173,19 @@ function prune<T extends EquipmentContributionDefinition>(
   };
 }
 
+function recordEquipmentReport(
+  reports: EquipmentValueOptimizationReport[],
+  report: EquipmentValueOptimizationReport,
+) {
+  const index = reports.findIndex(item => item.path === report.path);
+  if (index < 0) reports.push(report);
+  else
+    reports[index] = {
+      ...report,
+      removedInitialKeys: [...reports[index]!.removedInitialKeys, ...report.removedInitialKeys],
+    };
+}
+
 export function finalizeWeaponDefinition(
   definition: WeaponDefinition,
   mode: DefinitionOptimizationMode = 'apply',
@@ -173,7 +198,7 @@ export function finalizeWeaponDefinition(
       ...simplified,
       traits: simplified.traits.map((trait, index) => {
         const result = prune(trait, 'apply', `${definition.slug}:${trait.key}`, `traits[${index}]`);
-        equipmentValues.push(result.report);
+        recordEquipmentReport(equipmentValues, result.report);
         return result.value;
       }),
     }),
@@ -201,7 +226,7 @@ export function finalizeGearSetDefinition(
     mode,
     simplified => {
       const result = prune(simplified, 'apply', definition.slug, 'contribution');
-      equipmentValues.push(result.report);
+      recordEquipmentReport(equipmentValues, result.report);
       return result.value;
     },
   );

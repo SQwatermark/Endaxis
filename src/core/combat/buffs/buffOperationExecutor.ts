@@ -1,3 +1,4 @@
+import { runtimeTargetEntityId } from '../../game-data/logicalAbilityEntity';
 import {
   FORCED_SPELL_STATUS_BUFFS,
   ELEMENTAL_ATTACHMENT_TAGS,
@@ -78,6 +79,9 @@ export interface BuffLifecycleOperationSource {
 
 /** 技能动作对目标 Buff 容器使用的最小稳定端口。 */
 export interface BuffOperationTarget {
+  findMatching?(
+    query: ResolvedCombatStepParameters['setBuffRemainingDuration']['query'],
+  ): Iterable<BuffQueryResult>;
   setRemainingDuration?(
     query: ResolvedCombatStepParameters['setBuffRemainingDuration']['query'],
     operation: 'assign' | 'add' | 'multiply',
@@ -266,6 +270,10 @@ export interface BuffApplicationRequest {
 }
 
 export interface BuffOperationDependencies {
+  readonly queryTargets?: (
+    query: ResolvedCombatStepParameters['readBuffRemainingDuration']['target'],
+    context: CombatOperationContext,
+  ) => readonly RuntimeTargetRef[];
   readonly triggerCharacterInflictionEvent?: (
     ownerId: string,
     sourceId: string,
@@ -838,24 +846,32 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
       return true;
     }
 
-    if (step.kind === 'readCurrentBuffRemainingDuration') {
-      if (context?.getCurrentBuffRemainingDuration === undefined) {
-        throw new Error('readCurrentBuffRemainingDuration requires a Buff operation context');
-      }
-      context.blackboard.assignDynamic(
-        step.parameters.outputKey,
-        context.getCurrentBuffRemainingDuration() ?? 0,
-      );
-      return true;
-    }
-
     if (step.kind === 'readBuffRemainingDuration') {
-      if (context === undefined)
-        throw new Error('readBuffRemainingDuration requires a combat operation context');
-      const target = this.#resolveSingleTarget(step.parameters.target, context);
-      const buff = target.findFirstByIds(step.parameters.buffIds);
-      if (buff === undefined) return false;
-      context.blackboard.assignDynamic(step.parameters.outputKey, buff.remainingDuration ?? 0);
+      if (context === undefined || this.dependencies.queryTargets === undefined)
+        throw new Error('Buff lifetime query requires an action target resolver');
+      const selected = this.dependencies.queryTargets(step.parameters.target, context)[0];
+      let remaining = 0;
+      if (selected !== undefined) {
+        const target = this.#resolveSingleTarget('currentTarget', {
+          ...context,
+          currentTarget: selected,
+        });
+        if (step.parameters.query.kind === 'environment') {
+          if (target.ownerId === context.buffOwnerId)
+            remaining = context.getCurrentBuffRemainingDuration?.() ?? 0;
+        } else {
+          if (target.findMatching === undefined)
+            throw new Error('Buff target cannot enumerate matches');
+          for (const buff of target.findMatching(step.parameters.query)) {
+            if (buff.remainingDuration != null) remaining = buff.remainingDuration;
+          }
+        }
+      }
+      // 原生只在差值超过容差时写回，避免触发无变化的变量更新。
+      if (
+        Math.abs((context.blackboard.getNumber(step.parameters.outputKey) ?? 0) - remaining) > 1e-5
+      )
+        context.blackboard.assignDynamic(step.parameters.outputKey, remaining);
       return true;
     }
 
@@ -1591,9 +1607,7 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
       const target =
         first.kind === 'abilityEntity'
           ? this.dependencies.resolveCurrentAbilityEntityTarget?.(first)
-          : this.dependencies.resolveEventTarget?.(
-              first.kind === 'enemy' ? 'enemy' : first.operatorId,
-            );
+          : this.dependencies.resolveEventTarget?.(runtimeTargetEntityId(first)!);
       if (target === undefined) throw new Error('context Buff count requires a target resolver');
       const count = target.getCountByTags(condition.buffTags, condition.tagQueryType);
       return compareCombatNumbers(
@@ -1613,9 +1627,7 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
       const target =
         first.kind === 'abilityEntity'
           ? this.dependencies.resolveCurrentAbilityEntityTarget?.(first)
-          : this.dependencies.resolveEventTarget?.(
-              first.kind === 'enemy' ? 'enemy' : first.operatorId,
-            );
+          : this.dependencies.resolveEventTarget?.(runtimeTargetEntityId(first)!);
       if (target === undefined) throw new Error('context Buff count requires a target resolver');
       return compareCombatNumbers(
         target.getCountByIds(condition.buffIds),
@@ -1635,9 +1647,7 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
       const target =
         first.kind === 'abilityEntity'
           ? this.dependencies.resolveCurrentAbilityEntityTarget?.(first)
-          : this.dependencies.resolveEventTarget?.(
-              first.kind === 'enemy' ? 'enemy' : first.operatorId,
-            );
+          : this.dependencies.resolveEventTarget?.(runtimeTargetEntityId(first)!);
       if (target === undefined)
         throw new Error('context entity tag check requires a target resolver');
       return target.matchesEntityTags(condition.tags, condition.tagQueryType);

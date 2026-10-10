@@ -54,8 +54,6 @@ export {
   type ActionStringOperand,
   DAMAGE_CALCULATIONS,
   type DamageCalculation,
-  RESOURCE_RECIPIENTS,
-  type ResourceRecipient,
   HEAL_TARGETS,
   type HealTarget,
   SP_GAIN_KINDS,

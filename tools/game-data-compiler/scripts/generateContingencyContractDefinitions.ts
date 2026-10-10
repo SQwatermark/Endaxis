@@ -16,7 +16,7 @@ import { format, resolveConfig } from 'prettier';
 import type {
   ActionGraphReference,
   ActionGraphResourceDefinition,
-} from '../../../packages/game-data-contract/src/actionGraph.ts';
+} from '../src/compiler/intermediateDefinitions.ts';
 import type { CompiledBuffDefinitionSource } from '../src/compiler/buffs/buffProjectionTypes.ts';
 import { compileGlobalBuffTemplate } from '../src/compiler/buffs/globalBuffProjection.ts';
 import { compileStandardStumpBuffClosure } from '../src/compiler/buffs/standardStumpBuffClosure.ts';
@@ -73,7 +73,7 @@ export interface ContingencyContractEnemyMaxHealthPlan {
 /** 来源校验和行为闭包完成后的结果；可先收集黑板用途，再直接渲染这一批内容。 */
 export interface CompiledContingencyContractDefinitions {
   readonly tags: ReturnType<typeof compileContingencyContractTagDefinitions>;
-  readonly buffDefinitions: import('../../../packages/game-data-contract/src/buffs.ts').OperatorBuffDefinitions;
+  readonly buffDefinitions: import('../src/compiler/intermediateDefinitions.ts').OperatorBuffDefinitions;
   readonly initializationPlans: readonly ContingencyContractInitializationPlan[];
   readonly enemyMaxHealthPlans: readonly ContingencyContractEnemyMaxHealthPlan[];
   readonly scope: ContingencyContractSimulationScope;
@@ -278,15 +278,12 @@ export function compileContingencyContractDefinitionsFromFiles(
     plans.push({
       tagId: tag.tagId,
       sequence,
-      actionGraph: extractResourceDataNodes({ main: graph.finish(), macros: {} }),
+      actionGraph: { main: graph.finish(), macros: {} },
     });
   }
 
   return {
-    buffDefinitions:
-      extractDefinitionDataNodes<
-        import('../../../packages/game-data-contract/src/buffs.ts').OperatorBuffDefinitions
-      >(definitions),
+    buffDefinitions: definitions,
     tags: compileContingencyContractTagDefinitions(catalog),
     initializationPlans: plans,
     enemyMaxHealthPlans,
@@ -308,16 +305,21 @@ export async function renderContingencyContractDefinitionsFromCompiled(
   compiled: CompiledContingencyContractDefinitions,
 ) {
   const {
-    buffDefinitions: definitions,
+    buffDefinitions,
     initializationPlans: plans,
     enemyMaxHealthPlans,
     scope,
     revision,
   } = compiled;
+  const definitions =
+    extractDefinitionDataNodes<
+      import('../../../packages/game-data-contract/src/buffs.ts').OperatorBuffDefinitions
+    >(buffDefinitions);
   const prettierConfig = (await resolveConfig(path.resolve('.prettierrc.json'))) ?? {};
   const graphPlans = plans.map(plan => {
-    validateActionGraphOwner(plan, `contingencyContract.${plan.tagId}`);
-    return plan;
+    const extracted = { ...plan, actionGraph: extractResourceDataNodes(plan.actionGraph) };
+    validateActionGraphOwner(extracted, `contingencyContract.${plan.tagId}`);
+    return extracted;
   });
   const content = await format(
     `/** 由危机合约原生词条、GlobalBuff 与 BuffData 闭包生成；不要手工编辑。 */

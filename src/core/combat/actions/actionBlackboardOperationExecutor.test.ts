@@ -1,4 +1,4 @@
-import { numberInput, conditionInput } from '../../../test/compiledGraphInputs';
+import { numberInput, conditionInput, stringInput } from '../../../test/compiledGraphInputs';
 import { describe, expect, it, vi } from 'vitest';
 import { ActionBlackboard } from './actionBlackboard';
 import { ActionBlackboardOperationExecutor } from './actionBlackboardOperationExecutor';
@@ -12,6 +12,59 @@ const delegate = {
 };
 
 describe('ActionBlackboardOperationExecutor', () => {
+  it('读取角色原生类型，只写成功目标；重复执行和缺失目标不改写语义', () => {
+    const executor = new ActionBlackboardOperationExecutor(
+      delegate,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      {
+        sourceId: 'caster',
+        resolve: () => 'electric',
+        readTypeId: id => (id === 'caster' ? 'Pulse' : undefined),
+      },
+    );
+    const blackboard = new ActionBlackboard();
+    const step = {
+      kind: 'storeCharacterTypeId',
+      parameters: { target: 'caster', outputKey: 'type' },
+    } as const;
+    expect(executor.execute(step, { blackboard })).toBe(true);
+    expect(blackboard.getString('type')).toBe('Pulse');
+    expect(executor.execute(step, { blackboard })).toBe(true);
+    expect(
+      executor.execute(
+        { ...step, parameters: { ...step.parameters, target: 'enemy' } },
+        { blackboard },
+      ),
+    ).toBe(false);
+    expect(
+      executor.execute(
+        { ...step, parameters: { ...step.parameters, target: 'currentTarget' } },
+        {
+          blackboard,
+          currentTarget: { kind: 'operator', operatorId: 'unregistered' },
+        },
+      ),
+    ).toBe(false);
+    expect(blackboard.getString('type')).toBe('Pulse');
+  });
+
+  it('字符串比较保留大小写、空字符串和动态读取，不为缺失变量补默认值', () => {
+    const executor = new ActionBlackboardOperationExecutor(delegate);
+    const blackboard = new ActionBlackboard({ type: 'Pulse' });
+    const condition = { kind: 'stringEquals', left: stringInput('type'), right: 'Pulse' } as const;
+    expect(executor.evaluate(condition, { blackboard })).toBe(true);
+    blackboard.assign({ type: 'pulse' });
+    expect(executor.evaluate(condition, { blackboard })).toBe(false);
+    blackboard.assign({ type: '' });
+    expect(executor.evaluate({ ...condition, right: '' }, { blackboard })).toBe(true);
+    expect(() =>
+      executor.evaluate({ ...condition, left: stringInput('missing') }, { blackboard }),
+    ).toThrow("missing string variable 'missing'");
+  });
+
   it('checks an exact Buff owner profession through the runtime operator registry', () => {
     const executor = new ActionBlackboardOperationExecutor(
       delegate,
@@ -108,7 +161,7 @@ describe('ActionBlackboardOperationExecutor', () => {
           event: {
             event: 'skillSpGained' as const,
             payload: {
-              sourceOperatorId: 'pogranichnik',
+              sourceId: 'pogranichnik',
               source: 'skill',
               gainKind: 'gain',
               requestedAmount: 37,

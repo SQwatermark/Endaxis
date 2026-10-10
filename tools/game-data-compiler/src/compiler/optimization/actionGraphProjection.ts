@@ -1,6 +1,6 @@
 /**
  * 生成定义只保留被显式引用的步骤名称和必须共享的作用域关系。
- * 全定义扫描一次，避免逐序列删 key 时遗漏天赋/潜能引用或跨入口 once 共享。
+ * 全定义扫描一次，避免逐序列删 key 时遗漏天赋/潜能引用或跨入口变量作用域共享。
  */
 export function prepareActionGraphIdentities<T>(definition: T): T {
   const referenced = new Set<string>();
@@ -17,7 +17,7 @@ export function prepareActionGraphIdentities<T>(definition: T): T {
     if (typeof r.key === 'string') occupied.add(r.key);
     if (typeof r.scopeKey === 'string') occupied.add(r.scopeKey);
     if (
-      (r.kind === 'once' || r.kind === 'withActionBlackboardScope') &&
+      r.kind === 'withActionBlackboardScope' &&
       r.parameters &&
       typeof r.parameters === 'object'
     ) {
@@ -71,7 +71,7 @@ export function prepareActionGraphIdentities<T>(definition: T): T {
         else delete r.key;
         changed = true;
       }
-      if (r.kind === 'once' || r.kind === 'withActionBlackboardScope') {
+      if (r.kind === 'withActionBlackboardScope') {
         if (typeof p.scopeKey === 'string' && generated(p.scopeKey)) {
           // parameters 由上层递归返回；只有真正改写时才需要新对象。
           const nextParameters = { ...p };

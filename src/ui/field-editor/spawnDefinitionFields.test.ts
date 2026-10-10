@@ -31,7 +31,12 @@ const schema = field.valueSchema!;
 const definition = Object.values(arclight.abilityEntityDefinitions!)[0]!;
 const a = (value: unknown): any => ({
   kind: 'spawnAbilityEntity',
-  parameters: { abilityEntityId: 'inline', dieWhenSourceDies: false, definition: value },
+  parameters: {
+    bornAt: { kind: 'owner' as const },
+    abilityEntityId: 'inline',
+    dieWhenSourceDies: false,
+    definition: value,
+  },
 });
 const options = { kind: 'spawnAbilityEntity', path: field.path };
 function mount(component: unknown, initial: Record<string, unknown>) {

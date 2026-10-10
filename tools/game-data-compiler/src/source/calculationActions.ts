@@ -6,20 +6,27 @@ import {
 } from './primitives.ts';
 import { parseScalarSource, type BlackboardLevelValues, type ScalarSource } from './scalar.ts';
 import { parseTargetReferenceSource, type TargetReferenceSource } from './target.ts';
+import { readDirectionType } from './targetEnums.ts';
 import {
   parseTimeDilationCurveKeys,
   type TimeDilationCurveKeySource,
 } from './timeDilationActions.ts';
 
+export interface SaveTwoDirectionAngleActionSource {
+  readonly kind: 'saveTwoDirectionAngle';
+  readonly direction1Source: TargetReferenceSource;
+  readonly direction1Target: TargetReferenceSource;
+  readonly direction1Type: ReturnType<typeof readDirectionType>;
+  readonly direction2Source: TargetReferenceSource;
+  readonly direction2Target: TargetReferenceSource;
+  readonly direction2Type: ReturnType<typeof readDirectionType>;
+  readonly outputKey: string;
+}
+
 export type PresentationCalculationActionSource =
   | {
       /** 玩家移动输入的有符号角度；仅可在其全部保留消费者消失后从战斗程序省略。 */
       readonly kind: 'saveMoveAxisAngle';
-      readonly outputKey: string;
-    }
-  | {
-      readonly kind: 'saveTwoDirectionAngle';
-      readonly sources: readonly TargetReferenceSource[];
       readonly outputKey: string;
     }
   | {
@@ -96,7 +103,7 @@ export function parseSaveCameraAngleActionSource(
 export function parseSaveTwoDirectionAngleActionSource(
   value: unknown,
   path: string,
-): PresentationCalculationActionSource {
+): SaveTwoDirectionAngleActionSource {
   const action = requireRecord(value, path);
   requireExactFields(
     action,
@@ -116,16 +123,14 @@ export function parseSaveTwoDirectionAngleActionSource(
     ]),
     path,
   );
-  requireNonEmptyString(action.dir1DirectionType, `${path}.dir1DirectionType`);
-  requireNonEmptyString(action.dir2DirectionType, `${path}.dir2DirectionType`);
   return {
     kind: 'saveTwoDirectionAngle',
-    sources: [
-      parseTargetReferenceSource(action.dir1Source, `${path}.dir1Source`),
-      parseTargetReferenceSource(action.dir1Target, `${path}.dir1Target`),
-      parseTargetReferenceSource(action.dir2Source, `${path}.dir2Source`),
-      parseTargetReferenceSource(action.dir2Target, `${path}.dir2Target`),
-    ],
+    direction1Source: parseTargetReferenceSource(action.dir1Source, `${path}.dir1Source`),
+    direction1Target: parseTargetReferenceSource(action.dir1Target, `${path}.dir1Target`),
+    direction1Type: readDirectionType(action.dir1DirectionType, `${path}.dir1DirectionType`),
+    direction2Source: parseTargetReferenceSource(action.dir2Source, `${path}.dir2Source`),
+    direction2Target: parseTargetReferenceSource(action.dir2Target, `${path}.dir2Target`),
+    direction2Type: readDirectionType(action.dir2DirectionType, `${path}.dir2DirectionType`),
     outputKey: requireNonEmptyString(action.key, `${path}.key`),
   };
 }

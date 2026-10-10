@@ -18,6 +18,22 @@ export function rootActionSteps(sequence: ResolvedActionSequence): readonly Reso
       result.push(...rootActionSteps(action.entry));
     } else if (action.kind === 'callMacro') {
       result.push(...rootActionSteps(bind(action.entry, `${id}:macro`)));
+    } else if (action.kind === 'jumpTimeline') {
+      result.push({ ...action, condition: bind(action.condition.$sequence, `${id}:condition`) });
+    } else if (action.kind === 'anyCondition') {
+      result.push({
+        ...action,
+        conditions: action.conditions.map((condition, index) =>
+          bind(condition.$sequence, `${id}:${index}`),
+        ),
+      });
+    } else if (action.kind === 'ifElse') {
+      result.push({
+        ...action,
+        condition: bind(action.condition.$sequence, `${id}:condition`),
+        whenTrue: bind(action.whenTrue.$sequence, `${id}:true`),
+        whenFalse: bind(action.whenFalse.$sequence, `${id}:false`),
+      });
     } else if (action.kind === 'conditional') {
       const { whenFalse, ...fields } = action;
       result.push({
@@ -46,10 +62,6 @@ export function rootActionSteps(sequence: ResolvedActionSequence): readonly Reso
     } else if (action.kind === 'once') {
       result.push({
         ...action,
-        parameters: {
-          ...action.parameters,
-          scopeKey: action.parameters.scopeKey ?? `${sequence.callSite}/${id}`,
-        },
         body: bind(action.body.$sequence, `${id}:body`),
       });
     } else if (action.kind === 'withActionBlackboardScope') {

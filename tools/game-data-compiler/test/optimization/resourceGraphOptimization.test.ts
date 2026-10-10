@@ -43,6 +43,107 @@ function repeatedMiddleResource() {
 }
 
 describe('独立资源图构建与优化', () => {
+  it.each([true, false])(
+    '等价分支消失后回收条件输入，但保留严格缺键读取：fallback=%s',
+    fallback => {
+      const graph = createActionGraphBuilder();
+      const assign = (key: string, value: number): ActionGraphStep => ({
+        kind: 'modifyActionValue',
+        parameters: { key, operation: 'assign', value: { kind: 'constant', value } },
+      });
+      const condition = graph.sequence([
+        {
+          kind: 'checkCondition',
+          parameters: {
+            condition: {
+              kind: 'actionValueCompare',
+              left: { kind: 'blackboard', key: 'temporary', ...(fallback ? { fallback: 0 } : {}) },
+              operator: 'equal',
+              right: { kind: 'constant', value: 1 },
+            },
+          },
+        },
+      ]);
+      const sequence = graph.sequence([
+        assign('temporary', 1),
+        {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition,
+          whenTrue: graph.sequence([assign('result', 7)]),
+          whenFalse: graph.sequence([assign('result', 7)]),
+        },
+        {
+          kind: 'changeResource',
+          parameters: {
+            resource: 'sp',
+            recipient: 'team',
+            amount: { kind: 'blackboard', key: 'result' },
+          },
+        },
+      ]);
+      const definition: SkillDefinition = {
+        ...skillFixture({
+          key: 'fixture',
+          timelineBlockFrames: 30,
+          scheduledSequences: [],
+          actionGraph: { main: { nodes: {} }, macros: {} },
+        }),
+        blackboard: { temporary: 0, result: 0 },
+        scheduledSequences: [{ startFrame: 0, sequence }],
+        actionGraph: { main: graph.finish(), macros: {} },
+      };
+      const result = optimizeResourceGraphs(
+        definition,
+        'apply',
+        input => pruneUnusedGraphSkillValues(input).skill,
+      );
+      const actions = Object.values(result.value.actionGraph.main.nodes).map(node => node.action);
+      expect(actions.some(action => action.kind === 'ifElse')).toBe(!fallback);
+      expect(
+        actions.some(
+          action => action.kind === 'modifyActionValue' && action.parameters.key === 'temporary',
+        ),
+      ).toBe(!fallback);
+      expect(result.value.blackboard).toEqual(
+        fallback ? { result: 0 } : { temporary: 0, result: 0 },
+      );
+      expect(actions.some(action => action.kind === 'changeResource')).toBe(true);
+      expect(result.reports).toHaveLength(1);
+      const execute = (skill: SkillDefinition) => {
+        const outputs: number[] = [];
+        const board = new ActionBlackboard({ temporary: 0, result: 0 });
+        const runtime = new CombatActionSequenceRuntime(
+          new ActionBlackboardOperationExecutor({
+            evaluate: () => true,
+            execute(step, context) {
+              if (step.kind === 'changeResource')
+                outputs.push(
+                  typeof step.parameters.amount === 'number'
+                    ? step.parameters.amount
+                    : resolveActionValueOperand(step.parameters.amount, context!.blackboard),
+                );
+              return true;
+            },
+          }),
+          { blackboard: board },
+        );
+        const compiler = createActionGraphCompilation(
+          extractResourceDataNodes(skill.actionGraph),
+          1,
+        );
+        const compiled = compiler.compileEntry(skill.scheduledSequences[0]!.sequence, 'fixture');
+        compiler.compileAll();
+        const program = runtime.createSequence(compiled);
+        program.reset({});
+        program.executeInstant({});
+        return outputs;
+      };
+      expect(execute(definition)).toEqual([7]);
+      expect(execute(result.value)).toEqual(execute(definition));
+    },
+  );
+
   it('再次优化时，宏的原节点身份不作为当前图引用，也不重写宏内部 ID', () => {
     const actionGraph: ActionGraphResourceDefinition = {
       main: {
@@ -166,10 +267,13 @@ describe('独立资源图构建与优化', () => {
     const result = finalizeDefinitionResources(definition, mode, simplified => {
       expect(Object.keys(simplified.actionGraph.macros)).toHaveLength(0);
       const pruned = pruneUnusedGraphSkillValues(simplified);
-      removedWrites = pruned.report.removedWrites.length;
+      removedWrites += pruned.report.removedWrites.length;
       return pruned.skill;
     });
     expect(removedWrites).toBeGreaterThan(10);
+    expect(result.report.programs).toHaveLength(1);
+    expect(result.report.before.steps).toBeGreaterThan(10);
+    expect(result.report.after.steps).toBe(0);
     expect(result.report.programs.flatMap(item => item.macroCandidates ?? [])).toEqual([]);
     if (mode === 'apply') {
       expect(Object.keys(result.value.actionGraph.macros)).toHaveLength(0);

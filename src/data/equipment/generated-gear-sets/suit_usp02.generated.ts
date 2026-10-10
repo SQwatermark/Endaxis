@@ -45,7 +45,7 @@ const definition = {
       blackboard: { dmg_up: 0.25, duration: 15, hp_up: 1000 },
       attributeModifiers: [],
       abilityEventResponses: [
-        { event: 'outputBuff', priority: 0, sequence: { $sequence: 'conditional_2' } },
+        { event: 'outputBuff', priority: 0, sequence: { $sequence: 'checkCondition_2' } },
       ],
       actionGraph: {
         main: {
@@ -67,13 +67,12 @@ const definition = {
               },
               next: null,
             },
-            conditional_2: {
+            checkCondition_2: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-                whenTrue: { $sequence: 'applyBuff_1' },
               },
-              next: null,
+              next: 'applyBuff_1',
             },
           },
           dataNodes: {

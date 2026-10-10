@@ -76,6 +76,8 @@ function fixture(extracted: boolean, behavior: 'normal' | 'fail' | 'end' | 'gate
     throw new Error('unexpected nested action');
   };
   const host: ActionGraphExecutionHost = {
+    requestTimelineJump: unsupported,
+    executionPolicy: { resultMode: 'normal' },
     canExecute: () => {
       gateCount++;
       return behavior !== 'gate' || executionCount < 1;
@@ -85,7 +87,6 @@ function fixture(extracted: boolean, behavior: 'normal' | 'fail' | 'end' | 'gate
     withTarget: unsupported,
     evaluate: unsupported,
     value: unsupported,
-    once: unsupported,
     scope: unsupported,
     bindOperation: action => {
       const identity = [slots.slot(action), action.key ?? action.kind, action.parameters];
@@ -129,7 +130,7 @@ function fixture(extracted: boolean, behavior: 'normal' | 'fail' | 'end' | 'gate
     );
     return current;
   };
-  return { make, trace, gates: () => gateCount };
+  return { make, trace, policy: host.executionPolicy, gates: () => gateCount };
 }
 
 describe('提取宏保留原动作身份与顺序', () => {
@@ -182,9 +183,8 @@ describe('提取宏保留原动作身份与顺序', () => {
   it('反转下一动作结果由原首个动作消费，不被宏调用包装提前消费', () => {
     const run = (extracted: boolean) => {
       const test = fixture(extracted);
-      const result = test
-        .make()
-        .tryExecute({ sequence: { resultMode: STEP_RESULT_MODE.invertNextResult } });
+      test.policy.resultMode = STEP_RESULT_MODE.invertNextResult;
+      const result = test.make().tryExecute({});
       return { result, trace: test.trace, gates: test.gates() };
     };
     expect(run(true)).toEqual(run(false));

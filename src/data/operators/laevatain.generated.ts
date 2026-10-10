@@ -8,7 +8,14 @@ import type { OperatorDefinition } from '../../../packages/game-data-contract/sr
 export const laevatainChr_0016_laevat_attack1ActionGraph = {
   main: {
     nodes: {
-      startTimeDilation_1: {
+      checkCondition_1: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
+        },
+        next: null,
+      },
+      startTimeDilation_2: {
         action: {
           kind: 'startTimeDilation',
           parameters: {
@@ -23,15 +30,17 @@ export const laevatainChr_0016_laevat_attack1ActionGraph = {
         },
         next: null,
       },
-      conditional_2: {
+      ifElse_3: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' }, alwaysNext: true },
-          whenTrue: { $sequence: 'startTimeDilation_1' },
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_1' },
+          whenTrue: { $sequence: 'startTimeDilation_2' },
+          whenFalse: { $sequence: null },
         },
         next: null,
       },
-      dealDamage_3: {
+      dealDamage_4: {
         action: {
           kind: 'dealDamage',
           parameters: {
@@ -40,9 +49,9 @@ export const laevatainChr_0016_laevat_attack1ActionGraph = {
             tags: ['normalAttack'],
           },
         },
-        next: 'conditional_2',
+        next: 'ifElse_3',
       },
-      reachSkillOperableBoundary_4: {
+      reachSkillOperableBoundary_5: {
         action: {
           kind: 'reachSkillOperableBoundary',
           parameters: { skillIds: ['chr_0016_laevat_attack2'] },
@@ -59,7 +68,6 @@ export const laevatainChr_0016_laevat_attack1ActionGraph = {
 } as const satisfies ActionGraphResourceDefinition;
 
 export const laevatainChr_0016_laevat_attack1: SkillDefinition = {
-  actionGraph: laevatainChr_0016_laevat_attack1ActionGraph,
   key: 'chr_0016_laevat_attack1',
   element: 'heat',
   blackboard: {
@@ -83,13 +91,14 @@ export const laevatainChr_0016_laevat_attack1: SkillDefinition = {
   },
   costFrame: 9,
   scheduledSequences: [
-    { startFrame: 6, endFrame: 7, sequence: { $sequence: 'dealDamage_3' } },
-    { startFrame: 10, endFrame: 33, sequence: { $sequence: 'reachSkillOperableBoundary_4' } },
+    { startFrame: 6, endFrame: 7, sequence: { $sequence: 'dealDamage_4' } },
+    { startFrame: 10, endFrame: 33, sequence: { $sequence: 'reachSkillOperableBoundary_5' } },
   ],
   timelineContinuationSkillId: 'chr_0016_laevat_attack2',
   skillType: 'basicAttack',
   levelSource: 'basicAttack',
   nativeSkillType: 'attack',
+  actionGraph: laevatainChr_0016_laevat_attack1ActionGraph,
 };
 
 export const laevatainChr_0016_laevat_attack2ActionGraph = {
@@ -102,7 +111,8 @@ export const laevatainChr_0016_laevat_attack2ActionGraph = {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
             coefficient: { kind: 'constant', value: 0.5 },
-            recipient: 'team',
+            source: { kind: 'source' },
+            targets: { kind: 'source' },
             onlyMainOperator: true,
             spGainKind: 'gain',
             spGainSource: 'normalAttack',
@@ -121,7 +131,14 @@ export const laevatainChr_0016_laevat_attack2ActionGraph = {
         },
         next: 'changeResource_1',
       },
-      startTimeDilation_3: {
+      checkCondition_3: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
+        },
+        next: null,
+      },
+      startTimeDilation_4: {
         action: {
           kind: 'startTimeDilation',
           parameters: {
@@ -136,30 +153,33 @@ export const laevatainChr_0016_laevat_attack2ActionGraph = {
         },
         next: null,
       },
-      conditional_4: {
+      ifElse_5: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' }, alwaysNext: true },
-          whenTrue: { $sequence: 'startTimeDilation_3' },
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_3' },
+          whenTrue: { $sequence: 'startTimeDilation_4' },
+          whenFalse: { $sequence: null },
         },
         next: null,
       },
-      changeResource_5: {
+      changeResource_6: {
         action: {
           kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_4' },
             coefficient: { kind: 'constant', value: 0.5 },
-            recipient: 'team',
+            source: { kind: 'source' },
+            targets: { kind: 'source' },
             onlyMainOperator: true,
             spGainKind: 'gain',
             spGainSource: 'normalAttack',
           },
         },
-        next: 'conditional_4',
+        next: 'ifElse_5',
       },
-      dealDamage_6: {
+      dealDamage_7: {
         action: {
           kind: 'dealDamage',
           parameters: {
@@ -168,9 +188,9 @@ export const laevatainChr_0016_laevat_attack2ActionGraph = {
             tags: ['normalAttack'],
           },
         },
-        next: 'changeResource_5',
+        next: 'changeResource_6',
       },
-      reachSkillOperableBoundary_7: {
+      reachSkillOperableBoundary_8: {
         action: {
           kind: 'reachSkillOperableBoundary',
           parameters: { skillIds: ['chr_0016_laevat_attack3'] },
@@ -190,13 +210,11 @@ export const laevatainChr_0016_laevat_attack2ActionGraph = {
 } as const satisfies ActionGraphResourceDefinition;
 
 export const laevatainChr_0016_laevat_attack2: SkillDefinition = {
-  actionGraph: laevatainChr_0016_laevat_attack2ActionGraph,
   key: 'chr_0016_laevat_attack2',
   element: 'heat',
   blackboard: {
     atb: 0,
     atk_scale: [0.12, 0.13, 0.14, 0.16, 0.17, 0.18, 0.19, 0.2, 0.22, 0.23, 0.25, 0.27],
-    display_atk_scale: [0.24, 0.26, 0.29, 0.31, 0.34, 0.36, 0.38, 0.41, 0.43, 0.46, 0.5, 0.54],
   },
   timelineBlockFrames: 16,
   naturalDurationFrames: 140,
@@ -216,19 +234,27 @@ export const laevatainChr_0016_laevat_attack2: SkillDefinition = {
   costFrame: 8,
   scheduledSequences: [
     { startFrame: 6, endFrame: 9, sequence: { $sequence: 'dealDamage_2' } },
-    { startFrame: 13, endFrame: 16, sequence: { $sequence: 'dealDamage_6' } },
-    { startFrame: 16, endFrame: 38, sequence: { $sequence: 'reachSkillOperableBoundary_7' } },
+    { startFrame: 13, endFrame: 16, sequence: { $sequence: 'dealDamage_7' } },
+    { startFrame: 16, endFrame: 38, sequence: { $sequence: 'reachSkillOperableBoundary_8' } },
   ],
   timelineContinuationSkillId: 'chr_0016_laevat_attack3',
   skillType: 'basicAttack',
   levelSource: 'basicAttack',
   nativeSkillType: 'attack',
+  actionGraph: laevatainChr_0016_laevat_attack2ActionGraph,
 };
 
 export const laevatainChr_0016_laevat_attack3ActionGraph = {
   main: {
     nodes: {
-      startTimeDilation_1: {
+      checkCondition_1: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
+        },
+        next: null,
+      },
+      startTimeDilation_2: {
         action: {
           kind: 'startTimeDilation',
           parameters: {
@@ -243,29 +269,32 @@ export const laevatainChr_0016_laevat_attack3ActionGraph = {
         },
         next: null,
       },
-      changeResource_2: {
+      changeResource_3: {
         action: {
           kind: 'changeResource',
           parameters: {
             resource: 'sp',
-            amount: { kind: 'valueNode', nodeId: 'data_1' },
+            amount: { kind: 'valueNode', nodeId: 'data_2' },
             coefficient: { kind: 'constant', value: 0.5 },
-            recipient: 'team',
+            source: { kind: 'source' },
+            targets: { kind: 'source' },
             spGainKind: 'gain',
             spGainSource: 'normalAttack',
           },
         },
-        next: 'startTimeDilation_1',
+        next: 'startTimeDilation_2',
       },
-      conditional_3: {
+      ifElse_4: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResource_2' },
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_1' },
+          whenTrue: { $sequence: 'changeResource_3' },
+          whenFalse: { $sequence: null },
         },
         next: null,
       },
-      dealDamage_4: {
+      dealDamage_5: {
         action: {
           kind: 'dealDamage',
           parameters: {
@@ -274,9 +303,9 @@ export const laevatainChr_0016_laevat_attack3ActionGraph = {
             tags: ['normalAttack'],
           },
         },
-        next: 'conditional_3',
+        next: 'ifElse_4',
       },
-      reachSkillOperableBoundary_5: {
+      reachSkillOperableBoundary_6: {
         action: {
           kind: 'reachSkillOperableBoundary',
           parameters: { skillIds: ['chr_0016_laevat_attack4'] },
@@ -285,8 +314,8 @@ export const laevatainChr_0016_laevat_attack3ActionGraph = {
       },
     },
     dataNodes: {
-      data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
-      data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
+      data_1: { type: 'boolean', expression: { kind: 'casterControlled' } },
+      data_2: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
       data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
     },
   },
@@ -294,7 +323,6 @@ export const laevatainChr_0016_laevat_attack3ActionGraph = {
 } as const satisfies ActionGraphResourceDefinition;
 
 export const laevatainChr_0016_laevat_attack3: SkillDefinition = {
-  actionGraph: laevatainChr_0016_laevat_attack3ActionGraph,
   key: 'chr_0016_laevat_attack3',
   element: 'heat',
   blackboard: {
@@ -318,13 +346,14 @@ export const laevatainChr_0016_laevat_attack3: SkillDefinition = {
   },
   costFrame: 12,
   scheduledSequences: [
-    { startFrame: 9, endFrame: 10, sequence: { $sequence: 'dealDamage_4' } },
-    { startFrame: 12, endFrame: 32, sequence: { $sequence: 'reachSkillOperableBoundary_5' } },
+    { startFrame: 9, endFrame: 10, sequence: { $sequence: 'dealDamage_5' } },
+    { startFrame: 12, endFrame: 32, sequence: { $sequence: 'reachSkillOperableBoundary_6' } },
   ],
   timelineContinuationSkillId: 'chr_0016_laevat_attack4',
   skillType: 'basicAttack',
   levelSource: 'basicAttack',
   nativeSkillType: 'attack',
+  actionGraph: laevatainChr_0016_laevat_attack3ActionGraph,
 };
 
 export const laevatainChr_0016_laevat_attack4ActionGraph = {
@@ -334,6 +363,8 @@ export const laevatainChr_0016_laevat_attack4ActionGraph = {
         action: {
           kind: 'launchProjectile',
           parameters: {
+            inheritActionBlackboard: true,
+            entityInitialValues: {},
             finish: 'firstTickReach',
             recycleDelaySeconds: 0.0333333350718021,
             hit: { finishOnHit: false },
@@ -353,7 +384,7 @@ export const laevatainChr_0016_laevat_attack4ActionGraph = {
                 },
                 blackboard: { atk_scale: 0, duration: 0 },
                 scheduledSequences: [
-                  { startFrame: 0, endFrame: 1, sequence: { $sequence: 'dealDamage_1' } },
+                  { startFrame: 0, endFrame: 1, sequence: { $sequence: 'checkCondition_2' } },
                 ],
                 actionGraph: {
                   main: {
@@ -369,11 +400,25 @@ export const laevatainChr_0016_laevat_attack4ActionGraph = {
                         },
                         next: null,
                       },
+                      checkCondition_2: {
+                        action: {
+                          kind: 'checkCondition',
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
+                        },
+                        next: 'dealDamage_1',
+                      },
                     },
                     dataNodes: {
                       data_1: {
                         type: 'number',
                         expression: { kind: 'blackboard', key: 'atk_scale' },
+                      },
+                      data_2: {
+                        type: 'boolean',
+                        expression: {
+                          kind: 'actionInputTargetObjectTypeMatch',
+                          objectTypes: ['enemy'],
+                        },
                       },
                     },
                   },
@@ -385,27 +430,15 @@ export const laevatainChr_0016_laevat_attack4ActionGraph = {
         },
         next: null,
       },
-      withActionBlackboardScope_2: {
-        action: {
-          kind: 'withActionBlackboardScope',
-          parameters: {
-            lifetime: 'execution',
-            initialValues: {},
-            inheritParent: true,
-            entityInitialValues: {},
-          },
-          body: { $sequence: 'launchProjectile_1' },
-        },
-        next: null,
-      },
-      changeResource_5: {
+      changeResource_3: {
         action: {
           kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
             coefficient: { kind: 'constant', value: 0.5 },
-            recipient: 'team',
+            source: { kind: 'source' },
+            targets: { kind: 'source' },
             onlyMainOperator: true,
             spGainKind: 'gain',
             spGainSource: 'normalAttack',
@@ -413,7 +446,7 @@ export const laevatainChr_0016_laevat_attack4ActionGraph = {
         },
         next: null,
       },
-      startTimeDilation_6: {
+      startTimeDilation_4: {
         action: {
           kind: 'startTimeDilation',
           parameters: {
@@ -426,13 +459,32 @@ export const laevatainChr_0016_laevat_attack4ActionGraph = {
             targets: ['enemy', 'caster'],
           },
         },
-        next: 'changeResource_5',
+        next: 'changeResource_3',
       },
-      conditional_7: {
+      ifElse_6: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' }, alwaysNext: true },
-          whenTrue: { $sequence: 'startTimeDilation_6' },
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: null },
+          whenTrue: { $sequence: 'startTimeDilation_4' },
+          whenFalse: { $sequence: null },
+        },
+        next: null,
+      },
+      checkCondition_5: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
+        },
+        next: null,
+      },
+      ifElse_7: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_5' },
+          whenTrue: { $sequence: 'ifElse_6' },
+          whenFalse: { $sequence: null },
         },
         next: null,
       },
@@ -445,7 +497,7 @@ export const laevatainChr_0016_laevat_attack4ActionGraph = {
             tags: ['normalAttack'],
           },
         },
-        next: 'conditional_7',
+        next: 'ifElse_7',
       },
       reachSkillOperableBoundary_9: {
         action: {
@@ -470,7 +522,6 @@ export const laevatainChr_0016_laevat_attack4: SkillDefinition = {
   blackboard: {
     atb: 0,
     atk_scale: [0.13, 0.14, 0.16, 0.17, 0.18, 0.2, 0.21, 0.22, 0.23, 0.25, 0.27, 0.29],
-    display_atk_scale: [0.39, 0.43, 0.47, 0.51, 0.55, 0.59, 0.62, 0.66, 0.7, 0.75, 0.81, 0.88],
   },
   timelineBlockFrames: 22,
   naturalDurationFrames: 121,
@@ -489,8 +540,8 @@ export const laevatainChr_0016_laevat_attack4: SkillDefinition = {
   },
   costFrame: 8,
   scheduledSequences: [
-    { startFrame: 12, endFrame: 14, sequence: { $sequence: 'withActionBlackboardScope_2' } },
-    { startFrame: 19, endFrame: 21, sequence: { $sequence: 'withActionBlackboardScope_2' } },
+    { startFrame: 12, endFrame: 14, sequence: { $sequence: 'launchProjectile_1' } },
+    { startFrame: 19, endFrame: 21, sequence: { $sequence: 'launchProjectile_1' } },
     { startFrame: 6, endFrame: 7, sequence: { $sequence: 'dealDamage_8' } },
     { startFrame: 22, endFrame: 45, sequence: { $sequence: 'reachSkillOperableBoundary_9' } },
   ],
@@ -520,6 +571,7 @@ export const laevatainChr_0016_laevat_attack5ActionGraph = {
           kind: 'repeatEachTick',
           parameters: {
             nativeChanneling: {
+              target: { kind: 'fixed', target: 'enemy' },
               executeEachFrame: true,
               triggerIntervalSeconds: 0.033,
               maxCountPerTarget: 1,
@@ -530,14 +582,22 @@ export const laevatainChr_0016_laevat_attack5ActionGraph = {
         },
         next: null,
       },
-      changeResource_3: {
+      checkCondition_3: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
+        },
+        next: null,
+      },
+      changeResource_4: {
         action: {
           kind: 'changeResource',
           parameters: {
             resource: 'sp',
-            amount: { kind: 'valueNode', nodeId: 'data_2' },
+            amount: { kind: 'valueNode', nodeId: 'data_3' },
             coefficient: { kind: 'constant', value: 1 },
-            recipient: 'team',
+            source: { kind: 'source' },
+            targets: { kind: 'source' },
             onlyMainOperator: true,
             spGainKind: 'gain',
             spGainSource: 'normalAttack',
@@ -545,7 +605,7 @@ export const laevatainChr_0016_laevat_attack5ActionGraph = {
         },
         next: null,
       },
-      startTimeDilation_4: {
+      startTimeDilation_5: {
         action: {
           kind: 'startTimeDilation',
           parameters: {
@@ -558,71 +618,90 @@ export const laevatainChr_0016_laevat_attack5ActionGraph = {
             targets: ['caster'],
           },
         },
-        next: 'changeResource_3',
+        next: 'changeResource_4',
       },
-      conditional_5: {
+      checkCondition_6: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' }, alwaysNext: true },
-          whenTrue: { $sequence: 'startTimeDilation_4' },
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
         },
         next: null,
       },
-      modifyActionValue_6: {
+      checkCondition_7: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_6' } },
+        },
+        next: 'checkCondition_6',
+      },
+      ifElse_8: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_3' },
+          whenTrue: { $sequence: 'startTimeDilation_5' },
+          whenFalse: { $sequence: null },
+        },
+        next: null,
+      },
+      modifyActionValue_9: {
         action: {
           kind: 'modifyActionValue',
           parameters: { key: 'count', operation: 'add', value: { kind: 'constant', value: 1 } },
         },
-        next: 'conditional_5',
+        next: 'ifElse_8',
       },
-      reachSkillOperableBoundary_10: {
+      ifElse_10: {
         action: {
-          kind: 'reachSkillOperableBoundary',
-          parameters: { skillIds: ['chr_0016_laevat_attack1'] },
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_7' },
+          whenTrue: { $sequence: 'modifyActionValue_9' },
+          whenFalse: { $sequence: null },
         },
         next: null,
       },
-      conditional_opt1: {
-        action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' }, alwaysNext: true },
-          whenTrue: { $sequence: 'modifyActionValue_6' },
-        },
-        next: null,
-      },
-      dealDamage_opt2: {
+      dealDamage_11: {
         action: {
           kind: 'dealDamage',
           parameters: {
             damageType: 'heat',
-            attackScale: { kind: 'valueNode', nodeId: 'data_6' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_7' },
             tags: ['normalAttack', 'normalAttackLastCombo'],
-            stagger: { kind: 'valueNode', nodeId: 'data_7' },
+            stagger: { kind: 'valueNode', nodeId: 'data_8' },
             staggerOnlyWhenCasterControlled: true,
           },
         },
-        next: 'conditional_opt1',
+        next: 'ifElse_10',
       },
-      repeatEachTick_opt3: {
+      repeatEachTick_12: {
         action: {
           kind: 'repeatEachTick',
           parameters: {
             nativeChanneling: {
+              target: { kind: 'fixed', target: 'enemy' },
               executeEachFrame: true,
               triggerIntervalSeconds: 0.033,
               maxCountPerTarget: 1,
               targetTriggerIntervalSeconds: 0.033,
             },
           },
-          body: { $sequence: 'dealDamage_opt2' },
+          body: { $sequence: 'dealDamage_11' },
+        },
+        next: null,
+      },
+      reachSkillOperableBoundary_13: {
+        action: {
+          kind: 'reachSkillOperableBoundary',
+          parameters: { skillIds: ['chr_0016_laevat_attack1'] },
         },
         next: null,
       },
     },
     dataNodes: {
       data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_2: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
-      data_3: { type: 'boolean', expression: { kind: 'casterControlled' } },
+      data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
+      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
       data_4: { type: 'number', expression: { kind: 'blackboard', key: 'count', fallback: 0 } },
       data_5: {
         type: 'boolean',
@@ -633,8 +712,19 @@ export const laevatainChr_0016_laevat_attack5ActionGraph = {
           right: { kind: 'constant', value: 0 },
         },
       },
-      data_6: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_7: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
+      data_6: {
+        type: 'boolean',
+        expression: {
+          kind: 'entityCountCompare',
+          target: { kind: 'fixed', target: 'enemy' },
+          containsHittableTarget: false,
+          excludeDeadEntity: false,
+          operator: 'greaterOrEqual',
+          value: 1,
+        },
+      },
+      data_7: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
+      data_8: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
     },
   },
   macros: {},
@@ -648,7 +738,6 @@ export const laevatainChr_0016_laevat_attack5: SkillDefinition = {
     atk_scale: [0.27, 0.29, 0.32, 0.34, 0.37, 0.4, 0.42, 0.45, 0.48, 0.51, 0.55, 0.6],
     count: 0,
     poise: 18,
-    display_atk_scale: [0.53, 0.58, 0.64, 0.69, 0.74, 0.8, 0.85, 0.9, 0.95, 1.02, 1.1, 1.19],
   },
   timelineBlockFrames: 34,
   naturalDurationFrames: 145,
@@ -668,8 +757,8 @@ export const laevatainChr_0016_laevat_attack5: SkillDefinition = {
   costFrame: 12,
   scheduledSequences: [
     { startFrame: 23, endFrame: 26, sequence: { $sequence: 'repeatEachTick_2' } },
-    { startFrame: 26, endFrame: 30, sequence: { $sequence: 'repeatEachTick_opt3' } },
-    { startFrame: 34, endFrame: 46, sequence: { $sequence: 'reachSkillOperableBoundary_10' } },
+    { startFrame: 26, endFrame: 30, sequence: { $sequence: 'repeatEachTick_12' } },
+    { startFrame: 34, endFrame: 46, sequence: { $sequence: 'reachSkillOperableBoundary_13' } },
   ],
   timelineContinuationSkillId: 'chr_0016_laevat_attack1',
   skillType: 'basicAttack',
@@ -681,14 +770,22 @@ export const laevatainChr_0016_laevat_attack5: SkillDefinition = {
 export const laevatainChr_0016_laevat_ult_attack1ActionGraph = {
   main: {
     nodes: {
-      changeResource_1: {
+      checkCondition_1: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
+        },
+        next: null,
+      },
+      changeResource_2: {
         action: {
           kind: 'changeResource',
           parameters: {
             resource: 'sp',
-            amount: { kind: 'valueNode', nodeId: 'data_1' },
+            amount: { kind: 'valueNode', nodeId: 'data_2' },
             coefficient: { kind: 'constant', value: 1 },
-            recipient: 'team',
+            source: { kind: 'source' },
+            targets: { kind: 'source' },
             onlyMainOperator: true,
             spGainKind: 'gain',
             spGainSource: 'normalAttack',
@@ -696,7 +793,7 @@ export const laevatainChr_0016_laevat_ult_attack1ActionGraph = {
         },
         next: null,
       },
-      startTimeDilation_2: {
+      startTimeDilation_3: {
         action: {
           kind: 'startTimeDilation',
           parameters: {
@@ -709,91 +806,128 @@ export const laevatainChr_0016_laevat_ult_attack1ActionGraph = {
             targets: ['enemy', 'caster'],
           },
         },
-        next: 'changeResource_1',
+        next: 'changeResource_2',
       },
-      modifyActionValue_3: {
+      modifyActionValue_4: {
         action: {
           kind: 'modifyActionValue',
           parameters: { key: 'stopped', operation: 'add', value: { kind: 'constant', value: 1 } },
         },
-        next: 'startTimeDilation_2',
+        next: 'startTimeDilation_3',
       },
-      conditional_4: {
+      checkCondition_5: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
-          whenTrue: { $sequence: 'modifyActionValue_3' },
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_4' } },
+        },
+        next: 'modifyActionValue_4',
+      },
+      checkCondition_6: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
+        },
+        next: 'checkCondition_5',
+      },
+      ifElse_7: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_1' },
+          whenTrue: { $sequence: 'checkCondition_6' },
+          whenFalse: { $sequence: null },
         },
         next: null,
       },
-      reachSkillOperableBoundary_10: {
-        action: {
-          kind: 'reachSkillOperableBoundary',
-          parameters: { skillIds: ['chr_0016_laevat_ult_attack2', 'chr_0016_laevat_attack1'] },
-        },
-        next: null,
-      },
-      conditional_opt1: {
-        action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_4' }, alwaysNext: true },
-          whenTrue: { $sequence: 'conditional_4' },
-        },
-        next: null,
-      },
-      dealDamage_opt2: {
+      dealDamage_8: {
         action: {
           kind: 'dealDamage',
           parameters: {
             damageType: 'heat',
-            attackScale: { kind: 'valueNode', nodeId: 'data_5' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_6' },
             tags: ['normalAttack'],
           },
         },
-        next: 'conditional_opt1',
+        next: 'ifElse_7',
       },
-      repeatEachTick_opt3: {
+      repeatEachTick_9: {
         action: {
           kind: 'repeatEachTick',
           parameters: {
             nativeChanneling: {
+              target: { kind: 'fixed', target: 'enemy' },
               executeEachFrame: true,
               triggerIntervalSeconds: 0.033,
               maxCountPerTarget: 1,
               targetTriggerIntervalSeconds: 0.033,
             },
           },
-          body: { $sequence: 'dealDamage_opt2' },
+          body: { $sequence: 'dealDamage_8' },
         },
         next: null,
       },
-      modifyActionValue_opt4: {
+      modifyActionValue_10: {
         action: {
           kind: 'modifyActionValue',
           parameters: {
             key: 'atk_scale',
             operation: 'multiply',
-            value: { kind: 'valueNode', nodeId: 'data_6' },
+            value: { kind: 'valueNode', nodeId: 'data_7' },
           },
         },
-        next: 'repeatEachTick_opt3',
+        next: 'repeatEachTick_9',
+      },
+      checkCondition_11: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_8' } },
+        },
+        next: null,
+      },
+      reachSkillOperableBoundary_12: {
+        action: {
+          kind: 'reachSkillOperableBoundary',
+          parameters: { skillIds: ['chr_0016_laevat_ult_attack2', 'chr_0016_laevat_attack1'] },
+        },
+        next: null,
       },
     },
     dataNodes: {
-      data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
-      data_2: { type: 'number', expression: { kind: 'blackboard', key: 'stopped', fallback: 0 } },
-      data_3: {
+      data_1: { type: 'boolean', expression: { kind: 'casterControlled' } },
+      data_2: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'stopped', fallback: 0 } },
+      data_4: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_2' },
+          left: { kind: 'valueNode', nodeId: 'data_3' },
           operator: 'equal',
           right: { kind: 'constant', value: 0 },
         },
       },
-      data_4: { type: 'boolean', expression: { kind: 'casterControlled' } },
-      data_5: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_6: { type: 'number', expression: { kind: 'blackboard', key: 'ratio' } },
+      data_5: {
+        type: 'boolean',
+        expression: {
+          kind: 'entityCountCompare',
+          target: { kind: 'fixed', target: 'enemy' },
+          containsHittableTarget: false,
+          excludeDeadEntity: false,
+          operator: 'greaterOrEqual',
+          value: 1,
+        },
+      },
+      data_6: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
+      data_7: { type: 'number', expression: { kind: 'blackboard', key: 'ratio' } },
+      data_8: {
+        type: 'boolean',
+        expression: {
+          kind: 'buffIdStackCompare',
+          target: 'caster',
+          buffIds: ['buff_chr_0016_laevat_ring_start_asset'],
+          operator: 'greaterOrEqual',
+          value: { kind: 'constant', value: 1 },
+        },
+      },
     },
   },
   macros: {},
@@ -832,8 +966,9 @@ export const laevatainChr_0016_laevat_ult_attack1: SkillDefinition = {
   },
   costFrame: 9,
   scheduledSequences: [
-    { startFrame: 12, endFrame: 24, sequence: { $sequence: 'modifyActionValue_opt4' } },
-    { startFrame: 17, endFrame: 32, sequence: { $sequence: 'reachSkillOperableBoundary_10' } },
+    { startFrame: 12, endFrame: 24, sequence: { $sequence: 'modifyActionValue_10' } },
+    { startFrame: 0, endFrame: 32, sequence: { $sequence: 'checkCondition_11' } },
+    { startFrame: 17, endFrame: 32, sequence: { $sequence: 'reachSkillOperableBoundary_12' } },
   ],
   timelineContinuationSkillId: 'chr_0016_laevat_ult_attack2',
   skillType: 'basicAttack',
@@ -845,14 +980,15 @@ export const laevatainChr_0016_laevat_ult_attack1: SkillDefinition = {
 export const laevatainChr_0016_laevat_ult_attack2ActionGraph = {
   main: {
     nodes: {
-      changeResource_1: {
+      changeResource_2: {
         action: {
           kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
             coefficient: { kind: 'constant', value: 0.5 },
-            recipient: 'team',
+            source: { kind: 'source' },
+            targets: { kind: 'source' },
             onlyMainOperator: true,
             spGainKind: 'gain',
             spGainSource: 'normalAttack',
@@ -860,7 +996,7 @@ export const laevatainChr_0016_laevat_ult_attack2ActionGraph = {
         },
         next: null,
       },
-      startTimeDilation_2: {
+      startTimeDilation_3: {
         action: {
           kind: 'startTimeDilation',
           parameters: {
@@ -873,118 +1009,150 @@ export const laevatainChr_0016_laevat_ult_attack2ActionGraph = {
             targets: ['enemy', 'caster'],
           },
         },
-        next: 'changeResource_1',
+        next: 'changeResource_2',
       },
-      modifyActionValue_3: {
+      modifyActionValue_4: {
         action: {
           kind: 'modifyActionValue',
           parameters: { key: 'stopped1', operation: 'add', value: { kind: 'constant', value: 1 } },
         },
-        next: 'startTimeDilation_2',
+        next: 'startTimeDilation_3',
       },
-      conditional_4: {
+      checkCondition_5: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
-          whenTrue: { $sequence: 'modifyActionValue_3' },
         },
-        next: null,
+        next: 'modifyActionValue_4',
       },
-      conditional_opt1: {
+      checkCondition_6: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_4' }, alwaysNext: true },
-          whenTrue: { $sequence: 'conditional_4' },
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_4' } },
+        },
+        next: 'checkCondition_5',
+      },
+      checkCondition_1: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
         },
         next: null,
       },
-      dealDamage_opt2: {
+      ifElse_7: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_1' },
+          whenTrue: { $sequence: 'checkCondition_6' },
+          whenFalse: { $sequence: null },
+        },
+        next: null,
+      },
+      dealDamage_8: {
         action: {
           kind: 'dealDamage',
           parameters: {
             damageType: 'heat',
-            attackScale: { kind: 'valueNode', nodeId: 'data_5' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_6' },
             tags: ['normalAttack'],
           },
         },
-        next: 'conditional_opt1',
+        next: 'ifElse_7',
       },
-      repeatEachTick_opt3: {
+      repeatEachTick_9: {
         action: {
           kind: 'repeatEachTick',
           parameters: {
             nativeChanneling: {
+              target: { kind: 'fixed', target: 'enemy' },
               executeEachFrame: true,
               triggerIntervalSeconds: 0.033,
               maxCountPerTarget: 1,
               targetTriggerIntervalSeconds: 0.033,
             },
           },
-          body: { $sequence: 'dealDamage_opt2' },
+          body: { $sequence: 'dealDamage_8' },
         },
         next: null,
       },
-      modifyActionValue_opt4: {
+      modifyActionValue_10: {
         action: {
           kind: 'modifyActionValue',
           parameters: {
             key: 'atk_scale',
             operation: 'multiply',
-            value: { kind: 'valueNode', nodeId: 'data_6' },
+            value: { kind: 'valueNode', nodeId: 'data_7' },
           },
         },
-        next: 'repeatEachTick_opt3',
+        next: 'repeatEachTick_9',
       },
-      modifyActionValue_12: {
+      modifyActionValue_14: {
         action: {
           kind: 'modifyActionValue',
           parameters: { key: 'stopped2', operation: 'add', value: { kind: 'constant', value: 1 } },
         },
-        next: 'startTimeDilation_2',
+        next: 'startTimeDilation_3',
       },
-      conditional_13: {
+      checkCondition_15: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_8' } },
-          whenTrue: { $sequence: 'modifyActionValue_12' },
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_9' } },
+        },
+        next: 'modifyActionValue_14',
+      },
+      checkCondition_16: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_10' } },
+        },
+        next: 'checkCondition_15',
+      },
+      ifElse_17: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_1' },
+          whenTrue: { $sequence: 'checkCondition_16' },
+          whenFalse: { $sequence: null },
         },
         next: null,
       },
-      conditional_opt5: {
-        action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_9' }, alwaysNext: true },
-          whenTrue: { $sequence: 'conditional_13' },
-        },
-        next: null,
-      },
-      dealDamage_opt6: {
+      dealDamage_18: {
         action: {
           kind: 'dealDamage',
           parameters: {
             damageType: 'heat',
-            attackScale: { kind: 'valueNode', nodeId: 'data_10' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_11' },
             tags: ['normalAttack'],
           },
         },
-        next: 'conditional_opt5',
+        next: 'ifElse_17',
       },
-      repeatEachTick_opt7: {
+      repeatEachTick_19: {
         action: {
           kind: 'repeatEachTick',
           parameters: {
             nativeChanneling: {
+              target: { kind: 'fixed', target: 'enemy' },
               executeEachFrame: true,
               triggerIntervalSeconds: 0.033,
               maxCountPerTarget: 1,
               targetTriggerIntervalSeconds: 0.033,
             },
           },
-          body: { $sequence: 'dealDamage_opt6' },
+          body: { $sequence: 'dealDamage_18' },
         },
         next: null,
       },
-      reachSkillOperableBoundary_18: {
+      checkCondition_20: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_12' } },
+        },
+        next: null,
+      },
+      reachSkillOperableBoundary_21: {
         action: {
           kind: 'reachSkillOperableBoundary',
           parameters: { skillIds: ['chr_0016_laevat_ult_attack3', 'chr_0016_laevat_attack1'] },
@@ -1004,21 +1172,52 @@ export const laevatainChr_0016_laevat_ult_attack2ActionGraph = {
           right: { kind: 'constant', value: 0 },
         },
       },
-      data_4: { type: 'boolean', expression: { kind: 'casterControlled' } },
-      data_5: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_6: { type: 'number', expression: { kind: 'blackboard', key: 'ratio' } },
-      data_7: { type: 'number', expression: { kind: 'blackboard', key: 'stopped2', fallback: 0 } },
-      data_8: {
+      data_4: {
+        type: 'boolean',
+        expression: {
+          kind: 'entityCountCompare',
+          target: { kind: 'fixed', target: 'enemy' },
+          containsHittableTarget: false,
+          excludeDeadEntity: false,
+          operator: 'greaterOrEqual',
+          value: 1,
+        },
+      },
+      data_5: { type: 'boolean', expression: { kind: 'casterControlled' } },
+      data_6: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
+      data_7: { type: 'number', expression: { kind: 'blackboard', key: 'ratio' } },
+      data_8: { type: 'number', expression: { kind: 'blackboard', key: 'stopped2', fallback: 0 } },
+      data_9: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_7' },
+          left: { kind: 'valueNode', nodeId: 'data_8' },
           operator: 'equal',
           right: { kind: 'constant', value: 0 },
         },
       },
-      data_9: { type: 'boolean', expression: { kind: 'casterControlled' } },
-      data_10: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
+      data_10: {
+        type: 'boolean',
+        expression: {
+          kind: 'entityCountCompare',
+          target: { kind: 'fixed', target: 'enemy' },
+          containsHittableTarget: false,
+          excludeDeadEntity: false,
+          operator: 'greaterOrEqual',
+          value: 1,
+        },
+      },
+      data_11: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
+      data_12: {
+        type: 'boolean',
+        expression: {
+          kind: 'buffIdStackCompare',
+          target: 'caster',
+          buffIds: ['buff_chr_0016_laevat_ring_start_asset'],
+          operator: 'greaterOrEqual',
+          value: { kind: 'constant', value: 1 },
+        },
+      },
     },
   },
   macros: {},
@@ -1033,7 +1232,6 @@ export const laevatainChr_0016_laevat_ult_attack2: SkillDefinition = {
     ratio: 1,
     stopped1: 0,
     stopped2: 0,
-    display_atk_scale: [0.81, 0.89, 0.97, 1.05, 1.13, 1.22, 1.3, 1.38, 1.46, 1.56, 1.68, 1.82],
   },
   timelineBlockFrames: 27,
   naturalDurationFrames: 245,
@@ -1059,9 +1257,10 @@ export const laevatainChr_0016_laevat_ult_attack2: SkillDefinition = {
   },
   costFrame: 8,
   scheduledSequences: [
-    { startFrame: 10, endFrame: 19, sequence: { $sequence: 'modifyActionValue_opt4' } },
-    { startFrame: 21, endFrame: 29, sequence: { $sequence: 'repeatEachTick_opt7' } },
-    { startFrame: 27, endFrame: 44, sequence: { $sequence: 'reachSkillOperableBoundary_18' } },
+    { startFrame: 10, endFrame: 19, sequence: { $sequence: 'modifyActionValue_10' } },
+    { startFrame: 21, endFrame: 29, sequence: { $sequence: 'repeatEachTick_19' } },
+    { startFrame: 0, endFrame: 44, sequence: { $sequence: 'checkCondition_20' } },
+    { startFrame: 27, endFrame: 44, sequence: { $sequence: 'reachSkillOperableBoundary_21' } },
   ],
   timelineContinuationSkillId: 'chr_0016_laevat_ult_attack3',
   skillType: 'basicAttack',
@@ -1073,14 +1272,22 @@ export const laevatainChr_0016_laevat_ult_attack2: SkillDefinition = {
 export const laevatainChr_0016_laevat_ult_attack3ActionGraph = {
   main: {
     nodes: {
-      changeResource_1: {
+      checkCondition_1: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
+        },
+        next: null,
+      },
+      changeResource_2: {
         action: {
           kind: 'changeResource',
           parameters: {
             resource: 'sp',
-            amount: { kind: 'valueNode', nodeId: 'data_1' },
+            amount: { kind: 'valueNode', nodeId: 'data_2' },
             coefficient: { kind: 'constant', value: 1 },
-            recipient: 'team',
+            source: { kind: 'source' },
+            targets: { kind: 'source' },
             onlyMainOperator: true,
             spGainKind: 'gain',
             spGainSource: 'normalAttack',
@@ -1088,7 +1295,7 @@ export const laevatainChr_0016_laevat_ult_attack3ActionGraph = {
         },
         next: null,
       },
-      startTimeDilation_2: {
+      startTimeDilation_3: {
         action: {
           kind: 'startTimeDilation',
           parameters: {
@@ -1101,98 +1308,135 @@ export const laevatainChr_0016_laevat_ult_attack3ActionGraph = {
             targets: ['enemy', 'caster'],
           },
         },
-        next: 'changeResource_1',
+        next: 'changeResource_2',
       },
-      modifyActionValue_3: {
+      modifyActionValue_4: {
         action: {
           kind: 'modifyActionValue',
           parameters: { key: 'stopped', operation: 'add', value: { kind: 'constant', value: 1 } },
         },
-        next: 'startTimeDilation_2',
+        next: 'startTimeDilation_3',
       },
-      conditional_4: {
+      checkCondition_5: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
-          whenTrue: { $sequence: 'modifyActionValue_3' },
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_4' } },
+        },
+        next: 'modifyActionValue_4',
+      },
+      checkCondition_6: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
+        },
+        next: 'checkCondition_5',
+      },
+      ifElse_7: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_1' },
+          whenTrue: { $sequence: 'checkCondition_6' },
+          whenFalse: { $sequence: null },
         },
         next: null,
       },
-      reachSkillOperableBoundary_11: {
-        action: {
-          kind: 'reachSkillOperableBoundary',
-          parameters: { skillIds: ['chr_0016_laevat_ult_attack4', 'chr_0016_laevat_attack1'] },
-        },
-        next: null,
-      },
-      conditional_opt1: {
-        action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_4' }, alwaysNext: true },
-          whenTrue: { $sequence: 'conditional_4' },
-        },
-        next: null,
-      },
-      dealDamage_opt2: {
+      dealDamage_8: {
         action: {
           kind: 'dealDamage',
           parameters: {
             damageType: 'heat',
-            attackScale: { kind: 'valueNode', nodeId: 'data_5' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_6' },
             tags: ['normalAttack'],
           },
         },
-        next: 'conditional_opt1',
+        next: 'ifElse_7',
       },
-      applyElementalInfliction_opt3: {
+      applyElementalInfliction_9: {
         action: {
           kind: 'applyElementalInfliction',
           parameters: { element: 'heat', isExtra: false },
         },
-        next: 'dealDamage_opt2',
+        next: 'dealDamage_8',
       },
-      repeatEachTick_opt4: {
+      repeatEachTick_10: {
         action: {
           kind: 'repeatEachTick',
           parameters: {
             nativeChanneling: {
+              target: { kind: 'fixed', target: 'enemy' },
               executeEachFrame: true,
               triggerIntervalSeconds: 0.033,
               maxCountPerTarget: 1,
               targetTriggerIntervalSeconds: 0.033,
             },
           },
-          body: { $sequence: 'applyElementalInfliction_opt3' },
+          body: { $sequence: 'applyElementalInfliction_9' },
         },
         next: null,
       },
-      modifyActionValue_opt5: {
+      modifyActionValue_11: {
         action: {
           kind: 'modifyActionValue',
           parameters: {
             key: 'atk_scale',
             operation: 'multiply',
-            value: { kind: 'valueNode', nodeId: 'data_6' },
+            value: { kind: 'valueNode', nodeId: 'data_7' },
           },
         },
-        next: 'repeatEachTick_opt4',
+        next: 'repeatEachTick_10',
+      },
+      checkCondition_12: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_8' } },
+        },
+        next: null,
+      },
+      reachSkillOperableBoundary_13: {
+        action: {
+          kind: 'reachSkillOperableBoundary',
+          parameters: { skillIds: ['chr_0016_laevat_ult_attack4', 'chr_0016_laevat_attack1'] },
+        },
+        next: null,
       },
     },
     dataNodes: {
-      data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
-      data_2: { type: 'number', expression: { kind: 'blackboard', key: 'stopped', fallback: 0 } },
-      data_3: {
+      data_1: { type: 'boolean', expression: { kind: 'casterControlled' } },
+      data_2: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'stopped', fallback: 0 } },
+      data_4: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_2' },
+          left: { kind: 'valueNode', nodeId: 'data_3' },
           operator: 'equal',
           right: { kind: 'constant', value: 0 },
         },
       },
-      data_4: { type: 'boolean', expression: { kind: 'casterControlled' } },
-      data_5: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_6: { type: 'number', expression: { kind: 'blackboard', key: 'ratio' } },
+      data_5: {
+        type: 'boolean',
+        expression: {
+          kind: 'entityCountCompare',
+          target: { kind: 'fixed', target: 'enemy' },
+          containsHittableTarget: false,
+          excludeDeadEntity: false,
+          operator: 'greaterOrEqual',
+          value: 1,
+        },
+      },
+      data_6: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
+      data_7: { type: 'number', expression: { kind: 'blackboard', key: 'ratio' } },
+      data_8: {
+        type: 'boolean',
+        expression: {
+          kind: 'buffIdStackCompare',
+          target: 'caster',
+          buffIds: ['buff_chr_0016_laevat_ring_start_asset'],
+          operator: 'greaterOrEqual',
+          value: { kind: 'constant', value: 1 },
+        },
+      },
     },
   },
   macros: {},
@@ -1231,8 +1475,9 @@ export const laevatainChr_0016_laevat_ult_attack3: SkillDefinition = {
   },
   costFrame: 8,
   scheduledSequences: [
-    { startFrame: 9, endFrame: 23, sequence: { $sequence: 'modifyActionValue_opt5' } },
-    { startFrame: 14, endFrame: 28, sequence: { $sequence: 'reachSkillOperableBoundary_11' } },
+    { startFrame: 9, endFrame: 23, sequence: { $sequence: 'modifyActionValue_11' } },
+    { startFrame: 0, endFrame: 28, sequence: { $sequence: 'checkCondition_12' } },
+    { startFrame: 14, endFrame: 28, sequence: { $sequence: 'reachSkillOperableBoundary_13' } },
   ],
   timelineContinuationSkillId: 'chr_0016_laevat_ult_attack4',
   skillType: 'basicAttack',
@@ -1260,6 +1505,7 @@ export const laevatainChr_0016_laevat_ult_attack4ActionGraph = {
           kind: 'repeatEachTick',
           parameters: {
             nativeChanneling: {
+              target: { kind: 'fixed', target: 'enemy' },
               executeEachFrame: true,
               triggerIntervalSeconds: 0.033,
               maxCountPerTarget: 1,
@@ -1281,29 +1527,36 @@ export const laevatainChr_0016_laevat_ult_attack4ActionGraph = {
         },
         next: 'repeatEachTick_2',
       },
-      changeResource_4: {
+      checkCondition_4: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
+        },
+        next: null,
+      },
+      changeResource_5: {
         action: {
           kind: 'changeResource',
           parameters: {
             resource: 'sp',
-            amount: { kind: 'valueNode', nodeId: 'data_3' },
+            amount: { kind: 'valueNode', nodeId: 'data_4' },
             coefficient: { kind: 'constant', value: 1 },
-            recipient: 'team',
+            source: { kind: 'source' },
+            targets: { kind: 'source' },
             spGainKind: 'gain',
             spGainSource: 'normalAttack',
           },
         },
         next: null,
       },
-      conditional_5: {
+      checkCondition_6: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_4' } },
-          whenTrue: { $sequence: 'changeResource_4' },
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
         },
-        next: null,
+        next: 'changeResource_5',
       },
-      startTimeDilation_6: {
+      startTimeDilation_7: {
         action: {
           kind: 'startTimeDilation',
           parameters: {
@@ -1316,63 +1569,79 @@ export const laevatainChr_0016_laevat_ult_attack4ActionGraph = {
             targets: ['enemy', 'caster'],
           },
         },
-        next: 'conditional_5',
+        next: 'checkCondition_6',
       },
-      modifyActionValue_7: {
+      modifyActionValue_8: {
         action: {
           kind: 'modifyActionValue',
           parameters: { key: 'stopped', operation: 'add', value: { kind: 'constant', value: 1 } },
         },
-        next: 'startTimeDilation_6',
+        next: 'startTimeDilation_7',
       },
-      conditional_8: {
+      checkCondition_9: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_6' } },
-          whenTrue: { $sequence: 'modifyActionValue_7' },
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_7' } },
+        },
+        next: 'modifyActionValue_8',
+      },
+      checkCondition_10: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_8' } },
+        },
+        next: 'checkCondition_9',
+      },
+      ifElse_11: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_4' },
+          whenTrue: { $sequence: 'checkCondition_10' },
+          whenFalse: { $sequence: null },
         },
         next: null,
       },
-      reachSkillOperableBoundary_13: {
-        action: {
-          kind: 'reachSkillOperableBoundary',
-          parameters: { skillIds: ['chr_0016_laevat_ult_attack1', 'chr_0016_laevat_attack1'] },
-        },
-        next: null,
-      },
-      conditional_opt1: {
-        action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_7' }, alwaysNext: true },
-          whenTrue: { $sequence: 'conditional_8' },
-        },
-        next: null,
-      },
-      dealDamage_opt2: {
+      dealDamage_12: {
         action: {
           kind: 'dealDamage',
           parameters: {
             damageType: 'heat',
-            attackScale: { kind: 'valueNode', nodeId: 'data_8' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_9' },
             tags: ['normalAttack', 'normalAttackLastCombo'],
-            stagger: { kind: 'valueNode', nodeId: 'data_9' },
+            stagger: { kind: 'valueNode', nodeId: 'data_10' },
             staggerOnlyWhenCasterControlled: true,
           },
         },
-        next: 'conditional_opt1',
+        next: 'ifElse_11',
       },
-      repeatEachTick_opt3: {
+      repeatEachTick_13: {
         action: {
           kind: 'repeatEachTick',
           parameters: {
             nativeChanneling: {
+              target: { kind: 'fixed', target: 'enemy' },
               executeEachFrame: true,
               triggerIntervalSeconds: 0.033,
               maxCountPerTarget: 1,
               targetTriggerIntervalSeconds: 0.033,
             },
           },
-          body: { $sequence: 'dealDamage_opt2' },
+          body: { $sequence: 'dealDamage_12' },
+        },
+        next: null,
+      },
+      checkCondition_14: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_11' } },
+        },
+        next: null,
+      },
+      reachSkillOperableBoundary_15: {
+        action: {
+          kind: 'reachSkillOperableBoundary',
+          parameters: { skillIds: ['chr_0016_laevat_ult_attack1', 'chr_0016_laevat_attack1'] },
         },
         next: null,
       },
@@ -1380,21 +1649,42 @@ export const laevatainChr_0016_laevat_ult_attack4ActionGraph = {
     dataNodes: {
       data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
       data_2: { type: 'number', expression: { kind: 'blackboard', key: 'ratio' } },
-      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
-      data_4: { type: 'boolean', expression: { kind: 'casterControlled' } },
-      data_5: { type: 'number', expression: { kind: 'blackboard', key: 'stopped', fallback: 0 } },
-      data_6: {
+      data_3: { type: 'boolean', expression: { kind: 'casterControlled' } },
+      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+      data_5: { type: 'boolean', expression: { kind: 'casterControlled' } },
+      data_6: { type: 'number', expression: { kind: 'blackboard', key: 'stopped', fallback: 0 } },
+      data_7: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_5' },
+          left: { kind: 'valueNode', nodeId: 'data_6' },
           operator: 'equal',
           right: { kind: 'constant', value: 0 },
         },
       },
-      data_7: { type: 'boolean', expression: { kind: 'casterControlled' } },
-      data_8: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_9: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
+      data_8: {
+        type: 'boolean',
+        expression: {
+          kind: 'entityCountCompare',
+          target: { kind: 'fixed', target: 'enemy' },
+          containsHittableTarget: false,
+          excludeDeadEntity: false,
+          operator: 'greaterOrEqual',
+          value: 1,
+        },
+      },
+      data_9: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
+      data_10: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
+      data_11: {
+        type: 'boolean',
+        expression: {
+          kind: 'buffIdStackCompare',
+          target: 'caster',
+          buffIds: ['buff_chr_0016_laevat_ring_start_asset'],
+          operator: 'greaterOrEqual',
+          value: { kind: 'constant', value: 1 },
+        },
+      },
     },
   },
   macros: {},
@@ -1406,11 +1696,9 @@ export const laevatainChr_0016_laevat_ult_attack4: SkillDefinition = {
   blackboard: {
     atb: 22,
     atk_scale: [1.01, 1.11, 1.22, 1.32, 1.42, 1.52, 1.62, 1.72, 1.82, 1.95, 2.1, 2.28],
-    hit: 0,
     poise: 24,
     ratio: 1,
     stopped: 0,
-    display_atk_scale: [2.03, 2.23, 2.43, 2.63, 2.84, 3.04, 3.24, 3.44, 3.65, 3.9, 4.2, 4.56],
   },
   timelineBlockFrames: 35,
   naturalDurationFrames: 181,
@@ -1437,8 +1725,9 @@ export const laevatainChr_0016_laevat_ult_attack4: SkillDefinition = {
   costFrame: 8,
   scheduledSequences: [
     { startFrame: 22, endFrame: 26, sequence: { $sequence: 'modifyActionValue_3' } },
-    { startFrame: 26, endFrame: 35, sequence: { $sequence: 'repeatEachTick_opt3' } },
-    { startFrame: 35, endFrame: 68, sequence: { $sequence: 'reachSkillOperableBoundary_13' } },
+    { startFrame: 26, endFrame: 35, sequence: { $sequence: 'repeatEachTick_13' } },
+    { startFrame: 0, endFrame: 68, sequence: { $sequence: 'checkCondition_14' } },
+    { startFrame: 35, endFrame: 68, sequence: { $sequence: 'reachSkillOperableBoundary_15' } },
   ],
   timelineContinuationSkillId: 'chr_0016_laevat_ult_attack1',
   skillType: 'basicAttack',
@@ -1450,21 +1739,22 @@ export const laevatainChr_0016_laevat_ult_attack4: SkillDefinition = {
 export const laevatainChr_0016_laevat_power_attackActionGraph = {
   main: {
     nodes: {
-      changeResource_1: {
+      changeResource_2: {
         action: {
           kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'constant', value: 0 },
             coefficient: { kind: 'constant', value: 1 },
-            recipient: 'team',
+            source: { kind: 'source' },
+            targets: { kind: 'source' },
             spGainKind: 'gain',
             spGainSource: 'default',
           },
         },
         next: null,
       },
-      startTimeDilation_2: {
+      startTimeDilation_3: {
         action: {
           kind: 'startTimeDilation',
           parameters: {
@@ -1477,17 +1767,26 @@ export const laevatainChr_0016_laevat_power_attackActionGraph = {
             targets: ['enemy', 'caster'],
           },
         },
-        next: 'changeResource_1',
+        next: 'changeResource_2',
       },
-      conditional_3: {
+      checkCondition_1: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' }, alwaysNext: true },
-          whenTrue: { $sequence: 'startTimeDilation_2' },
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
         },
         next: null,
       },
-      dealDamage_4: {
+      ifElse_4: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_1' },
+          whenTrue: { $sequence: 'startTimeDilation_3' },
+          whenFalse: { $sequence: null },
+        },
+        next: null,
+      },
+      dealDamage_5: {
         action: {
           kind: 'dealDamage',
           parameters: {
@@ -1498,13 +1797,13 @@ export const laevatainChr_0016_laevat_power_attackActionGraph = {
             tags: ['normalAttack', 'powerAttack'],
           },
         },
-        next: 'conditional_3',
+        next: 'ifElse_4',
       },
-      gainFinisherSp_5: {
+      gainFinisherSp_7: {
         action: { kind: 'gainFinisherSp', parameters: { factor: 1, recipient: 'team' } },
         next: null,
       },
-      startTimeDilation_6: {
+      startTimeDilation_8: {
         action: {
           kind: 'startTimeDilation',
           parameters: {
@@ -1559,28 +1858,40 @@ export const laevatainChr_0016_laevat_power_attackActionGraph = {
         },
         next: null,
       },
-      conditional_7: {
+      ifElse_9: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' }, alwaysNext: true },
-          whenTrue: { $sequence: 'gainFinisherSp_5' },
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: null },
+          whenTrue: { $sequence: 'startTimeDilation_8' },
+          whenFalse: { $sequence: null },
         },
-        next: 'startTimeDilation_6',
+        next: null,
       },
-      dealDamage_8: {
+      ifElse_10: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_1' },
+          whenTrue: { $sequence: 'gainFinisherSp_7' },
+          whenFalse: { $sequence: null },
+        },
+        next: 'ifElse_9',
+      },
+      dealDamage_11: {
         action: {
           kind: 'dealDamage',
           parameters: {
             damageType: 'heat',
-            attackScale: { kind: 'valueNode', nodeId: 'data_4' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_3' },
             calculation: 'breakingAttack',
             calculationMultiplier: 0.8,
             tags: ['normalAttack', 'powerAttack'],
           },
         },
-        next: 'conditional_7',
+        next: 'ifElse_10',
       },
-      applyBuff_9: {
+      applyBuff_12: {
         action: {
           kind: 'applyBuff',
           parameters: {
@@ -1592,7 +1903,7 @@ export const laevatainChr_0016_laevat_power_attackActionGraph = {
         },
         next: null,
       },
-      applyBuff_10: {
+      applyBuff_13: {
         action: {
           kind: 'applyBuff',
           parameters: {
@@ -1604,19 +1915,44 @@ export const laevatainChr_0016_laevat_power_attackActionGraph = {
         },
         next: null,
       },
+      checkCondition_14: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_4' } },
+        },
+        next: null,
+      },
+      ifElse_15: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_14' },
+          whenTrue: { $sequence: null },
+          whenFalse: { $sequence: null },
+        },
+        next: null,
+      },
     },
     dataNodes: {
       data_1: { type: 'boolean', expression: { kind: 'casterControlled' } },
       data_2: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_3: { type: 'boolean', expression: { kind: 'casterControlled' } },
-      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
+      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
+      data_4: {
+        type: 'boolean',
+        expression: {
+          kind: 'buffIdStackCompare',
+          target: 'caster',
+          buffIds: ['buff_chr_0016_laevat_show_weapon'],
+          operator: 'greaterOrEqual',
+          value: { kind: 'constant', value: 1 },
+        },
+      },
     },
   },
   macros: {},
 } as const satisfies ActionGraphResourceDefinition;
 
 export const laevatainChr_0016_laevat_power_attack: SkillDefinition = {
-  actionGraph: laevatainChr_0016_laevat_power_attackActionGraph,
   key: 'chr_0016_laevat_power_attack',
   element: 'physical',
   blackboard: { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
@@ -1635,27 +1971,37 @@ export const laevatainChr_0016_laevat_power_attack: SkillDefinition = {
   },
   costFrame: 4,
   scheduledSequences: [
-    { startFrame: 5, endFrame: 11, sequence: { $sequence: 'dealDamage_4' } },
-    { startFrame: 42, endFrame: 46, sequence: { $sequence: 'dealDamage_8' } },
-    { startFrame: 0, endFrame: 50, sequence: { $sequence: 'applyBuff_9' } },
-    { startFrame: 0, endFrame: 42, sequence: { $sequence: 'applyBuff_10' } },
+    { startFrame: 5, endFrame: 11, sequence: { $sequence: 'dealDamage_5' } },
+    { startFrame: 42, endFrame: 46, sequence: { $sequence: 'dealDamage_11' } },
+    { startFrame: 0, endFrame: 50, sequence: { $sequence: 'applyBuff_12' } },
+    { startFrame: 0, endFrame: 42, sequence: { $sequence: 'applyBuff_13' } },
+    { startFrame: 0, endFrame: 141, sequence: { $sequence: 'ifElse_15' } },
   ],
   skillType: 'finisher',
   levelSource: 'basicAttack',
   nativeSkillType: 'breakingAttack',
+  actionGraph: laevatainChr_0016_laevat_power_attackActionGraph,
 };
 
 export const laevatainChr_0016_laevat_plunging_attack_endActionGraph = {
   main: {
     nodes: {
-      changeResource_1: {
+      checkCondition_1: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
+        },
+        next: null,
+      },
+      changeResource_2: {
         action: {
           kind: 'changeResource',
           parameters: {
             resource: 'sp',
-            amount: { kind: 'valueNode', nodeId: 'data_1' },
+            amount: { kind: 'valueNode', nodeId: 'data_2' },
             coefficient: { kind: 'constant', value: 1 },
-            recipient: 'team',
+            source: { kind: 'source' },
+            targets: { kind: 'source' },
             onlyMainOperator: true,
             spGainKind: 'gain',
             spGainSource: 'normalAttack',
@@ -1663,15 +2009,17 @@ export const laevatainChr_0016_laevat_plunging_attack_endActionGraph = {
         },
         next: null,
       },
-      conditional_2: {
+      ifElse_3: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResource_1' },
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_1' },
+          whenTrue: { $sequence: 'changeResource_2' },
+          whenFalse: { $sequence: null },
         },
         next: null,
       },
-      dealDamage_3: {
+      dealDamage_4: {
         action: {
           kind: 'dealDamage',
           parameters: {
@@ -1680,20 +2028,46 @@ export const laevatainChr_0016_laevat_plunging_attack_endActionGraph = {
             tags: ['normalAttack', 'plungingAttack'],
           },
         },
-        next: 'conditional_2',
+        next: 'ifElse_3',
+      },
+      checkCondition_5: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_4' } },
+        },
+        next: null,
+      },
+      ifElse_6: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_5' },
+          whenTrue: { $sequence: null },
+          whenFalse: { $sequence: null },
+        },
+        next: null,
       },
     },
     dataNodes: {
-      data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
-      data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
+      data_1: { type: 'boolean', expression: { kind: 'casterControlled' } },
+      data_2: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
       data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
+      data_4: {
+        type: 'boolean',
+        expression: {
+          kind: 'buffIdStackCompare',
+          target: 'caster',
+          buffIds: ['buff_chr_0016_laevat_show_weapon'],
+          operator: 'greaterOrEqual',
+          value: { kind: 'constant', value: 1 },
+        },
+      },
     },
   },
   macros: {},
 } as const satisfies ActionGraphResourceDefinition;
 
 export const laevatainChr_0016_laevat_plunging_attack_end: SkillDefinition = {
-  actionGraph: laevatainChr_0016_laevat_plunging_attack_endActionGraph,
   key: 'chr_0016_laevat_plunging_attack_end',
   element: 'physical',
   blackboard: {
@@ -1705,17 +2079,25 @@ export const laevatainChr_0016_laevat_plunging_attack_end: SkillDefinition = {
   exclusiveFrame: 13,
   offsetRecordFrame: 0,
   costFrame: 0,
-  scheduledSequences: [{ startFrame: 1, endFrame: 6, sequence: { $sequence: 'dealDamage_3' } }],
+  scheduledSequences: [
+    { startFrame: 1, endFrame: 6, sequence: { $sequence: 'dealDamage_4' } },
+    { startFrame: 0, endFrame: 145, sequence: { $sequence: 'ifElse_6' } },
+  ],
   skillType: 'plungingAttack',
   levelSource: 'basicAttack',
   nativeSkillType: 'attack',
+  actionGraph: laevatainChr_0016_laevat_plunging_attack_endActionGraph,
 };
 
 export const laevatainChr_0016_laevat_normal_skillActionGraph = {
   main: {
     nodes: {
       jumpTimeline_1: {
-        action: { kind: 'jumpTimeline', parameters: { destinationFrame: 231 } },
+        action: {
+          kind: 'jumpTimeline',
+          parameters: { destinationFrame: 231 },
+          condition: { $sequence: null },
+        },
         next: null,
       },
       applyBuff_2: {
@@ -1729,15 +2111,21 @@ export const laevatainChr_0016_laevat_normal_skillActionGraph = {
         },
         next: null,
       },
-      conditional_3: {
+      checkCondition_3: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-          whenTrue: { $sequence: 'applyBuff_2' },
+        },
+        next: 'applyBuff_2',
+      },
+      checkCondition_4: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
         },
         next: null,
       },
-      finishBuffsById_4: {
+      finishBuffsById_5: {
         action: {
           kind: 'finishBuffsById',
           parameters: {
@@ -1748,24 +2136,27 @@ export const laevatainChr_0016_laevat_normal_skillActionGraph = {
         },
         next: null,
       },
-      jumpTimeline_5: {
+      jumpTimeline_6: {
         action: {
           kind: 'jumpTimeline',
-          parameters: {
-            destinationFrame: 80,
-            condition: { kind: 'conditionNode', nodeId: 'data_2' },
-          },
+          parameters: { destinationFrame: 80 },
+          condition: { $sequence: 'checkCondition_4' },
         },
-        next: 'finishBuffsById_4',
+        next: 'finishBuffsById_5',
       },
-      jumpTimeline_6: {
-        action: { kind: 'jumpTimeline', parameters: { destinationFrame: 215 } },
+      jumpTimeline_7: {
+        action: {
+          kind: 'jumpTimeline',
+          parameters: { destinationFrame: 215 },
+          condition: { $sequence: null },
+        },
         next: null,
       },
-      spawnAbilityEntity_7: {
+      spawnAbilityEntity_8: {
         action: {
           kind: 'spawnAbilityEntity',
           parameters: {
+            bornAt: { kind: 'source' },
             abilityEntityId: 'abilityentity_chr_0016_laevat_normal_skill',
             childSkillId: 'chr_0016_laevat_normal_skill_abilityentity',
             inheritActionBlackboard: true,
@@ -1775,41 +2166,49 @@ export const laevatainChr_0016_laevat_normal_skillActionGraph = {
         },
         next: null,
       },
-      changeResource_8: {
+      changeResource_10: {
         action: {
           kind: 'changeResource',
           parameters: {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_3' },
             coefficient: { kind: 'constant', value: 1 },
-            recipient: 'team',
+            source: { kind: 'source' },
+            targets: { kind: 'source' },
             spGainKind: 'refund',
             spGainSource: 'skill',
           },
         },
         next: null,
       },
-      changeResource_9: {
+      checkCondition_9: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
+        },
+        next: null,
+      },
+      changeResource_11: {
         action: {
           kind: 'changeResource',
           parameters: {
             resource: 'ultimateEnergy',
-            amount: { kind: 'valueNode', nodeId: 'data_4' },
+            amount: { kind: 'valueNode', nodeId: 'data_6' },
             coefficient: { kind: 'constant', value: 1 },
-            recipient: 'caster',
+            source: { kind: 'source' },
+            targets: { kind: 'source' },
           },
         },
         next: null,
       },
-      conditional_10: {
+      checkCondition_12: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_6' } },
-          whenTrue: { $sequence: 'changeResource_9' },
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_8' } },
         },
-        next: null,
+        next: 'changeResource_11',
       },
-      startTimeDilation_11: {
+      startTimeDilation_13: {
         action: {
           kind: 'startTimeDilation',
           parameters: {
@@ -1822,30 +2221,32 @@ export const laevatainChr_0016_laevat_normal_skillActionGraph = {
             targets: ['enemy', 'caster'],
           },
         },
-        next: 'conditional_10',
+        next: 'checkCondition_12',
       },
-      dealDamage_12: {
+      dealDamage_14: {
         action: {
           kind: 'dealDamage',
           parameters: {
             damageType: 'heat',
-            attackScale: { kind: 'valueNode', nodeId: 'data_7' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_9' },
             tags: ['normalSkill'],
             features: ['canBreakWeakness'],
-            stagger: { kind: 'valueNode', nodeId: 'data_8' },
+            stagger: { kind: 'valueNode', nodeId: 'data_10' },
           },
         },
-        next: 'startTimeDilation_11',
+        next: 'startTimeDilation_13',
       },
-      conditional_13: {
+      ifElse_15: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_10' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResource_8' },
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_9' },
+          whenTrue: { $sequence: 'changeResource_10' },
+          whenFalse: { $sequence: null },
         },
-        next: 'dealDamage_12',
+        next: 'dealDamage_14',
       },
-      modifyActionValue_14: {
+      modifyActionValue_16: {
         action: {
           kind: 'modifyActionValue',
           parameters: {
@@ -1854,9 +2255,9 @@ export const laevatainChr_0016_laevat_normal_skillActionGraph = {
             value: { kind: 'constant', value: 1 },
           },
         },
-        next: 'conditional_13',
+        next: 'ifElse_15',
       },
-      applyBuff_15: {
+      applyBuff_17: {
         action: {
           kind: 'applyBuff',
           parameters: {
@@ -1873,24 +2274,25 @@ export const laevatainChr_0016_laevat_normal_skillActionGraph = {
             inheritSourceSkillCastInfo: true,
           },
         },
-        next: 'modifyActionValue_14',
+        next: 'modifyActionValue_16',
       },
-      repeatEachTick_16: {
+      repeatEachTick_18: {
         action: {
           kind: 'repeatEachTick',
           parameters: {
             nativeChanneling: {
+              target: { kind: 'fixed', target: 'enemy' },
               executeEachFrame: true,
               triggerIntervalSeconds: 0.033,
               maxCountPerTarget: 1,
               targetTriggerIntervalSeconds: 0.033,
             },
           },
-          body: { $sequence: 'applyBuff_15' },
+          body: { $sequence: 'applyBuff_17' },
         },
         next: null,
       },
-      finishBuffsById_17: {
+      finishBuffsById_19: {
         action: {
           kind: 'finishBuffsById',
           parameters: {
@@ -1899,9 +2301,9 @@ export const laevatainChr_0016_laevat_normal_skillActionGraph = {
             reason: 'other',
           },
         },
-        next: 'repeatEachTick_16',
+        next: 'repeatEachTick_18',
       },
-      modifyActionValue_18: {
+      modifyActionValue_20: {
         action: {
           kind: 'modifyActionValue',
           parameters: {
@@ -1910,17 +2312,80 @@ export const laevatainChr_0016_laevat_normal_skillActionGraph = {
             value: { kind: 'valueNode', nodeId: 'data_11' },
           },
         },
-        next: 'finishBuffsById_17',
+        next: 'finishBuffsById_19',
       },
-      finishCurrentAbilityEntity_19: {
-        action: { kind: 'finishCurrentAbilityEntity', parameters: {} },
+      finishOwner_21: {
+        action: { kind: 'finishOwner', parameters: { targets: { kind: 'context', key: 'ball' } } },
         next: null,
       },
-      forEachContextTarget_20: {
+      checkCondition_26: {
         action: {
-          kind: 'forEachContextTarget',
-          parameters: { contextKey: 'ball' },
-          body: { $sequence: 'finishCurrentAbilityEntity_19' },
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_12' } },
+        },
+        next: null,
+      },
+      ifElse_28: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_26' },
+          whenTrue: { $sequence: null },
+          whenFalse: { $sequence: null },
+        },
+        next: null,
+      },
+      checkCondition_27: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_13' } },
+        },
+        next: null,
+      },
+      ifElse_30: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_27' },
+          whenTrue: { $sequence: null },
+          whenFalse: { $sequence: 'ifElse_28' },
+        },
+        next: null,
+      },
+      ifElse_32: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: null },
+          whenTrue: { $sequence: 'ifElse_30' },
+          whenFalse: { $sequence: 'ifElse_30' },
+        },
+        next: null,
+      },
+      checkCondition_31: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_14' } },
+        },
+        next: null,
+      },
+      ifElse_34: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_31' },
+          whenTrue: { $sequence: null },
+          whenFalse: { $sequence: 'ifElse_32' },
+        },
+        next: null,
+      },
+      ifElse_opt1: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: null },
+          whenTrue: { $sequence: null },
+          whenFalse: { $sequence: null },
         },
         next: null,
       },
@@ -1947,43 +2412,67 @@ export const laevatainChr_0016_laevat_normal_skillActionGraph = {
         },
       },
       data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
-      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'extra_usp' } },
+      data_4: {
+        type: 'number',
+        expression: { kind: 'blackboard', key: 'second_hit', fallback: 0 },
+      },
       data_5: {
-        type: 'number',
-        expression: { kind: 'blackboard', key: 'second_hit', fallback: 0 },
-      },
-      data_6: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_5' },
+          left: { kind: 'valueNode', nodeId: 'data_4' },
           operator: 'equal',
           right: { kind: 'constant', value: 1 },
         },
       },
-      data_7: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_3' } },
-      data_8: { type: 'number', expression: { kind: 'blackboard', key: 'poise_extra' } },
-      data_9: {
+      data_6: { type: 'number', expression: { kind: 'blackboard', key: 'extra_usp' } },
+      data_7: {
         type: 'number',
         expression: { kind: 'blackboard', key: 'second_hit', fallback: 0 },
       },
-      data_10: {
+      data_8: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_9' },
+          left: { kind: 'valueNode', nodeId: 'data_7' },
           operator: 'equal',
           right: { kind: 'constant', value: 1 },
         },
       },
+      data_9: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_3' } },
+      data_10: { type: 'number', expression: { kind: 'blackboard', key: 'poise_extra' } },
       data_11: { type: 'number', expression: { kind: 'blackboard', key: 'ratio' } },
+      data_12: {
+        type: 'boolean',
+        expression: {
+          kind: 'targetDistance',
+          source: { kind: 'owner' },
+          target: { kind: 'mainCharacter' },
+          distance: 8,
+          lessThan: true,
+          includeTargetRadius: false,
+          containsHittableObject: false,
+        },
+      },
+      data_13: {
+        type: 'boolean',
+        expression: {
+          kind: 'targetDistance',
+          source: { kind: 'owner' },
+          target: { kind: 'mainCharacter' },
+          distance: 4,
+          lessThan: true,
+          includeTargetRadius: false,
+          containsHittableObject: false,
+        },
+      },
+      data_14: { type: 'boolean', expression: { kind: 'casterControlled' } },
     },
   },
   macros: {},
 } as const satisfies ActionGraphResourceDefinition;
 
 export const laevatainChr_0016_laevat_normal_skill: SkillDefinition = {
-  actionGraph: laevatainChr_0016_laevat_normal_skillActionGraph,
   key: 'chr_0016_laevat_normal_skill',
   element: 'heat',
   blackboard: {
@@ -1991,22 +2480,14 @@ export const laevatainChr_0016_laevat_normal_skill: SkillDefinition = {
     atk_scale: [0.62, 0.68, 0.75, 0.81, 0.87, 0.93, 0.99, 1.06, 1.12, 1.2, 1.29, 1.4],
     atk_scale_2: [0.06, 0.07, 0.08, 0.08, 0.09, 0.09, 0.1, 0.11, 0.11, 0.12, 0.13, 0.14],
     atk_scale_3: [3.42, 3.76, 4.1, 4.45, 4.79, 5.13, 5.47, 5.81, 6.16, 6.58, 7.1, 7.7],
-    cam_angle: 0,
-    cam_duration: 0,
-    consumed_fire_count: 0,
     count: 4,
     duration: 5,
-    entered: 0,
     extra_scaling: 1,
     extra_usp: 100,
-    input_angle: 0,
-    level: 1,
-    max_consumed_fire_count: 0,
     poise: 10,
     poise_extra: 10,
     ratio: 1,
     second_hit: 0,
-    triggered_burning: 0,
   },
   timelineBlockFrames: 118,
   naturalDurationFrames: 282,
@@ -2015,17 +2496,21 @@ export const laevatainChr_0016_laevat_normal_skill: SkillDefinition = {
   costFrame: 0,
   scheduledSequences: [
     { startFrame: 214, endFrame: 215, sequence: { $sequence: 'jumpTimeline_1' } },
-    { startFrame: 0, endFrame: 3, sequence: { $sequence: 'conditional_3' } },
-    { startFrame: 30, endFrame: 31, sequence: { $sequence: 'jumpTimeline_5' } },
-    { startFrame: 37, endFrame: 51, sequence: { $sequence: 'jumpTimeline_6' } },
-    { startFrame: 4, endFrame: 7, sequence: { $sequence: 'spawnAbilityEntity_7' } },
-    { startFrame: 104, endFrame: 105, sequence: { $sequence: 'modifyActionValue_18' } },
-    { startFrame: 105, endFrame: 109, sequence: { $sequence: 'forEachContextTarget_20' } },
+    { startFrame: 0, endFrame: 3, sequence: { $sequence: 'checkCondition_3' } },
+    { startFrame: 30, endFrame: 31, sequence: { $sequence: 'jumpTimeline_6' } },
+    { startFrame: 37, endFrame: 51, sequence: { $sequence: 'jumpTimeline_7' } },
+    { startFrame: 4, endFrame: 7, sequence: { $sequence: 'spawnAbilityEntity_8' } },
+    { startFrame: 104, endFrame: 105, sequence: { $sequence: 'modifyActionValue_20' } },
+    { startFrame: 105, endFrame: 109, sequence: { $sequence: 'finishOwner_21' } },
+    { startFrame: 0, endFrame: 37, sequence: { $sequence: 'checkCondition_4' } },
+    { startFrame: 3, endFrame: 22, sequence: { $sequence: 'ifElse_34' } },
+    { startFrame: 3, endFrame: 23, sequence: { $sequence: 'ifElse_opt1' } },
   ],
   costs: [{ resource: 'sp', value: 100 }],
   skillType: 'battleSkill',
   levelSource: 'battleSkill',
   nativeSkillType: 'normalSkill',
+  actionGraph: laevatainChr_0016_laevat_normal_skillActionGraph,
 };
 
 export const laevatainChr_0016_laevat_normal_skill_during_ultActionGraph = {
@@ -2042,33 +2527,45 @@ export const laevatainChr_0016_laevat_normal_skill_during_ultActionGraph = {
         },
         next: null,
       },
-      conditional_2: {
+      checkCondition_2: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-          whenTrue: { $sequence: 'applyBuff_1' },
         },
-        next: null,
+        next: 'applyBuff_1',
       },
-      jumpTimeline_3: {
+      checkCondition_3: {
         action: {
-          kind: 'jumpTimeline',
-          parameters: {
-            destinationFrame: 75,
-            condition: { kind: 'conditionNode', nodeId: 'data_2' },
-          },
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
         },
         next: null,
       },
       jumpTimeline_4: {
-        action: { kind: 'jumpTimeline', parameters: { destinationFrame: 196 } },
+        action: {
+          kind: 'jumpTimeline',
+          parameters: { destinationFrame: 75 },
+          condition: { $sequence: 'checkCondition_3' },
+        },
         next: null,
       },
       jumpTimeline_5: {
-        action: { kind: 'jumpTimeline', parameters: { destinationFrame: 270 } },
+        action: {
+          kind: 'jumpTimeline',
+          parameters: { destinationFrame: 196 },
+          condition: { $sequence: null },
+        },
         next: null,
       },
-      modifyActionValue_6: {
+      jumpTimeline_6: {
+        action: {
+          kind: 'jumpTimeline',
+          parameters: { destinationFrame: 270 },
+          condition: { $sequence: null },
+        },
+        next: null,
+      },
+      modifyActionValue_9: {
         action: {
           kind: 'modifyActionValue',
           parameters: {
@@ -2079,7 +2576,21 @@ export const laevatainChr_0016_laevat_normal_skill_during_ultActionGraph = {
         },
         next: null,
       },
-      applyBuff_7: {
+      checkCondition_7: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_4' } },
+        },
+        next: null,
+      },
+      checkCondition_8: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
+        },
+        next: 'checkCondition_7',
+      },
+      applyBuff_10: {
         action: {
           kind: 'applyBuff',
           parameters: {
@@ -2090,26 +2601,25 @@ export const laevatainChr_0016_laevat_normal_skill_during_ultActionGraph = {
         },
         next: null,
       },
-      modifyActionValue_8: {
+      modifyActionValue_11: {
         action: {
           kind: 'modifyActionValue',
           parameters: { key: 'entered', operation: 'add', value: { kind: 'constant', value: 1 } },
         },
-        next: 'applyBuff_7',
+        next: 'applyBuff_10',
       },
-      gainSquadUltimateEnergyFromSkillCost_9: {
+      gainSquadUltimateEnergyFromSkillCost_12: {
         action: { kind: 'gainSquadUltimateEnergyFromSkillCost', parameters: { coefficient: 1 } },
-        next: 'modifyActionValue_8',
+        next: 'modifyActionValue_11',
       },
-      conditional_10: {
+      checkCondition_13: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_4' } },
-          whenTrue: { $sequence: 'gainSquadUltimateEnergyFromSkillCost_9' },
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_7' } },
         },
-        next: null,
+        next: 'gainSquadUltimateEnergyFromSkillCost_12',
       },
-      startTimeDilation_11: {
+      startTimeDilation_14: {
         action: {
           kind: 'startTimeDilation',
           parameters: {
@@ -2122,64 +2632,66 @@ export const laevatainChr_0016_laevat_normal_skill_during_ultActionGraph = {
             targets: ['enemy', 'caster'],
           },
         },
-        next: 'conditional_10',
+        next: 'checkCondition_13',
       },
-      dealDamage_12: {
+      dealDamage_15: {
         action: {
           kind: 'dealDamage',
           parameters: {
             damageType: 'heat',
-            attackScale: { kind: 'valueNode', nodeId: 'data_5' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_8' },
             tags: ['normalSkill'],
             features: ['canBreakWeakness'],
-            stagger: { kind: 'valueNode', nodeId: 'data_6' },
+            stagger: { kind: 'valueNode', nodeId: 'data_9' },
           },
         },
-        next: 'startTimeDilation_11',
+        next: 'startTimeDilation_14',
       },
-      conditional_13: {
+      ifElse_16: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_10' }, alwaysNext: true },
-          whenTrue: { $sequence: 'modifyActionValue_6' },
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_8' },
+          whenTrue: { $sequence: 'modifyActionValue_9' },
+          whenFalse: { $sequence: null },
         },
-        next: 'dealDamage_12',
+        next: 'dealDamage_15',
       },
-      repeatEachTick_14: {
+      repeatEachTick_17: {
         action: {
           kind: 'repeatEachTick',
           parameters: {
             nativeChanneling: {
+              target: { kind: 'fixed', target: 'enemy' },
               executeEachFrame: true,
               triggerIntervalSeconds: 0.033,
               maxCountPerTarget: 1,
               targetTriggerIntervalSeconds: 0.033,
             },
           },
-          body: { $sequence: 'conditional_13' },
+          body: { $sequence: 'ifElse_16' },
         },
         next: null,
       },
-      modifyActionValue_16: {
+      modifyActionValue_21: {
         action: {
           kind: 'modifyActionValue',
           parameters: { key: 'entered', operation: 'add', value: { kind: 'constant', value: 1 } },
         },
         next: null,
       },
-      gainSquadUltimateEnergyFromSkillCost_17: {
+      gainSquadUltimateEnergyFromSkillCost_22: {
         action: { kind: 'gainSquadUltimateEnergyFromSkillCost', parameters: { coefficient: 1 } },
-        next: 'modifyActionValue_16',
+        next: 'modifyActionValue_21',
       },
-      conditional_18: {
+      checkCondition_23: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_12' } },
-          whenTrue: { $sequence: 'gainSquadUltimateEnergyFromSkillCost_17' },
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_11' } },
         },
-        next: null,
+        next: 'gainSquadUltimateEnergyFromSkillCost_22',
       },
-      startTimeDilation_19: {
+      startTimeDilation_24: {
         action: {
           kind: 'startTimeDilation',
           parameters: {
@@ -2192,59 +2704,70 @@ export const laevatainChr_0016_laevat_normal_skill_during_ultActionGraph = {
             targets: ['enemy', 'caster'],
           },
         },
-        next: 'conditional_18',
+        next: 'checkCondition_23',
       },
-      dealDamage_20: {
+      dealDamage_25: {
         action: {
           kind: 'dealDamage',
           parameters: {
             damageType: 'heat',
-            attackScale: { kind: 'valueNode', nodeId: 'data_13' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_12' },
             tags: ['normalSkill'],
             features: ['canBreakWeakness'],
-            stagger: { kind: 'valueNode', nodeId: 'data_14' },
+            stagger: { kind: 'valueNode', nodeId: 'data_13' },
           },
         },
-        next: 'startTimeDilation_19',
+        next: 'startTimeDilation_24',
       },
-      conditional_21: {
+      ifElse_26: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_18' }, alwaysNext: true },
-          whenTrue: { $sequence: 'modifyActionValue_6' },
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_8' },
+          whenTrue: { $sequence: 'modifyActionValue_9' },
+          whenFalse: { $sequence: null },
         },
-        next: 'dealDamage_20',
+        next: 'dealDamage_25',
       },
-      repeatEachTick_22: {
+      repeatEachTick_27: {
         action: {
           kind: 'repeatEachTick',
           parameters: {
             nativeChanneling: {
+              target: { kind: 'fixed', target: 'enemy' },
               executeEachFrame: true,
               triggerIntervalSeconds: 0.033,
               maxCountPerTarget: 1,
               targetTriggerIntervalSeconds: 0.033,
             },
           },
-          body: { $sequence: 'conditional_21' },
+          body: { $sequence: 'ifElse_26' },
         },
         next: null,
       },
-      changeResource_23: {
+      changeResource_29: {
         action: {
           kind: 'changeResource',
           parameters: {
             resource: 'sp',
-            amount: { kind: 'valueNode', nodeId: 'data_19' },
+            amount: { kind: 'valueNode', nodeId: 'data_14' },
             coefficient: { kind: 'constant', value: 1 },
-            recipient: 'team',
+            source: { kind: 'source' },
+            targets: { kind: 'source' },
             spGainKind: 'refund',
             spGainSource: 'skill',
           },
         },
         next: null,
       },
-      startTimeDilation_24: {
+      checkCondition_28: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_16' } },
+        },
+        next: null,
+      },
+      startTimeDilation_30: {
         action: {
           kind: 'startTimeDilation',
           parameters: {
@@ -2259,36 +2782,37 @@ export const laevatainChr_0016_laevat_normal_skill_during_ultActionGraph = {
         },
         next: null,
       },
-      conditional_25: {
+      checkCondition_31: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_21' } },
-          whenTrue: { $sequence: 'startTimeDilation_24' },
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_18' } },
         },
-        next: null,
+        next: 'startTimeDilation_30',
       },
-      dealDamage_26: {
+      dealDamage_32: {
         action: {
           kind: 'dealDamage',
           parameters: {
             damageType: 'heat',
-            attackScale: { kind: 'valueNode', nodeId: 'data_22' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_19' },
             tags: ['normalSkill'],
             features: ['canBreakWeakness'],
-            stagger: { kind: 'valueNode', nodeId: 'data_23' },
+            stagger: { kind: 'valueNode', nodeId: 'data_20' },
           },
         },
-        next: 'conditional_25',
+        next: 'checkCondition_31',
       },
-      conditional_27: {
+      ifElse_33: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_25' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResource_23' },
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_28' },
+          whenTrue: { $sequence: 'changeResource_29' },
+          whenFalse: { $sequence: null },
         },
-        next: 'dealDamage_26',
+        next: 'dealDamage_32',
       },
-      modifyActionValue_28: {
+      modifyActionValue_34: {
         action: {
           kind: 'modifyActionValue',
           parameters: {
@@ -2297,9 +2821,9 @@ export const laevatainChr_0016_laevat_normal_skill_during_ultActionGraph = {
             value: { kind: 'constant', value: 1 },
           },
         },
-        next: 'conditional_27',
+        next: 'ifElse_33',
       },
-      applyBuff_29: {
+      applyBuff_35: {
         action: {
           kind: 'applyBuff',
           parameters: {
@@ -2316,24 +2840,25 @@ export const laevatainChr_0016_laevat_normal_skill_during_ultActionGraph = {
             inheritSourceSkillCastInfo: true,
           },
         },
-        next: 'modifyActionValue_28',
+        next: 'modifyActionValue_34',
       },
-      repeatEachTick_30: {
+      repeatEachTick_36: {
         action: {
           kind: 'repeatEachTick',
           parameters: {
             nativeChanneling: {
+              target: { kind: 'fixed', target: 'enemy' },
               executeEachFrame: true,
               triggerIntervalSeconds: 0.033,
               maxCountPerTarget: 1,
               targetTriggerIntervalSeconds: 0.033,
             },
           },
-          body: { $sequence: 'applyBuff_29' },
+          body: { $sequence: 'applyBuff_35' },
         },
         next: null,
       },
-      finishBuffsById_31: {
+      finishBuffsById_37: {
         action: {
           kind: 'finishBuffsById',
           parameters: {
@@ -2342,20 +2867,81 @@ export const laevatainChr_0016_laevat_normal_skill_during_ultActionGraph = {
             reason: 'other',
           },
         },
-        next: 'repeatEachTick_30',
+        next: 'repeatEachTick_36',
       },
-      modifyActionValue_32: {
+      modifyActionValue_38: {
         action: {
           kind: 'modifyActionValue',
           parameters: {
             key: 'atk_scale_3',
             operation: 'multiply',
-            value: { kind: 'valueNode', nodeId: 'data_26' },
+            value: { kind: 'valueNode', nodeId: 'data_21' },
           },
         },
-        next: 'finishBuffsById_31',
+        next: 'finishBuffsById_37',
       },
-      applyBuff_33: {
+      checkCondition_43: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_22' } },
+        },
+        next: null,
+      },
+      ifElse_45: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_43' },
+          whenTrue: { $sequence: null },
+          whenFalse: { $sequence: null },
+        },
+        next: null,
+      },
+      checkCondition_44: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_23' } },
+        },
+        next: null,
+      },
+      ifElse_47: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_44' },
+          whenTrue: { $sequence: null },
+          whenFalse: { $sequence: 'ifElse_45' },
+        },
+        next: null,
+      },
+      ifElse_49: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: null },
+          whenTrue: { $sequence: 'ifElse_47' },
+          whenFalse: { $sequence: 'ifElse_47' },
+        },
+        next: null,
+      },
+      checkCondition_48: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_24' } },
+        },
+        next: null,
+      },
+      ifElse_51: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_48' },
+          whenTrue: { $sequence: null },
+          whenFalse: { $sequence: 'ifElse_49' },
+        },
+        next: null,
+      },
+      applyBuff_56: {
         action: {
           kind: 'applyBuff',
           parameters: {
@@ -2366,6 +2952,23 @@ export const laevatainChr_0016_laevat_normal_skill_during_ultActionGraph = {
           },
         },
         next: null,
+      },
+      ifElse_opt1: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: null },
+          whenTrue: { $sequence: null },
+          whenFalse: { $sequence: null },
+        },
+        next: null,
+      },
+      checkCondition_opt2: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_25' } },
+        },
+        next: 'ifElse_opt1',
       },
     },
     dataNodes: {
@@ -2389,7 +2992,10 @@ export const laevatainChr_0016_laevat_normal_skill_during_ultActionGraph = {
           value: { kind: 'constant', value: 1 },
         },
       },
-      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'entered', fallback: 0 } },
+      data_3: {
+        type: 'number',
+        expression: { kind: 'blackboard', key: 'triggered_burning', fallback: 0 },
+      },
       data_4: {
         type: 'boolean',
         expression: {
@@ -2399,116 +3005,96 @@ export const laevatainChr_0016_laevat_normal_skill_during_ultActionGraph = {
           right: { kind: 'constant', value: 0 },
         },
       },
-      data_5: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_6: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
+      data_5: {
+        type: 'boolean',
+        expression: {
+          kind: 'buffIdStackCompare',
+          target: 'enemy',
+          buffIds: ['buff_common_energy_shard_attached_fire'],
+          operator: 'greaterOrEqual',
+          value: { kind: 'constant', value: 1 },
+        },
+      },
+      data_6: { type: 'number', expression: { kind: 'blackboard', key: 'entered', fallback: 0 } },
       data_7: {
         type: 'boolean',
         expression: {
-          kind: 'buffIdStackCompare',
-          target: 'enemy',
-          buffIds: ['buff_common_energy_shard_attached_fire'],
-          operator: 'greaterOrEqual',
-          value: { kind: 'constant', value: 1 },
-        },
-      },
-      data_8: {
-        type: 'number',
-        expression: { kind: 'blackboard', key: 'triggered_burning', fallback: 0 },
-      },
-      data_9: {
-        type: 'boolean',
-        expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_8' },
+          left: { kind: 'valueNode', nodeId: 'data_6' },
           operator: 'equal',
           right: { kind: 'constant', value: 0 },
         },
       },
-      data_10: {
-        type: 'boolean',
-        expression: {
-          kind: 'all',
-          conditions: [
-            { kind: 'conditionNode', nodeId: 'data_7' },
-            { kind: 'conditionNode', nodeId: 'data_9' },
-          ],
-        },
-      },
-      data_11: { type: 'number', expression: { kind: 'blackboard', key: 'entered', fallback: 0 } },
-      data_12: {
+      data_8: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
+      data_9: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
+      data_10: { type: 'number', expression: { kind: 'blackboard', key: 'entered', fallback: 0 } },
+      data_11: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_11' },
+          left: { kind: 'valueNode', nodeId: 'data_10' },
           operator: 'equal',
           right: { kind: 'constant', value: 0 },
         },
       },
-      data_13: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_2' } },
-      data_14: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
+      data_12: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_2' } },
+      data_13: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
+      data_14: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
       data_15: {
-        type: 'boolean',
-        expression: {
-          kind: 'buffIdStackCompare',
-          target: 'enemy',
-          buffIds: ['buff_common_energy_shard_attached_fire'],
-          operator: 'greaterOrEqual',
-          value: { kind: 'constant', value: 1 },
-        },
+        type: 'number',
+        expression: { kind: 'blackboard', key: 'second_hit', fallback: 0 },
       },
       data_16: {
-        type: 'number',
-        expression: { kind: 'blackboard', key: 'triggered_burning', fallback: 0 },
-      },
-      data_17: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_16' },
+          left: { kind: 'valueNode', nodeId: 'data_15' },
           operator: 'equal',
-          right: { kind: 'constant', value: 0 },
+          right: { kind: 'constant', value: 1 },
         },
+      },
+      data_17: {
+        type: 'number',
+        expression: { kind: 'blackboard', key: 'second_hit', fallback: 0 },
       },
       data_18: {
         type: 'boolean',
         expression: {
-          kind: 'all',
-          conditions: [
-            { kind: 'conditionNode', nodeId: 'data_15' },
-            { kind: 'conditionNode', nodeId: 'data_17' },
-          ],
-        },
-      },
-      data_19: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
-      data_20: {
-        type: 'number',
-        expression: { kind: 'blackboard', key: 'second_hit', fallback: 0 },
-      },
-      data_21: {
-        type: 'boolean',
-        expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_20' },
+          left: { kind: 'valueNode', nodeId: 'data_17' },
           operator: 'lessOrEqual',
           right: { kind: 'constant', value: 1 },
         },
       },
-      data_22: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_3' } },
-      data_23: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
-      data_24: {
-        type: 'number',
-        expression: { kind: 'blackboard', key: 'second_hit', fallback: 0 },
-      },
-      data_25: {
+      data_19: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_3' } },
+      data_20: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
+      data_21: { type: 'number', expression: { kind: 'blackboard', key: 'ratio' } },
+      data_22: {
         type: 'boolean',
         expression: {
-          kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_24' },
-          operator: 'equal',
-          right: { kind: 'constant', value: 1 },
+          kind: 'targetDistance',
+          source: { kind: 'owner' },
+          target: { kind: 'mainCharacter' },
+          distance: 8,
+          lessThan: true,
+          includeTargetRadius: false,
+          containsHittableObject: false,
         },
       },
-      data_26: { type: 'number', expression: { kind: 'blackboard', key: 'ratio' } },
+      data_23: {
+        type: 'boolean',
+        expression: {
+          kind: 'targetDistance',
+          source: { kind: 'owner' },
+          target: { kind: 'mainCharacter' },
+          distance: 4,
+          lessThan: true,
+          includeTargetRadius: false,
+          containsHittableObject: false,
+        },
+      },
+      data_24: { type: 'boolean', expression: { kind: 'casterControlled' } },
+      data_25: { type: 'boolean', expression: { kind: 'casterControlled' } },
     },
   },
   macros: {},
@@ -2545,14 +3131,17 @@ export const laevatainChr_0016_laevat_normal_skill_during_ult: SkillDefinition =
   },
   costFrame: 0,
   scheduledSequences: [
-    { startFrame: 0, endFrame: 3, sequence: { $sequence: 'conditional_2' } },
-    { startFrame: 24, endFrame: 27, sequence: { $sequence: 'jumpTimeline_3' } },
-    { startFrame: 39, endFrame: 40, sequence: { $sequence: 'jumpTimeline_4' } },
-    { startFrame: 195, endFrame: 196, sequence: { $sequence: 'jumpTimeline_5' } },
-    { startFrame: 13, endFrame: 14, sequence: { $sequence: 'repeatEachTick_14' } },
-    { startFrame: 23, endFrame: 24, sequence: { $sequence: 'repeatEachTick_22' } },
-    { startFrame: 98, endFrame: 99, sequence: { $sequence: 'modifyActionValue_32' } },
-    { startFrame: 0, endFrame: 115, sequence: { $sequence: 'applyBuff_33' } },
+    { startFrame: 0, endFrame: 3, sequence: { $sequence: 'checkCondition_2' } },
+    { startFrame: 24, endFrame: 27, sequence: { $sequence: 'jumpTimeline_4' } },
+    { startFrame: 39, endFrame: 40, sequence: { $sequence: 'jumpTimeline_5' } },
+    { startFrame: 195, endFrame: 196, sequence: { $sequence: 'jumpTimeline_6' } },
+    { startFrame: 13, endFrame: 14, sequence: { $sequence: 'repeatEachTick_17' } },
+    { startFrame: 23, endFrame: 24, sequence: { $sequence: 'repeatEachTick_27' } },
+    { startFrame: 98, endFrame: 99, sequence: { $sequence: 'modifyActionValue_38' } },
+    { startFrame: 0, endFrame: 53, sequence: { $sequence: 'checkCondition_3' } },
+    { startFrame: 1, endFrame: 66, sequence: { $sequence: 'ifElse_51' } },
+    { startFrame: 0, endFrame: 36, sequence: { $sequence: 'checkCondition_opt2' } },
+    { startFrame: 0, endFrame: 115, sequence: { $sequence: 'applyBuff_56' } },
   ],
   costs: [{ resource: 'sp', value: 100 }],
   icon: 'endaxis:operators/laevatain/battle_02',
@@ -2598,15 +3187,8 @@ export const laevatainChr_0016_laevat_ultimate_skillActionGraph = {
         },
         next: null,
       },
-      findCharacterTeamTargets_3: {
-        action: {
-          kind: 'findCharacterTeamTargets',
-          parameters: { saveToContextKey: 'mainchar', selection: { kind: 'controlledOperator' } },
-        },
-        next: null,
-      },
-      hideUi_5: { action: { kind: 'hideUi', parameters: { onlyBlockInput: false } }, next: null },
-      startUltimateTimeDilation_6: {
+      hideUi_3: { action: { kind: 'hideUi', parameters: { onlyBlockInput: false } }, next: null },
+      startUltimateTimeDilation_4: {
         action: {
           kind: 'startUltimateTimeDilation',
           parameters: {
@@ -2617,7 +3199,7 @@ export const laevatainChr_0016_laevat_ultimate_skillActionGraph = {
         },
         next: null,
       },
-      applyBuff_7: {
+      applyBuff_5: {
         action: {
           kind: 'applyBuff',
           parameters: {
@@ -2628,7 +3210,7 @@ export const laevatainChr_0016_laevat_ultimate_skillActionGraph = {
         },
         next: null,
       },
-      applyBuff_8: {
+      applyBuff_6: {
         action: {
           kind: 'applyBuff',
           parameters: {
@@ -2646,6 +3228,7 @@ export const laevatainChr_0016_laevat_ultimate_skillActionGraph = {
 } as const satisfies ActionGraphResourceDefinition;
 
 export const laevatainChr_0016_laevat_ultimate_skill: SkillDefinition = {
+  actionGraph: laevatainChr_0016_laevat_ultimate_skillActionGraph,
   key: 'chr_0016_laevat_ultimate_skill',
   element: 'heat',
   blackboard: { duration: 15 },
@@ -2657,11 +3240,10 @@ export const laevatainChr_0016_laevat_ultimate_skill: SkillDefinition = {
   scheduledSequences: [
     { startFrame: 0, endFrame: 3, sequence: { $sequence: 'finishBuffsById_1' } },
     { startFrame: 0, endFrame: 3, sequence: { $sequence: 'startTimeDilation_2' } },
-    { startFrame: 0, endFrame: 1, sequence: { $sequence: 'findCharacterTeamTargets_3' } },
-    { startFrame: 0, endFrame: 61, sequence: { $sequence: 'hideUi_5' } },
-    { startFrame: 0, endFrame: 61, sequence: { $sequence: 'startUltimateTimeDilation_6' } },
-    { startFrame: 0, endFrame: 87, sequence: { $sequence: 'applyBuff_7' } },
-    { startFrame: 0, endFrame: 73, sequence: { $sequence: 'applyBuff_8' } },
+    { startFrame: 0, endFrame: 61, sequence: { $sequence: 'hideUi_3' } },
+    { startFrame: 0, endFrame: 61, sequence: { $sequence: 'startUltimateTimeDilation_4' } },
+    { startFrame: 0, endFrame: 87, sequence: { $sequence: 'applyBuff_5' } },
+    { startFrame: 0, endFrame: 73, sequence: { $sequence: 'applyBuff_6' } },
   ],
   cooldownFrames: 300,
   costs: [{ resource: 'ultimateEnergy', value: 300 }],
@@ -2669,35 +3251,40 @@ export const laevatainChr_0016_laevat_ultimate_skill: SkillDefinition = {
   skillType: 'ultimate',
   levelSource: 'ultimate',
   nativeSkillType: 'ultimateSkill',
-  actionGraph: laevatainChr_0016_laevat_ultimate_skillActionGraph,
 };
 
 export const laevatainChr_0016_laevat_combo_skillActionGraph = {
   main: {
     nodes: {
-      mergeContextTargets_1: {
+      mergeContextTargets_2: {
         action: {
           kind: 'mergeContextTargets',
           parameters: { saveToContextKey: 'tar', sources: [{ kind: 'target', target: 'enemy' }] },
         },
         next: null,
       },
-      launchProjectile_2: {
+      checkCondition_1: {
         action: {
-          kind: 'launchProjectile',
-          parameters: { finish: 'firstTickReach', recycleDelaySeconds: 0.0333333350718021 },
-          callbacks: [],
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
         },
         next: null,
       },
-      modifyActionValue_3: {
+      modifyActionValue_4: {
         action: {
           kind: 'modifyActionValue',
           parameters: { key: 'index', operation: 'add', value: { kind: 'constant', value: 1 } },
         },
         next: null,
       },
-      applyBuff_8: {
+      checkCondition_3: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
+        },
+        next: null,
+      },
+      applyBuff_9: {
         action: {
           kind: 'applyBuff',
           parameters: {
@@ -2714,7 +3301,7 @@ export const laevatainChr_0016_laevat_combo_skillActionGraph = {
         },
         next: null,
       },
-      applyBuff_6: {
+      applyBuff_7: {
         action: {
           kind: 'applyBuff',
           parameters: {
@@ -2731,7 +3318,7 @@ export const laevatainChr_0016_laevat_combo_skillActionGraph = {
         },
         next: null,
       },
-      applyBuff_5: {
+      applyBuff_6: {
         action: {
           kind: 'applyBuff',
           parameters: {
@@ -2748,7 +3335,7 @@ export const laevatainChr_0016_laevat_combo_skillActionGraph = {
         },
         next: null,
       },
-      applyBuff_4: {
+      applyBuff_5: {
         action: {
           kind: 'applyBuff',
           parameters: {
@@ -2765,7 +3352,7 @@ export const laevatainChr_0016_laevat_combo_skillActionGraph = {
         },
         next: null,
       },
-      applyBuff_9: {
+      applyBuff_10: {
         action: {
           kind: 'applyBuff',
           parameters: {
@@ -2776,37 +3363,39 @@ export const laevatainChr_0016_laevat_combo_skillActionGraph = {
         },
         next: null,
       },
-      switch_10: {
+      switch_11: {
         action: {
           kind: 'switch',
-          parameters: { choice: { kind: 'valueNode', nodeId: 'data_1' }, alwaysNext: true },
+          parameters: { choice: { kind: 'valueNode', nodeId: 'data_4' }, alwaysNext: true },
           options: [
-            { value: { kind: 'constant', value: 1 }, sequence: { $sequence: 'applyBuff_4' } },
-            { value: { kind: 'constant', value: 2 }, sequence: { $sequence: 'applyBuff_5' } },
-            { value: { kind: 'constant', value: 3 }, sequence: { $sequence: 'applyBuff_6' } },
-            { value: { kind: 'constant', value: 4 }, sequence: { $sequence: 'applyBuff_8' } },
-            { value: { kind: 'constant', value: 5 }, sequence: { $sequence: 'applyBuff_8' } },
+            { value: { kind: 'constant', value: 1 }, sequence: { $sequence: 'applyBuff_5' } },
+            { value: { kind: 'constant', value: 2 }, sequence: { $sequence: 'applyBuff_6' } },
+            { value: { kind: 'constant', value: 3 }, sequence: { $sequence: 'applyBuff_7' } },
+            { value: { kind: 'constant', value: 4 }, sequence: { $sequence: 'applyBuff_9' } },
+            { value: { kind: 'constant', value: 5 }, sequence: { $sequence: 'applyBuff_9' } },
           ],
         },
-        next: 'applyBuff_9',
+        next: 'applyBuff_10',
       },
-      conditional_11: {
+      ifElse_12: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' }, alwaysNext: true },
-          whenTrue: { $sequence: 'modifyActionValue_3' },
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_3' },
+          whenTrue: { $sequence: 'modifyActionValue_4' },
+          whenFalse: { $sequence: null },
         },
-        next: 'switch_10',
+        next: 'switch_11',
       },
-      forEachContextTarget_12: {
+      forEachContextTarget_13: {
         action: {
           kind: 'forEachContextTarget',
-          parameters: { contextKey: 'tar' },
-          body: { $sequence: 'conditional_11' },
+          parameters: { targets: { kind: 'context', key: 'tar' } },
+          body: { $sequence: 'ifElse_12' },
         },
         next: null,
       },
-      applyBuff_13: {
+      applyBuff_14: {
         action: {
           kind: 'applyBuff',
           parameters: {
@@ -2815,26 +3404,32 @@ export const laevatainChr_0016_laevat_combo_skillActionGraph = {
             inheritSourceSkillCastInfo: true,
           },
         },
-        next: 'forEachContextTarget_12',
+        next: 'forEachContextTarget_13',
       },
-      forEachContextTarget_14: {
+      launchProjectile_15: {
         action: {
-          kind: 'forEachContextTarget',
-          parameters: { contextKey: 'tar' },
-          body: { $sequence: 'launchProjectile_2' },
+          kind: 'launchProjectile',
+          parameters: {
+            inheritActionBlackboard: true,
+            finish: 'firstTickReach',
+            recycleDelaySeconds: 0.0333333350718021,
+            targets: { kind: 'context', contextKey: 'tar' },
+          },
+          callbacks: [],
         },
-        next: 'applyBuff_13',
+        next: 'applyBuff_14',
       },
-      conditional_15: {
+      ifElse_16: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_4' }, alwaysNext: true },
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_1' },
           whenTrue: { $sequence: null },
-          whenFalse: { $sequence: 'mergeContextTargets_1' },
+          whenFalse: { $sequence: 'mergeContextTargets_2' },
         },
-        next: 'forEachContextTarget_14',
+        next: 'launchProjectile_15',
       },
-      applyBuff_16: {
+      applyBuff_17: {
         action: {
           kind: 'applyBuff',
           parameters: {
@@ -2850,7 +3445,7 @@ export const laevatainChr_0016_laevat_combo_skillActionGraph = {
         },
         next: null,
       },
-      applyBuff_17: {
+      applyBuff_18: {
         action: {
           kind: 'applyBuff',
           parameters: {
@@ -2864,39 +3459,39 @@ export const laevatainChr_0016_laevat_combo_skillActionGraph = {
             inheritSourceSkillCastInfo: true,
           },
         },
-        next: 'applyBuff_16',
+        next: 'applyBuff_17',
       },
-      conditional_18: {
+      checkCondition_19: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
-          whenTrue: { $sequence: 'applyBuff_17' },
         },
-        next: null,
+        next: 'applyBuff_18',
       },
-      repeatEachTick_19: {
+      repeatEachTick_20: {
         action: {
           kind: 'repeatEachTick',
           parameters: {
             nativeChanneling: {
+              target: { kind: 'owner' },
               executeEachFrame: false,
               triggerIntervalSeconds: 0.1,
               maxCountPerTarget: -1,
               targetTriggerIntervalSeconds: 0,
             },
           },
-          body: { $sequence: 'conditional_18' },
+          body: { $sequence: 'checkCondition_19' },
         },
         next: null,
       },
-      mergeContextTargets_21: {
+      mergeContextTargets_22: {
         action: {
           kind: 'mergeContextTargets',
           parameters: { saveToContextKey: 'tar', sources: [] },
         },
         next: null,
       },
-      mergeContextTargets_26: {
+      mergeContextTargets_28: {
         action: {
           kind: 'mergeContextTargets',
           parameters: {
@@ -2906,7 +3501,7 @@ export const laevatainChr_0016_laevat_combo_skillActionGraph = {
         },
         next: null,
       },
-      modifyActionValue_22: {
+      modifyActionValue_23: {
         action: {
           kind: 'modifyActionValue',
           parameters: {
@@ -2917,48 +3512,65 @@ export const laevatainChr_0016_laevat_combo_skillActionGraph = {
         },
         next: null,
       },
-      conditional_23: {
+      checkCondition_24: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_9' } },
-          whenTrue: { $sequence: 'modifyActionValue_22' },
         },
-        next: null,
+        next: 'modifyActionValue_23',
       },
-      modifyActionValue_24: {
+      modifyActionValue_25: {
         action: {
           kind: 'modifyActionValue',
           parameters: { key: 'count', operation: 'add', value: { kind: 'constant', value: 1 } },
         },
-        next: 'conditional_23',
+        next: 'checkCondition_24',
       },
-      forEachContextTarget_25: {
+      forEachContextTarget_27: {
         action: {
           kind: 'forEachContextTarget',
-          parameters: { contextKey: 'tar' },
-          body: { $sequence: 'modifyActionValue_24' },
+          parameters: { targets: { kind: 'context', key: 'tar' } },
+          body: { $sequence: 'modifyActionValue_25' },
         },
         next: null,
       },
-      conditional_27: {
+      ifElse_29: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_10' }, alwaysNext: true },
-          whenTrue: { $sequence: 'forEachContextTarget_25' },
-          whenFalse: { $sequence: 'mergeContextTargets_26' },
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_1' },
+          whenTrue: { $sequence: 'forEachContextTarget_27' },
+          whenFalse: { $sequence: 'mergeContextTargets_28' },
         },
         next: null,
       },
-      conditional_28: {
+      conditional_30: {
         action: {
           kind: 'conditional',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_10' } },
+          whenTrue: { $sequence: 'mergeContextTargets_2' },
+          whenFalse: { $sequence: 'mergeContextTargets_22' },
+        },
+        next: 'ifElse_29',
+      },
+      ifElse_32: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: null },
+          whenTrue: { $sequence: null },
+          whenFalse: { $sequence: null },
+        },
+        next: null,
+      },
+      checkCondition_33: {
+        action: {
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_11' } },
-          whenTrue: { $sequence: 'mergeContextTargets_1' },
-          whenFalse: { $sequence: 'mergeContextTargets_21' },
         },
-        next: 'conditional_27',
+        next: 'ifElse_32',
       },
-      startTimeDilation_29: {
+      startTimeDilation_34: {
         action: {
           kind: 'startTimeDilation',
           parameters: {
@@ -2974,9 +3586,26 @@ export const laevatainChr_0016_laevat_combo_skillActionGraph = {
         },
         next: null,
       },
+      checkCondition_35: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_12' } },
+        },
+        next: null,
+      },
     },
     dataNodes: {
-      data_1: { type: 'number', expression: { kind: 'blackboard', key: 'index' } },
+      data_1: {
+        type: 'boolean',
+        expression: {
+          kind: 'entityCountCompare',
+          target: { kind: 'context', key: 'tar' },
+          containsHittableTarget: false,
+          excludeDeadEntity: false,
+          operator: 'greaterOrEqual',
+          value: 1,
+        },
+      },
       data_2: { type: 'number', expression: { kind: 'blackboard', key: 'index', fallback: 0 } },
       data_3: {
         type: 'boolean',
@@ -2987,15 +3616,7 @@ export const laevatainChr_0016_laevat_combo_skillActionGraph = {
           right: { kind: 'constant', value: 5 },
         },
       },
-      data_4: {
-        type: 'boolean',
-        expression: {
-          kind: 'contextTargetCountCompare',
-          contextKey: 'tar',
-          operator: 'greaterOrEqual',
-          value: 1,
-        },
-      },
+      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'index' } },
       data_5: {
         type: 'boolean',
         expression: {
@@ -3021,15 +3642,6 @@ export const laevatainChr_0016_laevat_combo_skillActionGraph = {
       data_10: {
         type: 'boolean',
         expression: {
-          kind: 'contextTargetCountCompare',
-          contextKey: 'tar',
-          operator: 'greaterOrEqual',
-          value: 1,
-        },
-      },
-      data_11: {
-        type: 'boolean',
-        expression: {
           kind: 'entityTagMatch',
           target: 'enemy',
           tagQueryType: 'hasAny',
@@ -3037,6 +3649,17 @@ export const laevatainChr_0016_laevat_combo_skillActionGraph = {
             'Skill/Character/Common/SpellStatus/Burning',
             'Skill/Character/Common/SpellStatus/Corrupt',
           ],
+        },
+      },
+      data_11: { type: 'boolean', expression: { kind: 'casterControlled' } },
+      data_12: {
+        type: 'boolean',
+        expression: {
+          kind: 'buffIdStackCompare',
+          target: 'caster',
+          buffIds: ['buff_chr_0016_laevat_ring_start_asset'],
+          operator: 'greaterOrEqual',
+          value: { kind: 'constant', value: 1 },
         },
       },
     },
@@ -3070,10 +3693,12 @@ export const laevatainChr_0016_laevat_combo_skill: SkillDefinition = {
   },
   costFrame: 0,
   scheduledSequences: [
-    { startFrame: 20, endFrame: 56, sequence: { $sequence: 'conditional_15' } },
-    { startFrame: 0, endFrame: 57, sequence: { $sequence: 'repeatEachTick_19' } },
-    { startFrame: 5, endFrame: 8, sequence: { $sequence: 'conditional_28' } },
-    { startFrame: 0, endFrame: 15, sequence: { $sequence: 'startTimeDilation_29' } },
+    { startFrame: 20, endFrame: 56, sequence: { $sequence: 'ifElse_16' } },
+    { startFrame: 0, endFrame: 57, sequence: { $sequence: 'repeatEachTick_20' } },
+    { startFrame: 5, endFrame: 8, sequence: { $sequence: 'conditional_30' } },
+    { startFrame: 0, endFrame: 36, sequence: { $sequence: 'checkCondition_33' } },
+    { startFrame: 0, endFrame: 15, sequence: { $sequence: 'startTimeDilation_34' } },
+    { startFrame: 76, endFrame: 93, sequence: { $sequence: 'checkCondition_35' } },
   ],
   smartTarget: 'trigger',
   cooldownFrames: [300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 270],
@@ -3105,11 +3730,10 @@ export const laevatainCommon_character_perfect_dodge: SkillDefinition = {
 const laevatainComboCondition1ActionGraph = {
   main: {
     nodes: {
-      conditional_1: {
+      checkCondition_1: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-          whenTrue: { $sequence: null },
         },
         next: null,
       },
@@ -3137,7 +3761,7 @@ const laevatainComboCondition1: ComboSkillConditionDefinition = {
   event: 'addedBuff',
   immediately: false,
   initialValues: null,
-  sequence: { $sequence: 'conditional_1' },
+  sequence: { $sequence: 'checkCondition_1' },
   actionGraph: laevatainComboCondition1ActionGraph,
 };
 
@@ -3147,7 +3771,11 @@ const laevatainBuff1ActionGraph = {
       launchProjectile_1: {
         action: {
           kind: 'launchProjectile',
-          parameters: { finish: 'firstTickReach', recycleDelaySeconds: 5 },
+          parameters: {
+            inheritActionBlackboard: true,
+            finish: 'firstTickReach',
+            recycleDelaySeconds: 5,
+          },
           callbacks: [],
         },
         next: null,
@@ -3165,13 +3793,12 @@ const laevatainBuff1ActionGraph = {
         },
         next: 'launchProjectile_1',
       },
-      conditional_3: {
+      checkCondition_3: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-          whenTrue: { $sequence: 'finishBuffsByTag_2' },
         },
-        next: null,
+        next: 'finishBuffsByTag_2',
       },
     },
     dataNodes: {
@@ -3203,31 +3830,41 @@ const laevatainBuff1: SkillBuffDefinition = {
   extendTags: [],
   blackboard: {},
   attributeModifiers: [],
-  lifecycleSequences: { start: { $sequence: 'conditional_3' } },
+  lifecycleSequences: { start: { $sequence: 'checkCondition_3' } },
   actionGraph: laevatainBuff1ActionGraph,
 };
 
 const laevatainBuff2ActionGraph = {
   main: {
     nodes: {
-      conditional_4: {
+      checkCondition_7: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' }, alwaysNext: true },
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
+        },
+        next: null,
+      },
+      ifElse_10: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_7' },
           whenTrue: { $sequence: null },
+          whenFalse: { $sequence: null },
         },
         next: null,
       },
-      conditional_6: {
+      ifElse_13: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' }, alwaysNext: true },
-          whenTrue: { $sequence: 'conditional_4' },
-          whenFalse: { $sequence: 'conditional_4' },
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_7' },
+          whenTrue: { $sequence: 'ifElse_10' },
+          whenFalse: { $sequence: 'ifElse_10' },
         },
         next: null,
       },
-      applyBuff_7: {
+      applyBuff_14: {
         action: {
           kind: 'applyBuff',
           parameters: {
@@ -3239,27 +3876,28 @@ const laevatainBuff2ActionGraph = {
         },
         next: null,
       },
-      conditional_8: {
+      ifElse_15: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' }, alwaysNext: true },
-          whenTrue: { $sequence: 'conditional_6' },
-          whenFalse: { $sequence: 'conditional_6' },
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_7' },
+          whenTrue: { $sequence: 'ifElse_13' },
+          whenFalse: { $sequence: 'ifElse_13' },
         },
-        next: 'applyBuff_7',
+        next: 'applyBuff_14',
       },
-      dealDamage_9: {
+      dealDamage_16: {
         action: {
           kind: 'dealDamage',
           parameters: {
             damageType: 'heat',
-            attackScale: { kind: 'valueNode', nodeId: 'data_4' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_2' },
             tags: ['comboSkill'],
             features: ['canBreakWeakness'],
-            stagger: { kind: 'valueNode', nodeId: 'data_5' },
+            stagger: { kind: 'valueNode', nodeId: 'data_3' },
           },
         },
-        next: 'conditional_8',
+        next: 'ifElse_15',
       },
     },
     dataNodes: {
@@ -3267,16 +3905,8 @@ const laevatainBuff2ActionGraph = {
         type: 'boolean',
         expression: { kind: 'probability', probability: { kind: 'constant', value: 0.5 } },
       },
-      data_2: {
-        type: 'boolean',
-        expression: { kind: 'probability', probability: { kind: 'constant', value: 0.5 } },
-      },
-      data_3: {
-        type: 'boolean',
-        expression: { kind: 'probability', probability: { kind: 'constant', value: 0.5 } },
-      },
-      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_5: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
+      data_2: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
+      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
     },
   },
   macros: {},
@@ -3294,7 +3924,7 @@ const laevatainBuff2: SkillBuffDefinition = {
   extendTags: [],
   blackboard: { atk_scale: 0, poise: 0 },
   attributeModifiers: [],
-  scheduledSequences: [{ startFrame: 0, endFrame: 3, sequence: { $sequence: 'dealDamage_9' } }],
+  scheduledSequences: [{ startFrame: 0, endFrame: 3, sequence: { $sequence: 'dealDamage_16' } }],
   actionGraph: laevatainBuff2ActionGraph,
 };
 
@@ -3420,7 +4050,8 @@ const laevatainBuff6ActionGraph = {
             resource: 'ultimateEnergy',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
             coefficient: { kind: 'constant', value: 1 },
-            recipient: 'caster',
+            source: { kind: 'source' },
+            targets: { kind: 'source' },
           },
         },
         next: null,
@@ -3432,7 +4063,8 @@ const laevatainBuff6ActionGraph = {
             resource: 'ultimateEnergy',
             amount: { kind: 'valueNode', nodeId: 'data_2' },
             coefficient: { kind: 'constant', value: 1 },
-            recipient: 'caster',
+            source: { kind: 'source' },
+            targets: { kind: 'source' },
           },
         },
         next: null,
@@ -3444,7 +4076,8 @@ const laevatainBuff6ActionGraph = {
             resource: 'ultimateEnergy',
             amount: { kind: 'valueNode', nodeId: 'data_3' },
             coefficient: { kind: 'constant', value: 1 },
-            recipient: 'caster',
+            source: { kind: 'source' },
+            targets: { kind: 'source' },
           },
         },
         next: null,
@@ -3456,7 +4089,8 @@ const laevatainBuff6ActionGraph = {
             resource: 'ultimateEnergy',
             amount: { kind: 'valueNode', nodeId: 'data_4' },
             coefficient: { kind: 'constant', value: 1 },
-            recipient: 'caster',
+            source: { kind: 'source' },
+            targets: { kind: 'source' },
           },
         },
         next: null,
@@ -3683,7 +4317,14 @@ const laevatainBuff7: SkillBuffDefinition = {
 const laevatainBuff8ActionGraph = {
   main: {
     nodes: {
-      applyBuff_1: {
+      checkCondition_1: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
+        },
+        next: null,
+      },
+      applyBuff_2: {
         action: {
           kind: 'applyBuff',
           parameters: {
@@ -3703,6 +4344,48 @@ const laevatainBuff8ActionGraph = {
         },
         next: null,
       },
+      withActionBlackboardScope_3: {
+        action: {
+          kind: 'withActionBlackboardScope',
+          parameters: {
+            scopeKey: 'native-buff-callback:1',
+            lifetime: 'execution',
+            alwaysNext: true,
+            shareParentBlackboard: true,
+            initialValues: {},
+            inheritParent: true,
+          },
+          body: { $sequence: 'applyBuff_2' },
+        },
+        next: null,
+      },
+      withActionBlackboardScope_4: {
+        action: {
+          kind: 'withActionBlackboardScope',
+          parameters: {
+            scopeKey: 'native-buff-callback:0',
+            lifetime: 'execution',
+            alwaysNext: true,
+            shareParentBlackboard: true,
+            initialValues: {},
+            inheritParent: true,
+          },
+          body: { $sequence: 'checkCondition_1' },
+        },
+        next: 'withActionBlackboardScope_3',
+      },
+    },
+    dataNodes: {
+      data_1: {
+        type: 'boolean',
+        expression: {
+          kind: 'buffIdStackCompare',
+          target: 'buffOwner',
+          buffIds: ['buff_indie_phantom_effect_laevat'],
+          operator: 'equal',
+          value: { kind: 'constant', value: 0 },
+        },
+      },
     },
   },
   macros: {},
@@ -3716,7 +4399,7 @@ const laevatainBuff8: SkillBuffDefinition = {
   extendTags: [],
   blackboard: { duration: 0, ignore_fire_resist: 0, ignore_fire_resist_duration: 0 },
   attributeModifiers: [],
-  lifecycleSequences: { start: { $sequence: 'applyBuff_1' } },
+  lifecycleSequences: { start: { $sequence: 'withActionBlackboardScope_4' } },
   actionGraph: laevatainBuff8ActionGraph,
 };
 
@@ -3738,7 +4421,29 @@ const laevatainBuff9: SkillBuffDefinition = {
 };
 
 const laevatainBuff10ActionGraph = {
-  main: { nodes: {} },
+  main: {
+    nodes: {
+      checkCondition_1: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
+        },
+        next: null,
+      },
+    },
+    dataNodes: {
+      data_1: {
+        type: 'boolean',
+        expression: {
+          kind: 'buffIdStackCompare',
+          target: 'buffOwner',
+          buffIds: ['buff_indie_phantom_effect_laevat'],
+          operator: 'equal',
+          value: { kind: 'constant', value: 0 },
+        },
+      },
+    },
+  },
   macros: {},
 } as const satisfies ActionGraphResourceDefinition;
 
@@ -3786,6 +4491,7 @@ const laevatainBuff10: SkillBuffDefinition = {
       ],
     },
   ],
+  lifecycleSequences: { enable: { $sequence: 'checkCondition_1' } },
   actionGraph: laevatainBuff10ActionGraph,
 };
 
@@ -3873,7 +4579,38 @@ const laevatainBuff11: SkillBuffDefinition = {
 };
 
 const laevatainBuff12ActionGraph = {
-  main: { nodes: {} },
+  main: {
+    nodes: {
+      checkCondition_1: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
+        },
+        next: null,
+      },
+      checkCondition_2: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
+        },
+        next: null,
+      },
+    },
+    dataNodes: {
+      data_1: {
+        type: 'boolean',
+        expression: { kind: 'eventInflictionElementIn', elements: ['heat'] },
+      },
+      data_2: {
+        type: 'boolean',
+        expression: {
+          kind: 'eventBuffTagsMatch',
+          match: 'hasAny',
+          buffTags: ['Skill/Character/Common/SpellStatus/Burning'],
+        },
+      },
+    },
+  },
   macros: {},
 } as const satisfies ActionGraphResourceDefinition;
 
@@ -3885,6 +4622,10 @@ const laevatainBuff12: SkillBuffDefinition = {
   extendTags: [],
   blackboard: { count: 0 },
   attributeModifiers: [],
+  abilityEventResponses: [
+    { event: 'beforeTakeInfliction', priority: 0, sequence: { $sequence: 'checkCondition_1' } },
+    { event: 'addedBuff', priority: 0, sequence: { $sequence: 'checkCondition_2' } },
+  ],
   actionGraph: laevatainBuff12ActionGraph,
 };
 
@@ -3933,13 +4674,12 @@ const laevatainBuff13ActionGraph = {
         },
         next: 'applyBuff_24',
       },
-      conditional_26: {
+      checkCondition_26: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-          whenTrue: { $sequence: 'finishBuffsByTag_25' },
         },
-        next: null,
+        next: 'finishBuffsByTag_25',
       },
       applyBuff_27: {
         action: {
@@ -3951,7 +4691,7 @@ const laevatainBuff13ActionGraph = {
             inheritSourceSkillCastInfo: true,
           },
         },
-        next: 'conditional_26',
+        next: 'checkCondition_26',
       },
       finishBuffsByTag_28: {
         action: {
@@ -3966,13 +4706,12 @@ const laevatainBuff13ActionGraph = {
         },
         next: 'applyBuff_27',
       },
-      conditional_29: {
+      checkCondition_29: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_4' } },
-          whenTrue: { $sequence: 'finishBuffsByTag_28' },
         },
-        next: null,
+        next: 'finishBuffsByTag_28',
       },
       applyBuff_30: {
         action: {
@@ -3984,7 +4723,7 @@ const laevatainBuff13ActionGraph = {
             inheritSourceSkillCastInfo: true,
           },
         },
-        next: 'conditional_29',
+        next: 'checkCondition_29',
       },
       finishBuffsByTag_31: {
         action: {
@@ -3999,21 +4738,24 @@ const laevatainBuff13ActionGraph = {
         },
         next: 'applyBuff_30',
       },
-      conditional_32: {
+      checkCondition_32: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_6' } },
-          whenTrue: { $sequence: 'finishBuffsByTag_31' },
         },
-        next: null,
+        next: 'finishBuffsByTag_31',
       },
       launchProjectile_33: {
         action: {
           kind: 'launchProjectile',
-          parameters: { finish: 'firstTickReach', recycleDelaySeconds: 5 },
+          parameters: {
+            inheritActionBlackboard: true,
+            finish: 'firstTickReach',
+            recycleDelaySeconds: 5,
+          },
           callbacks: [],
         },
-        next: 'conditional_32',
+        next: 'checkCondition_32',
       },
       applyBuff_34: {
         action: {
@@ -4040,21 +4782,24 @@ const laevatainBuff13ActionGraph = {
         },
         next: 'applyBuff_34',
       },
-      conditional_36: {
+      checkCondition_36: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_8' } },
-          whenTrue: { $sequence: 'finishBuffsByTag_35' },
         },
-        next: null,
+        next: 'finishBuffsByTag_35',
       },
       launchProjectile_20: {
         action: {
           kind: 'launchProjectile',
-          parameters: { finish: 'firstTickReach', recycleDelaySeconds: 5 },
+          parameters: {
+            inheritActionBlackboard: true,
+            finish: 'firstTickReach',
+            recycleDelaySeconds: 5,
+          },
           callbacks: [],
         },
-        next: 'conditional_29',
+        next: 'checkCondition_29',
       },
       applyBuff_21: {
         action: {
@@ -4081,21 +4826,24 @@ const laevatainBuff13ActionGraph = {
         },
         next: 'applyBuff_21',
       },
-      conditional_23: {
+      checkCondition_23: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_10' } },
-          whenTrue: { $sequence: 'finishBuffsByTag_22' },
         },
-        next: null,
+        next: 'finishBuffsByTag_22',
       },
       launchProjectile_10: {
         action: {
           kind: 'launchProjectile',
-          parameters: { finish: 'firstTickReach', recycleDelaySeconds: 5 },
+          parameters: {
+            inheritActionBlackboard: true,
+            finish: 'firstTickReach',
+            recycleDelaySeconds: 5,
+          },
           callbacks: [],
         },
-        next: 'conditional_26',
+        next: 'checkCondition_26',
       },
       applyBuff_11: {
         action: {
@@ -4122,18 +4870,21 @@ const laevatainBuff13ActionGraph = {
         },
         next: 'applyBuff_11',
       },
-      conditional_13: {
+      checkCondition_13: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_12' } },
-          whenTrue: { $sequence: 'finishBuffsByTag_12' },
         },
-        next: null,
+        next: 'finishBuffsByTag_12',
       },
       launchProjectile_3: {
         action: {
           kind: 'launchProjectile',
-          parameters: { finish: 'firstTickReach', recycleDelaySeconds: 5 },
+          parameters: {
+            inheritActionBlackboard: true,
+            finish: 'firstTickReach',
+            recycleDelaySeconds: 5,
+          },
           callbacks: [],
         },
         next: null,
@@ -4162,23 +4913,22 @@ const laevatainBuff13ActionGraph = {
         },
         next: 'applyBuff_4',
       },
-      conditional_6: {
+      checkCondition_6: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_14' } },
-          whenTrue: { $sequence: 'finishBuffsByTag_5' },
         },
-        next: null,
+        next: 'finishBuffsByTag_5',
       },
       switch_37: {
         action: {
           kind: 'switch',
           parameters: { choice: { kind: 'valueNode', nodeId: 'data_15' }, alwaysNext: true },
           options: [
-            { value: { kind: 'constant', value: 1 }, sequence: { $sequence: 'conditional_6' } },
-            { value: { kind: 'constant', value: 2 }, sequence: { $sequence: 'conditional_13' } },
-            { value: { kind: 'constant', value: 3 }, sequence: { $sequence: 'conditional_23' } },
-            { value: { kind: 'constant', value: 4 }, sequence: { $sequence: 'conditional_36' } },
+            { value: { kind: 'constant', value: 1 }, sequence: { $sequence: 'checkCondition_6' } },
+            { value: { kind: 'constant', value: 2 }, sequence: { $sequence: 'checkCondition_13' } },
+            { value: { kind: 'constant', value: 3 }, sequence: { $sequence: 'checkCondition_23' } },
+            { value: { kind: 'constant', value: 4 }, sequence: { $sequence: 'checkCondition_36' } },
           ],
         },
         next: null,
@@ -4201,7 +4951,7 @@ const laevatainBuff13ActionGraph = {
       forEachContextTarget_39: {
         action: {
           kind: 'forEachContextTarget',
-          parameters: { contextKey: 'fire_inflicted' },
+          parameters: { targets: { kind: 'context', key: 'fire_inflicted' } },
           body: { $sequence: 'readBuffStackCount_38' },
         },
         next: null,
@@ -4238,37 +4988,33 @@ const laevatainBuff13ActionGraph = {
         },
         next: 'conditional_41',
       },
-      conditional_43: {
+      checkCondition_43: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_17' } },
-          whenTrue: { $sequence: 'applyBuff_42' },
         },
-        next: null,
+        next: 'applyBuff_42',
       },
-      conditional_44: {
+      checkCondition_44: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_19' } },
-          whenTrue: { $sequence: 'conditional_43' },
         },
-        next: null,
+        next: 'checkCondition_43',
       },
-      conditional_45: {
+      checkCondition_45: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_20' } },
-          whenTrue: { $sequence: 'conditional_44' },
         },
-        next: null,
+        next: 'checkCondition_44',
       },
-      conditional_46: {
+      checkCondition_46: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_21' } },
-          whenTrue: { $sequence: 'conditional_45' },
         },
-        next: null,
+        next: 'checkCondition_45',
       },
     },
     dataNodes: {
@@ -4403,7 +5149,7 @@ const laevatainBuff13: SkillBuffDefinition = {
   blackboard: { count: 0, curve_rate: 0, distance: 0, max_stack: 0, speed: 0 },
   attributeModifiers: [],
   abilityEventResponses: [
-    { event: 'beforeOutputDamage', priority: 0, sequence: { $sequence: 'conditional_46' } },
+    { event: 'beforeOutputDamage', priority: 0, sequence: { $sequence: 'checkCondition_46' } },
   ],
   actionGraph: laevatainBuff13ActionGraph,
 };
@@ -4455,13 +5201,12 @@ const laevatainBuff16ActionGraph = {
         },
         next: null,
       },
-      conditional_2: {
+      checkCondition_2: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-          whenTrue: { $sequence: 'modifyActionValue_1' },
         },
-        next: null,
+        next: 'modifyActionValue_1',
       },
     },
     dataNodes: {
@@ -4486,7 +5231,7 @@ const laevatainBuff16: SkillBuffDefinition = {
   blackboard: { curr_duration: 0, extend_duration: 0, max_duration: 0 },
   attributeModifiers: [],
   abilityEventResponses: [
-    { event: 'finishedBuff', priority: 0, sequence: { $sequence: 'conditional_2' } },
+    { event: 'finishedBuff', priority: 0, sequence: { $sequence: 'checkCondition_2' } },
   ],
   actionGraph: laevatainBuff16ActionGraph,
 };
@@ -4586,25 +5331,23 @@ const laevatainBuff18ActionGraph = {
         action: { kind: 'setCurrentBuffTimePaused', parameters: { paused: true } },
         next: null,
       },
-      conditional_5: {
+      checkCondition_5: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-          whenTrue: { $sequence: 'setCurrentBuffTimePaused_4' },
         },
-        next: null,
+        next: 'setCurrentBuffTimePaused_4',
       },
       setCurrentBuffTimePaused_6: {
         action: { kind: 'setCurrentBuffTimePaused', parameters: { paused: false } },
         next: null,
       },
-      conditional_7: {
+      checkCondition_7: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-          whenTrue: { $sequence: 'setCurrentBuffTimePaused_6' },
         },
-        next: null,
+        next: 'setCurrentBuffTimePaused_6',
       },
     },
     dataNodes: {
@@ -4660,8 +5403,8 @@ const laevatainBuff18: SkillBuffDefinition = {
     finish: { $sequence: 'adjustSkillCooldown_2' },
   },
   abilityEventResponses: [
-    { event: 'addedBuff', priority: 0, sequence: { $sequence: 'conditional_5' } },
-    { event: 'finishedBuff', priority: 0, sequence: { $sequence: 'conditional_7' } },
+    { event: 'addedBuff', priority: 0, sequence: { $sequence: 'checkCondition_5' } },
+    { event: 'finishedBuff', priority: 0, sequence: { $sequence: 'checkCondition_7' } },
   ],
   actionGraph: laevatainBuff18ActionGraph,
 };
@@ -4701,21 +5444,19 @@ const laevatainBuff19ActionGraph = {
         },
         next: 'applyBuff_1',
       },
-      conditional_3: {
+      checkCondition_3: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
-          whenTrue: { $sequence: 'setGlobalCooldown_2' },
         },
-        next: null,
+        next: 'setGlobalCooldown_2',
       },
-      conditional_4: {
+      checkCondition_4: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
-          whenTrue: { $sequence: 'conditional_3' },
         },
-        next: null,
+        next: 'checkCondition_3',
       },
     },
     dataNodes: {
@@ -4757,7 +5498,7 @@ const laevatainBuff19: SkillBuffDefinition = {
   blackboard: { cd: 0, duration: 0, heal_max_hp: 0, hp_threshold: 0, shelter: 0, shelter_real: 0 },
   attributeModifiers: [],
   abilityEventResponses: [
-    { event: 'takeDamage', priority: 0, sequence: { $sequence: 'conditional_4' } },
+    { event: 'takeDamage', priority: 0, sequence: { $sequence: 'checkCondition_4' } },
   ],
   actionGraph: laevatainBuff19ActionGraph,
 };
@@ -4846,25 +5587,23 @@ const laevatainBuff21ActionGraph = {
         action: { kind: 'setCurrentBuffTimePaused', parameters: { paused: true } },
         next: null,
       },
-      conditional_3: {
+      checkCondition_3: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-          whenTrue: { $sequence: 'setCurrentBuffTimePaused_2' },
         },
-        next: null,
+        next: 'setCurrentBuffTimePaused_2',
       },
       setCurrentBuffTimePaused_4: {
         action: { kind: 'setCurrentBuffTimePaused', parameters: { paused: false } },
         next: null,
       },
-      conditional_5: {
+      checkCondition_5: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-          whenTrue: { $sequence: 'setCurrentBuffTimePaused_4' },
         },
-        next: null,
+        next: 'setCurrentBuffTimePaused_4',
       },
     },
     dataNodes: {
@@ -4913,8 +5652,8 @@ const laevatainBuff21: SkillBuffDefinition = {
   attributeModifiers: [],
   lifecycleSequences: { finish: { $sequence: 'finishBuffsById_1' } },
   abilityEventResponses: [
-    { event: 'addedBuff', priority: 0, sequence: { $sequence: 'conditional_3' } },
-    { event: 'finishedBuff', priority: 0, sequence: { $sequence: 'conditional_5' } },
+    { event: 'addedBuff', priority: 0, sequence: { $sequence: 'checkCondition_3' } },
+    { event: 'finishedBuff', priority: 0, sequence: { $sequence: 'checkCondition_5' } },
   ],
   actionGraph: laevatainBuff21ActionGraph,
 };
@@ -4925,6 +5664,7 @@ export const laevatain: OperatorDefinition = {
   rarity: 6,
   weaponType: 'sword',
   element: 'heat',
+  characterTypeId: 'Fire',
   role: 'striker',
   mainAttribute: 'intellect',
   secondaryAttribute: 'strength',
@@ -5242,17 +5982,17 @@ export const laevatain: OperatorDefinition = {
         },
         blackboard: { atk_scale: 3, atk_scale_2: 0, atk_scale_3: 0, hit_count: 0, poise: 0 },
         scheduledSequences: [
-          { startFrame: 18, endFrame: 18, sequence: { $sequence: 'forEachContextTarget_opt1' } },
-          { startFrame: 25, endFrame: 25, sequence: { $sequence: 'dealDamage_opt2' } },
-          { startFrame: 29, endFrame: 29, sequence: { $sequence: 'dealDamage_opt3' } },
-          { startFrame: 33, endFrame: 33, sequence: { $sequence: 'dealDamage_opt4' } },
-          { startFrame: 37, endFrame: 37, sequence: { $sequence: 'dealDamage_opt5' } },
-          { startFrame: 41, endFrame: 41, sequence: { $sequence: 'dealDamage_opt6' } },
-          { startFrame: 45, endFrame: 45, sequence: { $sequence: 'dealDamage_opt7' } },
-          { startFrame: 50, endFrame: 50, sequence: { $sequence: 'dealDamage_opt8' } },
-          { startFrame: 54, endFrame: 54, sequence: { $sequence: 'dealDamage_opt9' } },
-          { startFrame: 58, endFrame: 58, sequence: { $sequence: 'dealDamage_opt10' } },
-          { startFrame: 62, endFrame: 62, sequence: { $sequence: 'dealDamage_opt11' } },
+          { startFrame: 18, endFrame: 18, sequence: { $sequence: 'forEachContextTarget_6' } },
+          { startFrame: 25, endFrame: 25, sequence: { $sequence: 'dealDamage_12' } },
+          { startFrame: 29, endFrame: 29, sequence: { $sequence: 'dealDamage_18' } },
+          { startFrame: 33, endFrame: 33, sequence: { $sequence: 'dealDamage_24' } },
+          { startFrame: 37, endFrame: 37, sequence: { $sequence: 'dealDamage_30' } },
+          { startFrame: 41, endFrame: 41, sequence: { $sequence: 'dealDamage_36' } },
+          { startFrame: 45, endFrame: 45, sequence: { $sequence: 'dealDamage_42' } },
+          { startFrame: 50, endFrame: 50, sequence: { $sequence: 'dealDamage_48' } },
+          { startFrame: 54, endFrame: 54, sequence: { $sequence: 'dealDamage_54' } },
+          { startFrame: 58, endFrame: 58, sequence: { $sequence: 'dealDamage_60' } },
+          { startFrame: 62, endFrame: 62, sequence: { $sequence: 'dealDamage_66' } },
         ],
         actionGraph: {
           main: {
@@ -5300,13 +6040,20 @@ export const laevatain: OperatorDefinition = {
                 },
                 next: 'gainSquadUltimateEnergyFromSkillCost_3',
               },
-              forEachContextTarget_opt1: {
+              checkCondition_5: {
                 action: {
-                  kind: 'forEachContextTarget',
-                  parameters: { target: 'enemy' },
-                  body: { $sequence: 'dealDamage_1' },
+                  kind: 'checkCondition',
+                  parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
                 },
                 next: 'applyBuff_4',
+              },
+              forEachContextTarget_6: {
+                action: {
+                  kind: 'forEachContextTarget',
+                  parameters: { targets: { kind: 'fixed', target: 'enemy' } },
+                  body: { $sequence: 'dealDamage_1' },
+                },
+                next: 'checkCondition_5',
               },
               applyBuff_7: {
                 action: {
@@ -5341,39 +6088,21 @@ export const laevatain: OperatorDefinition = {
                 },
                 next: 'applyBuff_8',
               },
-              conditional_10: {
+              checkCondition_10: {
                 action: {
-                  kind: 'conditional',
-                  parameters: { condition: { kind: 'conditionNode', nodeId: 'data_4' } },
-                  whenTrue: { $sequence: 'modifyActionValue_9' },
+                  kind: 'checkCondition',
+                  parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
                 },
-                next: null,
+                next: 'modifyActionValue_9',
               },
-              dealDamage_opt2: {
+              checkCondition_11: {
                 action: {
-                  kind: 'dealDamage',
-                  parameters: {
-                    damageType: 'heat',
-                    attackScale: { kind: 'valueNode', nodeId: 'data_5' },
-                    tags: ['normalSkill'],
-                  },
-                  key: 'abilityentity_chr_0016_laevat_normal_skill:chr_0016_laevat_normal_skill_abilityentity:/childSkill/actionGraph/main/nodes/dealDamage_12/action',
+                  kind: 'checkCondition',
+                  parameters: { condition: { kind: 'conditionNode', nodeId: 'data_6' } },
                 },
-                next: 'conditional_10',
+                next: 'checkCondition_10',
               },
-              dealDamage_opt3: {
-                action: {
-                  kind: 'dealDamage',
-                  parameters: {
-                    damageType: 'heat',
-                    attackScale: { kind: 'valueNode', nodeId: 'data_6' },
-                    tags: ['normalSkill'],
-                  },
-                  key: 'abilityentity_chr_0016_laevat_normal_skill:chr_0016_laevat_normal_skill_abilityentity:/childSkill/actionGraph/main/nodes/dealDamage_18/action',
-                },
-                next: 'conditional_10',
-              },
-              dealDamage_opt4: {
+              dealDamage_12: {
                 action: {
                   kind: 'dealDamage',
                   parameters: {
@@ -5381,11 +6110,11 @@ export const laevatain: OperatorDefinition = {
                     attackScale: { kind: 'valueNode', nodeId: 'data_7' },
                     tags: ['normalSkill'],
                   },
-                  key: 'abilityentity_chr_0016_laevat_normal_skill:chr_0016_laevat_normal_skill_abilityentity:/childSkill/actionGraph/main/nodes/dealDamage_24/action',
+                  key: 'abilityentity_chr_0016_laevat_normal_skill:chr_0016_laevat_normal_skill_abilityentity:/childSkill/actionGraph/main/nodes/dealDamage_12/action',
                 },
-                next: 'conditional_10',
+                next: 'checkCondition_11',
               },
-              dealDamage_opt5: {
+              dealDamage_18: {
                 action: {
                   kind: 'dealDamage',
                   parameters: {
@@ -5393,11 +6122,11 @@ export const laevatain: OperatorDefinition = {
                     attackScale: { kind: 'valueNode', nodeId: 'data_8' },
                     tags: ['normalSkill'],
                   },
-                  key: 'abilityentity_chr_0016_laevat_normal_skill:chr_0016_laevat_normal_skill_abilityentity:/childSkill/actionGraph/main/nodes/dealDamage_30/action',
+                  key: 'abilityentity_chr_0016_laevat_normal_skill:chr_0016_laevat_normal_skill_abilityentity:/childSkill/actionGraph/main/nodes/dealDamage_18/action',
                 },
-                next: 'conditional_10',
+                next: 'checkCondition_11',
               },
-              dealDamage_opt6: {
+              dealDamage_24: {
                 action: {
                   kind: 'dealDamage',
                   parameters: {
@@ -5405,11 +6134,11 @@ export const laevatain: OperatorDefinition = {
                     attackScale: { kind: 'valueNode', nodeId: 'data_9' },
                     tags: ['normalSkill'],
                   },
-                  key: 'abilityentity_chr_0016_laevat_normal_skill:chr_0016_laevat_normal_skill_abilityentity:/childSkill/actionGraph/main/nodes/dealDamage_36/action',
+                  key: 'abilityentity_chr_0016_laevat_normal_skill:chr_0016_laevat_normal_skill_abilityentity:/childSkill/actionGraph/main/nodes/dealDamage_24/action',
                 },
-                next: 'conditional_10',
+                next: 'checkCondition_11',
               },
-              dealDamage_opt7: {
+              dealDamage_30: {
                 action: {
                   kind: 'dealDamage',
                   parameters: {
@@ -5417,11 +6146,11 @@ export const laevatain: OperatorDefinition = {
                     attackScale: { kind: 'valueNode', nodeId: 'data_10' },
                     tags: ['normalSkill'],
                   },
-                  key: 'abilityentity_chr_0016_laevat_normal_skill:chr_0016_laevat_normal_skill_abilityentity:/childSkill/actionGraph/main/nodes/dealDamage_42/action',
+                  key: 'abilityentity_chr_0016_laevat_normal_skill:chr_0016_laevat_normal_skill_abilityentity:/childSkill/actionGraph/main/nodes/dealDamage_30/action',
                 },
-                next: 'conditional_10',
+                next: 'checkCondition_11',
               },
-              dealDamage_opt8: {
+              dealDamage_36: {
                 action: {
                   kind: 'dealDamage',
                   parameters: {
@@ -5429,11 +6158,11 @@ export const laevatain: OperatorDefinition = {
                     attackScale: { kind: 'valueNode', nodeId: 'data_11' },
                     tags: ['normalSkill'],
                   },
-                  key: 'abilityentity_chr_0016_laevat_normal_skill:chr_0016_laevat_normal_skill_abilityentity:/childSkill/actionGraph/main/nodes/dealDamage_48/action',
+                  key: 'abilityentity_chr_0016_laevat_normal_skill:chr_0016_laevat_normal_skill_abilityentity:/childSkill/actionGraph/main/nodes/dealDamage_36/action',
                 },
-                next: 'conditional_10',
+                next: 'checkCondition_11',
               },
-              dealDamage_opt9: {
+              dealDamage_42: {
                 action: {
                   kind: 'dealDamage',
                   parameters: {
@@ -5441,11 +6170,11 @@ export const laevatain: OperatorDefinition = {
                     attackScale: { kind: 'valueNode', nodeId: 'data_12' },
                     tags: ['normalSkill'],
                   },
-                  key: 'abilityentity_chr_0016_laevat_normal_skill:chr_0016_laevat_normal_skill_abilityentity:/childSkill/actionGraph/main/nodes/dealDamage_54/action',
+                  key: 'abilityentity_chr_0016_laevat_normal_skill:chr_0016_laevat_normal_skill_abilityentity:/childSkill/actionGraph/main/nodes/dealDamage_42/action',
                 },
-                next: 'conditional_10',
+                next: 'checkCondition_11',
               },
-              dealDamage_opt10: {
+              dealDamage_48: {
                 action: {
                   kind: 'dealDamage',
                   parameters: {
@@ -5453,11 +6182,11 @@ export const laevatain: OperatorDefinition = {
                     attackScale: { kind: 'valueNode', nodeId: 'data_13' },
                     tags: ['normalSkill'],
                   },
-                  key: 'abilityentity_chr_0016_laevat_normal_skill:chr_0016_laevat_normal_skill_abilityentity:/childSkill/actionGraph/main/nodes/dealDamage_60/action',
+                  key: 'abilityentity_chr_0016_laevat_normal_skill:chr_0016_laevat_normal_skill_abilityentity:/childSkill/actionGraph/main/nodes/dealDamage_48/action',
                 },
-                next: 'conditional_10',
+                next: 'checkCondition_11',
               },
-              dealDamage_opt11: {
+              dealDamage_54: {
                 action: {
                   kind: 'dealDamage',
                   parameters: {
@@ -5465,29 +6194,73 @@ export const laevatain: OperatorDefinition = {
                     attackScale: { kind: 'valueNode', nodeId: 'data_14' },
                     tags: ['normalSkill'],
                   },
+                  key: 'abilityentity_chr_0016_laevat_normal_skill:chr_0016_laevat_normal_skill_abilityentity:/childSkill/actionGraph/main/nodes/dealDamage_54/action',
+                },
+                next: 'checkCondition_11',
+              },
+              dealDamage_60: {
+                action: {
+                  kind: 'dealDamage',
+                  parameters: {
+                    damageType: 'heat',
+                    attackScale: { kind: 'valueNode', nodeId: 'data_15' },
+                    tags: ['normalSkill'],
+                  },
+                  key: 'abilityentity_chr_0016_laevat_normal_skill:chr_0016_laevat_normal_skill_abilityentity:/childSkill/actionGraph/main/nodes/dealDamage_60/action',
+                },
+                next: 'checkCondition_11',
+              },
+              dealDamage_66: {
+                action: {
+                  kind: 'dealDamage',
+                  parameters: {
+                    damageType: 'heat',
+                    attackScale: { kind: 'valueNode', nodeId: 'data_16' },
+                    tags: ['normalSkill'],
+                  },
                   key: 'abilityentity_chr_0016_laevat_normal_skill:chr_0016_laevat_normal_skill_abilityentity:/childSkill/actionGraph/main/nodes/dealDamage_66/action',
                 },
-                next: 'conditional_10',
+                next: 'checkCondition_11',
               },
             },
             dataNodes: {
               data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
               data_2: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
               data_3: {
+                type: 'boolean',
+                expression: {
+                  kind: 'entityCountCompare',
+                  target: { kind: 'fixed', target: 'enemy' },
+                  containsHittableTarget: false,
+                  excludeDeadEntity: false,
+                  operator: 'greaterOrEqual',
+                  value: 1,
+                },
+              },
+              data_4: {
                 type: 'number',
                 expression: { kind: 'blackboard', key: 'hit_count', fallback: 0 },
               },
-              data_4: {
+              data_5: {
                 type: 'boolean',
                 expression: {
                   kind: 'actionValueCompare',
-                  left: { kind: 'valueNode', nodeId: 'data_3' },
+                  left: { kind: 'valueNode', nodeId: 'data_4' },
                   operator: 'equal',
                   right: { kind: 'constant', value: 0 },
                 },
               },
-              data_5: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_2' } },
-              data_6: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_2' } },
+              data_6: {
+                type: 'boolean',
+                expression: {
+                  kind: 'entityCountCompare',
+                  target: { kind: 'fixed', target: 'enemy' },
+                  containsHittableTarget: false,
+                  excludeDeadEntity: false,
+                  operator: 'greaterOrEqual',
+                  value: 1,
+                },
+              },
               data_7: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_2' } },
               data_8: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_2' } },
               data_9: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_2' } },
@@ -5496,6 +6269,8 @@ export const laevatain: OperatorDefinition = {
               data_12: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_2' } },
               data_13: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_2' } },
               data_14: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_2' } },
+              data_15: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_2' } },
+              data_16: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_2' } },
             },
           },
           macros: {},

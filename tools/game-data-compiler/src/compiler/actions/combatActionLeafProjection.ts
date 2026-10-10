@@ -1,4 +1,5 @@
 import { projectGameplayTags } from '../combatProjectionCommon.ts';
+import { projectActionTargetQuery } from '../conditions/combatConditionProjection.ts';
 import { projectGlobalCooldownTarget } from './globalCooldownProjection.ts';
 import {
   compileEventTargetSimpleDamageOperationSource,
@@ -108,6 +109,36 @@ export function compileActionNode(
   if (node.body.kind !== 'leaf') {
     throw new Error(`${node.sourcePath}: unsupported Buff runtime action`);
   }
+  if (node.body.value.family === 'characterIdentity') {
+    const action = node.body.value.action;
+    if (!isPlainTargetReference(action.target, action.target.targetSource, ''))
+      throw new Error(`${node.sourcePath}: unsupported character type target selector`);
+    const target =
+      action.target.targetSource === 'Owner'
+        ? context.actionOwnerTarget
+        : action.target.targetSource === 'Source'
+          ? context.actionSourceTarget
+          : action.target.targetSource === 'Target'
+            ? context.actionTargetTarget
+            : undefined;
+    if (
+      target !== 'caster' &&
+      target !== 'buffOwner' &&
+      target !== 'buffSource' &&
+      target !== 'currentOperator' &&
+      target !== 'enemy'
+    )
+      throw new Error(`${node.sourcePath}: unsupported character type target ${target}`);
+    return [
+      {
+        kind: 'storeCharacterTypeId',
+        parameters: {
+          target: target === 'currentOperator' ? 'currentTarget' : target,
+          outputKey: action.outputKey,
+        },
+      },
+    ];
+  }
   if (node.body.value.family === 'uiVisibility') {
     return [
       { kind: 'hideUi', parameters: { onlyBlockInput: node.body.value.action.onlyBlockInput } },
@@ -157,6 +188,7 @@ export function compileActionNode(
       'finisherSpGain',
       'presentation',
       'presentationCalculation',
+      'directionAngle',
       'spatial',
       'spatialMeasurement',
       'selfDefense',
@@ -668,7 +700,7 @@ export function compileActionNode(
         ? [
             {
               kind: 'forEachContextTarget',
-              parameters: { contextKey: action.owner.targetGroupKey },
+              parameters: { targets: { kind: 'context', key: action.owner.targetGroupKey } },
               body: context.graph.sequence(steps),
             },
           ]
@@ -1090,12 +1122,8 @@ export function compileActionNode(
                 (context.actionOwnerTarget === 'caster' ||
                   context.actionOwnerTarget === 'buffOwner')
               ? context.actionOwnerTarget
-              : action.target.targetSource === 'Target' &&
-                  (context.actionTargetTarget === 'currentOperator' ||
-                    context.actionTargetTarget === 'actionInputTarget')
-                ? context.actionTargetTarget === 'actionInputTarget'
-                  ? ('actionInputTarget' as const)
-                  : ('currentTarget' as const)
+              : action.target.targetSource === 'Target'
+                ? ('actionInputTarget' as const)
                 : action.target.targetSource === 'MainCharacter' &&
                     action.target.finderType === null &&
                     action.target.validatorTypes.length === 0 &&
@@ -1121,13 +1149,6 @@ export function compileActionNode(
       action.healType !== 'Normal' ||
       (action.healer !== 'ActionSource' && action.healer !== 'ActionOwner') ||
       (action.healer === 'ActionOwner' && context.actionOwnerTarget !== 'buffOwner') ||
-      (action.contextKey !== '' &&
-        partyTargetGroups.get(action.contextKey) !== 'sourceFinderResult' &&
-        !(
-          action.contextKey === 'seraph' &&
-          action.target.targetSource === 'Owner' &&
-          context.fixedBuffOwnerTarget === 'caster'
-        )) ||
       target === null ||
       (action.calculation.kind === 'definite' && action.calculation.applyScale) ||
       (action.calculation.kind !== 'definite' &&
@@ -1342,38 +1363,30 @@ export function compileActionNode(
   }
   if (node.body.value.family === 'buffLifeTimeRead') {
     const action = node.body.value.action;
-    if (
-      action.owner.targetSource === 'Owner' &&
-      action.owner.targetGroupKey === '' &&
-      action.settings.checkType === 'Id' &&
-      action.settings.buffIds.length > 0 &&
-      action.settings.tagQuery.tagIds.length === 0
-    ) {
-      return [
-        {
-          kind: 'readBuffRemainingDuration',
-          parameters: {
-            target: requireActionOwnerProjection(context, node.sourcePath),
-            buffIds: action.settings.buffIds,
-            outputKey: action.outputKey,
-          },
-        },
-      ];
-    }
-    if (
-      action.owner.targetSource !== 'Owner' ||
-      action.owner.targetGroupKey !== '' ||
-      action.settings.checkType !== 'Environment' ||
-      action.settings.buffIds.length !== 0 ||
-      action.settings.tagQuery.queryType !== 'hasAny' ||
-      action.settings.tagQuery.tagIds.length !== 0
-    ) {
-      throw new Error(`${node.sourcePath}: unsupported Buff lifetime query`);
-    }
+    const settings = action.settings;
+    if (settings.checkType === 'Context')
+      throw new Error(`${node.sourcePath}: unsupported Context Buff lifetime query`);
     return [
       {
-        kind: 'readCurrentBuffRemainingDuration',
-        parameters: { outputKey: action.outputKey },
+        kind: 'readBuffRemainingDuration',
+        parameters: {
+          target: projectActionTargetQuery(action.owner, context, `${node.sourcePath}.buffOwner`),
+          query:
+            settings.checkType === 'Id'
+              ? { kind: 'id', buffIds: settings.buffIds }
+              : settings.checkType === 'Tag'
+                ? {
+                    kind: 'tag',
+                    buffTags: projectGameplayTags(
+                      settings.tagQuery.tagIds,
+                      context,
+                      node.sourcePath,
+                    ),
+                    tagQueryType: settings.tagQuery.queryType,
+                  }
+                : { kind: 'environment' },
+          outputKey: action.outputKey,
+        },
       },
     ];
   }
@@ -1649,36 +1662,14 @@ export function compileActionNode(
   }
   if (node.body.value.family === 'resource') {
     const action = node.body.value.action;
-    // ObtainCostAction 先解析 source，再逐 target 计算资源。投射物回调的 Source/Source
-    // 可沿已证明的 ActionSource=caster 投影；不能把任意 Source（如接收侧 buffSource）放行。
-    const usesCasterSource =
-      action.source.targetSource === 'Source' &&
-      action.target.targetSource === 'Source' &&
-      (context.actionSourceTarget === 'caster' || context.fixedBuffSourceTarget === 'caster');
-    const usesOwner =
-      action.source.targetSource === 'Owner' &&
-      action.target.targetSource === 'Owner' &&
-      context.actionOwnerTarget !== 'unavailable' &&
-      context.actionOwnerTarget !== 'currentAbilityEntity';
-    const usesCasterSourceAndOwner =
-      action.source.targetSource === 'Source' &&
-      action.target.targetSource === 'Owner' &&
-      context.actionSourceTarget === 'caster' &&
-      (context.actionOwnerTarget === 'caster' || context.fixedBuffOwnerTarget === 'caster');
-    if (
-      (!usesOwner && !usesCasterSource && !usesCasterSourceAndOwner) ||
-      action.source.targetGroupKey !== '' ||
-      action.target.targetGroupKey !== ''
-    ) {
-      throw new Error(`${node.sourcePath}: unsupported resource gain source/target`);
-    }
     const operation: CompiledBuffStepSource = {
       kind: 'changeResource',
       parameters: {
         resource: action.resource,
         amount: actionValueOperand(action.amount),
         coefficient: actionValueOperand(action.coefficient),
-        recipient: action.resource === 'sp' ? 'team' : 'caster',
+        source: projectActionTargetQuery(action.source, context, `${node.sourcePath}.source`),
+        targets: projectActionTargetQuery(action.target, context, `${node.sourcePath}.target`),
         ...(action.onlyMainOperator ? { onlyMainOperator: true } : {}),
         ...(action.spGainKind === null ? {} : { spGainKind: action.spGainKind }),
         ...(action.spGainSource === null ? {} : { spGainSource: action.spGainSource }),
@@ -1792,7 +1783,7 @@ export function compileActionNode(
       return [
         {
           kind: 'forEachContextTarget',
-          parameters: { contextKey: action.target.targetGroupKey },
+          parameters: { targets: { kind: 'context', key: action.target.targetGroupKey } },
           body: context.graph.sequence([
             {
               kind: 'createAbilityEntityTimedMarker',
@@ -1923,6 +1914,39 @@ export function compileActionNode(
     return [];
   }
   if (node.body.value.family === 'presentationCalculation') return [];
+  if (node.body.value.family === 'directionAngle') {
+    const action = node.body.value.action;
+    return [
+      {
+        kind: 'saveTwoDirectionAngle',
+        parameters: {
+          direction1Source: projectActionTargetQuery(
+            action.direction1Source,
+            context,
+            `${node.sourcePath}.dir1Source`,
+          ),
+          direction1Target: projectActionTargetQuery(
+            action.direction1Target,
+            context,
+            `${node.sourcePath}.dir1Target`,
+          ),
+          direction1Type: action.direction1Type,
+          direction2Source: projectActionTargetQuery(
+            action.direction2Source,
+            context,
+            `${node.sourcePath}.dir2Source`,
+          ),
+          direction2Target: projectActionTargetQuery(
+            action.direction2Target,
+            context,
+            `${node.sourcePath}.dir2Target`,
+          ),
+          direction2Type: action.direction2Type,
+          outputKey: action.outputKey,
+        },
+      },
+    ];
+  }
   if (node.body.value.family === 'randomBlackboard') {
     if (context.combatInvisibleRandomBlackboardKeys?.has(node.body.value.action.targetKey))
       return [];
@@ -2240,6 +2264,7 @@ function projectBuffApplicationTargetGroup(
     case 'lowestHealthRatioOperatorExceptCaster':
     case 'empty':
     case 'spatialPoint':
+    case 'godEntity':
       return null;
     default: {
       const exhaustive: never = group;
@@ -2470,7 +2495,7 @@ function compileBuffApplication(
   return [
     {
       kind: 'forEachContextTarget',
-      parameters: { contextKey: contextTargetGroupKey },
+      parameters: { targets: { kind: 'context', key: contextTargetGroupKey } },
       body: context.graph.sequence(steps),
     },
   ];

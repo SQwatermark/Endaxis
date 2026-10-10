@@ -69,7 +69,7 @@ describe('OperatorUpgradeEventRuntime', () => {
     const event = {
       event: 'skillSpGained' as const,
       payload: {
-        sourceOperatorId: 'operator:perlica',
+        sourceId: 'operator:perlica',
         source: 'skill' as const,
         gainKind: 'gain' as const,
         requestedAmount: 1,
@@ -142,7 +142,7 @@ describe('OperatorUpgradeEventRuntime', () => {
       {
         event: 'skillSpGained',
         payload: {
-          sourceOperatorId: 'operator:perlica',
+          sourceId: 'operator:perlica',
           source: 'skill',
           gainKind: 'gain',
           requestedAmount: 1,

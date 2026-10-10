@@ -201,6 +201,7 @@ describe('干员与公共 Buff 共用规划', () => {
               action: {
                 kind: 'spawnAbilityEntity',
                 parameters: {
+                  bornAt: { kind: 'owner' as const },
                   abilityEntityId: 'fixture',
                   dieWhenSourceDies: false,
                   inheritActionBlackboard: true,
@@ -261,6 +262,7 @@ describe('干员与公共 Buff 共用规划', () => {
               action: {
                 kind: 'spawnAbilityEntity',
                 parameters: {
+                  bornAt: { kind: 'owner' as const },
                   abilityEntityId: 'fixture',
                   dieWhenSourceDies: false,
                   inheritActionBlackboard: true,
@@ -521,6 +523,7 @@ describe('干员与公共 Buff 共用规划', () => {
                 action: {
                   kind: 'spawnAbilityEntity',
                   parameters: {
+                    bornAt: { kind: 'owner' as const },
                     abilityEntityId: 'fixture',
                     dieWhenSourceDies: false,
                     inheritActionBlackboard: true,

@@ -83,13 +83,12 @@ const definition = {
               },
               next: 'createTimedMarker_1',
             },
-            conditional_3: {
+            checkCondition_3: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
-                whenTrue: { $sequence: 'applyBuff_2' },
               },
-              next: null,
+              next: 'applyBuff_2',
             },
           },
           dataNodes: {
@@ -116,7 +115,7 @@ const definition = {
           key: 'skill3:event:0:sequence:0',
           abilityEvent: 'beforeOutputSpellBurst',
           priority: 0,
-          sequence: { $sequence: 'conditional_3' },
+          sequence: { $sequence: 'checkCondition_3' },
         },
       ],
       blackboard: {

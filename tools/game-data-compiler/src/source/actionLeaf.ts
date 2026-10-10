@@ -50,6 +50,7 @@ import {
 } from './characterIdentityActions.ts';
 import {
   collectNativeActionNodes,
+  collectNativeActionNodesWithLeafSequences,
   parseNativeSequenceSource,
   type NativeActionNodeSource,
   type NativeSequenceSource,
@@ -282,7 +283,7 @@ import {
   parseSaveMoveAxisAngleActionSource,
   parseSaveTwoDirectionAngleActionSource,
   type PresentationCalculationActionSource,
-} from './presentationCalculationActions.ts';
+} from './calculationActions.ts';
 import {
   parseAdditionalBattleShapeActionSource,
   parseDynamicBattleShapeActionSource,
@@ -349,7 +350,6 @@ import {
 
 const CONDITION_ACTION_NAMES = new Set([
   'ReturnFalseAction',
-  'OrConditionAction',
   'CompareFloat',
   'CompareString',
   'CheckMainCharacterCondition',
@@ -464,6 +464,10 @@ export type KnownNativeActionLeafSource =
   | { readonly family: 'characterIdentity'; readonly action: CharacterTypeIdReadActionSource }
   | { readonly family: 'targetGroup'; readonly action: TargetGroupActionSource }
   | { readonly family: 'rayCastTargetGroup'; readonly action: RayCastTargetGroupActionSource }
+  | {
+      readonly family: 'directionAngle';
+      readonly action: import('./calculationActions.ts').SaveTwoDirectionAngleActionSource;
+    }
   | {
       readonly family: 'presentationCalculation';
       readonly action: PresentationCalculationActionSource;
@@ -1162,7 +1166,7 @@ export function tryParseKnownNativeActionLeafSource(
       };
     case 'SaveTwoDirectionAngle':
       return {
-        family: 'presentationCalculation',
+        family: 'directionAngle',
         action: parseSaveTwoDirectionAngleActionSource(value, path),
       };
     case 'SaveMoveAxisAngle':
@@ -1839,4 +1843,26 @@ export function parseKnownNativeActionSequenceSource(
   return parseNativeSequenceSource(value, path, inheritedBlackboard, (leaf, leafPath) =>
     parseKnownNativeActionLeafSource(leaf, leafPath, inheritedBlackboard),
   );
+}
+
+/** 控制子序列和事件响应共用遍历；每个原生调用只枚举一次。 */
+export function collectKnownNativeActionNodes(
+  sequence: NativeSequenceSource<KnownNativeActionLeafSource>,
+): readonly NativeActionNodeSource<KnownNativeActionLeafSource>[] {
+  return collectNativeActionNodesWithLeafSequences(sequence, leafActionSequences);
+}
+
+/** 用途分析只遍历启用的调用；关闭的控制动作及其全部子序列都不可执行。 */
+export function collectEnabledNativeActionNodes(
+  sequence: NativeSequenceSource<KnownNativeActionLeafSource>,
+): readonly NativeActionNodeSource<KnownNativeActionLeafSource>[] {
+  return collectNativeActionNodesWithLeafSequences(sequence, leafActionSequences, true);
+}
+
+function leafActionSequences(leaf: KnownNativeActionLeafSource) {
+  return leaf.family === 'eventListener'
+    ? leaf.action.events.flatMap(event => event.actions)
+    : leaf.family === 'animationEventListener'
+      ? [leaf.action.actionOnEvent]
+      : [];
 }

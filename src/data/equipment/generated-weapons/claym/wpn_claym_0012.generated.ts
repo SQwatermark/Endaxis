@@ -115,7 +115,7 @@ const definition = {
       healModifiers: [
         {
           enabledSide: 'healer',
-          condition: { $sequence: 'conditional_1' },
+          condition: { $sequence: 'checkCondition_1' },
           processors: [
             {
               kind: 'modifyHealingIncrease',
@@ -129,11 +129,10 @@ const definition = {
       actionGraph: {
         main: {
           nodes: {
-            conditional_1: {
+            checkCondition_1: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-                whenTrue: { $sequence: null },
               },
               next: null,
             },

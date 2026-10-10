@@ -45,7 +45,7 @@ const definition = {
       attributeModifiers: [],
       abilityEventResponses: [
         { event: 'enterFight', priority: 0, sequence: { $sequence: 'modifyActionValue_1' } },
-        { event: 'beforeCastSkill', priority: 0, sequence: { $sequence: 'conditional_5' } },
+        { event: 'beforeCastSkill', priority: 0, sequence: { $sequence: 'checkCondition_5' } },
       ],
       actionGraph: {
         main: {
@@ -68,7 +68,8 @@ const definition = {
                   resource: 'sp',
                   amount: { kind: 'valueNode', nodeId: 'data_1' },
                   coefficient: { kind: 'constant', value: 1 },
-                  recipient: 'team',
+                  source: { kind: 'owner' },
+                  targets: { kind: 'owner' },
                   spGainKind: 'refund',
                   spGainSource: 'default',
                 },
@@ -86,21 +87,19 @@ const definition = {
               },
               next: 'changeResource_2',
             },
-            conditional_4: {
+            checkCondition_4: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
-                whenTrue: { $sequence: 'modifyActionValue_3' },
               },
-              next: null,
+              next: 'modifyActionValue_3',
             },
-            conditional_5: {
+            checkCondition_5: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_4' } },
-                whenTrue: { $sequence: 'conditional_4' },
               },
-              next: null,
+              next: 'checkCondition_4',
             },
           },
           dataNodes: {

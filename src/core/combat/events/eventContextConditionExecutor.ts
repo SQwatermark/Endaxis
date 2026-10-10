@@ -61,6 +61,12 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
   }
 
   evaluate(condition: CompiledCondition, context?: CombatOperationContext): boolean {
+    if (condition.kind === 'skillInterruptReasonIn') {
+      const event = context?.event === undefined ? undefined : skillAbilityEvent(context.event);
+      return (
+        event?.event === 'skillInterrupted' && condition.reasons.includes(event.payload.reason)
+      );
+    }
     if (condition.kind === 'skillDamageTypeIn') {
       const eventSkill =
         context?.event === undefined ? undefined : skillAbilityEvent(context.event);

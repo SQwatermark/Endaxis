@@ -624,6 +624,11 @@ export function attachBuffLifecycleSequences<Key extends string>(
             defaultOperations.aura.finish(references);
           },
         },
+        queryTargets: (query, callback) => {
+          const operations = operationsFor(callback);
+          if (!operations.queryTargets) throw new Error('Buff target queries are not configured');
+          return operations.queryTargets(query, callback);
+        },
         execute: (step, callback) => operationsFor(callback).execute(step, callback),
         evaluate: (condition, callback) => operationsFor(callback).evaluate(condition, callback),
         prepare: (step, callback) => operationsFor(callback).prepare?.(step, callback),
@@ -647,6 +652,7 @@ export function attachBuffLifecycleSequences<Key extends string>(
       damageSnapshots: context.damageCalculationSnapshots!.runtimeState,
       enable: null,
       trigger: null,
+      instantSequences: new Map(),
       scheduled: null,
       skillSlotsReplaced: false,
     };
@@ -697,23 +703,24 @@ export function attachBuffLifecycleSequences<Key extends string>(
       binding.bindObjectReferences();
     }
   };
-  const execute = (sequence: ResolvedActionSequence | undefined, buff: CombatBuff<Key>): void => {
-    if (sequence === undefined) return;
-    runtimeFor(buff).createSequence(sequence).executeInstant({});
-  };
-  // 叠层者可能不是最初创建者；每次回调只替换本次执行环境，不修改 Buff 的归属和来源施法。
-  const executeEnhance = (
-    sequence: ResolvedActionSequence | undefined,
-    buff: CombatBuff<Key>,
-    sourceId: string,
-  ): void => {
-    if (sequence === undefined) return;
-    runtimeFor(buff)
-      .createSequence(sequence, {
-        ...runtimeFor(buff).context,
-        actionSourceId: sourceId,
-      })
-      .executeInstant({});
+  type InstantLifecycle =
+    'start' | 'disable' | 'finish' | 'beforeEnhance' | 'enhanceChanged' | 'afterEnhance';
+  const execute = (key: InstantLifecycle, buff: CombatBuff<Key>, sourceId?: string): void => {
+    const definition = sequences[key];
+    if (definition === undefined) return;
+    const runtime = runtimeFor(buff);
+    const states = buff.runtimeState.actionHost!.instantSequences;
+    // 叠层回调只更换本次来源，动作实例状态仍属于原 Buff。
+    const sequence = runtime.createSequence(
+      definition,
+      {
+        ...runtime.context,
+        ...(sourceId === undefined ? {} : { actionSourceId: sourceId }),
+      },
+      states.get(key),
+    );
+    states.set(key, sequence.runtimeState);
+    sequence.executeInstant({});
   };
   const startEnableSequence = (buff: CombatBuff<Key>): void => {
     if (sequences.enable === undefined) return;
@@ -861,7 +868,7 @@ export function attachBuffLifecycleSequences<Key extends string>(
               triggerSequences.set(buff, sequence);
               buff.runtimeState.actionHost!.trigger = sequence.runtimeState;
             }
-            execute(sequences.start, buff);
+            execute('start', buff);
           },
         }),
     ...(sequences.enable === undefined && abilityEventResponses.length === 0
@@ -885,25 +892,23 @@ export function attachBuffLifecycleSequences<Key extends string>(
           disable: buff => {
             disposeEventResponses(buff);
             endEnableSequence(buff);
-            execute(sequences.disable, buff);
+            execute('disable', buff);
           },
         }),
     ...(sequences.beforeEnhance === undefined
       ? {}
       : {
-          beforeEnhance: (buff, sourceId) =>
-            executeEnhance(sequences.beforeEnhance, buff, sourceId),
+          beforeEnhance: (buff, sourceId) => execute('beforeEnhance', buff, sourceId),
         }),
     ...(sequences.enhanceChanged === undefined
       ? {}
       : {
-          enhanceChanged: (buff, sourceId) =>
-            executeEnhance(sequences.enhanceChanged, buff, sourceId),
+          enhanceChanged: (buff, sourceId) => execute('enhanceChanged', buff, sourceId),
         }),
     ...(sequences.afterEnhance === undefined
       ? {}
       : {
-          afterEnhance: (buff, sourceId) => executeEnhance(sequences.afterEnhance, buff, sourceId),
+          afterEnhance: (buff, sourceId) => execute('afterEnhance', buff, sourceId),
         }),
     ...(sequences.trigger === undefined
       ? {}
@@ -951,7 +956,7 @@ export function attachBuffLifecycleSequences<Key extends string>(
       ? {}
       : {
           finish: buff => {
-            execute(sequences.finish, buff);
+            execute('finish', buff);
             endEnableSequence(buff);
             disposeEventResponses(buff);
           },

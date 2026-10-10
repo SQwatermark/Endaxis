@@ -1,3 +1,4 @@
+import { TargetContextOperationExecutor } from '../../../../src/core/combat/abilities/targetContextOperationExecutor.ts';
 import { extractDefinitionDataNodes } from '../../src/compiler/extractGraphDataNodes.ts';
 import { skillFixture } from '../../../../src/test/skillFixture';
 /** 跨定义的实体黑板用途汇总；全部夹具为图形态，序列入口与节点表成对给出。 */
@@ -116,6 +117,7 @@ const spawn = (
 ): CombatStepForKind<'spawnAbilityEntity'> => ({
   kind: 'spawnAbilityEntity',
   parameters: {
+    bornAt: { kind: 'owner' as const },
     abilityEntityId: id,
     dieWhenSourceDies: false,
     inheritActionBlackboard: true,
@@ -124,7 +126,7 @@ const spawn = (
 });
 const callback = (body: GraphSequenceSource): CombatStepForKind<'launchProjectile'> => ({
   kind: 'launchProjectile',
-  parameters: { finish: 1, recycleDelaySeconds: 1 },
+  parameters: { inheritActionBlackboard: true, finish: 1, recycleDelaySeconds: 1 },
   callbacks: [
     {
       event: 'finish',
@@ -191,6 +193,19 @@ const queryEntityValue = (key: string): GraphSequenceSource =>
   ]);
 
 describe('实体用途分阶段收集', () => {
+  it('时间线跳转仍收集条件中的实体变量，不把控制效果误报成未知变量访问', () => {
+    const nodes: Record<string, ActionGraphNode> = {};
+    const condition = chain(nodes, 'condition', [queryEntityValueStep('jumpCondition')]);
+    const entry = chain(nodes, 'jump', [
+      { kind: 'jumpTimeline', parameters: { destinationFrame: 0 }, condition },
+    ]);
+    const collector = createGraphSharedEntityValueUsageCollector({});
+    collector.addSequence({ graph: { nodes }, entry });
+    const usage = collector.finish();
+    expect([...usage.reads]).toContain('jumpCondition');
+    expect(usage.unknownAccess).toBe(false);
+  });
+
   it('按域合并摘要，再逐人收集，与一次性收集的全部用途一致', () => {
     const source = input({
       operators: [fixtureOperator(skill([queryEntityValueStep('operator')], {}), {})],
@@ -371,7 +386,7 @@ function executeEntitySkill(value: SkillDefinition) {
   const operations: AbilityEntityOperationExecutor = new AbilityEntityOperationExecutor(
     'fixture',
     entities,
-    actionOperations,
+    new TargetContextOperationExecutor('fixture', actionOperations),
     {
       resolveOperations: () => operations,
       createCallbackSkillHost: createCallbackSkillHostFactory({
@@ -390,7 +405,11 @@ function executeEntitySkill(value: SkillDefinition) {
       ]),
     ),
   );
-  const runtime = new CombatActionSequenceRuntime(operations, { blackboard });
+  const runtime = new CombatActionSequenceRuntime(operations, {
+    blackboard,
+    actionOwnerId: 'fixture',
+    actionSourceId: 'fixture',
+  });
   for (const item of value.scheduledSequences)
     runtime
       .createSequence(compileGraphSequence(item.sequence, value.actionGraph))
@@ -405,8 +424,6 @@ describe('跨技能黑板用途', () => {
       unused: 99,
     });
     const result = pruneUnusedGraphSkillValues(value);
-    // 当前因图版裁剪把投射物回调内容一律标为未知访问（不分析回调资源图）而保留整板，
-    // 已记录为生产缺陷；树版会分析回调体并正确裁剪 unused。
     expect(result.skill.blackboard).toEqual({ value: 7.000001 });
     expect(result.report.retainedReason).toBeUndefined();
     const run = (source: SkillDefinition) => {
@@ -624,11 +641,17 @@ describe('跨技能黑板用途', () => {
     expect(pruned.blackboard).toEqual({ slot: 2 });
     const run = (source: SkillDefinition) => {
       const entities = new LogicalAbilityEntityRuntime({});
-      const executor = new AbilityEntityOperationExecutor('caster', entities, {
-        execute: () => true,
-        evaluate: () => true,
-      });
+      const executor = new AbilityEntityOperationExecutor(
+        'caster',
+        entities,
+        new TargetContextOperationExecutor('caster', {
+          execute: () => true,
+          evaluate: () => true,
+        }),
+      );
       const runtime = new CombatActionSequenceRuntime(executor, {
+        actionOwnerId: 'caster',
+        actionSourceId: 'caster',
         blackboard: new ActionBlackboard(
           Object.fromEntries(
             Object.entries(source.blackboard ?? {}).map(([key, item]) => [

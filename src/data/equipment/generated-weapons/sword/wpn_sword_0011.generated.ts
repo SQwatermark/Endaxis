@@ -115,7 +115,7 @@ const definition = {
       damageModifiers: [
         {
           enabledSide: 'attacker',
-          condition: { $sequence: 'conditional_2' },
+          condition: { $sequence: 'checkCondition_2' },
           processors: [
             {
               kind: 'damageScale',
@@ -127,7 +127,7 @@ const definition = {
         },
         {
           enabledSide: 'attacker',
-          condition: { $sequence: 'conditional_3' },
+          condition: { $sequence: 'checkCondition_3' },
           processors: [
             {
               kind: 'damageScale',
@@ -141,27 +141,24 @@ const definition = {
       actionGraph: {
         main: {
           nodes: {
-            conditional_1: {
+            checkCondition_1: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-                whenTrue: { $sequence: null },
               },
               next: null,
             },
-            conditional_2: {
+            checkCondition_2: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-                whenTrue: { $sequence: 'conditional_1' },
               },
-              next: null,
+              next: 'checkCondition_1',
             },
-            conditional_3: {
+            checkCondition_3: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
-                whenTrue: { $sequence: null },
               },
               next: null,
             },

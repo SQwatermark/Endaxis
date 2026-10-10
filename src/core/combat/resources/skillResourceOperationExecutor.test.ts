@@ -44,7 +44,10 @@ describe('SkillResourceOperationExecutor', () => {
         },
       ],
     });
+    const context = { blackboard: new ActionBlackboard() };
     let controlled = false;
+    const gainedBy: string[] = [];
+    let targetCount = 2;
     const receipt = new CombatReceiptCollector();
     const executor = new SkillResourceOperationExecutor({
       sourceOperatorId: 'caster',
@@ -54,35 +57,83 @@ describe('SkillResourceOperationExecutor', () => {
       receipt,
       getNonReturnedSpCost: () => 0,
       finisherSpRecovery: 0,
+      onSpGained: event => gainedBy.push(event.sourceId),
       delegate: {
         execute: () => false,
-        evaluate: condition => condition.kind === 'casterControlled' && controlled,
+        evaluate: condition => condition.kind === 'actionInputTargetIdentityMatch' && controlled,
+        queryTargets: () =>
+          Array.from({ length: targetCount }, () => ({
+            kind: 'operator' as const,
+            operatorId: 'caster',
+          })),
       },
     });
     const sp = {
       kind: 'changeResource' as const,
       parameters: {
         resource: 'sp' as const,
-        recipient: 'team' as const,
+        source: { kind: 'fixed' as const, target: 'caster' as const },
+        targets: { kind: 'fixed' as const, target: 'caster' as const },
         amount: 10,
         onlyMainOperator: true,
       },
     };
-    expect(executor.execute(sp)).toBe(true);
+    expect(executor.execute(sp, context)).toBe(true);
     expect(receipt.entries).toHaveLength(0);
-    executor.execute({
-      kind: 'changeResource',
-      parameters: {
-        resource: 'ultimateEnergy',
-        recipient: 'caster',
-        amount: 10,
-        onlyMainOperator: true,
+    executor.execute(
+      {
+        kind: 'changeResource',
+        parameters: {
+          resource: 'ultimateEnergy',
+          source: { kind: 'fixed', target: 'caster' },
+          targets: { kind: 'fixed', target: 'caster' },
+          amount: 10,
+          onlyMainOperator: true,
+        },
       },
-    });
+      context,
+    );
     expect(resources.getUltimateEnergy('caster')).toBe(10);
     controlled = true;
-    executor.execute(sp);
+    executor.execute(sp, context);
     expect(receipt.entries).toHaveLength(2);
+    const fromOther = {
+      ...sp,
+      parameters: {
+        ...sp.parameters,
+        onlyMainOperator: false,
+        source: { kind: 'inputTarget' as const },
+        targets: { kind: 'characterTeam' as const, excludeOwner: false },
+      },
+    };
+    expect(executor.execute(fromOther, context)).toBe(false);
+    const sourceContext = {
+      ...context,
+      actionInputTarget: { kind: 'operator' as const, operatorId: 'other' },
+    };
+    executor.execute(fromOther, sourceContext);
+    expect(resources.sp).toBe(30);
+    expect(gainedBy).toEqual(['caster', 'other', 'other']);
+    const mechanism = {
+      ...fromOther,
+      parameters: {
+        ...fromOther.parameters,
+        source: { kind: 'godEntity' as const },
+        targets: { kind: 'fixed' as const, target: 'caster' as const },
+      },
+    };
+    executor.execute(mechanism, context);
+    expect(resources.sp).toBe(40);
+    expect(gainedBy.at(-1)).toBe('god-entity');
+    executor.execute(
+      { ...mechanism, parameters: { ...mechanism.parameters, onlyMainOperator: true } },
+      context,
+    );
+    expect(resources.sp).toBe(40);
+
+    targetCount = 0;
+    expect(executor.execute(fromOther, sourceContext)).toBe(true);
+    expect(resources.sp).toBe(40);
   });
 
   it('installs and ends an action-owned ultimate recovery restriction', () => {
@@ -254,7 +305,7 @@ describe('SkillResourceOperationExecutor', () => {
     });
     expect(gains).toEqual([
       {
-        sourceOperatorId: 'perlica',
+        sourceId: 'perlica',
         source: 'powerAttack',
         gainKind: 'gain',
         requestedAmount: 60,
@@ -300,14 +351,18 @@ describe('SkillResourceOperationExecutor', () => {
     });
 
     expect(
-      operations.execute({
-        kind: 'changeResource',
-        parameters: {
-          resource: 'ultimateEnergy',
-          amount: 10,
-          recipient: 'caster',
+      operations.execute(
+        {
+          kind: 'changeResource',
+          parameters: {
+            resource: 'ultimateEnergy',
+            amount: 10,
+            source: { kind: 'fixed', target: 'caster' },
+            targets: { kind: 'fixed', target: 'caster' },
+          },
         },
-      }),
+        { blackboard: new ActionBlackboard() },
+      ),
     ).toBe(true);
 
     expect(resources.getUltimateEnergy('perlica')).toBe(100);
@@ -363,14 +418,18 @@ describe('SkillResourceOperationExecutor', () => {
       delegate: { execute: () => false, evaluate: () => false },
     });
 
-    operations.execute({
-      kind: 'changeResource',
-      parameters: {
-        resource: 'ultimateEnergy',
-        amount: 10,
-        recipient: 'caster',
+    operations.execute(
+      {
+        kind: 'changeResource',
+        parameters: {
+          resource: 'ultimateEnergy',
+          amount: 10,
+          source: { kind: 'fixed', target: 'caster' },
+          targets: { kind: 'fixed', target: 'caster' },
+        },
       },
-    });
+      { blackboard: new ActionBlackboard() },
+    );
 
     expect(resources.getUltimateEnergy('arcane')).toBe(40);
     expect(receipt.entries[0]).toMatchObject({
@@ -386,15 +445,19 @@ describe('SkillResourceOperationExecutor', () => {
       },
     });
 
-    operations.execute({
-      kind: 'changeResource',
-      parameters: {
-        resource: 'ultimateEnergy',
-        amount: 10,
-        recipient: 'caster',
-        ultimateRecoveryTag: allowedTag,
+    operations.execute(
+      {
+        kind: 'changeResource',
+        parameters: {
+          resource: 'ultimateEnergy',
+          amount: 10,
+          source: { kind: 'fixed', target: 'caster' },
+          targets: { kind: 'fixed', target: 'caster' },
+          ultimateRecoveryTag: allowedTag,
+        },
       },
-    });
+      { blackboard: new ActionBlackboard() },
+    );
 
     expect(resources.getUltimateEnergy('arcane')).toBe(60);
     expect(receipt.entries[1]).toMatchObject({
@@ -443,15 +506,19 @@ describe('SkillResourceOperationExecutor', () => {
     });
 
     expect(
-      operations.execute({
-        kind: 'changeResource',
-        parameters: {
-          resource: 'sp',
-          amount: 30,
-          recipient: 'team',
-          spGainKind: 'refund',
+      operations.execute(
+        {
+          kind: 'changeResource',
+          parameters: {
+            resource: 'sp',
+            amount: 30,
+            source: { kind: 'fixed', target: 'caster' },
+            targets: { kind: 'fixed', target: 'caster' },
+            spGainKind: 'refund',
+          },
         },
-      }),
+        { blackboard: new ActionBlackboard() },
+      ),
     ).toBe(true);
 
     expect(resources.sp).toBe(300);
@@ -511,7 +578,8 @@ describe('SkillResourceOperationExecutor', () => {
             resource: 'sp',
             amount: numberInput({ kind: 'blackboard', key: 'atbReturn' }),
             coefficient: numberInput({ kind: 'blackboard', key: 'coefficient' }),
-            recipient: 'team',
+            source: { kind: 'fixed', target: 'caster' },
+            targets: { kind: 'fixed', target: 'caster' },
             spGainKind: 'refund',
             spGainSource: 'default',
           },

@@ -14,7 +14,7 @@ export interface ActionGraphReference {
 
 /** 子程序显式使用图引用；作用域省略身份时由调用位置绑定。 */
 export type ActionGraphStepForKind<K extends CombatStepKind> = {
-  [Kind in K]: Kind extends 'once' | 'withActionBlackboardScope'
+  [Kind in K]: Kind extends 'withActionBlackboardScope'
     ? Omit<CombatStepForKind<Kind>, 'parameters'> & {
         readonly parameters: Omit<CombatStepForKind<Kind>['parameters'], 'scopeKey'> & {
           readonly scopeKey?: string;

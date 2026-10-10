@@ -63,21 +63,19 @@ const definition = {
               },
               next: null,
             },
-            conditional_2: {
+            checkCondition_2: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-                whenTrue: { $sequence: 'applyBuff_1' },
               },
-              next: null,
+              next: 'applyBuff_1',
             },
-            conditional_3: {
+            checkCondition_3: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
-                whenTrue: { $sequence: 'conditional_2' },
               },
-              next: null,
+              next: 'checkCondition_2',
             },
             applyBuff_4: {
               action: {
@@ -94,7 +92,7 @@ const definition = {
                   asChildBuff: true,
                 },
               },
-              next: 'conditional_3',
+              next: 'checkCondition_3',
             },
           },
           dataNodes: {

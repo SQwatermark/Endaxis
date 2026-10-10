@@ -92,13 +92,12 @@ const definition = {
               },
               next: null,
             },
-            conditional_2: {
+            checkCondition_2: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-                whenTrue: { $sequence: 'applyBuff_1' },
               },
-              next: null,
+              next: 'applyBuff_1',
             },
           },
           dataNodes: {
@@ -116,7 +115,7 @@ const definition = {
           key: 'skill3:event:0:sequence:0',
           abilityEvent: 'beforeOutputDamage',
           priority: 0,
-          sequence: { $sequence: 'conditional_2' },
+          sequence: { $sequence: 'checkCondition_2' },
         },
       ],
       blackboard: {

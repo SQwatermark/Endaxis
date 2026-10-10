@@ -113,7 +113,7 @@ const definition = {
         { attribute: 'Atk', slot: 'baseMultiplier', value: { blackboardKey: 'atk_up' } },
       ],
       lifecycleSequences: {
-        enhanceChanged: { $sequence: 'conditional_2' },
+        enhanceChanged: { $sequence: 'checkCondition_2' },
         finish: { $sequence: 'finishBuffsById_3' },
       },
       actionGraph: {
@@ -137,13 +137,12 @@ const definition = {
               },
               next: null,
             },
-            conditional_2: {
+            checkCondition_2: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-                whenTrue: { $sequence: 'applyBuff_1' },
               },
-              next: null,
+              next: 'applyBuff_1',
             },
             finishBuffsById_3: {
               action: {

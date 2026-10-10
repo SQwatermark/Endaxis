@@ -1833,32 +1833,83 @@ describe('BuffOperationExecutor', () => {
     expect(blackboard.getNumber('count')).toBe(4);
   });
 
-  it('writes the executing finite Buff remaining duration and maps infinity to zero', () => {
+  it('uses container order for lifetime reads and preserves the native write tolerance', () => {
+    const container = new CombatBuffContainer('operator', new CombatAttributeSet());
+    const target = new BuffDefinitionOperationTarget(container, {
+      get: () => undefined,
+      compile: entry => ({ id: entry.id, stackingType: entry.stackingType }),
+    });
+    for (const [id, durationSeconds] of [
+      ['first', 9],
+      ['second', 3],
+      ['infinite', undefined],
+    ] as const)
+      container.add({ id, stackingType: 'unlimited', durationSeconds }, 'source');
     const blackboard = new ActionBlackboard();
     const executor = new BuffOperationExecutor({
       sourceId: 'operator',
+      delegate,
+      queryTargets: () => [{ kind: 'operator', operatorId: 'operator' }],
+      resolveEventTarget: () => target,
+      resolveTarget: () => target,
+    });
+    const step = {
+      kind: 'readBuffRemainingDuration' as const,
+      parameters: {
+        target: { kind: 'context' as const, key: 'src' },
+        query: { kind: 'id' as const, buffIds: ['second', 'first', 'infinite'] },
+        outputKey: 'remaining',
+      },
+    };
+    expect(executor.execute(step, { blackboard })).toBe(true);
+    expect(blackboard.getNumber('remaining')).toBe(3);
+    blackboard.assignDynamicUnconditionally('remaining', 3.000001);
+    executor.execute(step, { blackboard });
+    expect(blackboard.getNumber('remaining')).toBe(3.000001);
+    expect(
+      executor.execute(
+        {
+          ...step,
+          parameters: { ...step.parameters, query: { kind: 'id', buffIds: ['missing'] } },
+        },
+        { blackboard },
+      ),
+    ).toBe(true);
+    expect(blackboard.getNumber('remaining')).toBe(0);
+  });
+
+  it('reads the selected environment Buff and clears a previous finite result for infinity', () => {
+    const blackboard = new ActionBlackboard();
+    const target = new BuffDefinitionOperationTarget(
+      new CombatBuffContainer('operator', new CombatAttributeSet()),
+      {
+        get: () => undefined,
+        compile: entry => ({ id: entry.id, stackingType: entry.stackingType }),
+      },
+    );
+    const executor = new BuffOperationExecutor({
+      sourceId: 'operator',
+      queryTargets: () => [{ kind: 'operator', operatorId: 'operator' }],
+      resolveEventTarget: () => target,
       resolveTarget: () => {
-        throw new Error('current Buff lifetime must not resolve a target container');
+        throw new Error('unexpected fixed target');
       },
       delegate,
     });
     const step = {
-      kind: 'readCurrentBuffRemainingDuration' as const,
-      parameters: { outputKey: 'duration_dynamic' },
+      kind: 'readBuffRemainingDuration' as const,
+      parameters: {
+        target: { kind: 'owner' as const },
+        query: { kind: 'environment' as const },
+        outputKey: 'duration_dynamic',
+      },
     };
-
-    expect(
-      executor.execute(step, {
-        blackboard,
-        getCurrentBuffRemainingDuration: () => 7.5,
-      }),
-    ).toBe(true);
+    const context = { blackboard, buffOwnerId: 'operator' };
+    expect(executor.execute(step, { ...context, getCurrentBuffRemainingDuration: () => 7.5 })).toBe(
+      true,
+    );
     expect(blackboard.getNumber('duration_dynamic')).toBe(7.5);
-
-    executor.execute(step, {
-      blackboard,
-      getCurrentBuffRemainingDuration: () => null,
-    });
+    executor.execute(step, { ...context, getCurrentBuffRemainingDuration: () => null });
     expect(blackboard.getNumber('duration_dynamic')).toBe(0);
   });
 

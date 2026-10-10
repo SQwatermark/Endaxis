@@ -18,6 +18,7 @@ import type { SkillTypeMutationActionSource } from '../source/presentationAction
  * 条件、动作及 Buff 装配共用同一份实现；不得反向调用序列编排或具体动作投影。 */
 
 export type ProjectedTargetGroup =
+  | 'godEntity'
   | 'party'
   | 'partyExceptCaster'
   | 'abilityEntity'
@@ -168,6 +169,7 @@ export interface CombatActionProjectionContextSource {
   /** 完整技能内所有读取均为表现的查询；不能在单个序列内自行推断。 */
   readonly presentationOnlyTargetGroupKeys?: ReadonlySet<string>;
   readonly unconsumedTargetGroupKeys?: ReadonlySet<string>;
+  readonly unobservedTargetQueryOutputs?: ReadonlySet<string>;
   /** 完整技能数据流已证明只被 PointFinder 空间坐标消费的随机动作黑板键。 */
   readonly combatInvisibleRandomBlackboardKeys?: ReadonlySet<string>;
   /** 只在表现分支间传递的确定性动作黑板键；写入与消费可一并省略。 */
@@ -201,8 +203,6 @@ export interface CombatActionProjectionContextSource {
 
 /** 领域宿主可显式补入公共动作叶子的已审计投影；未提供时仍严格失败。 */
 export interface CombatActionProjectionExtensionsSource {
-  /** 仅主动 SkillData 的根调度 Sequence 开放；递归子树不会继承。 */
-  readonly allowRootTimelineFinish?: boolean;
   readonly compileProjectileLaunch?: (
     action: ProjectileLaunchActionSource,
     sourcePath: string,

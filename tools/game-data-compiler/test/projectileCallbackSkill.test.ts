@@ -55,13 +55,9 @@ function projectFixture(
     ...input.projectionContext,
     graph: hostGraph,
   });
-  if (result.length !== 1 || result[0]?.kind !== 'withActionBlackboardScope')
-    throw new Error('expected launch scope');
-  return {
-    scope: result[0],
-    /** 图引用沿宿主图 next 链展开后的动作列表。 */
-    steps: readActionGraphChain(hostGraph.finish(), result[0].body),
-  };
+  if (result.length !== 1 || result[0]?.kind !== 'launchProjectile')
+    throw new Error('expected one projectile launch');
+  return { steps: result };
 }
 
 function reachInput(): ProjectileFixture {
@@ -337,11 +333,11 @@ it.each([
     graph: hostGraph,
   })!;
   expect(steps).toHaveLength(1);
-  const scope = steps[0]!;
-  if (scope.kind !== 'withActionBlackboardScope') throw new Error('expected projectile scope');
-  const action = readActionGraphChain(hostGraph.finish(), scope.body)[0]!;
+  const action = steps[0]!;
   if (action.kind !== 'launchProjectile') throw new Error('expected independent hit');
   expect(action.parameters).toEqual({
+    inheritActionBlackboard: launch.assignBlackboard,
+    entityInitialValues: {},
     finish: 10,
     recycleDelaySeconds: 1,
     hit: {
@@ -428,7 +424,7 @@ it.each([false, true])(
       });
     if (useHitBlockReachOrder)
       expect(project).toThrow('outside the proven zero-distance first-tick shape');
-    else expect(project().scope.kind).toBe('withActionBlackboardScope');
+    else expect(project().steps[0]!.kind).toBe('launchProjectile');
   },
 );
 

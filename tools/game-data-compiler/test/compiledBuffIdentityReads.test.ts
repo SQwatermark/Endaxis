@@ -21,7 +21,11 @@ describe('observed Buff identities survive presentation pruning', () => {
                             condition: { kind: 'eventBuffIdMatch', buffIds: ['signal'] },
                             whenTrue: {
                               steps: [
-                                { kind: 'jumpTimeline', parameters: { destinationFrame: 100 } },
+                                {
+                                  kind: 'jumpTimeline',
+                                  parameters: { destinationFrame: 100 },
+                                  condition: { $sequence: null },
+                                },
                               ],
                             },
                           },
@@ -60,7 +64,7 @@ describe('observed Buff identities survive presentation pruning', () => {
         },
         {
           kind: 'readBuffRemainingDuration',
-          parameters: { buffIds: ['duration-marker'] },
+          parameters: { query: { kind: 'id', buffIds: ['duration-marker'] } },
         },
       ]),
     ]).toEqual(['stack-marker', 'value-marker', 'duration-marker']);

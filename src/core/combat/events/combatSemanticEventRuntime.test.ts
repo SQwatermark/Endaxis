@@ -276,7 +276,7 @@ describe('CombatSemanticEventRuntime', () => {
     const published = {
       event: 'skillSpGained' as const,
       payload: {
-        sourceOperatorId: 'operator',
+        sourceId: 'operator',
         source: 'normalAttack' as const,
         gainKind: 'refund' as const,
         requestedAmount: 20,
@@ -949,7 +949,7 @@ describe('CombatSemanticEventRuntime', () => {
       {
         event: 'skillSpGained',
         payload: {
-          sourceOperatorId: 'operator:b',
+          sourceId: 'operator:b',
           source: 'normalAttack',
           gainKind: 'gain',
           requestedAmount: 10,
@@ -962,7 +962,7 @@ describe('CombatSemanticEventRuntime', () => {
       {
         event: 'skillSpGained',
         payload: {
-          sourceOperatorId: 'operator:b',
+          sourceId: 'operator:b',
           source: 'skill',
           gainKind: 'refund',
           requestedAmount: 10,
@@ -975,7 +975,7 @@ describe('CombatSemanticEventRuntime', () => {
       {
         event: 'skillSpGained',
         payload: {
-          sourceOperatorId: 'operator:b',
+          sourceId: 'operator:b',
           source: 'skill',
           gainKind: 'gain',
           requestedAmount: 10,

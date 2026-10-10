@@ -586,9 +586,11 @@ describe('validateSkillDefinition', () => {
     ).toBe(true);
   });
 
-  it('rejects entity finish operations outside an entity iteration', () => {
-    const skill = skillWithSteps([{ kind: 'finishCurrentAbilityEntity', parameters: {} }]);
-    expect(validateSkillDefinition(skill)).not.toEqual([]);
+  it('结束动作自带目标查询，不要求外层实体循环', () => {
+    const skill = skillWithSteps([
+      { kind: 'finishOwner', parameters: { targets: { kind: 'inputTarget' } } },
+    ]);
+    expect(validateSkillDefinition(skill)).toEqual([]);
   });
 
   it('requires an end frame for nested combat event listeners', () => {
@@ -641,13 +643,13 @@ describe('validateSkillDefinition', () => {
       [
         {
           kind: 'forEachContextTarget',
-          parameters: { contextKey: 'entities' },
+          parameters: { targets: { kind: 'context', key: 'entities' } },
           body: { $sequence: 'child-0' },
         },
       ],
       {
         'child-0': {
-          action: { kind: 'finishCurrentAbilityEntity', parameters: {} },
+          action: { kind: 'finishOwner', parameters: { targets: { kind: 'inputTarget' } } },
           next: null,
         },
       },
@@ -668,7 +670,7 @@ describe('validateSkillDefinition', () => {
       [
         {
           kind: 'forEachContextTarget',
-          parameters: { contextKey: 'entities' },
+          parameters: { targets: { kind: 'context', key: 'entities' } },
           body: { $sequence: 'child-0' },
         },
       ],
@@ -748,6 +750,7 @@ describe('validateSkillDefinition', () => {
     const step: Record<string, unknown> = {
       kind: 'spawnAbilityEntity',
       parameters: {
+        bornAt: { kind: 'owner' as const },
         abilityEntityId: 'fixture',
         definition: {
           lifetime: { kind: 'limited', durationSeconds: 5 },
@@ -787,7 +790,14 @@ describe('validateSkillDefinition', () => {
 
   it.each(['projectiles', undefined, 12])('投射物查询必须提供目标组名称：%s', saveToContextKey => {
     const skill = skillWithSteps([
-      { kind: 'findUnfinishedProjectileTargets', parameters: { saveToContextKey } },
+      {
+        kind: 'findTargets',
+        parameters: {
+          owner: { kind: 'owner' },
+          query: { kind: 'unfinishedProjectiles' },
+          saveToContextKey,
+        },
+      },
     ]);
     const errors = validateSkillDefinition(skill);
     if (saveToContextKey === 'projectiles') expect(errors).toEqual([]);

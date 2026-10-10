@@ -133,9 +133,10 @@ export interface ResolvedAbilityEntityDefinition {
 }
 
 export interface ResolvedCombatStepParameters {
+  copyContextTargets: CompiledStepParameters['copyContextTargets'];
+  findTargets: CompiledStepParameters['findTargets'];
   mergeContextTargets: CompiledStepParameters['mergeContextTargets'];
   findCharacterTeamTargets: CompiledStepParameters['findCharacterTeamTargets'];
-  findUnfinishedProjectileTargets: CompiledStepParameters['findUnfinishedProjectileTargets'];
   createSpatialPointTargets: CompiledStepParameters['createSpatialPointTargets'];
   findOwnerSpawnedAbilityEntities: CompiledStepParameters['findOwnerSpawnedAbilityEntities'];
   pickContextTarget: CompiledStepParameters['pickContextTarget'];
@@ -143,8 +144,8 @@ export interface ResolvedCombatStepParameters {
   repeatByActionValue: CompiledStepParameters['repeatByActionValue'];
   readAbilityEntityRemainingDuration: CompiledStepParameters['readAbilityEntityRemainingDuration'];
   setAbilityEntityRemainingDuration: CompiledStepParameters['setAbilityEntityRemainingDuration'];
-  finishCurrentAbilityEntity: CompiledStepParameters['finishCurrentAbilityEntity'];
-  finishActionOwnerAbilityEntity: CompiledStepParameters['finishActionOwnerAbilityEntity'];
+  finishOwner: CompiledStepParameters['finishOwner'];
+  interruptCurrentSkill: CompiledStepParameters['interruptCurrentSkill'];
   finishCurrentAbilityEntityWhenSourceDies: CompiledStepParameters['finishCurrentAbilityEntityWhenSourceDies'];
   startCurrentAbilityEntityChildSkill: {
     readonly childSkill: CompiledAbilityEntityChildSkillProgram;
@@ -237,7 +238,6 @@ export interface ResolvedCombatStepParameters {
   readSkillSettingData: CompiledStepParameters['readSkillSettingData'];
   readBuffBlackboard: CompiledStepParameters['readBuffBlackboard'];
   readEventBuffBlackboard: CompiledStepParameters['readEventBuffBlackboard'];
-  readCurrentBuffRemainingDuration: CompiledStepParameters['readCurrentBuffRemainingDuration'];
   readBuffRemainingDuration: CompiledStepParameters['readBuffRemainingDuration'];
   setBuffRemainingDuration: CompiledStepParameters['setBuffRemainingDuration'];
   setCurrentBuffRemainingDuration: CompiledStepParameters['setCurrentBuffRemainingDuration'];
@@ -259,6 +259,7 @@ export interface ResolvedCombatStepParameters {
   startUltimateTimeDilation: CompiledStepParameters['startUltimateTimeDilation'];
   hideUi: CompiledStepParameters['hideUi'];
   setIgnoreGlobalTimeScale: CompiledStepParameters['setIgnoreGlobalTimeScale'];
+  storeCharacterTypeId: CompiledStepParameters['storeCharacterTypeId'];
   storeCurrentTimelineFrame: CompiledStepParameters['storeCurrentTimelineFrame'];
   storeEventSpGainAmount: CompiledStepParameters['storeEventSpGainAmount'];
   storeEventHealValues: CompiledStepParameters['storeEventHealValues'];
@@ -295,6 +296,10 @@ export interface ResolvedCombatStepParameters {
   markCurrentSkillCanDash: CompiledStepParameters['markCurrentSkillCanDash'];
   markCurrentSkillCanInterrupt: CompiledStepParameters['markCurrentSkillCanInterrupt'];
   conditional: CompiledStepParameters['conditional'];
+  checkCondition: CompiledStepParameters['checkCondition'];
+  invertNextResult: CompiledStepParameters['invertNextResult'];
+  ifElse: CompiledStepParameters['ifElse'];
+  anyCondition: CompiledStepParameters['anyCondition'];
   switch: CompiledStepParameters['switch'];
   once: CompiledStepParameters['once'];
   repeatEachTick: CompiledStepParameters['repeatEachTick'];
@@ -338,35 +343,45 @@ type ResolvedCombatStepNode<K extends CombatStepKind> = {
   readonly hitId?: string;
   readonly kind: K;
   readonly parameters: Readonly<ResolvedCombatStepParameters[K]>;
-} & (K extends 'conditional'
-  ? {
-      readonly whenTrue: ResolvedActionSequence;
-      readonly whenFalse?: ResolvedActionSequence;
-    }
-  : K extends 'once'
-    ? { readonly body: ResolvedActionSequence }
-    : K extends 'switch'
+} & (K extends 'jumpTimeline'
+  ? { readonly condition: ResolvedActionSequence }
+  : K extends 'anyCondition'
+    ? { readonly conditions: readonly ResolvedActionSequence[] }
+    : K extends 'ifElse'
       ? {
-          readonly options: readonly (Omit<ActionSwitchOptionDefinition, 'sequence'> & {
-            readonly sequence: ResolvedActionSequence;
-          })[];
+          readonly condition: ResolvedActionSequence;
+          readonly whenTrue: ResolvedActionSequence;
+          readonly whenFalse: ResolvedActionSequence;
         }
-      : K extends 'withActionBlackboardScope'
-        ? { readonly body: ResolvedActionSequence }
-        : K extends 'repeatEachTick'
+      : K extends 'conditional'
+        ? {
+            readonly whenTrue: ResolvedActionSequence;
+            readonly whenFalse?: ResolvedActionSequence;
+          }
+        : K extends 'once'
           ? { readonly body: ResolvedActionSequence }
-          : K extends 'repeatByActionValue'
-            ? { readonly body: ResolvedActionSequence }
-            : K extends 'launchProjectile'
-              ? {
-                  readonly callbacks: readonly {
-                    readonly event: 'hit' | 'block' | 'reach' | 'finish';
-                    readonly skill: CompiledAbilityEntityChildSkillProgram;
-                  }[];
-                }
-              : K extends 'forEachContextTarget'
+          : K extends 'switch'
+            ? {
+                readonly options: readonly (Omit<ActionSwitchOptionDefinition, 'sequence'> & {
+                  readonly sequence: ResolvedActionSequence;
+                })[];
+              }
+            : K extends 'withActionBlackboardScope'
+              ? { readonly body: ResolvedActionSequence }
+              : K extends 'repeatEachTick'
                 ? { readonly body: ResolvedActionSequence }
-                : {});
+                : K extends 'repeatByActionValue'
+                  ? { readonly body: ResolvedActionSequence }
+                  : K extends 'launchProjectile'
+                    ? {
+                        readonly callbacks: readonly {
+                          readonly event: 'hit' | 'block' | 'reach' | 'finish';
+                          readonly skill: CompiledAbilityEntityChildSkillProgram;
+                        }[];
+                      }
+                    : K extends 'forEachContextTarget'
+                      ? { readonly body: ResolvedActionSequence }
+                      : {});
 
 /** 按成员逐一构造，联合kind仍保留parameters与子序列字段的判别关联。 */
 export type ResolvedCombatStepForKind<K extends CombatStepKind> = {
@@ -378,17 +393,18 @@ export type ResolvedCombatStep = ResolvedCombatStepForKind<CombatStepKind>;
 
 /** 每种节点必须明确执行归属；新增 kind 不得自动落入操作链。 */
 export const COMBAT_STEP_EXECUTION_ROUTES = {
+  copyContextTargets: 'operation',
+  findTargets: 'operation',
   mergeContextTargets: 'operation',
   findCharacterTeamTargets: 'operation',
-  findUnfinishedProjectileTargets: 'operation',
   createSpatialPointTargets: 'operation',
   findOwnerSpawnedAbilityEntities: 'operation',
   pickContextTarget: 'operation',
   forEachContextTarget: 'sequence',
   readAbilityEntityRemainingDuration: 'operation',
   setAbilityEntityRemainingDuration: 'operation',
-  finishCurrentAbilityEntity: 'operation',
-  finishActionOwnerAbilityEntity: 'operation',
+  finishOwner: 'operation',
+  interruptCurrentSkill: 'operation',
   finishCurrentAbilityEntityWhenSourceDies: 'operation',
   startCurrentAbilityEntityChildSkill: 'operation',
   startCurrentAbilityEntityChildSkillById: 'operation',
@@ -416,7 +432,6 @@ export const COMBAT_STEP_EXECUTION_ROUTES = {
   readSkillSettingData: 'operation',
   readBuffBlackboard: 'operation',
   readEventBuffBlackboard: 'operation',
-  readCurrentBuffRemainingDuration: 'operation',
   readBuffRemainingDuration: 'operation',
   setBuffRemainingDuration: 'operation',
   setCurrentBuffRemainingDuration: 'operation',
@@ -439,6 +454,7 @@ export const COMBAT_STEP_EXECUTION_ROUTES = {
   startUltimateTimeDilation: 'operation',
   hideUi: 'operation',
   setIgnoreGlobalTimeScale: 'operation',
+  storeCharacterTypeId: 'operation',
   storeCurrentTimelineFrame: 'operation',
   storeEventSpGainAmount: 'operation',
   storeEventHealValues: 'operation',
@@ -461,6 +477,10 @@ export const COMBAT_STEP_EXECUTION_ROUTES = {
   markCurrentSkillCanDash: 'sequence',
   markCurrentSkillCanInterrupt: 'sequence',
   conditional: 'sequence',
+  checkCondition: 'sequence',
+  invertNextResult: 'sequence',
+  ifElse: 'sequence',
+  anyCondition: 'sequence',
   switch: 'sequence',
   once: 'sequence',
   withActionBlackboardScope: 'sequence',

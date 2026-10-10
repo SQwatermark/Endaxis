@@ -415,6 +415,7 @@ export interface CombatSharedState {
   readonly identities: {
     readonly abilityEntities: AbilityEntityInstanceIdState;
     readonly skillCasts: SkillCastIdState;
+    readonly spatialPoints: SpatialPointIdentityState;
   };
 }
 
@@ -526,4 +527,9 @@ export interface ActiveCombatStatus {
 /** 一个实体当前存在的语义状态，保持施加顺序和原始来源；定义规则由程序另行持有。 */
 export interface CombatStatusState {
   readonly statuses: Map<string, ActiveCombatStatus>;
+}
+
+/** 位置目标跨动作宿主传递，身份序列随战斗切面保存。 */
+export interface SpatialPointIdentityState {
+  nextSpatialPointId: number;
 }

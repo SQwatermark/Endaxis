@@ -1,3 +1,4 @@
+import { ProjectileLifecycleRuntime } from './projectileLifecycleRuntime';
 import { numberInput } from '../../../test/compiledGraphInputs';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import type { CompiledGraphEntry, ResolvedCombatOperationStep } from '../../compiler/combatProgram';
@@ -19,6 +20,7 @@ import { AbilityEntityChildSkillPrograms } from './abilityEntityChildSkillProgra
 import { AbilityEntityOperationExecutor } from './abilityEntityOperationExecutor';
 import { LogicalAbilityEntityRuntime } from './logicalAbilityEntityRuntime';
 import { RuntimeTargetContext } from './runtimeTargetContext';
+import { TargetContextOperationExecutor } from './targetContextOperationExecutor';
 
 import { CombatClock } from '../time/combatClock';
 import { CombatReceiptCollector } from '../receipt/combatReceipt';
@@ -50,6 +52,86 @@ const stepEntry = (
 });
 
 describe('AbilityEntityOperationExecutor', () => {
+  it('结束动作使用指定来源的子实体，不使用技能定义所属干员', () => {
+    let nextInstanceId = 1;
+    const allocateInstanceId = () => nextInstanceId++;
+    const entities = new LogicalAbilityEntityRuntime({ allocateInstanceId });
+    const projectiles = new ProjectileLifecycleRuntime(allocateInstanceId);
+    const finishSkill = vi.fn();
+    const sourceProjectile = projectiles.launch({
+      source: { kind: 'operator', operatorId: 'source' },
+      finishDelaySeconds: 10,
+      recycleDelaySeconds: 1,
+      finish: finishSkill,
+      beforeReset: () => {},
+      resolveTickDeltaSeconds: () => 1 / 30,
+    });
+    const spawn = (ownerId: string) =>
+      entities.spawn({
+        abilityEntityId: 'sword',
+        definition: { lifetime: { kind: 'infinite' } },
+        ownerId,
+        source: { kind: 'operator', operatorId: ownerId },
+      });
+    const ownerEntity = spawn('owner');
+    const sourceEntity = spawn('source');
+    const delegate = new TargetContextOperationExecutor(
+      'definition-owner',
+      { execute: () => false, evaluate: () => false },
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      {
+        mainTarget: () => undefined,
+        ownerSpawned: query => entities.findOwnerSpawned(query),
+        ownerSpawnedProjectiles: ownerId => projectiles.findOwnerSpawned(ownerId),
+      },
+    );
+    const executor = new AbilityEntityOperationExecutor('definition-owner', entities, delegate, {
+      resolveOperations: () => delegate,
+      finishProjectile: target => projectiles.finishByAction(target),
+    });
+    executor.execute(
+      {
+        kind: 'finishOwner',
+        parameters: {
+          targets: {
+            kind: 'ownerSpawned',
+            objectType: 'abilityEntity',
+            owner: { kind: 'source' },
+            abilityEntityIds: ['sword'],
+            sameSourceSkillCast: false,
+          },
+        },
+      },
+      { blackboard: new ActionBlackboard(), actionOwnerId: 'owner', actionSourceId: 'source' },
+    );
+    expect(entities.snapshot(ownerEntity).isAlive).toBe(true);
+    expect(entities.snapshot(sourceEntity).isAlive).toBe(false);
+    expect(projectiles.getUnfinishedTargets()).toEqual([sourceProjectile.target]);
+    const context = {
+      blackboard: new ActionBlackboard(),
+      actionOwnerId: 'owner',
+      actionSourceId: 'source',
+    };
+    const targets = {
+      kind: 'ownerSpawned',
+      owner: { kind: 'source' },
+      objectType: 'all',
+      sameSourceSkillCast: false,
+    } as const;
+    expect(delegate.queryTargets(targets, context)).toEqual([
+      sourceProjectile.target,
+      sourceEntity,
+    ]);
+    executor.execute({ kind: 'finishOwner', parameters: { targets } }, context);
+    expect(projectiles.getUnfinishedTargets()).toEqual([]);
+    expect(projectiles.isActive(sourceProjectile.target)).toBe(true);
+    expect(finishSkill).not.toHaveBeenCalled();
+    expect(entities.snapshot(ownerEntity).isAlive).toBe(true);
+  });
   let clock: CombatClock;
   let createCallbackSkillHost: CallbackSkillHostFactory;
   beforeEach(() => {
@@ -66,6 +148,66 @@ describe('AbilityEntityOperationExecutor', () => {
     clock.advanceFrame();
     entities.advanceFrame();
   }
+  it('出生动作查询一次并逐目标生成，完成后统一保存且只计算一次持续时间', () => {
+    const entities = new LogicalAbilityEntityRuntime({});
+    const targetContext = new RuntimeTargetContext();
+    const blackboard = new ActionBlackboard({ duration: 2 });
+    targetContext.set('birth', [
+      { kind: 'spatialPoint', pointId: 1 },
+      { kind: 'spatialPoint', pointId: 2 },
+    ]);
+    const queryTargets = vi.fn(() => targetContext.get('birth'));
+    const delegate = { execute: () => false, evaluate: () => false, queryTargets };
+    const executor = new AbilityEntityOperationExecutor('owner', entities, delegate, {
+      resolveOperations: () => delegate,
+      installPassiveSkills: () => {
+        expect(targetContext.get('birth').every(target => target.kind === 'spatialPoint')).toBe(
+          true,
+        );
+        blackboard.assignDynamic('duration', 100);
+      },
+    });
+    const step: ResolvedCombatOperationStep = {
+      kind: 'spawnAbilityEntity',
+      parameters: {
+        bornAt: { kind: 'context', key: 'birth' },
+        abilityEntityId: 'spawned',
+        definition: { lifetime: { kind: 'infinite' } },
+        overrideDurationSeconds: numberInput({ kind: 'blackboard', key: 'duration' }),
+        dieWhenSourceDies: false,
+        saveToContextKey: 'birth',
+        finishByAction: true,
+      },
+    };
+    const context = { blackboard, targetContext };
+    expect(executor.execute(step, context)).toBe(true);
+    expect(queryTargets).toHaveBeenCalledTimes(1);
+    expect(targetContext.get('birth')).toHaveLength(2);
+    const created = entities.findOwnerSpawned({ ownerId: 'owner' });
+    expect(created).toHaveLength(2);
+    for (const entity of created)
+      expect(entities.snapshot(entity).remainingDurationSeconds).toBe(2);
+    expect([...executor.runtimeState.actionDurationEntities.values()][0]).toHaveLength(2);
+
+    targetContext.set('birth', []);
+    expect(executor.execute(step, context)).toBe(true);
+    expect(entities.findOwnerSpawned({ ownerId: 'owner' })).toHaveLength(2);
+    expect(targetContext.get('birth')).toEqual([]);
+    // 空出生组不跳过动作的参数求值。
+    expect(() =>
+      executor.execute(
+        {
+          ...step,
+          parameters: {
+            ...step.parameters,
+            overrideDurationSeconds: numberInput({ kind: 'blackboard', key: 'missing' }),
+          },
+        },
+        context,
+      ),
+    ).toThrow();
+  });
+
   it('两个实体共用子技能程序，结束一个实例只清理它自己的动作创建物', () => {
     const entities = new LogicalAbilityEntityRuntime({});
     const programs = new AbilityEntityChildSkillPrograms();
@@ -74,7 +216,11 @@ describe('AbilityEntityOperationExecutor', () => {
       new AbilityEntityOperationExecutor(
         'owner',
         entities,
-        { execute: () => false, evaluate: () => false },
+        {
+          execute: () => false,
+          queryTargets: () => [{ kind: 'operator' as const, operatorId: 'owner' }],
+          evaluate: () => false,
+        },
         { createCallbackSkillHost, resolveOperations: makeOperations, programs },
         undefined,
         { state: state.abilityEntities, programs: operationPrograms },
@@ -83,6 +229,7 @@ describe('AbilityEntityOperationExecutor', () => {
     const spawn: ResolvedCombatOperationStep = {
       kind: 'spawnAbilityEntity',
       parameters: {
+        bornAt: { kind: 'owner' as const },
         abilityEntityId: 'parent',
         dieWhenSourceDies: false,
         definition: {
@@ -98,6 +245,7 @@ describe('AbilityEntityOperationExecutor', () => {
                 sequence: stepEntry('child-spawn-owned', {
                   kind: 'spawnAbilityEntity',
                   parameters: {
+                    bornAt: { kind: 'owner' as const },
                     abilityEntityId: 'owned',
                     dieWhenSourceDies: false,
                     finishByAction: true,
@@ -166,14 +314,22 @@ describe('AbilityEntityOperationExecutor', () => {
     originalExecutor = new AbilityEntityOperationExecutor(
       'owner',
       originalEntities,
-      { execute: originalExecute, evaluate: () => false },
+      {
+        execute: originalExecute,
+        queryTargets: () => [{ kind: 'operator' as const, operatorId: 'owner' }],
+        evaluate: () => false,
+      },
       { createCallbackSkillHost, resolveOperations: () => originalExecutor, programs },
       id => (id === 'entity' ? definition : undefined),
     );
     originalExecutor.execute(
       {
         kind: 'spawnAbilityEntity',
-        parameters: { abilityEntityId: 'entity', dieWhenSourceDies: false },
+        parameters: {
+          bornAt: { kind: 'owner' as const },
+          abilityEntityId: 'entity',
+          dieWhenSourceDies: false,
+        },
       },
       { blackboard: new ActionBlackboard() },
     );
@@ -190,7 +346,11 @@ describe('AbilityEntityOperationExecutor', () => {
     restoredExecutor = new AbilityEntityOperationExecutor(
       'owner',
       restoredEntities,
-      { execute: restoredExecute, evaluate: () => false },
+      {
+        execute: restoredExecute,
+        queryTargets: () => [{ kind: 'operator' as const, operatorId: 'owner' }],
+        evaluate: () => false,
+      },
       { createCallbackSkillHost, resolveOperations: () => restoredExecutor, programs },
       id => (id === 'entity' ? definition : undefined),
     );
@@ -212,7 +372,11 @@ describe('AbilityEntityOperationExecutor', () => {
     const executor = new AbilityEntityOperationExecutor(
       'arclight',
       entities,
-      { execute: () => false, evaluate: () => false },
+      {
+        execute: () => false,
+        queryTargets: () => [{ kind: 'operator' as const, operatorId: 'owner' }],
+        evaluate: () => false,
+      },
       undefined,
       abilityEntityId =>
         abilityEntityId === 'pulse'
@@ -224,7 +388,11 @@ describe('AbilityEntityOperationExecutor', () => {
       executor.execute(
         {
           kind: 'spawnAbilityEntity',
-          parameters: { abilityEntityId: 'pulse', dieWhenSourceDies: false },
+          parameters: {
+            bornAt: { kind: 'owner' as const },
+            abilityEntityId: 'pulse',
+            dieWhenSourceDies: false,
+          },
         },
         { blackboard: new ActionBlackboard() },
       ),
@@ -237,10 +405,18 @@ describe('AbilityEntityOperationExecutor', () => {
     const executor = new AbilityEntityOperationExecutor(
       'camille',
       entities,
-      { execute: () => false, evaluate: () => false },
+      {
+        execute: () => false,
+        queryTargets: () => [{ kind: 'operator' as const, operatorId: 'owner' }],
+        evaluate: () => false,
+      },
       {
         createCallbackSkillHost,
-        resolveOperations: () => ({ execute: () => false, evaluate: () => false }),
+        resolveOperations: () => ({
+          execute: () => false,
+          queryTargets: () => [{ kind: 'operator' as const, operatorId: 'owner' }],
+          evaluate: () => false,
+        }),
         installPassiveSkills: () => {
           throw new Error('passive install failed');
         },
@@ -255,7 +431,11 @@ describe('AbilityEntityOperationExecutor', () => {
       executor.execute(
         {
           kind: 'spawnAbilityEntity',
-          parameters: { abilityEntityId: 'bat', dieWhenSourceDies: false },
+          parameters: {
+            bornAt: { kind: 'owner' as const },
+            abilityEntityId: 'bat',
+            dieWhenSourceDies: false,
+          },
         },
         { blackboard: new ActionBlackboard() },
       ),
@@ -269,7 +449,11 @@ describe('AbilityEntityOperationExecutor', () => {
     const executor = new AbilityEntityOperationExecutor(
       'typhoeus',
       entities,
-      { execute: () => false, evaluate: () => false },
+      {
+        execute: () => false,
+        queryTargets: () => [{ kind: 'operator' as const, operatorId: 'owner' }],
+        evaluate: () => false,
+      },
       undefined,
       () => definition,
     );
@@ -278,6 +462,7 @@ describe('AbilityEntityOperationExecutor', () => {
       {
         kind: 'spawnAbilityEntity',
         parameters: {
+          bornAt: { kind: 'owner' as const },
           abilityEntityId: 'dead-arrow',
           dieWhenSourceDies: false,
           inheritSourceSkillCastInfo: false,
@@ -310,7 +495,11 @@ describe('AbilityEntityOperationExecutor', () => {
     const executor = new AbilityEntityOperationExecutor(
       'zhuang-fangyi',
       entities,
-      { execute: () => false, evaluate: () => false },
+      {
+        execute: () => false,
+        queryTargets: () => [{ kind: 'operator' as const, operatorId: 'owner' }],
+        evaluate: () => false,
+      },
       undefined,
       () => ({
         lifetime: {
@@ -323,6 +512,7 @@ describe('AbilityEntityOperationExecutor', () => {
     const step: ResolvedCombatOperationStep = {
       kind: 'spawnAbilityEntity',
       parameters: {
+        bornAt: { kind: 'owner' as const },
         abilityEntityId: 'sword',
         dieWhenSourceDies: false,
         blackboardAssignments: {
@@ -347,13 +537,18 @@ describe('AbilityEntityOperationExecutor', () => {
     const executor = new AbilityEntityOperationExecutor(
       'zhuang-fangyi',
       entities,
-      { execute: () => false, evaluate: () => false },
+      {
+        execute: () => false,
+        queryTargets: () => [{ kind: 'operator' as const, operatorId: 'owner' }],
+        evaluate: () => false,
+      },
       undefined,
       () => ({ lifetime: { kind: 'limited', durationSeconds: 5 } }),
     );
     const step: ResolvedCombatOperationStep = {
       kind: 'spawnAbilityEntity',
       parameters: {
+        bornAt: { kind: 'owner' as const },
         abilityEntityId: 'mirror',
         dieWhenSourceDies: true,
         finishByAction: true,
@@ -375,13 +570,18 @@ describe('AbilityEntityOperationExecutor', () => {
     const originalExecutor = new AbilityEntityOperationExecutor(
       'owner',
       originalEntities,
-      { execute: () => false, evaluate: () => false },
+      {
+        execute: () => false,
+        queryTargets: () => [{ kind: 'operator' as const, operatorId: 'owner' }],
+        evaluate: () => false,
+      },
       undefined,
       () => definition,
     );
     const step: ResolvedCombatOperationStep = {
       kind: 'spawnAbilityEntity',
       parameters: {
+        bornAt: { kind: 'owner' as const },
         abilityEntityId: 'mirror',
         dieWhenSourceDies: true,
         finishByAction: true,
@@ -397,7 +597,11 @@ describe('AbilityEntityOperationExecutor', () => {
     const restoredExecutor = new AbilityEntityOperationExecutor(
       'owner',
       restoredEntities,
-      { execute: () => false, evaluate: () => false },
+      {
+        execute: () => false,
+        queryTargets: () => [{ kind: 'operator' as const, operatorId: 'owner' }],
+        evaluate: () => false,
+      },
       undefined,
       () => definition,
       { state: copied.actions, programs: originalExecutor.programs },
@@ -425,6 +629,7 @@ describe('AbilityEntityOperationExecutor', () => {
     });
     const executor = new AbilityEntityOperationExecutor('yvonne', entities, {
       execute: () => false,
+      queryTargets: () => [{ kind: 'operator' as const, operatorId: 'owner' }],
       evaluate: () => false,
     });
     const targetContext = new RuntimeTargetContext();
@@ -460,6 +665,7 @@ describe('AbilityEntityOperationExecutor', () => {
     });
     const executor = new AbilityEntityOperationExecutor('party-member', entities, {
       execute: () => false,
+      queryTargets: () => [{ kind: 'operator' as const, operatorId: 'owner' }],
       evaluate: () => false,
     });
     const targetContext = new RuntimeTargetContext();
@@ -511,6 +717,7 @@ describe('AbilityEntityOperationExecutor', () => {
     const entities = new LogicalAbilityEntityRuntime({});
     const executor = new AbilityEntityOperationExecutor('arcane', entities, {
       execute: () => false,
+      queryTargets: () => [{ kind: 'operator' as const, operatorId: 'owner' }],
       evaluate: () => false,
     });
     const targetContext = new RuntimeTargetContext();
@@ -520,6 +727,7 @@ describe('AbilityEntityOperationExecutor', () => {
         {
           kind: 'spawnAbilityEntity',
           parameters: {
+            bornAt: { kind: 'owner' as const },
             abilityEntityId: 'seal',
             definition: {
               lifetime: { kind: 'limited', durationSeconds: 5 },
@@ -568,6 +776,7 @@ describe('AbilityEntityOperationExecutor', () => {
     });
     const executor = new AbilityEntityOperationExecutor('arcane', entities, {
       execute: () => false,
+      queryTargets: () => [{ kind: 'operator' as const, operatorId: 'owner' }],
       evaluate: () => false,
     });
 
@@ -576,6 +785,7 @@ describe('AbilityEntityOperationExecutor', () => {
         {
           kind: 'spawnAbilityEntity',
           parameters: {
+            bornAt: { kind: 'owner' as const },
             abilityEntityId: 'laser',
             definition: { lifetime: { kind: 'limited', durationSeconds: 1.5 } },
             target: 'currentAbilityEntity',
@@ -598,6 +808,7 @@ describe('AbilityEntityOperationExecutor', () => {
         {
           kind: 'spawnAbilityEntity',
           parameters: {
+            bornAt: { kind: 'owner' as const },
             abilityEntityId: 'orphan',
             definition: { lifetime: { kind: 'infinite' } },
             target: 'currentAbilityEntity',
@@ -620,6 +831,7 @@ describe('AbilityEntityOperationExecutor', () => {
     if (parent.kind !== 'abilityEntity') throw new Error('expected AbilityEntity target');
     const executor = new AbilityEntityOperationExecutor('typhoeus', entities, {
       execute: () => false,
+      queryTargets: () => [{ kind: 'operator' as const, operatorId: 'owner' }],
       evaluate: () => false,
     });
 
@@ -628,6 +840,7 @@ describe('AbilityEntityOperationExecutor', () => {
         {
           kind: 'spawnAbilityEntity',
           parameters: {
+            bornAt: { kind: 'owner' as const },
             abilityEntityId: 'dead-arrow',
             definition: { lifetime: { kind: 'limited', durationSeconds: 3 } },
             source: 'currentAbilityEntity',
@@ -652,11 +865,13 @@ describe('AbilityEntityOperationExecutor', () => {
     const entities = new LogicalAbilityEntityRuntime({});
     const executor = new AbilityEntityOperationExecutor('typhoeus', entities, {
       execute: () => false,
+      queryTargets: () => [{ kind: 'operator' as const, operatorId: 'owner' }],
       evaluate: () => false,
     });
     const step = {
       kind: 'spawnAbilityEntity' as const,
       parameters: {
+        bornAt: { kind: 'owner' as const },
         abilityEntityId: 'dead-arrow',
         definition: { lifetime: { kind: 'limited' as const, durationSeconds: 3 } },
         source: 'currentAbilityEntity' as const,
@@ -691,6 +906,7 @@ describe('AbilityEntityOperationExecutor', () => {
     });
     const executor = new AbilityEntityOperationExecutor('avywenna', entities, {
       execute: () => false,
+      queryTargets: () => [{ kind: 'operator' as const, operatorId: 'owner' }],
       evaluate: () => false,
     });
     const blackboard = new ActionBlackboard();
@@ -712,17 +928,6 @@ describe('AbilityEntityOperationExecutor', () => {
 
     expect(targetContext.get('ComboLances')).toHaveLength(1);
     expect(blackboard.getNumber('ComboLanceCount')).toBe(1);
-    expect(
-      executor.evaluate(
-        {
-          kind: 'contextTargetCountCompare',
-          contextKey: 'ComboLances',
-          operator: 'greaterOrEqual',
-          value: 1,
-        },
-        { blackboard, targetContext },
-      ),
-    ).toBe(true);
   });
 
   it('applies native circular slot ordering in the zero-space projection', () => {
@@ -738,6 +943,7 @@ describe('AbilityEntityOperationExecutor', () => {
     }
     const executor = new AbilityEntityOperationExecutor('arcane', entities, {
       execute: () => false,
+      queryTargets: () => [{ kind: 'operator' as const, operatorId: 'owner' }],
       evaluate: () => false,
     });
     const targetContext = new RuntimeTargetContext();
@@ -778,6 +984,7 @@ describe('AbilityEntityOperationExecutor', () => {
     }
     const executor = new AbilityEntityOperationExecutor('arcane', entities, {
       execute: () => false,
+      queryTargets: () => [{ kind: 'operator' as const, operatorId: 'owner' }],
       evaluate: () => false,
     });
     const targetContext = new RuntimeTargetContext();
@@ -808,7 +1015,11 @@ describe('AbilityEntityOperationExecutor', () => {
     const executor = new AbilityEntityOperationExecutor(
       'zhuang-fangyi',
       new LogicalAbilityEntityRuntime({}),
-      { execute: () => false, evaluate: () => false },
+      {
+        execute: () => false,
+        queryTargets: () => [{ kind: 'operator' as const, operatorId: 'owner' }],
+        evaluate: () => false,
+      },
     );
     const targetContext = new RuntimeTargetContext();
     targetContext.set('swords', [
@@ -849,6 +1060,7 @@ describe('AbilityEntityOperationExecutor', () => {
     }
     const executor = new AbilityEntityOperationExecutor('arcane', entities, {
       execute: () => false,
+      queryTargets: () => [{ kind: 'operator' as const, operatorId: 'owner' }],
       evaluate: () => false,
     });
     const targetContext = new RuntimeTargetContext();
@@ -885,10 +1097,14 @@ describe('AbilityEntityOperationExecutor', () => {
       ownerId: 'tangtang',
       source: { kind: 'operator', operatorId: 'tangtang' },
     });
-    const executor = new AbilityEntityOperationExecutor('tangtang', entities, {
-      execute: () => false,
-      evaluate: () => false,
-    });
+    const executor = new AbilityEntityOperationExecutor(
+      'tangtang',
+      entities,
+      new TargetContextOperationExecutor('tangtang', {
+        execute: () => false,
+        evaluate: () => false,
+      }),
+    );
     const blackboard = new ActionBlackboard();
 
     expect(
@@ -897,7 +1113,7 @@ describe('AbilityEntityOperationExecutor', () => {
           kind: 'readAbilityEntityRemainingDuration',
           parameters: { outputKey: 'water_duration' },
         },
-        { blackboard, currentTarget: entity },
+        { blackboard, currentTarget: entity, actionInputTarget: entity },
       ),
     ).toBe(true);
     expect(blackboard.getNumber('water_duration')).toBe(12);
@@ -909,7 +1125,7 @@ describe('AbilityEntityOperationExecutor', () => {
           value: { kind: 'constant', value: 13 },
           outputKey: 'remaining_before_compare',
         },
-        { blackboard, currentTarget: entity },
+        { blackboard, currentTarget: entity, actionInputTarget: entity },
       ),
     ).toBe(true);
     expect(blackboard.getNumber('remaining_before_compare')).toBe(12);
@@ -920,15 +1136,15 @@ describe('AbilityEntityOperationExecutor', () => {
           kind: 'setAbilityEntityRemainingDuration',
           parameters: { value: { kind: 'constant', value: 30 } },
         },
-        { blackboard, currentTarget: entity },
+        { blackboard, currentTarget: entity, actionInputTarget: entity },
       ),
     ).toBe(true);
     expect(entities.snapshot(entity).remainingDurationSeconds).toBe(30);
 
     expect(
       executor.execute(
-        { kind: 'finishCurrentAbilityEntity', parameters: {} },
-        { blackboard, currentTarget: entity },
+        { kind: 'finishOwner', parameters: { targets: { kind: 'inputTarget' } } },
+        { blackboard, currentTarget: entity, actionInputTarget: entity },
       ),
     ).toBe(true);
     expect(entities.activeCount).toBe(1);
@@ -937,8 +1153,8 @@ describe('AbilityEntityOperationExecutor', () => {
     expect(entities.activeCount).toBe(0);
     expect(
       executor.execute(
-        { kind: 'finishCurrentAbilityEntity', parameters: {} },
-        { blackboard, currentTarget: entity },
+        { kind: 'finishOwner', parameters: { targets: { kind: 'inputTarget' } } },
+        { blackboard, currentTarget: entity, actionInputTarget: entity },
       ),
     ).toBe(true);
   });
@@ -950,7 +1166,11 @@ describe('AbilityEntityOperationExecutor', () => {
     const execute = vi.fn(
       (_step: ResolvedCombatOperationStep, _context?: CombatOperationContext) => true,
     );
-    const rootOperations = { execute, evaluate: () => false };
+    const rootOperations = {
+      execute,
+      queryTargets: () => [{ kind: 'operator' as const, operatorId: 'owner' }],
+      evaluate: () => false,
+    };
     const executor = new AbilityEntityOperationExecutor('fixture', entities, rootOperations, {
       createCallbackSkillHost,
       resolveOperations: () => rootOperations,
@@ -979,6 +1199,7 @@ describe('AbilityEntityOperationExecutor', () => {
       {
         kind: 'spawnAbilityEntity',
         parameters: {
+          bornAt: { kind: 'owner' as const },
           abilityEntityId: 'child-host',
           definition: {
             lifetime: { kind: 'limited', durationSeconds: 10 },
@@ -1058,7 +1279,11 @@ describe('AbilityEntityOperationExecutor', () => {
   it('selects the named child skill bound by the spawn action', () => {
     const entities = new LogicalAbilityEntityRuntime({});
     const execute = vi.fn(() => true);
-    const rootOperations = { execute, evaluate: () => false };
+    const rootOperations = {
+      execute,
+      queryTargets: () => [{ kind: 'operator' as const, operatorId: 'owner' }],
+      evaluate: () => false,
+    };
     const executor = new AbilityEntityOperationExecutor('fixture', entities, rootOperations, {
       createCallbackSkillHost,
       resolveOperations: () => rootOperations,
@@ -1082,6 +1307,7 @@ describe('AbilityEntityOperationExecutor', () => {
       {
         kind: 'spawnAbilityEntity',
         parameters: {
+          bornAt: { kind: 'owner' as const },
           abilityEntityId: 'multi-child-host',
           childSkillId: 'child-b',
           definition: {
@@ -1114,7 +1340,11 @@ describe('AbilityEntityOperationExecutor', () => {
     const execute = vi.fn(
       (_step: ResolvedCombatOperationStep, _context?: CombatOperationContext) => true,
     );
-    const delegate = { execute, evaluate: () => true };
+    const delegate = {
+      execute,
+      queryTargets: () => [{ kind: 'operator' as const, operatorId: 'owner' }],
+      evaluate: () => true,
+    };
     let executor!: AbilityEntityOperationExecutor;
     executor = new AbilityEntityOperationExecutor('fixture', entities, delegate, {
       createCallbackSkillHost,
@@ -1125,6 +1355,7 @@ describe('AbilityEntityOperationExecutor', () => {
       {
         kind: 'spawnAbilityEntity',
         parameters: {
+          bornAt: { kind: 'owner' as const },
           abilityEntityId: 'jump-host',
           definition: {
             lifetime: { kind: 'limited', durationSeconds: 10 },
@@ -1139,6 +1370,7 @@ describe('AbilityEntityOperationExecutor', () => {
                   sequence: stepEntry('jump-child-jump', {
                     kind: 'jumpTimeline',
                     parameters: { destinationFrame: 5 },
+                    condition: { $sequence: null },
                   }),
                 },
                 {
@@ -1187,7 +1419,11 @@ describe('AbilityEntityOperationExecutor', () => {
     const execute = vi.fn(
       (_step: ResolvedCombatOperationStep, _context?: CombatOperationContext) => true,
     );
-    const delegate = { execute, evaluate: () => true };
+    const delegate = {
+      execute,
+      queryTargets: () => [{ kind: 'operator' as const, operatorId: 'owner' }],
+      evaluate: () => true,
+    };
     let executor!: AbilityEntityOperationExecutor;
     executor = new AbilityEntityOperationExecutor('fixture', entities, delegate, {
       createCallbackSkillHost,
@@ -1198,6 +1434,7 @@ describe('AbilityEntityOperationExecutor', () => {
       {
         kind: 'spawnAbilityEntity',
         parameters: {
+          bornAt: { kind: 'owner' as const },
           abilityEntityId: 'finish-host',
           definition: {
             lifetime: { kind: 'limited', durationSeconds: 10 },
@@ -1236,7 +1473,10 @@ describe('AbilityEntityOperationExecutor', () => {
 
   it('allows an embedded child timeline to finish its own host entity', () => {
     const entities = new LogicalAbilityEntityRuntime({});
-    const delegate = { execute: () => false, evaluate: () => false };
+    const delegate = new TargetContextOperationExecutor('fixture', {
+      execute: () => false,
+      evaluate: () => false,
+    });
     let executor!: AbilityEntityOperationExecutor;
     executor = new AbilityEntityOperationExecutor('fixture', entities, delegate, {
       createCallbackSkillHost,
@@ -1247,6 +1487,7 @@ describe('AbilityEntityOperationExecutor', () => {
       {
         kind: 'spawnAbilityEntity',
         parameters: {
+          bornAt: { kind: 'owner' as const },
           abilityEntityId: 'self-finishing-host',
           definition: {
             lifetime: { kind: 'limited', durationSeconds: 10 },
@@ -1258,8 +1499,8 @@ describe('AbilityEntityOperationExecutor', () => {
                 {
                   startFrame: 1,
                   sequence: stepEntry('self-finishing-host-finish', {
-                    kind: 'finishCurrentAbilityEntity',
-                    parameters: {},
+                    kind: 'finishOwner',
+                    parameters: { targets: { kind: 'owner' } },
                   }),
                 },
               ],
@@ -1270,7 +1511,7 @@ describe('AbilityEntityOperationExecutor', () => {
           inheritActionBlackboard: false,
         },
       },
-      { blackboard: new ActionBlackboard() },
+      { blackboard: new ActionBlackboard(), actionOwnerId: 'fixture' },
     );
 
     expect(entities.activeCount).toBe(1);
@@ -1294,7 +1535,11 @@ describe('AbilityEntityOperationExecutor', () => {
     executor = new AbilityEntityOperationExecutor(
       'arcane',
       entities,
-      { execute, evaluate: () => false },
+      {
+        execute,
+        queryTargets: () => [{ kind: 'operator' as const, operatorId: 'owner' }],
+        evaluate: () => false,
+      },
       { createCallbackSkillHost, resolveOperations: () => executor },
     );
 
@@ -1336,6 +1581,7 @@ describe('AbilityEntityOperationExecutor', () => {
     const entities = new LogicalAbilityEntityRuntime({});
     const executor = new AbilityEntityOperationExecutor('gilberta', entities, {
       execute: () => false,
+      queryTargets: () => [{ kind: 'operator' as const, operatorId: 'owner' }],
       evaluate: () => false,
     });
     const source = { kind: 'operator' as const, operatorId: 'gilberta' };

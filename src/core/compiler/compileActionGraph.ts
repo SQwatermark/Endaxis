@@ -51,6 +51,11 @@ export interface CompiledActionGraphNode {
     | CompiledGraphMacroCall
     | CompiledGraphStepForKind<
         | 'conditional'
+        | 'checkCondition'
+        | 'invertNextResult'
+        | 'jumpTimeline'
+        | 'ifElse'
+        | 'anyCondition'
         | 'switch'
         | 'once'
         | 'repeatEachTick'
@@ -279,6 +284,11 @@ export function createActionGraphCompilation(
       let action: CompiledActionGraphNode['action'];
       if (
         node.action.kind === 'conditional' ||
+        node.action.kind === 'checkCondition' ||
+        node.action.kind === 'invertNextResult' ||
+        node.action.kind === 'jumpTimeline' ||
+        node.action.kind === 'ifElse' ||
+        node.action.kind === 'anyCondition' ||
         node.action.kind === 'switch' ||
         node.action.kind === 'once' ||
         node.action.kind === 'repeatEachTick' ||

@@ -236,7 +236,6 @@ export function analyzeGraphBlackboard(
         case 'readBuffBlackboard':
         case 'readAbilityEntityRemainingDuration':
         case 'readEventBuffBlackboard':
-        case 'readCurrentBuffRemainingDuration':
         case 'readBuffRemainingDuration':
           write(action.parameters.outputKey);
           break;

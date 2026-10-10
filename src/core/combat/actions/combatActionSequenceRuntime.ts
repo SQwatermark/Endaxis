@@ -1,3 +1,5 @@
+import { resolveDirectActionTargets } from '../abilities/targetContextOperationExecutor';
+import { runtimeTargetFromEntityId } from '../../game-data/logicalAbilityEntity';
 import { conditionInputExpression } from '../../compiler/compiledGraphData';
 import type { CompiledCondition } from '../../compiler/compiledGraphData';
 import { CombatActionEventListener } from './combatActionEventListener';
@@ -8,7 +10,7 @@ import type {
   OperationStepData,
   GraphLeafStepData,
 } from '../state/actionState';
-import { createActionScopeState, createTimelineJumpState } from '../state/actionState';
+import { createActionScopeState } from '../state/actionState';
 import { type ActionBlackboardState } from '../state/foundationState';
 
 /**
@@ -44,15 +46,7 @@ import type {
 } from '../../compiler/compileActionGraph';
 import type { ActionGraphExecutionState } from '../state/actionState';
 import { CombatStep } from './combatStep';
-import {
-  executeActionOnce,
-  executeTimelineJump,
-  getActionScopeBlackboard,
-  resetActionScopes,
-  resetTimelineJump,
-  tickTimelineJump,
-  type TimelineJumpExecutionHost,
-} from './sequenceControl';
+import { getActionScopeBlackboard, resetActionScopes } from './sequenceControl';
 
 /** 步骤自身没有可变数据；它调用的操作执行器仍须由所属宿主恢复。 */
 abstract class StatelessCombatStep extends CombatStep {
@@ -215,6 +209,34 @@ class ProjectileLaunchStep extends StatelessCombatStep {
     const parent = this.operationContext;
     const launch = parent.launchProjectile;
     if (launch === undefined) throw new Error('projectile launch requires a runtime');
+    const prepared = parent.blackboard.createLocalScope(
+      {},
+      this.step.parameters.inheritActionBlackboard,
+      this.step.parameters.entityInitialValues ?? {},
+      this.step.parameters.entityAssignments,
+    );
+    const targets = this.step.parameters.targets;
+    if (targets?.kind === 'context') {
+      if (!parent.targetContext) throw new Error('projectile launch requires a target context');
+      const selected = parent.targetContext.get(targets.contextKey).map(target => ({ ...target }));
+      for (const target of selected)
+        this.launchSingle(
+          { ...parent, currentTarget: target, actionInputTarget: target },
+          prepared.forkEntityScope(),
+        );
+    } else {
+      const count =
+        targets?.kind === 'count' ? resolveActionValueOperand(targets.count, parent.blackboard) : 1;
+      if (!Number.isInteger(count) || count < 0)
+        throw new RangeError('projectile target count must be a non-negative integer');
+      for (let index = 0; index < count; index++)
+        this.launchSingle(parent, prepared.forkEntityScope());
+    }
+    return true;
+  }
+
+  private launchSingle(parent: CombatOperationContext, blackboard: ActionBlackboard): void {
+    const launch = parent.launchProjectile!;
     const sourceId =
       this.step.parameters.source === 'actionOwner'
         ? (parent.actionOwnerId ?? parent.buffOwnerId ?? this.runtime.ownerOperatorId)
@@ -226,7 +248,7 @@ class ProjectileLaunchStep extends StatelessCombatStep {
       if (createHost === undefined || definitionOperatorId === undefined)
         throw new Error('projectile callback requires a skill host and definition operator');
       const context: CombatOperationContext = {
-        blackboard: parent.blackboard.detachedSnapshot(),
+        blackboard: blackboard.detachedSnapshot(),
         damageCalculationSnapshots: new DamageCalculationSnapshots(),
         targetContext: new RuntimeTargetContext(),
         skillCastInfo:
@@ -287,60 +309,10 @@ class ProjectileLaunchStep extends StatelessCombatStep {
       hitTarget:
         this.step.parameters.hit?.target === 'currentTarget' ? parent.currentTarget : undefined,
     }).target;
-    return true;
   }
 }
 
 /** 原生 Switch 的持久分支实例；选择、生命周期和浮点匹配不能复用普通 conditional。 */
-class TimelineJumpStep extends CombatStep {
-  #state = createTimelineJumpState();
-  override bindExecutionData(data: ActionStepData | null): void {
-    if (data?.kind !== 'jump') throw new Error('expected timeline jump data');
-    this.#state = data.jump;
-  }
-  override get executionData() {
-    return { kind: 'jump' as const, jump: this.#state };
-  }
-
-  constructor(
-    readonly step: ResolvedCombatStepForKind<'jumpTimeline'>,
-    readonly runtime: CombatActionSequenceRuntime,
-    readonly operationContext: CombatOperationContext,
-  ) {
-    super();
-  }
-
-  execute(): void {
-    this.runtime.hooks.stepReached?.(this.step);
-    executeTimelineJump(this.#state, this.#host());
-  }
-
-  override tick(): void {
-    tickTimelineJump(this.#state, this.#host());
-  }
-
-  override reset(): void {
-    resetTimelineJump(this.#state);
-  }
-
-  #host(): TimelineJumpExecutionHost {
-    return {
-      evaluate: () => {
-        const condition = this.step.parameters.condition;
-        if (condition === undefined) return true;
-        const passed = this.runtime.operations.evaluate(condition, this.operationContext);
-        this.runtime.hooks.conditionEvaluated?.(condition, passed);
-        return passed;
-      },
-      resolveRequest: () => {
-        const request = this.operationContext.requestTimelineJump;
-        if (request === undefined) throw new Error('jumpTimeline requires a timeline host');
-        return () => request(this.step.parameters.destinationFrame);
-      },
-    };
-  }
-}
-
 class TimelineFinishStep extends StatelessCombatStep {
   constructor(
     readonly step: ResolvedCombatStepForKind<'finishTimeline'>,
@@ -395,7 +367,7 @@ class MarkCurrentSkillInputStep extends StatelessCombatStep {
 export class CombatActionSequenceRuntime {
   readonly #scopeState: ReturnType<typeof createActionScopeState>;
 
-  /** 宿主下所有动作共用的 once 标记和黑板作用域。 */
+  /** 宿主下动作共用的黑板作用域。 */
   get scopeState(): ReturnType<typeof createActionScopeState> {
     return this.#scopeState;
   }
@@ -433,6 +405,26 @@ export class CombatActionSequenceRuntime {
   #graphHost(operationContext: CombatOperationContext): ActionGraphExecutionHost {
     const trace = this.operations.executionTrace;
     return {
+      frame: this.operations.frame,
+      get inputTarget() {
+        return operationContext.actionInputTarget;
+      },
+      selectTargets: (selection, input) => {
+        if (selection.kind === 'context')
+          return operationContext.targetContext?.getOptional(selection.key) ?? [];
+        if (selection.kind === 'inputTarget') return input === null ? [] : [input];
+        if (selection.kind !== 'owner' && selection.kind !== 'source') {
+          if (!this.operations.queryTargets) throw new Error('channeling requires a target query');
+          return this.operations.queryTargets(selection, operationContext);
+        }
+        const id =
+          selection.kind === 'owner'
+            ? operationContext.actionOwnerId
+            : operationContext.actionSourceId;
+        return id === undefined ? [] : [runtimeTargetFromEntityId(id)];
+      },
+      executionPolicy: this.#scopeState.executionPolicy,
+      requestTimelineJump: operationContext.requestTimelineJump,
       ...(trace === undefined
         ? {}
         : {
@@ -496,7 +488,6 @@ export class CombatActionSequenceRuntime {
         trace?.recorder.observe('value', operand, value);
         return value;
       },
-      once: (key, execute) => executeActionOnce(this.#scopeState, key, execute),
       scope: (parameters, saved) => {
         const blackboard =
           saved === undefined
@@ -530,15 +521,10 @@ export class CombatActionSequenceRuntime {
     parameters: ResolvedCombatStepForKind<'forEachContextTarget'>['parameters'],
     context: CombatOperationContext,
   ): import('../../game-data/logicalAbilityEntity').RuntimeTargetGroup {
-    if (parameters.target === 'enemy') return [{ kind: 'enemy' }];
-    if (parameters.target === 'caster') {
-      if (this.ownerOperatorId === undefined)
-        throw new Error('caster forEach target requires an owner operator');
-      return [{ kind: 'operator', operatorId: this.ownerOperatorId }];
-    }
-    if (!context.targetContext)
-      throw new Error('forEachContextTarget requires a combat target context');
-    return context.targetContext.get(parameters.contextKey!);
+    const direct = resolveDirectActionTargets(parameters.targets, context, this.ownerOperatorId);
+    if (direct !== undefined) return direct;
+    if (!this.operations.queryTargets) throw new Error('forEach requires a target query');
+    return this.operations.queryTargets(parameters.targets, context);
   }
 
   /** Independent interval state, but one host context/blackboard across all intervals. */
@@ -562,9 +548,6 @@ export class CombatActionSequenceRuntime {
     if (isCombatOperationStep(step)) return new OperationStep(step, this, operationContext);
     if (step.kind === 'launchProjectile')
       return new ProjectileLaunchStep(step, this, operationContext);
-    if (step.kind === 'jumpTimeline') {
-      return new TimelineJumpStep(step, this, operationContext);
-    }
     if (step.kind === 'finishTimeline') {
       return new TimelineFinishStep(step, this, operationContext);
     }

@@ -16,6 +16,7 @@ import type { CombatOperationExecutor } from '../skills/skillRuntime';
 import { createCallbackSkillHostFactory, type CallbackSkillHostFactory } from './callbackSkillHost';
 import { CombatClock } from '../time/combatClock';
 import { CombatReceiptCollector } from '../receipt/combatReceipt';
+import { RuntimeTargetContext } from './runtimeTargetContext';
 
 const compileGraphEntry = (
   revision: string,
@@ -106,26 +107,17 @@ const probe = {
 const delayedProbeNodes = (): ActionGraphDefinition['nodes'] => ({
   launch: {
     action: {
-      kind: 'withActionBlackboardScope',
+      kind: 'launchProjectile',
       parameters: {
-        scopeKey: 'projectile',
-        lifetime: 'execution',
-        initialValues: {},
-        inheritParent: true,
+        inheritActionBlackboard: true,
+        finish: 3,
+        recycleDelaySeconds: 0,
         entityInitialValues: { EntityBB_seed: 4 },
         entityAssignments: {
           EntityBB_snapshot: { kind: 'valueNode', nodeId: 'launchValue' },
           EntityBB_sourceSnapshot: { kind: 'valueNode', nodeId: 'source' },
         },
       },
-      body: { $sequence: 'schedule' },
-    },
-    next: null,
-  },
-  schedule: {
-    action: {
-      kind: 'launchProjectile',
-      parameters: { finish: 3, recycleDelaySeconds: 0 },
       callbacks: [
         {
           event: 'finish',
@@ -256,7 +248,11 @@ describe('projectile callback action lifecycle', () => {
             startFrame: 1,
             endFrame: 2,
             sequence: chainSequence('callback-jump', [
-              { kind: 'jumpTimeline', parameters: { destinationFrame: 6 } },
+              {
+                kind: 'jumpTimeline',
+                parameters: { destinationFrame: 6 },
+                condition: { $sequence: null },
+              },
               probe,
             ]),
           },
@@ -393,7 +389,7 @@ describe('projectile callback action lifecycle', () => {
         launch: {
           action: {
             kind: 'launchProjectile',
-            parameters: { finish: 1, recycleDelaySeconds: 100 },
+            parameters: { inheritActionBlackboard: true, finish: 1, recycleDelaySeconds: 100 },
             callbacks: [
               {
                 event: 'finish',
@@ -520,7 +516,7 @@ describe('projectile callback action lifecycle', () => {
         launch: {
           action: {
             kind: 'launchProjectile',
-            parameters: { finish: 1, recycleDelaySeconds: 1 },
+            parameters: { inheritActionBlackboard: true, finish: 1, recycleDelaySeconds: 1 },
             callbacks: [
               {
                 event: 'finish',
@@ -640,6 +636,81 @@ describe('projectile callback action lifecycle', () => {
     scheduler.advanceFrame();
     expect(scheduler.activeCount).toBe(0);
   });
+
+  it.each(['context', 'count'] as const)(
+    '一次 %s 发射只采样一次输入，各枚投射物的实体板独立',
+    kind => {
+      const scheduler = new ProjectileLifecycleRuntime();
+      const blackboard = new ActionBlackboard({ launchValue: 7 });
+      const targets = new RuntimeTargetContext();
+      targets.set('selected', [{ kind: 'enemy' }, { kind: 'operator', operatorId: 'ally' }]);
+      const captured: number[][] = [];
+      const runtime = new CombatActionSequenceRuntime(
+        { execute: () => true, evaluate: () => true },
+        {
+          blackboard,
+          targetContext: targets,
+          createCallbackSkillHost: createTestHost,
+          launchProjectile: request => {
+            const board = ActionBlackboard.bindRuntimeState(
+              request.callbacks[0]!.runtime.runtimeState.blackboard,
+            );
+            captured.push([
+              board.getNumber('launchValue')!,
+              board.getNumber('EntityBB_snapshot')!,
+              board.getNumber('EntityBB_seed')!,
+            ]);
+            board.assignDynamic('EntityBB_seed', 99);
+            blackboard.assignDynamic('launchValue', 100);
+            targets.set('selected', []);
+            return scheduler.launch({
+              finishDelaySeconds: request.finish,
+              recycleDelaySeconds: 0,
+              callbacks: [],
+              callbackPrograms: [],
+              ...bindProjectileCallbackLifecycle([], () => COMBAT_FRAME_INTERVAL),
+            });
+          },
+        },
+        undefined,
+        undefined,
+        'source',
+      );
+      const nodes = delayedProbeNodes();
+      const launch = nodes.launch!.action;
+      if (launch.kind !== 'launchProjectile') throw new Error('expected launch');
+      const selectedNodes: ActionGraphDefinition['nodes'] = {
+        ...nodes,
+        launch: {
+          ...nodes.launch!,
+          action: {
+            ...launch,
+            parameters: {
+              ...launch.parameters,
+              targets:
+                kind === 'context'
+                  ? { kind: 'context', contextKey: 'selected' }
+                  : { kind: 'count', count: { kind: 'constant', value: 2 } },
+            },
+          },
+        },
+      };
+      runtime
+        .createSequence(compileGraphEntry('multi-target', 'launch', selectedNodes))
+        .executeInstant({});
+      expect(captured).toEqual([
+        [7, 7, 4],
+        [7, 7, 4],
+      ]);
+      expect(scheduler.activeCount).toBe(2);
+      if (kind === 'context') {
+        runtime
+          .createSequence(compileGraphEntry('empty-target', 'launch', selectedNodes))
+          .executeInstant({});
+        expect(scheduler.activeCount).toBe(2);
+      }
+    },
+  );
 
   it('samples direct and entity assignment inputs at launch and isolates repeated projectiles', () => {
     const scheduler = new ProjectileLifecycleRuntime();

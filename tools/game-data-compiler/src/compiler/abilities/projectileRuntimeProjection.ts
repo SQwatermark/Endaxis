@@ -17,10 +17,10 @@ import {
 } from '../actions/actionGraphBuilder.ts';
 import type { CompiledBuffStepSource } from '../actions/combatActionProjectionTypes.ts';
 import {
-  compileProjectileLaunchScopeSource,
+  compileProjectileBlackboardSource,
   omitDeadSingleEnemyBounceBookkeeping,
   numericInitialValues,
-} from './projectileCallbackScopes.ts';
+} from './projectileBlackboard.ts';
 import { isStaticSingleEnemyTargetGroup } from '../combatProjectionCommon.ts';
 import {
   collectPresentationOnlyBlackboardKeys,
@@ -159,6 +159,7 @@ export function createZeroDistanceProjectileProjectionExtensionSource(input: {
           {
             kind: 'launchProjectile',
             parameters: {
+              inheritActionBlackboard: launch.assignBlackboard,
               ...(launch.syncTimeScale ? { syncTimeScale: true } : {}),
               finish: {
                 reachAfterTicks: runtime.moveSegments.length,
@@ -184,6 +185,7 @@ export function createZeroDistanceProjectileProjectionExtensionSource(input: {
         {
           kind: 'launchProjectile',
           parameters: {
+            inheritActionBlackboard: launch.assignBlackboard,
             finish: 'firstTickReach',
             ...(launch.syncTimeScale ? { syncTimeScale: true } : {}),
           },
@@ -244,6 +246,7 @@ export function createZeroDistanceProjectileProjectionExtensionSource(input: {
         {
           kind: 'launchProjectile',
           parameters: {
+            inheritActionBlackboard: launch.assignBlackboard,
             finish: 'firstTickReach',
             ...(launch.syncTimeScale ? { syncTimeScale: true } : {}),
             recycleDelaySeconds: resolveProjectileRecycleDelaySource(
@@ -400,50 +403,47 @@ export function createZeroDistanceProjectileProjectionExtensionSource(input: {
             : { hitTagFilter, retryRejectedHit: typeof finish === 'number' }),
         }
       : undefined;
+    const blackboard = compileProjectileBlackboardSource({
+      sourcePath,
+      launch,
+      template,
+      invocations: callbacks.map(({ route, compiled, skill }) => ({
+        program: compiled.program,
+        event: route.event,
+        skillId: compiled.skillId,
+        declaredBlackboard: compiled.declaredBlackboard,
+        sequence: compiled.program.sequence(
+          skill.scheduledSequences.flatMap(timeline => compiled.program.actions(timeline.sequence)),
+        ),
+      })),
+      allowMissingEntityBlackboardEvidence: true,
+      blockEndsFlight: landsOnFirstTick,
+    });
     return [
-      compileProjectileLaunchScopeSource({
-        sourcePath,
-        launch,
-        template,
-        invocations: callbacks.map(({ route, compiled, skill }) => ({
-          program: compiled.program,
-          event: route.event,
-          skillId: compiled.skillId,
-          declaredBlackboard: compiled.declaredBlackboard,
-          sequence: compiled.program.sequence(
-            skill.scheduledSequences.flatMap(timeline =>
-              compiled.program.actions(timeline.sequence),
-            ),
+      {
+        kind: 'launchProjectile',
+        parameters: {
+          ...blackboard,
+          finish,
+          ...(launch.projectileSource.targetSource === 'Owner'
+            ? { source: 'actionOwner' as const }
+            : {}),
+          ...(launch.syncTimeScale ? { syncTimeScale: true } : {}),
+          recycleDelaySeconds: resolveProjectileRecycleDelaySource(
+            launch,
+            input.catalog.callbackGraphs,
+            sourcePath,
           ),
-        })),
-        allowMissingEntityBlackboardEvidence: true,
-        blockEndsFlight: landsOnFirstTick,
-        body: projectionContext.graph.sequence([
-          {
-            kind: 'launchProjectile',
-            parameters: {
-              finish,
-              ...(launch.projectileSource.targetSource === 'Owner'
-                ? { source: 'actionOwner' as const }
-                : {}),
-              ...(launch.syncTimeScale ? { syncTimeScale: true } : {}),
-              recycleDelaySeconds: resolveProjectileRecycleDelaySource(
-                launch,
-                input.catalog.callbackGraphs,
-                sourcePath,
-              ),
-              ...(hit === undefined ? {} : { hit }),
-            },
-            callbacks: callbacks.map(({ route, skill, compiled }) => ({
-              event: route.event,
-              skill: {
-                actionGraph: { main: compiled.program.finish(), macros: {} },
-                ...skill,
-              },
-            })),
+          ...(hit === undefined ? {} : { hit }),
+        },
+        callbacks: callbacks.map(({ route, skill, compiled }) => ({
+          event: route.event,
+          skill: {
+            actionGraph: { main: compiled.program.finish(), macros: {} },
+            ...skill,
           },
-        ]),
-      }),
+        })),
+      },
     ];
   };
 }

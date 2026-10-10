@@ -44,6 +44,32 @@ describe('TargetContextOperationExecutor', () => {
     expect(targetContext.get('attacker')).toEqual([{ kind: 'abilityEntity', instanceId: 7 }]);
   });
 
+  it('全局机制查询保持独立身份，并能从目标组状态恢复', () => {
+    const executor = new TargetContextOperationExecutor('caster', terminal);
+    const targetContext = new RuntimeTargetContext();
+    executor.execute(
+      {
+        kind: 'findTargets',
+        parameters: {
+          owner: { kind: 'owner' },
+          query: { kind: 'godEntity' },
+          saveToContextKey: 'mechanism',
+        },
+      },
+      { blackboard: new ActionBlackboard(), actionOwnerId: 'caster', targetContext },
+    );
+    const restored = new RuntimeTargetContext(structuredClone(targetContext.runtimeState));
+    expect(
+      executor.queryTargets(
+        { kind: 'context', key: 'mechanism' },
+        {
+          blackboard: new ActionBlackboard(),
+          targetContext: restored,
+        },
+      ),
+    ).toEqual([{ kind: 'godEntity' }]);
+  });
+
   it('投射物查询保存当时的候选，后续发射不混入旧结果，重新查询覆盖旧组', () => {
     const projectiles = new ProjectileLifecycleRuntime();
     const launch = () =>
@@ -65,11 +91,15 @@ describe('TargetContextOperationExecutor', () => {
       () => projectiles.getUnfinishedTargets(),
     );
     const targetContext = new RuntimeTargetContext();
-    const context = { blackboard: new ActionBlackboard(), targetContext };
+    const context = { blackboard: new ActionBlackboard(), targetContext, actionOwnerId: 'caster' };
     const query = {
-      kind: 'findUnfinishedProjectileTargets' as const,
-      parameters: { saveToContextKey: 'projectiles' },
-    };
+      kind: 'findTargets',
+      parameters: {
+        owner: { kind: 'owner' },
+        query: { kind: 'unfinishedProjectiles' },
+        saveToContextKey: 'projectiles',
+      },
+    } as const;
     expect(executor.execute(query, context)).toBe(true);
     launch();
     expect(targetContext.get('projectiles')).toEqual([first.target]);

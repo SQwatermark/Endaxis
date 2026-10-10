@@ -1,3 +1,4 @@
+import type { ComboCameraAlphaSetting } from '../../../../packages/game-data-contract/src/conditions';
 import type { CompiledCondition } from '../../compiler/compiledGraphData.ts';
 /** 单敌人属性及本次输入提供的目标条件。 */
 import type { CombatOperationContext } from '../skills/skillRuntime';
@@ -54,11 +55,10 @@ export class EnemySuperArmorConditionExecutor implements CombatOperationExecutor
   }
 }
 
-/** 求值镜头到目标的有符号夹角；木桩模型未提供方向时按 0° 处理。 */
-export class CameraTargetAngleConditionExecutor implements CombatOperationExecutor {
+/** 镜头相关条件；场景装配提供所采用的镜头配置。 */
+export class CameraConditionExecutor implements CombatOperationExecutor {
   constructor(
-    private readonly signedAngleDegrees:
-      number | undefined | ((context: CombatOperationContext) => number | undefined),
+    private readonly comboCameraAlphaSetting: ComboCameraAlphaSetting,
     private readonly delegate: CombatOperationExecutor,
   ) {}
 
@@ -69,20 +69,8 @@ export class CameraTargetAngleConditionExecutor implements CombatOperationExecut
     this.delegate.end?.(step, context);
 
   evaluate(condition: CompiledCondition, context?: CombatOperationContext): boolean {
-    if (condition.kind !== 'cameraToTargetAngleCompare') {
-      return this.delegate.evaluate(condition, context);
-    }
-    if (context === undefined) {
-      throw new Error('cameraToTargetAngleCompare requires a combat operation context');
-    }
-    const angle =
-      typeof this.signedAngleDegrees === 'function'
-        ? this.signedAngleDegrees(context)
-        : this.signedAngleDegrees;
-    return compareCombatNumbers(
-      angle ?? 0,
-      resolveActionValueOperand(condition.value, context.blackboard),
-      condition.operator,
-    );
+    if (condition.kind === 'comboCameraAlphaSetting')
+      return condition.setting === this.comboCameraAlphaSetting;
+    return this.delegate.evaluate(condition, context);
   }
 }

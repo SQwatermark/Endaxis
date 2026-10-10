@@ -17,7 +17,6 @@ import {
   DAMAGE_CALCULATIONS,
   HEAL_TARGETS,
   OPERATOR_ATTRIBUTES,
-  RESOURCE_RECIPIENTS,
   SP_GAIN_KINDS,
   SP_GAIN_SOURCES,
   SKILL_TRIGGER_SCOPES,
@@ -64,7 +63,7 @@ import {
   BUFF_APPLICATION_SOURCES_SET,
   requireInteger,
 } from './definitionValues';
-import { validateCombatCondition } from './combatConditions';
+import { validateCombatCondition, validateTargetQuery } from './combatConditions';
 import { validateGraphDataReferences } from '../../action-graph/actionGraphData';
 import type { ActionGraphDefinition } from '../../../../packages/game-data-contract/src/actionGraph';
 import { validateBuffApplication } from './buffApplication';
@@ -79,8 +78,6 @@ const TIME_DILATION_IGNORE_TARGETS_SET = new Set<string>(TIME_DILATION_IGNORE_TA
 const TIME_DILATION_ENTITY_TARGETS_SET = new Set<string>(TIME_DILATION_ENTITY_TARGETS);
 
 const BUFF_SINGLE_TARGETS_SET = new Set<string>(BUFF_SINGLE_TARGETS);
-
-const RESOURCE_RECIPIENTS_SET = new Set<string>(RESOURCE_RECIPIENTS);
 
 const HEAL_CALCULATION_ATTRIBUTES_SET = new Set<string>([...OPERATOR_ATTRIBUTES, 'maxHealth']);
 
@@ -241,17 +238,15 @@ function validateStatusModifier(
   }
 }
 
-/**
- * changeResource / changeResource 的资源变化元数据：
- * 校验 recipient 与资源互斥字段（sp 专属、ultimateEnergy 专属）。
- */
+/** 校验资源变化的专属参数。 */
 function validateResourceChangeMetadata(
   record: Record<string, unknown>,
   path: string,
   out: SkillDefinitionValidationIssue[],
 ): void {
   const resource = requireEnum(record, 'resource', COMBAT_RESOURCES_SET, path, out);
-  requireEnum(record, 'recipient', RESOURCE_RECIPIENTS_SET, path, out);
+  validateTargetQuery(record.source, `${path}.source`, out);
+  validateTargetQuery(record.targets, `${path}.targets`, out);
 
   if (record.spGainKind !== undefined) {
     const kind = requireEnum(record, 'spGainKind', SP_GAIN_KINDS_SET, path, out);
@@ -581,6 +576,17 @@ function validateCombatStep(
   };
 
   switch (kind) {
+    case 'findTargets': {
+      requireString(parameters, 'saveToContextKey', `${path}.parameters`, out);
+      validateTargetQuery(parameters.owner, `${path}.parameters.owner`, out);
+      validateTargetQuery(parameters.query, `${path}.parameters.query`, out);
+      break;
+    }
+    case 'copyContextTargets': {
+      requireString(parameters, 'saveToContextKey', `${path}.parameters`, out);
+      validateTargetQuery(parameters.source, `${path}.parameters.source`, out);
+      break;
+    }
     case 'mergeContextTargets':
       requireString(parameters, 'saveToContextKey', `${path}.parameters`, out);
       if (!Array.isArray(parameters.sources)) {
@@ -618,9 +624,6 @@ function validateCombatStep(
           }
         });
       }
-      break;
-    case 'findUnfinishedProjectileTargets':
-      requireString(parameters, 'saveToContextKey', `${path}.parameters`, out);
       break;
     case 'findCharacterTeamTargets': {
       requireString(parameters, 'saveToContextKey', `${path}.parameters`, out);
@@ -717,14 +720,7 @@ function validateCombatStep(
       validateActionValueOperand(parameters.index, `${path}.parameters.index`, out);
       break;
     case 'forEachContextTarget':
-      if (parameters.target === undefined) {
-        requireString(parameters, 'contextKey', `${path}.parameters`, out);
-      } else {
-        requireEnum(parameters, 'target', new Set(['enemy', 'caster']), `${path}.parameters`, out);
-        if (parameters.contextKey !== undefined) {
-          push(out, `${path}.parameters.contextKey`, 'cannot be combined with target');
-        }
-      }
+      validateTargetQuery(parameters.targets, `${path}.parameters.targets`, out);
       break;
     case 'readAbilityEntityRemainingDuration':
       requireString(parameters, 'outputKey', `${path}.parameters`, out);
@@ -734,11 +730,11 @@ function validateCombatStep(
       validateActionValueOperand(parameters.value, `${path}.parameters.value`, out);
       if (!currentTargetAvailable) push(out, path, 'requires a forEachContextTarget body');
       break;
-    case 'finishCurrentAbilityEntity':
     case 'finishCurrentAbilityEntityWhenSourceDies':
       if (!currentTargetAvailable) push(out, path, 'requires a forEachContextTarget body');
       break;
-    case 'finishActionOwnerAbilityEntity':
+    case 'interruptCurrentSkill':
+    case 'finishOwner':
       break;
     case 'startCurrentAbilityEntityChildSkill':
       validateAbilityEntityChildSkill(parameters.childSkill, `${path}.parameters.childSkill`, out);
@@ -749,6 +745,7 @@ function validateCombatStep(
       if (!currentTargetAvailable) push(out, path, 'requires a forEachContextTarget body');
       break;
     case 'spawnAbilityEntity': {
+      validateTargetQuery(parameters.bornAt, `${path}.parameters.bornAt`, out);
       requireString(parameters, 'abilityEntityId', `${path}.parameters`, out);
       if (parameters.childSkillId !== undefined) {
         requireString(parameters, 'childSkillId', `${path}.parameters`, out);
@@ -1442,14 +1439,6 @@ function validateCombatStep(
       requireString(parameters, 'desiredKey', `${path}.parameters`, out);
       requireString(parameters, 'outputKey', `${path}.parameters`, out);
       break;
-    case 'readCurrentBuffRemainingDuration':
-      requireString(parameters, 'outputKey', `${path}.parameters`, out);
-      break;
-    case 'readBuffRemainingDuration':
-      requireEnum(parameters, 'target', BUFF_SINGLE_TARGETS_SET, `${path}.parameters`, out);
-      validateNonEmptyStringArray(parameters.buffIds, `${path}.parameters.buffIds`, out);
-      requireString(parameters, 'outputKey', `${path}.parameters`, out);
-      break;
     case 'setBuffRemainingDuration': {
       requireEnum(parameters, 'target', BUFF_SINGLE_TARGETS_SET, `${path}.parameters`, out);
       const query = asRecord(parameters.query, `${path}.parameters.query`, out);
@@ -1483,11 +1472,14 @@ function validateCombatStep(
       break;
     case 'refreshCurrentBuffAttributeModifiers':
       break;
+    case 'readBuffRemainingDuration':
     case 'readBuffBlackboard':
     case 'readBuffStackCount': {
       // Buff 事件序列可从事件载荷解析 eventTarget；普通技能步骤仍会在运行时缺少
       // 对应事件上下文时失败关闭。这里按公开类型校验单体 Buff 目标，不误缩成战斗目标。
-      requireEnum(parameters, 'target', BUFF_SINGLE_TARGETS_SET, `${path}.parameters`, out);
+      if (kind === 'readBuffRemainingDuration')
+        validateTargetQuery(parameters.target, `${path}.parameters.target`, out);
+      else requireEnum(parameters, 'target', BUFF_SINGLE_TARGETS_SET, `${path}.parameters`, out);
       requireString(parameters, 'outputKey', `${path}.parameters`, out);
       if (kind === 'readBuffBlackboard') {
         requireString(parameters, 'desiredKey', `${path}.parameters`, out);
@@ -1512,7 +1504,7 @@ function validateCombatStep(
       } else if (queryKind === 'tag') {
         requireEnum(query, 'tagQueryType', TAG_QUERY_TYPES_SET, `${path}.parameters.query`, out);
         validateGameplayTags(query.buffTags, `${path}.parameters.query.buffTags`, out);
-      } else if (queryKind === 'environment' && kind !== 'readBuffStackCount') {
+      } else if (queryKind === 'environment' && kind === 'readBuffBlackboard') {
         push(out, `${path}.parameters.query.kind`, 'environment is only valid for stack count');
       } else if (queryKind !== 'environment' && queryKind !== null) {
         push(out, `${path}.parameters.query.kind`, "expected 'id', 'tag', or 'environment'");
@@ -1780,6 +1772,16 @@ function validateCombatStep(
       requireBoolean(parameters, 'revertOnEnd', parameterPath, out);
       break;
     }
+    case 'storeCharacterTypeId':
+      requireEnum(
+        parameters,
+        'target',
+        new Set(['caster', 'buffOwner', 'buffSource', 'currentTarget', 'enemy']),
+        `${path}.parameters`,
+        out,
+      );
+      requireString(parameters, 'outputKey', `${path}.parameters`, out);
+      break;
     case 'storeCurrentTimelineFrame':
       requireString(parameters, 'outputKey', `${path}.parameters`, out);
       break;
@@ -1933,14 +1935,6 @@ function validateCombatStep(
       break;
     case 'jumpTimeline':
       requireNonNegativeInteger(parameters, 'destinationFrame', `${path}.parameters`, out);
-      if (parameters.condition !== undefined) {
-        validateCombatCondition(
-          parameters.condition,
-          `${path}.parameters.condition`,
-          out,
-          currentTargetAvailable,
-        );
-      }
       break;
     case 'finishTimeline':
       break;
@@ -1962,6 +1956,13 @@ function validateCombatStep(
       validateActionValueOperand(parameters.choice, `${path}.parameters.choice`, out);
       requireBoolean(parameters, 'alwaysNext', `${path}.parameters`, out);
       break;
+    case 'invertNextResult':
+    case 'anyCondition':
+      break;
+    case 'ifElse':
+      requireBoolean(parameters, 'alwaysNext', `${path}.parameters`, out);
+      break;
+    case 'checkCondition':
     case 'conditional':
       validateCombatCondition(
         parameters.condition,
@@ -1974,8 +1975,6 @@ function validateCombatStep(
       }
       break;
     case 'once':
-      if (parameters.scopeKey !== undefined)
-        requireString(parameters, 'scopeKey', `${path}.parameters`, out);
       break;
     case 'withActionBlackboardScope': {
       if (parameters.scopeKey !== undefined)
@@ -2009,44 +2008,7 @@ function validateCombatStep(
       if (typeof parameters.inheritParent !== 'boolean') {
         push(out, `${path}.parameters.inheritParent`, 'expected a boolean');
       }
-      if (parameters.entityInitialValues !== undefined) {
-        const entityInitialValues = asRecord(
-          parameters.entityInitialValues,
-          `${path}.parameters.entityInitialValues`,
-          out,
-        );
-        if (entityInitialValues !== null) {
-          Object.entries(entityInitialValues).forEach(([key, value]) => {
-            if (!key.startsWith('EntityBB_')) {
-              push(
-                out,
-                `${path}.parameters.entityInitialValues.${key}`,
-                "expected an 'EntityBB_' key",
-              );
-            }
-            validateLevelValues(value, `${path}.parameters.entityInitialValues.${key}`, out);
-          });
-        }
-      }
-      if (parameters.entityAssignments !== undefined) {
-        const entityAssignments = asRecord(
-          parameters.entityAssignments,
-          `${path}.parameters.entityAssignments`,
-          out,
-        );
-        if (entityAssignments !== null) {
-          Object.entries(entityAssignments).forEach(([key, value]) => {
-            if (!key.startsWith('EntityBB_')) {
-              push(
-                out,
-                `${path}.parameters.entityAssignments.${key}`,
-                "expected an 'EntityBB_' key",
-              );
-            }
-            validateActionValueOperand(value, `${path}.parameters.entityAssignments.${key}`, out);
-          });
-        }
-      }
+      validateEntityBlackboardInputs(parameters, path, out);
       if (parameters.shareParentBlackboard === true) {
         if (initialValues !== null && Object.keys(initialValues).length !== 0) {
           push(
@@ -2093,29 +2055,10 @@ function validateCombatStep(
         const channelingPath = `${path}.parameters.nativeChanneling`;
         const channeling = asRecord(parameters.nativeChanneling, channelingPath, out);
         if (channeling !== null) {
-          const executeEachFrame = requireBoolean(
-            channeling,
-            'executeEachFrame',
-            channelingPath,
-            out,
-          );
-          const interval = requireFiniteNumber(
-            channeling,
-            'triggerIntervalSeconds',
-            channelingPath,
-            out,
-          );
-          if (executeEachFrame === false && interval !== null && interval <= 0) {
-            push(out, `${channelingPath}.triggerIntervalSeconds`, 'expected a positive number');
-          }
-          const maxCount = requireInteger(channeling, 'maxCountPerTarget', channelingPath, out);
-          if (maxCount !== null && maxCount < -1) {
-            push(
-              out,
-              `${channelingPath}.maxCountPerTarget`,
-              'expected -1 or a non-negative integer',
-            );
-          }
+          validateTargetQuery(channeling.target, `${channelingPath}.target`, out);
+          requireBoolean(channeling, 'executeEachFrame', channelingPath, out);
+          requireFiniteNumber(channeling, 'triggerIntervalSeconds', channelingPath, out);
+          requireInteger(channeling, 'maxCountPerTarget', channelingPath, out);
           requireFiniteNumber(channeling, 'targetTriggerIntervalSeconds', channelingPath, out);
         }
       }
@@ -2137,6 +2080,17 @@ function validateCombatStep(
       validateActionValueOperand(parameters.count, `${path}.parameters.count`, out);
       break;
     case 'launchProjectile': {
+      requireBoolean(parameters, 'inheritActionBlackboard', `${path}.parameters`, out);
+      validateEntityBlackboardInputs(parameters, path, out);
+      if (parameters.targets !== undefined) {
+        const targetsPath = `${path}.parameters.targets`;
+        const targets = asRecord(parameters.targets, targetsPath, out);
+        if (targets?.kind === 'count')
+          validateActionValueOperand(targets.count, `${targetsPath}.count`, out);
+        else if (targets?.kind === 'context')
+          requireString(targets, 'contextKey', targetsPath, out);
+        else if (targets) push(out, `${targetsPath}.kind`, 'expected context or count');
+      }
       if (
         parameters.source !== undefined &&
         parameters.source !== 'actionSource' &&
@@ -2366,7 +2320,19 @@ function validateActionChildren(
   const recordStep = asRecord(value, path, out);
   if (recordStep === null) return;
   const stepKind = recordStep.kind;
-  if (stepKind === 'conditional') {
+  if (stepKind === 'jumpTimeline') {
+    validateActionGraphReference(recordStep.condition, `${path}.condition`, out);
+  } else if (stepKind === 'anyCondition') {
+    if (!Array.isArray(recordStep.conditions)) push(out, `${path}.conditions`, 'expected an array');
+    else
+      recordStep.conditions.forEach((condition, index) =>
+        validateActionGraphReference(condition, `${path}.conditions[${index}]`, out),
+      );
+  } else if (stepKind === 'ifElse') {
+    validateActionGraphReference(recordStep.condition, `${path}.condition`, out);
+    validateActionGraphReference(recordStep.whenTrue, `${path}.whenTrue`, out);
+    validateActionGraphReference(recordStep.whenFalse, `${path}.whenFalse`, out);
+  } else if (stepKind === 'conditional') {
     validateActionGraphReference(recordStep.whenTrue, `${path}.whenTrue`, out);
     if (recordStep.whenFalse !== undefined) {
       validateActionGraphReference(recordStep.whenFalse, `${path}.whenFalse`, out);
@@ -2745,7 +2711,6 @@ export function validateActionGraphContexts(
         switch (action.kind) {
           case 'readAbilityEntityRemainingDuration':
           case 'setAbilityEntityRemainingDuration':
-          case 'finishCurrentAbilityEntity':
           case 'finishCurrentAbilityEntityWhenSourceDies':
           case 'startCurrentAbilityEntityChildSkill':
           case 'startCurrentAbilityEntityChildSkillById':
@@ -2776,6 +2741,18 @@ export function validateActionGraphContexts(
         const child = (ref: unknown, next: WalkContext) =>
           walkReference(scope, graphPath, nodes, scopeMacros, ref, next);
         switch (action.kind) {
+          case 'jumpTimeline':
+            child(action.condition, context);
+            break;
+          case 'ifElse':
+            child(action.condition, context);
+            child(action.whenTrue, context);
+            child(action.whenFalse, context);
+            break;
+          case 'anyCondition':
+            if (Array.isArray(action.conditions))
+              action.conditions.forEach(condition => child(condition, context));
+            break;
           case 'conditional':
             child(action.whenTrue, context);
             if (action.whenFalse !== undefined) child(action.whenFalse, context);
@@ -2902,4 +2879,42 @@ export function validateActionGraphContexts(
         ? {}
         : { missingEndFramePath: entry.missingListenerEndFramePath }),
     });
+}
+
+/** 独立实例的实体板初值与发射时赋值共用字段规则。 */
+function validateEntityBlackboardInputs(
+  parameters: Record<string, unknown>,
+  path: string,
+  out: SkillDefinitionValidationIssue[],
+): void {
+  if (parameters.entityInitialValues !== undefined) {
+    const entityInitialValues = asRecord(
+      parameters.entityInitialValues,
+      `${path}.parameters.entityInitialValues`,
+      out,
+    );
+    if (entityInitialValues !== null) {
+      Object.entries(entityInitialValues).forEach(([key, value]) => {
+        if (!key.startsWith('EntityBB_')) {
+          push(out, `${path}.parameters.entityInitialValues.${key}`, "expected an 'EntityBB_' key");
+        }
+        validateLevelValues(value, `${path}.parameters.entityInitialValues.${key}`, out);
+      });
+    }
+  }
+  if (parameters.entityAssignments !== undefined) {
+    const entityAssignments = asRecord(
+      parameters.entityAssignments,
+      `${path}.parameters.entityAssignments`,
+      out,
+    );
+    if (entityAssignments !== null) {
+      Object.entries(entityAssignments).forEach(([key, value]) => {
+        if (!key.startsWith('EntityBB_')) {
+          push(out, `${path}.parameters.entityAssignments.${key}`, "expected an 'EntityBB_' key");
+        }
+        validateActionValueOperand(value, `${path}.parameters.entityAssignments.${key}`, out);
+      });
+    }
+  }
 }

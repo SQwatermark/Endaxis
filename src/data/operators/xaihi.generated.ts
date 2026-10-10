@@ -11,6 +11,8 @@ export const xaihiChr_0011_seraph_attack1ActionGraph = {
         action: {
           kind: 'launchProjectile',
           parameters: {
+            inheritActionBlackboard: true,
+            entityInitialValues: {},
             finish: 'firstTickReach',
             recycleDelaySeconds: 0.0333333350718021,
             hit: { finishOnHit: true },
@@ -35,14 +37,29 @@ export const xaihiChr_0011_seraph_attack1ActionGraph = {
                 actionGraph: {
                   main: {
                     nodes: {
-                      changeResource_1: {
+                      checkCondition_1: {
+                        action: {
+                          kind: 'checkCondition',
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
+                        },
+                        next: null,
+                      },
+                      checkCondition_2: {
+                        action: {
+                          kind: 'checkCondition',
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
+                        },
+                        next: 'checkCondition_1',
+                      },
+                      changeResource_3: {
                         action: {
                           kind: 'changeResource',
                           parameters: {
                             resource: 'sp',
-                            amount: { kind: 'valueNode', nodeId: 'data_1' },
+                            amount: { kind: 'valueNode', nodeId: 'data_3' },
                             coefficient: { kind: 'constant', value: 1 },
-                            recipient: 'team',
+                            source: { kind: 'source' },
+                            targets: { kind: 'source' },
                             onlyMainOperator: true,
                             spGainKind: 'gain',
                             spGainSource: 'normalAttack',
@@ -50,14 +67,13 @@ export const xaihiChr_0011_seraph_attack1ActionGraph = {
                         },
                         next: null,
                       },
-                      conditional_opt1: {
+                      ifElse_opt1: {
                         action: {
-                          kind: 'conditional',
-                          parameters: {
-                            condition: { kind: 'conditionNode', nodeId: 'data_2' },
-                            alwaysNext: true,
-                          },
-                          whenTrue: { $sequence: 'changeResource_1' },
+                          kind: 'ifElse',
+                          parameters: { alwaysNext: true },
+                          condition: { $sequence: 'checkCondition_2' },
+                          whenTrue: { $sequence: 'changeResource_3' },
+                          whenFalse: { $sequence: null },
                         },
                         next: null,
                       },
@@ -66,17 +82,28 @@ export const xaihiChr_0011_seraph_attack1ActionGraph = {
                           kind: 'dealDamage',
                           parameters: {
                             damageType: 'cryo',
-                            attackScale: { kind: 'valueNode', nodeId: 'data_3' },
+                            attackScale: { kind: 'valueNode', nodeId: 'data_4' },
                             tags: ['normalAttack'],
                           },
                         },
-                        next: 'conditional_opt1',
+                        next: 'ifElse_opt1',
                       },
                     },
                     dataNodes: {
-                      data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+                      data_1: {
+                        type: 'boolean',
+                        expression: {
+                          kind: 'entityCountCompare',
+                          target: { kind: 'inputTarget' },
+                          containsHittableTarget: false,
+                          excludeDeadEntity: false,
+                          operator: 'greaterOrEqual',
+                          value: 1,
+                        },
+                      },
                       data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
-                      data_3: {
+                      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+                      data_4: {
                         type: 'number',
                         expression: { kind: 'blackboard', key: 'atk_scale' },
                       },
@@ -90,20 +117,7 @@ export const xaihiChr_0011_seraph_attack1ActionGraph = {
         },
         next: null,
       },
-      withActionBlackboardScope_2: {
-        action: {
-          kind: 'withActionBlackboardScope',
-          parameters: {
-            lifetime: 'execution',
-            initialValues: {},
-            inheritParent: true,
-            entityInitialValues: {},
-          },
-          body: { $sequence: 'launchProjectile_1' },
-        },
-        next: null,
-      },
-      reachSkillOperableBoundary_3: {
+      reachSkillOperableBoundary_2: {
         action: {
           kind: 'reachSkillOperableBoundary',
           parameters: { skillIds: ['chr_0011_seraph_attack2'] },
@@ -121,7 +135,6 @@ export const xaihiChr_0011_seraph_attack1: SkillDefinition = {
   blackboard: {
     atb: 0,
     atk_scale: [0.15, 0.17, 0.18, 0.2, 0.21, 0.23, 0.24, 0.26, 0.27, 0.29, 0.31, 0.34],
-    display_atk_scale: [0.15, 0.17, 0.18, 0.2, 0.21, 0.23, 0.24, 0.26, 0.27, 0.29, 0.31, 0.34],
   },
   timelineBlockFrames: 13,
   naturalDurationFrames: 117,
@@ -140,8 +153,8 @@ export const xaihiChr_0011_seraph_attack1: SkillDefinition = {
   },
   costFrame: 11,
   scheduledSequences: [
-    { startFrame: 10, endFrame: 10, sequence: { $sequence: 'withActionBlackboardScope_2' } },
-    { startFrame: 13, endFrame: 25, sequence: { $sequence: 'reachSkillOperableBoundary_3' } },
+    { startFrame: 10, endFrame: 10, sequence: { $sequence: 'launchProjectile_1' } },
+    { startFrame: 13, endFrame: 25, sequence: { $sequence: 'reachSkillOperableBoundary_2' } },
   ],
   timelineContinuationSkillId: 'chr_0011_seraph_attack2',
   skillType: 'basicAttack',
@@ -157,6 +170,8 @@ export const xaihiChr_0011_seraph_attack2ActionGraph = {
         action: {
           kind: 'launchProjectile',
           parameters: {
+            inheritActionBlackboard: true,
+            entityInitialValues: {},
             finish: 'firstTickReach',
             recycleDelaySeconds: 0.0333333350718021,
             hit: { finishOnHit: true },
@@ -181,14 +196,29 @@ export const xaihiChr_0011_seraph_attack2ActionGraph = {
                 actionGraph: {
                   main: {
                     nodes: {
-                      changeResource_1: {
+                      checkCondition_1: {
+                        action: {
+                          kind: 'checkCondition',
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
+                        },
+                        next: null,
+                      },
+                      checkCondition_2: {
+                        action: {
+                          kind: 'checkCondition',
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
+                        },
+                        next: 'checkCondition_1',
+                      },
+                      changeResource_3: {
                         action: {
                           kind: 'changeResource',
                           parameters: {
                             resource: 'sp',
-                            amount: { kind: 'valueNode', nodeId: 'data_1' },
+                            amount: { kind: 'valueNode', nodeId: 'data_3' },
                             coefficient: { kind: 'constant', value: 1 },
-                            recipient: 'team',
+                            source: { kind: 'source' },
+                            targets: { kind: 'source' },
                             onlyMainOperator: true,
                             spGainKind: 'gain',
                             spGainSource: 'normalAttack',
@@ -196,14 +226,13 @@ export const xaihiChr_0011_seraph_attack2ActionGraph = {
                         },
                         next: null,
                       },
-                      conditional_opt1: {
+                      ifElse_opt1: {
                         action: {
-                          kind: 'conditional',
-                          parameters: {
-                            condition: { kind: 'conditionNode', nodeId: 'data_2' },
-                            alwaysNext: true,
-                          },
-                          whenTrue: { $sequence: 'changeResource_1' },
+                          kind: 'ifElse',
+                          parameters: { alwaysNext: true },
+                          condition: { $sequence: 'checkCondition_2' },
+                          whenTrue: { $sequence: 'changeResource_3' },
+                          whenFalse: { $sequence: null },
                         },
                         next: null,
                       },
@@ -212,17 +241,28 @@ export const xaihiChr_0011_seraph_attack2ActionGraph = {
                           kind: 'dealDamage',
                           parameters: {
                             damageType: 'cryo',
-                            attackScale: { kind: 'valueNode', nodeId: 'data_3' },
+                            attackScale: { kind: 'valueNode', nodeId: 'data_4' },
                             tags: ['normalAttack'],
                           },
                         },
-                        next: 'conditional_opt1',
+                        next: 'ifElse_opt1',
                       },
                     },
                     dataNodes: {
-                      data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+                      data_1: {
+                        type: 'boolean',
+                        expression: {
+                          kind: 'entityCountCompare',
+                          target: { kind: 'inputTarget' },
+                          containsHittableTarget: false,
+                          excludeDeadEntity: false,
+                          operator: 'greaterOrEqual',
+                          value: 1,
+                        },
+                      },
                       data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
-                      data_3: {
+                      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+                      data_4: {
                         type: 'number',
                         expression: { kind: 'blackboard', key: 'atk_scale' },
                       },
@@ -236,20 +276,7 @@ export const xaihiChr_0011_seraph_attack2ActionGraph = {
         },
         next: null,
       },
-      withActionBlackboardScope_2: {
-        action: {
-          kind: 'withActionBlackboardScope',
-          parameters: {
-            lifetime: 'execution',
-            initialValues: {},
-            inheritParent: true,
-            entityInitialValues: {},
-          },
-          body: { $sequence: 'launchProjectile_1' },
-        },
-        next: null,
-      },
-      reachSkillOperableBoundary_3: {
+      reachSkillOperableBoundary_2: {
         action: {
           kind: 'reachSkillOperableBoundary',
           parameters: { skillIds: ['chr_0011_seraph_attack3'] },
@@ -267,7 +294,6 @@ export const xaihiChr_0011_seraph_attack2: SkillDefinition = {
   blackboard: {
     atb: 0,
     atk_scale: [0.16, 0.18, 0.19, 0.21, 0.22, 0.24, 0.26, 0.27, 0.29, 0.31, 0.33, 0.36],
-    display_atk_scale: [0.16, 0.18, 0.19, 0.21, 0.22, 0.24, 0.26, 0.27, 0.29, 0.31, 0.33, 0.36],
   },
   timelineBlockFrames: 17,
   naturalDurationFrames: 121,
@@ -286,8 +312,8 @@ export const xaihiChr_0011_seraph_attack2: SkillDefinition = {
   },
   costFrame: 7,
   scheduledSequences: [
-    { startFrame: 7, endFrame: 7, sequence: { $sequence: 'withActionBlackboardScope_2' } },
-    { startFrame: 17, endFrame: 28, sequence: { $sequence: 'reachSkillOperableBoundary_3' } },
+    { startFrame: 7, endFrame: 7, sequence: { $sequence: 'launchProjectile_1' } },
+    { startFrame: 17, endFrame: 28, sequence: { $sequence: 'reachSkillOperableBoundary_2' } },
   ],
   timelineContinuationSkillId: 'chr_0011_seraph_attack3',
   skillType: 'basicAttack',
@@ -303,6 +329,8 @@ export const xaihiChr_0011_seraph_attack3ActionGraph = {
         action: {
           kind: 'launchProjectile',
           parameters: {
+            inheritActionBlackboard: true,
+            entityInitialValues: {},
             finish: 'firstTickReach',
             recycleDelaySeconds: 0.0333333350718021,
             hit: { finishOnHit: true },
@@ -327,14 +355,29 @@ export const xaihiChr_0011_seraph_attack3ActionGraph = {
                 actionGraph: {
                   main: {
                     nodes: {
-                      changeResource_1: {
+                      checkCondition_1: {
+                        action: {
+                          kind: 'checkCondition',
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
+                        },
+                        next: null,
+                      },
+                      checkCondition_2: {
+                        action: {
+                          kind: 'checkCondition',
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
+                        },
+                        next: 'checkCondition_1',
+                      },
+                      changeResource_3: {
                         action: {
                           kind: 'changeResource',
                           parameters: {
                             resource: 'sp',
-                            amount: { kind: 'valueNode', nodeId: 'data_1' },
+                            amount: { kind: 'valueNode', nodeId: 'data_3' },
                             coefficient: { kind: 'constant', value: 1 },
-                            recipient: 'team',
+                            source: { kind: 'source' },
+                            targets: { kind: 'source' },
                             onlyMainOperator: true,
                             spGainKind: 'gain',
                             spGainSource: 'normalAttack',
@@ -342,14 +385,13 @@ export const xaihiChr_0011_seraph_attack3ActionGraph = {
                         },
                         next: null,
                       },
-                      conditional_opt1: {
+                      ifElse_opt1: {
                         action: {
-                          kind: 'conditional',
-                          parameters: {
-                            condition: { kind: 'conditionNode', nodeId: 'data_2' },
-                            alwaysNext: true,
-                          },
-                          whenTrue: { $sequence: 'changeResource_1' },
+                          kind: 'ifElse',
+                          parameters: { alwaysNext: true },
+                          condition: { $sequence: 'checkCondition_2' },
+                          whenTrue: { $sequence: 'changeResource_3' },
+                          whenFalse: { $sequence: null },
                         },
                         next: null,
                       },
@@ -358,17 +400,28 @@ export const xaihiChr_0011_seraph_attack3ActionGraph = {
                           kind: 'dealDamage',
                           parameters: {
                             damageType: 'cryo',
-                            attackScale: { kind: 'valueNode', nodeId: 'data_3' },
+                            attackScale: { kind: 'valueNode', nodeId: 'data_4' },
                             tags: ['normalAttack'],
                           },
                         },
-                        next: 'conditional_opt1',
+                        next: 'ifElse_opt1',
                       },
                     },
                     dataNodes: {
-                      data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+                      data_1: {
+                        type: 'boolean',
+                        expression: {
+                          kind: 'entityCountCompare',
+                          target: { kind: 'inputTarget' },
+                          containsHittableTarget: false,
+                          excludeDeadEntity: false,
+                          operator: 'greaterOrEqual',
+                          value: 1,
+                        },
+                      },
                       data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
-                      data_3: {
+                      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+                      data_4: {
                         type: 'number',
                         expression: { kind: 'blackboard', key: 'atk_scale' },
                       },
@@ -382,20 +435,7 @@ export const xaihiChr_0011_seraph_attack3ActionGraph = {
         },
         next: null,
       },
-      withActionBlackboardScope_2: {
-        action: {
-          kind: 'withActionBlackboardScope',
-          parameters: {
-            lifetime: 'execution',
-            initialValues: {},
-            inheritParent: true,
-            entityInitialValues: {},
-          },
-          body: { $sequence: 'launchProjectile_1' },
-        },
-        next: null,
-      },
-      reachSkillOperableBoundary_3: {
+      reachSkillOperableBoundary_2: {
         action: {
           kind: 'reachSkillOperableBoundary',
           parameters: { skillIds: ['chr_0011_seraph_attack4'] },
@@ -413,7 +453,6 @@ export const xaihiChr_0011_seraph_attack3: SkillDefinition = {
   blackboard: {
     atb: 0,
     atk_scale: [0.21, 0.23, 0.25, 0.27, 0.29, 0.32, 0.34, 0.36, 0.38, 0.4, 0.44, 0.47],
-    display_atk_scale: [0.21, 0.23, 0.25, 0.27, 0.29, 0.32, 0.34, 0.36, 0.38, 0.4, 0.44, 0.47],
   },
   timelineBlockFrames: 14,
   naturalDurationFrames: 125,
@@ -432,8 +471,8 @@ export const xaihiChr_0011_seraph_attack3: SkillDefinition = {
   },
   costFrame: 11,
   scheduledSequences: [
-    { startFrame: 8, endFrame: 8, sequence: { $sequence: 'withActionBlackboardScope_2' } },
-    { startFrame: 14, endFrame: 25, sequence: { $sequence: 'reachSkillOperableBoundary_3' } },
+    { startFrame: 8, endFrame: 8, sequence: { $sequence: 'launchProjectile_1' } },
+    { startFrame: 14, endFrame: 25, sequence: { $sequence: 'reachSkillOperableBoundary_2' } },
   ],
   timelineContinuationSkillId: 'chr_0011_seraph_attack4',
   skillType: 'basicAttack',
@@ -449,6 +488,8 @@ export const xaihiChr_0011_seraph_attack4ActionGraph = {
         action: {
           kind: 'launchProjectile',
           parameters: {
+            inheritActionBlackboard: true,
+            entityInitialValues: {},
             finish: 'firstTickReach',
             recycleDelaySeconds: 0.0333333350718021,
             hit: { finishOnHit: true },
@@ -473,14 +514,29 @@ export const xaihiChr_0011_seraph_attack4ActionGraph = {
                 actionGraph: {
                   main: {
                     nodes: {
-                      changeResource_1: {
+                      checkCondition_1: {
+                        action: {
+                          kind: 'checkCondition',
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
+                        },
+                        next: null,
+                      },
+                      checkCondition_2: {
+                        action: {
+                          kind: 'checkCondition',
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
+                        },
+                        next: 'checkCondition_1',
+                      },
+                      changeResource_3: {
                         action: {
                           kind: 'changeResource',
                           parameters: {
                             resource: 'sp',
-                            amount: { kind: 'valueNode', nodeId: 'data_1' },
+                            amount: { kind: 'valueNode', nodeId: 'data_3' },
                             coefficient: { kind: 'constant', value: 0.5 },
-                            recipient: 'team',
+                            source: { kind: 'source' },
+                            targets: { kind: 'source' },
                             onlyMainOperator: true,
                             spGainKind: 'gain',
                             spGainSource: 'normalAttack',
@@ -488,14 +544,13 @@ export const xaihiChr_0011_seraph_attack4ActionGraph = {
                         },
                         next: null,
                       },
-                      conditional_opt1: {
+                      ifElse_opt1: {
                         action: {
-                          kind: 'conditional',
-                          parameters: {
-                            condition: { kind: 'conditionNode', nodeId: 'data_2' },
-                            alwaysNext: true,
-                          },
-                          whenTrue: { $sequence: 'changeResource_1' },
+                          kind: 'ifElse',
+                          parameters: { alwaysNext: true },
+                          condition: { $sequence: 'checkCondition_2' },
+                          whenTrue: { $sequence: 'changeResource_3' },
+                          whenFalse: { $sequence: null },
                         },
                         next: null,
                       },
@@ -504,17 +559,28 @@ export const xaihiChr_0011_seraph_attack4ActionGraph = {
                           kind: 'dealDamage',
                           parameters: {
                             damageType: 'cryo',
-                            attackScale: { kind: 'valueNode', nodeId: 'data_3' },
+                            attackScale: { kind: 'valueNode', nodeId: 'data_4' },
                             tags: ['normalAttack'],
                           },
                         },
-                        next: 'conditional_opt1',
+                        next: 'ifElse_opt1',
                       },
                     },
                     dataNodes: {
-                      data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+                      data_1: {
+                        type: 'boolean',
+                        expression: {
+                          kind: 'entityCountCompare',
+                          target: { kind: 'inputTarget' },
+                          containsHittableTarget: false,
+                          excludeDeadEntity: false,
+                          operator: 'greaterOrEqual',
+                          value: 1,
+                        },
+                      },
                       data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
-                      data_3: {
+                      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+                      data_4: {
                         type: 'number',
                         expression: { kind: 'blackboard', key: 'atk_scale' },
                       },
@@ -528,20 +594,7 @@ export const xaihiChr_0011_seraph_attack4ActionGraph = {
         },
         next: null,
       },
-      withActionBlackboardScope_2: {
-        action: {
-          kind: 'withActionBlackboardScope',
-          parameters: {
-            lifetime: 'execution',
-            initialValues: {},
-            inheritParent: true,
-            entityInitialValues: {},
-          },
-          body: { $sequence: 'launchProjectile_1' },
-        },
-        next: null,
-      },
-      reachSkillOperableBoundary_5: {
+      reachSkillOperableBoundary_3: {
         action: {
           kind: 'reachSkillOperableBoundary',
           parameters: { skillIds: ['chr_0011_seraph_attack5'] },
@@ -559,7 +612,6 @@ export const xaihiChr_0011_seraph_attack4: SkillDefinition = {
   blackboard: {
     atb: 0,
     atk_scale: [0.17, 0.18, 0.2, 0.21, 0.23, 0.25, 0.26, 0.28, 0.3, 0.32, 0.34, 0.37],
-    display_atk_scale: [0.33, 0.36, 0.4, 0.43, 0.46, 0.5, 0.53, 0.56, 0.59, 0.64, 0.68, 0.74],
   },
   timelineBlockFrames: 21,
   naturalDurationFrames: 128,
@@ -578,9 +630,9 @@ export const xaihiChr_0011_seraph_attack4: SkillDefinition = {
   },
   costFrame: 12,
   scheduledSequences: [
-    { startFrame: 12, endFrame: 12, sequence: { $sequence: 'withActionBlackboardScope_2' } },
-    { startFrame: 7, endFrame: 7, sequence: { $sequence: 'withActionBlackboardScope_2' } },
-    { startFrame: 21, endFrame: 33, sequence: { $sequence: 'reachSkillOperableBoundary_5' } },
+    { startFrame: 12, endFrame: 12, sequence: { $sequence: 'launchProjectile_1' } },
+    { startFrame: 7, endFrame: 7, sequence: { $sequence: 'launchProjectile_1' } },
+    { startFrame: 21, endFrame: 33, sequence: { $sequence: 'reachSkillOperableBoundary_3' } },
   ],
   timelineContinuationSkillId: 'chr_0011_seraph_attack5',
   skillType: 'basicAttack',
@@ -592,54 +644,150 @@ export const xaihiChr_0011_seraph_attack4: SkillDefinition = {
 export const xaihiChr_0011_seraph_attack5ActionGraph = {
   main: {
     nodes: {
-      changeResource_1: {
+      checkCondition_1: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
+        },
+        next: null,
+      },
+      findTargets_2: {
+        action: {
+          kind: 'findTargets',
+          parameters: {
+            owner: { kind: 'owner' },
+            query: { kind: 'mainTarget', owner: { kind: 'owner' } },
+            saveToContextKey: 'target',
+          },
+        },
+        next: null,
+      },
+      checkCondition_3: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
+        },
+        next: null,
+      },
+      ifElse_4: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_1' },
+          whenTrue: { $sequence: 'findTargets_2' },
+          whenFalse: { $sequence: null },
+        },
+        next: null,
+      },
+      ifElse_5: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_3' },
+          whenTrue: { $sequence: 'ifElse_4' },
+          whenFalse: { $sequence: null },
+        },
+        next: null,
+      },
+      checkCondition_6: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
+        },
+        next: null,
+      },
+      checkCondition_7: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_4' } },
+        },
+        next: 'checkCondition_6',
+      },
+      changeResource_8: {
         action: {
           kind: 'changeResource',
           parameters: {
             resource: 'sp',
-            amount: { kind: 'valueNode', nodeId: 'data_1' },
+            amount: { kind: 'valueNode', nodeId: 'data_5' },
             coefficient: { kind: 'constant', value: 1 },
-            recipient: 'team',
+            source: { kind: 'source' },
+            targets: { kind: 'source' },
             spGainKind: 'gain',
             spGainSource: 'normalAttack',
           },
         },
         next: null,
       },
-      reachSkillOperableBoundary_4: {
+      ifElse_9: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_7' },
+          whenTrue: { $sequence: 'changeResource_8' },
+          whenFalse: { $sequence: null },
+        },
+        next: null,
+      },
+      dealDamage_10: {
+        action: {
+          kind: 'dealDamage',
+          parameters: {
+            damageType: 'cryo',
+            attackScale: { kind: 'valueNode', nodeId: 'data_6' },
+            tags: ['normalAttack', 'normalAttackLastCombo'],
+            stagger: { kind: 'valueNode', nodeId: 'data_7' },
+            staggerOnlyWhenCasterControlled: true,
+          },
+        },
+        next: 'ifElse_9',
+      },
+      reachSkillOperableBoundary_11: {
         action: {
           kind: 'reachSkillOperableBoundary',
           parameters: { skillIds: ['chr_0011_seraph_attack1'] },
         },
         next: null,
       },
-      conditional_opt1: {
-        action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResource_1' },
-        },
-        next: null,
-      },
-      dealDamage_opt2: {
-        action: {
-          kind: 'dealDamage',
-          parameters: {
-            damageType: 'cryo',
-            attackScale: { kind: 'valueNode', nodeId: 'data_3' },
-            tags: ['normalAttack', 'normalAttackLastCombo'],
-            stagger: { kind: 'valueNode', nodeId: 'data_4' },
-            staggerOnlyWhenCasterControlled: true,
-          },
-        },
-        next: 'conditional_opt1',
-      },
     },
     dataNodes: {
-      data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
-      data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
-      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
+      data_1: {
+        type: 'boolean',
+        expression: {
+          kind: 'targetDistance',
+          source: { kind: 'owner' },
+          target: { kind: 'inputTarget' },
+          distance: 12,
+          lessThan: true,
+          includeTargetRadius: false,
+          containsHittableObject: false,
+        },
+      },
+      data_2: {
+        type: 'boolean',
+        expression: {
+          kind: 'entityCountCompare',
+          target: { kind: 'inputTarget' },
+          containsHittableTarget: false,
+          excludeDeadEntity: false,
+          operator: 'greaterOrEqual',
+          value: 1,
+        },
+      },
+      data_3: {
+        type: 'boolean',
+        expression: {
+          kind: 'entityCountCompare',
+          target: { kind: 'fixed', target: 'enemy' },
+          containsHittableTarget: false,
+          excludeDeadEntity: false,
+          operator: 'greaterOrEqual',
+          value: 1,
+        },
+      },
+      data_4: { type: 'boolean', expression: { kind: 'casterControlled' } },
+      data_5: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+      data_6: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
+      data_7: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
     },
   },
   macros: {},
@@ -652,7 +800,6 @@ export const xaihiChr_0011_seraph_attack5: SkillDefinition = {
     atb: 15,
     atk_scale: [0.55, 0.61, 0.66, 0.72, 0.77, 0.83, 0.88, 0.94, 0.99, 1.06, 1.14, 1.24],
     poise: 15,
-    display_atk_scale: [0.55, 0.61, 0.66, 0.72, 0.77, 0.83, 0.88, 0.94, 0.99, 1.06, 1.14, 1.24],
   },
   timelineBlockFrames: 33,
   naturalDurationFrames: 137,
@@ -671,8 +818,9 @@ export const xaihiChr_0011_seraph_attack5: SkillDefinition = {
   },
   costFrame: 12,
   scheduledSequences: [
-    { startFrame: 19, endFrame: 19, sequence: { $sequence: 'dealDamage_opt2' } },
-    { startFrame: 33, endFrame: 40, sequence: { $sequence: 'reachSkillOperableBoundary_4' } },
+    { startFrame: 0, endFrame: 1, sequence: { $sequence: 'ifElse_5' } },
+    { startFrame: 19, endFrame: 19, sequence: { $sequence: 'dealDamage_10' } },
+    { startFrame: 33, endFrame: 40, sequence: { $sequence: 'reachSkillOperableBoundary_11' } },
   ],
   timelineContinuationSkillId: 'chr_0011_seraph_attack1',
   skillType: 'basicAttack',
@@ -684,7 +832,14 @@ export const xaihiChr_0011_seraph_attack5: SkillDefinition = {
 export const xaihiChr_0011_seraph_power_attackActionGraph = {
   main: {
     nodes: {
-      startTimeDilation_1: {
+      checkCondition_1: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
+        },
+        next: null,
+      },
+      startTimeDilation_2: {
         action: {
           kind: 'startTimeDilation',
           parameters: {
@@ -699,19 +854,21 @@ export const xaihiChr_0011_seraph_power_attackActionGraph = {
         },
         next: null,
       },
-      conditional_2: {
+      ifElse_3: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' }, alwaysNext: true },
-          whenTrue: { $sequence: 'startTimeDilation_1' },
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_1' },
+          whenTrue: { $sequence: 'startTimeDilation_2' },
+          whenFalse: { $sequence: null },
         },
         next: null,
       },
-      gainFinisherSp_3: {
+      gainFinisherSp_4: {
         action: { kind: 'gainFinisherSp', parameters: { factor: 1, recipient: 'team' } },
         next: null,
       },
-      dealDamage_4: {
+      dealDamage_5: {
         action: {
           kind: 'dealDamage',
           parameters: {
@@ -722,9 +879,9 @@ export const xaihiChr_0011_seraph_power_attackActionGraph = {
             tags: ['normalAttack', 'powerAttack'],
           },
         },
-        next: 'gainFinisherSp_3',
+        next: 'gainFinisherSp_4',
       },
-      applyBuff_5: {
+      applyBuff_6: {
         action: {
           kind: 'applyBuff',
           parameters: {
@@ -736,7 +893,7 @@ export const xaihiChr_0011_seraph_power_attackActionGraph = {
         },
         next: null,
       },
-      applyBuff_6: {
+      applyBuff_7: {
         action: {
           kind: 'applyBuff',
           parameters: {
@@ -758,7 +915,6 @@ export const xaihiChr_0011_seraph_power_attackActionGraph = {
 } as const satisfies ActionGraphResourceDefinition;
 
 export const xaihiChr_0011_seraph_power_attack: SkillDefinition = {
-  actionGraph: xaihiChr_0011_seraph_power_attackActionGraph,
   key: 'chr_0011_seraph_power_attack',
   element: 'cryo',
   blackboard: { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
@@ -777,14 +933,15 @@ export const xaihiChr_0011_seraph_power_attack: SkillDefinition = {
   },
   costFrame: 12,
   scheduledSequences: [
-    { startFrame: 34, endFrame: 35, sequence: { $sequence: 'conditional_2' } },
-    { startFrame: 32, endFrame: 32, sequence: { $sequence: 'dealDamage_4' } },
-    { startFrame: 0, endFrame: 50, sequence: { $sequence: 'applyBuff_5' } },
-    { startFrame: 0, endFrame: 34, sequence: { $sequence: 'applyBuff_6' } },
+    { startFrame: 34, endFrame: 35, sequence: { $sequence: 'ifElse_3' } },
+    { startFrame: 32, endFrame: 32, sequence: { $sequence: 'dealDamage_5' } },
+    { startFrame: 0, endFrame: 50, sequence: { $sequence: 'applyBuff_6' } },
+    { startFrame: 0, endFrame: 34, sequence: { $sequence: 'applyBuff_7' } },
   ],
   skillType: 'finisher',
   levelSource: 'basicAttack',
   nativeSkillType: 'breakingAttack',
+  actionGraph: xaihiChr_0011_seraph_power_attackActionGraph,
 };
 
 export const xaihiChr_0011_seraph_plunging_attack_endActionGraph = {
@@ -797,7 +954,8 @@ export const xaihiChr_0011_seraph_plunging_attack_endActionGraph = {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
             coefficient: { kind: 'constant', value: 1 },
-            recipient: 'team',
+            source: { kind: 'source' },
+            targets: { kind: 'source' },
             onlyMainOperator: true,
             spGainKind: 'gain',
             spGainSource: 'normalAttack',
@@ -847,13 +1005,6 @@ export const xaihiChr_0011_seraph_plunging_attack_end: SkillDefinition = {
 export const xaihiChr_0011_seraph_normal_skillActionGraph = {
   main: {
     nodes: {
-      findCharacterTeamTargets_1: {
-        action: {
-          kind: 'findCharacterTeamTargets',
-          parameters: { saveToContextKey: 'mainchar', selection: { kind: 'controlledOperator' } },
-        },
-        next: null,
-      },
       finishBuffsById_2: {
         action: {
           kind: 'finishBuffsById',
@@ -872,18 +1023,28 @@ export const xaihiChr_0011_seraph_normal_skillActionGraph = {
             resource: 'sp',
             amount: { kind: 'valueNode', nodeId: 'data_1' },
             coefficient: { kind: 'constant', value: 1 },
-            recipient: 'team',
+            source: { kind: 'owner' },
+            targets: { kind: 'owner' },
             spGainKind: 'gain',
             spGainSource: 'skill',
           },
         },
         next: 'finishBuffsById_2',
       },
-      conditional_4: {
+      checkCondition_1: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' }, alwaysNext: true },
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
+        },
+        next: null,
+      },
+      ifElse_4: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_1' },
           whenTrue: { $sequence: 'changeResource_3' },
+          whenFalse: { $sequence: null },
         },
         next: null,
       },
@@ -909,6 +1070,16 @@ export const xaihiChr_0011_seraph_normal_skillActionGraph = {
         },
         next: null,
       },
+      ifElse_opt1: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: null },
+          whenTrue: { $sequence: null },
+          whenFalse: { $sequence: null },
+        },
+        next: null,
+      },
     },
     dataNodes: {
       data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
@@ -928,7 +1099,6 @@ export const xaihiChr_0011_seraph_normal_skillActionGraph = {
 } as const satisfies ActionGraphResourceDefinition;
 
 export const xaihiChr_0011_seraph_normal_skill: SkillDefinition = {
-  actionGraph: xaihiChr_0011_seraph_normal_skillActionGraph,
   key: 'chr_0011_seraph_normal_skill',
   element: 'cryo',
   blackboard: {
@@ -946,27 +1116,68 @@ export const xaihiChr_0011_seraph_normal_skill: SkillDefinition = {
   offsetRecordFrame: 0,
   costFrame: 0,
   scheduledSequences: [
-    { startFrame: 0, endFrame: 2, sequence: { $sequence: 'findCharacterTeamTargets_1' } },
-    { startFrame: 6, endFrame: 6, sequence: { $sequence: 'conditional_4' } },
+    { startFrame: 6, endFrame: 6, sequence: { $sequence: 'ifElse_4' } },
     { startFrame: 7, endFrame: 8, sequence: { $sequence: 'applyBuff_5' } },
+    { startFrame: 0, endFrame: 38, sequence: { $sequence: 'ifElse_opt1' } },
+    { startFrame: 0, endFrame: 25, sequence: { $sequence: 'ifElse_opt1' } },
   ],
   costs: [{ resource: 'sp', value: 100 }],
   skillType: 'battleSkill',
   levelSource: 'battleSkill',
   nativeSkillType: 'normalSkill',
+  actionGraph: xaihiChr_0011_seraph_normal_skillActionGraph,
 };
 
 export const xaihiChr_0011_seraph_combo_skillActionGraph = {
   main: {
     nodes: {
-      findCharacterTeamTargets_1: {
+      findTargets_2: {
+        action: {
+          kind: 'findTargets',
+          parameters: {
+            owner: { kind: 'owner' },
+            query: { kind: 'mainTarget', owner: { kind: 'owner' } },
+            saveToContextKey: 'main',
+          },
+        },
+        next: null,
+      },
+      checkCondition_1: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
+        },
+        next: null,
+      },
+      findCharacterTeamTargets_3: {
         action: {
           kind: 'findCharacterTeamTargets',
           parameters: { saveToContextKey: 'mainchr', selection: { kind: 'controlledOperator' } },
         },
         next: null,
       },
-      applyBuff_4: {
+      ifElse_4: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_1' },
+          whenTrue: { $sequence: 'findTargets_2' },
+          whenFalse: { $sequence: null },
+        },
+        next: 'findCharacterTeamTargets_3',
+      },
+      findTargets_5: {
+        action: {
+          kind: 'findTargets',
+          parameters: {
+            owner: { kind: 'owner' },
+            query: { kind: 'mainTarget', owner: { kind: 'owner' } },
+            saveToContextKey: 'tar',
+          },
+        },
+        next: 'ifElse_4',
+      },
+      applyBuff_7: {
         action: {
           kind: 'applyBuff',
           parameters: {
@@ -977,10 +1188,31 @@ export const xaihiChr_0011_seraph_combo_skillActionGraph = {
         },
         next: null,
       },
-      launchProjectile_5: {
+      finishBuffsById_12: {
+        action: {
+          kind: 'finishBuffsById',
+          parameters: {
+            target: 'party',
+            buffIds: ['buff_chr_0011_seraph_atk_buff_normal_skill'],
+            reason: 'other',
+          },
+        },
+        next: null,
+      },
+      forEachContextTarget_13: {
+        action: {
+          kind: 'forEachContextTarget',
+          parameters: { targets: { kind: 'context', key: 'ball' } },
+          body: { $sequence: 'applyBuff_7' },
+        },
+        next: 'finishBuffsById_12',
+      },
+      launchProjectile_14: {
         action: {
           kind: 'launchProjectile',
           parameters: {
+            inheritActionBlackboard: true,
+            entityInitialValues: {},
             finish: 'firstTickReach',
             recycleDelaySeconds: 0.0333333350718021,
             hit: { onReach: true, finishOnHit: true },
@@ -1008,17 +1240,20 @@ export const xaihiChr_0011_seraph_combo_skillActionGraph = {
                   usp: 0,
                 },
                 scheduledSequences: [
-                  { startFrame: 0, endFrame: 3, sequence: { $sequence: 'conditional_3' } },
-                  {
-                    startFrame: 0,
-                    endFrame: 3,
-                    sequence: { $sequence: 'applyElementalInfliction_18' },
-                  },
+                  { startFrame: 0, endFrame: 3, sequence: { $sequence: 'ifElse_5' } },
+                  { startFrame: 0, endFrame: 3, sequence: { $sequence: 'ifElse_opt4' } },
                 ],
                 actionGraph: {
                   main: {
                     nodes: {
-                      applyBuff_1: {
+                      checkCondition_1: {
+                        action: {
+                          kind: 'checkCondition',
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
+                        },
+                        next: null,
+                      },
+                      applyBuff_2: {
                         action: {
                           kind: 'applyBuff',
                           parameters: {
@@ -1037,41 +1272,86 @@ export const xaihiChr_0011_seraph_combo_skillActionGraph = {
                         },
                         next: null,
                       },
-                      conditional_2: {
+                      checkCondition_3: {
                         action: {
-                          kind: 'conditional',
-                          parameters: {
-                            condition: { kind: 'conditionNode', nodeId: 'data_1' },
-                            alwaysNext: true,
-                          },
-                          whenTrue: { $sequence: 'applyBuff_1' },
+                          kind: 'checkCondition',
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
                         },
                         next: null,
                       },
-                      conditional_3: {
+                      ifElse_4: {
                         action: {
-                          kind: 'conditional',
-                          parameters: {
-                            condition: { kind: 'conditionNode', nodeId: 'data_3' },
-                            alwaysNext: true,
-                          },
-                          whenTrue: { $sequence: 'conditional_2' },
+                          kind: 'ifElse',
+                          parameters: { alwaysNext: true },
+                          condition: { $sequence: 'checkCondition_1' },
+                          whenTrue: { $sequence: 'applyBuff_2' },
+                          whenFalse: { $sequence: null },
                         },
                         next: null,
                       },
-                      changeResource_15: {
+                      ifElse_5: {
+                        action: {
+                          kind: 'ifElse',
+                          parameters: { alwaysNext: true },
+                          condition: { $sequence: 'checkCondition_3' },
+                          whenTrue: { $sequence: 'ifElse_4' },
+                          whenFalse: { $sequence: null },
+                        },
+                        next: null,
+                      },
+                      checkCondition_6: {
+                        action: {
+                          kind: 'checkCondition',
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
+                        },
+                        next: null,
+                      },
+                      checkCondition_7: {
+                        action: {
+                          kind: 'checkCondition',
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_7' } },
+                        },
+                        next: 'checkCondition_6',
+                      },
+                      mergeContextTargets_8: {
+                        action: {
+                          kind: 'mergeContextTargets',
+                          parameters: { saveToContextKey: 'extra_target', sources: [] },
+                        },
+                        next: null,
+                      },
+                      modifyActionValue_9: {
+                        action: {
+                          kind: 'modifyActionValue',
+                          parameters: {
+                            key: 'EntityBB_bounced',
+                            operation: 'assign',
+                            value: { kind: 'constant', value: 1 },
+                          },
+                        },
+                        next: 'mergeContextTargets_8',
+                      },
+                      checkCondition_10: {
+                        action: {
+                          kind: 'checkCondition',
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_8' } },
+                        },
+                        next: null,
+                      },
+                      changeResource_11: {
                         action: {
                           kind: 'changeResource',
                           parameters: {
                             resource: 'ultimateEnergy',
-                            amount: { kind: 'valueNode', nodeId: 'data_4' },
+                            amount: { kind: 'valueNode', nodeId: 'data_9' },
                             coefficient: { kind: 'constant', value: 1 },
-                            recipient: 'caster',
+                            source: { kind: 'source' },
+                            targets: { kind: 'source' },
                           },
                         },
                         next: null,
                       },
-                      startTimeDilation_16: {
+                      startTimeDilation_12: {
                         action: {
                           kind: 'startTimeDilation',
                           parameters: {
@@ -1084,27 +1364,47 @@ export const xaihiChr_0011_seraph_combo_skillActionGraph = {
                             targets: ['enemy', 'caster'],
                           },
                         },
-                        next: 'changeResource_15',
+                        next: 'changeResource_11',
                       },
-                      dealDamage_17: {
+                      ifElse_opt1: {
+                        action: {
+                          kind: 'ifElse',
+                          parameters: { alwaysNext: true },
+                          condition: { $sequence: 'checkCondition_10' },
+                          whenTrue: { $sequence: 'startTimeDilation_12' },
+                          whenFalse: { $sequence: null },
+                        },
+                        next: null,
+                      },
+                      dealDamage_opt2: {
                         action: {
                           kind: 'dealDamage',
                           parameters: {
                             damageType: 'cryo',
-                            attackScale: { kind: 'valueNode', nodeId: 'data_5' },
+                            attackScale: { kind: 'valueNode', nodeId: 'data_10' },
                             tags: ['comboSkill'],
                             features: ['canBreakWeakness'],
-                            stagger: { kind: 'valueNode', nodeId: 'data_6' },
+                            stagger: { kind: 'valueNode', nodeId: 'data_11' },
                           },
                         },
-                        next: 'startTimeDilation_16',
+                        next: 'ifElse_opt1',
                       },
-                      applyElementalInfliction_18: {
+                      applyElementalInfliction_opt3: {
                         action: {
                           kind: 'applyElementalInfliction',
                           parameters: { element: 'cryo', isExtra: false },
                         },
-                        next: 'dealDamage_17',
+                        next: 'dealDamage_opt2',
+                      },
+                      ifElse_opt4: {
+                        action: {
+                          kind: 'ifElse',
+                          parameters: { alwaysNext: true },
+                          condition: { $sequence: 'checkCondition_7' },
+                          whenTrue: { $sequence: 'modifyActionValue_9' },
+                          whenFalse: { $sequence: null },
+                        },
+                        next: 'applyElementalInfliction_opt3',
                       },
                     },
                     dataNodes: {
@@ -1133,12 +1433,49 @@ export const xaihiChr_0011_seraph_combo_skillActionGraph = {
                           right: { kind: 'constant', value: 1 },
                         },
                       },
-                      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'usp' } },
+                      data_4: {
+                        type: 'number',
+                        expression: { kind: 'blackboard', key: 'EntityBB_bounced', fallback: 0 },
+                      },
                       data_5: {
+                        type: 'boolean',
+                        expression: {
+                          kind: 'actionValueCompare',
+                          left: { kind: 'valueNode', nodeId: 'data_4' },
+                          operator: 'equal',
+                          right: { kind: 'constant', value: 0 },
+                        },
+                      },
+                      data_6: {
+                        type: 'number',
+                        expression: { kind: 'blackboard', key: 'potential_3', fallback: 0 },
+                      },
+                      data_7: {
+                        type: 'boolean',
+                        expression: {
+                          kind: 'actionValueCompare',
+                          left: { kind: 'valueNode', nodeId: 'data_6' },
+                          operator: 'equal',
+                          right: { kind: 'constant', value: 1 },
+                        },
+                      },
+                      data_8: {
+                        type: 'boolean',
+                        expression: {
+                          kind: 'entityCountCompare',
+                          target: { kind: 'inputTarget' },
+                          containsHittableTarget: false,
+                          excludeDeadEntity: false,
+                          operator: 'greaterOrEqual',
+                          value: 1,
+                        },
+                      },
+                      data_9: { type: 'number', expression: { kind: 'blackboard', key: 'usp' } },
+                      data_10: {
                         type: 'number',
                         expression: { kind: 'blackboard', key: 'atk_scale' },
                       },
-                      data_6: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
+                      data_11: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
                     },
                   },
                   macros: {},
@@ -1147,66 +1484,9 @@ export const xaihiChr_0011_seraph_combo_skillActionGraph = {
             },
           ],
         },
-        next: null,
+        next: 'forEachContextTarget_13',
       },
-      withActionBlackboardScope_9: {
-        action: {
-          kind: 'withActionBlackboardScope',
-          parameters: {
-            lifetime: 'execution',
-            initialValues: {},
-            inheritParent: true,
-            entityInitialValues: {},
-          },
-          body: { $sequence: 'launchProjectile_5' },
-        },
-        next: null,
-      },
-      finishBuffsById_10: {
-        action: {
-          kind: 'finishBuffsById',
-          parameters: {
-            target: 'party',
-            buffIds: ['buff_chr_0011_seraph_atk_buff_normal_skill'],
-            reason: 'other',
-          },
-        },
-        next: 'withActionBlackboardScope_9',
-      },
-      forEachContextTarget_11: {
-        action: {
-          kind: 'forEachContextTarget',
-          parameters: { contextKey: 'ball' },
-          body: { $sequence: 'applyBuff_4' },
-        },
-        next: 'finishBuffsById_10',
-      },
-      conditional_12: {
-        action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' }, alwaysNext: true },
-          whenTrue: { $sequence: 'forEachContextTarget_11' },
-          whenFalse: { $sequence: 'forEachContextTarget_11' },
-        },
-        next: null,
-      },
-      findOwnerSpawnedAbilityEntities_13: {
-        action: {
-          kind: 'findOwnerSpawnedAbilityEntities',
-          parameters: {
-            saveToContextKey: 'ball',
-            abilityEntityIds: [
-              'abilityentity_chr_0011_seraph_normal_skill',
-              'abilityentity_chr_0011_seraph_normal_skill_02',
-              'abilityentity_chr_0011_seraph_normal_skill_03',
-              'abilityentity_chr_0011_seraph_normal_skill_buff',
-              'abilityentity_chr_0027_tangtang_normal_skill_02_02',
-            ],
-          },
-        },
-        next: 'conditional_12',
-      },
-      finishBuffsById_14: {
+      finishBuffsById_17: {
         action: {
           kind: 'finishBuffsById',
           parameters: {
@@ -1220,7 +1500,7 @@ export const xaihiChr_0011_seraph_combo_skillActionGraph = {
         },
         next: null,
       },
-      startTimeDilation_15: {
+      startTimeDilation_18: {
         action: {
           kind: 'startTimeDilation',
           parameters: {
@@ -1237,13 +1517,41 @@ export const xaihiChr_0011_seraph_combo_skillActionGraph = {
         },
         next: null,
       },
+      ifElse_opt1: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: null },
+          whenTrue: { $sequence: 'launchProjectile_14' },
+          whenFalse: { $sequence: 'launchProjectile_14' },
+        },
+        next: null,
+      },
+      findOwnerSpawnedAbilityEntities_opt2: {
+        action: {
+          kind: 'findOwnerSpawnedAbilityEntities',
+          parameters: {
+            saveToContextKey: 'ball',
+            abilityEntityIds: [
+              'abilityentity_chr_0011_seraph_normal_skill',
+              'abilityentity_chr_0011_seraph_normal_skill_02',
+              'abilityentity_chr_0011_seraph_normal_skill_03',
+              'abilityentity_chr_0011_seraph_normal_skill_buff',
+              'abilityentity_chr_0027_tangtang_normal_skill_02_02',
+            ],
+          },
+        },
+        next: 'ifElse_opt1',
+      },
     },
     dataNodes: {
       data_1: {
         type: 'boolean',
         expression: {
-          kind: 'contextTargetCountCompare',
-          contextKey: 'ball',
+          kind: 'entityCountCompare',
+          target: { kind: 'fixed', target: 'enemy' },
+          containsHittableTarget: false,
+          excludeDeadEntity: false,
           operator: 'greaterOrEqual',
           value: 1,
         },
@@ -1276,10 +1584,14 @@ export const xaihiChr_0011_seraph_combo_skill: SkillDefinition = {
   },
   costFrame: 0,
   scheduledSequences: [
-    { startFrame: 0, endFrame: 24, sequence: { $sequence: 'findCharacterTeamTargets_1' } },
-    { startFrame: 24, endFrame: 25, sequence: { $sequence: 'findOwnerSpawnedAbilityEntities_13' } },
-    { startFrame: 0, endFrame: 1, sequence: { $sequence: 'finishBuffsById_14' } },
-    { startFrame: 0, endFrame: 24, sequence: { $sequence: 'startTimeDilation_15' } },
+    { startFrame: 0, endFrame: 24, sequence: { $sequence: 'findTargets_5' } },
+    {
+      startFrame: 24,
+      endFrame: 25,
+      sequence: { $sequence: 'findOwnerSpawnedAbilityEntities_opt2' },
+    },
+    { startFrame: 0, endFrame: 1, sequence: { $sequence: 'finishBuffsById_17' } },
+    { startFrame: 0, endFrame: 24, sequence: { $sequence: 'startTimeDilation_18' } },
   ],
   cooldownFrames: [240, 240, 240, 240, 240, 240, 240, 240, 240, 240, 240, 210],
   skillType: 'comboSkill',
@@ -1306,14 +1618,7 @@ export const xaihiChr_0011_seraph_ultimate_skillActionGraph = {
         },
         next: null,
       },
-      findCharacterTeamTargets_2: {
-        action: {
-          kind: 'findCharacterTeamTargets',
-          parameters: { saveToContextKey: 'mainchar', selection: { kind: 'controlledOperator' } },
-        },
-        next: null,
-      },
-      startUltimateTimeDilation_3: {
+      startUltimateTimeDilation_2: {
         action: {
           kind: 'startUltimateTimeDilation',
           parameters: {
@@ -1324,8 +1629,8 @@ export const xaihiChr_0011_seraph_ultimate_skillActionGraph = {
         },
         next: null,
       },
-      hideUi_4: { action: { kind: 'hideUi', parameters: { onlyBlockInput: false } }, next: null },
-      applyBuff_5: {
+      hideUi_3: { action: { kind: 'hideUi', parameters: { onlyBlockInput: false } }, next: null },
+      applyBuff_4: {
         action: {
           kind: 'applyBuff',
           parameters: {
@@ -1337,7 +1642,7 @@ export const xaihiChr_0011_seraph_ultimate_skillActionGraph = {
         },
         next: null,
       },
-      applyBuff_6: {
+      applyBuff_5: {
         action: {
           kind: 'applyBuff',
           parameters: {
@@ -1393,11 +1698,10 @@ export const xaihiChr_0011_seraph_ultimate_skill: SkillDefinition = {
   costFrame: 0,
   scheduledSequences: [
     { startFrame: 0, endFrame: 3, sequence: { $sequence: 'startTimeDilation_1' } },
-    { startFrame: 0, endFrame: 1, sequence: { $sequence: 'findCharacterTeamTargets_2' } },
-    { startFrame: 0, endFrame: 45, sequence: { $sequence: 'startUltimateTimeDilation_3' } },
-    { startFrame: 0, endFrame: 47, sequence: { $sequence: 'hideUi_4' } },
-    { startFrame: 0, endFrame: 80, sequence: { $sequence: 'applyBuff_5' } },
-    { startFrame: 58, endFrame: 61, sequence: { $sequence: 'applyBuff_6' } },
+    { startFrame: 0, endFrame: 45, sequence: { $sequence: 'startUltimateTimeDilation_2' } },
+    { startFrame: 0, endFrame: 47, sequence: { $sequence: 'hideUi_3' } },
+    { startFrame: 0, endFrame: 80, sequence: { $sequence: 'applyBuff_4' } },
+    { startFrame: 58, endFrame: 61, sequence: { $sequence: 'applyBuff_5' } },
   ],
   cooldownFrames: 600,
   costs: [{ resource: 'ultimateEnergy', value: 80 }],
@@ -1428,14 +1732,10 @@ export const xaihiCommon_character_perfect_dodge: SkillDefinition = {
 const xaihiBuff1ActionGraph = {
   main: {
     nodes: {
-      modifyActionValue_1: {
+      checkCondition_1: {
         action: {
-          kind: 'modifyActionValue',
-          parameters: {
-            key: 'final_final_atkup',
-            operation: 'assign',
-            value: { kind: 'valueNode', nodeId: 'data_1' },
-          },
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
         },
         next: null,
       },
@@ -1445,12 +1745,23 @@ const xaihiBuff1ActionGraph = {
           parameters: {
             key: 'final_final_atkup',
             operation: 'assign',
-            value: { kind: 'valueNode', nodeId: 'data_2' },
+            value: { kind: 'valueNode', nodeId: 'data_4' },
           },
         },
         next: null,
       },
-      applyBuff_3: {
+      modifyActionValue_3: {
+        action: {
+          kind: 'modifyActionValue',
+          parameters: {
+            key: 'final_final_atkup',
+            operation: 'assign',
+            value: { kind: 'valueNode', nodeId: 'data_5' },
+          },
+        },
+        next: null,
+      },
+      applyBuff_4: {
         action: {
           kind: 'applyBuff',
           parameters: {
@@ -1458,8 +1769,8 @@ const xaihiBuff1ActionGraph = {
               {
                 buffId: 'buff_common_affixes_enhance_natural',
                 blackboardAssignments: {
-                  duration: { kind: 'valueNode', nodeId: 'data_3' },
-                  rate: { kind: 'valueNode', nodeId: 'data_4' },
+                  duration: { kind: 'valueNode', nodeId: 'data_6' },
+                  rate: { kind: 'valueNode', nodeId: 'data_7' },
                 },
                 stringBlackboardAssignments: {
                   child_buff_id: 'buff_chr_0011_seraph_ultimate_effect_2',
@@ -1473,7 +1784,7 @@ const xaihiBuff1ActionGraph = {
         },
         next: null,
       },
-      applyBuff_4: {
+      applyBuff_5: {
         action: {
           kind: 'applyBuff',
           parameters: {
@@ -1481,8 +1792,8 @@ const xaihiBuff1ActionGraph = {
               {
                 buffId: 'buff_common_affixes_enhance_crystal',
                 blackboardAssignments: {
-                  duration: { kind: 'valueNode', nodeId: 'data_5' },
-                  rate: { kind: 'valueNode', nodeId: 'data_6' },
+                  duration: { kind: 'valueNode', nodeId: 'data_8' },
+                  rate: { kind: 'valueNode', nodeId: 'data_9' },
                 },
                 stringBlackboardAssignments: {
                   child_buff_id: 'buff_chr_0011_seraph_ultimate_effect',
@@ -1494,30 +1805,31 @@ const xaihiBuff1ActionGraph = {
             asChildBuff: true,
           },
         },
-        next: 'applyBuff_3',
+        next: 'applyBuff_4',
       },
-      calculateActionValue_5: {
+      calculateActionValue_6: {
         action: {
           kind: 'calculateActionValue',
           parameters: {
             key: 'final_final_atkup',
             operation: 'add',
-            left: { kind: 'valueNode', nodeId: 'data_7' },
-            right: { kind: 'valueNode', nodeId: 'data_8' },
+            left: { kind: 'valueNode', nodeId: 'data_10' },
+            right: { kind: 'valueNode', nodeId: 'data_11' },
           },
         },
-        next: 'applyBuff_4',
+        next: 'applyBuff_5',
       },
-      conditional_6: {
+      ifElse_7: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_11' }, alwaysNext: true },
-          whenTrue: { $sequence: 'modifyActionValue_1' },
-          whenFalse: { $sequence: 'modifyActionValue_2' },
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_1' },
+          whenTrue: { $sequence: 'modifyActionValue_2' },
+          whenFalse: { $sequence: 'modifyActionValue_3' },
         },
-        next: 'calculateActionValue_5',
+        next: 'calculateActionValue_6',
       },
-      storeSourceAttributeValue_7: {
+      storeSourceAttributeValue_8: {
         action: {
           kind: 'storeSourceAttributeValue',
           parameters: {
@@ -1530,32 +1842,32 @@ const xaihiBuff1ActionGraph = {
             targetKey: 'final_atkup',
           },
         },
-        next: 'conditional_6',
+        next: 'ifElse_7',
       },
     },
     dataNodes: {
-      data_1: { type: 'number', expression: { kind: 'blackboard', key: 'wisd_max' } },
-      data_2: { type: 'number', expression: { kind: 'blackboard', key: 'final_atkup' } },
-      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'duration' } },
-      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'final_final_atkup' } },
-      data_5: { type: 'number', expression: { kind: 'blackboard', key: 'duration' } },
-      data_6: { type: 'number', expression: { kind: 'blackboard', key: 'final_final_atkup' } },
-      data_7: { type: 'number', expression: { kind: 'blackboard', key: 'final_final_atkup' } },
-      data_8: { type: 'number', expression: { kind: 'blackboard', key: 'atk_up' } },
-      data_9: {
+      data_1: {
         type: 'number',
         expression: { kind: 'blackboard', key: 'final_atkup', fallback: 0 },
       },
-      data_10: { type: 'number', expression: { kind: 'blackboard', key: 'wisd_max', fallback: 0 } },
-      data_11: {
+      data_2: { type: 'number', expression: { kind: 'blackboard', key: 'wisd_max', fallback: 0 } },
+      data_3: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_9' },
+          left: { kind: 'valueNode', nodeId: 'data_1' },
           operator: 'greaterOrEqual',
-          right: { kind: 'valueNode', nodeId: 'data_10' },
+          right: { kind: 'valueNode', nodeId: 'data_2' },
         },
       },
+      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'wisd_max' } },
+      data_5: { type: 'number', expression: { kind: 'blackboard', key: 'final_atkup' } },
+      data_6: { type: 'number', expression: { kind: 'blackboard', key: 'duration' } },
+      data_7: { type: 'number', expression: { kind: 'blackboard', key: 'final_final_atkup' } },
+      data_8: { type: 'number', expression: { kind: 'blackboard', key: 'duration' } },
+      data_9: { type: 'number', expression: { kind: 'blackboard', key: 'final_final_atkup' } },
+      data_10: { type: 'number', expression: { kind: 'blackboard', key: 'final_final_atkup' } },
+      data_11: { type: 'number', expression: { kind: 'blackboard', key: 'atk_up' } },
       data_12: { type: 'number', expression: { kind: 'blackboard', key: 'wisd_up' } },
     },
   },
@@ -1578,7 +1890,7 @@ const xaihiBuff1: SkillBuffDefinition = {
     wisd_up: 0,
   },
   attributeModifiers: [],
-  lifecycleSequences: { start: { $sequence: 'storeSourceAttributeValue_7' } },
+  lifecycleSequences: { start: { $sequence: 'storeSourceAttributeValue_8' } },
   actionGraph: xaihiBuff1ActionGraph,
 };
 
@@ -1625,13 +1937,12 @@ const xaihiBuff2ActionGraph = {
         },
         next: 'mergeContextTargets_3',
       },
-      conditional_5: {
+      checkCondition_5: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-          whenTrue: { $sequence: 'applyBuff_4' },
         },
-        next: null,
+        next: 'applyBuff_4',
       },
     },
     dataNodes: {
@@ -1658,15 +1969,15 @@ const xaihiBuff2: SkillBuffDefinition = {
   extendTags: [],
   blackboard: {},
   attributeModifiers: [],
-  lifecycleSequences: { enhanceChanged: { $sequence: 'conditional_5' } },
+  lifecycleSequences: { enhanceChanged: { $sequence: 'checkCondition_5' } },
   actionGraph: xaihiBuff2ActionGraph,
 };
 
 const xaihiBuff3ActionGraph = {
   main: {
     nodes: {
-      finishCurrentAbilityEntity_1: {
-        action: { kind: 'finishCurrentAbilityEntity', parameters: {} },
+      finishOwner_1: {
+        action: { kind: 'finishOwner', parameters: { targets: { kind: 'owner' } } },
         next: null,
       },
     },
@@ -1685,7 +1996,7 @@ const xaihiBuff3: SkillBuffDefinition = {
   extendTags: [],
   blackboard: {},
   attributeModifiers: [],
-  lifecycleSequences: { start: { $sequence: 'finishCurrentAbilityEntity_1' } },
+  lifecycleSequences: { start: { $sequence: 'finishOwner_1' } },
   actionGraph: xaihiBuff3ActionGraph,
 };
 
@@ -1703,17 +2014,17 @@ const xaihiBuff4ActionGraph = {
         },
         next: null,
       },
-      finishCurrentAbilityEntity_2: {
-        action: { kind: 'finishCurrentAbilityEntity', parameters: {} },
+      finishOwner_2: {
+        action: { kind: 'finishOwner', parameters: { targets: { kind: 'owner' } } },
         next: null,
       },
       forEachContextTarget_3: {
         action: {
           kind: 'forEachContextTarget',
-          parameters: { contextKey: 'seraph' },
+          parameters: { targets: { kind: 'context', key: 'seraph' } },
           body: { $sequence: 'finishBuffsById_1' },
         },
-        next: 'finishCurrentAbilityEntity_2',
+        next: 'finishOwner_2',
       },
       mergeContextTargets_4: {
         action: {
@@ -1792,13 +2103,12 @@ const xaihiBuff5ActionGraph = {
         },
         next: null,
       },
-      conditional_4: {
+      checkCondition_4: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_4' } },
-          whenTrue: { $sequence: 'applyBuff_3' },
         },
-        next: null,
+        next: 'applyBuff_3',
       },
       withActionBlackboardScope_5: {
         action: {
@@ -1811,7 +2121,7 @@ const xaihiBuff5ActionGraph = {
             initialValues: {},
             inheritParent: true,
           },
-          body: { $sequence: 'conditional_4' },
+          body: { $sequence: 'checkCondition_4' },
         },
         next: null,
       },
@@ -1928,7 +2238,7 @@ const xaihiBuff6ActionGraph = {
       forEachContextTarget_4: {
         action: {
           kind: 'forEachContextTarget',
-          parameters: { contextKey: 'ball' },
+          parameters: { targets: { kind: 'context', key: 'ball' } },
           body: { $sequence: 'applyBuff_1' },
         },
         next: 'applyBuff_3',
@@ -1954,37 +2264,33 @@ const xaihiBuff6ActionGraph = {
         },
         next: 'findOwnerSpawnedAbilityEntities_5',
       },
-      conditional_7: {
+      checkCondition_7: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-          whenTrue: { $sequence: 'mergeContextTargets_6' },
         },
-        next: null,
+        next: 'mergeContextTargets_6',
       },
-      conditional_8: {
+      checkCondition_8: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-          whenTrue: { $sequence: 'conditional_7' },
         },
-        next: null,
+        next: 'checkCondition_7',
       },
-      conditional_9: {
+      checkCondition_9: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
-          whenTrue: { $sequence: 'conditional_8' },
         },
-        next: null,
+        next: 'checkCondition_8',
       },
-      conditional_10: {
+      checkCondition_10: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
-          whenTrue: { $sequence: 'conditional_9' },
         },
-        next: null,
+        next: 'checkCondition_9',
       },
     },
     dataNodes: {
@@ -2042,7 +2348,7 @@ const xaihiBuff6: SkillBuffDefinition = {
   },
   attributeModifiers: [],
   abilityEventResponses: [
-    { event: 'beforeOutputDamage', priority: 0, sequence: { $sequence: 'conditional_10' } },
+    { event: 'beforeOutputDamage', priority: 0, sequence: { $sequence: 'checkCondition_10' } },
   ],
   actionGraph: xaihiBuff6ActionGraph,
 };
@@ -2099,17 +2405,25 @@ const xaihiBuff8ActionGraph = {
         action: { kind: 'gainSquadUltimateEnergyFromSkillCost', parameters: { coefficient: 1 } },
         next: null,
       },
-      spawnAbilityEntity_2: {
+      checkCondition_2: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'constant', value: true } },
+        },
+        next: 'gainSquadUltimateEnergyFromSkillCost_1',
+      },
+      spawnAbilityEntity_3: {
         action: {
           kind: 'spawnAbilityEntity',
           parameters: {
+            bornAt: { kind: 'mainCharacter' },
             abilityEntityId: 'abilityentity_chr_0011_seraph_normal_skill',
             childSkillId: 'chr_0011_seraph_normal_skill_abentity_onfield',
             inheritActionBlackboard: true,
             dieWhenSourceDies: false,
           },
         },
-        next: 'gainSquadUltimateEnergyFromSkillCost_1',
+        next: 'checkCondition_2',
       },
     },
   },
@@ -2135,18 +2449,17 @@ const xaihiBuff8: SkillBuffDefinition = {
     will_up: 0,
   },
   attributeModifiers: [],
-  lifecycleSequences: { trigger: { $sequence: 'spawnAbilityEntity_2' } },
+  lifecycleSequences: { trigger: { $sequence: 'spawnAbilityEntity_3' } },
   actionGraph: xaihiBuff8ActionGraph,
 };
 
 const xaihiBuff9ActionGraph = {
   main: {
     nodes: {
-      conditional_1: {
+      checkCondition_1: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-          whenTrue: { $sequence: null },
         },
         next: null,
       },
@@ -2191,7 +2504,7 @@ const xaihiBuff9: SkillBuffDefinition = {
   damageModifiers: [
     {
       enabledSide: 'defender',
-      condition: { $sequence: 'conditional_1' },
+      condition: { $sequence: 'checkCondition_1' },
       processors: [
         {
           kind: 'damageScale',
@@ -2287,6 +2600,7 @@ export const xaihi: OperatorDefinition = {
   rarity: 5,
   weaponType: 'funnel',
   element: 'cryo',
+  characterTypeId: 'Cryst',
   role: 'supporter',
   mainAttribute: 'will',
   secondaryAttribute: 'intellect',
@@ -2517,7 +2831,7 @@ export const xaihi: OperatorDefinition = {
         scheduledSequences: [
           { startFrame: 1, endFrame: 901, sequence: { $sequence: 'aura_1' } },
           { startFrame: 0, endFrame: 1, sequence: { $sequence: 'applyBuff_2' } },
-          { startFrame: 600, endFrame: 603, sequence: { $sequence: 'conditional_5' } },
+          { startFrame: 600, endFrame: 603, sequence: { $sequence: 'ifElse_6' } },
         ],
         actionGraph: {
           main: {
@@ -2561,7 +2875,14 @@ export const xaihi: OperatorDefinition = {
                 },
                 next: null,
               },
-              applyBuff_3: {
+              checkCondition_3: {
+                action: {
+                  kind: 'checkCondition',
+                  parameters: { condition: { kind: 'conditionNode', nodeId: 'data_7' } },
+                },
+                next: null,
+              },
+              applyBuff_4: {
                 action: {
                   kind: 'applyBuff',
                   parameters: {
@@ -2572,7 +2893,7 @@ export const xaihi: OperatorDefinition = {
                 },
                 next: null,
               },
-              finishBuffsById_4: {
+              finishBuffsById_5: {
                 action: {
                   kind: 'finishBuffsById',
                   parameters: {
@@ -2581,17 +2902,15 @@ export const xaihi: OperatorDefinition = {
                     reason: 'other',
                   },
                 },
-                next: 'applyBuff_3',
+                next: 'applyBuff_4',
               },
-              conditional_5: {
+              ifElse_6: {
                 action: {
-                  kind: 'conditional',
-                  parameters: {
-                    condition: { kind: 'conditionNode', nodeId: 'data_7' },
-                    alwaysNext: true,
-                  },
+                  kind: 'ifElse',
+                  parameters: { alwaysNext: true },
+                  condition: { $sequence: 'checkCondition_3' },
                   whenTrue: { $sequence: null },
-                  whenFalse: { $sequence: 'finishBuffsById_4' },
+                  whenFalse: { $sequence: 'finishBuffsById_5' },
                 },
                 next: null,
               },

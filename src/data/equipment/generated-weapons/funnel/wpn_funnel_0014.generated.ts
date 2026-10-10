@@ -45,15 +45,20 @@ const definition = {
           key: 'skill3:event:0:sequence:0',
           abilityEvent: 'beforeOutputSpellBurst',
           priority: 0,
-          sequence: { $sequence: 'conditional_2' },
+          sequence: { $sequence: 'checkCondition_2' },
         },
         {
           key: 'skill3:event:1:sequence:0',
           abilityEvent: 'beforeOutputPhysicalInfliction',
           priority: 0,
-          sequence: { $sequence: 'conditional_2' },
+          sequence: { $sequence: 'checkCondition_2' },
         },
       ],
+      blackboard: {
+        dmg_up: [0.08, 0.096, 0.112, 0.128, 0.144, 0.16, 0.176, 0.192, 0.224],
+        duration: [15, 15, 15, 15, 15, 15, 15, 15, 15],
+        lv: 1,
+      },
       actionGraph: {
         main: {
           nodes: {
@@ -78,13 +83,12 @@ const definition = {
               },
               next: null,
             },
-            conditional_2: {
+            checkCondition_2: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-                whenTrue: { $sequence: 'applyBuff_1' },
               },
-              next: null,
+              next: 'applyBuff_1',
             },
           },
           dataNodes: {
@@ -95,11 +99,6 @@ const definition = {
           },
         },
         macros: {},
-      },
-      blackboard: {
-        dmg_up: [0.08, 0.096, 0.112, 0.128, 0.144, 0.16, 0.176, 0.192, 0.224],
-        duration: [15, 15, 15, 15, 15, 15, 15, 15, 15],
-        lv: 1,
       },
     },
   ],

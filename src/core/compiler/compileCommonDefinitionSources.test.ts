@@ -115,7 +115,11 @@ it('独立公共 Buff 通过实体目录引用另一来源的能力实体', () =
           spawn: {
             action: {
               kind: 'spawnAbilityEntity',
-              parameters: { abilityEntityId: 'child', dieWhenSourceDies: false },
+              parameters: {
+                bornAt: { kind: 'owner' as const },
+                abilityEntityId: 'child',
+                dieWhenSourceDies: false,
+              },
             },
             next: null,
           },
@@ -186,7 +190,11 @@ it('公共 Buff 和能力实体分别绑定所属图的同名节点', () => {
                 spawn: {
                   action: {
                     kind: 'spawnAbilityEntity',
-                    parameters: { abilityEntityId: 'second', dieWhenSourceDies: false },
+                    parameters: {
+                      bornAt: { kind: 'owner' as const },
+                      abilityEntityId: 'second',
+                      dieWhenSourceDies: false,
+                    },
                   },
                   next: null,
                 },
@@ -265,7 +273,11 @@ it('能力实体模板按实际可达节点导入其他来源的实体', () => {
                   entry: {
                     action: {
                       kind: 'spawnAbilityEntity',
-                      parameters: { abilityEntityId: 'second', dieWhenSourceDies: false },
+                      parameters: {
+                        bornAt: { kind: 'owner' as const },
+                        abilityEntityId: 'second',
+                        dieWhenSourceDies: false,
+                      },
                     },
                     next: null,
                   },
@@ -338,7 +350,11 @@ it('跨来源能力实体循环引用仍保留各自图和对象身份', () => {
               entry: {
                 action: {
                   kind: 'spawnAbilityEntity',
-                  parameters: { abilityEntityId: next, dieWhenSourceDies: false },
+                  parameters: {
+                    bornAt: { kind: 'owner' as const },
+                    abilityEntityId: next,
+                    dieWhenSourceDies: false,
+                  },
                 },
                 next: null,
               },
@@ -382,7 +398,11 @@ it('无来源总图时，独立实体跨来源互相引用并保持局部节点�
               entry: {
                 action: {
                   kind: 'spawnAbilityEntity',
-                  parameters: { abilityEntityId: next, dieWhenSourceDies: false },
+                  parameters: {
+                    bornAt: { kind: 'owner' as const },
+                    abilityEntityId: next,
+                    dieWhenSourceDies: false,
+                  },
                 },
                 next: null,
               },

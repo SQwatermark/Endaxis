@@ -46,7 +46,8 @@ function adapter(overrides: Partial<MechanicAdapter> = {}): MechanicAdapter {
             parameters: {
               resource: 'sp',
               amount: input.parameters.stacks as number,
-              recipient: 'team',
+              source: { kind: 'fixed' as const, target: 'caster' as const },
+              targets: { kind: 'fixed' as const, target: 'caster' as const },
             },
           },
         ]),

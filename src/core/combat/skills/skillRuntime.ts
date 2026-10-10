@@ -207,6 +207,11 @@ export interface CombatOperationContext {
 }
 
 export interface CombatOperationExecutor {
+  readonly queryTargets?: (
+    query: import('../../../../packages/game-data-contract/src/conditions').ActionTargetQuery,
+    context: CombatOperationContext,
+  ) => import('../../game-data/logicalAbilityEntity').RuntimeTargetGroup;
+  readonly frame?: () => number;
   /** 图光环复用 Buff 实例管线；接口只处理影响，不创建子动作或生命周期。 */
   readonly aura?: import('../buffs/buffOperationExecutor').AuraInfluenceOperations;
   readonly executionTrace?: {
@@ -265,6 +270,9 @@ type SkillRuntimeDependencies = {
   readonly advancesCooldown?: boolean;
   /** 原生 CastEnd 清理完成后向所有者 AbilitySystem 同步发布 OnSkillEnd。 */
   readonly emitSkillEnd?: (payload: AbilitySkillPayload) => void;
+  readonly emitSkillInterrupted?: (
+    payload: AbilitySkillPayload & { reason: RuntimeSkillInterruptReason },
+  ) => void;
   /** 原生费用实际应用成功后、同帧时间轴动作前同步发布 OnAfterSkillApplyCost。 */
   readonly emitAfterSkillApplyCost?: (payload: AbilitySkillPayload) => void;
   readonly launchProjectile?: LaunchProjectile;
@@ -925,7 +933,10 @@ export class SkillRuntime {
         finishCooldown: () => this.#cooldown.finishCast(),
         cooldownRefunded: () => this.record('SkillCooldownRefunded'),
         recordEnded: () => this.record('SkillInterrupted', { reason }),
-        emitEnded: () => this.#emitSkillEnd(),
+        emitEnded: () => {
+          this.#dependencies.emitSkillInterrupted?.({ ...this.#skillEventPayload(), reason });
+          this.#emitSkillEnd();
+        },
       });
     } finally {
       this.#pendingTransition = null;

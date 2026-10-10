@@ -67,13 +67,12 @@ const definition = {
               },
               next: null,
             },
-            conditional_2: {
+            checkCondition_2: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-                whenTrue: { $sequence: 'applyBuff_1' },
               },
-              next: null,
+              next: 'applyBuff_1',
             },
             applyBuff_3: {
               action: {
@@ -95,21 +94,19 @@ const definition = {
               },
               next: null,
             },
-            conditional_4: {
+            checkCondition_4: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-                whenTrue: { $sequence: 'applyBuff_3' },
               },
-              next: null,
+              next: 'applyBuff_3',
             },
-            conditional_5: {
+            checkCondition_5: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
-                whenTrue: { $sequence: 'conditional_4' },
               },
-              next: null,
+              next: 'checkCondition_4',
             },
           },
           dataNodes: {
@@ -138,13 +135,13 @@ const definition = {
           key: 'skill3:event:0:sequence:0',
           abilityEvent: 'skillSpGained',
           priority: 0,
-          sequence: { $sequence: 'conditional_2' },
+          sequence: { $sequence: 'checkCondition_2' },
         },
         {
           key: 'skill3:event:1:sequence:0',
           abilityEvent: 'beforeOutputInfliction',
           priority: 0,
-          sequence: { $sequence: 'conditional_5' },
+          sequence: { $sequence: 'checkCondition_5' },
         },
       ],
       blackboard: {

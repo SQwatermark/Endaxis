@@ -189,7 +189,13 @@ function createFixture(
                   input_1: {
                     type: 'boolean',
                     expression: {
-                      kind: 'cameraToTargetAngleCompare',
+                      kind: 'twoDirectionAngleCompare',
+                      direction1Source: { kind: 'source' },
+                      direction1Target: { kind: 'inputTarget' },
+                      direction1Type: 'CameraForward',
+                      direction2Source: { kind: 'source' },
+                      direction2Target: { kind: 'inputTarget' },
+                      direction2Type: 'SourceToTarget',
                       operator: 'greater',
                       value: { kind: 'constant', value: 0 },
                     },
@@ -339,7 +345,7 @@ it.each([0, 4, 6])('投射物在第 %i 帧分支恢复后保留伤害的技能�
         sequence: chainEntry('launch', [
           {
             kind: 'launchProjectile',
-            parameters: { finish: 0.1, recycleDelaySeconds: 0.5 },
+            parameters: { inheritActionBlackboard: true, finish: 0.1, recycleDelaySeconds: 0.5 },
             callbacks: [
               {
                 event: 'finish',

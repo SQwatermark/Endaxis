@@ -50,7 +50,11 @@ const definition = {
       blackboard: { duration: 30, max_stack: 2, phy_spell_up: 0.1 },
       attributeModifiers: [],
       abilityEventResponses: [
-        { event: 'beforeOutputSpellBurst', priority: 0, sequence: { $sequence: 'conditional_4' } },
+        {
+          event: 'beforeOutputSpellBurst',
+          priority: 0,
+          sequence: { $sequence: 'checkCondition_4' },
+        },
       ],
       actionGraph: {
         main: {
@@ -88,21 +92,19 @@ const definition = {
               },
               next: 'setGlobalCooldown_1',
             },
-            conditional_3: {
+            checkCondition_3: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-                whenTrue: { $sequence: 'applyBuff_2' },
               },
-              next: null,
+              next: 'applyBuff_2',
             },
-            conditional_4: {
+            checkCondition_4: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
-                whenTrue: { $sequence: 'conditional_3' },
               },
-              next: null,
+              next: 'checkCondition_3',
             },
           },
           dataNodes: {

@@ -53,8 +53,8 @@ const definition = {
       },
       attributeModifiers: [],
       abilityEventResponses: [
-        { event: 'outputBuff', priority: 0, sequence: { $sequence: 'conditional_2' } },
-        { event: 'outputBuff', priority: 0, sequence: { $sequence: 'conditional_4' } },
+        { event: 'outputBuff', priority: 0, sequence: { $sequence: 'checkCondition_2' } },
+        { event: 'outputBuff', priority: 0, sequence: { $sequence: 'checkCondition_4' } },
       ],
       actionGraph: {
         main: {
@@ -79,13 +79,12 @@ const definition = {
               },
               next: null,
             },
-            conditional_2: {
+            checkCondition_2: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-                whenTrue: { $sequence: 'applyBuff_1' },
               },
-              next: null,
+              next: 'applyBuff_1',
             },
             applyBuff_3: {
               action: {
@@ -107,13 +106,12 @@ const definition = {
               },
               next: null,
             },
-            conditional_4: {
+            checkCondition_4: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-                whenTrue: { $sequence: 'applyBuff_3' },
               },
-              next: null,
+              next: 'applyBuff_3',
             },
           },
           dataNodes: {

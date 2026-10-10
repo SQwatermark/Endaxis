@@ -18,7 +18,6 @@ export const STANDARD_PLAYER_DAMAGE_COMPATIBILITY_CODES = [
   'unsupported-condition',
   'unsupported-damage-calculation',
   'unsupported-damage-field',
-  'unsupported-resource-change',
 ] as const;
 
 /** 标准伤害预检问题的稳定分类；UI 可以凭它自行翻译。 */
@@ -88,10 +87,11 @@ function inspectCondition(
     case 'constant':
     case 'combatActive':
     case 'singleEnemyPresent':
+    case 'stringEquals':
     case 'actionValueCompare':
     case 'deckAttributeCompare':
     case 'probability':
-    case 'contextTargetCountCompare':
+    case 'entityCountCompare':
     case 'contextTargetObjectTypeMatch':
     case 'actionInputTargetObjectTypeMatch':
     case 'actionInputTargetIdentityMatch':
@@ -106,12 +106,15 @@ function inspectCondition(
     case 'casterComboPending':
     case 'eventComboRingQteSucceeded':
     case 'abilityEntityTimedMarkerPresent':
+    case 'comboCameraAlphaSetting':
     case 'casterControlled':
     case 'characterTypeIn':
     case 'operatorRoleIn':
     case 'enemyRankIn':
     case 'enemySuperArmorCompare':
-    case 'cameraToTargetAngleCompare':
+    case 'targetDistance':
+    case 'targetFacingAngle':
+    case 'twoDirectionAngleCompare':
     case 'poiseCompare':
     case 'targetStaggered':
     case 'eventSourceMatchesBuffSource':
@@ -130,6 +133,7 @@ function inspectCondition(
     case 'skillDamageTypeIn':
     case 'eventSkillTypeIn':
     case 'originSkillTypeIn':
+    case 'skillInterruptReasonIn':
     case 'contextTargetContains':
     case 'eventSkillIdIn':
     case 'eventSkillCastMatchesBuffSource':
@@ -182,15 +186,16 @@ function inspectSequence(
   rootActionSteps(sequence).forEach((step, index) => {
     const stepPath = `${path}.steps[${index}]`;
     switch (step.kind) {
+      case 'copyContextTargets':
       case 'mergeContextTargets':
       case 'findCharacterTeamTargets':
-      case 'findUnfinishedProjectileTargets':
+      case 'findTargets':
       case 'createSpatialPointTargets':
       case 'findOwnerSpawnedAbilityEntities':
       case 'readAbilityEntityRemainingDuration':
       case 'setAbilityEntityRemainingDuration':
-      case 'finishCurrentAbilityEntity':
       case 'finishCurrentAbilityEntityWhenSourceDies':
+      case 'finishOwner':
       case 'startCurrentAbilityEntityChildSkill':
       case 'startCurrentAbilityEntityChildSkillById':
         return;
@@ -339,7 +344,7 @@ function inspectSequence(
       case 'inheritBuffById':
       case 'readBuffBlackboard':
       case 'readEventBuffBlackboard':
-      case 'readCurrentBuffRemainingDuration':
+      case 'readBuffRemainingDuration':
       case 'setCurrentBuffRemainingDuration':
       case 'readBuffStackCount':
       case 'finishBuffsByTag':
@@ -427,18 +432,12 @@ function inspectSequence(
         }
         return;
       case 'jumpTimeline':
-        if (step.parameters.condition !== undefined) {
-          inspectCondition(
-            step.parameters.condition,
-            `${stepPath}.parameters.condition`,
-            collect,
-            flags,
-          );
-        }
+        inspectSequence(step.condition, `${stepPath}.condition`, collect, flags);
         return;
       case 'finishTimeline':
       case 'reachSkillOperableBoundary':
       case 'markCurrentSkillCanDash':
+      case 'interruptCurrentSkill':
       case 'markCurrentSkillCanInterrupt':
         return;
       case 'launchProjectile':
@@ -454,21 +453,10 @@ function inspectSequence(
             ),
           );
         return;
-      case 'changeResource': {
-        const { resource, recipient } = step.parameters;
-        const supported =
-          (resource === 'sp' && recipient === 'team') ||
-          (resource === 'ultimateEnergy' && recipient === 'caster');
-        if (!supported) {
-          report(
-            collect,
-            'unsupported-resource-change',
-            `${stepPath}.parameters`,
-            `resource '${resource}' for recipient '${recipient}'`,
-          );
-        }
+      case 'aura':
+      case 'storeCharacterTypeId':
+      case 'changeResource':
         return;
-      }
       case 'switch':
         step.options.forEach((option, index) =>
           inspectSequence(
@@ -478,6 +466,26 @@ function inspectSequence(
             flags,
             source,
           ),
+        );
+        return;
+      case 'invertNextResult':
+        return;
+      case 'anyCondition':
+        step.conditions.forEach((condition, index) =>
+          inspectSequence(condition, `${stepPath}.conditions[${index}]`, collect, flags, source),
+        );
+        return;
+      case 'ifElse':
+        inspectSequence(step.condition, `${stepPath}.condition`, collect, flags, source);
+        inspectSequence(step.whenTrue, `${stepPath}.whenTrue`, collect, flags, source);
+        inspectSequence(step.whenFalse, `${stepPath}.whenFalse`, collect, flags, source);
+        return;
+      case 'checkCondition':
+        inspectCondition(
+          step.parameters.condition,
+          `${stepPath}.parameters.condition`,
+          collect,
+          flags,
         );
         return;
       case 'conditional':

@@ -72,13 +72,12 @@ const definition = {
               },
               next: null,
             },
-            conditional_2: {
+            checkCondition_2: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-                whenTrue: { $sequence: 'applyBuff_1' },
               },
-              next: null,
+              next: 'applyBuff_1',
             },
           },
           dataNodes: {
@@ -96,7 +95,7 @@ const definition = {
           key: 'skill3:event:0:sequence:0',
           abilityEvent: 'beforeCastSkill',
           priority: 0,
-          sequence: { $sequence: 'conditional_2' },
+          sequence: { $sequence: 'checkCondition_2' },
         },
       ],
       blackboard: {
@@ -136,7 +135,7 @@ const definition = {
         {
           event: 'afterOutputPhysicalInfliction',
           priority: 0,
-          sequence: { $sequence: 'conditional_12' },
+          sequence: { $sequence: 'checkCondition_13' },
         },
       ],
       actionGraph: {
@@ -192,21 +191,19 @@ const definition = {
               },
               next: 'modifyActionValue_4',
             },
-            conditional_6: {
+            checkCondition_6: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_6' } },
-                whenTrue: { $sequence: 'calculateActionValue_5' },
               },
-              next: null,
+              next: 'calculateActionValue_5',
             },
-            conditional_7: {
+            checkCondition_7: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_7' } },
-                whenTrue: { $sequence: 'conditional_6' },
               },
-              next: null,
+              next: 'checkCondition_6',
             },
             mergeContextTargets_8: {
               action: {
@@ -219,39 +216,39 @@ const definition = {
                   ],
                 },
               },
-              next: 'conditional_7',
+              next: 'checkCondition_7',
             },
-            conditional_9: {
+            checkCondition_9: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
+                parameters: { condition: { kind: 'conditionNode', nodeId: 'data_8' } },
+              },
+              next: 'mergeContextTargets_8',
+            },
+            invertNextResult_10: {
+              action: { kind: 'invertNextResult', parameters: {} },
+              next: 'checkCondition_9',
+            },
+            checkCondition_11: {
+              action: {
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_9' } },
-                whenTrue: { $sequence: 'mergeContextTargets_8' },
               },
-              next: null,
+              next: 'invertNextResult_10',
             },
-            conditional_10: {
+            checkCondition_12: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_10' } },
-                whenTrue: { $sequence: 'conditional_9' },
               },
-              next: null,
+              next: 'checkCondition_11',
             },
-            conditional_11: {
+            checkCondition_13: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_11' } },
-                whenTrue: { $sequence: 'conditional_10' },
               },
-              next: null,
-            },
-            conditional_12: {
-              action: {
-                kind: 'conditional',
-                parameters: { condition: { kind: 'conditionNode', nodeId: 'data_12' } },
-                whenTrue: { $sequence: 'conditional_11' },
-              },
-              next: null,
+              next: 'checkCondition_12',
             },
           },
           dataNodes: {
@@ -278,8 +275,10 @@ const definition = {
             data_7: {
               type: 'boolean',
               expression: {
-                kind: 'contextTargetCountCompare',
-                contextKey: 'wpn_funnel_0011_total_tar',
+                kind: 'entityCountCompare',
+                target: { kind: 'context', key: 'wpn_funnel_0011_total_tar' },
+                containsHittableTarget: false,
+                excludeDeadEntity: false,
                 operator: 'greaterOrEqual',
                 value: 1,
                 outputKey: 'count',
@@ -295,17 +294,13 @@ const definition = {
             },
             data_9: {
               type: 'boolean',
-              expression: { kind: 'not', condition: { kind: 'conditionNode', nodeId: 'data_8' } },
+              expression: { kind: 'originSkillTypeIn', skillTypes: ['comboSkill'] },
             },
             data_10: {
               type: 'boolean',
-              expression: { kind: 'originSkillTypeIn', skillTypes: ['comboSkill'] },
-            },
-            data_11: {
-              type: 'boolean',
               expression: { kind: 'eventPhysicalInflictionTypeIn', types: ['airborne'] },
             },
-            data_12: { type: 'boolean', expression: { kind: 'eventSkillCastMatchesBuffSource' } },
+            data_11: { type: 'boolean', expression: { kind: 'eventSkillCastMatchesBuffSource' } },
           },
         },
         macros: {},

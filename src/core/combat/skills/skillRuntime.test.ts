@@ -136,6 +136,7 @@ function createBattleSkillRuntime(
   emitAfterSkillApplyCost?: ConstructorParameters<
     typeof SkillRuntime
   >[1]['emitAfterSkillApplyCost'],
+  emitSkillInterrupted?: ConstructorParameters<typeof SkillRuntime>[1]['emitSkillInterrupted'],
 ) {
   const clock = new CombatClock();
   const resources = new CombatResources({
@@ -186,6 +187,7 @@ function createBattleSkillRuntime(
     allocateSkillCastId: () => nextSkillCastId++,
     semanticEvents,
     emitSkillEnd,
+    emitSkillInterrupted,
     emitAfterSkillApplyCost,
   });
   const simulation = new CombatSimulation(clock);
@@ -534,6 +536,27 @@ describe('SkillRuntime', () => {
     expect(first.runtimeState.execution.passedFrames).toBe(first.passedFrames);
     expect(first.runtimeState.execution.passedFrames).toBeGreaterThan(savedProgress);
     expect(copied[0]!.execution.passedFrames).toBe(savedProgress);
+  });
+
+  it('中断事件携带实际原因并先于技能结束发布，自然结束不发布中断', () => {
+    const order: string[] = [];
+    const interrupted = vi.fn(payload => order.push(payload.reason));
+    const fixture = createBattleSkillRuntime(
+      300,
+      undefined,
+      undefined,
+      undefined,
+      () => order.push('end'),
+      undefined,
+      interrupted,
+    );
+    fixture.runtime.tryStart();
+    fixture.runtime.interrupt('dash');
+    expect(order).toEqual(['dash', 'end']);
+    fixture.runtime.tryStart();
+    fixture.runtime.end();
+    expect(order).toEqual(['dash', 'end', 'end']);
+    expect(interrupted).toHaveBeenCalledTimes(1);
   });
 
   it('零费用技能无需账户，仍执行费用阶段事件与正常结束，不生成余额', () => {
@@ -1709,7 +1732,13 @@ describe('SkillRuntime', () => {
           {
             startFrame: 1,
             endFrame: 2,
-            steps: [{ kind: 'jumpTimeline', parameters: { destinationFrame: 5 } }],
+            steps: [
+              {
+                kind: 'jumpTimeline',
+                parameters: { destinationFrame: 5 },
+                condition: { $sequence: null },
+              },
+            ],
           },
           {
             startFrame: 3,
@@ -1784,7 +1813,13 @@ describe('SkillRuntime', () => {
           {
             startFrame: 1,
             endFrame: 2,
-            steps: [{ kind: 'jumpTimeline', parameters: { destinationFrame: 5 } }],
+            steps: [
+              {
+                kind: 'jumpTimeline',
+                parameters: { destinationFrame: 5 },
+                condition: { $sequence: null },
+              },
+            ],
           },
         ],
       }),
@@ -1853,7 +1888,11 @@ describe('SkillRuntime', () => {
             startFrame: 1,
             endFrame: 2,
             steps: [
-              { kind: 'jumpTimeline', parameters: { destinationFrame: 6 } },
+              {
+                kind: 'jumpTimeline',
+                parameters: { destinationFrame: 6 },
+                condition: { $sequence: null },
+              },
               {
                 kind: 'setContextFlag',
                 parameters: { flag: 'unreachable', value: true, target: 'caster' },
@@ -2044,7 +2083,11 @@ describe('SkillRuntime', () => {
             next: null,
           },
           'jump-on-buff-jump': {
-            action: { kind: 'jumpTimeline', parameters: { destinationFrame: 6 } },
+            action: {
+              kind: 'jumpTimeline',
+              parameters: { destinationFrame: 6 },
+              condition: { $sequence: null },
+            },
             next: null,
           },
         },
@@ -2102,14 +2145,14 @@ describe('SkillRuntime', () => {
     expect(fixture.operations.evaluate).toHaveBeenCalledTimes(evaluationCount);
   });
 
-  it('同一次释放只执行一次共享作用域，并在下一次释放时重置', () => {
+  it('不同 DoOnce 调用各自执行一次，再次施放重置执行状态', () => {
     const onceBody = {
       kind: 'setContextFlag',
       parameters: { flag: 'executed', value: true, target: 'caster' },
     } as const satisfies ActionGraphStep;
     const onceStep = (body: string): ActionGraphStep => ({
       kind: 'once',
-      parameters: { scopeKey: 'normal-attack-sp' },
+      parameters: {},
       body: { $sequence: body },
     });
     const fixture = createBattleSkillRuntime(
@@ -2139,11 +2182,11 @@ describe('SkillRuntime', () => {
 
     fixture.runtime.tryStart();
     fixture.simulation.advanceFrames(1);
-    expect(fixture.operations.execute).toHaveBeenCalledTimes(2);
+    expect(fixture.operations.execute).toHaveBeenCalledTimes(3);
 
     fixture.runtime.end();
     fixture.runtime.tryStart();
-    expect(fixture.operations.execute).toHaveBeenCalledTimes(4);
+    expect(fixture.operations.execute).toHaveBeenCalledTimes(5);
   });
 
   it('为每个运行实例隔离动作黑板并在再次释放时重置', () => {

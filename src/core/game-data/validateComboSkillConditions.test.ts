@@ -89,7 +89,8 @@ describe('正式原生连携条件结构与绑定', () => {
                 parameters: {
                   resource: 'sp' as const,
                   amount: [4, 9],
-                  recipient: 'team' as const,
+                  source: { kind: 'fixed' as const, target: 'caster' as const },
+                  targets: { kind: 'fixed' as const, target: 'caster' as const },
                 },
               },
               next: null,
@@ -211,7 +212,12 @@ it('binds graph combo conditions at the referenced skill level without expanding
           entry: {
             action: {
               kind: 'changeResource' as const,
-              parameters: { resource: 'sp' as const, amount: [3, 7], recipient: 'team' as const },
+              parameters: {
+                resource: 'sp' as const,
+                amount: [3, 7],
+                source: { kind: 'fixed' as const, target: 'caster' as const },
+                targets: { kind: 'fixed' as const, target: 'caster' as const },
+              },
             },
             next: null,
           },

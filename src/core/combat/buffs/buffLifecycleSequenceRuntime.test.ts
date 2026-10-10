@@ -171,7 +171,7 @@ describe('attachBuffLifecycleSequences', () => {
       once: {
         action: {
           kind: 'once',
-          parameters: { scopeKey: 'saved-once' },
+          parameters: {},
           body: { $sequence: 'set-once' },
         },
         next: null,
@@ -1286,7 +1286,7 @@ describe('attachBuffLifecycleSequences', () => {
     expect(oldBuff.isFinished).toBe(false);
   });
 
-  it('为每个 Buff 实例隔离黑板和 once 状态', () => {
+  it('隔离 Buff 实例状态，停用时正常重置启用序列', () => {
     const reached: number[] = [];
     const operations: CombatOperationExecutor = {
       execute(_step, context): boolean {
@@ -1300,7 +1300,7 @@ describe('attachBuffLifecycleSequences', () => {
         once: {
           action: {
             kind: 'once',
-            parameters: { scopeKey: 'enable-once' },
+            parameters: {},
             body: { $sequence: 'reached' },
           },
           next: null,
@@ -1328,7 +1328,7 @@ describe('attachBuffLifecycleSequences', () => {
     first.enable();
 
     expect(second.isEnabled).toBe(true);
-    expect(reached).toEqual([1, 2]);
+    expect(reached).toEqual([1, 2, 1]);
   });
 
   it('拒绝把新序列和旧生命周期回调混装到同一定义', () => {
@@ -1407,7 +1407,7 @@ describe('attachBuffLifecycleSequences', () => {
           loop: {
             action: {
               kind: 'forEachContextTarget',
-              parameters: { contextKey: 'seals' },
+              parameters: { targets: { kind: 'context', key: 'seals' } },
               body: { $sequence: 'visit' },
             },
             next: null,
@@ -1866,7 +1866,7 @@ describe('attachBuffLifecycleSequences', () => {
     handler!({
       event: 'skillSpGained',
       payload: {
-        sourceOperatorId: 'operator',
+        sourceId: 'operator',
         source,
         gainKind,
         requestedAmount: 20,
@@ -2285,7 +2285,7 @@ describe('attachBuffLifecycleSequences', () => {
           once: {
             action: {
               kind: 'once',
-              parameters: { scopeKey: 'per-buff' },
+              parameters: {},
               body: { $sequence: 'body' },
             },
             next: null,
@@ -2327,6 +2327,25 @@ describe('attachBuffLifecycleSequences', () => {
       ['teammate-b', 'teammate-b', 2, 'creator'],
     ]);
     expect(buff.sourceId).toBe('creator');
+    const saved = structuredClone(container.runtimeState);
+    const restored = new CombatBuffContainer<never>(
+      'enemy',
+      new CombatAttributeSet(saved.attributes),
+      undefined,
+      null,
+      ActionBlackboard.bindRuntimeState(saved.entityBlackboard),
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      saved,
+    );
+    restored.bindRestoredInstances(() => definition);
+    const before = reached.length;
+    restored.add(definition, 'after-restore');
+    expect(reached.slice(before)).toEqual([['after-restore', 'after-restore', 2, 'creator']]);
   });
 
   it.each(['deferred', 'other', 'early'] as const)(

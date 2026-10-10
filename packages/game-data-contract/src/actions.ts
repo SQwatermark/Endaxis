@@ -1,3 +1,4 @@
+import type { ActionEntitySelection, ActionTargetQuery } from './conditions.ts';
 /**
  * 定义战斗模拟器能够执行的全部动作步骤、动作序列和战斗事件响应。
  *
@@ -25,7 +26,6 @@ import {
   type LevelValues,
   type OperatorAttribute,
   type PhysicalInflictionType,
-  type ResourceRecipient,
   type SkillType,
   type SpGainKind,
   type SpGainSource,
@@ -280,6 +280,17 @@ export const STATUS_MODIFIER_KINDS = [
  * 增加步骤时必须同时提供编译、运行时执行和严格校验，不能只扩展此类型。
  */
 export interface CombatStepParameters {
+  /** 原生 ConvertToTargetContext(None)：复制目标句柄，保持顺序与重复项。 */
+  copyContextTargets: {
+    source: ActionTargetQuery;
+    saveToContextKey: string;
+  };
+  /** 查找目标并覆盖目标组；宿主不存在时失败且不改写旧组。 */
+  findTargets: {
+    owner: ActionEntitySelection;
+    query: ActionTargetQuery;
+    saveToContextKey: string;
+  };
   /** 合并稳定目标身份并覆盖写入 Context 目标组；空 sources 用于初始化空组。 */
   mergeContextTargets: {
     /** 保存合并结果的动作环境键。 */
@@ -307,11 +318,6 @@ export interface CombatStepParameters {
           readonly owner: 'actionSource' | 'actionOwner';
         }
     )[];
-  };
-  /** 查询未结束的投射物。生成器必须先证明空间范围在固定木桩模型中覆盖这些候选。 */
-  findUnfinishedProjectileTargets: {
-    /** 保存本次查询的实例身份；后续消费者不重新查询。 */
-    saveToContextKey: string;
   };
   /** 查询当前队伍并把当时的实例身份快照覆盖写入 Context；后续消费者不得重新选人。 */
   findCharacterTeamTargets: {
@@ -381,22 +387,9 @@ export interface CombatStepParameters {
     index: ActionValueOperand;
   };
   /**
-   * 对 Context 中的稳定目标句柄逐一同步执行；唯一木桩/施法者已被静态证明时，
-   * 也可直接保留原生 ForEach 的即时生命周期与“忽略子序列返回值”边界。
+   * 捕获目标列表后，用同一子序列逐目标即时执行；子序列失败不终止遍历。
    */
-  forEachContextTarget:
-    | {
-        /** 要遍历的动作目标组。 */
-        contextKey: string;
-        /** 使用目标组时禁止同时指定固定目标。 */
-        target?: never;
-      }
-    | {
-        /** 使用固定目标时不读取动作目标组。 */
-        contextKey?: never;
-        /** 作为唯一迭代项的固定目标。 */
-        target: 'enemy' | 'caster';
-      };
+  forEachContextTarget: { targets: ActionTargetQuery };
   /** 读取当前 Context 迭代目标的能力实体剩余时长到动作黑板。 */
   readAbilityEntityRemainingDuration: {
     /** 保存剩余秒数的动作黑板键。 */
@@ -407,10 +400,9 @@ export interface CombatStepParameters {
     /** 新的剩余秒数。 */
     value: ActionValueOperand;
   };
-  /** 结束当前 Context 迭代目标所指向的能力实体。 */
-  finishCurrentAbilityEntity: Record<string, never>;
-  /** 结束当前能力实体子技能的 ActionOwner，不受内层 forEach 当前目标覆盖。 */
-  finishActionOwnerAbilityEntity: Record<string, never>;
+  /** 解析原生 Owner 目标：能力实体死亡，投射物停止飞行并等待回收。 */
+  finishOwner: { targets: ActionTargetQuery };
+  interruptCurrentSkill: { targets: ActionTargetQuery };
   /** 仅在当前能力实体的来源已经死亡时结束该实体。 */
   finishCurrentAbilityEntityWhenSourceDies: Record<string, never>;
   /** 在当前 Context 迭代目标所指向的既有能力实体上启动一个无施法子技能。 */
@@ -423,8 +415,10 @@ export interface CombatStepParameters {
     /** 能力实体模板中登记的原生子技能 ID。 */
     childSkillId: string;
   };
-  /** 在零空间模型中生成一个有独立身份、生命周期和实体黑板的逻辑能力实体。 */
+  /** 按出生目标生成有独立身份、生命周期和实体变量的逻辑能力实体。 */
   spawnAbilityEntity: {
+    /** 每个出生目标各生成一个实体；空目标组不生成。 */
+    bornAt: ActionTargetQuery;
     /** 要生成的能力实体模板 ID。 */
     abilityEntityId: string;
     /** 手写定义可暂时内联；生成定义从干员或只读公共定义表按 ID 解析。 */
@@ -440,7 +434,7 @@ export interface CombatStepParameters {
      * ActionOwner 必须显式保留为当前能力实体，不能在生成期压平成施术者。
      */
     source?: 'caster' | 'currentAbilityEntity';
-    /** 生成位置锚点；Buff 局部时间线中的 Owner 是当前 Buff 宿主能力实体。 */
+    /** 传给生成实体及其子技能的输入目标，与出生位置查询分开。 */
     target?: CombatTarget | 'currentAbilityEntity';
     /** 用动作数值覆盖模板持续时间。 */
     overrideDurationSeconds?: ActionValueOperand;
@@ -794,18 +788,10 @@ export interface CombatStepParameters {
     /** 保存到当前动作黑板的键。 */
     outputKey: string;
   };
-  /** 把当前生命周期环境中有限时长 Buff 的剩余秒数写入动作黑板；无限时长写入 0。 */
-  readCurrentBuffRemainingDuration: {
-    /** 保存剩余秒数的动作黑板键。 */
-    outputKey: string;
-  };
-  /** 按 ID 读取目标首个有效 Buff 的剩余秒数；无限时长写入 0。 */
+  /** 保存最后一个匹配的有限时长 Buff 的剩余秒数；无匹配时写入 0。 */
   readBuffRemainingDuration: {
-    /** 要查找 Buff 的对象。 */
-    target: BuffSingleTarget;
-    /** 任一匹配即可选中的 Buff ID。 */
-    buffIds: readonly string[];
-    /** 保存剩余秒数的动作黑板键。 */
+    target: ActionTargetQuery;
+    query: CombatStepParameters['readBuffStackCount']['query'];
     outputKey: string;
   };
   /** 修改目标上匹配的有限时长 Buff；无限寿命 Buff 不受影响。 */
@@ -1062,6 +1048,11 @@ export interface CombatStepParameters {
     revertOnEnd: boolean;
   };
   /** 修改当前技能实例的动作黑板；不得用于跨技能持久状态。 */
+  storeCharacterTypeId: {
+    /** 读取首个角色目标的原生类型字符串。 */
+    target: 'caster' | 'buffOwner' | 'buffSource' | 'currentTarget' | 'enemy';
+    outputKey: string;
+  };
   storeCurrentTimelineFrame: {
     /** 把 Owner AbilitySystem 当前技能的局部整数执行帧写入动作黑板。 */
     outputKey: string;
@@ -1170,8 +1161,10 @@ export interface CombatStepParameters {
     amount: LevelValues | ActionValueOperand;
     /** 原生 ObtainCostAction 在资源效率链之前乘到 amount 上；省略时为 1。 */
     coefficient?: LevelValues | ActionValueOperand;
-    /** 资源作用于施法者还是全队。 */
-    recipient: ResourceRecipient;
+    /** 取首个对象作为资源获取来源。 */
+    source: ActionTargetQuery;
+    /** 每个接收对象分别执行一次资源获取。 */
+    targets: ActionTargetQuery;
     /** 仅对正向技力变化有效；省略时按普通获得处理。 */
     spGainKind?: SpGainKind;
     /** 正向技力变化来自普攻、重击、技能或默认来源。 */
@@ -1234,8 +1227,6 @@ export interface CombatStepParameters {
   jumpTimeline: {
     /** 条件成立时跳到的宿主局部帧。 */
     destinationFrame: number;
-    /** 跳转条件；省略时立即跳转。 */
-    condition?: CombatCondition;
   };
   /** 立即结束当前宿主技能时间轴；只承接原生 InterruptCurSkillAction。 */
   finishTimeline: Record<string, never>;
@@ -1251,6 +1242,14 @@ export interface CombatStepParameters {
   markCurrentSkillCanDash: Record<string, never>;
   /** 标记执行该动作的技能施放可中断，对应原生 MarkCanInterrupt。 */
   markCurrentSkillCanInterrupt: Record<string, never>;
+  /** 执行条件检查；失败时由所属序列停止后续动作。 */
+  checkCondition: { condition: CombatCondition };
+  /** 原生 NotNextCheckAction：反转下一个动作的返回值。 */
+  invertNextResult: Record<string, never>;
+  /** 原生 IfElseAction；条件是即时执行的动作序列。 */
+  ifElse: { alwaysNext: boolean };
+  /** 原生 OrConditionAction，依次即时执行条件序列，首个成功时停止。 */
+  anyCondition: Record<string, never>;
   /** 按条件选择真假分支。 */
   conditional: {
     /** 决定执行哪个分支的条件。 */
@@ -1265,11 +1264,8 @@ export interface CombatStepParameters {
     /** 只覆盖本步骤的返回值，不取消选中序列内部的短路；无匹配时直接返回此值。 */
     alwaysNext: boolean;
   };
-  /** 同一个技能释放实例内共享的只执行一次作用域。 */
-  once: {
-    /** 标识共享一次性状态的作用域键。 */
-    scopeKey: string;
-  };
+  /** DoOnceAction：每个动作实例只即时执行一次子序列，普通复位后可再次执行。 */
+  once: Record<never, never>;
   /** 在一次原生子 SkillData 调用的 direct blackboard 中执行 body。 */
   withActionBlackboardScope: {
     /** 子动作黑板作用域名称。 */
@@ -1292,10 +1288,12 @@ export interface CombatStepParameters {
     /** 创建独立宿主时从父动作黑板求值，并覆盖模板实体黑板初值。 */
     entityAssignments?: Readonly<Record<string, ActionValueOperand>>;
   };
-  /** 在承载调度区间内逐 Tick 驱动 body；可保留原生 Channeling 的扫描与单目标门槛。 */
+  /** 在承载调度区间内逐 Tick 驱动 body；保留原生周期动作的扫描与目标门槛。 */
   repeatEachTick: {
     /** 原生 Channeling 动作的逐帧和按目标重复设置。 */
     nativeChanneling?: {
+      /** 每轮重新解析的目标；Target 使用动作启动时捕获的输入。 */
+      target: ActionTargetQuery;
       /** 是否每个模拟帧执行。 */
       executeEachFrame: boolean;
       /** 整体触发间隔秒数。 */
@@ -1325,6 +1323,15 @@ export interface CombatStepParameters {
   };
   /** 发射一个独立投射物；所有事件回调共享这一个对象的寿命和实体黑板。 */
   launchProjectile: {
+    /** 每个目标各发射一枚；count 用于已折算为数量的零空间目标。省略时发射一枚。 */
+    targets?:
+      { kind: 'context'; contextKey: string } | { kind: 'count'; count: ActionValueOperand };
+    /** 发射时复制动作黑板的 direct 值，供本投射物回调使用。 */
+    inheritActionBlackboard: boolean;
+    /** 每个投射物独立的实体黑板初值。 */
+    entityInitialValues?: Readonly<Record<string, number>>;
+    /** 发射时求值一次，再写入投射物实体黑板。 */
+    entityAssignments?: Readonly<Record<string, ActionValueOperand>>;
     /** 投射物归属动作来源（默认）或动作宿主；Buff 的二者可能不同。 */
     source?: 'actionSource' | 'actionOwner';
     /** 订阅发射来源的时间倍率和忽略全局缩放开关，直到投射物回收。 */
@@ -1441,17 +1448,18 @@ export interface CombatStepParameters {
 
 /** `CombatStepParameters` 中全部动作种类，供编译、校验和运行时分派使用。 */
 export const COMBAT_STEP_KINDS = [
+  'copyContextTargets',
+  'findTargets',
   'mergeContextTargets',
   'findCharacterTeamTargets',
-  'findUnfinishedProjectileTargets',
   'createSpatialPointTargets',
   'findOwnerSpawnedAbilityEntities',
   'pickContextTarget',
   'forEachContextTarget',
   'readAbilityEntityRemainingDuration',
   'setAbilityEntityRemainingDuration',
-  'finishCurrentAbilityEntity',
-  'finishActionOwnerAbilityEntity',
+  'finishOwner',
+  'interruptCurrentSkill',
   'finishCurrentAbilityEntityWhenSourceDies',
   'startCurrentAbilityEntityChildSkill',
   'startCurrentAbilityEntityChildSkillById',
@@ -1479,7 +1487,6 @@ export const COMBAT_STEP_KINDS = [
   'readSkillSettingData',
   'readBuffBlackboard',
   'readEventBuffBlackboard',
-  'readCurrentBuffRemainingDuration',
   'readBuffRemainingDuration',
   'setBuffRemainingDuration',
   'setCurrentBuffRemainingDuration',
@@ -1502,6 +1509,7 @@ export const COMBAT_STEP_KINDS = [
   'startUltimateTimeDilation',
   'hideUi',
   'setIgnoreGlobalTimeScale',
+  'storeCharacterTypeId',
   'storeCurrentTimelineFrame',
   'storeEventSpGainAmount',
   'storeEventHealValues',
@@ -1524,6 +1532,10 @@ export const COMBAT_STEP_KINDS = [
   'markCurrentSkillCanDash',
   'markCurrentSkillCanInterrupt',
   'conditional',
+  'checkCondition',
+  'invertNextResult',
+  'ifElse',
+  'anyCondition',
   'switch',
   'once',
   'withActionBlackboardScope',
@@ -1554,59 +1566,69 @@ type CombatStepNode<K extends CombatStepKind> = {
   kind: K;
   /** 此动作种类对应的参数。 */
   parameters: Readonly<CombatStepParameters[K]>;
-} & (K extends 'conditional'
-  ? {
-      /** 条件成立时执行。 */
-      whenTrue: ActionGraphReference;
-      /** 条件不成立时执行；省略时不执行额外步骤。 */
-      whenFalse?: ActionGraphReference;
-    }
-  : K extends 'switch'
-    ? {
-        /** 按顺序尝试匹配的候选分支。 */
-        options: readonly ActionSwitchOptionDefinition[];
-      }
-    : K extends 'once'
+} & (K extends 'jumpTimeline'
+  ? { condition: ActionGraphReference }
+  : K extends 'anyCondition'
+    ? { conditions: readonly ActionGraphReference[] }
+    : K extends 'ifElse'
       ? {
-          /** 在此一次性作用域中执行的子序列。 */
-          body: ActionGraphReference;
+          condition: ActionGraphReference;
+          whenTrue: ActionGraphReference;
+          whenFalse: ActionGraphReference;
         }
-      : K extends 'withActionBlackboardScope'
+      : K extends 'conditional'
         ? {
-            /** 在子动作黑板中执行的序列。 */
-            body: ActionGraphReference;
+            /** 条件成立时执行。 */
+            whenTrue: ActionGraphReference;
+            /** 条件不成立时执行；省略时不执行额外步骤。 */
+            whenFalse?: ActionGraphReference;
           }
-        : K extends 'repeatEachTick'
+        : K extends 'switch'
           ? {
-              /** 每次触发时执行的序列。 */
-              body: ActionGraphReference;
+              /** 按顺序尝试匹配的候选分支。 */
+              options: readonly ActionSwitchOptionDefinition[];
             }
-          : K extends 'repeatByActionValue'
+          : K extends 'once'
             ? {
-                /** 每次循环执行的序列。 */
+                /** 在此一次性作用域中执行的子序列。 */
                 body: ActionGraphReference;
               }
-            : K extends 'launchProjectile'
+            : K extends 'withActionBlackboardScope'
               ? {
-                  /** 每项都是完整的原生回调技能，不并入发射技能的时间轴。 */
-                  callbacks: readonly {
-                    event: 'hit' | 'block' | 'reach' | 'finish';
-                    skill: AbilityEntityChildSkillDefinition;
-                  }[];
+                  /** 在子动作黑板中执行的序列。 */
+                  body: ActionGraphReference;
                 }
-              : K extends 'aura'
+              : K extends 'repeatEachTick'
                 ? {
-                    /** 区域 Buff 安装后的原生进入回调。 */
-                    onEnter: ActionGraphReference;
-                    /** 区域 Buff 回收后的原生退出回调；Target 为离开对象。 */
-                    onExit: ActionGraphReference;
+                    /** 每次触发时执行的序列。 */
+                    body: ActionGraphReference;
                   }
-                : K extends 'forEachContextTarget'
+                : K extends 'repeatByActionValue'
                   ? {
-                      /** 对每个目标执行的序列。 */
+                      /** 每次循环执行的序列。 */
                       body: ActionGraphReference;
                     }
-                  : {});
+                  : K extends 'launchProjectile'
+                    ? {
+                        /** 每项都是完整的原生回调技能，不并入发射技能的时间轴。 */
+                        callbacks: readonly {
+                          event: 'hit' | 'block' | 'reach' | 'finish';
+                          skill: AbilityEntityChildSkillDefinition;
+                        }[];
+                      }
+                    : K extends 'aura'
+                      ? {
+                          /** 区域 Buff 安装后的原生进入回调。 */
+                          onEnter: ActionGraphReference;
+                          /** 区域 Buff 回收后的原生退出回调；Target 为离开对象。 */
+                          onExit: ActionGraphReference;
+                        }
+                      : K extends 'forEachContextTarget'
+                        ? {
+                            /** 对每个目标执行的序列。 */
+                            body: ActionGraphReference;
+                          }
+                        : {});
 
 /** 干员定义中可执行、按 `kind` 精确区分的一项步骤。 */
 export type CombatStepDefinition = CombatStepForKind<CombatStepKind>;

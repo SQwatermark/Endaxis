@@ -386,7 +386,7 @@ describe('weapon runtime definitions', () => {
         : undefined;
     // 条件守卫保留为独立节点，不被拍平进响应入口。
     expect(guardedAction).toMatchObject({
-      kind: 'conditional',
+      kind: 'checkCondition',
       parameters: {
         condition: {
           kind: 'eventDamageTagsMatch',

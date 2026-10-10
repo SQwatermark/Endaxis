@@ -1,3 +1,5 @@
+import { SKILL_INTERRUPT_REASONS } from '../../../../packages/game-data-contract/src/conditions';
+import { COMBO_CAMERA_ALPHA_SETTINGS } from '../../../../packages/game-data-contract/src/conditions';
 import { GAMEPLAY_TAG_MATCH_TYPES } from '../../../../packages/game-data-contract/src/gameplayTags';
 import {
   BUFF_SINGLE_TARGETS,
@@ -26,6 +28,7 @@ import {
   requireString,
   requireNonNegativeInteger,
   requireBoolean,
+  requireFiniteNumber,
   requireEnum,
   validateActionValueOperand,
   validateActionStringOperand,
@@ -150,7 +153,58 @@ export function validateCombatCondition(
       requireEnum(record, 'operator', COMPARISON_OPERATORS_SET, path, out);
       validateActionValueOperand(record.value, `${path}.value`, out);
       break;
-    case 'cameraToTargetAngleCompare':
+    case 'targetDistance':
+      requireFiniteNumber(record, 'distance', path, out);
+      for (const field of ['lessThan', 'includeTargetRadius', 'containsHittableObject'])
+        requireBoolean(record, field, path, out);
+      for (const field of ['source', 'target'])
+        validateTargetQuery(record[field], `${path}.${field}`, out);
+      break;
+    case 'targetFacingAngle':
+      requireEnum(record, 'angleType', new Set(['forward', 'backward']), path, out);
+      validateActionValueOperand(record.angle, `${path}.angle`, out);
+      for (const field of ['origin', 'target']) {
+        const selection = record[field];
+        if (!selection || typeof selection !== 'object' || Array.isArray(selection)) {
+          out.push({ path: `${path}.${field}`, message: 'expected entity selection' });
+          continue;
+        }
+        const entry = selection as Record<string, unknown>;
+        requireEnum(
+          entry,
+          'kind',
+          new Set(['owner', 'source', 'inputTarget', 'context']),
+          `${path}.${field}`,
+          out,
+        );
+        if (entry.kind === 'context') requireString(entry, 'key', `${path}.${field}`, out);
+      }
+      break;
+    case 'comboCameraAlphaSetting':
+      requireEnum(record, 'setting', new Set(COMBO_CAMERA_ALPHA_SETTINGS), path, out);
+      break;
+    case 'twoDirectionAngleCompare':
+      for (const field of [
+        'direction1Source',
+        'direction1Target',
+        'direction2Source',
+        'direction2Target',
+      ])
+        validateTargetQuery(record[field], `${path}.${field}`, out);
+      for (const field of ['direction1Type', 'direction2Type'])
+        requireEnum(
+          record,
+          field,
+          new Set([
+            'SourceForward',
+            'TargetForward',
+            'SourceToTarget',
+            'TargetToSource',
+            'CameraForward',
+          ]),
+          path,
+          out,
+        );
       requireEnum(record, 'operator', COMPARISON_OPERATORS_SET, path, out);
       validateActionValueOperand(record.value, `${path}.value`, out);
       break;
@@ -185,6 +239,10 @@ export function validateCombatCondition(
     case 'probability':
       validateActionValueOperand(record.probability, `${path}.probability`, out);
       break;
+    case 'stringEquals':
+      validateActionStringOperand(record.left, `${path}.left`, out);
+      validateActionStringOperand(record.right, `${path}.right`, out);
+      break;
     case 'actionValueCompare':
       validateActionValueOperand(record.left, `${path}.left`, out);
       requireEnum(record, 'operator', COMPARISON_OPERATORS_SET, path, out);
@@ -208,10 +266,12 @@ export function validateCombatCondition(
       validateActionValueOperand(record.value, `${path}.value`, out);
       break;
     }
-    case 'contextTargetCountCompare':
-      requireString(record, 'contextKey', path, out);
+    case 'entityCountCompare':
+      validateTargetQuery(record.target, `${path}.target`, out);
+      requireBoolean(record, 'containsHittableTarget', path, out);
+      requireBoolean(record, 'excludeDeadEntity', path, out);
       requireEnum(record, 'operator', COMPARISON_OPERATORS_SET, path, out);
-      requireNonNegativeInteger(record, 'value', path, out);
+      if (!Number.isInteger(record.value)) push(out, `${path}.value`, 'expected integer');
       if (record.outputKey !== undefined) requireString(record, 'outputKey', path, out);
       break;
     case 'contextTargetObjectTypeMatch':
@@ -403,6 +463,16 @@ export function validateCombatCondition(
         });
       }
       break;
+    case 'skillInterruptReasonIn':
+      if (!Array.isArray(record.reasons)) {
+        push(out, `${path}.reasons`, 'expected an array');
+      } else {
+        record.reasons.forEach((value, index) => {
+          if (!(SKILL_INTERRUPT_REASONS as readonly unknown[]).includes(value))
+            push(out, `${path}.reasons[${index}]`, 'expected a known skill interrupt reason');
+        });
+      }
+      break;
     case 'eventSkillIdIn':
       validateNonEmptyStringArray(record.skillIds, `${path}.skillIds`, out);
       break;
@@ -470,5 +540,57 @@ export function validateCombatCondition(
       requireEnum(record, 'operator', COMPARISON_OPERATORS_SET, path, out);
       requireEnum(record, 'right', OPERATOR_ATTRIBUTES_SET, path, out);
       break;
+  }
+}
+
+export function validateTargetQuery(
+  value: unknown,
+  path: string,
+  out: SkillDefinitionValidationIssue[],
+): void {
+  const query = asRecord(value, path, out);
+  if (!query) return;
+  requireEnum(
+    query,
+    'kind',
+    new Set([
+      'owner',
+      'source',
+      'inputTarget',
+      'context',
+      'mainCharacter',
+      'battleMainTarget',
+      'godEntity',
+      'unfinishedProjectiles',
+      'enemyByTags',
+      'fixed',
+      'characterTeam',
+      'mainTarget',
+      'fixedPoint',
+      'ownerSpawned',
+    ]),
+    path,
+    out,
+  );
+  if (query.kind === 'context') requireString(query, 'key', path, out);
+  if (query.kind === 'enemyByTags') {
+    requireEnum(query, 'tagQueryType', TAG_QUERY_TYPES_SET, path, out);
+    validateGameplayTags(query.tags, `${path}.tags`, out);
+  }
+  if (query.kind === 'fixed') requireEnum(query, 'target', new Set(['enemy', 'caster']), path, out);
+  if (query.kind === 'characterTeam') requireBoolean(query, 'excludeOwner', path, out);
+  if (query.kind === 'mainTarget' || query.kind === 'ownerSpawned' || query.kind === 'fixedPoint')
+    validateTargetQuery(query.owner, `${path}.owner`, out);
+  if (query.kind === 'fixedPoint') {
+    validateTargetQuery(query.center, `${path}.center`, out);
+    validateTargetQuery(query.directionTarget, `${path}.directionTarget`, out);
+  }
+  if (query.kind === 'ownerSpawned') {
+    if (
+      !Array.isArray(query.abilityEntityIds) ||
+      query.abilityEntityIds.some(id => typeof id !== 'string')
+    )
+      push(out, `${path}.abilityEntityIds`, 'expected string array');
+    requireBoolean(query, 'sameSourceSkillCast', path, out);
   }
 }

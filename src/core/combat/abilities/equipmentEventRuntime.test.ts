@@ -47,7 +47,12 @@ function createEnabledEquipmentRuntime(
 
 const gainSpStep = {
   kind: 'changeResource',
-  parameters: { resource: 'sp', amount: 10, recipient: 'team' },
+  parameters: {
+    resource: 'sp',
+    amount: 10,
+    source: { kind: 'fixed' as const, target: 'caster' as const },
+    targets: { kind: 'fixed' as const, target: 'caster' as const },
+  },
 } as const satisfies ActionGraphStep;
 
 const contribution: CompiledEquipmentContribution = {
@@ -162,7 +167,7 @@ describe('EquipmentEventRuntime', () => {
           {
             event: 'skillSpGained',
             payload: {
-              sourceOperatorId: 'operator:a',
+              sourceId: 'operator:a',
               source: 'skill',
               gainKind: 'gain',
               requestedAmount: 1,
@@ -268,7 +273,7 @@ describe('EquipmentEventRuntime', () => {
             {
               event: 'skillSpGained',
               payload: {
-                sourceOperatorId: 'operator:a',
+                sourceId: 'operator:a',
                 source: 'skill',
                 gainKind: 'gain',
                 requestedAmount: 1,
@@ -329,7 +334,7 @@ describe('EquipmentEventRuntime', () => {
     callback?.({
       event: 'skillSpGained',
       payload: {
-        sourceOperatorId: 'operator:a',
+        sourceId: 'operator:a',
         source: 'skill',
         gainKind: 'gain',
         requestedAmount: 1,
@@ -380,7 +385,7 @@ describe('EquipmentEventRuntime', () => {
     const gain = {
       event: 'skillSpGained' as const,
       payload: {
-        sourceOperatorId: 'operator:a',
+        sourceId: 'operator:a',
         source: 'skill' as const,
         gainKind: 'gain' as const,
         requestedAmount: 1,
@@ -475,7 +480,7 @@ describe('EquipmentEventRuntime', () => {
       {
         event: 'skillSpGained',
         payload: {
-          sourceOperatorId: 'operator:a',
+          sourceId: 'operator:a',
           source: 'skill',
           gainKind: 'gain',
           requestedAmount: 1,
@@ -505,7 +510,7 @@ describe('EquipmentEventRuntime', () => {
       registered?.({
         event: 'skillSpGained',
         payload: {
-          sourceOperatorId: 'operator:a',
+          sourceId: 'operator:a',
           source: 'skill',
           gainKind: 'gain',
           requestedAmount: amount,
@@ -808,7 +813,7 @@ describe('EquipmentEventRuntime', () => {
       },
     );
     const payload = {
-      sourceOperatorId: 'operator:a',
+      sourceId: 'operator:a',
       source: 'powerAttack' as const,
       gainKind: 'refund' as const,
       requestedAmount: 30,

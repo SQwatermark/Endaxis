@@ -83,29 +83,30 @@ const definition = {
               },
               next: 'createTimedMarker_1',
             },
-            conditional_3: {
+            checkCondition_3: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-                whenTrue: { $sequence: 'applyBuff_2' },
               },
-              next: null,
+              next: 'applyBuff_2',
             },
-            conditional_4: {
+            checkCondition_4: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
+                parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
+              },
+              next: 'checkCondition_3',
+            },
+            invertNextResult_5: {
+              action: { kind: 'invertNextResult', parameters: {} },
+              next: 'checkCondition_4',
+            },
+            checkCondition_6: {
+              action: {
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_4' } },
-                whenTrue: { $sequence: 'conditional_3' },
               },
-              next: null,
-            },
-            conditional_5: {
-              action: {
-                kind: 'conditional',
-                parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
-                whenTrue: { $sequence: 'conditional_4' },
-              },
-              next: null,
+              next: 'invertNextResult_5',
             },
           },
           dataNodes: {
@@ -131,10 +132,6 @@ const definition = {
             },
             data_4: {
               type: 'boolean',
-              expression: { kind: 'not', condition: { kind: 'conditionNode', nodeId: 'data_3' } },
-            },
-            data_5: {
-              type: 'boolean',
               expression: {
                 kind: 'eventHealTagsMatch',
                 match: 'hasAny',
@@ -155,7 +152,7 @@ const definition = {
           key: 'skill3:event:0:sequence:0',
           abilityEvent: 'outputHeal',
           priority: 0,
-          sequence: { $sequence: 'conditional_5' },
+          sequence: { $sequence: 'checkCondition_6' },
         },
       ],
       blackboard: {

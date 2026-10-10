@@ -2,10 +2,8 @@ import { fixtureGameplayTagRegistry } from './gameplayTagFixtures.ts';
 import { describe, expect, it } from 'vitest';
 
 import { compileBuffLeafNode } from '../src/compiler/actions/combatEntityAndTimeProjection.ts';
-import {
-  canOmitUnusedNativeCondition,
-  compileEventCondition,
-} from '../src/compiler/conditions/combatConditionProjection.ts';
+import { compileEventCondition } from '../src/compiler/conditions/combatConditionProjection.ts';
+import { canOmitUnusedNativeCondition } from '../src/compiler/optimization/nativeConditionUsage.ts';
 import {
   isDynamicSingleEnemyTagTargetGroup,
   isStaticSingleEnemyTargetGroup,
@@ -192,7 +190,7 @@ describe('施法输入限制与木桩物理控制投影', () => {
     );
   });
 
-  it('Pull 的继续选项不放开未知目标组或作为条件求值的用途', () => {
+  it('Pull 拒绝未知目标组，但允许出现在原生条件动作序列中', () => {
     const parse = (actionData: unknown[]) =>
       parseKnownNativeActionSequenceSource(
         {
@@ -237,9 +235,14 @@ describe('施法输入限制与木桩物理控制投影', () => {
         alwaysNext: true,
       },
     ]);
-    expect(() => projectSequence(source, createActiveSkillContext())).toThrow(
-      'expected a condition-only sequence',
-    );
+    const context = createActiveSkillContext();
+    const entry = compileCombatActionSequenceSource(source, context);
+    const graph = context.graph.finish();
+    const [branch] = readActionGraphChain(graph, entry);
+    expect(branch?.kind).toBe('ifElse');
+    if (branch?.kind !== 'ifElse') throw new Error('expected native IfElse');
+    // 当前固定木桩投影省略位移；IfElse 仍保留真实的条件序列入口。
+    expect(readActionGraphChain(graph, branch.condition)).toEqual([]);
   });
 
   it('只把已证明的 Buff Owner 职业筛选投影为干员定位条件', () => {
@@ -364,21 +367,13 @@ describe('施法输入限制与木桩物理控制投影', () => {
         new Map([['center_entity', 'abilityEntity']]),
       ),
     ).toEqual({
-      kind: 'all',
-      conditions: [
-        {
-          kind: 'contextTargetCountCompare',
-          contextKey: 'center_entity',
-          operator: 'greater',
-          value: 0,
-        },
-        {
-          kind: 'actionValueCompare',
-          left: { kind: 'constant', value: 0 },
-          operator: 'lessOrEqual',
-          right: { kind: 'constant', value: 8 },
-        },
-      ],
+      kind: 'targetDistance',
+      source: { kind: 'mainCharacter' },
+      target: { kind: 'context', key: 'center_entity' },
+      distance: 8,
+      lessThan: true,
+      includeTargetRadius: false,
+      containsHittableObject: false,
     });
   });
 
@@ -1023,7 +1018,7 @@ describe('施法输入限制与木桩物理控制投影', () => {
     });
   });
 
-  it('唯一木桩没有原生死亡标记，Target 存活过滤仍保留同一敌人', () => {
+  it('实体计数保留输入目标查询与原生死亡过滤，不静态假定数量为一', () => {
     const action = parseKnownNativeActionLeafSource(
       {
         ...META,
@@ -1039,10 +1034,12 @@ describe('施法输入限制与木桩物理控制投影', () => {
       {},
     );
     expect(compileEventCondition(node(action), createActiveSkillContext(), new Map())).toEqual({
-      kind: 'actionValueCompare',
-      left: { kind: 'constant', value: 1 },
+      kind: 'entityCountCompare',
+      target: { kind: 'inputTarget' },
+      containsHittableTarget: false,
+      excludeDeadEntity: true,
       operator: 'greaterOrEqual',
-      right: { kind: 'constant', value: 1 },
+      value: 1,
     });
   });
 
@@ -1708,6 +1705,7 @@ describe('施法输入限制与木桩物理控制投影', () => {
           {
             kind: 'spawnAbilityEntity',
             parameters: {
+              bornAt: { kind: 'source' },
               abilityEntityId: 'abilityentity_fixture',
               childSkillId: 'fixture_skill',
               inheritActionBlackboard: true,
@@ -1813,12 +1811,21 @@ describe('施法输入限制与木桩物理控制投影', () => {
           },
         ],
       });
-      expect(() =>
+      expect(
         compileBuffLeafNode(node(action), new Set(), new Map(), {
           ...createActiveSkillContext(),
           actionSourceTarget: 'buffSource',
         }),
-      ).toThrow('unsupported AbilityEntity spawn projection');
+      ).toMatchObject({
+        steps: [
+          {
+            kind: 'spawnAbilityEntity',
+            parameters: {
+              bornAt: { kind: 'source' },
+            },
+          },
+        ],
+      });
     },
   );
 
@@ -1916,6 +1923,7 @@ describe('施法输入限制与木桩物理控制投影', () => {
         {
           kind: 'spawnAbilityEntity',
           parameters: {
+            bornAt: { kind: 'owner' },
             abilityEntityId: 'abilityentity_fixture_owner',
             childSkillId: 'fixture_skill',
             inheritActionBlackboard: true,
@@ -1937,6 +1945,7 @@ describe('施法输入限制与木桩物理控制投影', () => {
         {
           kind: 'spawnAbilityEntity',
           parameters: {
+            bornAt: { kind: 'owner' },
             abilityEntityId: 'abilityentity_fixture_owner',
             childSkillId: 'fixture_skill',
             inheritActionBlackboard: true,
@@ -1957,6 +1966,7 @@ describe('施法输入限制与木桩物理控制投影', () => {
         {
           kind: 'spawnAbilityEntity',
           parameters: {
+            bornAt: { kind: 'owner' },
             abilityEntityId: 'abilityentity_fixture_owner',
             childSkillId: 'fixture_skill',
             inheritActionBlackboard: true,
@@ -1986,6 +1996,7 @@ describe('施法输入限制与木桩物理控制投影', () => {
         {
           kind: 'spawnAbilityEntity',
           parameters: {
+            bornAt: { kind: 'context', key: 'enemy_anchor' },
             abilityEntityId: 'abilityentity_fixture_owner',
             childSkillId: 'fixture_skill',
             inheritActionBlackboard: true,
@@ -1994,6 +2005,39 @@ describe('施法输入限制与木桩物理控制投影', () => {
         },
       ],
       state: new Map([['enemy_anchor', 'enemy']]),
+    });
+    const entityAnchor = structuredClone(enemyAnchor);
+    expect(
+      compileBuffLeafNode(
+        node(entityAnchor),
+        new Set(),
+        new Map([['enemy_anchor', 'abilityEntity']]),
+        createActiveSkillContext(),
+      ),
+    ).toMatchObject({
+      steps: [
+        {
+          kind: 'spawnAbilityEntity',
+          parameters: {
+            bornAt: { kind: 'context', key: 'enemy_anchor' },
+          },
+        },
+      ],
+    });
+    const noInheritance = structuredClone(action);
+    if (noInheritance?.family !== 'abilityEntity') throw new Error('expected AbilityEntity action');
+    (noInheritance.action as { assignBlackboard: boolean }).assignBlackboard = false;
+    expect(
+      compileBuffLeafNode(node(noInheritance), new Set(), new Map(), leafContext()),
+    ).toMatchObject({
+      steps: [
+        {
+          kind: 'spawnAbilityEntity',
+          parameters: {
+            inheritActionBlackboard: false,
+          },
+        },
+      ],
     });
     const inputAnchor = structuredClone(action);
     if (inputAnchor?.family !== 'abilityEntity') throw new Error('expected AbilityEntity action');
@@ -2013,6 +2057,7 @@ describe('施法输入限制与木桩物理控制投影', () => {
         {
           kind: 'spawnAbilityEntity',
           parameters: {
+            bornAt: { kind: 'owner' },
             abilityEntityId: 'abilityentity_fixture_owner',
             childSkillId: 'fixture_skill',
             inheritActionBlackboard: true,
@@ -2023,12 +2068,21 @@ describe('施法输入限制与木桩物理控制投影', () => {
       ],
       state: new Map(),
     });
-    expect(() =>
+    expect(
       compileBuffLeafNode(node(action), new Set(), new Map(), {
         ...createActiveSkillContext(),
         actionOwnerTarget: 'buffOwner',
       }),
-    ).toThrow('unsupported AbilityEntity spawn projection');
+    ).toMatchObject({
+      steps: [
+        {
+          kind: 'spawnAbilityEntity',
+          parameters: {
+            bornAt: { kind: 'owner' },
+          },
+        },
+      ],
+    });
   });
 
   it('OnlyDead 吹飞在死亡终止模型中省略，活目标吹飞仍阻断', () => {

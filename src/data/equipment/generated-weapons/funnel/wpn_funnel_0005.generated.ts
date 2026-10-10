@@ -60,24 +60,66 @@ const definition = {
                       },
                     },
                   ],
-                  target: 'partyExceptCasterAndSameCharacterType',
+                  target: 'currentTarget',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
                 },
               },
               next: null,
             },
-            conditional_2: {
+            checkCondition_2: {
               action: {
-                kind: 'conditional',
-                parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-                whenTrue: { $sequence: 'applyBuff_1' },
+                kind: 'checkCondition',
+                parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
+              },
+              next: 'applyBuff_1',
+            },
+            invertNextResult_3: {
+              action: { kind: 'invertNextResult', parameters: {} },
+              next: 'checkCondition_2',
+            },
+            storeCharacterTypeId_4: {
+              action: {
+                kind: 'storeCharacterTypeId',
+                parameters: { target: 'currentTarget', outputKey: 'team_char_type' },
+              },
+              next: 'invertNextResult_3',
+            },
+            forEachContextTarget_5: {
+              action: {
+                kind: 'forEachContextTarget',
+                parameters: { targets: { kind: 'characterTeam', excludeOwner: true } },
+                body: { $sequence: 'storeCharacterTypeId_4' },
               },
               next: null,
             },
+            storeCharacterTypeId_6: {
+              action: {
+                kind: 'storeCharacterTypeId',
+                parameters: { target: 'caster', outputKey: 'ower_char_type' },
+              },
+              next: 'forEachContextTarget_5',
+            },
+            checkCondition_7: {
+              action: {
+                kind: 'checkCondition',
+                parameters: { condition: { kind: 'conditionNode', nodeId: 'data_4' } },
+              },
+              next: 'storeCharacterTypeId_6',
+            },
           },
           dataNodes: {
-            data_1: {
+            data_1: { type: 'string', expression: { blackboardKey: 'ower_char_type' } },
+            data_2: { type: 'string', expression: { blackboardKey: 'team_char_type' } },
+            data_3: {
+              type: 'boolean',
+              expression: {
+                kind: 'stringEquals',
+                left: { kind: 'stringNode', nodeId: 'data_1' },
+                right: { kind: 'stringNode', nodeId: 'data_2' },
+              },
+            },
+            data_4: {
               type: 'boolean',
               expression: { kind: 'eventSkillTypeIn', skillTypes: ['ultimate'] },
             },
@@ -91,7 +133,7 @@ const definition = {
           key: 'skill3:event:0:sequence:0',
           abilityEvent: 'beforeCastSkill',
           priority: 0,
-          sequence: { $sequence: 'conditional_2' },
+          sequence: { $sequence: 'checkCondition_7' },
         },
       ],
       blackboard: {

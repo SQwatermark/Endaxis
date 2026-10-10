@@ -256,7 +256,6 @@ export function collectCompiledBuffIdentityReadIds(value: unknown): ReadonlySet<
       const parameters = record.parameters;
       if (parameters !== null && typeof parameters === 'object') {
         const parameterRecord = parameters as Record<string, unknown>;
-        addIds(parameterRecord.buffIds);
         const query = parameterRecord.query;
         if (query !== null && typeof query === 'object') {
           const queryRecord = query as Record<string, unknown>;

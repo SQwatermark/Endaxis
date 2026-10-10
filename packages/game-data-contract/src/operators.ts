@@ -502,6 +502,8 @@ export interface OperatorDefinition {
   weaponType: OperatorWeaponType;
   /** 干员元素。 */
   element: DamageElement;
+  /** 原生角色表类型身份；没有角色表记录的自定义干员可不提供。 */
+  characterTypeId?: string;
   /** 干员战斗定位。 */
   role: OperatorRole;
   /** 干员主属性。 */

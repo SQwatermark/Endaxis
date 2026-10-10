@@ -12,13 +12,15 @@ export const STEP_RESULT_MODE = {
 /** 步骤执行后对当前序列流程的控制结果。 */
 export type StepResultMode = (typeof STEP_RESULT_MODE)[keyof typeof STEP_RESULT_MODE];
 
-/** 同一序列执行期间由步骤共享的流程状态。 */
+/** 同一原生动作环境内，各序列入口共享的返回值策略。 */
 export interface SequenceExecutionState {
   resultMode: StepResultMode;
 }
 
 /** 单个步骤执行时可访问的序列上下文；后续运行时端口应显式扩展。 */
 export interface CombatExecutionContext {
+  /** 原生即时执行后的复位保留 DoOnce 标记；普通复位清除它。 */
+  resetReason?: 'normal' | 'afterInstant';
   sequence?: SequenceExecutionState;
 }
 

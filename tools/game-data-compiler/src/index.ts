@@ -223,7 +223,6 @@ export {
 export {
   parseConditionLeafSource,
   type BuffStackConditionSource,
-  type ConditionAnyGroupSource,
   type NativeConditionSource,
 } from './source/condition.ts';
 export {
@@ -689,10 +688,10 @@ export { parseUnityComboSkillConditionsSource } from './source/unityComboSkillCo
 export { parseObjectTypeMask } from './source/objectType.ts';
 export { compileSkillSmartTargetSource } from './compiler/conditions/comboSmartTarget.ts';
 export {
-  compileProjectileLaunchScopeSource,
-  type CompiledActionBlackboardScopeSource,
+  compileProjectileBlackboardSource,
+  type ProjectileBlackboardSource,
   type ProjectileCallbackInvocationSource,
-} from './compiler/abilities/projectileCallbackScopes.ts';
+} from './compiler/abilities/projectileBlackboard.ts';
 export {
   createZeroDistanceProjectileProjectionExtensionSource,
   type ZeroDistanceProjectileProjectionCatalogSource,

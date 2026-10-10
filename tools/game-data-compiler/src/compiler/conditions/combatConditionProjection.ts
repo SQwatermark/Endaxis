@@ -1,3 +1,11 @@
+import type { SkillInterruptReason } from '../../../../../packages/game-data-contract/src/conditions.ts';
+import { COMBO_CAMERA_ALPHA_SETTINGS } from '../../../../../packages/game-data-contract/src/conditions.ts';
+
+import type { TargetReferenceSource } from '../../source/target.ts';
+import type {
+  ActionEntitySelection,
+  ActionTargetQuery,
+} from '../../../../../packages/game-data-contract/src/conditions.ts';
 import { projectGameplayTags } from '../combatProjectionCommon.ts';
 import { projectSpGainKind, projectSpGainSource } from '../../source/spGainEnums.ts';
 import { projectGlobalCooldownTarget } from '../actions/globalCooldownProjection.ts';
@@ -16,6 +24,16 @@ import {
   COMPARISON_OPERATORS,
 } from '../combatProjectionCommon.ts';
 import { compileTargetReferenceAbilityEntityQuerySource } from '../abilities/abilityEntityQuery.ts';
+import { isPureEmptyContinuingBranch } from '../optimization/nativeConditionUsage.ts';
+
+/** 技能块不提供移动轴输入；静止输入下的原生检查返回 false。 */
+export function evaluateFixedScenarioCondition(
+  condition: NativeConditionSource,
+): boolean | undefined {
+  if (condition.kind === 'constant') return condition.value;
+  if (condition.kind === 'moveInput') return false;
+  return undefined;
+}
 
 /** 原生条件到公共条件子集的投影，并明确条件写黑板的副作用。
  * 不编排分支或执行动作；未知宿主和条件仍在原来的边界阻断。 */
@@ -25,73 +43,10 @@ export function compileEventCondition(
   context: CombatActionProjectionContextSource,
   targetGroups: ReadonlyMap<string, ProjectedTargetGroup>,
 ): CompiledBuffConditionSource | null {
-  // 原生 IfElse 的返回值为 alwaysNext || 分支结果。空分支且条件无副作用时，
-  // 它即使位于另一层 conditionAction 中也是恒真；不等于把内部空间条件判成恒真。
+  // 两支均为空且 alwaysNext 时，原生返回恒真；保留返回值供取反和短路使用。
   if (isPureEmptyContinuingBranch(node)) return { kind: 'constant', value: true };
   if (node.body.kind !== 'leaf' || node.body.value.family !== 'condition') return null;
   return compileConditionLeaf(node.body.value.action, node.sourcePath, context, targetGroups);
-}
-
-/** 只证明条件求值没有可见副作用，不要求其空间/相机输入已经具备 Next 运行模型。 */
-export function canOmitUnusedNativeCondition(
-  node: NativeActionNodeSource<KnownNativeActionLeafSource>,
-): boolean {
-  if (isPureEmptyContinuingBranch(node)) return true;
-  if (node.body.kind !== 'leaf' || node.body.value.family !== 'condition') return false;
-  const condition = node.body.value.action;
-  if (condition.kind === 'entityCount') return condition.storeKey === '';
-  return [
-    'mainOperator',
-    'twoDirectionAngle',
-    'targetAngle',
-    'distance',
-    'floatCompare',
-    'comboCameraAlphaSetting',
-    'skillCameraMotionFree',
-    'moveInput',
-    'targetContains',
-    'targetInScreen',
-    'perfectDodgeDirection',
-  ].includes(condition.kind);
-}
-
-/** 只处理源树已无有效分支动作的窄结构，不执行跨组件活性优化。 */
-function isPureEmptyContinuingBranch(
-  node: NativeActionNodeSource<KnownNativeActionLeafSource>,
-): boolean {
-  const body = node.body;
-  return (
-    body.kind === 'ifElse' &&
-    body.alwaysNext &&
-    body.whenTrue.actions.every(child => !child.metadata.enabled) &&
-    body.whenFalse.actions.every(child => !child.metadata.enabled) &&
-    body.condition.actions.every(
-      child => !child.metadata.enabled || canOmitUnusedNativeCondition(child),
-    )
-  );
-}
-
-/** 条件也可能写黑板；即便没有后继步骤，写入及其前置守卫也不能消去。 */
-export function canOmitUnusedCompiledCondition(condition: CompiledBuffConditionSource): boolean {
-  if (condition.kind === 'probability') return false; // 抽样会推进随机流。
-  if (condition.kind === 'all' || condition.kind === 'any')
-    return condition.conditions.every(canOmitUnusedCompiledCondition);
-  if (condition.kind === 'not') return canOmitUnusedCompiledCondition(condition.condition);
-  return !conditionWritesBlackboard(condition);
-}
-
-export function conditionWritesBlackboard(condition: CompiledBuffConditionSource): boolean {
-  if (condition.kind === 'all' || condition.kind === 'any')
-    return condition.conditions.some(conditionWritesBlackboard);
-  if (condition.kind === 'not') return conditionWritesBlackboard(condition.condition);
-  return (
-    ('outputKey' in condition && condition.outputKey !== undefined) ||
-    ('buffIdOutputKey' in condition && condition.buffIdOutputKey !== undefined) ||
-    (condition.kind === 'eventOverheal' &&
-      [condition.overHealKey, condition.finalHealKey, condition.realHealKey].some(
-        key => key !== undefined,
-      ))
-  );
 }
 
 function compileConditionLeaf(
@@ -100,7 +55,88 @@ function compileConditionLeaf(
   context: CombatActionProjectionContextSource,
   targetGroups: ReadonlyMap<string, ProjectedTargetGroup> = new Map(),
 ): CompiledBuffConditionSource {
-  if (condition.kind === 'constant') return { kind: 'constant', value: condition.value };
+  if (condition.kind === 'comboCameraAlphaSetting') {
+    const setting = COMBO_CAMERA_ALPHA_SETTINGS.find(value => value === condition.desiredSetting);
+    if (setting === undefined)
+      throw new Error(
+        `${sourcePath}: unsupported combo camera setting ${condition.desiredSetting}`,
+      );
+    return { kind: 'comboCameraAlphaSetting', setting };
+  }
+  if (condition.kind === 'stringCompare') {
+    return {
+      kind: 'stringEquals',
+      left:
+        condition.left.blackboardKey === null
+          ? condition.left.value
+          : { blackboardKey: condition.left.blackboardKey },
+      right:
+        condition.right.blackboardKey === null
+          ? condition.right.value
+          : { blackboardKey: condition.right.blackboardKey },
+    };
+  }
+  if (condition.kind === 'targetAngle') {
+    const selection = (target: typeof condition.target): ActionEntitySelection => {
+      if (
+        target.finderType !== null ||
+        target.validatorTypes.length ||
+        target.postProcessorTypes.length ||
+        target.priorityFilters.length ||
+        target.shuffleTargets.length ||
+        target.distanceValidators.length
+      )
+        throw new Error(`${sourcePath}: unsupported target-angle selector`);
+      if (target.targetSource === 'Context' && target.targetGroupKey !== '')
+        return { kind: 'context', key: target.targetGroupKey };
+      if (target.targetSource === 'Owner') return { kind: 'owner' };
+      if (target.targetSource === 'Source') return { kind: 'source' };
+      if (target.targetSource === 'Target') return { kind: 'inputTarget' };
+      throw new Error(`${sourcePath}: unsupported target-angle source ${target.targetSource}`);
+    };
+    if (!['TargetForward', 'TargetBackward'].includes(condition.angleType))
+      throw new Error(`${sourcePath}: unsupported target-angle direction`);
+    return {
+      kind: 'targetFacingAngle',
+      origin: selection(condition.origin),
+      target: selection(condition.target),
+      angleType: condition.angleType === 'TargetForward' ? 'forward' : 'backward',
+      angle: actionValueOperand(condition.angle),
+    };
+  }
+  if (condition.kind === 'twoDirectionAngle') {
+    const operator = COMPARISON_OPERATORS[condition.comparison];
+    if (operator === undefined) throw new Error(`${sourcePath}: unsupported angle comparison`);
+    return {
+      kind: 'twoDirectionAngleCompare',
+      direction1Source: projectActionTargetQuery(
+        condition.dir1Source,
+        context,
+        `${sourcePath}.dir1Source`,
+      ),
+      direction1Target: projectActionTargetQuery(
+        condition.dir1Target,
+        context,
+        `${sourcePath}.dir1Target`,
+      ),
+      direction1Type: condition.dir1DirectionType,
+      direction2Source: projectActionTargetQuery(
+        condition.dir2Source,
+        context,
+        `${sourcePath}.dir2Source`,
+      ),
+      direction2Target: projectActionTargetQuery(
+        condition.dir2Target,
+        context,
+        `${sourcePath}.dir2Target`,
+      ),
+      direction2Type: condition.dir2DirectionType,
+      operator,
+      value: actionValueOperand(condition.value),
+    };
+  }
+  const fixedResult = evaluateFixedScenarioCondition(condition);
+  if (fixedResult !== undefined) return { kind: 'constant', value: fixedResult };
   if (condition.kind === 'damageIgnoreImmuneLevel') {
     // 当前模拟器唯一的玩家受击入口是用户声明的外部命中，免疫忽略等级固定为原生 Default(0)。
     // 只接受公共闪避监听器的“0 <= 0”形状；其他比较必须等载荷显式携带该字段后再投影。
@@ -133,22 +169,29 @@ function compileConditionLeaf(
       value: condition.level,
     };
   }
-  if (condition.kind === 'moveInput') {
-    // Endaxis 的技能块没有移动轴输入；未提供输入表示静止。原生条件在零轴时返回 false，
-    // 后续 SaveMoveAxisAngle/方向 JumpTo 因 Sequence 短路不可达。若战斗程序仍消费角度，
-    // presentationCalculationIsolation 会继续拒绝，而不是伪造一个方向。
-    return { kind: 'constant', value: false };
-  }
   if (condition.kind === 'skillInterruptReason') {
     if (context.nativeAbilityEvent !== 'OnSkillInterrupted') {
       throw new Error(`${sourcePath}: CheckSkillInterruptReason requires OnSkillInterrupted`);
     }
-    const known = new Set(['CastNextSkill']);
-    if (condition.reasons.some(reason => !known.has(reason))) {
-      throw new Error(`${sourcePath}: unsupported skill interrupt reason`);
-    }
-    // Next 目前唯一会主动产生的技能中断就是形态/连段转场 CastNextSkill。
-    return { kind: 'constant', value: condition.reasons.includes('CastNextSkill') };
+    const nativeReasons: Readonly<Record<string, SkillInterruptReason>> = {
+      Default: 'default',
+      EnterFreeState: 'enterFreeState',
+      AIManual: 'aiManual',
+      Mud: 'mud',
+      DetachSkill: 'detachSkill',
+      InterruptAction: 'interruptAction',
+      Dash: 'dash',
+      CastNextSkill: 'castNextSkill',
+    };
+    return {
+      kind: 'skillInterruptReasonIn',
+      reasons: condition.reasons.map(reason => {
+        const value = nativeReasons[reason];
+        if (value === undefined)
+          throw new Error(`${sourcePath}: unsupported skill interrupt reason ${reason}`);
+        return value;
+      }),
+    };
   }
   // 主动动作/命中回调没有 Buff 事件环境；只有已验收的条件可使用显式木桩 Target。
   if (
@@ -248,255 +291,14 @@ function compileConditionLeaf(
     };
   }
   if (condition.kind === 'distance') {
-    if (
-      !condition.lessThan &&
-      condition.distance >= 0 &&
-      !condition.includeTargetRadius &&
-      !condition.containsHittableObject
-    ) {
-      // 项目模型把任意已解析实体间距离统一为 0；原生目标缺失时条件同样失败。
-      // 因而 `distance > 非负阈值` 无论命名 Context 是否为空都恒假，不需要伪造其身份。
-      return {
-        kind: 'actionValueCompare',
-        left: { kind: 'constant', value: 0 },
-        operator: 'greater',
-        right: { kind: 'constant', value: condition.distance },
-      };
-    }
-    const sourceIsSpatialPoint =
-      condition.source.targetSource === 'Context' &&
-      targetGroups.get(condition.source.targetGroupKey ?? '') === 'spatialPoint';
-    const targetIsSpatialPoint =
-      condition.target.targetSource === 'Context' &&
-      targetGroups.get(condition.target.targetGroupKey ?? '') === 'spatialPoint';
-    const sourceIsCaster =
-      condition.source.targetSource === 'Owner' && context.actionOwnerTarget === 'caster';
-    const targetIsCaster =
-      condition.target.targetSource === 'Owner' && context.actionOwnerTarget === 'caster';
-    const sourceIsKnownOwner =
-      condition.source.targetSource === 'Owner' && condition.source.targetGroupKey === '';
-    const sourceIsMainCharacter =
-      condition.source.targetSource === 'MainCharacter' && condition.source.targetGroupKey === '';
-    const sourceIsKnownCaster =
-      ((condition.source.targetSource === 'Owner' && context.actionOwnerTarget === 'caster') ||
-        (condition.source.targetSource === 'Source' && context.actionSourceTarget === 'caster')) &&
-      condition.source.targetGroupKey === '';
-    const sourceIsFixedCasterBuffSource =
-      condition.source.targetSource === 'Source' &&
-      condition.source.targetGroupKey === '' &&
-      context.fixedBuffSourceTarget === 'caster';
-    const targetIsStaticEnemyContext =
-      condition.target.targetSource === 'Context' &&
-      condition.target.targetGroupKey !== '' &&
-      context.staticEnemyTargetGroupKeys?.has(condition.target.targetGroupKey) === true;
-    const targetIsAbilityEntityContext =
-      condition.target.targetSource === 'Context' &&
-      condition.target.targetGroupKey !== '' &&
-      targetGroups.get(condition.target.targetGroupKey) === 'abilityEntity';
-    if (
-      (sourceIsKnownOwner ||
-        sourceIsKnownCaster ||
-        sourceIsFixedCasterBuffSource ||
-        sourceIsMainCharacter) &&
-      targetIsStaticEnemyContext &&
-      !condition.containsHittableObject
-    ) {
-      // 主动技能入口已把 smart_target 一类 Context 证明为唯一木桩；项目模型规定任意实例间
-      // 距离为零。includeTargetRadius 只会在这个零距离上纳入非负目标半径，不改变正阈值
-      // less-or-equal 的投影方式，仍不得借此放开未知 Context 或可破坏物查询。
-      return {
-        kind: 'actionValueCompare',
-        left: { kind: 'constant', value: 0 },
-        operator: condition.lessThan ? 'lessOrEqual' : 'greater',
-        right: { kind: 'constant', value: condition.distance },
-      };
-    }
-    if (
-      ((sourceIsSpatialPoint && targetIsCaster) || (targetIsSpatialPoint && sourceIsCaster)) &&
-      !condition.includeTargetRadius &&
-      !condition.containsHittableObject
-    ) {
-      return {
-        kind: 'actionValueCompare',
-        left: { kind: 'constant', value: 0 },
-        operator: condition.lessThan ? 'lessOrEqual' : 'greater',
-        right: { kind: 'constant', value: condition.distance },
-      };
-    }
-    if (
-      condition.source.targetSource === 'MainCharacter' &&
-      condition.source.targetGroupKey === '' &&
-      targetIsAbilityEntityContext &&
-      !condition.includeTargetRadius &&
-      !condition.containsHittableObject
-    ) {
-      const contextKey = condition.target.targetGroupKey!;
-      return {
-        // GetFirstTarget 缺少 Context 成员时原生条件失败；零距离归约不能把空组变成 true。
-        kind: 'all',
-        conditions: [
-          {
-            kind: 'contextTargetCountCompare',
-            contextKey,
-            operator: 'greater',
-            value: 0,
-          },
-          {
-            kind: 'actionValueCompare',
-            left: { kind: 'constant', value: 0 },
-            operator: condition.lessThan ? 'lessOrEqual' : 'greater',
-            right: { kind: 'constant', value: condition.distance },
-          },
-        ],
-      };
-    }
-    if (
-      context.actionTargetTarget === 'enemy' &&
-      condition.source.targetSource === 'Owner' &&
-      condition.target.targetSource === 'Target'
-    ) {
-      // Owner 可以是施术干员、Buff 宿主、投射物或能力实体；这里不借用其身份。
-      // 动作已在具体宿主和唯一木桩上执行，项目模型又规定任意实例间距离为零，因此只折叠距离值。
-      // includeTargetRadius 只会在零距离上纳入非负目标半径，不改变正阈值 less-or-equal 的结果。
-      // containsHittableObject 只扩展原生目标位置的回退来源；这里已有具体 Target 敌人，
-      // 且 Endaxis 明确把所有实例间距离统一为 0，因此不再让该空间选项阻塞数值分支。
-      return {
-        kind: 'actionValueCompare',
-        left: { kind: 'constant', value: 0 },
-        operator: condition.lessThan ? 'lessOrEqual' : 'greater',
-        right: { kind: 'constant', value: condition.distance },
-      };
-    }
-    if (
-      context.actionTargetTarget === 'eventSource' &&
-      condition.source.targetSource === 'Owner' &&
-      condition.source.targetGroupKey === '' &&
-      condition.target.targetSource === 'Target' &&
-      condition.target.targetGroupKey === '' &&
-      !condition.includeTargetRadius &&
-      !condition.containsHittableObject
-    ) {
-      // Added/Output Buff 响应只会在带实际来源身份的同步事件中执行；Target 是该事件来源。
-      // 不推断来源阵营或角色，只按项目统一的实例间零距离折叠数值。
-      return {
-        kind: 'actionValueCompare',
-        left: { kind: 'constant', value: 0 },
-        operator: condition.lessThan ? 'lessOrEqual' : 'greater',
-        right: { kind: 'constant', value: condition.distance },
-      };
-    }
-    if (
-      condition.source.targetSource === 'Owner' &&
-      condition.source.targetGroupKey === '' &&
-      context.actionOwnerTarget === 'buffOwner' &&
-      context.fixedBuffOwnerTarget === 'enemy' &&
-      condition.target.targetSource === 'InstantSearch' &&
-      condition.target.finderType === 'OwnerSpawnedEntityFinder' &&
-      !condition.includeTargetRadius &&
-      !condition.containsHittableObject &&
-      context.abilityEntityQueries !== undefined
-    ) {
-      const query = compileTargetReferenceAbilityEntityQuerySource(
-        condition.target,
-        context.abilityEntityQueries.catalog,
-        context.abilityEntityQueries.gameplayTagRegistry,
-        `${sourcePath}.target`,
-      );
-      if (
-        query.objectFilter !== 'abilityEntity' ||
-        query.owner.kind !== 'actionSource' ||
-        query.center.kind !== 'actionSource' ||
-        query.postProcessors.length !== 0 ||
-        query.validators.some(
-          validator => validator.kind !== 'tag' && validator.kind !== 'sameSkillCast',
-        )
-      ) {
-        throw new Error(`${sourcePath}: unsupported zero-distance AbilityEntity endpoint query`);
-      }
-      return {
-        kind: 'all',
-        conditions: [
-          {
-            kind: 'ownerSpawnedAbilityEntityPresent',
-            abilityEntityIds: query.candidateTemplateIds,
-            ...(query.validators.some(validator => validator.kind === 'sameSkillCast')
-              ? { sameSourceSkillCast: true }
-              : {}),
-          },
-          {
-            kind: 'actionValueCompare',
-            left: { kind: 'constant', value: 0 },
-            operator: condition.lessThan ? 'lessOrEqual' : 'greater',
-            right: { kind: 'constant', value: condition.distance },
-          },
-        ],
-      };
-    }
-    if (
-      (condition.source.targetSource === 'Owner' ||
-        condition.source.targetSource === 'MainCharacter') &&
-      condition.target.targetSource === 'Context' &&
-      condition.target.targetGroupKey !== '' &&
-      context.singleEnemyTargetGroupKeys?.has(condition.target.targetGroupKey) === true &&
-      (context.actionOwnerTarget === 'caster' ||
-        context.actionOwnerTarget === 'currentAbilityEntity' ||
-        context.fixedBuffOwnerTarget === 'caster') &&
-      !condition.containsHittableObject
-    ) {
-      // 跨时间段的动态单敌查询可以为空。原生 Context 距离检查在空组上失败；
-      // 非空时项目零距离模型再折叠数值。includeTargetRadius 只会继续减小
-      // 有效距离，不改变这个零距离结果。
-      return {
-        kind: 'all',
-        conditions: [
-          {
-            kind: 'contextTargetCountCompare',
-            contextKey: condition.target.targetGroupKey,
-            operator: 'greater',
-            value: 0,
-          },
-          {
-            kind: 'actionValueCompare',
-            left: { kind: 'constant', value: 0 },
-            operator: condition.lessThan ? 'lessOrEqual' : 'greater',
-            right: { kind: 'constant', value: condition.distance },
-          },
-        ],
-      };
-    }
-    const targetIsKnownInstance =
-      (condition.target.targetSource === 'Target' &&
-        ['currentAbilityEntity', 'enemy', 'caster'].includes(context.actionTargetTarget)) ||
-      (condition.target.targetSource === 'Context' &&
-        condition.target.targetGroupKey !== '' &&
-        targetGroups.get(condition.target.targetGroupKey) === 'abilityEntity');
-    if (
-      (context.actionOwnerTarget !== 'caster' && context.fixedBuffOwnerTarget !== 'caster') ||
-      condition.source.targetSource !== 'Owner' ||
-      !targetIsKnownInstance ||
-      condition.includeTargetRadius ||
-      condition.containsHittableObject
-    )
-      throw new Error(
-        `${sourcePath}: unsupported zero-distance condition endpoints/options ` +
-          JSON.stringify({
-            source: condition.source.targetSource,
-            target: condition.target.targetSource,
-            targetGroup: condition.target.targetGroupKey,
-            targetKind: targetGroups.get(condition.target.targetGroupKey),
-            owner: context.actionOwnerTarget,
-            inputTarget: context.actionTargetTarget,
-            includeTargetRadius: condition.includeTargetRadius,
-            containsHittableObject: condition.containsHittableObject,
-          }),
-      );
-    // 固定技能目标或 ForEach 已保证实例存在；不能把空目标组当成距离为零。
-    // 原生 lessThan=true 的比较是 <=，不是 <。
     return {
-      kind: 'actionValueCompare',
-      left: { kind: 'constant', value: 0 },
-      operator: condition.lessThan ? 'lessOrEqual' : 'greater',
-      right: { kind: 'constant', value: condition.distance },
+      kind: 'targetDistance',
+      source: projectActionTargetQuery(condition.source, context, `${sourcePath}.source`),
+      target: projectActionTargetQuery(condition.target, context, `${sourcePath}.target`),
+      distance: condition.distance,
+      lessThan: condition.lessThan,
+      includeTargetRadius: condition.includeTargetRadius,
+      containsHittableObject: condition.containsHittableObject,
     };
   }
   if (condition.kind === 'squadInFight') {
@@ -793,113 +595,13 @@ function compileConditionLeaf(
   }
   if (condition.kind === 'entityCount') {
     const operator = COMPARISON_OPERATORS[condition.comparison];
-    const projectedGroup = targetGroups.get(condition.targetGroupKey);
-    const knownStaticEnemy = context.staticEnemyTargetGroupKeys?.has(condition.targetGroupKey);
-    if (
-      condition.targetSource === 'Context' &&
-      projectedGroup === 'empty' &&
-      !condition.containsHittableTarget &&
-      !condition.excludeDeadEntity &&
-      condition.storeKey === '' &&
-      operator !== undefined
-    ) {
-      return {
-        kind: 'actionValueCompare',
-        left: { kind: 'constant', value: 0 },
-        operator,
-        right: { kind: 'constant', value: condition.minimumCount },
-      };
-    }
-    if (
-      condition.targetSource === 'InstantSearch' &&
-      condition.target?.finderType === 'MainTargetFinder' &&
-      condition.target.validatorTypes.length === 0 &&
-      condition.target.postProcessorTypes.length === 0 &&
-      !condition.containsHittableTarget &&
-      !condition.excludeDeadEntity &&
-      condition.storeKey === '' &&
-      operator !== undefined &&
-      context.actionTargetTarget === 'enemy'
-    ) {
-      return {
-        kind: 'actionValueCompare',
-        left: { kind: 'constant', value: 1 },
-        operator,
-        right: { kind: 'constant', value: condition.minimumCount },
-      };
-    }
-    if (
-      condition.targetSource === 'Context' &&
-      context.guaranteedSingletonZeroSpaceTargetGroupKeys?.has(condition.targetGroupKey) === true &&
-      !condition.containsHittableTarget &&
-      !condition.excludeDeadEntity &&
-      condition.storeKey === '' &&
-      operator !== undefined
-    ) {
-      // 该事实来自同一技能按原生时间线及 IfElse 汇合传播后的入口状态；它只证明
-      // 当前集合恰有一个成员，不把 FixedPoint 冒充为敌人，也不外推到其他时间线。
-      return {
-        kind: 'actionValueCompare',
-        left: { kind: 'constant', value: 1 },
-        operator,
-        right: { kind: 'constant', value: condition.minimumCount },
-      };
-    }
-    if (
-      condition.targetSource === 'Context' &&
-      (projectedGroup === 'controlledOperator' || knownStaticEnemy) &&
-      !condition.containsHittableTarget &&
-      (!condition.excludeDeadEntity || knownStaticEnemy) &&
-      condition.storeKey === '' &&
-      operator !== undefined
-    ) {
-      // staticEnemyTargetGroupKeys 已证明该 Context 只含标准唯一木桩；木桩 HP 归零不会安装
-      // 原生 markDie，故 excludeDeadEntity 与直接 Target 分支一样仍保留这一实体。普通动态
-      // Context 和 controlledOperator 不借用此结论。
-      return {
-        kind: 'actionValueCompare',
-        left: { kind: 'constant', value: 1 },
-        operator,
-        right: { kind: 'constant', value: condition.minimumCount },
-      };
-    }
-    if (
-      condition.targetSource === 'Target' &&
-      (!condition.excludeDeadEntity || context.actionTargetTarget === 'enemy') &&
-      condition.storeKey === '' &&
-      (!condition.containsHittableTarget || context.fixedHittableTargetCount !== undefined) &&
-      operator !== undefined &&
-      ['enemy', 'currentAbilityEntity', 'eventTarget', 'eventSource'].includes(
-        context.actionTargetTarget,
-      )
-    ) {
-      // GetTargetsView 的 Target 分支直接读取输入目标；序列化残留 group key 不参与解析。
-      // 已绑定单一 ActionTarget 的回调不会以空集合调用；保留为显式常量比较，
-      // 不把一般 Context 集合查询错误简化为唯一木桩。
-      // 标准唯一木桩不安装原生死亡标记，HP 归零也不是 markDie；因此敌人输入经过
-      // excludeDeadEntity 仍为同一目标。能力实体/事件来源则不能借用这条证明。
-      return {
-        kind: 'actionValueCompare',
-        left: {
-          kind: 'constant',
-          value: 1 + (condition.containsHittableTarget ? context.fixedHittableTargetCount! : 0),
-        },
-        operator,
-        right: { kind: 'constant', value: condition.minimumCount },
-      };
-    }
-    if (
-      condition.targetSource !== 'Context' ||
-      condition.targetGroupKey === '' ||
-      condition.containsHittableTarget ||
-      condition.excludeDeadEntity ||
-      operator === undefined
-    ) {
-      throw new Error(`${sourcePath}: unsupported Context target count condition`);
-    }
+    if (!condition.target || operator === undefined)
+      throw new Error(`${sourcePath}: incomplete native entity count condition`);
     return {
-      kind: 'contextTargetCountCompare',
-      contextKey: condition.targetGroupKey,
+      kind: 'entityCountCompare',
+      target: projectActionTargetQuery(condition.target, context, `${sourcePath}.checkTarget`),
+      containsHittableTarget: condition.containsHittableTarget,
+      excludeDeadEntity: condition.excludeDeadEntity,
       operator,
       value: condition.minimumCount,
       ...(condition.storeKey === '' ? {} : { outputKey: condition.storeKey }),
@@ -1106,11 +808,7 @@ function compileConditionLeaf(
       );
       return { kind: 'constant', value: types === 'all' || types.includes('character') };
     }
-    if (
-      (context.actionTargetTarget === 'eventSource' ||
-        context.actionTargetTarget === 'eventTarget') &&
-      condition.target.targetSource === 'Target'
-    ) {
+    if (condition.target.targetSource === 'Target') {
       return {
         kind: 'actionInputTargetObjectTypeMatch',
         objectTypes: projectObjectTypeSelection(
@@ -1118,25 +816,6 @@ function compileConditionLeaf(
           `${sourcePath}.objectTypeMask`,
         ),
       };
-    }
-    if (
-      (context.actionTargetTarget === 'currentOperator' ||
-        (context.actionTargetTarget === 'actionInputTarget' && context.actionInputIsOperator)) &&
-      condition.target.targetSource === 'Target'
-    ) {
-      const types = projectObjectTypeSelection(
-        condition.objectTypeMask,
-        `${sourcePath}.objectTypeMask`,
-      );
-      return { kind: 'constant', value: types === 'all' || types.includes('character') };
-    }
-    if (context.actionTargetTarget === 'enemy' && condition.target.targetSource === 'Target') {
-      const types = projectObjectTypeSelection(
-        condition.objectTypeMask,
-        `${sourcePath}.objectTypeMask`,
-      );
-      // 唯一木桩是 enemy，enemyPart 不反向包含 enemy。
-      return { kind: 'constant', value: types === 'all' || types.includes('enemy') };
     }
     if (condition.target.targetSource !== 'Context' || condition.target.targetGroupKey === '') {
       throw new Error(
@@ -1620,16 +1299,6 @@ function compileConditionLeaf(
       tags: projectGameplayTags(condition.tagIds, context, sourcePath),
     };
   }
-  if (condition.kind === 'any') {
-    const groups = condition.groups.map(group => {
-      const conditions = group.conditions.map((child, index) => {
-        const compiled = compileConditionLeaf(child, sourcePath, context);
-        return group.negated[index] ? ({ kind: 'not', condition: compiled } as const) : compiled;
-      });
-      return conditions.length === 1 ? conditions[0]! : ({ kind: 'all', conditions } as const);
-    });
-    return groups.length === 1 ? groups[0]! : { kind: 'any', conditions: groups };
-  }
   if (condition.kind === 'globalCooldown') {
     const target = projectGlobalCooldownTarget(condition, context, sourcePath);
     if (condition.buffId.length === 0) {
@@ -1857,4 +1526,107 @@ function decodeAttackTypeMask(value: string | number | undefined): number {
     else throw new Error(`unsupported native attack type mask ${JSON.stringify(value)}`);
   }
   return result;
+}
+
+/** 保留动作内部的目标查询，不生成额外的查询动作或临时目标组。 */
+export function projectActionTargetQuery(
+  target: TargetReferenceSource,
+  context: CombatActionProjectionContextSource,
+  path: string,
+): ActionTargetQuery {
+  if (target.targetSource !== 'InstantSearch') {
+    switch (target.targetSource) {
+      case 'Owner':
+        return { kind: 'owner' };
+      case 'Source':
+        return { kind: 'source' };
+      case 'Target':
+        return { kind: 'inputTarget' };
+      case 'MainCharacter':
+        return { kind: 'mainCharacter' };
+      case 'MainTarget':
+        return { kind: 'battleMainTarget' };
+      case 'Context':
+        if (target.targetGroupKey) {
+          if (context.staticEnemyTargetGroupKeys?.has(target.targetGroupKey))
+            return { kind: 'fixed', target: 'enemy' };
+          return { kind: 'context', key: target.targetGroupKey };
+        }
+    }
+    throw new Error(`${path}: unsupported action target ${target.targetSource}`);
+  }
+  const owner = (): ActionEntitySelection => {
+    if (target.selectorOwner === 'ActionOwner') return { kind: 'owner' };
+    if (target.selectorOwner === 'ActionSource') return { kind: 'source' };
+    if (target.selectorOwner === 'ContextTarget' && target.ownerContextKey)
+      return { kind: 'context', key: target.ownerContextKey };
+    throw new Error(`${path}: unsupported selector owner ${target.selectorOwner}`);
+  };
+  if (target.finderType === 'FixedPointFinder') {
+    // 导航采样失败保留原位置，成功只替换坐标；均输出一个位置目标。
+    // 零空间模型省略坐标修饰，但过滤器可能改变结果，不能一并忽略。
+    if (
+      !target.finderFixedPoint ||
+      target.enableAdvancedDirection ||
+      target.validatorTypes.length > 0 ||
+      target.postProcessorTypes.length > 0
+    )
+      throw new Error(`${path}: unsupported fixed-point query modifiers`);
+    const selection = (kind: string, key: string): ActionEntitySelection => {
+      if (kind === 'ActionOwner') return { kind: 'owner' };
+      if (kind === 'ActionSource') return { kind: 'source' };
+      if (kind === 'InputTarget' || kind === 'CurrentTarget') return { kind: 'inputTarget' };
+      if (kind === 'ContextTarget' && key) return { kind: 'context', key };
+      throw new Error(`${path}: unsupported fixed-point reference ${kind}`);
+    };
+    return {
+      kind: 'fixedPoint',
+      owner: owner(),
+      directionTarget: selection(target.target, target.targetContextKey),
+      center: selection(target.centerType, target.centerContextKey),
+    };
+  }
+  if (
+    target.finderType === 'MainTargetFinder' &&
+    target.validatorTypes.length === 0 &&
+    target.postProcessorTypes.length === 0
+  )
+    return { kind: 'mainTarget', owner: owner() };
+  if (
+    target.finderType === 'CharacterTeamFinder' &&
+    target.validatorTypes.length === 1 &&
+    target.validatorTypes[0] === 'MainCharacterValidator' &&
+    target.postProcessorTypes.length === 0
+  )
+    return { kind: 'mainCharacter' };
+  if (
+    target.finderType === 'OwnerSpawnedEntityFinder' &&
+    target.finderSpawnedObjectType === 'All' &&
+    target.validatorTypes.length === 0 &&
+    target.postProcessorTypes.length === 0
+  ) {
+    return { kind: 'ownerSpawned', owner: owner(), objectType: 'all', sameSourceSkillCast: false };
+  }
+  if (target.finderType === 'OwnerSpawnedEntityFinder' && context.abilityEntityQueries) {
+    const query = compileTargetReferenceAbilityEntityQuerySource(
+      target,
+      context.abilityEntityQueries.catalog,
+      context.abilityEntityQueries.gameplayTagRegistry,
+      path,
+    );
+    if (
+      query.objectFilter !== 'abilityEntity' ||
+      query.postProcessors.length !== 0 ||
+      query.validators.some(v => v.kind !== 'tag' && v.kind !== 'sameSkillCast')
+    )
+      throw new Error(`${path}: unsupported action entity query`);
+    return {
+      kind: 'ownerSpawned',
+      owner: owner(),
+      objectType: 'abilityEntity',
+      abilityEntityIds: query.candidateTemplateIds,
+      sameSourceSkillCast: query.validators.some(v => v.kind === 'sameSkillCast'),
+    };
+  }
+  throw new Error(`${path}: unsupported action target finder ${target.finderType}`);
 }

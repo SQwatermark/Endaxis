@@ -18,6 +18,7 @@ import {
   launchProjectile,
   registerProjectileReset,
   unregisterProjectileReset,
+  finishProjectileByAction,
   type ProjectileLaunchData,
 } from './projectileLifecycleExecution';
 
@@ -172,6 +173,27 @@ export class ProjectileLifecycleRuntime implements FrameRuntime {
   /** reset 通知完成前仍可查询来源。 */
   findSource(instanceId: number): RuntimeTargetRef | undefined {
     return this.#state.instances.get(instanceId)?.source;
+  }
+
+  finishByAction(target: RuntimeTargetRef): boolean {
+    this.#requireRelations();
+    return (
+      target.kind === 'abilityEntity' && finishProjectileByAction(this.#state, target.instanceId)
+    );
+  }
+
+  /** 原生 children 在回收时脱链，已结束但未回收的投射物仍属于来源。 */
+  findOwnerSpawned(ownerId: string): readonly AbilityEntityTargetRef[] {
+    return [...this.#state.instances.values()]
+      .filter(instance => {
+        const source = instance.source;
+        return source?.kind === 'operator'
+          ? source.operatorId === ownerId
+          : source?.kind === 'enemy'
+            ? ownerId === 'enemy'
+            : source?.kind === 'abilityEntity' && ownerId === `ability-entity:${source.instanceId}`;
+      })
+      .map(instance => ({ kind: 'abilityEntity', instanceId: instance.instanceId }));
   }
 
   isActive(target: RuntimeTargetRef): boolean {

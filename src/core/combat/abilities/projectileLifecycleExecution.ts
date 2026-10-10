@@ -93,6 +93,23 @@ export function unregisterProjectileReset(
   state.instances.get(instanceId)?.resetListeners.delete(registrationId);
 }
 
+/** FinishOwner 的 ByAction/null：停止飞行，不施放结束技能，仍经过延迟回收及 reset。 */
+export function finishProjectileByAction(
+  state: ProjectileLifecycleState,
+  instanceId: number,
+): boolean {
+  const instance = state.instances.get(instanceId);
+  if (!instance || instance.phase === 'reset') return false;
+  if (instance.phase === 'active') {
+    instance.phase = 'finished';
+    instance.remainingSeconds = instance.recycleDelaySeconds;
+    instance.remainingReachTicks = null;
+    instance.pendingBlock = false;
+    if (instance.firstTickHit) instance.firstTickHit.pending = false;
+  }
+  return true;
+}
+
 /** 端口只在推进过程中使用，不保存在状态中。相互触发的事件仍然同步执行。 */
 export interface ProjectileLifecycleHost {
   resolveTickDeltaSeconds(instanceId: number): number | null;
@@ -142,6 +159,7 @@ export function advanceProjectileLifetimes(
       instance.firstTickHit.pending = false;
       if (host.hit === undefined) throw new Error('projectile first-tick hit requires a hit port');
       const hit = host.hit(instance.instanceId);
+      if (instance.phase !== 'active') continue;
       if (!hit && instance.firstTickHit.retryRejectedHit) instance.firstTickHit.pending = true;
       if (hit && instance.firstTickHit.finishOnHit) {
         instance.phase = 'finished';
@@ -154,6 +172,7 @@ export function advanceProjectileLifetimes(
     if (instance.phase === 'active' && instance.pendingBlock) {
       instance.pendingBlock = false;
       host.block?.(instance.instanceId);
+      if (instance.phase !== 'active') continue;
       instance.phase = 'finished';
       instance.remainingReachTicks = null;
       instance.remainingSeconds = instance.recycleDelaySeconds;
@@ -173,8 +192,10 @@ export function advanceProjectileLifetimes(
         instance.firstTickHit.pending = false;
         if (host.hit === undefined) throw new Error('projectile reach hit requires a hit port');
         finishedByHit = host.hit(instance.instanceId) && instance.firstTickHit.finishOnHit;
+        if (instance.phase !== 'active') continue;
       }
       if (reached) host.reach?.(instance.instanceId);
+      if (instance.phase !== 'active') continue;
       if (reached && !instance.finishOnReach && !finishedByHit && instance.remainingSeconds > 0)
         continue;
       instance.phase = 'finished';

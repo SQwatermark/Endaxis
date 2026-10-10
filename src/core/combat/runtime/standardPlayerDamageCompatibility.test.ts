@@ -270,40 +270,6 @@ describe('standardPlayerDamageCompatibility', () => {
       }),
     ).toEqual([expect.objectContaining({ code: 'unsupported-damage-calculation' })]);
   });
-  it('Switch 不会隐藏未选分支的不兼容行为，报告包含候选路径', () => {
-    const issues = inspectStandardPlayerDamageCompatibility(
-      compatibilityInput(
-        operator(
-          compileGraphEntry('compat-switch-branches', 'switch', {
-            switch: {
-              action: {
-                kind: 'switch',
-                parameters: { choice: { kind: 'constant', value: 0 }, alwaysNext: true },
-                options: [
-                  { value: { kind: 'constant', value: 0 }, sequence: { $sequence: null } },
-                  {
-                    value: { kind: 'constant', value: 1 },
-                    sequence: { $sequence: 'option-one' },
-                  },
-                ],
-              },
-              next: null,
-            },
-            'option-one': {
-              action: {
-                kind: 'changeResource',
-                parameters: { resource: 'sp', recipient: 'caster', amount: 1 },
-              },
-              next: null,
-            },
-          }),
-        ),
-      ),
-    );
-    expect(issues).toHaveLength(1);
-    expect(issues[0]!.path).toContain('.options[1].sequence.steps[0]');
-  });
-
   it('递归检查 repeatByActionValue 的动作体，不把运行时已支持的容器误报为未支持', () => {
     const issues = inspectStandardPlayerDamageCompatibility(
       compatibilityInput(
@@ -658,7 +624,12 @@ describe('standardPlayerDamageCompatibility', () => {
             },
             {
               kind: 'changeResource',
-              parameters: { resource: 'sp', recipient: 'caster', amount: 1 },
+              parameters: {
+                resource: 'sp',
+                source: { kind: 'fixed', target: 'caster' },
+                targets: { kind: 'fixed', target: 'caster' },
+                amount: 1,
+              },
             },
           ]),
           1,
@@ -669,7 +640,6 @@ describe('standardPlayerDamageCompatibility', () => {
     expect(issues.map(issue => issue.code)).toEqual([
       'unsupported-damage-calculation',
       'unsupported-damage-field',
-      'unsupported-resource-change',
     ]);
   });
 
@@ -734,7 +704,7 @@ describe('standardPlayerDamageCompatibility', () => {
             'step-0': {
               action: {
                 kind: 'launchProjectile',
-                parameters: { finish: 0.1, recycleDelaySeconds: 0 },
+                parameters: { inheritActionBlackboard: true, finish: 0.1, recycleDelaySeconds: 0 },
                 callbacks: [
                   {
                     event: 'finish',
@@ -769,7 +739,8 @@ describe('standardPlayerDamageCompatibility', () => {
                                 parameters: {
                                   resource: 'sp',
                                   amount: 1,
-                                  recipient: 'team',
+                                  source: { kind: 'fixed', target: 'caster' },
+                                  targets: { kind: 'fixed', target: 'caster' },
                                   spGainKind: 'gain',
                                 },
                               },

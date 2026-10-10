@@ -15,6 +15,8 @@ export const gilbertaChr_0013_aglina_attack1ActionGraph = {
         action: {
           kind: 'launchProjectile',
           parameters: {
+            inheritActionBlackboard: true,
+            entityInitialValues: {},
             finish: 'firstTickReach',
             recycleDelaySeconds: 0.0333333350718021,
             hit: { finishOnHit: true },
@@ -39,14 +41,29 @@ export const gilbertaChr_0013_aglina_attack1ActionGraph = {
                 actionGraph: {
                   main: {
                     nodes: {
-                      changeResource_1: {
+                      checkCondition_1: {
+                        action: {
+                          kind: 'checkCondition',
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
+                        },
+                        next: null,
+                      },
+                      checkCondition_2: {
+                        action: {
+                          kind: 'checkCondition',
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
+                        },
+                        next: 'checkCondition_1',
+                      },
+                      changeResource_3: {
                         action: {
                           kind: 'changeResource',
                           parameters: {
                             resource: 'sp',
-                            amount: { kind: 'valueNode', nodeId: 'data_1' },
+                            amount: { kind: 'valueNode', nodeId: 'data_3' },
                             coefficient: { kind: 'constant', value: 1 },
-                            recipient: 'team',
+                            source: { kind: 'source' },
+                            targets: { kind: 'source' },
                             onlyMainOperator: true,
                             spGainKind: 'gain',
                             spGainSource: 'normalAttack',
@@ -54,14 +71,13 @@ export const gilbertaChr_0013_aglina_attack1ActionGraph = {
                         },
                         next: null,
                       },
-                      conditional_opt1: {
+                      ifElse_opt1: {
                         action: {
-                          kind: 'conditional',
-                          parameters: {
-                            condition: { kind: 'conditionNode', nodeId: 'data_2' },
-                            alwaysNext: true,
-                          },
-                          whenTrue: { $sequence: 'changeResource_1' },
+                          kind: 'ifElse',
+                          parameters: { alwaysNext: true },
+                          condition: { $sequence: 'checkCondition_2' },
+                          whenTrue: { $sequence: 'changeResource_3' },
+                          whenFalse: { $sequence: null },
                         },
                         next: null,
                       },
@@ -70,17 +86,28 @@ export const gilbertaChr_0013_aglina_attack1ActionGraph = {
                           kind: 'dealDamage',
                           parameters: {
                             damageType: 'nature',
-                            attackScale: { kind: 'valueNode', nodeId: 'data_3' },
+                            attackScale: { kind: 'valueNode', nodeId: 'data_4' },
                             tags: ['normalAttack'],
                           },
                         },
-                        next: 'conditional_opt1',
+                        next: 'ifElse_opt1',
                       },
                     },
                     dataNodes: {
-                      data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+                      data_1: {
+                        type: 'boolean',
+                        expression: {
+                          kind: 'entityCountCompare',
+                          target: { kind: 'inputTarget' },
+                          containsHittableTarget: false,
+                          excludeDeadEntity: false,
+                          operator: 'greaterOrEqual',
+                          value: 1,
+                        },
+                      },
                       data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
-                      data_3: {
+                      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+                      data_4: {
                         type: 'number',
                         expression: { kind: 'blackboard', key: 'atk_scale' },
                       },
@@ -94,20 +121,7 @@ export const gilbertaChr_0013_aglina_attack1ActionGraph = {
         },
         next: null,
       },
-      withActionBlackboardScope_2: {
-        action: {
-          kind: 'withActionBlackboardScope',
-          parameters: {
-            lifetime: 'execution',
-            initialValues: {},
-            inheritParent: true,
-            entityInitialValues: {},
-          },
-          body: { $sequence: 'launchProjectile_1' },
-        },
-        next: null,
-      },
-      reachSkillOperableBoundary_3: {
+      reachSkillOperableBoundary_2: {
         action: {
           kind: 'reachSkillOperableBoundary',
           parameters: { skillIds: ['chr_0013_aglina_attack2'] },
@@ -125,7 +139,6 @@ export const gilbertaChr_0013_aglina_attack1: SkillDefinition = {
   blackboard: {
     atb: 0,
     atk_scale: [0.3, 0.33, 0.36, 0.39, 0.42, 0.45, 0.48, 0.51, 0.54, 0.58, 0.62, 0.68],
-    display_atk_scale: [0.3, 0.33, 0.36, 0.39, 0.42, 0.45, 0.48, 0.51, 0.54, 0.58, 0.62, 0.68],
   },
   timelineBlockFrames: 18,
   naturalDurationFrames: 91,
@@ -144,8 +157,8 @@ export const gilbertaChr_0013_aglina_attack1: SkillDefinition = {
   },
   costFrame: 9,
   scheduledSequences: [
-    { startFrame: 7, endFrame: 7, sequence: { $sequence: 'withActionBlackboardScope_2' } },
-    { startFrame: 18, endFrame: 30, sequence: { $sequence: 'reachSkillOperableBoundary_3' } },
+    { startFrame: 7, endFrame: 7, sequence: { $sequence: 'launchProjectile_1' } },
+    { startFrame: 18, endFrame: 30, sequence: { $sequence: 'reachSkillOperableBoundary_2' } },
   ],
   timelineContinuationSkillId: 'chr_0013_aglina_attack2',
   skillType: 'basicAttack',
@@ -161,6 +174,8 @@ export const gilbertaChr_0013_aglina_attack2ActionGraph = {
         action: {
           kind: 'launchProjectile',
           parameters: {
+            inheritActionBlackboard: true,
+            entityInitialValues: {},
             finish: 'firstTickReach',
             recycleDelaySeconds: 0.0333333350718021,
             hit: { finishOnHit: true },
@@ -192,7 +207,8 @@ export const gilbertaChr_0013_aglina_attack2ActionGraph = {
                             resource: 'sp',
                             amount: { kind: 'valueNode', nodeId: 'data_1' },
                             coefficient: { kind: 'constant', value: 0.5 },
-                            recipient: 'team',
+                            source: { kind: 'source' },
+                            targets: { kind: 'source' },
                             onlyMainOperator: true,
                             spGainKind: 'gain',
                             spGainSource: 'normalAttack',
@@ -228,20 +244,7 @@ export const gilbertaChr_0013_aglina_attack2ActionGraph = {
         },
         next: null,
       },
-      withActionBlackboardScope_2: {
-        action: {
-          kind: 'withActionBlackboardScope',
-          parameters: {
-            lifetime: 'execution',
-            initialValues: {},
-            inheritParent: true,
-            entityInitialValues: {},
-          },
-          body: { $sequence: 'launchProjectile_1' },
-        },
-        next: null,
-      },
-      reachSkillOperableBoundary_5: {
+      reachSkillOperableBoundary_3: {
         action: {
           kind: 'reachSkillOperableBoundary',
           parameters: { skillIds: ['chr_0013_aglina_attack3'] },
@@ -259,7 +262,6 @@ export const gilbertaChr_0013_aglina_attack2: SkillDefinition = {
   blackboard: {
     atb: 0,
     atk_scale: [0.18, 0.2, 0.22, 0.23, 0.25, 0.27, 0.29, 0.31, 0.32, 0.35, 0.37, 0.41],
-    display_atk_scale: [0.36, 0.4, 0.43, 0.47, 0.5, 0.54, 0.58, 0.61, 0.65, 0.69, 0.75, 0.81],
   },
   timelineBlockFrames: 22,
   naturalDurationFrames: 118,
@@ -278,9 +280,9 @@ export const gilbertaChr_0013_aglina_attack2: SkillDefinition = {
   },
   costFrame: 11,
   scheduledSequences: [
-    { startFrame: 4, endFrame: 4, sequence: { $sequence: 'withActionBlackboardScope_2' } },
-    { startFrame: 8, endFrame: 8, sequence: { $sequence: 'withActionBlackboardScope_2' } },
-    { startFrame: 22, endFrame: 29, sequence: { $sequence: 'reachSkillOperableBoundary_5' } },
+    { startFrame: 4, endFrame: 4, sequence: { $sequence: 'launchProjectile_1' } },
+    { startFrame: 8, endFrame: 8, sequence: { $sequence: 'launchProjectile_1' } },
+    { startFrame: 22, endFrame: 29, sequence: { $sequence: 'reachSkillOperableBoundary_3' } },
   ],
   timelineContinuationSkillId: 'chr_0013_aglina_attack3',
   skillType: 'basicAttack',
@@ -296,6 +298,8 @@ export const gilbertaChr_0013_aglina_attack3ActionGraph = {
         action: {
           kind: 'launchProjectile',
           parameters: {
+            inheritActionBlackboard: true,
+            entityInitialValues: {},
             finish: 'firstTickReach',
             recycleDelaySeconds: 0.0333333350718021,
             hit: { finishOnHit: true },
@@ -320,14 +324,29 @@ export const gilbertaChr_0013_aglina_attack3ActionGraph = {
                 actionGraph: {
                   main: {
                     nodes: {
-                      changeResource_1: {
+                      checkCondition_1: {
+                        action: {
+                          kind: 'checkCondition',
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
+                        },
+                        next: null,
+                      },
+                      checkCondition_2: {
+                        action: {
+                          kind: 'checkCondition',
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
+                        },
+                        next: 'checkCondition_1',
+                      },
+                      changeResource_3: {
                         action: {
                           kind: 'changeResource',
                           parameters: {
                             resource: 'sp',
-                            amount: { kind: 'valueNode', nodeId: 'data_1' },
+                            amount: { kind: 'valueNode', nodeId: 'data_3' },
                             coefficient: { kind: 'constant', value: 0.3333333 },
-                            recipient: 'team',
+                            source: { kind: 'source' },
+                            targets: { kind: 'source' },
                             onlyMainOperator: true,
                             spGainKind: 'gain',
                             spGainSource: 'normalAttack',
@@ -335,14 +354,13 @@ export const gilbertaChr_0013_aglina_attack3ActionGraph = {
                         },
                         next: null,
                       },
-                      conditional_opt1: {
+                      ifElse_opt1: {
                         action: {
-                          kind: 'conditional',
-                          parameters: {
-                            condition: { kind: 'conditionNode', nodeId: 'data_2' },
-                            alwaysNext: true,
-                          },
-                          whenTrue: { $sequence: 'changeResource_1' },
+                          kind: 'ifElse',
+                          parameters: { alwaysNext: true },
+                          condition: { $sequence: 'checkCondition_2' },
+                          whenTrue: { $sequence: 'changeResource_3' },
+                          whenFalse: { $sequence: null },
                         },
                         next: null,
                       },
@@ -351,17 +369,28 @@ export const gilbertaChr_0013_aglina_attack3ActionGraph = {
                           kind: 'dealDamage',
                           parameters: {
                             damageType: 'nature',
-                            attackScale: { kind: 'valueNode', nodeId: 'data_3' },
+                            attackScale: { kind: 'valueNode', nodeId: 'data_4' },
                             tags: ['normalAttack'],
                           },
                         },
-                        next: 'conditional_opt1',
+                        next: 'ifElse_opt1',
                       },
                     },
                     dataNodes: {
-                      data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+                      data_1: {
+                        type: 'boolean',
+                        expression: {
+                          kind: 'entityCountCompare',
+                          target: { kind: 'inputTarget' },
+                          containsHittableTarget: false,
+                          excludeDeadEntity: false,
+                          operator: 'greaterOrEqual',
+                          value: 1,
+                        },
+                      },
                       data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
-                      data_3: {
+                      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+                      data_4: {
                         type: 'number',
                         expression: { kind: 'blackboard', key: 'atk_scale' },
                       },
@@ -375,20 +404,7 @@ export const gilbertaChr_0013_aglina_attack3ActionGraph = {
         },
         next: null,
       },
-      withActionBlackboardScope_2: {
-        action: {
-          kind: 'withActionBlackboardScope',
-          parameters: {
-            lifetime: 'execution',
-            initialValues: {},
-            inheritParent: true,
-            entityInitialValues: {},
-          },
-          body: { $sequence: 'launchProjectile_1' },
-        },
-        next: null,
-      },
-      reachSkillOperableBoundary_7: {
+      reachSkillOperableBoundary_4: {
         action: {
           kind: 'reachSkillOperableBoundary',
           parameters: { skillIds: ['chr_0013_aglina_attack4'] },
@@ -406,7 +422,6 @@ export const gilbertaChr_0013_aglina_attack3: SkillDefinition = {
   blackboard: {
     atb: 0,
     atk_scale: [0.14, 0.15, 0.16, 0.18, 0.19, 0.2, 0.22, 0.23, 0.24, 0.26, 0.28, 0.3],
-    display_atk_scale: [0.41, 0.45, 0.49, 0.53, 0.57, 0.61, 0.65, 0.69, 0.73, 0.78, 0.84, 0.91],
   },
   timelineBlockFrames: 23,
   naturalDurationFrames: 138,
@@ -425,10 +440,10 @@ export const gilbertaChr_0013_aglina_attack3: SkillDefinition = {
   },
   costFrame: 13,
   scheduledSequences: [
-    { startFrame: 7, endFrame: 8, sequence: { $sequence: 'withActionBlackboardScope_2' } },
-    { startFrame: 10, endFrame: 11, sequence: { $sequence: 'withActionBlackboardScope_2' } },
-    { startFrame: 14, endFrame: 15, sequence: { $sequence: 'withActionBlackboardScope_2' } },
-    { startFrame: 23, endFrame: 38, sequence: { $sequence: 'reachSkillOperableBoundary_7' } },
+    { startFrame: 7, endFrame: 8, sequence: { $sequence: 'launchProjectile_1' } },
+    { startFrame: 10, endFrame: 11, sequence: { $sequence: 'launchProjectile_1' } },
+    { startFrame: 14, endFrame: 15, sequence: { $sequence: 'launchProjectile_1' } },
+    { startFrame: 23, endFrame: 38, sequence: { $sequence: 'reachSkillOperableBoundary_4' } },
   ],
   timelineContinuationSkillId: 'chr_0013_aglina_attack4',
   skillType: 'basicAttack',
@@ -444,6 +459,8 @@ export const gilbertaChr_0013_aglina_attack4ActionGraph = {
         action: {
           kind: 'launchProjectile',
           parameters: {
+            inheritActionBlackboard: true,
+            entityInitialValues: {},
             finish: 'firstTickReach',
             recycleDelaySeconds: 0.0333333350718021,
             hit: { finishOnHit: true },
@@ -469,28 +486,42 @@ export const gilbertaChr_0013_aglina_attack4ActionGraph = {
                 actionGraph: {
                   main: {
                     nodes: {
-                      changeResource_1: {
+                      checkCondition_1: {
+                        action: {
+                          kind: 'checkCondition',
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
+                        },
+                        next: null,
+                      },
+                      checkCondition_2: {
+                        action: {
+                          kind: 'checkCondition',
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
+                        },
+                        next: 'checkCondition_1',
+                      },
+                      changeResource_3: {
                         action: {
                           kind: 'changeResource',
                           parameters: {
                             resource: 'sp',
-                            amount: { kind: 'valueNode', nodeId: 'data_1' },
+                            amount: { kind: 'valueNode', nodeId: 'data_3' },
                             coefficient: { kind: 'constant', value: 0.3334 },
-                            recipient: 'team',
+                            source: { kind: 'source' },
+                            targets: { kind: 'source' },
                             spGainKind: 'gain',
                             spGainSource: 'normalAttack',
                           },
                         },
                         next: null,
                       },
-                      conditional_opt1: {
+                      ifElse_opt1: {
                         action: {
-                          kind: 'conditional',
-                          parameters: {
-                            condition: { kind: 'conditionNode', nodeId: 'data_2' },
-                            alwaysNext: true,
-                          },
-                          whenTrue: { $sequence: 'changeResource_1' },
+                          kind: 'ifElse',
+                          parameters: { alwaysNext: true },
+                          condition: { $sequence: 'checkCondition_2' },
+                          whenTrue: { $sequence: 'changeResource_3' },
+                          whenFalse: { $sequence: null },
                         },
                         next: null,
                       },
@@ -499,24 +530,35 @@ export const gilbertaChr_0013_aglina_attack4ActionGraph = {
                           kind: 'dealDamage',
                           parameters: {
                             damageType: 'nature',
-                            attackScale: { kind: 'valueNode', nodeId: 'data_3' },
+                            attackScale: { kind: 'valueNode', nodeId: 'data_4' },
                             tags: ['normalAttack', 'normalAttackLastCombo'],
-                            stagger: { kind: 'valueNode', nodeId: 'data_4' },
+                            stagger: { kind: 'valueNode', nodeId: 'data_5' },
                             staggerMultiplier: { kind: 'constant', value: 0.34 },
                             staggerOnlyWhenCasterControlled: true,
                           },
                         },
-                        next: 'conditional_opt1',
+                        next: 'ifElse_opt1',
                       },
                     },
                     dataNodes: {
-                      data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+                      data_1: {
+                        type: 'boolean',
+                        expression: {
+                          kind: 'entityCountCompare',
+                          target: { kind: 'inputTarget' },
+                          containsHittableTarget: false,
+                          excludeDeadEntity: false,
+                          operator: 'greaterOrEqual',
+                          value: 1,
+                        },
+                      },
                       data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
-                      data_3: {
+                      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+                      data_4: {
                         type: 'number',
                         expression: { kind: 'blackboard', key: 'atk_scale' },
                       },
-                      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
+                      data_5: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
                     },
                   },
                   macros: {},
@@ -527,23 +569,12 @@ export const gilbertaChr_0013_aglina_attack4ActionGraph = {
         },
         next: null,
       },
-      withActionBlackboardScope_2: {
-        action: {
-          kind: 'withActionBlackboardScope',
-          parameters: {
-            lifetime: 'execution',
-            initialValues: {},
-            inheritParent: true,
-            entityInitialValues: {},
-          },
-          body: { $sequence: 'launchProjectile_1' },
-        },
-        next: null,
-      },
-      launchProjectile_3: {
+      launchProjectile_2: {
         action: {
           kind: 'launchProjectile',
           parameters: {
+            inheritActionBlackboard: true,
+            entityInitialValues: {},
             finish: 'firstTickReach',
             recycleDelaySeconds: 0.0333333350718021,
             hit: { finishOnHit: true },
@@ -569,28 +600,42 @@ export const gilbertaChr_0013_aglina_attack4ActionGraph = {
                 actionGraph: {
                   main: {
                     nodes: {
-                      changeResource_1: {
+                      checkCondition_1: {
+                        action: {
+                          kind: 'checkCondition',
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
+                        },
+                        next: null,
+                      },
+                      checkCondition_2: {
+                        action: {
+                          kind: 'checkCondition',
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
+                        },
+                        next: 'checkCondition_1',
+                      },
+                      changeResource_3: {
                         action: {
                           kind: 'changeResource',
                           parameters: {
                             resource: 'sp',
-                            amount: { kind: 'valueNode', nodeId: 'data_1' },
+                            amount: { kind: 'valueNode', nodeId: 'data_3' },
                             coefficient: { kind: 'constant', value: 0.3334 },
-                            recipient: 'team',
+                            source: { kind: 'source' },
+                            targets: { kind: 'source' },
                             spGainKind: 'gain',
                             spGainSource: 'normalAttack',
                           },
                         },
                         next: null,
                       },
-                      conditional_opt1: {
+                      ifElse_opt1: {
                         action: {
-                          kind: 'conditional',
-                          parameters: {
-                            condition: { kind: 'conditionNode', nodeId: 'data_2' },
-                            alwaysNext: true,
-                          },
-                          whenTrue: { $sequence: 'changeResource_1' },
+                          kind: 'ifElse',
+                          parameters: { alwaysNext: true },
+                          condition: { $sequence: 'checkCondition_2' },
+                          whenTrue: { $sequence: 'changeResource_3' },
+                          whenFalse: { $sequence: null },
                         },
                         next: null,
                       },
@@ -599,24 +644,35 @@ export const gilbertaChr_0013_aglina_attack4ActionGraph = {
                           kind: 'dealDamage',
                           parameters: {
                             damageType: 'nature',
-                            attackScale: { kind: 'valueNode', nodeId: 'data_3' },
+                            attackScale: { kind: 'valueNode', nodeId: 'data_4' },
                             tags: ['normalAttack'],
-                            stagger: { kind: 'valueNode', nodeId: 'data_4' },
+                            stagger: { kind: 'valueNode', nodeId: 'data_5' },
                             staggerMultiplier: { kind: 'constant', value: 0.33 },
                             staggerOnlyWhenCasterControlled: true,
                           },
                         },
-                        next: 'conditional_opt1',
+                        next: 'ifElse_opt1',
                       },
                     },
                     dataNodes: {
-                      data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+                      data_1: {
+                        type: 'boolean',
+                        expression: {
+                          kind: 'entityCountCompare',
+                          target: { kind: 'inputTarget' },
+                          containsHittableTarget: false,
+                          excludeDeadEntity: false,
+                          operator: 'greaterOrEqual',
+                          value: 1,
+                        },
+                      },
                       data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
-                      data_3: {
+                      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+                      data_4: {
                         type: 'number',
                         expression: { kind: 'blackboard', key: 'atk_scale' },
                       },
-                      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
+                      data_5: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
                     },
                   },
                   macros: {},
@@ -627,16 +683,13 @@ export const gilbertaChr_0013_aglina_attack4ActionGraph = {
         },
         next: null,
       },
-      withActionBlackboardScope_4: {
+      ifElse_opt1: {
         action: {
-          kind: 'withActionBlackboardScope',
-          parameters: {
-            lifetime: 'execution',
-            initialValues: {},
-            inheritParent: true,
-            entityInitialValues: {},
-          },
-          body: { $sequence: 'launchProjectile_3' },
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: null },
+          whenTrue: { $sequence: null },
+          whenFalse: { $sequence: null },
         },
         next: null,
       },
@@ -658,7 +711,6 @@ export const gilbertaChr_0013_aglina_attack4: SkillDefinition = {
   blackboard: {
     atb: 16,
     atk_scale: [0.17, 0.18, 0.2, 0.22, 0.23, 0.25, 0.27, 0.28, 0.3, 0.32, 0.35, 0.37],
-    display_atk_scale: [0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.96, 1.04, 1.12],
     poise: 16,
   },
   timelineBlockFrames: 40,
@@ -678,9 +730,10 @@ export const gilbertaChr_0013_aglina_attack4: SkillDefinition = {
   },
   costFrame: 13,
   scheduledSequences: [
-    { startFrame: 23, endFrame: 23, sequence: { $sequence: 'withActionBlackboardScope_2' } },
-    { startFrame: 25, endFrame: 25, sequence: { $sequence: 'withActionBlackboardScope_4' } },
-    { startFrame: 27, endFrame: 27, sequence: { $sequence: 'withActionBlackboardScope_4' } },
+    { startFrame: 23, endFrame: 23, sequence: { $sequence: 'launchProjectile_1' } },
+    { startFrame: 25, endFrame: 25, sequence: { $sequence: 'launchProjectile_2' } },
+    { startFrame: 27, endFrame: 27, sequence: { $sequence: 'launchProjectile_2' } },
+    { startFrame: 0, endFrame: 22, sequence: { $sequence: 'ifElse_opt1' } },
     { startFrame: 40, endFrame: 50, sequence: { $sequence: 'reachSkillOperableBoundary_7' } },
   ],
   timelineContinuationSkillId: 'chr_0013_aglina_attack1',
@@ -794,14 +847,22 @@ export const gilbertaChr_0013_aglina_power_attack: SkillDefinition = {
 export const gilbertaChr_0013_aglina_plunging_attack_endActionGraph = {
   main: {
     nodes: {
-      changeResource_1: {
+      checkCondition_1: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
+        },
+        next: null,
+      },
+      changeResource_2: {
         action: {
           kind: 'changeResource',
           parameters: {
             resource: 'sp',
-            amount: { kind: 'valueNode', nodeId: 'data_1' },
+            amount: { kind: 'valueNode', nodeId: 'data_2' },
             coefficient: { kind: 'constant', value: 1 },
-            recipient: 'team',
+            source: { kind: 'source' },
+            targets: { kind: 'source' },
             onlyMainOperator: true,
             spGainKind: 'gain',
             spGainSource: 'normalAttack',
@@ -809,15 +870,17 @@ export const gilbertaChr_0013_aglina_plunging_attack_endActionGraph = {
         },
         next: null,
       },
-      conditional_2: {
+      ifElse_3: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' }, alwaysNext: true },
-          whenTrue: { $sequence: 'changeResource_1' },
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_1' },
+          whenTrue: { $sequence: 'changeResource_2' },
+          whenFalse: { $sequence: null },
         },
         next: null,
       },
-      dealDamage_3: {
+      dealDamage_4: {
         action: {
           kind: 'dealDamage',
           parameters: {
@@ -826,12 +889,12 @@ export const gilbertaChr_0013_aglina_plunging_attack_endActionGraph = {
             tags: ['normalAttack', 'plungingAttack'],
           },
         },
-        next: 'conditional_2',
+        next: 'ifElse_3',
       },
     },
     dataNodes: {
-      data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
-      data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
+      data_1: { type: 'boolean', expression: { kind: 'casterControlled' } },
+      data_2: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
       data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
     },
   },
@@ -839,7 +902,6 @@ export const gilbertaChr_0013_aglina_plunging_attack_endActionGraph = {
 } as const satisfies ActionGraphResourceDefinition;
 
 export const gilbertaChr_0013_aglina_plunging_attack_end: SkillDefinition = {
-  actionGraph: gilbertaChr_0013_aglina_plunging_attack_endActionGraph,
   key: 'chr_0013_aglina_plunging_attack_end',
   element: 'nature',
   blackboard: {
@@ -851,16 +913,17 @@ export const gilbertaChr_0013_aglina_plunging_attack_end: SkillDefinition = {
   exclusiveFrame: 20,
   offsetRecordFrame: 0,
   costFrame: 0,
-  scheduledSequences: [{ startFrame: 0, endFrame: 5, sequence: { $sequence: 'dealDamage_3' } }],
+  scheduledSequences: [{ startFrame: 0, endFrame: 5, sequence: { $sequence: 'dealDamage_4' } }],
   skillType: 'plungingAttack',
   levelSource: 'basicAttack',
   nativeSkillType: 'attack',
+  actionGraph: gilbertaChr_0013_aglina_plunging_attack_endActionGraph,
 };
 
 export const gilbertaChr_0013_aglina_normal_skillActionGraph = {
   main: {
     nodes: {
-      modifyActionValue_2: {
+      modifyActionValue_3: {
         action: {
           kind: 'modifyActionValue',
           parameters: {
@@ -871,7 +934,7 @@ export const gilbertaChr_0013_aglina_normal_skillActionGraph = {
         },
         next: null,
       },
-      modifyActionValue_1: {
+      modifyActionValue_2: {
         action: {
           kind: 'modifyActionValue',
           parameters: {
@@ -882,19 +945,48 @@ export const gilbertaChr_0013_aglina_normal_skillActionGraph = {
         },
         next: null,
       },
-      conditional_3: {
+      checkCondition_1: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' }, alwaysNext: true },
-          whenTrue: { $sequence: 'modifyActionValue_1' },
-          whenFalse: { $sequence: 'modifyActionValue_2' },
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
         },
         next: null,
       },
-      spawnAbilityEntity_4: {
+      ifElse_4: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_1' },
+          whenTrue: { $sequence: 'modifyActionValue_2' },
+          whenFalse: { $sequence: 'modifyActionValue_3' },
+        },
+        next: null,
+      },
+      copyContextTargets_5: {
+        action: {
+          kind: 'copyContextTargets',
+          parameters: {
+            source: { kind: 'mainTarget', owner: { kind: 'owner' } },
+            saveToContextKey: 'targetPos',
+          },
+        },
+        next: null,
+      },
+      ifElse_6: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: null },
+          whenTrue: { $sequence: 'copyContextTargets_5' },
+          whenFalse: { $sequence: null },
+        },
+        next: null,
+      },
+      spawnAbilityEntity_7: {
         action: {
           kind: 'spawnAbilityEntity',
           parameters: {
+            bornAt: { kind: 'context', key: 'targetPos' },
             abilityEntityId: 'abilityentity_chr_0013_aglina_normal_skill',
             childSkillId: 'chr_0013_aglina_normal_skill_abilityrange',
             inheritActionBlackboard: true,
@@ -903,11 +995,11 @@ export const gilbertaChr_0013_aglina_normal_skillActionGraph = {
         },
         next: null,
       },
-      gainSquadUltimateEnergyFromSkillCost_5: {
+      gainSquadUltimateEnergyFromSkillCost_8: {
         action: { kind: 'gainSquadUltimateEnergyFromSkillCost', parameters: { coefficient: 1 } },
         next: null,
       },
-      dealDamage_6: {
+      dealDamage_9: {
         action: {
           kind: 'dealDamage',
           parameters: {
@@ -916,9 +1008,9 @@ export const gilbertaChr_0013_aglina_normal_skillActionGraph = {
             tags: ['normalSkill'],
           },
         },
-        next: 'gainSquadUltimateEnergyFromSkillCost_5',
+        next: 'gainSquadUltimateEnergyFromSkillCost_8',
       },
-      dealDamage_7: {
+      dealDamage_10: {
         action: {
           kind: 'dealDamage',
           parameters: {
@@ -929,7 +1021,7 @@ export const gilbertaChr_0013_aglina_normal_skillActionGraph = {
         },
         next: null,
       },
-      heal_11: {
+      heal_15: {
         action: {
           kind: 'heal',
           parameters: {
@@ -943,7 +1035,7 @@ export const gilbertaChr_0013_aglina_normal_skillActionGraph = {
         },
         next: null,
       },
-      heal_10: {
+      heal_14: {
         action: {
           kind: 'heal',
           parameters: {
@@ -958,16 +1050,24 @@ export const gilbertaChr_0013_aglina_normal_skillActionGraph = {
         },
         next: null,
       },
-      conditional_13: {
+      checkCondition_13: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_9' }, alwaysNext: true },
-          whenTrue: { $sequence: 'heal_10' },
-          whenFalse: { $sequence: 'heal_11' },
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_9' } },
         },
         next: null,
       },
-      findCharacterTeamTargets_14: {
+      ifElse_18: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_13' },
+          whenTrue: { $sequence: 'heal_14' },
+          whenFalse: { $sequence: 'heal_15' },
+        },
+        next: null,
+      },
+      findCharacterTeamTargets_19: {
         action: {
           kind: 'findCharacterTeamTargets',
           parameters: {
@@ -975,26 +1075,50 @@ export const gilbertaChr_0013_aglina_normal_skillActionGraph = {
             selection: { kind: 'lowestHealthRatioOperator' },
           },
         },
-        next: 'conditional_13',
+        next: 'ifElse_18',
       },
-      conditional_15: {
+      checkCondition_16: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_10' }, alwaysNext: true },
-          whenTrue: { $sequence: 'heal_11' },
-          whenFalse: { $sequence: 'findCharacterTeamTargets_14' },
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_10' } },
         },
         next: null,
       },
-      conditional_opt1: {
+      ifElse_22: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_13' }, alwaysNext: true },
-          whenTrue: { $sequence: 'conditional_15' },
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_16' },
+          whenTrue: { $sequence: 'heal_15' },
+          whenFalse: { $sequence: 'findCharacterTeamTargets_19' },
         },
         next: null,
       },
-      dealDamage_opt2: {
+      checkCondition_20: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_11' } },
+        },
+        next: null,
+      },
+      checkCondition_21: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_13' } },
+        },
+        next: 'checkCondition_20',
+      },
+      ifElse_23: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_21' },
+          whenTrue: { $sequence: 'ifElse_22' },
+          whenFalse: { $sequence: null },
+        },
+        next: null,
+      },
+      dealDamage_24: {
         action: {
           kind: 'dealDamage',
           parameters: {
@@ -1005,14 +1129,24 @@ export const gilbertaChr_0013_aglina_normal_skillActionGraph = {
             stagger: { kind: 'valueNode', nodeId: 'data_15' },
           },
         },
-        next: 'conditional_opt1',
+        next: 'ifElse_23',
       },
-      applyElementalInfliction_opt3: {
+      applyElementalInfliction_25: {
         action: {
           kind: 'applyElementalInfliction',
           parameters: { element: 'nature', isExtra: false },
         },
-        next: 'dealDamage_opt2',
+        next: 'dealDamage_24',
+      },
+      ifElse_opt1: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: null },
+          whenTrue: { $sequence: null },
+          whenFalse: { $sequence: null },
+        },
+        next: null,
       },
     },
     dataNodes: {
@@ -1054,26 +1188,27 @@ export const gilbertaChr_0013_aglina_normal_skillActionGraph = {
         },
       },
       data_11: {
-        type: 'number',
-        expression: { kind: 'blackboard', key: 'heal_const', fallback: 0 },
-      },
-      data_12: {
         type: 'boolean',
         expression: {
-          kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_11' },
-          operator: 'greater',
-          right: { kind: 'constant', value: 0 },
+          kind: 'entityCountCompare',
+          target: { kind: 'fixed', target: 'enemy' },
+          containsHittableTarget: false,
+          excludeDeadEntity: false,
+          operator: 'greaterOrEqual',
+          value: 2,
         },
+      },
+      data_12: {
+        type: 'number',
+        expression: { kind: 'blackboard', key: 'heal_const', fallback: 0 },
       },
       data_13: {
         type: 'boolean',
         expression: {
-          kind: 'all',
-          conditions: [
-            { kind: 'conditionNode', nodeId: 'data_12' },
-            { kind: 'constant', value: false },
-          ],
+          kind: 'actionValueCompare',
+          left: { kind: 'valueNode', nodeId: 'data_12' },
+          operator: 'greater',
+          right: { kind: 'constant', value: 0 },
         },
       },
       data_14: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_explosion' } },
@@ -1089,20 +1224,12 @@ export const gilbertaChr_0013_aglina_normal_skill: SkillDefinition = {
   blackboard: {
     atk_scale_explosion: [0.58, 0.63, 0.69, 0.75, 0.81, 0.86, 0.92, 0.98, 1.04, 1.11, 1.2, 1.3],
     atk_scale_pull: [0.24, 0.27, 0.29, 0.32, 0.34, 0.36, 0.39, 0.41, 0.44, 0.47, 0.5, 0.55],
-    cam_angle: 0,
-    cam_duration: 0,
     heal_const: 0,
     heal_scale: 0,
-    input_angle: 0,
-    maxChargeTime: 0,
     poise: 10,
     potential: 0,
     radius: 5.2,
     radiusadd_display: 0,
-    recovercost: 0,
-    display_atk_scale_pull: [
-      0.97, 1.07, 1.17, 1.26, 1.36, 1.46, 1.56, 1.65, 1.75, 1.87, 2.02, 2.19,
-    ],
   },
   timelineBlockFrames: 136,
   naturalDurationFrames: 203,
@@ -1115,13 +1242,15 @@ export const gilbertaChr_0013_aglina_normal_skill: SkillDefinition = {
   },
   costFrame: 0,
   scheduledSequences: [
-    { startFrame: 0, endFrame: 3, sequence: { $sequence: 'conditional_3' } },
-    { startFrame: 21, endFrame: 21, sequence: { $sequence: 'spawnAbilityEntity_4' } },
-    { startFrame: 29, endFrame: 30, sequence: { $sequence: 'dealDamage_6' } },
-    { startFrame: 46, endFrame: 46, sequence: { $sequence: 'dealDamage_7' } },
-    { startFrame: 62, endFrame: 62, sequence: { $sequence: 'dealDamage_7' } },
-    { startFrame: 78, endFrame: 78, sequence: { $sequence: 'dealDamage_7' } },
-    { startFrame: 108, endFrame: 109, sequence: { $sequence: 'applyElementalInfliction_opt3' } },
+    { startFrame: 0, endFrame: 3, sequence: { $sequence: 'ifElse_4' } },
+    { startFrame: 12, endFrame: 12, sequence: { $sequence: 'ifElse_6' } },
+    { startFrame: 21, endFrame: 21, sequence: { $sequence: 'spawnAbilityEntity_7' } },
+    { startFrame: 29, endFrame: 30, sequence: { $sequence: 'dealDamage_9' } },
+    { startFrame: 46, endFrame: 46, sequence: { $sequence: 'dealDamage_10' } },
+    { startFrame: 62, endFrame: 62, sequence: { $sequence: 'dealDamage_10' } },
+    { startFrame: 78, endFrame: 78, sequence: { $sequence: 'dealDamage_10' } },
+    { startFrame: 108, endFrame: 109, sequence: { $sequence: 'applyElementalInfliction_25' } },
+    { startFrame: 0, endFrame: 15, sequence: { $sequence: 'ifElse_opt1' } },
   ],
   costs: [{ resource: 'sp', value: 100 }],
   skillType: 'battleSkill',
@@ -1148,8 +1277,28 @@ export const gilbertaChr_0013_aglina_ultimate_skillActionGraph = {
         },
         next: null,
       },
-      hideUi_2: { action: { kind: 'hideUi', parameters: { onlyBlockInput: false } }, next: null },
-      startUltimateTimeDilation_3: {
+      copyContextTargets_2: {
+        action: {
+          kind: 'copyContextTargets',
+          parameters: {
+            source: { kind: 'mainTarget', owner: { kind: 'owner' } },
+            saveToContextKey: 'triggerpos',
+          },
+        },
+        next: null,
+      },
+      ifElse_3: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: null },
+          whenTrue: { $sequence: 'copyContextTargets_2' },
+          whenFalse: { $sequence: null },
+        },
+        next: null,
+      },
+      hideUi_4: { action: { kind: 'hideUi', parameters: { onlyBlockInput: false } }, next: null },
+      startUltimateTimeDilation_5: {
         action: {
           kind: 'startUltimateTimeDilation',
           parameters: {
@@ -1160,7 +1309,7 @@ export const gilbertaChr_0013_aglina_ultimate_skillActionGraph = {
         },
         next: null,
       },
-      dealDamage_4: {
+      dealDamage_6: {
         action: {
           kind: 'dealDamage',
           parameters: {
@@ -1173,17 +1322,18 @@ export const gilbertaChr_0013_aglina_ultimate_skillActionGraph = {
         },
         next: null,
       },
-      applyElementalInfliction_5: {
+      applyElementalInfliction_7: {
         action: {
           kind: 'applyElementalInfliction',
           parameters: { element: 'nature', isExtra: false },
         },
-        next: 'dealDamage_4',
+        next: 'dealDamage_6',
       },
-      spawnAbilityEntity_6: {
+      spawnAbilityEntity_8: {
         action: {
           kind: 'spawnAbilityEntity',
           parameters: {
+            bornAt: { kind: 'context', key: 'triggerpos' },
             abilityEntityId: 'abilityentity_chr_0013_aglina_ultimate_skill',
             childSkillId: 'chr_0013_aglina_ultimate_skill_abilityrange',
             inheritActionBlackboard: true,
@@ -1193,7 +1343,7 @@ export const gilbertaChr_0013_aglina_ultimate_skillActionGraph = {
         },
         next: null,
       },
-      storeSourceAttributeValue_7: {
+      storeSourceAttributeValue_9: {
         action: {
           kind: 'storeSourceAttributeValue',
           parameters: {
@@ -1206,9 +1356,9 @@ export const gilbertaChr_0013_aglina_ultimate_skillActionGraph = {
             targetKey: 'final_resistance_scalar_inair',
           },
         },
-        next: 'spawnAbilityEntity_6',
+        next: 'spawnAbilityEntity_8',
       },
-      storeSourceAttributeValue_8: {
+      storeSourceAttributeValue_10: {
         action: {
           kind: 'storeSourceAttributeValue',
           parameters: {
@@ -1221,9 +1371,9 @@ export const gilbertaChr_0013_aglina_ultimate_skillActionGraph = {
             targetKey: 'final_resistance_scalar',
           },
         },
-        next: 'storeSourceAttributeValue_7',
+        next: 'storeSourceAttributeValue_9',
       },
-      applyBuff_9: {
+      applyBuff_11: {
         action: {
           kind: 'applyBuff',
           parameters: {
@@ -1253,31 +1403,24 @@ export const gilbertaChr_0013_aglina_ultimate_skillActionGraph = {
 } as const satisfies ActionGraphResourceDefinition;
 
 export const gilbertaChr_0013_aglina_ultimate_skill: SkillDefinition = {
-  actionGraph: gilbertaChr_0013_aglina_ultimate_skillActionGraph,
   key: 'chr_0013_aglina_ultimate_skill',
   element: 'nature',
   blackboard: {
     atk_scale: [3.33, 3.67, 4, 4.33, 4.67, 5, 5.34, 5.67, 6, 6.42, 6.92, 7.5],
-    damage_scale: 0.5,
     duration: 5,
     final_resistance_scalar: 0,
     final_resistance_scalar_inair: 0,
     move_speed_scalar: 0.8,
     poise: 20,
-    potential_lv: 0,
     potential2: 0,
     potential2_onceadd: 0,
     radius: 5,
     resistance_scalar: 0,
     resistance_scalar_inair: 0,
-    select_radius: 10,
     spell_vulnerable_perstack: 0.1,
     spell_vulnerable_rate: [0.18, 0.18, 0.18, 0.22, 0.22, 0.22, 0.26, 0.26, 0.26, 0.3, 0.3, 0.3],
     wisd_increase: 0,
     wisd_increase_inair: 0,
-    spell_vulnerable_4stack: [
-      0.252, 0.252, 0.252, 0.308, 0.308, 0.308, 0.364, 0.364, 0.364, 0.42, 0.42, 0.42,
-    ],
   },
   timelineBlockFrames: 86,
   naturalDurationFrames: 116,
@@ -1295,30 +1438,45 @@ export const gilbertaChr_0013_aglina_ultimate_skill: SkillDefinition = {
   costFrame: 0,
   scheduledSequences: [
     { startFrame: 0, endFrame: 3, sequence: { $sequence: 'startTimeDilation_1' } },
-    { startFrame: 0, endFrame: 53, sequence: { $sequence: 'hideUi_2' } },
-    { startFrame: 0, endFrame: 52, sequence: { $sequence: 'startUltimateTimeDilation_3' } },
-    { startFrame: 60, endFrame: 60, sequence: { $sequence: 'applyElementalInfliction_5' } },
-    { startFrame: 60, endFrame: 65, sequence: { $sequence: 'storeSourceAttributeValue_8' } },
-    { startFrame: 0, endFrame: 85, sequence: { $sequence: 'applyBuff_9' } },
+    { startFrame: 0, endFrame: 0, sequence: { $sequence: 'ifElse_3' } },
+    { startFrame: 0, endFrame: 53, sequence: { $sequence: 'hideUi_4' } },
+    { startFrame: 0, endFrame: 52, sequence: { $sequence: 'startUltimateTimeDilation_5' } },
+    { startFrame: 60, endFrame: 60, sequence: { $sequence: 'applyElementalInfliction_7' } },
+    { startFrame: 60, endFrame: 65, sequence: { $sequence: 'storeSourceAttributeValue_10' } },
+    { startFrame: 0, endFrame: 85, sequence: { $sequence: 'applyBuff_11' } },
   ],
   cooldownFrames: 600,
   costs: [{ resource: 'ultimateEnergy', value: 90 }],
   skillType: 'ultimate',
   levelSource: 'ultimate',
   nativeSkillType: 'ultimateSkill',
+  actionGraph: gilbertaChr_0013_aglina_ultimate_skillActionGraph,
 };
 
 export const gilbertaChr_0013_aglina_combo_skillActionGraph = {
   main: {
     nodes: {
-      findCharacterTeamTargets_1: {
+      copyContextTargets_1: {
         action: {
-          kind: 'findCharacterTeamTargets',
-          parameters: { saveToContextKey: 'mainchar', selection: { kind: 'controlledOperator' } },
+          kind: 'copyContextTargets',
+          parameters: {
+            source: { kind: 'mainTarget', owner: { kind: 'owner' } },
+            saveToContextKey: 'triggerpos',
+          },
         },
         next: null,
       },
-      heal_3: {
+      ifElse_2: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: null },
+          whenTrue: { $sequence: 'copyContextTargets_1' },
+          whenFalse: { $sequence: null },
+        },
+        next: null,
+      },
+      heal_5: {
         action: {
           kind: 'heal',
           parameters: {
@@ -1332,7 +1490,7 @@ export const gilbertaChr_0013_aglina_combo_skillActionGraph = {
         },
         next: null,
       },
-      heal_2: {
+      heal_4: {
         action: {
           kind: 'heal',
           parameters: {
@@ -1347,16 +1505,24 @@ export const gilbertaChr_0013_aglina_combo_skillActionGraph = {
         },
         next: null,
       },
-      conditional_5: {
+      checkCondition_3: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' }, alwaysNext: true },
-          whenTrue: { $sequence: 'heal_2' },
-          whenFalse: { $sequence: 'heal_3' },
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
         },
         next: null,
       },
-      findCharacterTeamTargets_6: {
+      ifElse_8: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_3' },
+          whenTrue: { $sequence: 'heal_4' },
+          whenFalse: { $sequence: 'heal_5' },
+        },
+        next: null,
+      },
+      findCharacterTeamTargets_9: {
         action: {
           kind: 'findCharacterTeamTargets',
           parameters: {
@@ -1364,38 +1530,63 @@ export const gilbertaChr_0013_aglina_combo_skillActionGraph = {
             selection: { kind: 'lowestHealthRatioOperator' },
           },
         },
-        next: 'conditional_5',
+        next: 'ifElse_8',
       },
-      conditional_7: {
+      checkCondition_6: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_6' }, alwaysNext: true },
-          whenTrue: { $sequence: 'heal_3' },
-          whenFalse: { $sequence: 'findCharacterTeamTargets_6' },
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_6' } },
         },
         next: null,
       },
-      changeResource_8: {
+      ifElse_12: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_6' },
+          whenTrue: { $sequence: 'heal_5' },
+          whenFalse: { $sequence: 'findCharacterTeamTargets_9' },
+        },
+        next: null,
+      },
+      checkCondition_10: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_7' } },
+        },
+        next: null,
+      },
+      checkCondition_11: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_9' } },
+        },
+        next: 'checkCondition_10',
+      },
+      changeResource_13: {
         action: {
           kind: 'changeResource',
           parameters: {
             resource: 'ultimateEnergy',
-            amount: { kind: 'valueNode', nodeId: 'data_7' },
+            amount: { kind: 'valueNode', nodeId: 'data_10' },
             coefficient: { kind: 'constant', value: 1 },
-            recipient: 'caster',
+            source: { kind: 'source' },
+            targets: { kind: 'source' },
           },
         },
         next: null,
       },
-      conditional_opt1: {
+      ifElse_14: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_10' }, alwaysNext: true },
-          whenTrue: { $sequence: 'conditional_7' },
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_11' },
+          whenTrue: { $sequence: 'ifElse_12' },
+          whenFalse: { $sequence: null },
         },
-        next: 'changeResource_8',
+        next: 'changeResource_13',
       },
-      dealDamage_opt2: {
+      dealDamage_15: {
         action: {
           kind: 'dealDamage',
           parameters: {
@@ -1406,9 +1597,9 @@ export const gilbertaChr_0013_aglina_combo_skillActionGraph = {
             stagger: { kind: 'valueNode', nodeId: 'data_12' },
           },
         },
-        next: 'conditional_opt1',
+        next: 'ifElse_14',
       },
-      applyPhysicalInfliction_opt3: {
+      applyPhysicalInfliction_16: {
         action: {
           kind: 'applyPhysicalInfliction',
           parameters: {
@@ -1423,9 +1614,9 @@ export const gilbertaChr_0013_aglina_combo_skillActionGraph = {
             returnWhen: 'always',
           },
         },
-        next: 'dealDamage_opt2',
+        next: 'dealDamage_15',
       },
-      startTimeDilation_12: {
+      startTimeDilation_17: {
         action: {
           kind: 'startTimeDilation',
           parameters: {
@@ -1468,7 +1659,17 @@ export const gilbertaChr_0013_aglina_combo_skillActionGraph = {
           value: { kind: 'constant', value: 0.99 },
         },
       },
-      data_7: { type: 'number', expression: { kind: 'blackboard', key: 'usp' } },
+      data_7: {
+        type: 'boolean',
+        expression: {
+          kind: 'entityCountCompare',
+          target: { kind: 'fixed', target: 'enemy' },
+          containsHittableTarget: false,
+          excludeDeadEntity: false,
+          operator: 'greaterOrEqual',
+          value: 2,
+        },
+      },
       data_8: {
         type: 'number',
         expression: { kind: 'blackboard', key: 'heal_const', fallback: 0 },
@@ -1482,16 +1683,7 @@ export const gilbertaChr_0013_aglina_combo_skillActionGraph = {
           right: { kind: 'constant', value: 0 },
         },
       },
-      data_10: {
-        type: 'boolean',
-        expression: {
-          kind: 'all',
-          conditions: [
-            { kind: 'conditionNode', nodeId: 'data_9' },
-            { kind: 'constant', value: false },
-          ],
-        },
-      },
+      data_10: { type: 'number', expression: { kind: 'blackboard', key: 'usp' } },
       data_11: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
       data_12: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
     },
@@ -1522,9 +1714,9 @@ export const gilbertaChr_0013_aglina_combo_skill: SkillDefinition = {
   },
   costFrame: 0,
   scheduledSequences: [
-    { startFrame: 0, endFrame: 3, sequence: { $sequence: 'findCharacterTeamTargets_1' } },
-    { startFrame: 48, endFrame: 50, sequence: { $sequence: 'applyPhysicalInfliction_opt3' } },
-    { startFrame: 0, endFrame: 15, sequence: { $sequence: 'startTimeDilation_12' } },
+    { startFrame: 0, endFrame: 0, sequence: { $sequence: 'ifElse_2' } },
+    { startFrame: 48, endFrame: 50, sequence: { $sequence: 'applyPhysicalInfliction_16' } },
+    { startFrame: 0, endFrame: 15, sequence: { $sequence: 'startTimeDilation_17' } },
   ],
   cooldownFrames: [600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 570],
   skillType: 'comboSkill',
@@ -1587,21 +1779,19 @@ const gilbertaPassive1: OperatorPassiveSkillDefinition = {
 const gilbertaComboCondition1ActionGraph = {
   main: {
     nodes: {
-      conditional_1: {
+      checkCondition_1: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-          whenTrue: { $sequence: null },
         },
         next: null,
       },
-      conditional_2: {
+      checkCondition_2: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-          whenTrue: { $sequence: 'conditional_1' },
         },
-        next: null,
+        next: 'checkCondition_1',
       },
     },
     dataNodes: {
@@ -1632,24 +1822,23 @@ const gilbertaComboCondition1: ComboSkillConditionDefinition = {
   event: 'addedBuff',
   immediately: false,
   initialValues: null,
-  sequence: { $sequence: 'conditional_2' },
+  sequence: { $sequence: 'checkCondition_2' },
   actionGraph: gilbertaComboCondition1ActionGraph,
 };
 
 const gilbertaBuff1ActionGraph = {
   main: {
     nodes: {
-      finishCurrentAbilityEntity_1: {
-        action: { kind: 'finishCurrentAbilityEntity', parameters: {} },
+      finishOwner_1: {
+        action: { kind: 'finishOwner', parameters: { targets: { kind: 'owner' } } },
         next: null,
       },
-      conditional_2: {
+      checkCondition_2: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-          whenTrue: { $sequence: 'finishCurrentAbilityEntity_1' },
         },
-        next: null,
+        next: 'finishOwner_1',
       },
     },
     dataNodes: {
@@ -1679,7 +1868,7 @@ const gilbertaBuff1: SkillBuffDefinition = {
   extendTags: [],
   blackboard: {},
   attributeModifiers: [],
-  lifecycleSequences: { trigger: { $sequence: 'conditional_2' } },
+  lifecycleSequences: { trigger: { $sequence: 'checkCondition_2' } },
   actionGraph: gilbertaBuff1ActionGraph,
 };
 
@@ -1744,13 +1933,12 @@ const gilbertaBuff3ActionGraph = {
         },
         next: null,
       },
-      conditional_2: {
+      checkCondition_2: {
         action: {
-          kind: 'conditional',
+          kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-          whenTrue: { $sequence: 'applyBuff_1' },
         },
-        next: null,
+        next: 'applyBuff_1',
       },
     },
     dataNodes: {
@@ -1775,7 +1963,7 @@ const gilbertaBuff3: SkillBuffDefinition = {
   extendTags: [],
   blackboard: { add: 0 },
   attributeModifiers: [],
-  lifecycleSequences: { start: { $sequence: 'conditional_2' } },
+  lifecycleSequences: { start: { $sequence: 'checkCondition_2' } },
   actionGraph: gilbertaBuff3ActionGraph,
 };
 
@@ -1800,7 +1988,14 @@ const gilbertaBuff4: SkillBuffDefinition = {
 const gilbertaBuff5ActionGraph = {
   main: {
     nodes: {
-      readBuffStackCount_1: {
+      checkCondition_1: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
+        },
+        next: null,
+      },
+      readBuffStackCount_2: {
         action: {
           kind: 'readBuffStackCount',
           parameters: {
@@ -1815,14 +2010,28 @@ const gilbertaBuff5ActionGraph = {
         },
         next: null,
       },
-      modifyActionValue_2: {
+      checkCondition_3: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
+        },
+        next: null,
+      },
+      modifyActionValue_4: {
         action: {
           kind: 'modifyActionValue',
           parameters: { key: 'BuffStack', operation: 'add', value: { kind: 'constant', value: 1 } },
         },
         next: null,
       },
-      modifyActionValue_3: {
+      checkCondition_5: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
+        },
+        next: null,
+      },
+      modifyActionValue_6: {
         action: {
           kind: 'modifyActionValue',
           parameters: {
@@ -1833,15 +2042,17 @@ const gilbertaBuff5ActionGraph = {
         },
         next: null,
       },
-      conditional_4: {
+      ifElse_7: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' }, alwaysNext: true },
-          whenTrue: { $sequence: 'modifyActionValue_2' },
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_3' },
+          whenTrue: { $sequence: 'modifyActionValue_4' },
+          whenFalse: { $sequence: null },
         },
-        next: 'modifyActionValue_3',
+        next: 'modifyActionValue_6',
       },
-      applyBuff_5: {
+      applyBuff_8: {
         action: {
           kind: 'applyBuff',
           parameters: {
@@ -1859,52 +2070,56 @@ const gilbertaBuff5ActionGraph = {
         },
         next: null,
       },
-      modifyActionValue_6: {
+      modifyActionValue_9: {
         action: {
           kind: 'modifyActionValue',
           parameters: {
             key: 'FinalRate',
             operation: 'multiply',
-            value: { kind: 'valueNode', nodeId: 'data_3' },
+            value: { kind: 'valueNode', nodeId: 'data_6' },
           },
         },
-        next: 'applyBuff_5',
+        next: 'applyBuff_8',
       },
-      modifyActionValue_7: {
+      modifyActionValue_10: {
         action: {
           kind: 'modifyActionValue',
           parameters: { key: 'BuffStack', operation: 'add', value: { kind: 'constant', value: 1 } },
         },
-        next: 'modifyActionValue_6',
+        next: 'modifyActionValue_9',
       },
-      modifyActionValue_8: {
+      modifyActionValue_11: {
         action: {
           kind: 'modifyActionValue',
           parameters: {
             key: 'BuffStack',
             operation: 'multiply',
-            value: { kind: 'valueNode', nodeId: 'data_4' },
+            value: { kind: 'valueNode', nodeId: 'data_7' },
           },
         },
-        next: 'modifyActionValue_7',
+        next: 'modifyActionValue_10',
       },
-      conditional_9: {
+      ifElse_12: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_6' }, alwaysNext: true },
-          whenTrue: { $sequence: 'conditional_4' },
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_5' },
+          whenTrue: { $sequence: 'ifElse_7' },
+          whenFalse: { $sequence: null },
         },
-        next: 'modifyActionValue_8',
+        next: 'modifyActionValue_11',
       },
-      conditional_10: {
+      ifElse_13: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_7' }, alwaysNext: true },
-          whenTrue: { $sequence: 'readBuffStackCount_1' },
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_1' },
+          whenTrue: { $sequence: 'readBuffStackCount_2' },
+          whenFalse: { $sequence: null },
         },
-        next: 'conditional_9',
+        next: 'ifElse_12',
       },
-      modifyActionValue_11: {
+      modifyActionValue_14: {
         action: {
           kind: 'modifyActionValue',
           parameters: {
@@ -1913,9 +2128,9 @@ const gilbertaBuff5ActionGraph = {
             value: { kind: 'constant', value: 0 },
           },
         },
-        next: 'conditional_10',
+        next: 'ifElse_13',
       },
-      modifyActionValue_12: {
+      modifyActionValue_15: {
         action: {
           kind: 'modifyActionValue',
           parameters: {
@@ -1924,9 +2139,9 @@ const gilbertaBuff5ActionGraph = {
             value: { kind: 'valueNode', nodeId: 'data_8' },
           },
         },
-        next: 'modifyActionValue_11',
+        next: 'modifyActionValue_14',
       },
-      applyBuff_13: {
+      applyBuff_16: {
         action: {
           kind: 'applyBuff',
           parameters: {
@@ -1946,7 +2161,7 @@ const gilbertaBuff5ActionGraph = {
         },
         next: null,
       },
-      withActionBlackboardScope_14: {
+      withActionBlackboardScope_17: {
         action: {
           kind: 'withActionBlackboardScope',
           parameters: {
@@ -1957,11 +2172,11 @@ const gilbertaBuff5ActionGraph = {
             initialValues: {},
             inheritParent: true,
           },
-          body: { $sequence: 'applyBuff_13' },
+          body: { $sequence: 'applyBuff_16' },
         },
         next: null,
       },
-      withActionBlackboardScope_15: {
+      withActionBlackboardScope_18: {
         action: {
           kind: 'withActionBlackboardScope',
           parameters: {
@@ -1972,41 +2187,13 @@ const gilbertaBuff5ActionGraph = {
             initialValues: {},
             inheritParent: true,
           },
-          body: { $sequence: 'modifyActionValue_12' },
+          body: { $sequence: 'modifyActionValue_15' },
         },
-        next: 'withActionBlackboardScope_14',
+        next: 'withActionBlackboardScope_17',
       },
     },
     dataNodes: {
-      data_1: { type: 'number', expression: { kind: 'blackboard', key: 'BuffStack', fallback: 0 } },
-      data_2: {
-        type: 'boolean',
-        expression: {
-          kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_1' },
-          operator: 'lessOrEqual',
-          right: { kind: 'constant', value: 3 },
-        },
-      },
-      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'BuffStack' } },
-      data_4: {
-        type: 'number',
-        expression: { kind: 'blackboard', key: 'spell_vulnerable_perstack' },
-      },
-      data_5: {
-        type: 'number',
-        expression: { kind: 'blackboard', key: 'potential2', fallback: 0 },
-      },
-      data_6: {
-        type: 'boolean',
-        expression: {
-          kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_5' },
-          operator: 'greater',
-          right: { kind: 'constant', value: 0 },
-        },
-      },
-      data_7: {
+      data_1: {
         type: 'boolean',
         expression: {
           kind: 'buffStackCompare',
@@ -2016,6 +2203,34 @@ const gilbertaBuff5ActionGraph = {
           operator: 'greater',
           value: { kind: 'constant', value: 0 },
         },
+      },
+      data_2: { type: 'number', expression: { kind: 'blackboard', key: 'BuffStack', fallback: 0 } },
+      data_3: {
+        type: 'boolean',
+        expression: {
+          kind: 'actionValueCompare',
+          left: { kind: 'valueNode', nodeId: 'data_2' },
+          operator: 'lessOrEqual',
+          right: { kind: 'constant', value: 3 },
+        },
+      },
+      data_4: {
+        type: 'number',
+        expression: { kind: 'blackboard', key: 'potential2', fallback: 0 },
+      },
+      data_5: {
+        type: 'boolean',
+        expression: {
+          kind: 'actionValueCompare',
+          left: { kind: 'valueNode', nodeId: 'data_4' },
+          operator: 'greater',
+          right: { kind: 'constant', value: 0 },
+        },
+      },
+      data_6: { type: 'number', expression: { kind: 'blackboard', key: 'BuffStack' } },
+      data_7: {
+        type: 'number',
+        expression: { kind: 'blackboard', key: 'spell_vulnerable_perstack' },
       },
       data_8: { type: 'number', expression: { kind: 'blackboard', key: 'spell_vulnerable_rate' } },
       data_9: { type: 'number', expression: { kind: 'blackboard', key: 'move_speed_scalar' } },
@@ -2062,7 +2277,7 @@ const gilbertaBuff5: SkillBuffDefinition = {
     spell_vulnerable_rate: 0,
   },
   attributeModifiers: [],
-  lifecycleSequences: { enable: { $sequence: 'withActionBlackboardScope_15' } },
+  lifecycleSequences: { enable: { $sequence: 'withActionBlackboardScope_18' } },
   actionGraph: gilbertaBuff5ActionGraph,
 };
 
@@ -2113,6 +2328,7 @@ export const gilberta: OperatorDefinition = {
   rarity: 6,
   weaponType: 'funnel',
   element: 'nature',
+  characterTypeId: 'Natural',
   role: 'supporter',
   mainAttribute: 'will',
   secondaryAttribute: 'intellect',
@@ -2329,6 +2545,7 @@ export const gilberta: OperatorDefinition = {
                   kind: 'repeatEachTick',
                   parameters: {
                     nativeChanneling: {
+                      target: { kind: 'fixed', target: 'enemy' },
                       executeEachFrame: true,
                       triggerIntervalSeconds: 0.033,
                       maxCountPerTarget: -1,

@@ -10,19 +10,19 @@ import {
 } from './compileActionValues';
 
 const LEAF_ACTION_KINDS = [
+  'copyContextTargets',
+  'findTargets',
   'mergeContextTargets',
   'findCharacterTeamTargets',
-  'findUnfinishedProjectileTargets',
   'createSpatialPointTargets',
   'findOwnerSpawnedAbilityEntities',
   'pickContextTarget',
   'readAbilityEntityRemainingDuration',
   'setAbilityEntityRemainingDuration',
-  'finishCurrentAbilityEntity',
-  'finishActionOwnerAbilityEntity',
+  'finishOwner',
+  'interruptCurrentSkill',
   'finishCurrentAbilityEntityWhenSourceDies',
   'startCurrentAbilityEntityChildSkillById',
-  'jumpTimeline',
   'finishTimeline',
   'reachSkillOperableBoundary',
   'markCurrentSkillCanDash',
@@ -36,7 +36,6 @@ const LEAF_ACTION_KINDS = [
   'applyStatus',
   'readBuffBlackboard',
   'readEventBuffBlackboard',
-  'readCurrentBuffRemainingDuration',
   'readBuffRemainingDuration',
   'setBuffRemainingDuration',
   'setCurrentBuffRemainingDuration',
@@ -57,6 +56,7 @@ const LEAF_ACTION_KINDS = [
   'startUltimateTimeDilation',
   'hideUi',
   'setIgnoreGlobalTimeScale',
+  'storeCharacterTypeId',
   'storeCurrentTimelineFrame',
   'storeEventSpGainAmount',
   'storeEventHealValues',
@@ -111,11 +111,13 @@ export function compileLeafAction(
 ): ResolvedLeafAction {
   const keyed = step.key === undefined ? {} : { key: step.key };
   switch (step.kind) {
+    case 'copyContextTargets':
+      return { ...keyed, kind: step.kind, parameters: step.parameters };
+    case 'findTargets':
+      return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'mergeContextTargets':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'findCharacterTeamTargets':
-      return { ...keyed, kind: step.kind, parameters: step.parameters };
-    case 'findUnfinishedProjectileTargets':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'createSpatialPointTargets':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
@@ -127,13 +129,12 @@ export function compileLeafAction(
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'setAbilityEntityRemainingDuration':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
-    case 'finishCurrentAbilityEntity':
-    case 'finishActionOwnerAbilityEntity':
+    case 'interruptCurrentSkill':
+    case 'finishOwner':
+      return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'finishCurrentAbilityEntityWhenSourceDies':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'startCurrentAbilityEntityChildSkillById':
-      return { ...keyed, kind: step.kind, parameters: step.parameters };
-    case 'jumpTimeline':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'finishTimeline':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
@@ -411,8 +412,6 @@ export function compileLeafAction(
       };
     case 'readEventBuffBlackboard':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
-    case 'readCurrentBuffRemainingDuration':
-      return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'readBuffRemainingDuration':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'setBuffRemainingDuration':
@@ -471,6 +470,8 @@ export function compileLeafAction(
     case 'hideUi':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'setIgnoreGlobalTimeScale':
+      return { ...keyed, kind: step.kind, parameters: step.parameters };
+    case 'storeCharacterTypeId':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'storeCurrentTimelineFrame':
       return { ...keyed, kind: step.kind, parameters: step.parameters };

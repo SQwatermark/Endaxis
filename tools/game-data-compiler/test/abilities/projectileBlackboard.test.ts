@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import {
-  compileProjectileLaunchScopeSource,
+  compileProjectileBlackboardSource,
   omitDeadSingleEnemyBounceBookkeeping,
-} from '../../src/compiler/abilities/projectileCallbackScopes.ts';
+} from '../../src/compiler/abilities/projectileBlackboard.ts';
 import {
   createActionGraphBuilder,
   readActionGraphChain,
@@ -93,9 +93,7 @@ function compile(input: {
   invocations: readonly ReturnType<typeof invocation>[];
   allowMissingEntityBlackboardEvidence?: boolean;
 }) {
-  const graph = createActionGraphBuilder<CompiledBuffStepSource>();
-  const body = graph.sequence([]);
-  const result = compileProjectileLaunchScopeSource({
+  const result = compileProjectileBlackboardSource({
     sourcePath: 'skill.LaunchProjectile',
     launch: input.launch ?? launch,
     template:
@@ -103,20 +101,19 @@ function compile(input: {
         ? { projectileId: launch.projectileId, entityBlackboard: [] }
         : input.template,
     invocations: input.invocations,
-    body,
     ...(input.allowMissingEntityBlackboardEvidence === undefined
       ? {}
       : { allowMissingEntityBlackboardEvidence: input.allowMissingEntityBlackboardEvidence }),
   });
-  return { result, body };
+  return { result };
 }
 
-describe('projectile launch scope', () => {
+describe('projectile blackboard', () => {
   it('accepts an enabled but empty entity assignment list with an evidenced empty template board', () => {
-    const { result, body } = compile({ invocations: [emptyInvocation()] });
+    const { result } = compile({ invocations: [emptyInvocation()] });
 
-    expect(result.parameters.entityInitialValues).toEqual({});
-    expect(result.body).toBe(body);
+    expect(result.entityInitialValues).toEqual({});
+    expect(result.inheritActionBlackboard).toBe(launch.assignBlackboard);
   });
 
   it('omits projectile entity assignments that no callback blackboard consumes', () => {
@@ -136,7 +133,7 @@ describe('projectile launch scope', () => {
       },
       invocations: [],
     });
-    expect(result.parameters.entityAssignments).toBeUndefined();
+    expect(result.entityAssignments).toBeUndefined();
   });
 
   it('retains projectile entity assignments consumed by a callback blackboard', () => {
@@ -161,7 +158,7 @@ describe('projectile launch scope', () => {
         ),
       ],
     });
-    expect(result.parameters.entityAssignments).toEqual({
+    expect(result.entityAssignments).toEqual({
       EntityBB_value: { kind: 'constant', value: 1 },
     });
   });
@@ -184,7 +181,7 @@ describe('projectile launch scope', () => {
       allowMissingEntityBlackboardEvidence: true,
       invocations: [{ ...inv, sequence: trimmed }],
     });
-    expect(result.parameters.entityInitialValues).toEqual({});
+    expect(result.entityInitialValues).toEqual({});
   });
 
   it('does not treat a pure EntityBB assignment as a read requiring template defaults', () => {
@@ -207,6 +204,6 @@ describe('projectile launch scope', () => {
       ],
     });
 
-    expect(result.parameters.entityInitialValues).toEqual({});
+    expect(result.entityInitialValues).toEqual({});
   });
 });

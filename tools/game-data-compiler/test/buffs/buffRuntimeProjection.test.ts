@@ -1,3 +1,5 @@
+import { targetFixture } from '../sourceFixtures.ts';
+import { parseKnownNativeActionSequenceSource } from '../../src/source/actionLeaf.ts';
 import { readGraphActions, readResourceActions, graphBranch } from '../support/graphAssertions.ts';
 import { fixtureGameplayTagRegistry } from '../gameplayTagFixtures.ts';
 import { describe, expect, it } from 'vitest';
@@ -61,6 +63,58 @@ import { compileActionNode } from '../../src/compiler/actions/combatActionLeafPr
 import { parseComboCacheActionSource } from '../../src/source/inputControlActions.ts';
 
 describe('公共 Buff 运行时投影', () => {
+  it('输入目标的敌人类型证明只作用于成功分支', () => {
+    const meta = {
+      isEnable: true,
+      priorityLevel: 'Default',
+      priorityOffset: 0,
+      serverActionIndex: 0,
+    };
+    const sequence = (actionData: unknown[]) => ({
+      actionData,
+      onlyExecuteWhenSourceIsMainChar: false,
+      onlyExecuteWhenSourceIsGuard: false,
+    });
+    const interrupt = {
+      ...meta,
+      $type: 'Beyond.Gameplay.Core.InterruptAction+Data, Gameplay.Beyond',
+      attacker: targetFixture('Source'),
+      defender: targetFixture('Target'),
+      overrideSuperArmorLimit: -1,
+      immobilizedTime: 1,
+    };
+    const branch = {
+      ...meta,
+      $type: 'Beyond.Gameplay.Core.IfElseAction+IfElseActionData, Gameplay.Beyond',
+      conditionAction: sequence([
+        {
+          ...meta,
+          $type: 'Beyond.Gameplay.Core.Conditions.CheckObjectTypeMatch+Data, Gameplay.Beyond',
+          target: targetFixture('Target'),
+          objectTypeMask: 'Enemy',
+        },
+      ]),
+      succeedActions: sequence([interrupt]),
+      failActions: sequence([]),
+      alwaysNext: true,
+    };
+    const context = {
+      actionOwnerTarget: 'buffOwner',
+      actionSourceTarget: 'caster',
+      actionTargetTarget: 'actionInputTarget',
+    } as const;
+    const compile = (actions: unknown[]) =>
+      projectSequence(
+        parseKnownNativeActionSequenceSource(sequence(actions), 'fixture', {}),
+        context,
+      );
+    expect(compile([branch]).steps).toEqual([]);
+    expect(() => compile([branch, interrupt])).toThrow('unsupported InterruptAction');
+    expect(() =>
+      compile([{ ...branch, succeedActions: sequence([]), failActions: sequence([interrupt]) }]),
+    ).toThrow('unsupported InterruptAction');
+  });
+
   it.each([
     ['Unlimited', true],
     ['Stack', true],
@@ -362,7 +416,7 @@ describe('公共 Buff 运行时投影', () => {
     expect(steps).toHaveLength(1);
     const [each] = steps;
     if (each?.kind !== 'forEachContextTarget') throw new Error('expected forEachContextTarget');
-    expect(each.parameters.contextKey).toBe('recipient');
+    expect(each.parameters.targets).toEqual({ kind: 'context', key: 'recipient' });
     expect(readGraphActions(builder.finish(), each.body)).toMatchObject([
       {
         kind: 'applyBuff',
@@ -406,7 +460,7 @@ describe('公共 Buff 运行时投影', () => {
     );
     const [each] = steps;
     if (each?.kind !== 'forEachContextTarget') throw new Error('expected forEachContextTarget');
-    expect(each.parameters.contextKey).toBe('queried');
+    expect(each.parameters.targets).toEqual({ kind: 'context', key: 'queried' });
     expect(readGraphActions(builder.finish(), each.body)).toEqual([
       {
         kind: 'finishBuffsById',
@@ -982,7 +1036,11 @@ describe('公共 Buff 运行时投影', () => {
                         value: { kind: 'blackboard', key: 'set_cd' },
                       },
                     },
-                    { kind: 'jumpTimeline', parameters: { destinationFrame: 540 } },
+                    {
+                      kind: 'jumpTimeline',
+                      parameters: { destinationFrame: 540 },
+                      condition: { $sequence: null },
+                    },
                   ]),
                 },
               ]),
@@ -1066,7 +1124,11 @@ describe('公共 Buff 运行时投影', () => {
               priority: 0,
               event: { kind: 'abilityEvent', event: 'beforeAddedBuff' },
               sequence: graphBranch(projectedResult.graph, [
-                { kind: 'jumpTimeline', parameters: { destinationFrame: 180 } },
+                {
+                  kind: 'jumpTimeline',
+                  parameters: { destinationFrame: 180 },
+                  condition: { $sequence: null },
+                },
               ]),
             },
           ],
@@ -2328,7 +2390,7 @@ describe('公共 Buff 运行时投影', () => {
         [
           {
             kind: 'forEachContextTarget',
-            parameters: { target: 'enemy' },
+            parameters: { targets: { kind: 'fixed', target: 'enemy' } },
             body: graphBranch(
               result.graph,
               [{ kind: 'readBuffStackCount', parameters: { target: 'enemy' } }],

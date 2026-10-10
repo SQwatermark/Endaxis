@@ -1,3 +1,5 @@
+import { collectUnobservedTargetQueryOutputs } from '../optimization/nativeTargetUsage.ts';
+import { collectCombatInvisiblePresentationAssignmentKeys } from '../optimization/nativePresentationUsage.ts';
 import type { ScheduledSequenceDefinition } from '../../../../../packages/game-data-contract/src/actions.ts';
 import { createActionGraphBuilder } from '../actions/actionGraphBuilder.ts';
 import type { CompiledBuffStepSource } from '../actions/combatActionProjectionTypes.ts';
@@ -6,14 +8,15 @@ import { NATIVE_SKILL_HAS_HIT_BLACKBOARD_KEY } from '../../../../../packages/gam
 import { numericDeclaredBlackboard } from '../../source/blackboard.ts';
 import type { SkillPatchSource } from '../../source/skillPatch.ts';
 import { parseKnownSkillActionGraphSource } from '../../source/skillActionGraph.ts';
+import {
+  pruneKnownNativeBranches,
+  simplifyNativeSequences,
+} from '../optimization/nativeSequenceOptimization.ts';
 import { collectNativeActionNodes, type NativeSequenceSource } from '../../source/controlFlow.ts';
 import type { KnownNativeActionLeafSource } from '../../source/actionLeaf.ts';
 import type { TargetGroupActionSource } from '../../source/targetGroup.ts';
 import type { TargetReferenceSource } from '../../source/target.ts';
-import {
-  compileCombatActionSequenceSource,
-  collectCombatInvisiblePresentationAssignmentKeys,
-} from '../buffs/buffRuntimeProjection.ts';
+import { compileCombatActionSequenceSource } from '../buffs/buffRuntimeProjection.ts';
 import type {
   CombatActionProjectionContextSource,
   CombatActionProjectionExtensionsSource,
@@ -24,6 +27,7 @@ import {
   isDynamicSingleEnemyTagTargetGroup,
   isStaticSingleEnemyTargetGroup,
   isCurrentTargetRestrictedSingleEnemyTargetGroup,
+  isUniqueEnemyMainTargetInstantSearch,
 } from '../combatProjectionCommon.ts';
 import type { CompiledBuffSequenceSource } from '../actions/combatActionProjectionTypes.ts';
 import {
@@ -44,6 +48,7 @@ import {
 import { parseSkillTargetSelectionHeaderSource } from '../../source/skillTargetSelection.ts';
 import { compileSkillSmartTargetSource } from '../conditions/comboSmartTarget.ts';
 import { assertPresentationCalculationIsolation } from '../scenario/presentationCalculationIsolation.ts';
+import { evaluateFixedScenarioCondition } from '../conditions/combatConditionProjection.ts';
 import {
   compareKnownNumbers,
   isStaticControlledOperatorWrite,
@@ -304,11 +309,12 @@ function collectGuardedProjectilePaths(
 
 /**
  * 只折叠标准木桩模型中可由来源事实直接证明的纯条件序列。未知条件保持 unknown，
- * 让调用方同时遍历两个分支；这里不参与正式运行时条件编译，也不读取技能名或 Context 键名。
+ * 让调用方保留两个分支；目标写入分析与正式分支裁剪共用此证明，不依赖技能名或组名。
  */
 function evaluateStaticStumpConditionSequence(
   sequence: NativeSequenceSource<KnownNativeActionLeafSource>,
   staticEnemyTargetGroupKeys: ReadonlySet<string>,
+  context?: CombatActionProjectionContextSource,
 ): boolean | undefined {
   if (sequence.onlyExecuteWhenSourceIsMainCharacter || sequence.onlyExecuteWhenSourceIsGuard)
     return undefined;
@@ -317,10 +323,16 @@ function evaluateStaticStumpConditionSequence(
   for (const node of enabled) {
     if (node.body.kind !== 'leaf' || node.body.value.family !== 'condition') return undefined;
     const condition = node.body.value.action;
+    const fixedResult = evaluateFixedScenarioCondition(condition);
+    if (fixedResult === false) return false;
+    if (fixedResult === true) continue;
     if (condition.kind === 'entityCount') {
+      const knownSingleton =
+        (condition.targetSource === 'Context' &&
+          staticEnemyTargetGroupKeys.has(condition.targetGroupKey)) ||
+        (condition.target !== undefined && isUniqueEnemyMainTargetInstantSearch(condition.target));
       if (
-        condition.targetSource !== 'Context' ||
-        !staticEnemyTargetGroupKeys.has(condition.targetGroupKey) ||
+        !knownSingleton ||
         condition.containsHittableTarget ||
         condition.excludeDeadEntity ||
         condition.storeKey !== ''
@@ -332,8 +344,12 @@ function evaluateStaticStumpConditionSequence(
       continue;
     }
     if (condition.kind === 'distance') {
-      const sourceIsMainCharacter = condition.source.targetSource === 'MainCharacter';
-      const targetIsMainCharacter = condition.target.targetSource === 'MainCharacter';
+      const isKnownOperator = (target: TargetReferenceSource) =>
+        target.targetSource === 'MainCharacter' ||
+        (target.targetSource === 'Owner' && context?.actionOwnerTarget === 'caster') ||
+        (target.targetSource === 'Source' && context?.actionSourceTarget === 'caster');
+      const sourceIsMainCharacter = isKnownOperator(condition.source);
+      const targetIsMainCharacter = isKnownOperator(condition.target);
       const sourceIsStaticEnemy =
         condition.source.targetSource === 'Context' &&
         staticEnemyTargetGroupKeys.has(condition.source.targetGroupKey);
@@ -721,10 +737,9 @@ export function compileActiveSkillRuntimeProjectionSource(input: {
     graph: program,
   });
   assertNoUnprojectedSkillRootEffects(input.value, input.sourcePath);
-  const graph = parseKnownSkillActionGraphSource(
-    input.value,
-    input.sourcePath,
-    prepared.blackboard.values,
+  const graph = simplifyNativeSequences(
+    parseKnownSkillActionGraphSource(input.value, input.sourcePath, prepared.blackboard.values),
+    input.context.isBlackboardKeyUnusedByExternalResources,
   );
   if (graph.actionGroup.passiveEvents.length > 0)
     throw new Error(
@@ -732,15 +747,27 @@ export function compileActiveSkillRuntimeProjectionSource(input: {
     );
   const visualOnlyIds = input.visualOnlyIds ?? new Set<string>();
   const extensions = input.extensions ?? {};
-  const presentationOnlyBlackboardKeys = collectPresentationOnlyBlackboardKeys(graph);
-  const presentationSelectionTimelineIndexes = collectPresentationSelectionTimelineIndexes(graph);
+  const presentationOnlyBlackboardKeys = collectPresentationOnlyBlackboardKeys(
+    graph,
+    input.context.isBlackboardKeyUnusedByExternalResources,
+  );
+  const presentationSelectionTimelineIndexes = collectPresentationSelectionTimelineIndexes(
+    graph,
+    input.context.isBlackboardKeyUnusedByExternalResources,
+  );
   const combatInvisiblePresentationBlackboardKeys =
     collectCombatInvisiblePresentationAssignmentKeys(
       graph.actionGroup.timelineActions.map(timeline => timeline.sequence),
       input.context.isBlackboardKeyUnusedByExternalResources,
     );
-  const combatInvisibleRandomBlackboardKeys = collectCombatInvisibleRandomBlackboardKeys(graph);
-  const combatInvisiblePhysicsCastPaths = collectCombatInvisiblePhysicsCastPaths(graph);
+  const combatInvisibleRandomBlackboardKeys = collectCombatInvisibleRandomBlackboardKeys(
+    graph,
+    input.context.isBlackboardKeyUnusedByExternalResources,
+  );
+  const combatInvisiblePhysicsCastPaths = collectCombatInvisiblePhysicsCastPaths(
+    graph,
+    presentationSelectionTimelineIndexes,
+  );
   const timelineTargetGroupWrites = graph.actionGroup.timelineActions.map(timeline =>
     collectNativeActionNodes(timeline.sequence).flatMap(node =>
       node.body.kind === 'leaf' && node.body.value.family === 'targetGroup'
@@ -1202,6 +1229,10 @@ export function compileActiveSkillRuntimeProjectionSource(input: {
     dynamicSpatialPointCounts,
     materializedTargetGroupKeys,
     staticAbilityEntityTargetGroupKeys,
+    unobservedTargetQueryOutputs: collectUnobservedTargetQueryOutputs([
+      ...graph.actionGroup.timelineActions.map(timeline => timeline.sequence),
+      ...graph.actionGroup.passiveEvents.flatMap(event => event.actions),
+    ]),
     presentationOnlyTargetGroupKeys: collectPresentationOnlyTargetGroups(graph),
     unconsumedTargetGroupKeys: collectUnconsumedTargetGroups(graph),
     unconsumedSkillLocalKeys: collectUnconsumedSkillLocalKeys(
@@ -1223,9 +1254,20 @@ export function compileActiveSkillRuntimeProjectionSource(input: {
     const activeMainCharacterSequence = timeline.sequence.onlyExecuteWhenSourceIsMainCharacter
       ? { ...timeline.sequence, onlyExecuteWhenSourceIsMainCharacter: false }
       : timeline.sequence;
-    const executableSequence = unwrapComboQtePrototypeGuard(
-      activeMainCharacterSequence,
-      input.context.comboQteTriggerBlackboardKeys,
+    // 入口存在性与全资源写入保持身份必须同时成立；“写入时是敌人”不证明组已创建。
+    const guaranteedEnemyGroups = new Set(
+      [...guaranteedSingletonZeroSpaceTargetGroupKeysByTimeline[timelineIndex]!].filter(
+        key =>
+          staticEnemyTargetGroupKeys.has(key) &&
+          (writesByKey.get(key) ?? []).every(isStaticActiveSkillEnemyTargetGroup),
+      ),
+    );
+    const executableSequence = pruneKnownNativeBranches(
+      unwrapComboQtePrototypeGuard(
+        activeMainCharacterSequence,
+        input.context.comboQteTriggerBlackboardKeys,
+      ),
+      condition => evaluateStaticStumpConditionSequence(condition, guaranteedEnemyGroups, context),
     );
     const writesRuntimeTargetGroup = collectNativeActionNodes(executableSequence).some(
       node =>
@@ -1340,7 +1382,7 @@ export function compileActiveSkillRuntimeProjectionSource(input: {
         timelineRange: { startFrame: timeline.startFrame, endFrame: timeline.endFrame },
       },
       visualOnlyIds,
-      { ...extensions, allowRootTimelineFinish: true },
+      extensions,
     );
     if (sequence.$sequence !== null) {
       scheduledSequences.push({

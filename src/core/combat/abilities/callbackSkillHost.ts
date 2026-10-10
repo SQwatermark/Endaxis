@@ -108,7 +108,7 @@ export function createCallbackSkillHostFactory(dependencies: {
   readonly callbackPrograms?: ProjectileCallbackPrograms;
   readonly emitEvent?: (
     ownerId: string,
-    event: 'beforeCastSkill' | 'skillEnd' | 'afterSkillApplyCost',
+    event: 'beforeCastSkill' | 'skillEnd' | 'afterSkillApplyCost' | 'skillInterrupted',
     payload: AbilitySkillPayload,
   ) => void;
 }): CallbackSkillHostFactory {
@@ -187,6 +187,8 @@ export function createCallbackSkillHostFactory(dependencies: {
           semanticEventOwnerOperatorId: dependencies.definitionOperatorId,
         },
         emitSkillEnd: payload => dependencies.emitEvent?.(ownerId, 'skillEnd', payload),
+        emitSkillInterrupted: payload =>
+          dependencies.emitEvent?.(ownerId, 'skillInterrupted', payload),
         emitAfterSkillApplyCost: payload =>
           dependencies.emitEvent?.(ownerId, 'afterSkillApplyCost', payload),
       },

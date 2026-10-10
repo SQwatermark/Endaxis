@@ -53,7 +53,11 @@ const graph: ActionGraphDefinition = {
     spawn: {
       action: {
         kind: 'spawnAbilityEntity',
-        parameters: { abilityEntityId: 'entity', dieWhenSourceDies: false },
+        parameters: {
+          bornAt: { kind: 'owner' as const },
+          abilityEntityId: 'entity',
+          dieWhenSourceDies: false,
+        },
       },
       next: null,
     },
@@ -278,7 +282,11 @@ describe('嵌套宿主直接图编译', () => {
           spawn: {
             action: {
               kind: 'spawnAbilityEntity',
-              parameters: { abilityEntityId: 'entity', dieWhenSourceDies: false },
+              parameters: {
+                bornAt: { kind: 'owner' as const },
+                abilityEntityId: 'entity',
+                dieWhenSourceDies: false,
+              },
             },
             next: null,
           },

@@ -47,19 +47,7 @@ const definition = {
       actionGraph: {
         main: {
           nodes: {
-            createTimedMarker_1: {
-              action: {
-                kind: 'createTimedMarker',
-                parameters: {
-                  target: 'caster',
-                  markerId: 'wpn_sword_0016',
-                  durationSeconds: { kind: 'valueNode', nodeId: 'data_1' },
-                  autoFinishByAction: false,
-                },
-              },
-              next: null,
-            },
-            applyBuff_2: {
+            applyBuff_1: {
               action: {
                 kind: 'applyBuff',
                 parameters: {
@@ -73,14 +61,34 @@ const definition = {
                       },
                     },
                   ],
-                  target: 'partyExceptCaster',
+                  target: 'currentTarget',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
                 },
               },
-              next: 'createTimedMarker_1',
+              next: null,
             },
-            applyBuff_3: {
+            createTimedMarker_2: {
+              action: {
+                kind: 'createTimedMarker',
+                parameters: {
+                  target: 'caster',
+                  markerId: 'wpn_sword_0016',
+                  durationSeconds: { kind: 'valueNode', nodeId: 'data_1' },
+                  autoFinishByAction: false,
+                },
+              },
+              next: null,
+            },
+            forEachContextTarget_3: {
+              action: {
+                kind: 'forEachContextTarget',
+                parameters: { targets: { kind: 'characterTeam', excludeOwner: true } },
+                body: { $sequence: 'applyBuff_1' },
+              },
+              next: 'createTimedMarker_2',
+            },
+            applyBuff_4: {
               action: {
                 kind: 'applyBuff',
                 parameters: {
@@ -99,25 +107,23 @@ const definition = {
                   asChildBuff: true,
                 },
               },
-              next: 'applyBuff_2',
+              next: 'forEachContextTarget_3',
             },
-            conditional_4: {
+            checkCondition_5: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
-                whenTrue: { $sequence: 'applyBuff_3' },
               },
-              next: null,
+              next: 'applyBuff_4',
             },
-            conditional_5: {
+            checkCondition_6: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_4' } },
-                whenTrue: { $sequence: 'conditional_4' },
               },
-              next: null,
+              next: 'checkCondition_5',
             },
-            applyBuff_6: {
+            applyBuff_7: {
               action: {
                 kind: 'applyBuff',
                 parameters: {
@@ -167,10 +173,10 @@ const definition = {
           key: 'skill3:event:0:sequence:0',
           abilityEvent: 'skillSpGained',
           priority: 0,
-          sequence: { $sequence: 'conditional_5' },
+          sequence: { $sequence: 'checkCondition_6' },
         },
       ],
-      enableSequence: { $sequence: 'applyBuff_6' },
+      enableSequence: { $sequence: 'applyBuff_7' },
       blackboard: {
         cd: 0.1,
         duration: [30, 30, 30, 30, 30, 30, 30, 30, 30],

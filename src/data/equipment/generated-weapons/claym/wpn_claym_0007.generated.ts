@@ -86,21 +86,19 @@ const definition = {
               },
               next: 'setGlobalCooldown_2',
             },
-            conditional_4: {
+            checkCondition_4: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_4' } },
-                whenTrue: { $sequence: 'storeSourceAttributeValue_3' },
               },
-              next: null,
+              next: 'storeSourceAttributeValue_3',
             },
-            conditional_5: {
+            checkCondition_5: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
-                whenTrue: { $sequence: 'conditional_4' },
               },
-              next: null,
+              next: 'checkCondition_4',
             },
           },
           dataNodes: {
@@ -136,7 +134,7 @@ const definition = {
           key: 'skill3:event:0:sequence:0',
           abilityEvent: 'outputHeal',
           priority: 0,
-          sequence: { $sequence: 'conditional_5' },
+          sequence: { $sequence: 'checkCondition_5' },
         },
       ],
       blackboard: {

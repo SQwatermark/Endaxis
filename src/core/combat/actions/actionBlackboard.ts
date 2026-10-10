@@ -130,8 +130,8 @@ export class ActionBlackboard {
   assignDynamic(key: string, value: number): boolean {
     return assignDynamicBlackboard(this.#state, key, value);
   }
-  /** 调用方已比较过 GetFloat 时，直接写入目标层。 */
-  assignDynamicUnconditionally(key: string, value: number): void {
+  /** 直接写入原生动态目标层，不进行数值近似比较。 */
+  assignDynamicUnconditionally(key: string, value: ActionBlackboardValue): void {
     assignDynamicBlackboardUnconditionally(this.#state, key, value);
   }
   snapshot(): Readonly<Record<string, ActionBlackboardValue>> {
@@ -145,6 +145,15 @@ export class ActionBlackboard {
     if (this.#state.valueCalculations)
       state.valueCalculations = new Map(this.#state.valueCalculations);
     return ActionBlackboard.#bind(state);
+  }
+  /** 已求值的发射输入复制给新实体；同一实体的回调仍使用 detachedSnapshot 共享实体板。 */
+  forkEntityScope(): ActionBlackboard {
+    return ActionBlackboard.#bind({
+      ...this.detachedSnapshot().runtimeState,
+      entity: this.#state.entity
+        ? ActionBlackboard.#bind(this.#state.entity).detachedSnapshot().runtimeState
+        : undefined,
+    });
   }
   restore(
     values: Readonly<Record<string, ActionBlackboardValue>>,

@@ -23,10 +23,10 @@ const definition = {
       blackboard: { buffid: '#', duration: 10, skill_dmg_up: 0.2, spell_dmg_up: 0, stack_cond: 2 },
       attributeModifiers: [],
       abilityEventResponses: [
-        { event: 'outputBuff', priority: 0, sequence: { $sequence: 'conditional_3' } },
-        { event: 'outputBuff', priority: 0, sequence: { $sequence: 'conditional_6' } },
-        { event: 'outputBuff', priority: 0, sequence: { $sequence: 'conditional_9' } },
-        { event: 'outputBuff', priority: 0, sequence: { $sequence: 'conditional_12' } },
+        { event: 'outputBuff', priority: 0, sequence: { $sequence: 'checkCondition_3' } },
+        { event: 'outputBuff', priority: 0, sequence: { $sequence: 'checkCondition_6' } },
+        { event: 'outputBuff', priority: 0, sequence: { $sequence: 'checkCondition_9' } },
+        { event: 'outputBuff', priority: 0, sequence: { $sequence: 'checkCondition_12' } },
       ],
       actionGraph: {
         main: {
@@ -52,69 +52,61 @@ const definition = {
               },
               next: null,
             },
-            conditional_2: {
+            checkCondition_2: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-                whenTrue: { $sequence: 'applyBuff_1' },
               },
-              next: null,
+              next: 'applyBuff_1',
             },
-            conditional_3: {
+            checkCondition_3: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
-                whenTrue: { $sequence: 'conditional_2' },
               },
-              next: null,
+              next: 'checkCondition_2',
             },
-            conditional_5: {
+            checkCondition_5: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
-                whenTrue: { $sequence: 'applyBuff_1' },
               },
-              next: null,
+              next: 'applyBuff_1',
             },
-            conditional_6: {
+            checkCondition_6: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_6' } },
-                whenTrue: { $sequence: 'conditional_5' },
               },
-              next: null,
+              next: 'checkCondition_5',
             },
-            conditional_8: {
+            checkCondition_8: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_8' } },
-                whenTrue: { $sequence: 'applyBuff_1' },
               },
-              next: null,
+              next: 'applyBuff_1',
             },
-            conditional_9: {
+            checkCondition_9: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_9' } },
-                whenTrue: { $sequence: 'conditional_8' },
               },
-              next: null,
+              next: 'checkCondition_8',
             },
-            conditional_11: {
+            checkCondition_11: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_11' } },
-                whenTrue: { $sequence: 'applyBuff_1' },
               },
-              next: null,
+              next: 'applyBuff_1',
             },
-            conditional_12: {
+            checkCondition_12: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_12' } },
-                whenTrue: { $sequence: 'conditional_11' },
               },
-              next: null,
+              next: 'checkCondition_11',
             },
           },
           dataNodes: {

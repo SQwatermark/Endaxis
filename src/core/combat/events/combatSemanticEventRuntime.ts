@@ -204,7 +204,7 @@ function matches(
     return (
       'payload' in event &&
       event.event === 'skillSpGained' &&
-      event.payload.sourceOperatorId === ownerOperatorId &&
+      event.payload.sourceId === ownerOperatorId &&
       (trigger.source === undefined || trigger.source === event.payload.source) &&
       (trigger.gainKind === undefined || trigger.gainKind === event.payload.gainKind)
     );

@@ -62,6 +62,7 @@ import {
 } from './passiveUi.ts';
 
 export interface OperatorDefinitionAssemblyInput {
+  readonly externalBuffBlackboardReads?: ReadonlySet<string>;
   readonly productPassiveUi?: unknown;
   readonly foundation: ReturnType<typeof compileOperatorFoundationSource>;
   readonly activeSkills: readonly {
@@ -701,6 +702,7 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
       input.comboSkillConditions ?? [],
     ]),
     new Map((input.dashBuffs ?? []).map(item => [item.buffId, item.blackboard] as const)),
+    input.externalBuffBlackboardReads,
   );
   const blocked = buffClosure.diagnostics.filter(item => item.status === 'blocked');
   if (blocked.length) throw new Error(`operator Buff closure blocked: ${JSON.stringify(blocked)}`);

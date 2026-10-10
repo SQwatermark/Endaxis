@@ -50,13 +50,13 @@ const definition = {
           key: 'skill3:event:0:sequence:0',
           abilityEvent: 'beforeOutputBuff',
           priority: 0,
-          sequence: { $sequence: 'conditional_4' },
+          sequence: { $sequence: 'checkCondition_4' },
         },
         {
           key: 'skill3:event:1:sequence:0',
           abilityEvent: 'beforeOutputPhysicalInfliction',
           priority: 0,
-          sequence: { $sequence: 'conditional_8' },
+          sequence: { $sequence: 'checkCondition_8' },
         },
       ],
       actionGraph: {
@@ -91,29 +91,26 @@ const definition = {
               },
               next: 'applyBuff_1',
             },
-            conditional_3: {
+            checkCondition_3: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
-                whenTrue: { $sequence: 'createTimedMarker_2' },
               },
-              next: null,
+              next: 'createTimedMarker_2',
             },
-            conditional_4: {
+            checkCondition_4: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_4' } },
-                whenTrue: { $sequence: 'conditional_3' },
               },
-              next: null,
+              next: 'checkCondition_3',
             },
-            conditional_8: {
+            checkCondition_8: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
-                whenTrue: { $sequence: 'conditional_3' },
               },
-              next: null,
+              next: 'checkCondition_3',
             },
           },
           dataNodes: {

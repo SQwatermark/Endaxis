@@ -41,6 +41,7 @@ type MarkerTarget =
 
 export type CompiledBuffConditionSource =
   | Condition<'constant'>
+  | Condition<'comboCameraAlphaSetting'>
   | Condition<'globalCooldownPresent'>
   | Condition<'casterComboPending'>
   | Condition<'eventComboRingQteSucceeded'>
@@ -52,7 +53,7 @@ export type CompiledBuffConditionSource =
       | 'deckAttributeCompare'
       | 'eventInflictionElementIn'
       | 'eventCustomAbilityNameMatch'
-      | 'contextTargetCountCompare'
+      | 'entityCountCompare'
       | 'contextTargetObjectTypeMatch'
       | 'actionInputTargetObjectTypeMatch'
       | 'actionInputTargetIdentityMatch'
@@ -62,6 +63,7 @@ export type CompiledBuffConditionSource =
       | 'contextTargetBuffIdStackCompare'
       | 'abilityEntityRemainingDurationCompare'
       | 'actionValueCompare'
+      | 'stringEquals'
       | 'eventOverheal'
       | 'eventSkillCastMatchesBuffSource'
       | 'eventSkillIdIn'
@@ -80,6 +82,9 @@ export type CompiledBuffConditionSource =
       | 'eventBuffTagsMatch'
       | 'eventTargetBuffCountCompare'
       | 'enemySuperArmorCompare'
+      | 'twoDirectionAngleCompare'
+      | 'targetFacingAngle'
+      | 'targetDistance'
       | 'enemyRankIn'
       | 'targetStaggered'
       | 'probability'
@@ -94,6 +99,7 @@ export type CompiledBuffConditionSource =
   | Condition<'eventDamageTagsMatch' | 'eventDamageGameplayTagsMatch' | 'eventDamageFeaturesMatch'>
   | Condition<'eventSpGainMatch'>
   | Condition<'skillDamageTypeIn'>
+  | Condition<'skillInterruptReasonIn'>
   | (Condition<'eventSkillTypeIn'> & {
       readonly skillTypes: readonly (
         'basicAttack' | 'plungingAttack' | 'battleSkill' | 'comboSkill' | 'ultimate'
@@ -264,10 +270,17 @@ type HealParameters = (
   );
 
 export type CompiledBuffStepSource =
+  | Step<'checkCondition'>
+  | Step<'invertNextResult'>
+  | (Step<'anyCondition'> & { readonly conditions: readonly CompiledBuffSequenceSource[] })
+  | (Step<'ifElse'> & {
+      readonly condition: CompiledBuffSequenceSource;
+      readonly whenTrue: CompiledBuffSequenceSource;
+      readonly whenFalse: CompiledBuffSequenceSource;
+    })
   | import('../intermediateDefinitions.ts').ActionGraphResourceCall
   | Step<'applyPhysicalInfliction'>
   | Step<'findCharacterTeamTargets'>
-  | Step<'findUnfinishedProjectileTargets'>
   | Step<'createSpatialPointTargets'>
   | Step<'pickContextTarget'>
   | Step<'igniteBuffs'>
@@ -314,7 +327,9 @@ export type CompiledBuffStepSource =
     >
   | Step<
       'spawnAbilityEntity',
-      Required<Pick<Parameters<'spawnAbilityEntity'>, 'abilityEntityId' | 'dieWhenSourceDies'>> &
+      Required<
+        Pick<Parameters<'spawnAbilityEntity'>, 'abilityEntityId' | 'dieWhenSourceDies' | 'bornAt'>
+      > &
         Pick<
           Parameters<'spawnAbilityEntity'>,
           | 'childSkillId'
@@ -328,18 +343,14 @@ export type CompiledBuffStepSource =
         >
     >
   | Step<'setAbilityEntityRemainingDuration'>
-  | Step<'finishCurrentAbilityEntity'>
-  | Step<'finishActionOwnerAbilityEntity'>
-  | Step<
-      'jumpTimeline',
-      Pick<Parameters<'jumpTimeline'>, 'destinationFrame'> & {
-        readonly condition?: CompiledBuffConditionSource;
-      }
-    >
+  | Step<'finishOwner'>
+  | Step<'interruptCurrentSkill'>
+  | (Step<'jumpTimeline'> & { readonly condition: CompiledBuffSequenceSource })
   | Step<'finishTimeline'>
   | Step<'reachSkillOperableBoundary'>
   | Step<'markCurrentSkillCanDash'>
   | Step<'markCurrentSkillCanInterrupt'>
+  | Step<'storeCharacterTypeId'>
   | Step<'storeCurrentTimelineFrame'>
   | Step<'storeEventSpGainAmount'>
   | Step<
@@ -381,6 +392,9 @@ export type CompiledBuffStepSource =
         readonly sequence: CompiledBuffSequenceSource;
       })[];
     })
+  | Step<'saveTwoDirectionAngle'>
+  | Step<'copyContextTargets'>
+  | Step<'findTargets'>
   | Step<
       'mergeContextTargets',
       Pick<Parameters<'mergeContextTargets'>, 'saveToContextKey'> & {
@@ -433,7 +447,6 @@ export type CompiledBuffStepSource =
   | Step<'storeEventHealValues'>
   | Step<'storeShieldValue'>
   | Step<'calculateActionValue'>
-  | Step<'readCurrentBuffRemainingDuration'>
   | Step<'readBuffRemainingDuration'>
   | Step<'setBuffRemainingDuration'>
   | Step<'setCurrentBuffRemainingDuration'>

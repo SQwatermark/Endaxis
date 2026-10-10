@@ -171,7 +171,11 @@ describe('compileSkill', () => {
               spawn: {
                 action: {
                   kind: 'spawnAbilityEntity',
-                  parameters: { abilityEntityId: 'self', dieWhenSourceDies: false },
+                  parameters: {
+                    bornAt: { kind: 'owner' as const },
+                    abilityEntityId: 'self',
+                    dieWhenSourceDies: false,
+                  },
                 },
                 next: null,
               },
@@ -210,7 +214,11 @@ describe('compileSkill', () => {
               entry: {
                 action: {
                   kind: 'spawnAbilityEntity',
-                  parameters: { abilityEntityId: peer, dieWhenSourceDies: false },
+                  parameters: {
+                    bornAt: { kind: 'owner' as const },
+                    abilityEntityId: peer,
+                    dieWhenSourceDies: false,
+                  },
                 },
                 next: null,
               },
@@ -515,6 +523,7 @@ describe('compileSkill', () => {
         {
           kind: 'spawnAbilityEntity',
           parameters: {
+            bornAt: { kind: 'owner' as const },
             abilityEntityId: 'entity',
             dieWhenSourceDies: false,
             definition: {
@@ -582,7 +591,11 @@ describe('compileSkill', () => {
       steps: [
         {
           kind: 'spawnAbilityEntity',
-          parameters: { abilityEntityId: 'entity', dieWhenSourceDies: false },
+          parameters: {
+            bornAt: { kind: 'owner' as const },
+            abilityEntityId: 'entity',
+            dieWhenSourceDies: false,
+          },
         },
       ],
     });
@@ -619,7 +632,11 @@ describe('compileSkill', () => {
                 'child-spawn': {
                   action: {
                     kind: 'spawnAbilityEntity',
-                    parameters: { abilityEntityId: 'entity', dieWhenSourceDies: false },
+                    parameters: {
+                      bornAt: { kind: 'owner' as const },
+                      abilityEntityId: 'entity',
+                      dieWhenSourceDies: false,
+                    },
                   },
                   next: null,
                 },
@@ -749,7 +766,8 @@ describe('compileSkill', () => {
             resource: 'sp',
             amount: [10, 20],
             coefficient: [0.5, 0.25],
-            recipient: 'team',
+            source: { kind: 'fixed' as const, target: 'caster' as const },
+            targets: { kind: 'fixed' as const, target: 'caster' as const },
             spGainKind: 'refund',
           },
         },
@@ -771,7 +789,8 @@ describe('compileSkill', () => {
         resource: 'sp',
         amount: 20,
         coefficient: 0.25,
-        recipient: 'team',
+        source: { kind: 'fixed' as const, target: 'caster' as const },
+        targets: { kind: 'fixed' as const, target: 'caster' as const },
         spGainKind: 'refund',
       },
     });

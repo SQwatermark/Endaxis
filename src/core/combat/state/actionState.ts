@@ -17,12 +17,17 @@ import { type SkillCastInheritanceRegistration } from './environmentState';
 /** 一个技能或 Buff 动作宿主的作用域数据。 */
 export interface ActionScopeState {
   nextGraphInvocationId: number;
-  readonly executedOnce: Set<string>;
+  /** 原生动作环境共享的返回值策略，不随单次入口调用或 Reset 清空。 */
+  readonly executionPolicy: import('../actions/combatStep').SequenceExecutionState;
   readonly blackboards: Map<ActionBlackboardState, Map<string, ActionBlackboardState>>;
 }
 
 export function createActionScopeState(): ActionScopeState {
-  return { executedOnce: new Set(), blackboards: new Map(), nextGraphInvocationId: 1 };
+  return {
+    blackboards: new Map(),
+    nextGraphInvocationId: 1,
+    executionPolicy: { resultMode: 'normal' },
+  };
 }
 
 /** 分支动作当前选中的程序下标；null 表示尚未选择。 */
@@ -39,10 +44,28 @@ export interface RepeatedActionState {
   skipInitialTick: boolean;
   timerSeconds: number;
   scanCount: number;
-  targetTriggerCount: number;
-  lastTargetTriggerSeconds: number;
-  /** ExecuteInterval 当前保留的子序列；切面只保存数据，恢复后重新绑定执行器。 */
+  /** 周期动作持有的子序列；切面只保存数据，恢复后重新绑定执行器。 */
   body: ActionSequenceState | null;
+}
+
+export interface ChannelingActionState {
+  timerSeconds: number;
+  scanCount: number;
+  checkFrame: number;
+  inputTarget: RuntimeTargetRef | null;
+  readonly targets: Map<string, { count: number; lastTriggerTime: number }>;
+  body: ActionSequenceState | null;
+}
+
+export function createChannelingActionState(): ChannelingActionState {
+  return {
+    timerSeconds: 0,
+    scanCount: 0,
+    checkFrame: -1,
+    inputTarget: null,
+    targets: new Map(),
+    body: null,
+  };
 }
 
 export function createRepeatedActionState(): RepeatedActionState {
@@ -50,23 +73,8 @@ export function createRepeatedActionState(): RepeatedActionState {
     skipInitialTick: false,
     timerSeconds: 0,
     scanCount: 0,
-    targetTriggerCount: 0,
-    lastTargetTriggerSeconds: 0,
     body: null,
   };
-}
-
-/** 目标循环当前运行的子序列和目标。 */
-export interface TargetLoopState<Execution = ActionSequenceState> {
-  readonly activeBodies: number[];
-  readonly bodies: Map<number, { readonly target: RuntimeTargetRef; readonly sequence: Execution }>;
-  nextBodyId: number;
-}
-
-export function createTargetLoopState<
-  Execution = ActionSequenceState,
->(): TargetLoopState<Execution> {
-  return { activeBodies: [], bodies: new Map(), nextBodyId: 1 };
 }
 
 /** 时间轴跳转动作的执行进度。 */
@@ -204,13 +212,20 @@ export interface AuraInfluenceState {
 }
 
 export type ActionGraphNodeData =
+  | { readonly kind: 'graphOnce'; executed: boolean; body: ActionGraphExecutionState | null }
+  | { readonly kind: 'channeling'; readonly channeling: ChannelingActionState }
   | { readonly kind: 'graphAura'; active: boolean; readonly influences: AuraInfluenceState[] }
   | { readonly kind: 'graphMacro'; body: ActionGraphExecutionState | null }
   | {
       readonly kind: 'graphListener';
       readonly listener: CombatEventListenerState<ActionGraphExecutionState>;
     }
-  | { readonly kind: 'graphTargets'; readonly loop: TargetLoopState<ActionGraphExecutionState> }
+  | { readonly kind: 'graphTargets'; body: ActionGraphExecutionState | null }
+  | {
+      readonly kind: 'graphJump';
+      readonly jump: TimelineJumpState;
+      condition: ActionGraphExecutionState | null;
+    }
   | GraphLeafStepData
   | { readonly kind: 'repeat'; readonly repetition: RepeatedActionState }
   | {
@@ -225,6 +240,7 @@ export type ActionGraphNodeData =
       readonly selection: BranchActionState;
       readonly branches: Map<number, ActionGraphExecutionState>;
     }
+  | { readonly kind: 'graphConditions'; readonly sequences: Map<number, ActionGraphExecutionState> }
   | { readonly kind: 'graphGuard'; body: ActionGraphExecutionState | null };
 
 /** 当前动作按顺序持有的登记；结束时逐项解除，同一动作的多项登记共享寿命。 */
@@ -250,8 +266,7 @@ export type OperationStepData =
   | { readonly kind: 'buffHold'; readonly buffs: ActionBuffReferencesState }
   | { readonly kind: 'stateless' };
 
-export type GraphLeafStepData =
-  OperationStepData | { readonly kind: 'jump'; readonly jump: TimelineJumpState };
+export type GraphLeafStepData = OperationStepData;
 
 export type ActionStepData =
   | GraphLeafStepData

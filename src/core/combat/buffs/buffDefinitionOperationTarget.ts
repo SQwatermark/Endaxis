@@ -449,22 +449,31 @@ export class BuffDefinitionOperationTarget<Key extends string>
     this.container.recycleFinishedBuffs();
   }
 
-  setRemainingDuration(
+  *findMatching(
     query: import('../../compiler/combatProgram').ResolvedCombatStepParameters['setBuffRemainingDuration']['query'],
-    operation: 'assign' | 'add' | 'multiply',
-    value: number,
-  ): void {
+  ) {
     for (const buff of this.container.buffs) {
-      if (buff.isFinished || buff.remainingDuration === null) continue;
-      const matches =
+      if (buff.isFinished) continue;
+      if (
         query.kind === 'id'
           ? query.buffIds.includes(buff.definition.id)
           : this.container.matchesTags(
               buff.definition.applyTags ?? [],
               query.buffTags,
               query.tagQueryType,
-            );
-      if (!matches) continue;
+            )
+      )
+        yield buff;
+    }
+  }
+
+  setRemainingDuration(
+    query: import('../../compiler/combatProgram').ResolvedCombatStepParameters['setBuffRemainingDuration']['query'],
+    operation: 'assign' | 'add' | 'multiply',
+    value: number,
+  ): void {
+    for (const buff of this.findMatching(query)) {
+      if (buff.remainingDuration === null) continue;
       const current = buff.remainingDuration;
       buff.rawSetRemainingDuration(
         Math.max(

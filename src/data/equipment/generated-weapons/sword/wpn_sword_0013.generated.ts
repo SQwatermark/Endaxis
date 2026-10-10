@@ -118,21 +118,19 @@ const definition = {
               },
               next: 'modifyActionValue_4',
             },
-            conditional_6: {
+            checkCondition_6: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_4' } },
-                whenTrue: { $sequence: 'calculateActionValue_5' },
               },
-              next: null,
+              next: 'calculateActionValue_5',
             },
-            conditional_7: {
+            checkCondition_7: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
-                whenTrue: { $sequence: 'conditional_6' },
               },
-              next: null,
+              next: 'checkCondition_6',
             },
           },
           dataNodes: {
@@ -166,7 +164,7 @@ const definition = {
           key: 'skill3:event:0:sequence:0',
           abilityEvent: 'buffConsumed',
           priority: 0,
-          sequence: { $sequence: 'conditional_7' },
+          sequence: { $sequence: 'checkCondition_7' },
         },
       ],
       blackboard: {

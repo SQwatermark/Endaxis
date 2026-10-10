@@ -3,6 +3,7 @@
  * 只按公共类型的字段解释用途；尚未覆盖的动作保留为分析障碍，不靠字符串搜索猜测无用值。
  */
 import type {
+  ActionTargetQuery,
   CombatStepDefinition,
   CombatStepForKind,
   CombatStepParameters,
@@ -13,6 +14,21 @@ import type {
   CombatCondition,
 } from '../intermediateDefinitions.ts';
 import type { ActionStringOperand, LevelValues } from '../intermediateDefinitions.ts';
+
+/** 这些查询只读取已有目标身份，不创建位置或修改目标组。 */
+export function isReadOnlyTargetQuery(query: ActionTargetQuery): boolean {
+  if (query.kind === 'mainTarget') return isReadOnlyTargetQuery(query.owner);
+  return [
+    'owner',
+    'source',
+    'inputTarget',
+    'context',
+    'mainCharacter',
+    'fixed',
+    'battleMainTarget',
+    'godEntity',
+  ].includes(query.kind);
+}
 
 /**
  * 经对象查询读取的黑板键。记录原有目标选择条件，不把同名键并入当前技能的 direct 板。
@@ -156,6 +172,11 @@ export function analyzeConditionUsage(condition: CombatCondition): DefinitionVal
     case 'all':
     case 'any':
       return mergeDefinitionValueUsage(condition.conditions.map(analyzeConditionUsage));
+    case 'stringEquals':
+      return mergeDefinitionValueUsage([
+        actionStringUsage(condition.left),
+        actionStringUsage(condition.right),
+      ]);
     case 'actionValueCompare':
       return mergeDefinitionValueUsage([
         actionValueUsage(condition.left),
@@ -175,12 +196,22 @@ export function analyzeConditionUsage(condition: CombatCondition): DefinitionVal
           },
         ],
       };
-    case 'contextTargetCountCompare':
+    case 'entityCountCompare':
+      return {
+        ...value(condition.value, condition.outputKey === undefined ? [] : [condition.outputKey]),
+        reads: new Set(condition.outputKey === undefined ? [] : [condition.outputKey]),
+        observable: !isReadOnlyTargetQuery(condition.target),
+        mayThrow: true,
+      };
     case 'abilityEntityRemainingDurationCompare':
     case 'eventConsumedBuffLayerCompare':
       return value(condition.value, condition.outputKey === undefined ? [] : [condition.outputKey]);
+    case 'targetDistance':
+      return { ...EMPTY, mayThrow: true };
+    case 'targetFacingAngle':
+      return actionValueUsage(condition.angle);
     case 'enemySuperArmorCompare':
-    case 'cameraToTargetAngleCompare':
+    case 'twoDirectionAngleCompare':
     case 'healthCompare':
     case 'poiseCompare':
     case 'contextTargetBuffStackCompare':
@@ -220,6 +251,7 @@ export function analyzeConditionUsage(condition: CombatCondition): DefinitionVal
       );
     case 'combatActive':
     case 'singleEnemyPresent':
+    case 'comboCameraAlphaSetting':
     case 'casterControlled':
     case 'characterTypeIn':
     case 'operatorRoleIn':
@@ -245,6 +277,7 @@ export function analyzeConditionUsage(condition: CombatCondition): DefinitionVal
     case 'eventSkillTypeIn':
     case 'currentSkillTypeIn':
     case 'originSkillTypeIn':
+    case 'skillInterruptReasonIn':
     case 'contextTargetContains':
     case 'eventSkillIdIn':
     case 'eventSkillCastMatchesBuffSource':
@@ -290,6 +323,11 @@ export function analyzeStepUsage(
     observable: true,
   });
   switch (step.kind) {
+    case 'invertNextResult':
+      // 改变下一动作返回值的解释，不读写变量；控制效果仍不可当作空动作删除。
+      return { ...EMPTY, observable: true };
+    case 'checkCondition':
+      return { ...analyzeConditionUsage(step.parameters.condition), observable: true };
     case 'modifyActionValue':
       return {
         ...actionValueUsage(step.parameters.value),
@@ -351,6 +389,7 @@ export function analyzeStepUsage(
     }
     case 'setAbilityEntityRemainingDuration':
     case 'setCurrentBuffRemainingDuration':
+    case 'setBuffRemainingDuration':
     case 'setHealthFloor':
     case 'setCharacterPassiveUiValue':
     case 'adjustSkillCooldown':
@@ -389,10 +428,15 @@ export function analyzeStepUsage(
         ...effect([], [step.parameters.outputKey]),
         externalReads: [{ kind: 'eventBuff', key: step.parameters.desiredKey }],
       };
-    case 'readCurrentBuffRemainingDuration':
+    case 'saveTwoDirectionAngle':
     case 'readBuffRemainingDuration':
+      return {
+        ...effect([], [step.parameters.outputKey]),
+        reads: new Set([step.parameters.outputKey]),
+      };
     case 'readBuffStackCount':
     case 'readAbilityEntityRemainingDuration':
+    case 'storeCharacterTypeId':
     case 'storeCurrentTimelineFrame':
     case 'storeShieldValue':
       return effect([], [step.parameters.outputKey]);
@@ -429,6 +473,8 @@ export function analyzeStepUsage(
       ]);
     case 'startUltimateTimeDilation':
       return effect([step.parameters.targetScale]);
+    case 'recoverDashEnergy':
+      return effect([step.parameters.amount]);
     case 'changeResource':
       return effect([step.parameters.amount, step.parameters.coefficient]);
     case 'showComboRingQte':
@@ -473,22 +519,24 @@ export function analyzeStepUsage(
       return mergeDefinitionValueUsage([direct, inherited]);
     }
     case 'jumpTimeline':
-      return step.parameters.condition === undefined
-        ? effect()
-        : {
-            ...analyzeConditionUsage(step.parameters.condition),
-            observable: true,
-          };
+      // 跳转本身不访问变量；条件子序列由图遍历汇总，回跳由活性分析保留观察边界。
+      return effect();
+    case 'overrideMultiDashLimit':
+      return effect([step.parameters.dashCount]);
+    case 'copyContextTargets':
+    case 'findTargets':
+    case 'interruptCurrentSkill':
     case 'mergeContextTargets':
     case 'findCharacterTeamTargets':
-    case 'finishCurrentAbilityEntity':
-    case 'finishActionOwnerAbilityEntity':
+    case 'finishOwner':
     case 'finishCurrentAbilityEntityWhenSourceDies':
     case 'startCurrentAbilityEntityChildSkill':
     case 'startCurrentAbilityEntityChildSkillById':
     case 'applyElementalInfliction':
     case 'triggerSpellBurst':
     case 'triggerCustomAbilityEvent':
+    case 'triggerCharacterInflictionEvent':
+    case 'recordPerfectDodge':
     case 'outputAirborne':
     case 'outputKnockDown':
     case 'finishParentGlobalBuff':
@@ -509,6 +557,8 @@ export function analyzeStepUsage(
     case 'consumeStatus':
     case 'finishTimeline':
     case 'markCurrentSkillCanInterrupt':
+    case 'reachSkillOperableBoundary':
+    case 'markCurrentSkillCanDash':
     case 'setContextFlag':
     case 'openComboWindow':
     case 'changeSkillSlot':

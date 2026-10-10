@@ -93,6 +93,7 @@ describe('projectCastGraphHitMarkers', () => {
         {
           kind: 'spawnAbilityEntity',
           parameters: {
+            bornAt: { kind: 'owner' as const },
             abilityEntityId: 'preview:entity',
             dieWhenSourceDies: false,
             definition: {
@@ -291,6 +292,7 @@ describe('projectCastGraphHitMarkers', () => {
         {
           kind: 'spawnAbilityEntity',
           parameters: {
+            bornAt: { kind: 'owner' as const },
             abilityEntityId: 'ability:test',
             dieWhenSourceDies: false,
             inheritActionBlackboard: true,
@@ -348,7 +350,11 @@ describe('projectCastGraphHitMarkers', () => {
       chainNodes(nodes, 'root', [
         {
           kind: 'spawnAbilityEntity',
-          parameters: { abilityEntityId: 'ability:test', dieWhenSourceDies: false },
+          parameters: {
+            bornAt: { kind: 'owner' as const },
+            abilityEntityId: 'ability:test',
+            dieWhenSourceDies: false,
+          },
         },
       ]),
     );
@@ -398,6 +404,7 @@ describe('projectCastGraphHitMarkers', () => {
         {
           kind: 'spawnAbilityEntity',
           parameters: {
+            bornAt: { kind: 'owner' as const },
             abilityEntityId: 'ability:test',
             childSkillId: 'child:second',
             dieWhenSourceDies: false,

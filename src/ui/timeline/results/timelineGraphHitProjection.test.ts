@@ -88,6 +88,7 @@ it('能力实体子技能使用实体所属图，不在发射技能的图中查�
   const definition = skill({
     kind: 'spawnAbilityEntity',
     parameters: {
+      bornAt: { kind: 'owner' as const },
       abilityEntityId: 'entity',
       dieWhenSourceDies: false,
     },

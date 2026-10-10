@@ -163,8 +163,8 @@ const definition = {
       },
       attributeModifiers: [],
       abilityEventResponses: [
-        { event: 'beforeAddedBuff', priority: 0, sequence: { $sequence: 'conditional_5' } },
-        { event: 'beforeAddedBuff', priority: 0, sequence: { $sequence: 'conditional_8' } },
+        { event: 'beforeAddedBuff', priority: 0, sequence: { $sequence: 'checkCondition_5' } },
+        { event: 'beforeAddedBuff', priority: 0, sequence: { $sequence: 'checkCondition_9' } },
       ],
       actionGraph: {
         main: {
@@ -214,21 +214,19 @@ const definition = {
               },
               next: 'calculateActionValue_2',
             },
-            conditional_4: {
+            checkCondition_4: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
-                whenTrue: { $sequence: 'calculateActionValue_3' },
               },
-              next: null,
+              next: 'calculateActionValue_3',
             },
-            conditional_5: {
+            checkCondition_5: {
               action: {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_6' } },
-                whenTrue: { $sequence: 'conditional_4' },
               },
-              next: null,
+              next: 'checkCondition_4',
             },
             applyBuff_6: {
               action: {
@@ -251,21 +249,23 @@ const definition = {
               },
               next: null,
             },
-            conditional_7: {
+            checkCondition_7: {
               action: {
-                kind: 'conditional',
-                parameters: { condition: { kind: 'conditionNode', nodeId: 'data_8' } },
-                whenTrue: { $sequence: 'applyBuff_6' },
+                kind: 'checkCondition',
+                parameters: { condition: { kind: 'conditionNode', nodeId: 'data_7' } },
               },
-              next: null,
+              next: 'applyBuff_6',
             },
-            conditional_8: {
+            invertNextResult_8: {
+              action: { kind: 'invertNextResult', parameters: {} },
+              next: 'checkCondition_7',
+            },
+            checkCondition_9: {
               action: {
-                kind: 'conditional',
-                parameters: { condition: { kind: 'conditionNode', nodeId: 'data_9' } },
-                whenTrue: { $sequence: 'conditional_7' },
+                kind: 'checkCondition',
+                parameters: { condition: { kind: 'conditionNode', nodeId: 'data_8' } },
               },
-              next: null,
+              next: 'invertNextResult_8',
             },
           },
           dataNodes: {
@@ -301,10 +301,6 @@ const definition = {
               },
             },
             data_8: {
-              type: 'boolean',
-              expression: { kind: 'not', condition: { kind: 'conditionNode', nodeId: 'data_7' } },
-            },
-            data_9: {
               type: 'boolean',
               expression: {
                 kind: 'eventBuffTagsMatch',

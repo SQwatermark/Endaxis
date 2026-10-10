@@ -10,18 +10,10 @@ import type {
   CompiledActionValueOperandSource,
 } from '../actions/combatActionProjectionTypes.ts';
 
-export interface CompiledActionBlackboardScopeSource {
-  readonly kind: 'withActionBlackboardScope';
-  readonly parameters: {
-    readonly scopeKey: string;
-    readonly lifetime: 'execution';
-    readonly alwaysNext?: boolean;
-    readonly initialValues: Readonly<Record<string, number>>;
-    readonly inheritParent: boolean;
-    readonly entityInitialValues?: Readonly<Record<string, number>>;
-    readonly entityAssignments?: Readonly<Record<string, CompiledActionValueOperandSource>>;
-  };
-  readonly body: CompiledBuffSequenceSource;
+export interface ProjectileBlackboardSource {
+  readonly inheritActionBlackboard: boolean;
+  readonly entityInitialValues: Readonly<Record<string, number>>;
+  readonly entityAssignments?: Readonly<Record<string, CompiledActionValueOperandSource>>;
 }
 
 export interface ProjectileCallbackInvocationSource {
@@ -33,7 +25,7 @@ export interface ProjectileCallbackInvocationSource {
 }
 
 /** 在发射时求值实体赋值和来源快照；回调只提供依赖信息，不在这里执行。 */
-export function compileProjectileLaunchScopeSource(input: {
+export function compileProjectileBlackboardSource(input: {
   readonly sourcePath: string;
   readonly launch: ProjectileLaunchActionSource;
   readonly template: {
@@ -41,12 +33,11 @@ export function compileProjectileLaunchScopeSource(input: {
     readonly entityBlackboard: readonly DeclaredBlackboardValueSource[];
   } | null;
   readonly invocations: readonly ProjectileCallbackInvocationSource[];
-  readonly body: CompiledBuffSequenceSource;
   /** 仅限调用方已由完整 ProjectileData 证明不需要实体黑板的特殊回调。 */
   readonly allowMissingEntityBlackboardEvidence?: boolean;
   /** Block 结束飞行时不会触发超时 Finish，二者可复用同一技能而无重入。 */
   readonly blockEndsFlight?: boolean;
-}): CompiledActionBlackboardScopeSource {
+}): ProjectileBlackboardSource {
   const { sourcePath, launch, template, invocations } = input;
   const projectedInvocations = invocations;
   const callbackEntityBlackboardKeys = new Set(
@@ -99,20 +90,13 @@ export function compileProjectileLaunchScopeSource(input: {
     skills.set(invocation.skillId, invocation.event);
   }
   return {
-    kind: 'withActionBlackboardScope',
-    parameters: {
-      scopeKey: `${sourcePath}:${launch.projectileId}`,
-      lifetime: 'execution',
-      initialValues: {},
-      inheritParent: launch.assignBlackboard,
-      entityInitialValues: Object.fromEntries(
-        Object.entries(templateInitialValues ?? {}).filter(([key]) =>
-          callbackEntityBlackboardKeys.has(key),
-        ),
+    inheritActionBlackboard: launch.assignBlackboard,
+    entityInitialValues: Object.fromEntries(
+      Object.entries(templateInitialValues ?? {}).filter(([key]) =>
+        callbackEntityBlackboardKeys.has(key),
       ),
-      ...(Object.keys(entityAssignments).length === 0 ? {} : { entityAssignments }),
-    },
-    body: input.body,
+    ),
+    ...(Object.keys(entityAssignments).length === 0 ? {} : { entityAssignments }),
   };
 }
 

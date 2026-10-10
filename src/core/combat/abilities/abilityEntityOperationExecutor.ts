@@ -1,3 +1,4 @@
+import type { TargetContextOperationExecutor } from './targetContextOperationExecutor';
 import {
   valueInputBlackboardKey,
   type CompiledCondition,
@@ -37,11 +38,13 @@ type RuntimeOperation = ResolvedCombatOperationStep;
 export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
   readonly #operatorId: string;
   readonly #entities: LogicalAbilityEntityRuntime;
-  readonly #delegate: CombatOperationExecutor;
+  readonly #delegate: CombatOperationExecutor &
+    Pick<TargetContextOperationExecutor, 'queryTargets'>;
   readonly #childRuntimeDependencies?: {
     readonly resolveOperations: (state: CombatOperationHostState) => CombatOperationExecutor;
     readonly semanticEvents?: CombatSemanticEventRuntime;
     readonly launchProjectile?: LaunchProjectile;
+    readonly finishProjectile?: (target: RuntimeTargetRef) => boolean;
     readonly createCallbackSkillHost?: CallbackSkillHostFactory;
     readonly installPassiveSkills?: (
       entity: RuntimeTargetRef,
@@ -58,11 +61,12 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
   constructor(
     operatorId: string,
     entities: LogicalAbilityEntityRuntime,
-    delegate: CombatOperationExecutor,
+    delegate: CombatOperationExecutor & Pick<TargetContextOperationExecutor, 'queryTargets'>,
     childRuntimeDependencies?: {
       readonly resolveOperations: (state: CombatOperationHostState) => CombatOperationExecutor;
       readonly semanticEvents?: CombatSemanticEventRuntime;
       readonly launchProjectile?: LaunchProjectile;
+      readonly finishProjectile?: (target: RuntimeTargetRef) => boolean;
       readonly createCallbackSkillHost?: CallbackSkillHostFactory;
       readonly installPassiveSkills?: (
         entity: RuntimeTargetRef,
@@ -229,21 +233,14 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
       );
       return true;
     }
-    if (step.kind === 'finishCurrentAbilityEntity') {
-      if (context?.currentTarget === undefined) {
-        throw new Error('AbilityEntity finish requires a current Context target');
-      }
-      if (this.#entities.isActive(context.currentTarget)) {
-        this.#entities.kill(context.currentTarget, 'explicit');
-      }
-      return true;
-    }
-    if (step.kind === 'finishActionOwnerAbilityEntity') {
-      if (context?.actionOwnerAbilityEntity === undefined) {
-        throw new Error('AbilityEntity ActionOwner finish requires an entity child-skill context');
-      }
-      if (this.#entities.isActive(context.actionOwnerAbilityEntity)) {
-        this.#entities.kill(context.actionOwnerAbilityEntity, 'explicit');
+    if (step.kind === 'finishOwner') {
+      if (!context) throw new Error('FinishOwner requires an action context');
+      const targets = [...this.#delegate.queryTargets(step.parameters.targets, context)];
+      for (const target of targets) {
+        if (this.#childRuntimeDependencies?.finishProjectile?.(target)) continue;
+        if (target.kind !== 'abilityEntity')
+          throw new Error('FinishOwner currently requires an ability entity target');
+        if (this.#entities.isActive(target)) this.#entities.kill(target, 'explicit');
       }
       return true;
     }
@@ -311,6 +308,7 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
     if (definition === undefined) {
       throw new Error(`AbilityEntity definition '${parameters.abilityEntityId}' does not exist`);
     }
+    const bornTargets = [...this.#delegate.queryTargets(parameters.bornAt, context)];
     const explicitAssignments = Object.fromEntries(
       Object.entries(parameters.blackboardAssignments ?? {}).map(([key, operand]) => [
         key,
@@ -384,90 +382,91 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
     if (parameters.target === 'currentAbilityEntity' && target === undefined) {
       throw new Error('spawnAbilityEntity currentAbilityEntity target requires a current target');
     }
-    const entity = this.#entities.spawn({
-      definitionProgramId: this.programs.slot(definition),
-      producedBy: operationProducer(context),
-      ...(!inheritSourceSkillCastInfo
-        ? { skillCastInfo: null }
-        : context.skillCastInfo === undefined
+    const overrideDurationSeconds =
+      parameters.overrideDurationSeconds === undefined
+        ? undefined
+        : resolveActionValueOperand(parameters.overrideDurationSeconds, context.blackboard);
+    const spawnedTargets: RuntimeTargetRef[] = [];
+    // 出生目标在执行开始时确定；子技能修改同名目标组不改变本次遍历。
+    for (let bornIndex = 0; bornIndex < bornTargets.length; bornIndex++) {
+      const entity = this.#entities.spawn({
+        definitionProgramId: this.programs.slot(definition),
+        producedBy: operationProducer(context),
+        ...(!inheritSourceSkillCastInfo
+          ? { skillCastInfo: null }
+          : context.skillCastInfo === undefined
+            ? {}
+            : { skillCastInfo: context.skillCastInfo }),
+        abilityEntityId: parameters.abilityEntityId,
+        definition: {
+          ...(definition.bornTags === undefined ? {} : { bornTags: definition.bornTags }),
+          ...(definition.blackboard === undefined ? {} : { blackboard: definition.blackboard }),
+          lifetime:
+            definition.lifetime.kind === 'infinite'
+              ? definition.lifetime
+              : {
+                  kind: 'limited',
+                  durationSeconds: resolveDefinitionNumber(definition.lifetime.durationSeconds),
+                },
+          ...(definition.deathReleaseDelaySeconds === undefined
+            ? {}
+            : { deathReleaseDelaySeconds: definition.deathReleaseDelaySeconds }),
+          ...(definition.maxStackingCount === undefined
+            ? {}
+            : { maxStackingCount: resolveDefinitionNumber(definition.maxStackingCount) }),
+          ...(childSkill === undefined ? {} : { childSkill: { skillId: childSkill.skillId } }),
+        },
+        ownerId: this.#operatorId,
+        source,
+        ...(!inheritSourceSkillCastInfo || context.skillCastInfo === undefined
           ? {}
-          : { skillCastInfo: context.skillCastInfo }),
-      abilityEntityId: parameters.abilityEntityId,
-      definition: {
-        ...(definition.bornTags === undefined ? {} : { bornTags: definition.bornTags }),
-        ...(definition.blackboard === undefined ? {} : { blackboard: definition.blackboard }),
-        lifetime:
-          definition.lifetime.kind === 'infinite'
-            ? definition.lifetime
-            : {
-                kind: 'limited',
-                durationSeconds: resolveDefinitionNumber(definition.lifetime.durationSeconds),
-              },
-        ...(definition.deathReleaseDelaySeconds === undefined
+          : { sourceSkillCastId: context.skillCastInfo.skillCastId }),
+        ...(target === undefined ? {} : { target }),
+        ...(overrideDurationSeconds === undefined ? {} : { overrideDurationSeconds }),
+        dieWhenSourceDies: parameters.dieWhenSourceDies,
+        ...(Object.keys(assignments).length === 0 ? {} : { blackboardAssignments: assignments }),
+        ...(Object.keys(valueCalculations).length === 0
           ? {}
-          : { deathReleaseDelaySeconds: definition.deathReleaseDelaySeconds }),
-        ...(definition.maxStackingCount === undefined
+          : { blackboardValueCalculations: valueCalculations }),
+        ...(childSkill === undefined
           ? {}
-          : { maxStackingCount: resolveDefinitionNumber(definition.maxStackingCount) }),
-        ...(childSkill === undefined ? {} : { childSkill: { skillId: childSkill.skillId } }),
-      },
-      ownerId: this.#operatorId,
-      source,
-      ...(!inheritSourceSkillCastInfo || context.skillCastInfo === undefined
-        ? {}
-        : { sourceSkillCastId: context.skillCastInfo.skillCastId }),
-      ...(target === undefined ? {} : { target }),
-      ...(parameters.overrideDurationSeconds === undefined
-        ? {}
-        : {
-            overrideDurationSeconds: resolveActionValueOperand(
-              parameters.overrideDurationSeconds,
-              context.blackboard,
-            ),
-          }),
-      dieWhenSourceDies: parameters.dieWhenSourceDies,
-      ...(Object.keys(assignments).length === 0 ? {} : { blackboardAssignments: assignments }),
-      ...(Object.keys(valueCalculations).length === 0
-        ? {}
-        : { blackboardValueCalculations: valueCalculations }),
-      ...(childSkill === undefined
-        ? {}
-        : {
-            createChildRuntime: (entity, entityBlackboard) =>
-              this.#createChildRuntime(
-                childSkill,
-                entity,
-                entityBlackboard,
-                context,
-                inheritSourceSkillCastInfo,
-              ),
-          }),
-    });
-    try {
-      this.#childRuntimeDependencies?.installPassiveSkills?.(entity, definition);
-    } catch (error) {
+          : {
+              createChildRuntime: (entity, entityBlackboard) =>
+                this.#createChildRuntime(
+                  childSkill,
+                  entity,
+                  entityBlackboard,
+                  context,
+                  inheritSourceSkillCastInfo,
+                ),
+            }),
+      });
       try {
-        if (this.#entities.isActive(entity)) this.#entities.finish(entity, 'explicit');
-      } catch (cleanupError) {
-        throw new AggregateError(
-          [error, cleanupError],
-          `AbilityEntity '${parameters.abilityEntityId}' passive installation and cleanup failed`,
-        );
+        this.#childRuntimeDependencies?.installPassiveSkills?.(entity, definition);
+      } catch (error) {
+        try {
+          if (this.#entities.isActive(entity)) this.#entities.finish(entity, 'explicit');
+        } catch (cleanupError) {
+          throw new AggregateError(
+            [error, cleanupError],
+            `AbilityEntity '${parameters.abilityEntityId}' passive installation and cleanup failed`,
+          );
+        }
+        throw error;
       }
-      throw error;
+      if (parameters.saveToContextKey !== undefined) spawnedTargets.push(entity);
+      if (parameters.finishByAction) {
+        const slot = this.programs.slot(step);
+        this.runtimeState.actionDurationEntities.set(slot, [
+          ...(this.runtimeState.actionDurationEntities.get(slot) ?? []),
+          entity,
+        ]);
+      }
     }
     if (parameters.saveToContextKey !== undefined) {
-      if (context.targetContext === undefined) {
+      if (context.targetContext === undefined)
         throw new Error('spawnAbilityEntity context output requires a target context');
-      }
-      context.targetContext.setSingle(parameters.saveToContextKey, entity);
-    }
-    if (parameters.finishByAction) {
-      const slot = this.programs.slot(step);
-      this.runtimeState.actionDurationEntities.set(slot, [
-        ...(this.runtimeState.actionDurationEntities.get(slot) ?? []),
-        entity,
-      ]);
+      context.targetContext.set(parameters.saveToContextKey, spawnedTargets);
     }
     return true;
   }
@@ -526,16 +525,6 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
           ...(sourceSkillCastId === undefined ? {} : { sourceSkillCastId }),
         }).length > 0
       );
-    }
-    if (condition.kind === 'contextTargetCountCompare') {
-      if (context?.targetContext === undefined) {
-        throw new Error('Context target count comparison requires a combat target context');
-      }
-      const count = context.targetContext.get(condition.contextKey).length;
-      if (condition.outputKey !== undefined) {
-        context.blackboard.assignDynamic(condition.outputKey, count);
-      }
-      return compareCombatNumbers(count, condition.value, condition.operator);
     }
     if (condition.kind === 'abilityEntityRemainingDurationCompare') {
       if (context?.currentTarget === undefined) {
