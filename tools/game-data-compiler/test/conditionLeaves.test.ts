@@ -31,6 +31,12 @@ const CONDITION_META = {
   serverActionIndex: 2,
 } as const;
 
+const TARGET_CONTEXT = {
+  actionOwnerTarget: 'caster',
+  actionSourceTarget: 'caster',
+  actionTargetTarget: 'actionInputTarget',
+} as const;
+
 describe('公共条件叶子 IR', () => {
   it('静态敌人证明用于公共目标查询，未证明的组仍在运行时读取', () => {
     const target = parseTargetReferenceSource(
@@ -38,24 +44,40 @@ describe('公共条件叶子 IR', () => {
       'target',
     );
     const graph = createActionGraphBuilder<CompiledBuffStepSource>();
-    expect(projectActionTargetQuery(target, { graph }, 'target')).toEqual({
+    expect(projectActionTargetQuery(target, { ...TARGET_CONTEXT, graph }, 'target')).toEqual({
       kind: 'context',
       key: 'targets',
     });
     expect(
       projectActionTargetQuery(
         target,
-        { graph, staticEnemyTargetGroupKeys: new Set(['targets']) },
+        { ...TARGET_CONTEXT, graph, staticEnemyTargetGroupKeys: new Set(['targets']) },
         'target',
       ),
     ).toEqual({ kind: 'fixed', target: 'enemy' });
     expect(
       projectActionTargetQuery(
         target,
-        { graph, staticEnemyTargetGroupKeys: new Set(['other']) },
+        { ...TARGET_CONTEXT, graph, staticEnemyTargetGroupKeys: new Set(['other']) },
         'target',
       ),
     ).toEqual({ kind: 'context', key: 'targets' });
+    const input = parseTargetReferenceSource(targetFixture('Target'), 'target');
+    for (const actionTargetTarget of ['enemy', 'caster'] as const) {
+      expect(
+        projectActionTargetQuery(input, { ...TARGET_CONTEXT, graph, actionTargetTarget }, 'target'),
+      ).toEqual({
+        kind: 'fixed',
+        target: actionTargetTarget,
+      });
+    }
+    for (const actionTargetTarget of ['actionInputTarget', 'eventTarget', 'eventSource'] as const) {
+      expect(
+        projectActionTargetQuery(input, { ...TARGET_CONTEXT, graph, actionTargetTarget }, 'target'),
+      ).toEqual({
+        kind: 'inputTarget',
+      });
+    }
   });
 
   it('Target 对象类型检查读取实际输入，不按外围编译上下文折成常量', () => {
@@ -80,6 +102,7 @@ describe('公共条件叶子 IR', () => {
         compileEventCondition(
           source.actions[0]!,
           {
+            ...TARGET_CONTEXT,
             actionTargetTarget,
             graph: createActionGraphBuilder<CompiledBuffStepSource>(),
           },
@@ -154,7 +177,14 @@ describe('公共条件叶子 IR', () => {
       { ...targetFixture('MainTarget'), targetGroupKey: 'stale' },
       'target',
     );
-    const query = projectActionTargetQuery(target, {}, 'target');
+    const query = projectActionTargetQuery(
+      target,
+      {
+        ...TARGET_CONTEXT,
+        graph: createActionGraphBuilder<CompiledBuffStepSource>(),
+      },
+      'target',
+    );
     const executor = new TargetContextOperationExecutor('operator', {
       execute: () => true,
       evaluate: () => false,
@@ -658,7 +688,7 @@ it('距离检查保留一个原生调用，查询在每次执行时读取，空�
   expect(runtime.executeInstant({})).toBe(false);
 });
 
-it('保存方向夹角只生成一个写值动作，重复调用覆盖当前变量', () => {
+it('方向夹角保留为分析动作，未经用途裁剪不得进入正式图', () => {
   const graph = createActionGraphBuilder<CompiledBuffStepSource>();
   const source = parseKnownNativeActionSequenceSource(
     {
@@ -682,32 +712,18 @@ it('保存方向夹角只生成一个写值动作，重复调用覆盖当前变�
     {},
   );
   expect(isPresentationOnlyActionSequence(source)).toBe(false);
-  const entry = compileCombatActionSequenceSource(source, {
+  compileCombatActionSequenceSource(source, {
     graph,
     actionOwnerTarget: 'caster',
     actionSourceTarget: 'caster',
     actionTargetTarget: 'enemy',
   });
-  const formal = extractGraphDataNodes(graph.finish());
-  expect(Object.values(formal.nodes).map(node => node.action.kind)).toEqual([
+  expect(Object.values(graph.finish().nodes).map(node => node.action.kind)).toEqual([
     'saveTwoDirectionAngle',
   ]);
-  const compiled = createActionGraphCompilation(formal, 1).compileEntry(entry, 'angle');
-  const board = new ActionBlackboard({ angle: 90 });
-  const runtime = new CombatActionSequenceRuntime(
-    new TargetContextOperationExecutor('owner', {
-      execute: () => {
-        throw new Error('unhandled');
-      },
-      evaluate: () => false,
-    }),
-    { blackboard: board, targetContext: new RuntimeTargetContext(), actionOwnerId: 'owner' },
-  ).createSequence(compiled);
-  expect(runtime.executeInstant({})).toBe(true);
-  expect(board.getNumber('angle')).toBe(0);
-  board.assign({ angle: -90 });
-  expect(runtime.executeInstant({})).toBe(true);
-  expect(board.getNumber('angle')).toBe(0);
+  expect(() => extractGraphDataNodes(graph.finish())).toThrow(
+    'direction angle still affects combat and cannot be published',
+  );
 });
 
 it.each([false, true])(

@@ -1060,7 +1060,7 @@ describe('CombatActionSequenceRuntime', () => {
               kind: 'applyBuff',
               parameters: {
                 buffs: [{ buffId: 'fixture' }],
-                target: 'caster',
+                targets: { kind: 'fixed', target: 'caster' },
                 finishByAction: true,
               },
             },
@@ -1495,6 +1495,47 @@ describe('CombatActionSequenceRuntime', () => {
           callbacks: [],
         }),
       );
+  });
+
+  it('投射物白名单在发射时读取一次，并保留空间点身份而不当成敌人', () => {
+    const selected = [{ kind: 'spatialPoint' as const, pointId: 7 }];
+    const queryTargets = vi.fn(() => selected);
+    const launchProjectile = vi.fn(() => ({
+      target: { kind: 'abilityEntity' as const, instanceId: 1 },
+      instanceId: 1,
+      onReset: () => ({ registrationId: 0, dispose: () => {} }),
+    }));
+    const runtime = new CombatActionSequenceRuntime(
+      { execute: () => true, evaluate: () => true, queryTargets },
+      { blackboard: new ActionBlackboard(), launchProjectile },
+    );
+    runtime
+      .createSequence(
+        compileGraphEntry('filtered-launch', 'launch', {
+          launch: {
+            action: {
+              kind: 'launchProjectile',
+              parameters: {
+                inheritActionBlackboard: false,
+                finish: 1,
+                targets: { kind: 'count', count: { kind: 'constant', value: 2 } },
+                onlyHitTargets: { kind: 'inputTarget' },
+              },
+              callbacks: [],
+            },
+            next: null,
+          },
+        }),
+      )
+      .executeInstant({});
+    selected.length = 0;
+    expect(queryTargets).toHaveBeenCalledOnce();
+    expect(launchProjectile).toHaveBeenCalledTimes(2);
+    expect(launchProjectile).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        onlyHitTargets: [{ kind: 'spatialPoint', pointId: 7 }],
+      }),
+    );
   });
 
   it('唯一目标 ForEach 仍隔离内部失败并让外层后继继续', () => {

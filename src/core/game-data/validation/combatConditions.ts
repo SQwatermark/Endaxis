@@ -578,7 +578,10 @@ export function validateTargetQuery(
     validateGameplayTags(query.tags, `${path}.tags`, out);
   }
   if (query.kind === 'fixed') requireEnum(query, 'target', new Set(['enemy', 'caster']), path, out);
-  if (query.kind === 'characterTeam') requireBoolean(query, 'excludeOwner', path, out);
+  if (query.kind === 'characterTeam') {
+    requireBoolean(query, 'excludeOwner', path, out);
+    if (query.owner !== undefined) validateTargetQuery(query.owner, `${path}.owner`, out);
+  }
   if (query.kind === 'mainTarget' || query.kind === 'ownerSpawned' || query.kind === 'fixedPoint')
     validateTargetQuery(query.owner, `${path}.owner`, out);
   if (query.kind === 'fixedPoint') {

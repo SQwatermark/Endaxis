@@ -36,7 +36,6 @@ const schema_f9916af23e83 = ['hasAny', 'hasAll', 'exceptAny', 'exceptAll', 'exac
 const schema_0130bfc5f098 = ['controlledOperator', 'actionSource', 'actionOwner'] as const;
 const schema_4e5bce87a840 = 'SkillGlobalBuffChildDefinition.blackboardAssignments';
 const schema_d09e9bd69613 = { kind: 'string', semantics: { aliases: ['GameplayTag'] } } as const;
-const schema_fdbde3c70096 = ['enemy', 'caster', 'eventTarget', 'buffOwner', 'buffSource'] as const;
 const schema_22ea2dbb5037 = 'CombatStepParameters.createGlobalBuff.blackboardAssignments';
 const schema_e3650958b9f0 = 'CombatStepParameters.withActionBlackboardScope.initialValues';
 const schema_06a8f700f476 = {
@@ -81,14 +80,6 @@ const schema_269aad3cd182 = {
   kind: { kind: 'enum', options: ['stringNode'] },
   nodeId: { kind: 'string' },
 } as const;
-const schema_0b7ac8c72aac = [
-  'enemy',
-  'caster',
-  'buffOwner',
-  'buffSource',
-  'currentAbilityEntity',
-  'eventSource',
-] as const;
 const schema_51b338af8c07 = {
   kind: 'enum',
   options: ['enemy', 'caster'],
@@ -244,17 +235,6 @@ const schema_b5bd846f4492 = {
   description: '仅当其他定义需要引用此步骤时提供。',
   control: 'string',
 } as const;
-const schema_dce1a695dafd = [
-  'enemy',
-  'caster',
-  'eventTarget',
-  'buffOwner',
-  'buffSource',
-  'currentAbilityEntity',
-  'eventSource',
-  'currentTarget',
-  'party',
-] as const;
 const schema_b1aeccc3ce43 = {
   kind: 'enum',
   options: ['physical', 'heat', 'cryo', 'electric', 'nature'],
@@ -271,12 +251,6 @@ const schema_f82de54116c8 = {
   path: schema_aca499807b41,
   description: '保存查询结果的动作环境键。',
   control: 'string',
-} as const;
-const schema_dbace2f3d1f5 = {
-  valueSchema: { kind: 'boolean' },
-  path: ['parameters', 'autoFinishByAction'],
-  description: '是否随当前动作结束。',
-  control: 'boolean',
 } as const;
 const schema_10dfdd41e0a6 = {
   kind: 'array',
@@ -380,12 +354,6 @@ const schema_1bf9827f8300 = [
   'actionInputTarget',
   'currentBuffSource',
 ] as const;
-const schema_2586bbcc80b1 = {
-  kind: 'enum',
-  options: schema_0b7ac8c72aac,
-  semantics: schema_43d88f577f05,
-  optional: true,
-} as const;
 const schema_464071215237 = {
   kind: 'array',
   element: schema_d09e9bd69613,
@@ -553,12 +521,6 @@ const schema_f6c653f1b7f1 = {
   variants: schema_489037b968d4,
   semantics: schema_2362f19158a2,
 } as const;
-const schema_4dacb5245226 = {
-  valueSchema: schema_eb57c1fb0cab,
-  path: ['parameters', 'markerId'],
-  description: '标记 ID。',
-  control: 'json',
-} as const;
 const schema_e7a632ca4d58 = {
   valueSchema: schema_eb57c1fb0cab,
   path: ['markerId'],
@@ -659,23 +621,6 @@ const schema_1b7366a4d052 = {
   path: ['parameters', 'multiplier'],
   description: '除法后乘以此数。',
   control: 'operand',
-} as const;
-const schema_7ec5e7f12f00 = {
-  valueSchema: schema_f6c653f1b7f1,
-  path: ['parameters', 'durationSeconds'],
-  description: '标记持续秒数。',
-  control: 'operand',
-} as const;
-const schema_7dd8a8c4a945 = {
-  valueSchema: schema_28677639bc94,
-  path: ['parameters', 'count'],
-  description: '最多结束的实例数；省略时结束全部匹配项。',
-  control: 'operand',
-} as const;
-const schema_8a4dffa52899 = {
-  kind: 'enum',
-  options: schema_ce64c6a212df,
-  semantics: { unionVariants: [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}] },
 } as const;
 const schema_88eb5b22e407 = {
   kind: { kind: 'enum', options: ['tag'], description: '按 Buff 标签统计。' },
@@ -873,100 +818,93 @@ const schema_fe9a93d1b752 = {
   control: 'multiselect',
   options: schema_38251673ef5e,
 } as const;
-const schema_6374b631b5ff = {
-  kind: 'array',
-  element: {
-    kind: 'object',
-    fields: {
-      buffId: {
-        kind: 'union',
-        variants: [
-          schema_d056c7fa0b76,
-          { kind: 'object', fields: schema_269aad3cd182, referenceKind: 'buff' },
-        ],
-        semantics: { aliases: ['ActionStringOperand'] },
-        referenceKind: 'buff',
-        description: '动态身份在执行时从字符串黑板读取；不携带可被误用的字面回退 ID。',
-      },
-      blackboardAssignments: {
-        kind: 'record',
-        value: {
-          kind: 'union',
-          variants: [
-            { kind: 'number', declaration: schema_1f7f0d4b12b8 },
-            {
-              kind: 'array',
-              element: { kind: 'number', declaration: schema_1f7f0d4b12b8 },
-              semantics: { arrayElement: {} },
-              declaration: schema_1f7f0d4b12b8,
-            },
-            { kind: 'object', fields: schema_d12c753e6e31, declaration: schema_1f7f0d4b12b8 },
-            { kind: 'object', fields: schema_8616e654559a, declaration: schema_1f7f0d4b12b8 },
-          ],
-          semantics: { unionVariants: [schema_f27fc5f4f63d, schema_2362f19158a2] },
+const schema_eb3fa24205fc = {
+  buffId: {
+    kind: 'union',
+    variants: [
+      schema_d056c7fa0b76,
+      { kind: 'object', fields: schema_269aad3cd182, referenceKind: 'buff' },
+    ],
+    semantics: { aliases: ['ActionStringOperand'] },
+    referenceKind: 'buff',
+    description: '动态身份在执行时从字符串黑板读取；不携带可被误用的字面回退 ID。',
+  },
+  blackboardAssignments: {
+    kind: 'record',
+    value: {
+      kind: 'union',
+      variants: [
+        { kind: 'number', declaration: schema_1f7f0d4b12b8 },
+        {
+          kind: 'array',
+          element: { kind: 'number', declaration: schema_1f7f0d4b12b8 },
+          semantics: { arrayElement: {} },
           declaration: schema_1f7f0d4b12b8,
         },
-        semantics: { recordValue: { unionVariants: [schema_f27fc5f4f63d, schema_2362f19158a2] } },
-        declaration: schema_1f7f0d4b12b8,
-        optional: true,
-        description:
-          '在施加时覆盖 Buff 定义黑板的同名默认值。动作操作数从当前动作黑板求值；\n等级值在技能或养成初始化程序编译时解析。',
-      },
-      stringBlackboardAssignments: {
-        kind: 'record',
-        value: { kind: 'string', declaration: 'BuffApplicationEntry.stringBlackboardAssignments' },
-        semantics: { recordValue: {} },
-        declaration: 'BuffApplicationEntry.stringBlackboardAssignments',
-        optional: true,
-        description: '原生字符串输入的字面覆盖；与数值赋值分开，避免把字符串伪装成计算操作数。',
-      },
-      copiedBlackboardAssignments: {
-        kind: 'record',
-        value: { kind: 'string', declaration: 'BuffApplicationEntry.copiedBlackboardAssignments' },
-        semantics: { recordValue: {} },
-        declaration: 'BuffApplicationEntry.copiedBlackboardAssignments',
-        optional: true,
-        description:
-          '原生 useDirectValue=false：从当前动作黑板按实际值类型复制到新 Buff。\n键是目标 Buff 黑板键，值是当前动作黑板来源键。',
-      },
-      keywordEnhancements: {
-        kind: 'array',
-        element: {
-          kind: 'object',
-          fields: {
-            triggerBuffIds: {
-              kind: 'array',
-              element: schema_d056c7fa0b76,
-              semantics: { arrayElement: {} },
-              referenceKind: 'buff',
-              description: '任一加入时触发强化的普通 Buff ID。',
-            },
-            operation: {
-              kind: 'enum',
-              options: ['assign', 'add', 'multiply'],
-              semantics: schema_0027e97043bf,
-              description: '对关键词值执行赋值、加算或乘算。',
-            },
-            value: {
-              kind: 'union',
-              variants: schema_489037b968d4,
-              semantics: schema_2362f19158a2,
-              description: '从当前动作黑板或常量读取的运算值。',
-            },
-          },
-          declaration: 'BuffApplicationEntry.keywordEnhancements',
-        },
-        semantics: { arrayElement: {} },
-        declaration: 'BuffApplicationEntry.keywordEnhancements',
-        optional: true,
-        description:
-          '原生 KeywordAction.enhancingList：只附着到本次创建的关键词载体实例，不能改写共享模板。\nvalue 在创建边沿从当前动作黑板求值，随后由载体自身监听普通 Buff 的加入边沿。',
-      },
+        { kind: 'object', fields: schema_d12c753e6e31, declaration: schema_1f7f0d4b12b8 },
+        { kind: 'object', fields: schema_8616e654559a, declaration: schema_1f7f0d4b12b8 },
+      ],
+      semantics: { unionVariants: [schema_f27fc5f4f63d, schema_2362f19158a2] },
+      declaration: schema_1f7f0d4b12b8,
     },
+    semantics: { recordValue: { unionVariants: [schema_f27fc5f4f63d, schema_2362f19158a2] } },
+    declaration: schema_1f7f0d4b12b8,
+    optional: true,
+    description:
+      '在施加时覆盖 Buff 定义黑板的同名默认值。动作操作数从当前动作黑板求值；\n等级值在技能或养成初始化程序编译时解析。',
   },
-  semantics: { arrayElement: {} },
+  stringBlackboardAssignments: {
+    kind: 'record',
+    value: { kind: 'string', declaration: 'BuffApplicationEntry.stringBlackboardAssignments' },
+    semantics: { recordValue: {} },
+    declaration: 'BuffApplicationEntry.stringBlackboardAssignments',
+    optional: true,
+    description: '原生字符串输入的字面覆盖；与数值赋值分开，避免把字符串伪装成计算操作数。',
+  },
+  copiedBlackboardAssignments: {
+    kind: 'record',
+    value: { kind: 'string', declaration: 'BuffApplicationEntry.copiedBlackboardAssignments' },
+    semantics: { recordValue: {} },
+    declaration: 'BuffApplicationEntry.copiedBlackboardAssignments',
+    optional: true,
+    description:
+      '原生 useDirectValue=false：从当前动作黑板按实际值类型复制到新 Buff。\n键是目标 Buff 黑板键，值是当前动作黑板来源键。',
+  },
+  keywordEnhancements: {
+    kind: 'array',
+    element: {
+      kind: 'object',
+      fields: {
+        triggerBuffIds: {
+          kind: 'array',
+          element: schema_d056c7fa0b76,
+          semantics: { arrayElement: {} },
+          referenceKind: 'buff',
+          description: '任一加入时触发强化的普通 Buff ID。',
+        },
+        operation: {
+          kind: 'enum',
+          options: ['assign', 'add', 'multiply'],
+          semantics: schema_0027e97043bf,
+          description: '对关键词值执行赋值、加算或乘算。',
+        },
+        value: {
+          kind: 'union',
+          variants: schema_489037b968d4,
+          semantics: schema_2362f19158a2,
+          description: '从当前动作黑板或常量读取的运算值。',
+        },
+      },
+      declaration: 'BuffApplicationEntry.keywordEnhancements',
+    },
+    semantics: { arrayElement: {} },
+    declaration: 'BuffApplicationEntry.keywordEnhancements',
+    optional: true,
+    description:
+      '原生 KeywordAction.enhancingList：只附着到本次创建的关键词载体实例，不能改写共享模板。\nvalue 在创建边沿从当前动作黑板求值，随后由载体自身监听普通 Buff 的加入边沿。',
+  },
 } as const;
-const schema_05724555abce = [
+const schema_0e4cb6d038d5 = [
   {
     kind: 'object',
     fields: {
@@ -1002,6 +940,28 @@ const schema_05724555abce = [
     fields: {
       kind: { kind: 'enum', options: ['characterTeam'] },
       excludeOwner: { kind: 'boolean' },
+      owner: {
+        kind: 'union',
+        variants: [
+          {
+            kind: 'object',
+            fields: {
+              kind: {
+                kind: 'enum',
+                options: ['owner', 'source', 'inputTarget'],
+                semantics: schema_0027e97043bf,
+              },
+            },
+          },
+          {
+            kind: 'object',
+            fields: { kind: { kind: 'enum', options: ['context'] }, key: { kind: 'string' } },
+          },
+        ],
+        semantics: schema_4107b248d073,
+        optional: true,
+        description: '排除的 selector owner；省略时使用动作 Owner，不能替换成定义所属干员。',
+      },
     },
   },
   {
@@ -1032,21 +992,39 @@ const schema_05724555abce = [
     },
   },
 ] as const;
-const schema_5fd0e483fcce = {
+const schema_5824e8bd406f = {
   kind: 'union',
-  variants: schema_05724555abce,
+  variants: schema_0e4cb6d038d5,
   semantics: { unionVariants: [schema_4107b248d073, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}] },
 } as const;
-const schema_86d1b4cc8df0 = {
-  valueSchema: schema_5fd0e483fcce,
+const schema_6a88a2fa2dac = {
+  kind: 'union',
+  variants: schema_0e4cb6d038d5,
+  semantics: { unionVariants: [schema_4107b248d073, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}] },
+  optional: true,
+} as const;
+const schema_6654b102b27d = {
+  valueSchema: schema_5824e8bd406f,
   path: ['target'],
   description: '',
   control: 'json',
 } as const;
-const schema_08ed715a9c9e = {
-  valueSchema: schema_5fd0e483fcce,
+const schema_c9cee7345dd0 = {
+  valueSchema: schema_5824e8bd406f,
   path: ['parameters', 'targets'],
   description: '',
+  control: 'json',
+} as const;
+const schema_dc25925a5a61 = {
+  valueSchema: schema_5824e8bd406f,
+  path: ['parameters', 'targets'],
+  description: '按原生查询顺序逐个结束 Buff 的接收者；不另建遍历动作。',
+  control: 'json',
+} as const;
+const schema_482c64de5fad = {
+  valueSchema: schema_5824e8bd406f,
+  path: ['parameters', 'finishSource'],
+  description: 'Early/Absorbed 读取此查询的第一个对象；Other 不求值。',
   control: 'json',
 } as const;
 export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], NodeSchema>> = {
@@ -1128,7 +1106,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], NodeSch
     fields: [
       schema_b5bd846f4492,
       {
-        valueSchema: schema_5fd0e483fcce,
+        valueSchema: schema_5824e8bd406f,
         path: ['parameters', 'source'],
         description: '',
         control: 'json',
@@ -1146,7 +1124,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], NodeSch
         control: 'json',
       },
       {
-        valueSchema: schema_5fd0e483fcce,
+        valueSchema: schema_5824e8bd406f,
         path: ['parameters', 'query'],
         description: '',
         control: 'json',
@@ -1391,7 +1369,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], NodeSch
   forEachContextTarget: {
     fields: [
       schema_b5bd846f4492,
-      schema_08ed715a9c9e,
+      schema_c9cee7345dd0,
       {
         valueSchema: schema_48e664ac4ce5,
         path: ['body'],
@@ -1415,6 +1393,12 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], NodeSch
     fields: [
       schema_b5bd846f4492,
       {
+        valueSchema: schema_5824e8bd406f,
+        path: schema_09e06842e83c,
+        description: '读取目标组的首个实体；空目标或非能力实体不执行赋值。',
+        control: 'json',
+      },
+      {
         valueSchema: schema_f6c653f1b7f1,
         path: ['parameters', 'value'],
         description: '新的剩余秒数。',
@@ -1422,8 +1406,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], NodeSch
       },
     ],
   },
-  finishOwner: { fields: [schema_b5bd846f4492, schema_08ed715a9c9e] },
-  interruptCurrentSkill: { fields: [schema_b5bd846f4492, schema_08ed715a9c9e] },
+  finishOwner: { fields: [schema_b5bd846f4492, schema_c9cee7345dd0] },
+  interruptCurrentSkill: { fields: [schema_b5bd846f4492, schema_c9cee7345dd0] },
   finishCurrentAbilityEntityWhenSourceDies: schema_699f7676b27d,
   startCurrentAbilityEntityChildSkill: {
     fields: [
@@ -1451,7 +1435,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], NodeSch
     fields: [
       schema_b5bd846f4492,
       {
-        valueSchema: schema_5fd0e483fcce,
+        valueSchema: schema_5824e8bd406f,
         path: ['parameters', 'bornAt'],
         description: '每个出生目标各生成一个实体；空目标组不生成。',
         control: 'json',
@@ -1712,11 +1696,29 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], NodeSch
         options: ['afterTakeSpellInfliction', 'beforeTakeSpellAbnormal', 'afterTakeSpellAbnormal'],
       },
       {
-        valueSchema: { kind: 'enum', options: schema_0b7ac8c72aac, semantics: schema_43d88f577f05 },
+        valueSchema: {
+          kind: 'enum',
+          options: [
+            'enemy',
+            'caster',
+            'buffOwner',
+            'buffSource',
+            'currentAbilityEntity',
+            'eventSource',
+          ],
+          semantics: schema_43d88f577f05,
+        },
         path: ['parameters', 'eventSource'],
         description: '',
         control: 'select',
-        options: schema_0b7ac8c72aac,
+        options: [
+          'enemy',
+          'caster',
+          'buffOwner',
+          'buffSource',
+          'currentAbilityEntity',
+          'eventSource',
+        ],
       },
       schema_6241681ec2d5,
     ],
@@ -1756,7 +1758,13 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], NodeSch
         options: schema_f52151844f12,
       },
       {
-        valueSchema: schema_8a4dffa52899,
+        valueSchema: {
+          kind: 'enum',
+          options: schema_ce64c6a212df,
+          semantics: {
+            unionVariants: [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}],
+          },
+        },
         path: schema_09e06842e83c,
         description: '',
         control: 'select',
@@ -2403,28 +2411,31 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], NodeSch
     fields: [
       schema_b5bd846f4492,
       {
-        valueSchema: {
-          kind: 'enum',
-          options: ['enemy', 'party', 'partyExceptCaster'],
-          semantics: schema_0027e97043bf,
-        },
-        path: schema_09e06842e83c,
+        valueSchema: schema_5824e8bd406f,
+        path: ['parameters', 'targets'],
         description: '零空间下的候选集合；排除的是动作 Owner。',
-        control: 'select',
-        options: ['enemy', 'party', 'partyExceptCaster'],
+        control: 'json',
       },
       {
-        valueSchema: schema_6374b631b5ff,
+        valueSchema: {
+          kind: 'array',
+          element: {
+            kind: 'object',
+            fields: schema_eb3fa24205fc,
+            declaration: 'CombatStepParameters.aura.buffs',
+          },
+          semantics: { arrayElement: {} },
+          declaration: 'CombatStepParameters.aura.buffs',
+        },
         path: ['parameters', 'buffs'],
         description: '按原生顺序施加到每个进入目标。',
         control: 'json',
       },
       {
-        valueSchema: schema_2586bbcc80b1,
+        valueSchema: schema_6a88a2fa2dac,
         path: ['parameters', 'source'],
         description: '区域 Buff 的来源，不改写回调环境的 Owner/Source。',
-        control: 'select',
-        options: schema_0b7ac8c72aac,
+        control: 'json',
       },
       {
         valueSchema: schema_c050dbdc6077,
@@ -2473,17 +2484,25 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], NodeSch
     fields: [
       schema_b5bd846f4492,
       {
-        valueSchema: schema_6374b631b5ff,
+        valueSchema: {
+          kind: 'array',
+          element: {
+            kind: 'object',
+            fields: schema_eb3fa24205fc,
+            declaration: 'CombatStepParameters.applyBuff.buffs',
+          },
+          semantics: { arrayElement: {} },
+          declaration: 'CombatStepParameters.applyBuff.buffs',
+        },
         path: ['parameters', 'buffs'],
         description: '每次循环按顺序施加；ID 与赋值在轮到该项时求值。',
         control: 'json',
       },
       {
-        valueSchema: schema_8a4dffa52899,
-        path: schema_09e06842e83c,
-        description: '接收 Buff 的单体或队伍目标。',
-        control: 'select',
-        options: schema_ce64c6a212df,
+        valueSchema: schema_5824e8bd406f,
+        path: ['parameters', 'targets'],
+        description: '原生接收者查询；动作内部按查询顺序处理全部实体，跳过位置目标。',
+        control: 'json',
       },
       {
         valueSchema: schema_28677639bc94,
@@ -2493,18 +2512,11 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], NodeSch
         control: 'operand',
       },
       {
-        valueSchema: schema_2586bbcc80b1,
+        valueSchema: schema_6a88a2fa2dac,
         path: ['parameters', 'source'],
         description:
-          'Buff 的来源实体；省略时沿用当前动作来源。\n该字段与接收 Buff 的 `target` 相互独立，只应在原生动作显式改写来源时配置。',
-        control: 'select',
-        options: schema_0b7ac8c72aac,
-      },
-      {
-        valueSchema: schema_48ee081b11c3,
-        path: ['parameters', 'sourceContextKey'],
-        description: '已确定为单一目标的 Context 来源，与 source 互斥；保留查询结果的实例身份。',
-        control: 'string',
+          '每个接收者处理前读取查询首项作为 Buff 来源；省略时读取动作 Source。\n空结果或首项为位置目标时跳过该接收者，不读取 Buff ID 和赋值。',
+        control: 'json',
       },
       {
         valueSchema: {
@@ -2584,18 +2596,6 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], NodeSch
         description: 'CreateBuffAttachingSkill：绑定事件当前技能而非动作 owner 的寿命。',
         control: 'select',
         options: ['currentCastSkill'],
-      },
-      {
-        valueSchema: schema_7ae4ff1a5c62,
-        path: ['parameters', 'durationSeconds'],
-        description: '覆盖本次 Buff 实例持续时间的秒数。',
-        control: 'number',
-      },
-      {
-        valueSchema: schema_7ae4ff1a5c62,
-        path: ['parameters', 'effectiveness'],
-        description: '覆盖本次 Buff 实例效果系数。',
-        control: 'number',
       },
     ],
   },
@@ -2935,7 +2935,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], NodeSch
     fields: [
       schema_b5bd846f4492,
       {
-        valueSchema: schema_5fd0e483fcce,
+        valueSchema: schema_5824e8bd406f,
         path: schema_09e06842e83c,
         description: '',
         control: 'json',
@@ -3043,13 +3043,8 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], NodeSch
   finishBuffsByTag: {
     fields: [
       schema_b5bd846f4492,
-      {
-        valueSchema: { kind: 'enum', options: schema_dce1a695dafd, semantics: schema_06112e0554b3 },
-        path: schema_09e06842e83c,
-        description: '要结束 Buff 的对象。',
-        control: 'select',
-        options: schema_dce1a695dafd,
-      },
+      schema_dc25925a5a61,
+      schema_482c64de5fad,
       {
         valueSchema: schema_ba2446e55894,
         path: ['parameters', 'tagQueryType'],
@@ -3064,27 +3059,33 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], NodeSch
         control: 'json',
       },
       schema_62d266c8f63d,
-      schema_7dd8a8c4a945,
+      {
+        valueSchema: schema_28677639bc94,
+        path: ['parameters', 'count'],
+        description:
+          '原生结束层数，执行时向零取整；由 Buff 叠层类型决定扣增强层还是结束实例。省略时结束全部。',
+        control: 'operand',
+      },
     ],
   },
   finishBuffsById: {
     fields: [
       schema_b5bd846f4492,
-      {
-        valueSchema: schema_8a4dffa52899,
-        path: schema_09e06842e83c,
-        description: '要结束 Buff 的单体或队伍目标。',
-        control: 'select',
-        options: schema_ce64c6a212df,
-      },
+      schema_dc25925a5a61,
+      schema_482c64de5fad,
       {
         valueSchema: schema_8f8b15b20898,
         path: ['parameters', 'buffIds'],
-        description: '任一匹配即可选中的 Buff ID。',
+        description: '每个接收者按列表顺序处理，不排序或去重。',
         control: 'json',
       },
       schema_62d266c8f63d,
-      schema_7dd8a8c4a945,
+      {
+        valueSchema: schema_28677639bc94,
+        path: ['parameters', 'count'],
+        description: '每个 ID 独立使用的原生结束层数，执行时向零取整；省略时结束全部。',
+        control: 'operand',
+      },
     ],
   },
   finishCurrentBuff: {
@@ -3318,37 +3319,39 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], NodeSch
     fields: [
       schema_b5bd846f4492,
       {
-        valueSchema: { kind: 'enum', options: schema_fdbde3c70096, semantics: schema_18ab763e1525 },
-        path: schema_09e06842e83c,
-        description: '标记所属对象。',
-        control: 'select',
-        options: schema_fdbde3c70096,
+        valueSchema: schema_5824e8bd406f,
+        path: ['parameters', 'targets'],
+        description: '逐目标创建标记；空目标组返回失败。',
+        control: 'json',
       },
-      schema_4dacb5245226,
-      schema_7ec5e7f12f00,
-      schema_dbace2f3d1f5,
       {
-        valueSchema: { kind: 'enum', options: ['globalScaled'], optional: true },
-        path: ['parameters', 'timeDomain'],
-        description:
-          '对应原生 useTimeDilationDt：设置后使用目标实体最终时间；缺省使用全局缩放时间。',
-        control: 'select',
-        options: ['globalScaled'],
+        valueSchema: schema_eb57c1fb0cab,
+        path: ['parameters', 'markerId'],
+        description: '标记 ID。',
+        control: 'json',
       },
-    ],
-  },
-  createAbilityEntityTimedMarker: {
-    fields: [
-      schema_b5bd846f4492,
-      schema_4dacb5245226,
-      schema_7ec5e7f12f00,
-      schema_dbace2f3d1f5,
       {
-        valueSchema: { kind: 'enum', options: ['global', 'self'], semantics: schema_4107b248d073 },
+        valueSchema: schema_f6c653f1b7f1,
+        path: ['parameters', 'durationSeconds'],
+        description: '标记持续秒数。',
+        control: 'operand',
+      },
+      {
+        valueSchema: { kind: 'boolean' },
+        path: ['parameters', 'autoFinishByAction'],
+        description: '是否随当前动作结束。',
+        control: 'boolean',
+      },
+      {
+        valueSchema: {
+          kind: 'enum',
+          options: ['self', 'globalScaled'],
+          semantics: schema_4107b248d073,
+        },
         path: ['parameters', 'timeDomain'],
-        description: '使用全局时钟还是能力实体自身时钟。',
+        description: '原生 useTimeDilationDt=true 使用目标实体时钟，false 使用全局缩放时钟。',
         control: 'select',
-        options: ['global', 'self'],
+        options: ['self', 'globalScaled'],
       },
     ],
   },
@@ -3879,13 +3882,13 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], NodeSch
         control: 'levelValues',
       },
       {
-        valueSchema: schema_5fd0e483fcce,
+        valueSchema: schema_5824e8bd406f,
         path: ['parameters', 'source'],
         description: '取首个对象作为资源获取来源。',
         control: 'json',
       },
       {
-        valueSchema: schema_5fd0e483fcce,
+        valueSchema: schema_5824e8bd406f,
         path: ['parameters', 'targets'],
         description: '每个接收对象分别执行一次资源获取。',
         control: 'json',
@@ -4336,7 +4339,7 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], NodeSch
           fields: {
             target: {
               kind: 'union',
-              variants: schema_05724555abce,
+              variants: schema_0e4cb6d038d5,
               semantics: {
                 unionVariants: [schema_4107b248d073, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}],
               },
@@ -4408,6 +4411,12 @@ export const actionNodeSchemas: Readonly<Record<ActionGraphStep['kind'], NodeSch
   launchProjectile: {
     fields: [
       schema_b5bd846f4492,
+      {
+        valueSchema: schema_6a88a2fa2dac,
+        path: ['parameters', 'onlyHitTargets'],
+        description: '发射时解析的碰撞白名单；空间点不具备可命中的实体身份。',
+        control: 'json',
+      },
       {
         valueSchema: {
           kind: 'union',
@@ -5211,7 +5220,7 @@ export const dataNodeSchemas: Readonly<Record<string, NodeSchema>> = {
   'boolean:conditionNode': { fields: [schema_161c32df7f2a] },
   'boolean:entityCountCompare': {
     fields: [
-      schema_86d1b4cc8df0,
+      schema_6654b102b27d,
       {
         valueSchema: { kind: 'boolean' },
         path: ['containsHittableTarget'],
@@ -5237,8 +5246,8 @@ export const dataNodeSchemas: Readonly<Record<string, NodeSchema>> = {
   },
   'boolean:targetDistance': {
     fields: [
-      { valueSchema: schema_5fd0e483fcce, path: ['source'], description: '', control: 'json' },
-      schema_86d1b4cc8df0,
+      { valueSchema: schema_5824e8bd406f, path: ['source'], description: '', control: 'json' },
+      schema_6654b102b27d,
       { valueSchema: { kind: 'number' }, path: ['distance'], description: '', control: 'number' },
       { valueSchema: { kind: 'boolean' }, path: ['lessThan'], description: '', control: 'boolean' },
       {
@@ -5355,13 +5364,13 @@ export const dataNodeSchemas: Readonly<Record<string, NodeSchema>> = {
   'boolean:twoDirectionAngleCompare': {
     fields: [
       {
-        valueSchema: schema_5fd0e483fcce,
+        valueSchema: schema_5824e8bd406f,
         path: ['direction1Source'],
         description: '',
         control: 'json',
       },
       {
-        valueSchema: schema_5fd0e483fcce,
+        valueSchema: schema_5824e8bd406f,
         path: ['direction1Target'],
         description: '',
         control: 'json',
@@ -5374,13 +5383,13 @@ export const dataNodeSchemas: Readonly<Record<string, NodeSchema>> = {
         options: schema_ee49a5ca2f7e,
       },
       {
-        valueSchema: schema_5fd0e483fcce,
+        valueSchema: schema_5824e8bd406f,
         path: ['direction2Source'],
         description: '',
         control: 'json',
       },
       {
-        valueSchema: schema_5fd0e483fcce,
+        valueSchema: schema_5824e8bd406f,
         path: ['direction2Target'],
         description: '',
         control: 'json',
@@ -5837,11 +5846,15 @@ export const dataNodeSchemas: Readonly<Record<string, NodeSchema>> = {
   'boolean:timedMarkerPresent': {
     fields: [
       {
-        valueSchema: { kind: 'enum', options: schema_fdbde3c70096, semantics: schema_18ab763e1525 },
+        valueSchema: {
+          kind: 'enum',
+          options: ['enemy', 'caster', 'eventTarget', 'buffOwner', 'buffSource'],
+          semantics: schema_18ab763e1525,
+        },
         path: ['target'],
         description: '定时标记所属对象。',
         control: 'select',
-        options: schema_fdbde3c70096,
+        options: ['enemy', 'caster', 'eventTarget', 'buffOwner', 'buffSource'],
       },
       schema_e7a632ca4d58,
     ],

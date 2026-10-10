@@ -23,7 +23,7 @@ const definition = {
                   },
                 },
               ],
-              target: 'caster',
+              targets: { kind: 'fixed', target: 'caster' },
             },
           },
           next: null,
@@ -46,7 +46,7 @@ const definition = {
       blackboard: { cd: 30, comboskill_cooldown: 0.1, dmg_up: 0.2, duration: 12 },
       attributeModifiers: [],
       abilityEventResponses: [
-        { event: 'skillSpGained', priority: 0, sequence: { $sequence: 'checkCondition_2' } },
+        { event: 'skillSpGained', priority: 0, sequence: { $sequence: 'checkCondition_3' } },
       ],
       actionGraph: {
         main: {
@@ -61,20 +61,31 @@ const definition = {
                       copiedBlackboardAssignments: { dmg_up: 'dmg_up', duration: 'duration' },
                     },
                   ],
-                  target: 'party',
-                  source: 'buffOwner',
+                  targets: { kind: 'context', key: 'teammate' },
+                  source: { kind: 'owner' },
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
                 },
               },
               next: null,
             },
-            checkCondition_2: {
+            findTargets_2: {
+              action: {
+                kind: 'findTargets',
+                parameters: {
+                  owner: { kind: 'owner' },
+                  query: { kind: 'characterTeam', excludeOwner: false, owner: { kind: 'owner' } },
+                  saveToContextKey: 'teammate',
+                },
+              },
+              next: 'applyBuff_1',
+            },
+            checkCondition_3: {
               action: {
                 kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
               },
-              next: 'applyBuff_1',
+              next: 'findTargets_2',
             },
           },
           dataNodes: {

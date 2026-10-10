@@ -482,7 +482,7 @@ describe('projectCastGraphHitMarkers', () => {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff:root' }],
-            target: 'caster',
+            targets: { kind: 'fixed', target: 'caster' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -501,7 +501,7 @@ describe('projectCastGraphHitMarkers', () => {
                     kind: 'applyBuff',
                     parameters: {
                       buffs: [{ buffId: 'buff:damage' }],
-                      target: 'caster',
+                      targets: { kind: 'fixed', target: 'caster' },
                       inheritSourceSkillCastInfo: true,
                     },
                   },
@@ -547,7 +547,7 @@ describe('projectCastGraphHitMarkers', () => {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff:sword' }],
-            target: 'currentAbilityEntity',
+            targets: { kind: 'inputTarget' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -589,7 +589,7 @@ describe('projectCastGraphHitMarkers', () => {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff:passive' }],
-            target: 'caster',
+            targets: { kind: 'fixed', target: 'caster' },
             inheritSourceSkillCastInfo: false,
           },
         },

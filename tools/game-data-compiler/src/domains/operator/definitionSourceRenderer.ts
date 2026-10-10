@@ -33,6 +33,7 @@ export function renderOperatorDefinitionSource(input: { readonly operator: objec
     const rendered = renderIndependentGraphDefinition(skill, graphIdentifier);
     for (const helper of rendered.helpers) context.helpers.add(helper);
     skillDeclarations.push(
+      ...rendered.declarations,
       `export const ${graphIdentifier} = ${rendered.graph} as const satisfies ActionGraphResourceDefinition;`,
       `export const ${identifier}: SkillDefinition = ${rendered.definition};`,
     );
@@ -115,6 +116,7 @@ export function renderOperatorDefinitionSource(input: { readonly operator: objec
     const rendered = renderIndependentGraphDefinition(passive, graphIdentifier);
     rendered.helpers.forEach(helper => context.helpers.add(helper));
     skillDeclarations.push(
+      ...rendered.declarations,
       `const ${graphIdentifier} = ${rendered.graph} as const satisfies ActionGraphResourceDefinition;`,
       `const ${identifier}: OperatorPassiveSkillDefinition = ${rendered.definition};`,
     );
@@ -150,6 +152,7 @@ export function renderOperatorDefinitionSource(input: { readonly operator: objec
       );
       rendered.helpers.forEach(helper => context.helpers.add(helper));
       skillDeclarations.push(
+        ...rendered.declarations,
         `const ${graphName} = ${rendered.graph} as const satisfies ActionGraphResourceDefinition;`,
         `const ${name}: import('../../../packages/game-data-contract/src/operators').OperatorUpgradeDefinition = ${rendered.definition};`,
       );
@@ -165,6 +168,7 @@ export function renderOperatorDefinitionSource(input: { readonly operator: objec
       const rendered = renderIndependentGraphDefinition(condition, graphName);
       rendered.helpers.forEach(helper => context.helpers.add(helper));
       skillDeclarations.push(
+        ...rendered.declarations,
         `const ${graphName} = ${rendered.graph} as const satisfies ActionGraphResourceDefinition;`,
         `const ${name}: ComboSkillConditionDefinition = ${rendered.definition};`,
       );
@@ -185,6 +189,7 @@ export function renderOperatorDefinitionSource(input: { readonly operator: objec
         );
         rendered.helpers.forEach(helper => context.helpers.add(helper));
         skillDeclarations.push(
+          ...rendered.declarations,
           `const ${graphName} = ${rendered.graph} as const satisfies ActionGraphResourceDefinition;`,
           `const ${name}: SkillBuffDefinition = ${rendered.definition};`,
         );
@@ -272,6 +277,7 @@ export function renderCommonBuffDefinitionsSource(
     const rendered = renderIndependentGraphDefinition(definition, graphName);
     rendered.helpers.forEach(helper => helpers.add(helper));
     declarations.push(
+      ...rendered.declarations,
       `const ${graphName} = ${rendered.graph} as const satisfies ActionGraphResourceDefinition;`,
       `const ${name}: SkillBuffDefinition = ${rendered.definition};`,
     );

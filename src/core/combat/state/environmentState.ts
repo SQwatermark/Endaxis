@@ -138,7 +138,7 @@ export interface GlobalCooldownState {
   lastTick: number;
 }
 
-export type TimedMarkerClockDomain = 'default' | 'global' | 'globalScaled';
+export type TimedMarkerClockDomain = 'default' | 'globalScaled';
 
 export interface TimedMarkerSnapshot {
   readonly instanceId: number;

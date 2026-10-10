@@ -53,7 +53,7 @@ const definition = {
                       },
                     },
                   ],
-                  target: 'caster',
+                  targets: { kind: 'fixed', target: 'caster' },
                 },
               },
               next: null,

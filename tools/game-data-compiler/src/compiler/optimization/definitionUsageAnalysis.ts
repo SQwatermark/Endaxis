@@ -24,6 +24,7 @@ export function isReadOnlyTargetQuery(query: ActionTargetQuery): boolean {
     'inputTarget',
     'context',
     'mainCharacter',
+    'characterTeam',
     'fixed',
     'battleMainTarget',
     'godEntity',
@@ -388,6 +389,10 @@ export function analyzeStepUsage(
       };
     }
     case 'setAbilityEntityRemainingDuration':
+      return {
+        ...effect([step.parameters.value]),
+        ...(!isReadOnlyTargetQuery(step.parameters.target) ? { unknownAccess: true } : {}),
+      };
     case 'setCurrentBuffRemainingDuration':
     case 'setBuffRemainingDuration':
     case 'setHealthFloor':
@@ -455,14 +460,24 @@ export function analyzeStepUsage(
         [step.parameters.targetKey],
       );
     case 'finishBuffsByTag':
-    case 'finishBuffsById':
-      return effect([step.parameters.count]);
+    case 'finishBuffsById': {
+      const usage = effect([step.parameters.count]);
+      return isReadOnlyTargetQuery(step.parameters.targets) &&
+        (step.parameters.reason === 'other' || isReadOnlyTargetQuery(step.parameters.finishSource))
+        ? usage
+        : { ...usage, unknownAccess: true };
+    }
     case 'setGlobalCooldown':
       return effect([step.parameters.durationSeconds]);
-    case 'createTimedMarker':
-    case 'createAbilityEntityTimedMarker': {
+    case 'createTimedMarker': {
       const usage = effect([step.parameters.durationSeconds]);
-      return mergeDefinitionValueUsage([usage, actionStringUsage(step.parameters.markerId)]);
+      const result = mergeDefinitionValueUsage([
+        usage,
+        actionStringUsage(step.parameters.markerId),
+      ]);
+      return isReadOnlyTargetQuery(step.parameters.targets)
+        ? result
+        : { ...result, unknownAccess: true };
     }
     case 'startTimeDilation':
       return effect([
@@ -485,6 +500,10 @@ export function analyzeStepUsage(
     case 'applyBuff':
       return mergeDefinitionValueUsage([
         effect([step.kind === 'applyBuff' ? step.parameters.count : undefined]),
+        ...(!isReadOnlyTargetQuery(step.parameters.targets) ||
+        (step.parameters.source !== undefined && !isReadOnlyTargetQuery(step.parameters.source))
+          ? [{ ...EMPTY, unknownAccess: true }]
+          : []),
         ...step.parameters.buffs.map(entry => {
           const usage = effect([
             ...Object.values(entry.blackboardAssignments ?? {}),

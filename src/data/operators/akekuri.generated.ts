@@ -164,7 +164,7 @@ export const akekuriChr_0019_karin_attack2ActionGraph = {
           kind: 'changeResource',
           parameters: {
             resource: 'sp',
-            amount: { kind: 'valueNode', nodeId: 'data_4' },
+            amount: { kind: 'valueNode', nodeId: 'data_1' },
             coefficient: { kind: 'constant', value: 1 },
             source: { kind: 'source' },
             targets: { kind: 'source' },
@@ -189,7 +189,7 @@ export const akekuriChr_0019_karin_attack2ActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'physical',
-            attackScale: { kind: 'valueNode', nodeId: 'data_5' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_4' },
             tags: ['normalAttack'],
           },
         },
@@ -207,8 +207,7 @@ export const akekuriChr_0019_karin_attack2ActionGraph = {
       data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
       data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
       data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
-      data_5: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_2' } },
+      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_2' } },
     },
   },
   macros: {},
@@ -413,7 +412,7 @@ export const akekuriChr_0019_karin_attack4ActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'physical',
-            attackScale: { kind: 'valueNode', nodeId: 'data_3' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_1' },
             tags: ['normalAttack'],
           },
         },
@@ -439,7 +438,7 @@ export const akekuriChr_0019_karin_attack4ActionGraph = {
           kind: 'changeResource',
           parameters: {
             resource: 'sp',
-            amount: { kind: 'valueNode', nodeId: 'data_4' },
+            amount: { kind: 'valueNode', nodeId: 'data_3' },
             coefficient: { kind: 'constant', value: 1 },
             source: { kind: 'source' },
             targets: { kind: 'source' },
@@ -464,9 +463,9 @@ export const akekuriChr_0019_karin_attack4ActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'physical',
-            attackScale: { kind: 'valueNode', nodeId: 'data_5' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_1' },
             tags: ['normalAttack', 'normalAttackLastCombo'],
-            stagger: { kind: 'valueNode', nodeId: 'data_6' },
+            stagger: { kind: 'valueNode', nodeId: 'data_4' },
             staggerOnlyWhenCasterControlled: true,
           },
         },
@@ -483,10 +482,8 @@ export const akekuriChr_0019_karin_attack4ActionGraph = {
     dataNodes: {
       data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
       data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
-      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
-      data_5: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_6: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
+      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
     },
   },
   macros: {},
@@ -596,7 +593,7 @@ export const akekuriChr_0019_karin_power_attackActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'physical',
-            attackScale: { kind: 'valueNode', nodeId: 'data_3' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_2' },
             calculation: 'breakingAttack',
             calculationMultiplier: 0.8,
             tags: ['normalAttack', 'powerAttack'],
@@ -624,7 +621,8 @@ export const akekuriChr_0019_karin_power_attackActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_full_immune_medium' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -636,7 +634,8 @@ export const akekuriChr_0019_karin_power_attackActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_power_attack_disable_cast_skill' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -647,7 +646,6 @@ export const akekuriChr_0019_karin_power_attackActionGraph = {
     dataNodes: {
       data_1: { type: 'boolean', expression: { kind: 'casterControlled' } },
       data_2: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
     },
   },
   macros: {},
@@ -967,7 +965,8 @@ export const akekuriChr_0019_karin_ultimate_skillActionGraph = {
                 copiedBlackboardAssignments: { atk: 'atk' },
               },
             ],
-            target: 'party',
+            targets: { kind: 'characterTeam', excludeOwner: false },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -1020,7 +1019,7 @@ export const akekuriChr_0019_karin_ultimate_skillActionGraph = {
           parameters: {
             key: 'atb_2',
             operation: 'multiply',
-            value: { kind: 'valueNode', nodeId: 'data_7' },
+            value: { kind: 'valueNode', nodeId: 'data_6' },
           },
         },
         next: 'modifyActionValue_5',
@@ -1031,7 +1030,7 @@ export const akekuriChr_0019_karin_ultimate_skillActionGraph = {
           parameters: {
             key: 'atb_1',
             operation: 'multiply',
-            value: { kind: 'valueNode', nodeId: 'data_8' },
+            value: { kind: 'valueNode', nodeId: 'data_6' },
           },
         },
         next: 'modifyActionValue_6',
@@ -1042,7 +1041,7 @@ export const akekuriChr_0019_karin_ultimate_skillActionGraph = {
           parameters: {
             key: 'atb_3',
             operation: 'multiply',
-            value: { kind: 'valueNode', nodeId: 'data_9' },
+            value: { kind: 'valueNode', nodeId: 'data_7' },
           },
         },
         next: null,
@@ -1053,7 +1052,7 @@ export const akekuriChr_0019_karin_ultimate_skillActionGraph = {
           parameters: {
             key: 'atb_2',
             operation: 'multiply',
-            value: { kind: 'valueNode', nodeId: 'data_10' },
+            value: { kind: 'valueNode', nodeId: 'data_7' },
           },
         },
         next: 'modifyActionValue_8',
@@ -1064,7 +1063,7 @@ export const akekuriChr_0019_karin_ultimate_skillActionGraph = {
           parameters: {
             key: 'atb_1',
             operation: 'multiply',
-            value: { kind: 'valueNode', nodeId: 'data_11' },
+            value: { kind: 'valueNode', nodeId: 'data_7' },
           },
         },
         next: 'modifyActionValue_9',
@@ -1094,7 +1093,7 @@ export const akekuriChr_0019_karin_ultimate_skillActionGraph = {
             stage: 'finalNonConverted',
             useFloor: false,
             divisor: { kind: 'constant', value: 1 },
-            multiplier: { kind: 'valueNode', nodeId: 'data_12' },
+            multiplier: { kind: 'valueNode', nodeId: 'data_8' },
             base: { kind: 'constant', value: 1 },
             targetKey: 'atb_up',
           },
@@ -1106,7 +1105,7 @@ export const akekuriChr_0019_karin_ultimate_skillActionGraph = {
           kind: 'changeResource',
           parameters: {
             resource: 'sp',
-            amount: { kind: 'valueNode', nodeId: 'data_13' },
+            amount: { kind: 'valueNode', nodeId: 'data_9' },
             coefficient: { kind: 'constant', value: 1 },
             source: { kind: 'source' },
             targets: { kind: 'source' },
@@ -1121,7 +1120,7 @@ export const akekuriChr_0019_karin_ultimate_skillActionGraph = {
           kind: 'changeResource',
           parameters: {
             resource: 'sp',
-            amount: { kind: 'valueNode', nodeId: 'data_14' },
+            amount: { kind: 'valueNode', nodeId: 'data_10' },
             coefficient: { kind: 'constant', value: 1 },
             source: { kind: 'source' },
             targets: { kind: 'source' },
@@ -1136,7 +1135,7 @@ export const akekuriChr_0019_karin_ultimate_skillActionGraph = {
           kind: 'changeResource',
           parameters: {
             resource: 'sp',
-            amount: { kind: 'valueNode', nodeId: 'data_15' },
+            amount: { kind: 'valueNode', nodeId: 'data_11' },
             coefficient: { kind: 'constant', value: 1 },
             source: { kind: 'source' },
             targets: { kind: 'source' },
@@ -1156,7 +1155,8 @@ export const akekuriChr_0019_karin_ultimate_skillActionGraph = {
                 copiedBlackboardAssignments: { imbue_scale: 'imbue_scale', duration: 'duration' },
               },
             ],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -1172,7 +1172,8 @@ export const akekuriChr_0019_karin_ultimate_skillActionGraph = {
                 copiedBlackboardAssignments: { potential_5_duration: 'potential_5_duration' },
               },
             ],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -1182,7 +1183,7 @@ export const akekuriChr_0019_karin_ultimate_skillActionGraph = {
       checkCondition_19: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_17' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_13' } },
         },
         next: 'applyBuff_18',
       },
@@ -1191,7 +1192,8 @@ export const akekuriChr_0019_karin_ultimate_skillActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_damage_immune_ult_skill' }],
-            target: 'caster',
+            targets: { kind: 'source' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -1237,21 +1239,17 @@ export const akekuriChr_0019_karin_ultimate_skillActionGraph = {
         },
       },
       data_6: { type: 'number', expression: { kind: 'blackboard', key: 'atb_up' } },
-      data_7: { type: 'number', expression: { kind: 'blackboard', key: 'atb_up' } },
-      data_8: { type: 'number', expression: { kind: 'blackboard', key: 'atb_up' } },
-      data_9: { type: 'number', expression: { kind: 'blackboard', key: 'max_ratio' } },
-      data_10: { type: 'number', expression: { kind: 'blackboard', key: 'max_ratio' } },
-      data_11: { type: 'number', expression: { kind: 'blackboard', key: 'max_ratio' } },
-      data_12: { type: 'number', expression: { kind: 'blackboard', key: 'sub_ratio' } },
-      data_13: { type: 'number', expression: { kind: 'blackboard', key: 'atb_1' } },
-      data_14: { type: 'number', expression: { kind: 'blackboard', key: 'atb_2' } },
-      data_15: { type: 'number', expression: { kind: 'blackboard', key: 'atb_3' } },
-      data_16: { type: 'number', expression: { kind: 'blackboard', key: 'combo', fallback: 0 } },
-      data_17: {
+      data_7: { type: 'number', expression: { kind: 'blackboard', key: 'max_ratio' } },
+      data_8: { type: 'number', expression: { kind: 'blackboard', key: 'sub_ratio' } },
+      data_9: { type: 'number', expression: { kind: 'blackboard', key: 'atb_1' } },
+      data_10: { type: 'number', expression: { kind: 'blackboard', key: 'atb_2' } },
+      data_11: { type: 'number', expression: { kind: 'blackboard', key: 'atb_3' } },
+      data_12: { type: 'number', expression: { kind: 'blackboard', key: 'combo', fallback: 0 } },
+      data_13: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_16' },
+          left: { kind: 'valueNode', nodeId: 'data_12' },
           operator: 'greaterOrEqual',
           right: { kind: 'constant', value: 1 },
         },
@@ -1374,7 +1372,7 @@ export const akekuriChr_0019_karin_combo_skillActionGraph = {
         },
         next: null,
       },
-      changeResource_opt1: {
+      changeResource_6: {
         action: {
           kind: 'changeResource',
           parameters: {
@@ -1389,7 +1387,7 @@ export const akekuriChr_0019_karin_combo_skillActionGraph = {
         },
         next: null,
       },
-      ifElse_opt2: {
+      ifElse_7: {
         action: {
           kind: 'ifElse',
           parameters: { alwaysNext: true },
@@ -1397,16 +1395,16 @@ export const akekuriChr_0019_karin_combo_skillActionGraph = {
           whenTrue: { $sequence: 'modifyActionValue_4' },
           whenFalse: { $sequence: 'modifyActionValue_5' },
         },
-        next: 'changeResource_opt1',
+        next: 'changeResource_6',
       },
-      modifyActionValue_opt3: {
+      modifyActionValue_8: {
         action: {
           kind: 'modifyActionValue',
           parameters: { key: 'max_ratio', operation: 'add', value: { kind: 'constant', value: 1 } },
         },
-        next: 'ifElse_opt2',
+        next: 'ifElse_7',
       },
-      storeSourceAttributeValue_opt4: {
+      storeSourceAttributeValue_9: {
         action: {
           kind: 'storeSourceAttributeValue',
           parameters: {
@@ -1419,9 +1417,9 @@ export const akekuriChr_0019_karin_combo_skillActionGraph = {
             targetKey: 'atb_up',
           },
         },
-        next: 'modifyActionValue_opt3',
+        next: 'modifyActionValue_8',
       },
-      modifyActionValue_opt5: {
+      modifyActionValue_10: {
         action: {
           kind: 'modifyActionValue',
           parameters: {
@@ -1430,7 +1428,7 @@ export const akekuriChr_0019_karin_combo_skillActionGraph = {
             value: { kind: 'valueNode', nodeId: 'data_8' },
           },
         },
-        next: 'storeSourceAttributeValue_opt4',
+        next: 'storeSourceAttributeValue_9',
       },
       changeResource_12: {
         action: {
@@ -1497,12 +1495,12 @@ export const akekuriChr_0019_karin_combo_skillActionGraph = {
         },
         next: 'ifElse_15',
       },
-      ifElse_opt6: {
+      ifElse_17: {
         action: {
           kind: 'ifElse',
           parameters: { alwaysNext: true },
           condition: { $sequence: null },
-          whenTrue: { $sequence: 'modifyActionValue_opt5' },
+          whenTrue: { $sequence: 'modifyActionValue_10' },
           whenFalse: { $sequence: null },
         },
         next: 'dealDamage_16',
@@ -1544,10 +1542,10 @@ export const akekuriChr_0019_karin_combo_skillActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'physical',
-            attackScale: { kind: 'valueNode', nodeId: 'data_14' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_12' },
             tags: ['comboSkill'],
             features: ['canBreakWeakness'],
-            stagger: { kind: 'valueNode', nodeId: 'data_15' },
+            stagger: { kind: 'valueNode', nodeId: 'data_13' },
           },
         },
         next: 'ifElse_23',
@@ -1557,7 +1555,7 @@ export const akekuriChr_0019_karin_combo_skillActionGraph = {
           kind: 'ifElse',
           parameters: { alwaysNext: true },
           condition: { $sequence: null },
-          whenTrue: { $sequence: 'changeResource_opt1' },
+          whenTrue: { $sequence: 'changeResource_6' },
           whenFalse: { $sequence: null },
         },
         next: 'dealDamage_24',
@@ -1616,8 +1614,6 @@ export const akekuriChr_0019_karin_combo_skillActionGraph = {
       },
       data_12: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
       data_13: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
-      data_14: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_15: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
     },
   },
   macros: {},
@@ -1649,7 +1645,7 @@ export const akekuriChr_0019_karin_combo_skill: SkillDefinition = {
   costFrame: 0,
   scheduledSequences: [
     { startFrame: 0, endFrame: 1, sequence: { $sequence: 'findTargets_2' } },
-    { startFrame: 22, endFrame: 26, sequence: { $sequence: 'ifElse_opt6' } },
+    { startFrame: 22, endFrame: 26, sequence: { $sequence: 'ifElse_17' } },
     { startFrame: 31, endFrame: 36, sequence: { $sequence: 'modifyActionValue_26' } },
     { startFrame: 0, endFrame: 15, sequence: { $sequence: 'startTimeDilation_27' } },
   ],
@@ -1762,8 +1758,8 @@ const akekuriBuff1ActionGraph = {
                 copiedBlackboardAssignments: { duration: 'duration', atk_up: 'atk_up' },
               },
             ],
-            target: 'buffOwner',
-            source: 'buffOwner',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -1903,7 +1899,8 @@ const akekuriBuff5ActionGraph = {
         action: {
           kind: 'finishBuffsById',
           parameters: {
-            target: 'buffOwner',
+            targets: { kind: 'owner' },
+            finishSource: { kind: 'source' },
             buffIds: ['buff_chr_0019_karin_talent_2_combo'],
             reason: 'other',
           },
@@ -1948,8 +1945,8 @@ const akekuriBuff6ActionGraph = {
                 copiedBlackboardAssignments: { potential_5_duration: 'potential_5_duration' },
               },
             ],
-            target: 'buffOwner',
-            source: 'buffSource',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -1959,7 +1956,8 @@ const akekuriBuff6ActionGraph = {
         action: {
           kind: 'finishBuffsById',
           parameters: {
-            target: 'buffOwner',
+            targets: { kind: 'owner' },
+            finishSource: { kind: 'source' },
             buffIds: ['buff_chr_0019_karin_talent_2_combo'],
             reason: 'other',
           },
@@ -2029,7 +2027,7 @@ const akekuriBuff7ActionGraph = {
             finishByAction: true,
             blackboardAssignments: {
               duration: { kind: 'valueNode', nodeId: 'data_2' },
-              imbue_scale: { kind: 'valueNode', nodeId: 'data_3' },
+              imbue_scale: { kind: 'valueNode', nodeId: 'data_1' },
             },
           },
         },
@@ -2039,7 +2037,6 @@ const akekuriBuff7ActionGraph = {
     dataNodes: {
       data_1: { type: 'number', expression: { kind: 'blackboard', key: 'imbue_scale' } },
       data_2: { type: 'number', expression: { kind: 'blackboard', key: 'duration' } },
-      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'imbue_scale' } },
     },
   },
   macros: {},

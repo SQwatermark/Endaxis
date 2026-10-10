@@ -199,6 +199,8 @@ export interface CombatActionProjectionContextSource {
   readonly actionEnvironmentSkillCastInfoIsSourceCast?: boolean;
   /** 调用方已证明施法输入来自友方角色；不改变输入目标的运行时绑定方式。 */
   readonly actionInputIsOperator?: boolean;
+  /** 输入来自已证明的零空间目标组；只证明移动锚点，不证明敌人或可命中身份。 */
+  readonly actionInputIsZeroSpace?: boolean;
 }
 
 /** 领域宿主可显式补入公共动作叶子的已审计投影；未提供时仍严格失败。 */
@@ -333,36 +335,6 @@ export function isDynamicSingleEnemyTagTargetGroup(write: TargetGroupActionSourc
     write.validatorTagQueries.length === 1 &&
     write.validatorTagQueries[0]![1].length > 0 &&
     postProcessingKeepsSingleEnemy(write)
-  );
-}
-
-/**
- * SmartTarget SelectByBuff 在标准场景中只可能返回空集或唯一木桩。
- * 这里完整限制选择器载荷；“非空”仍由后续 Context 数量条件在运行时判断。
- */
-export function isDynamicSingleEnemySmartTargetGroup(write: TargetGroupActionSource): boolean {
-  const selection = write.smartTargetSelection ?? null;
-  return (
-    write.producerType === 'FindTargetAction' &&
-    write.finderType === 'SmartTargetFinder' &&
-    write.validatorTypes.length === 0 &&
-    write.postProcessorTypes.length === 0 &&
-    write.priorityFilters.length === 0 &&
-    write.shuffleTargets.length === 0 &&
-    write.center === 'ActionSource' &&
-    write.centerContextKey === '' &&
-    write.selectorOwner === 'ActionSource' &&
-    write.selectorOwnerContextKey === '' &&
-    selection !== null &&
-    selection.strategy === 'SelectByBuff' &&
-    selection.buffIds.length === 1 &&
-    selection.tagQuery.tagIds.length === 0 &&
-    selection.buffFindCheckType === 'Id' &&
-    selection.buffFindIds.length === 0 &&
-    selection.buffFindTagQuery.tagIds.length === 0 &&
-    !selection.useCustomRange &&
-    selection.range.blackboardKey === '' &&
-    !selection.limitFallbackRange
   );
 }
 

@@ -56,7 +56,7 @@ export const chenQianyuChr_0005_chen_attack1ActionGraph = {
           kind: 'changeResource',
           parameters: {
             resource: 'sp',
-            amount: { kind: 'valueNode', nodeId: 'data_4' },
+            amount: { kind: 'valueNode', nodeId: 'data_1' },
             coefficient: { kind: 'constant', value: 0.5 },
             source: { kind: 'source' },
             targets: { kind: 'source' },
@@ -82,7 +82,7 @@ export const chenQianyuChr_0005_chen_attack1ActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'physical',
-            attackScale: { kind: 'valueNode', nodeId: 'data_5' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_3' },
             tags: ['normalAttack'],
           },
         },
@@ -100,8 +100,6 @@ export const chenQianyuChr_0005_chen_attack1ActionGraph = {
       data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
       data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
       data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
-      data_5: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
     },
   },
   macros: {},
@@ -280,7 +278,7 @@ export const chenQianyuChr_0005_chen_attack3ActionGraph = {
           kind: 'changeResource',
           parameters: {
             resource: 'sp',
-            amount: { kind: 'valueNode', nodeId: 'data_4' },
+            amount: { kind: 'valueNode', nodeId: 'data_1' },
             coefficient: { kind: 'constant', value: 0.5 },
             source: { kind: 'source' },
             targets: { kind: 'source' },
@@ -306,7 +304,7 @@ export const chenQianyuChr_0005_chen_attack3ActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'physical',
-            attackScale: { kind: 'valueNode', nodeId: 'data_5' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_3' },
             tags: ['normalAttack'],
           },
         },
@@ -324,8 +322,6 @@ export const chenQianyuChr_0005_chen_attack3ActionGraph = {
       data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
       data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
       data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
-      data_5: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
     },
   },
   macros: {},
@@ -412,7 +408,7 @@ export const chenQianyuChr_0005_chen_attack4ActionGraph = {
           kind: 'changeResource',
           parameters: {
             resource: 'sp',
-            amount: { kind: 'valueNode', nodeId: 'data_4' },
+            amount: { kind: 'valueNode', nodeId: 'data_1' },
             coefficient: { kind: 'constant', value: 0.5 },
             source: { kind: 'source' },
             targets: { kind: 'source' },
@@ -438,7 +434,7 @@ export const chenQianyuChr_0005_chen_attack4ActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'physical',
-            attackScale: { kind: 'valueNode', nodeId: 'data_5' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_3' },
             tags: ['normalAttack'],
           },
         },
@@ -456,8 +452,6 @@ export const chenQianyuChr_0005_chen_attack4ActionGraph = {
       data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
       data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
       data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
-      data_5: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
     },
   },
   macros: {},
@@ -712,7 +706,7 @@ export const chenQianyuChr_0005_chen_power_attackActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'physical',
-            attackScale: { kind: 'valueNode', nodeId: 'data_3' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_2' },
             calculation: 'breakingAttack',
             calculationMultiplier: 0.2,
             tags: ['normalAttack', 'powerAttack'],
@@ -750,7 +744,8 @@ export const chenQianyuChr_0005_chen_power_attackActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_full_immune_medium' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -762,7 +757,8 @@ export const chenQianyuChr_0005_chen_power_attackActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_power_attack_disable_cast_skill' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -773,7 +769,6 @@ export const chenQianyuChr_0005_chen_power_attackActionGraph = {
     dataNodes: {
       data_1: { type: 'boolean', expression: { kind: 'casterControlled' } },
       data_2: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
     },
   },
   macros: {},
@@ -1208,7 +1203,7 @@ export const chenQianyuChr_0005_chen_combo_skillActionGraph = {
       aura_10: {
         action: {
           kind: 'aura',
-          parameters: { target: 'enemy', buffs: [] },
+          parameters: { targets: { kind: 'fixed', target: 'enemy' }, buffs: [] },
           onEnter: { $sequence: 'applyPhysicalInfliction_9' },
           onExit: { $sequence: null },
         },
@@ -1325,7 +1320,7 @@ export const chenQianyuChr_0005_chen_ultimate_skillActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'physical',
-            attackScale: { kind: 'valueNode', nodeId: 'data_3' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_1' },
             tags: ['ultimateSkill'],
             features: ['canBreakWeakness'],
             stagger: { kind: 'constant', value: 0 },
@@ -1339,7 +1334,7 @@ export const chenQianyuChr_0005_chen_ultimate_skillActionGraph = {
           parameters: {
             key: 'atk_scale2',
             operation: 'add',
-            value: { kind: 'valueNode', nodeId: 'data_4' },
+            value: { kind: 'valueNode', nodeId: 'data_3' },
           },
         },
         next: null,
@@ -1347,7 +1342,7 @@ export const chenQianyuChr_0005_chen_ultimate_skillActionGraph = {
       checkCondition_10: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_6' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
         },
         next: null,
       },
@@ -1371,10 +1366,10 @@ export const chenQianyuChr_0005_chen_ultimate_skillActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'physical',
-            attackScale: { kind: 'valueNode', nodeId: 'data_7' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_6' },
             tags: ['ultimateSkill'],
             features: ['canBreakWeakness'],
-            stagger: { kind: 'valueNode', nodeId: 'data_8' },
+            stagger: { kind: 'valueNode', nodeId: 'data_7' },
           },
         },
         next: 'startTimeDilation_12',
@@ -1394,7 +1389,8 @@ export const chenQianyuChr_0005_chen_ultimate_skillActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_damage_immune_ult_skill' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -1405,23 +1401,22 @@ export const chenQianyuChr_0005_chen_ultimate_skillActionGraph = {
     dataNodes: {
       data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale1' } },
       data_2: { type: 'number', expression: { kind: 'blackboard', key: 'poise_start' } },
-      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale1' } },
-      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'phy_up' } },
-      data_5: {
+      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'phy_up' } },
+      data_4: {
         type: 'number',
         expression: { kind: 'blackboard', key: 'potential5', fallback: 0 },
       },
-      data_6: {
+      data_5: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_5' },
+          left: { kind: 'valueNode', nodeId: 'data_4' },
           operator: 'equal',
           right: { kind: 'constant', value: 1 },
         },
       },
-      data_7: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale2' } },
-      data_8: { type: 'number', expression: { kind: 'blackboard', key: 'poise_final' } },
+      data_6: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale2' } },
+      data_7: { type: 'number', expression: { kind: 'blackboard', key: 'poise_final' } },
     },
   },
   macros: {},
@@ -1621,8 +1616,8 @@ const chenQianyuBuff2ActionGraph = {
                 copiedBlackboardAssignments: { atk: 'atk', duration: 'duration' },
               },
             ],
-            target: 'buffOwner',
-            source: 'buffOwner',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
           },

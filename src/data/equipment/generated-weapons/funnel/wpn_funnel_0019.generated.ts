@@ -75,7 +75,8 @@ const definition = {
                       copiedBlackboardAssignments: { phy_spell_up: 'phy_spell_up' },
                     },
                   ],
-                  target: 'caster',
+                  targets: { kind: 'owner' },
+                  source: { kind: 'source' },
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
                 },
@@ -87,7 +88,8 @@ const definition = {
                 kind: 'applyBuff',
                 parameters: {
                   buffs: [{ buffId: 'buff_wpn_funnel_0019_burstup_layer' }],
-                  target: 'caster',
+                  targets: { kind: 'owner' },
+                  source: { kind: 'source' },
                   count: { kind: 'valueNode', nodeId: 'data_1' },
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
@@ -106,10 +108,11 @@ const definition = {
               action: {
                 kind: 'createTimedMarker',
                 parameters: {
-                  target: 'caster',
+                  targets: { kind: 'owner' },
                   markerId: 'sk_wpn_funnel_0019',
                   durationSeconds: { kind: 'constant', value: 0.1 },
                   autoFinishByAction: false,
+                  timeDomain: 'globalScaled',
                 },
               },
               next: null,
@@ -124,7 +127,8 @@ const definition = {
                       copiedBlackboardAssignments: { spell_dmg_up2: 'spell_dmg_up2' },
                     },
                   ],
-                  target: 'caster',
+                  targets: { kind: 'owner' },
+                  source: { kind: 'source' },
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
                 },
@@ -135,7 +139,8 @@ const definition = {
               action: {
                 kind: 'finishBuffsById',
                 parameters: {
-                  target: 'caster',
+                  targets: { kind: 'owner' },
+                  finishSource: { kind: 'source' },
                   buffIds: ['buff_wpn_funnel_0019_burstup_layer'],
                   reason: 'other',
                   count: { kind: 'constant', value: 1 },

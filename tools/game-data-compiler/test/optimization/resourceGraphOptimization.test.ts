@@ -77,7 +77,8 @@ describe('独立资源图构建与优化', () => {
           kind: 'changeResource',
           parameters: {
             resource: 'sp',
-            recipient: 'team',
+            source: { kind: 'owner' },
+            targets: { kind: 'owner' },
             amount: { kind: 'blackboard', key: 'result' },
           },
         },
@@ -99,7 +100,8 @@ describe('独立资源图构建与优化', () => {
         input => pruneUnusedGraphSkillValues(input).skill,
       );
       const actions = Object.values(result.value.actionGraph.main.nodes).map(node => node.action);
-      expect(actions.some(action => action.kind === 'ifElse')).toBe(!fallback);
+      // 是否保留外层调用不是裁剪目标；要保护的是可能缺键的实际读取。
+      expect(actions.some(action => action.kind === 'checkCondition')).toBe(!fallback);
       expect(
         actions.some(
           action => action.kind === 'modifyActionValue' && action.parameters.key === 'temporary',
@@ -204,7 +206,8 @@ describe('独立资源图构建与优化', () => {
           key,
           parameters: {
             resource: 'sp',
-            recipient: 'team',
+            source: { kind: 'owner' },
+            targets: { kind: 'owner' },
             amount: { kind: 'blackboard', key: 'result-7' },
           },
         },

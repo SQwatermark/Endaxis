@@ -20,8 +20,8 @@ const commonBuff1ActionGraph = {
                 copiedBlackboardAssignments: { imbue_scale: 'imbue_scale' },
               },
             ],
-            target: 'buffOwner',
-            source: 'buffSource',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -124,8 +124,8 @@ const commonBuff2ActionGraph = {
                 copiedBlackboardAssignments: { rate: 'rate', duration: 'duration' },
               },
             ],
-            target: 'buffOwner',
-            source: 'buffOwner',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
             asChildBuff: true,
@@ -175,8 +175,8 @@ const commonBuff3ActionGraph = {
                 copiedBlackboardAssignments: { rate: 'rate', duration: 'duration' },
               },
             ],
-            target: 'buffOwner',
-            source: 'buffOwner',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
             asChildBuff: true,
@@ -226,8 +226,8 @@ const commonBuff4ActionGraph = {
                 copiedBlackboardAssignments: { rate: 'rate', duration: 'duration' },
               },
             ],
-            target: 'buffOwner',
-            source: 'buffOwner',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
             asChildBuff: true,
@@ -315,8 +315,8 @@ const commonBuff6ActionGraph = {
                 copiedBlackboardAssignments: { rate: 'rate', duration: 'duration' },
               },
             ],
-            target: 'buffOwner',
-            source: 'buffOwner',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
             asChildBuff: true,
@@ -404,8 +404,8 @@ const commonBuff8ActionGraph = {
                 copiedBlackboardAssignments: { rate: 'rate', duration: 'duration' },
               },
             ],
-            target: 'buffOwner',
-            source: 'buffOwner',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
             asChildBuff: true,
@@ -515,8 +515,8 @@ const commonBuff10ActionGraph = {
                 copiedBlackboardAssignments: { rate: 'rate', duration: 'duration' },
               },
             ],
-            target: 'buffOwner',
-            source: 'buffOwner',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
             asChildBuff: true,
@@ -605,8 +605,8 @@ const commonBuff12ActionGraph = {
                 copiedBlackboardAssignments: { imbue_scale: 'imbue_scale' },
               },
             ],
-            target: 'buffOwner',
-            source: 'buffSource',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -662,7 +662,7 @@ const commonBuff13ActionGraph = {
           parameters: {
             key: 'real_imbue_scale',
             operation: 'assign',
-            value: { kind: 'valueNode', nodeId: 'data_3' },
+            value: { kind: 'valueNode', nodeId: 'data_2' },
           },
         },
         next: null,
@@ -680,14 +680,14 @@ const commonBuff13ActionGraph = {
       checkCondition_6: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_4' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
         },
         next: 'ifElse_5',
       },
       checkCondition_7: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_4' } },
         },
         next: 'checkCondition_6',
       },
@@ -698,8 +698,7 @@ const commonBuff13ActionGraph = {
         expression: { kind: 'eventDamageTagsMatch', match: 'hasAny', tags: ['normalSkill'] },
       },
       data_2: { type: 'number', expression: { kind: 'blackboard', key: 'imbue_scale' } },
-      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'imbue_scale' } },
-      data_4: {
+      data_3: {
         type: 'boolean',
         expression: {
           kind: 'eventDamageTagsMatch',
@@ -707,7 +706,7 @@ const commonBuff13ActionGraph = {
           tags: ['normalSkill', 'ultimateSkill'],
         },
       },
-      data_5: { type: 'boolean', expression: { kind: 'eventSkillCastMatchesBuffSource' } },
+      data_4: { type: 'boolean', expression: { kind: 'eventSkillCastMatchesBuffSource' } },
     },
   },
   macros: {},
@@ -755,8 +754,8 @@ const commonBuff14ActionGraph = {
                 copiedBlackboardAssignments: { rate: 'rate', duration: 'duration' },
               },
             ],
-            target: 'buffOwner',
-            source: 'buffOwner',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
             asChildBuff: true,
@@ -843,8 +842,8 @@ const commonBuff16ActionGraph = {
                 copiedBlackboardAssignments: { rate: 'rate', duration: 'duration' },
               },
             ],
-            target: 'buffOwner',
-            source: 'buffOwner',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -888,8 +887,8 @@ const commonBuff17ActionGraph = {
                 copiedBlackboardAssignments: { rate: 'rate', duration: 'duration' },
               },
             ],
-            target: 'buffOwner',
-            source: 'buffOwner',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
             asChildBuff: true,
@@ -998,8 +997,8 @@ const commonBuff20ActionGraph = {
                 copiedBlackboardAssignments: { rate: 'rate', duration: 'duration' },
               },
             ],
-            target: 'buffOwner',
-            source: 'buffOwner',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
             asChildBuff: true,
@@ -1053,8 +1052,8 @@ const commonBuff21ActionGraph = {
                 copiedBlackboardAssignments: { rate: 'rate', duration: 'duration' },
               },
             ],
-            target: 'buffOwner',
-            source: 'buffOwner',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
             asChildBuff: true,
@@ -1125,8 +1124,8 @@ const commonBuff23ActionGraph = {
                 copiedBlackboardAssignments: { rate: 'rate', duration: 'duration' },
               },
             ],
-            target: 'buffOwner',
-            source: 'buffOwner',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
             asChildBuff: true,
@@ -1217,8 +1216,8 @@ const commonBuff25ActionGraph = {
                 copiedBlackboardAssignments: { rate: 'rate', duration: 'duration' },
               },
             ],
-            target: 'buffOwner',
-            source: 'buffOwner',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
             asChildBuff: true,
@@ -1310,8 +1309,8 @@ const commonBuff27ActionGraph = {
                 copiedBlackboardAssignments: { rate: 'rate', duration: 'duration' },
               },
             ],
-            target: 'buffOwner',
-            source: 'buffOwner',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
             asChildBuff: true,
@@ -1421,8 +1420,8 @@ const commonBuff29ActionGraph = {
                 copiedBlackboardAssignments: { rate: 'rate', duration: 'duration' },
               },
             ],
-            target: 'buffOwner',
-            source: 'buffOwner',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
             asChildBuff: true,
@@ -1563,8 +1562,8 @@ const commonBuff32ActionGraph = {
                 },
               },
             ],
-            target: 'buffOwner',
-            source: 'buffSource',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -1631,8 +1630,8 @@ const commonBuff33ActionGraph = {
                 copiedBlackboardAssignments: { duration: 'duration' },
               },
             ],
-            target: 'buffOwner',
-            source: 'buffSource',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -1651,8 +1650,8 @@ const commonBuff33ActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_cryst_triggered_fx' }],
-            target: 'buffOwner',
-            source: 'buffSource',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -1667,7 +1666,7 @@ const commonBuff33ActionGraph = {
             useFloor: false,
             divisor: { kind: 'constant', value: 1 },
             multiplier: { kind: 'valueNode', nodeId: 'data_2' },
-            base: { kind: 'valueNode', nodeId: 'data_3' },
+            base: { kind: 'valueNode', nodeId: 'data_2' },
             targetKey: 'final_phy_dmg_up',
           },
         },
@@ -1684,7 +1683,6 @@ const commonBuff33ActionGraph = {
         },
       },
       data_2: { type: 'number', expression: { kind: 'blackboard', key: 'phy_dmg_up' } },
-      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'phy_dmg_up' } },
     },
   },
   macros: {},
@@ -1946,8 +1944,8 @@ const commonBuff40ActionGraph = {
                 },
               },
             ],
-            target: 'buffOwner',
-            source: 'buffSource',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -1987,10 +1985,11 @@ const commonBuff41ActionGraph = {
         action: {
           kind: 'createTimedMarker',
           parameters: {
-            target: 'buffOwner',
+            targets: { kind: 'owner' },
             markerId: 'DodgeSucceedMarker',
             durationSeconds: { kind: 'constant', value: 0.2 },
             autoFinishByAction: false,
+            timeDomain: 'globalScaled',
           },
         },
         next: null,
@@ -2137,41 +2136,42 @@ const commonBuff41ActionGraph = {
         },
         next: 'checkCondition_1',
       },
-      finishBuffsById_opt1: {
+      finishBuffsById_8: {
         action: {
           kind: 'finishBuffsById',
           parameters: {
-            target: 'buffOwner',
+            targets: { kind: 'owner' },
+            finishSource: { kind: 'source' },
             buffIds: ['buff_common_dash_behit_listener'],
             reason: 'other',
           },
         },
         next: null,
       },
-      applyBuff_opt2: {
+      applyBuff_9: {
         action: {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_dash_succeed_immune' }],
-            target: 'buffSource',
-            source: 'buffOwner',
+            targets: { kind: 'source' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
           },
         },
-        next: 'finishBuffsById_opt1',
+        next: 'finishBuffsById_8',
       },
-      recordPerfectDodge_opt3: {
+      recordPerfectDodge_10: {
         action: { kind: 'recordPerfectDodge', parameters: {} },
-        next: 'applyBuff_opt2',
+        next: 'applyBuff_9',
       },
-      recoverDashEnergy_opt4: {
+      recoverDashEnergy_11: {
         action: {
           kind: 'recoverDashEnergy',
           parameters: { amount: { kind: 'constant', value: 0.5 }, canRecoverWhenOverdraft: true },
         },
-        next: 'recordPerfectDodge_opt3',
+        next: 'recordPerfectDodge_10',
       },
-      ifElse_opt5: {
+      ifElse_12: {
         action: {
           kind: 'ifElse',
           parameters: { alwaysNext: true },
@@ -2179,23 +2179,24 @@ const commonBuff41ActionGraph = {
           whenTrue: { $sequence: 'changeResource_7' },
           whenFalse: { $sequence: null },
         },
-        next: 'recoverDashEnergy_opt4',
+        next: 'recoverDashEnergy_11',
       },
-      checkCondition_opt6: {
+      checkCondition_13: {
         action: {
           kind: 'checkCondition',
           parameters: { condition: { kind: 'constant', value: true } },
         },
-        next: 'ifElse_opt5',
+        next: 'ifElse_12',
       },
       createTimedMarker_16: {
         action: {
           kind: 'createTimedMarker',
           parameters: {
-            target: 'buffOwner',
+            targets: { kind: 'owner' },
             markerId: 'DodgeSucceedMarker',
             durationSeconds: { kind: 'constant', value: 0.5 },
             autoFinishByAction: false,
+            timeDomain: 'globalScaled',
           },
         },
         next: null,
@@ -2204,7 +2205,7 @@ const commonBuff41ActionGraph = {
         action: {
           kind: 'castSkillDuringAction',
           parameters: {
-            skillId: { kind: 'stringNode', nodeId: 'data_6' },
+            skillId: { kind: 'stringNode', nodeId: 'data_1' },
             target: 'enemy',
             skipApplyCost: false,
             inheritSourceSkillCastInfo: false,
@@ -2300,7 +2301,7 @@ const commonBuff41ActionGraph = {
           kind: 'changeResource',
           parameters: {
             resource: 'sp',
-            amount: { kind: 'valueNode', nodeId: 'data_7' },
+            amount: { kind: 'valueNode', nodeId: 'data_2' },
             coefficient: { kind: 'constant', value: 1 },
             source: { kind: 'owner' },
             targets: { kind: 'owner' },
@@ -2310,7 +2311,7 @@ const commonBuff41ActionGraph = {
         },
         next: 'startTimeDilation_19',
       },
-      ifElse_opt7: {
+      ifElse_25: {
         action: {
           kind: 'ifElse',
           parameters: { alwaysNext: true },
@@ -2318,21 +2319,21 @@ const commonBuff41ActionGraph = {
           whenTrue: { $sequence: 'changeResource_20' },
           whenFalse: { $sequence: null },
         },
-        next: 'recoverDashEnergy_opt4',
+        next: 'recoverDashEnergy_11',
       },
-      checkCondition_opt8: {
+      checkCondition_26: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_8' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_6' } },
         },
-        next: 'ifElse_opt7',
+        next: 'ifElse_25',
       },
-      checkCondition_opt9: {
+      checkCondition_27: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_9' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_7' } },
         },
-        next: 'checkCondition_opt8',
+        next: 'checkCondition_26',
       },
     },
     dataNodes: {
@@ -2351,9 +2352,7 @@ const commonBuff41ActionGraph = {
         expression: { kind: 'not', condition: { kind: 'conditionNode', nodeId: 'data_3' } },
       },
       data_5: { type: 'boolean', expression: { kind: 'casterControlled' } },
-      data_6: { type: 'string', expression: { blackboardKey: 'dodgeSkillId' } },
-      data_7: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
-      data_8: {
+      data_6: {
         type: 'boolean',
         expression: {
           kind: 'eventProjectileIgnoreImmuneLevelCompare',
@@ -2361,7 +2360,7 @@ const commonBuff41ActionGraph = {
           value: 0,
         },
       },
-      data_9: {
+      data_7: {
         type: 'boolean',
         expression: { kind: 'eventProjectilePerfectDodgeCooldownEquals', value: false },
       },
@@ -2379,8 +2378,8 @@ const commonBuff41: SkillBuffDefinition = {
   blackboard: { atb: 7, dodgeSkillId: 0, vfx_buff_name: 'buff_common_dash_perfect_vfx_common' },
   attributeModifiers: [],
   abilityEventResponses: [
-    { event: 'beforeTakeDamage', priority: 0, sequence: { $sequence: 'checkCondition_opt6' } },
-    { event: 'beforeHitByProjectile', priority: 0, sequence: { $sequence: 'checkCondition_opt9' } },
+    { event: 'beforeTakeDamage', priority: 0, sequence: { $sequence: 'checkCondition_13' } },
+    { event: 'beforeHitByProjectile', priority: 0, sequence: { $sequence: 'checkCondition_27' } },
   ],
   actionGraph: commonBuff41ActionGraph,
 };
@@ -2393,8 +2392,8 @@ const commonBuff42ActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_full_immune_weak' }],
-            target: 'buffOwner',
-            source: 'buffOwner',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -2414,8 +2413,8 @@ const commonBuff42ActionGraph = {
                 },
               },
             ],
-            target: 'buffOwner',
-            source: 'buffOwner',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -2503,8 +2502,8 @@ const commonBuff43ActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_full_immune_weak' }],
-            target: 'buffOwner',
-            source: 'buffOwner',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -2601,8 +2600,8 @@ const commonBuff45ActionGraph = {
                 copiedBlackboardAssignments: { burning_atk_scale: 'burning_atk_scale' },
               },
             ],
-            target: 'buffOwner',
-            source: 'buffSource',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -2641,8 +2640,8 @@ const commonBuff45ActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_fire_triggered_fx' }],
-            target: 'buffOwner',
-            source: 'buffSource',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -2847,8 +2846,8 @@ const commonBuff48ActionGraph = {
                 copiedBlackboardAssignments: { duration: 'duration' },
               },
             ],
-            target: 'buffOwner',
-            source: 'buffSource',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -3005,11 +3004,11 @@ const commonBuff52ActionGraph = {
       checkCondition_2: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_9' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_8' } },
         },
         next: null,
       },
-      ifElse_opt2: {
+      ifElse_5: {
         action: {
           kind: 'ifElse',
           parameters: { alwaysNext: true },
@@ -3019,30 +3018,30 @@ const commonBuff52ActionGraph = {
         },
         next: 'refreshCurrentBuffAttributeModifiers_9',
       },
-      modifyActionValue_opt3: {
+      modifyActionValue_6: {
         action: {
           kind: 'modifyActionValue',
           parameters: { key: 'tick', operation: 'add', value: { kind: 'constant', value: 1 } },
         },
-        next: 'ifElse_opt2',
+        next: 'ifElse_5',
       },
-      modifyActionValue_opt4: {
+      modifyActionValue_7: {
         action: {
           kind: 'modifyActionValue',
           parameters: {
             key: 'def_decrease',
             operation: 'add',
-            value: { kind: 'valueNode', nodeId: 'data_10' },
+            value: { kind: 'valueNode', nodeId: 'data_9' },
           },
         },
-        next: 'modifyActionValue_opt3',
+        next: 'modifyActionValue_6',
       },
-      checkCondition_opt5: {
+      checkCondition_8: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_13' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_10' } },
         },
-        next: 'modifyActionValue_opt4',
+        next: 'modifyActionValue_7',
       },
     },
     dataNodes: {
@@ -3068,37 +3067,25 @@ const commonBuff52ActionGraph = {
       data_6: { type: 'number', expression: { kind: 'blackboard', key: 'max_def_decrease' } },
       data_7: {
         type: 'number',
-        expression: { kind: 'blackboard', key: 'def_decrease', fallback: 0 },
+        expression: { kind: 'blackboard', key: 'max_def_decrease', fallback: 0 },
       },
       data_8: {
-        type: 'number',
-        expression: { kind: 'blackboard', key: 'max_def_decrease', fallback: 0 },
-      },
-      data_9: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_7' },
+          left: { kind: 'valueNode', nodeId: 'data_2' },
           operator: 'greater',
-          right: { kind: 'valueNode', nodeId: 'data_8' },
+          right: { kind: 'valueNode', nodeId: 'data_7' },
         },
       },
-      data_10: { type: 'number', expression: { kind: 'blackboard', key: 'def_decrease_tick' } },
-      data_11: {
-        type: 'number',
-        expression: { kind: 'blackboard', key: 'def_decrease', fallback: 0 },
-      },
-      data_12: {
-        type: 'number',
-        expression: { kind: 'blackboard', key: 'max_def_decrease', fallback: 0 },
-      },
-      data_13: {
+      data_9: { type: 'number', expression: { kind: 'blackboard', key: 'def_decrease_tick' } },
+      data_10: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_11' },
+          left: { kind: 'valueNode', nodeId: 'data_2' },
           operator: 'greater',
-          right: { kind: 'valueNode', nodeId: 'data_12' },
+          right: { kind: 'valueNode', nodeId: 'data_7' },
         },
       },
     },
@@ -3200,7 +3187,7 @@ const commonBuff52: SkillBuffDefinition = {
   lifecycleSequences: {
     start: { $sequence: 'checkCondition_11' },
     enable: { $sequence: 'checkCondition_1' },
-    trigger: { $sequence: 'checkCondition_opt5' },
+    trigger: { $sequence: 'checkCondition_8' },
   },
   actionGraph: commonBuff52ActionGraph,
 };
@@ -3250,8 +3237,8 @@ const commonBuff53ActionGraph = {
                 },
               },
             ],
-            target: 'buffOwner',
-            source: 'buffSource',
+            targets: { kind: 'inputTarget' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -3284,7 +3271,7 @@ const commonBuff53ActionGraph = {
           parameters: {
             key: 'max_def_decrease',
             operation: 'multiply',
-            value: { kind: 'valueNode', nodeId: 'data_3' },
+            value: { kind: 'valueNode', nodeId: 'data_2' },
           },
         },
         next: 'modifyActionValue_5',
@@ -3295,7 +3282,7 @@ const commonBuff53ActionGraph = {
           parameters: {
             key: 'def_decrease_tick',
             operation: 'multiply',
-            value: { kind: 'valueNode', nodeId: 'data_4' },
+            value: { kind: 'valueNode', nodeId: 'data_2' },
           },
         },
         next: 'modifyActionValue_6',
@@ -3307,7 +3294,7 @@ const commonBuff53ActionGraph = {
             items: [
               {
                 values: [-0.84, -1.12, -1.4, -1.68],
-                column: { kind: 'valueNode', nodeId: 'data_5' },
+                column: { kind: 'valueNode', nodeId: 'data_3' },
                 storeKey: 'def_decrease_tick',
                 enhance: {
                   target: 'caster',
@@ -3316,7 +3303,7 @@ const commonBuff53ActionGraph = {
               },
               {
                 values: [-12, -16, -20, -24],
-                column: { kind: 'valueNode', nodeId: 'data_6' },
+                column: { kind: 'valueNode', nodeId: 'data_3' },
                 storeKey: 'max_def_decrease',
                 enhance: {
                   target: 'caster',
@@ -3325,7 +3312,7 @@ const commonBuff53ActionGraph = {
               },
               {
                 values: [-3.6, -4.8, -6, -7.2],
-                column: { kind: 'valueNode', nodeId: 'data_7' },
+                column: { kind: 'valueNode', nodeId: 'data_3' },
                 storeKey: 'start_def_decrease',
                 enhance: {
                   target: 'caster',
@@ -3351,11 +3338,7 @@ const commonBuff53ActionGraph = {
         },
       },
       data_2: { type: 'number', expression: { kind: 'blackboard', key: 'extra_scaling' } },
-      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'extra_scaling' } },
-      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'extra_scaling' } },
-      data_5: { type: 'number', expression: { kind: 'blackboard', key: 'count' } },
-      data_6: { type: 'number', expression: { kind: 'blackboard', key: 'count' } },
-      data_7: { type: 'number', expression: { kind: 'blackboard', key: 'count' } },
+      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'count' } },
     },
   },
   macros: {},
@@ -3498,8 +3481,8 @@ const commonBuff55ActionGraph = {
           parameters: {
             key: 'atk_scale',
             operation: 'multiply',
-            left: { kind: 'valueNode', nodeId: 'data_2' },
-            right: { kind: 'valueNode', nodeId: 'data_3' },
+            left: { kind: 'valueNode', nodeId: 'data_1' },
+            right: { kind: 'valueNode', nodeId: 'data_2' },
           },
         },
         next: 'dealDamage_2',
@@ -3553,8 +3536,7 @@ const commonBuff55ActionGraph = {
     },
     dataNodes: {
       data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_2: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'damage_enhence' } },
+      data_2: { type: 'number', expression: { kind: 'blackboard', key: 'damage_enhence' } },
     },
   },
   macros: {},
@@ -3680,8 +3662,8 @@ const commonBuff57ActionGraph = {
                 },
               },
             ],
-            target: 'partyExceptCaster',
-            source: 'buffSource',
+            targets: { kind: 'context', key: 'teammate' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -3721,14 +3703,25 @@ const commonBuff57ActionGraph = {
         },
         next: 'modifyActionValue_7',
       },
-      checkCondition_9: {
+      findTargets_9: {
+        action: {
+          kind: 'findTargets',
+          parameters: {
+            owner: { kind: 'source' },
+            query: { kind: 'characterTeam', excludeOwner: true, owner: { kind: 'source' } },
+            saveToContextKey: 'teammate',
+          },
+        },
+        next: 'readBuffBlackboard_8',
+      },
+      checkCondition_10: {
         action: {
           kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_6' } },
         },
-        next: 'readBuffBlackboard_8',
+        next: 'findTargets_9',
       },
-      applyBuff_10: {
+      applyBuff_11: {
         action: {
           kind: 'applyBuff',
           parameters: {
@@ -3741,14 +3734,14 @@ const commonBuff57ActionGraph = {
                 },
               },
             ],
-            target: 'buffSource',
-            source: 'buffSource',
+            targets: { kind: 'source' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
-        next: 'checkCondition_9',
+        next: 'checkCondition_10',
       },
-      readBuffBlackboard_11: {
+      readBuffBlackboard_12: {
         action: {
           kind: 'readBuffBlackboard',
           parameters: {
@@ -3758,9 +3751,9 @@ const commonBuff57ActionGraph = {
             outputKey: 'duration_dynamic',
           },
         },
-        next: 'applyBuff_10',
+        next: 'applyBuff_11',
       },
-      readBuffBlackboard_12: {
+      readBuffBlackboard_13: {
         action: {
           kind: 'readBuffBlackboard',
           parameters: {
@@ -3770,16 +3763,16 @@ const commonBuff57ActionGraph = {
             outputKey: 'atk_up_dynamic',
           },
         },
-        next: 'readBuffBlackboard_11',
+        next: 'readBuffBlackboard_12',
       },
-      checkCondition_13: {
+      checkCondition_14: {
         action: {
           kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_7' } },
         },
-        next: 'readBuffBlackboard_12',
+        next: 'readBuffBlackboard_13',
       },
-      changeResource_14: {
+      changeResource_15: {
         action: {
           kind: 'changeResource',
           parameters: {
@@ -3793,7 +3786,7 @@ const commonBuff57ActionGraph = {
         },
         next: null,
       },
-      readBuffBlackboard_15: {
+      readBuffBlackboard_16: {
         action: {
           kind: 'readBuffBlackboard',
           parameters: {
@@ -3803,16 +3796,16 @@ const commonBuff57ActionGraph = {
             outputKey: 'endmin_usp',
           },
         },
-        next: 'changeResource_14',
+        next: 'changeResource_15',
       },
-      checkCondition_16: {
+      checkCondition_17: {
         action: {
           kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_9' } },
         },
-        next: 'readBuffBlackboard_15',
+        next: 'readBuffBlackboard_16',
       },
-      withActionBlackboardScope_17: {
+      withActionBlackboardScope_18: {
         action: {
           kind: 'withActionBlackboardScope',
           parameters: {
@@ -3823,11 +3816,11 @@ const commonBuff57ActionGraph = {
             initialValues: {},
             inheritParent: true,
           },
-          body: { $sequence: 'checkCondition_16' },
+          body: { $sequence: 'checkCondition_17' },
         },
         next: null,
       },
-      withActionBlackboardScope_18: {
+      withActionBlackboardScope_19: {
         action: {
           kind: 'withActionBlackboardScope',
           parameters: {
@@ -3838,11 +3831,11 @@ const commonBuff57ActionGraph = {
             initialValues: {},
             inheritParent: true,
           },
-          body: { $sequence: 'checkCondition_13' },
+          body: { $sequence: 'checkCondition_14' },
         },
-        next: 'withActionBlackboardScope_17',
+        next: 'withActionBlackboardScope_18',
       },
-      withActionBlackboardScope_19: {
+      withActionBlackboardScope_20: {
         action: {
           kind: 'withActionBlackboardScope',
           parameters: {
@@ -3855,21 +3848,21 @@ const commonBuff57ActionGraph = {
           },
           body: { $sequence: 'dealDamage_4' },
         },
-        next: 'withActionBlackboardScope_18',
+        next: 'withActionBlackboardScope_19',
       },
-      dealDamage_20: {
+      dealDamage_21: {
         action: {
           kind: 'dealDamage',
           parameters: {
             damageType: 'physical',
-            attackScale: { kind: 'valueNode', nodeId: 'data_10' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_4' },
             tags: ['comboSkill'],
             features: ['canBreakWeakness'],
           },
         },
         next: null,
       },
-      withActionBlackboardScope_30: {
+      withActionBlackboardScope_32: {
         action: {
           kind: 'withActionBlackboardScope',
           parameters: {
@@ -3880,11 +3873,11 @@ const commonBuff57ActionGraph = {
             initialValues: {},
             inheritParent: true,
           },
-          body: { $sequence: 'checkCondition_13' },
+          body: { $sequence: 'checkCondition_14' },
         },
         next: null,
       },
-      withActionBlackboardScope_31: {
+      withActionBlackboardScope_33: {
         action: {
           kind: 'withActionBlackboardScope',
           parameters: {
@@ -3895,9 +3888,9 @@ const commonBuff57ActionGraph = {
             initialValues: {},
             inheritParent: true,
           },
-          body: { $sequence: 'dealDamage_20' },
+          body: { $sequence: 'dealDamage_21' },
         },
-        next: 'withActionBlackboardScope_30',
+        next: 'withActionBlackboardScope_32',
       },
     },
     dataNodes: {
@@ -3944,7 +3937,6 @@ const commonBuff57ActionGraph = {
           value: { kind: 'constant', value: 1 },
         },
       },
-      data_10: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_trigger' } },
     },
   },
   macros: {},
@@ -3996,17 +3988,17 @@ const commonBuff57: SkillBuffDefinition = {
     {
       igniteType: 'EndminUlt',
       finishAfterIgnited: true,
-      sequence: { $sequence: 'withActionBlackboardScope_19' },
+      sequence: { $sequence: 'withActionBlackboardScope_20' },
     },
     {
       igniteType: 'PhysicalStatus',
       finishAfterIgnited: true,
-      sequence: { $sequence: 'withActionBlackboardScope_31' },
+      sequence: { $sequence: 'withActionBlackboardScope_33' },
     },
     {
       igniteType: 'NoGuard',
       finishAfterIgnited: true,
-      sequence: { $sequence: 'withActionBlackboardScope_31' },
+      sequence: { $sequence: 'withActionBlackboardScope_33' },
     },
   ],
   actionGraph: commonBuff57ActionGraph,
@@ -4131,8 +4123,8 @@ const commonBuff61ActionGraph = {
                 },
               },
             ],
-            target: 'buffOwner',
-            source: 'buffSource',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -4195,8 +4187,8 @@ const commonBuff62ActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_pulse_triggered_fx' }],
-            target: 'buffOwner',
-            source: 'buffSource',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -4222,7 +4214,7 @@ const commonBuff62ActionGraph = {
             useFloor: false,
             divisor: { kind: 'constant', value: 1 },
             multiplier: { kind: 'valueNode', nodeId: 'data_2' },
-            base: { kind: 'valueNode', nodeId: 'data_3' },
+            base: { kind: 'valueNode', nodeId: 'data_2' },
             targetKey: 'final_spell_resistance_decrease',
           },
         },
@@ -4235,7 +4227,7 @@ const commonBuff62ActionGraph = {
             items: [
               {
                 values: [0.12, 0.16, 0.2, 0.24],
-                column: { kind: 'valueNode', nodeId: 'data_4' },
+                column: { kind: 'valueNode', nodeId: 'data_3' },
                 storeKey: 'spell_resistance_decrease',
                 enhance: {
                   target: 'caster',
@@ -4250,28 +4242,28 @@ const commonBuff62ActionGraph = {
       checkCondition_5: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_4' } },
         },
         next: null,
       },
       checkCondition_6: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_6' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
         },
         next: null,
       },
       checkCondition_7: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_7' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_6' } },
         },
         next: null,
       },
       checkCondition_8: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_8' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_7' } },
         },
         next: null,
       },
@@ -4282,18 +4274,14 @@ const commonBuff62ActionGraph = {
         type: 'number',
         expression: { kind: 'blackboard', key: 'spell_resistance_decrease' },
       },
-      data_3: {
-        type: 'number',
-        expression: { kind: 'blackboard', key: 'spell_resistance_decrease' },
-      },
-      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'count' } },
-      data_5: { type: 'boolean', expression: { kind: 'eventDamageTypeIn', damageTypes: ['heat'] } },
-      data_6: {
+      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'count' } },
+      data_4: { type: 'boolean', expression: { kind: 'eventDamageTypeIn', damageTypes: ['heat'] } },
+      data_5: {
         type: 'boolean',
         expression: { kind: 'eventDamageTypeIn', damageTypes: ['electric'] },
       },
-      data_7: { type: 'boolean', expression: { kind: 'eventDamageTypeIn', damageTypes: ['cryo'] } },
-      data_8: {
+      data_6: { type: 'boolean', expression: { kind: 'eventDamageTypeIn', damageTypes: ['cryo'] } },
+      data_7: {
         type: 'boolean',
         expression: { kind: 'eventDamageTypeIn', damageTypes: ['nature'] },
       },
@@ -4515,8 +4503,8 @@ const commonBuff65ActionGraph = {
                 blackboardAssignments: { skip_handle_cryst_break: { kind: 'constant', value: 1 } },
               },
             ],
-            target: 'buffOwner',
-            source: 'buffSource',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -4562,8 +4550,8 @@ const commonBuff65ActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_physical_handle_cryst_break' }],
-            target: 'buffOwner',
-            source: 'buffSource',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -4701,7 +4689,12 @@ const commonBuff66ActionGraph = {
       finishBuffsById_2: {
         action: {
           kind: 'finishBuffsById',
-          parameters: { target: 'buffOwner', buffIds: ['buff_physical_no_guard'], reason: 'early' },
+          parameters: {
+            targets: { kind: 'owner' },
+            finishSource: { kind: 'source' },
+            buffIds: ['buff_physical_no_guard'],
+            reason: 'early',
+          },
         },
         next: 'dealDamage_1',
       },
@@ -4748,8 +4741,8 @@ const commonBuff66ActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_physical_handle_cryst_break' }],
-            target: 'buffOwner',
-            source: 'buffSource',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -4840,7 +4833,7 @@ const commonBuff66ActionGraph = {
       switch_13: {
         action: {
           kind: 'switch',
-          parameters: { choice: { kind: 'valueNode', nodeId: 'data_4' }, alwaysNext: true },
+          parameters: { choice: { kind: 'valueNode', nodeId: 'data_3' }, alwaysNext: true },
           options: [
             {
               value: { kind: 'constant', value: 0 },
@@ -4869,7 +4862,7 @@ const commonBuff66ActionGraph = {
       checkCondition_14: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_6' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
         },
         next: 'switch_13',
       },
@@ -4938,16 +4931,15 @@ const commonBuff66ActionGraph = {
       data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
       data_2: { type: 'number', expression: { kind: 'blackboard', key: 'dmg_multiplier' } },
       data_3: { type: 'number', expression: { kind: 'blackboard', key: 'count' } },
-      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'count' } },
-      data_5: {
+      data_4: {
         type: 'number',
         expression: { kind: 'blackboard', key: 'ignore_hit_effect', fallback: 0 },
       },
-      data_6: {
+      data_5: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_5' },
+          left: { kind: 'valueNode', nodeId: 'data_4' },
           operator: 'less',
           right: { kind: 'constant', value: 0.5 },
         },
@@ -5029,7 +5021,7 @@ const commonBuff67ActionGraph = {
               },
               {
                 values: [1, 1.5, 2, 2.5],
-                column: { kind: 'valueNode', nodeId: 'data_3' },
+                column: { kind: 'valueNode', nodeId: 'data_2' },
                 storeKey: 'atk_scale',
                 enhance: { target: 'caster', formula: { kind: 'linear', paramA: 0.01 } },
               },
@@ -5054,8 +5046,8 @@ const commonBuff67ActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_physical_handle_cryst_break' }],
-            target: 'buffOwner',
-            source: 'buffSource',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -5073,7 +5065,7 @@ const commonBuff67ActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'physical',
-            attackScale: { kind: 'valueNode', nodeId: 'data_4' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_3' },
             tags: [],
             features: ['physicalInfliction'],
           },
@@ -5083,7 +5075,12 @@ const commonBuff67ActionGraph = {
       finishBuffsById_8: {
         action: {
           kind: 'finishBuffsById',
-          parameters: { target: 'buffOwner', buffIds: ['buff_physical_no_guard'], reason: 'early' },
+          parameters: {
+            targets: { kind: 'owner' },
+            finishSource: { kind: 'source' },
+            buffIds: ['buff_physical_no_guard'],
+            reason: 'early',
+          },
         },
         next: 'dealDamage_7',
       },
@@ -5165,7 +5162,7 @@ const commonBuff67ActionGraph = {
       switch_14: {
         action: {
           kind: 'switch',
-          parameters: { choice: { kind: 'valueNode', nodeId: 'data_5' }, alwaysNext: true },
+          parameters: { choice: { kind: 'valueNode', nodeId: 'data_2' }, alwaysNext: true },
           options: [
             {
               value: { kind: 'constant', value: 0 },
@@ -5194,7 +5191,7 @@ const commonBuff67ActionGraph = {
       checkCondition_15: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_6' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_4' } },
         },
         next: null,
       },
@@ -5277,10 +5274,8 @@ const commonBuff67ActionGraph = {
     dataNodes: {
       data_1: { type: 'number', expression: { kind: 'blackboard', key: 'extra_scaling' } },
       data_2: { type: 'number', expression: { kind: 'blackboard', key: 'count' } },
-      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'count' } },
-      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_5: { type: 'number', expression: { kind: 'blackboard', key: 'count' } },
-      data_6: {
+      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
+      data_4: {
         type: 'boolean',
         expression: { kind: 'eventDamageTypeIn', damageTypes: ['physical'] },
       },
@@ -5354,8 +5349,8 @@ const commonBuff68ActionGraph = {
                 copiedBlackboardAssignments: { duration: 'duration' },
               },
             ],
-            target: 'buffOwner',
-            source: 'buffSource',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -5526,8 +5521,8 @@ const commonBuff69ActionGraph = {
                 copiedBlackboardAssignments: { atk_scale: 'atk_scale' },
               },
             ],
-            target: 'buffOwner',
-            source: 'buffSource',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -5537,7 +5532,8 @@ const commonBuff69ActionGraph = {
         action: {
           kind: 'finishBuffsByTag',
           parameters: {
-            target: 'buffOwner',
+            targets: { kind: 'owner' },
+            finishSource: { kind: 'source' },
             tagQueryType: 'hasAny',
             buffTags: ['Skill/Character/Common/SpellStatus/Frozen'],
             reason: 'early',
@@ -5552,7 +5548,7 @@ const commonBuff69ActionGraph = {
             items: [
               {
                 values: [2.4, 3.6, 4.8, 6],
-                column: { kind: 'valueNode', nodeId: 'data_2' },
+                column: { kind: 'valueNode', nodeId: 'data_1' },
                 storeKey: 'atk_scale',
                 enhance: { target: 'caster', formula: { kind: 'linear', paramA: 0.01 } },
               },
@@ -5578,10 +5574,7 @@ const commonBuff69ActionGraph = {
         next: 'readSkillSettingData_9',
       },
     },
-    dataNodes: {
-      data_1: { type: 'number', expression: { kind: 'blackboard', key: 'count' } },
-      data_2: { type: 'number', expression: { kind: 'blackboard', key: 'count' } },
-    },
+    dataNodes: { data_1: { type: 'number', expression: { kind: 'blackboard', key: 'count' } } },
   },
   macros: {},
 } as const satisfies ActionGraphResourceDefinition;
@@ -5615,8 +5608,8 @@ const commonBuff70ActionGraph = {
                 blackboardAssignments: { skip_handle_cryst_break: { kind: 'constant', value: 1 } },
               },
             ],
-            target: 'buffOwner',
-            source: 'buffSource',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -5662,8 +5655,8 @@ const commonBuff70ActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_physical_handle_cryst_break' }],
-            target: 'buffOwner',
-            source: 'buffSource',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -5769,8 +5762,8 @@ const commonBuff71ActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_physical_handle_cryst_break' }],
-            target: 'buffOwner',
-            source: 'buffSource',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -5788,8 +5781,8 @@ const commonBuff71ActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_physical_no_guard_fake' }],
-            target: 'buffOwner',
-            source: 'buffSource',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },

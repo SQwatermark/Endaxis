@@ -139,7 +139,7 @@ export function compileOperatorUpgradePassiveSkills(
               ...(Object.keys(blackboardAssignments).length === 0 ? {} : { blackboardAssignments }),
             },
           ],
-          target: 'caster' as const,
+          targets: { kind: 'fixed' as const, target: 'caster' as const },
           inheritSourceSkillCastInfo: false,
         },
       };

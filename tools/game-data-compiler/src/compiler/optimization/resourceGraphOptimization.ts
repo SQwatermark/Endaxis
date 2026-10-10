@@ -135,7 +135,13 @@ export function optimizeResourceGraphs<T>(
       if (finalResource !== record.actionGraph) changed = true;
       return changed ? { ...(metadata as object), actionGraph: finalResource } : value;
     }
-    const optimized = optimizeActionGraphEntries(resource.main, entries, {
+    // 等价分支可能只是节点 ID 不同；先共享定义，控制流才能识别同一后继。
+    // 共享不合并调用次数或状态，优化后的新等价尾段仍由下方再次收拢。
+    const input =
+      mode === 'off'
+        ? { graph: resource.main, entries }
+        : deduplicateActionGraph(resource.main, entries);
+    const optimized = optimizeActionGraphEntries(input.graph, input.entries, {
       mode: mode === 'off' ? 'off' : 'apply',
       definitionId: path,
     });

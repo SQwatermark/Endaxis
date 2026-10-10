@@ -18,6 +18,12 @@ export function rootActionSteps(sequence: ResolvedActionSequence): readonly Reso
       result.push(...rootActionSteps(action.entry));
     } else if (action.kind === 'callMacro') {
       result.push(...rootActionSteps(bind(action.entry, `${id}:macro`)));
+    } else if (action.kind === 'aura') {
+      result.push({
+        ...action,
+        onEnter: bind(action.onEnter.$sequence, `${id}:enter`),
+        onExit: bind(action.onExit.$sequence, `${id}:exit`),
+      });
     } else if (action.kind === 'jumpTimeline') {
       result.push({ ...action, condition: bind(action.condition.$sequence, `${id}:condition`) });
     } else if (action.kind === 'anyCondition') {

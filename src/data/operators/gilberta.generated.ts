@@ -36,31 +36,17 @@ export const gilbertaChr_0013_aglina_attack1ActionGraph = {
                 },
                 blackboard: { atb: 0, atk_scale: 0 },
                 scheduledSequences: [
-                  { startFrame: 0, endFrame: 3, sequence: { $sequence: 'dealDamage_opt2' } },
+                  { startFrame: 0, endFrame: 3, sequence: { $sequence: 'dealDamage_5' } },
                 ],
                 actionGraph: {
                   main: {
                     nodes: {
-                      checkCondition_1: {
-                        action: {
-                          kind: 'checkCondition',
-                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-                        },
-                        next: null,
-                      },
-                      checkCondition_2: {
-                        action: {
-                          kind: 'checkCondition',
-                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-                        },
-                        next: 'checkCondition_1',
-                      },
                       changeResource_3: {
                         action: {
                           kind: 'changeResource',
                           parameters: {
                             resource: 'sp',
-                            amount: { kind: 'valueNode', nodeId: 'data_3' },
+                            amount: { kind: 'valueNode', nodeId: 'data_1' },
                             coefficient: { kind: 'constant', value: 1 },
                             source: { kind: 'source' },
                             targets: { kind: 'source' },
@@ -71,7 +57,21 @@ export const gilbertaChr_0013_aglina_attack1ActionGraph = {
                         },
                         next: null,
                       },
-                      ifElse_opt1: {
+                      checkCondition_1: {
+                        action: {
+                          kind: 'checkCondition',
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
+                        },
+                        next: null,
+                      },
+                      checkCondition_2: {
+                        action: {
+                          kind: 'checkCondition',
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
+                        },
+                        next: 'checkCondition_1',
+                      },
+                      ifElse_4: {
                         action: {
                           kind: 'ifElse',
                           parameters: { alwaysNext: true },
@@ -81,7 +81,7 @@ export const gilbertaChr_0013_aglina_attack1ActionGraph = {
                         },
                         next: null,
                       },
-                      dealDamage_opt2: {
+                      dealDamage_5: {
                         action: {
                           kind: 'dealDamage',
                           parameters: {
@@ -90,23 +90,23 @@ export const gilbertaChr_0013_aglina_attack1ActionGraph = {
                             tags: ['normalAttack'],
                           },
                         },
-                        next: 'ifElse_opt1',
+                        next: 'ifElse_4',
                       },
                     },
                     dataNodes: {
-                      data_1: {
+                      data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+                      data_2: {
                         type: 'boolean',
                         expression: {
                           kind: 'entityCountCompare',
-                          target: { kind: 'inputTarget' },
+                          target: { kind: 'fixed', target: 'enemy' },
                           containsHittableTarget: false,
                           excludeDeadEntity: false,
                           operator: 'greaterOrEqual',
                           value: 1,
                         },
                       },
-                      data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
-                      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+                      data_3: { type: 'boolean', expression: { kind: 'casterControlled' } },
                       data_4: {
                         type: 'number',
                         expression: { kind: 'blackboard', key: 'atk_scale' },
@@ -319,31 +319,17 @@ export const gilbertaChr_0013_aglina_attack3ActionGraph = {
                 },
                 blackboard: {},
                 scheduledSequences: [
-                  { startFrame: 0, endFrame: 3, sequence: { $sequence: 'dealDamage_opt2' } },
+                  { startFrame: 0, endFrame: 3, sequence: { $sequence: 'dealDamage_5' } },
                 ],
                 actionGraph: {
                   main: {
                     nodes: {
-                      checkCondition_1: {
-                        action: {
-                          kind: 'checkCondition',
-                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-                        },
-                        next: null,
-                      },
-                      checkCondition_2: {
-                        action: {
-                          kind: 'checkCondition',
-                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-                        },
-                        next: 'checkCondition_1',
-                      },
                       changeResource_3: {
                         action: {
                           kind: 'changeResource',
                           parameters: {
                             resource: 'sp',
-                            amount: { kind: 'valueNode', nodeId: 'data_3' },
+                            amount: { kind: 'valueNode', nodeId: 'data_1' },
                             coefficient: { kind: 'constant', value: 0.3333333 },
                             source: { kind: 'source' },
                             targets: { kind: 'source' },
@@ -354,7 +340,21 @@ export const gilbertaChr_0013_aglina_attack3ActionGraph = {
                         },
                         next: null,
                       },
-                      ifElse_opt1: {
+                      checkCondition_1: {
+                        action: {
+                          kind: 'checkCondition',
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
+                        },
+                        next: null,
+                      },
+                      checkCondition_2: {
+                        action: {
+                          kind: 'checkCondition',
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
+                        },
+                        next: 'checkCondition_1',
+                      },
+                      ifElse_4: {
                         action: {
                           kind: 'ifElse',
                           parameters: { alwaysNext: true },
@@ -364,7 +364,7 @@ export const gilbertaChr_0013_aglina_attack3ActionGraph = {
                         },
                         next: null,
                       },
-                      dealDamage_opt2: {
+                      dealDamage_5: {
                         action: {
                           kind: 'dealDamage',
                           parameters: {
@@ -373,23 +373,23 @@ export const gilbertaChr_0013_aglina_attack3ActionGraph = {
                             tags: ['normalAttack'],
                           },
                         },
-                        next: 'ifElse_opt1',
+                        next: 'ifElse_4',
                       },
                     },
                     dataNodes: {
-                      data_1: {
+                      data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+                      data_2: {
                         type: 'boolean',
                         expression: {
                           kind: 'entityCountCompare',
-                          target: { kind: 'inputTarget' },
+                          target: { kind: 'fixed', target: 'enemy' },
                           containsHittableTarget: false,
                           excludeDeadEntity: false,
                           operator: 'greaterOrEqual',
                           value: 1,
                         },
                       },
-                      data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
-                      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+                      data_3: { type: 'boolean', expression: { kind: 'casterControlled' } },
                       data_4: {
                         type: 'number',
                         expression: { kind: 'blackboard', key: 'atk_scale' },
@@ -480,32 +480,18 @@ export const gilbertaChr_0013_aglina_attack4ActionGraph = {
                 },
                 blackboard: { atb: 0, atk_scale: 0, poise: 0 },
                 scheduledSequences: [
-                  { startFrame: 0, endFrame: 3, sequence: { $sequence: 'dealDamage_opt2' } },
+                  { startFrame: 0, endFrame: 3, sequence: { $sequence: 'dealDamage_5' } },
                   { startFrame: 0, endFrame: 3, sequence: { $sequence: null } },
                 ],
                 actionGraph: {
                   main: {
                     nodes: {
-                      checkCondition_1: {
-                        action: {
-                          kind: 'checkCondition',
-                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-                        },
-                        next: null,
-                      },
-                      checkCondition_2: {
-                        action: {
-                          kind: 'checkCondition',
-                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-                        },
-                        next: 'checkCondition_1',
-                      },
                       changeResource_3: {
                         action: {
                           kind: 'changeResource',
                           parameters: {
                             resource: 'sp',
-                            amount: { kind: 'valueNode', nodeId: 'data_3' },
+                            amount: { kind: 'valueNode', nodeId: 'data_1' },
                             coefficient: { kind: 'constant', value: 0.3334 },
                             source: { kind: 'source' },
                             targets: { kind: 'source' },
@@ -515,7 +501,21 @@ export const gilbertaChr_0013_aglina_attack4ActionGraph = {
                         },
                         next: null,
                       },
-                      ifElse_opt1: {
+                      checkCondition_1: {
+                        action: {
+                          kind: 'checkCondition',
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
+                        },
+                        next: null,
+                      },
+                      checkCondition_2: {
+                        action: {
+                          kind: 'checkCondition',
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
+                        },
+                        next: 'checkCondition_1',
+                      },
+                      ifElse_4: {
                         action: {
                           kind: 'ifElse',
                           parameters: { alwaysNext: true },
@@ -525,7 +525,7 @@ export const gilbertaChr_0013_aglina_attack4ActionGraph = {
                         },
                         next: null,
                       },
-                      dealDamage_opt2: {
+                      dealDamage_5: {
                         action: {
                           kind: 'dealDamage',
                           parameters: {
@@ -537,23 +537,23 @@ export const gilbertaChr_0013_aglina_attack4ActionGraph = {
                             staggerOnlyWhenCasterControlled: true,
                           },
                         },
-                        next: 'ifElse_opt1',
+                        next: 'ifElse_4',
                       },
                     },
                     dataNodes: {
-                      data_1: {
+                      data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+                      data_2: {
                         type: 'boolean',
                         expression: {
                           kind: 'entityCountCompare',
-                          target: { kind: 'inputTarget' },
+                          target: { kind: 'fixed', target: 'enemy' },
                           containsHittableTarget: false,
                           excludeDeadEntity: false,
                           operator: 'greaterOrEqual',
                           value: 1,
                         },
                       },
-                      data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
-                      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+                      data_3: { type: 'boolean', expression: { kind: 'casterControlled' } },
                       data_4: {
                         type: 'number',
                         expression: { kind: 'blackboard', key: 'atk_scale' },
@@ -594,32 +594,18 @@ export const gilbertaChr_0013_aglina_attack4ActionGraph = {
                 },
                 blackboard: { atb: 0, atk_scale: 0, poise: 0 },
                 scheduledSequences: [
-                  { startFrame: 0, endFrame: 3, sequence: { $sequence: 'dealDamage_opt2' } },
+                  { startFrame: 0, endFrame: 3, sequence: { $sequence: 'dealDamage_5' } },
                   { startFrame: 0, endFrame: 3, sequence: { $sequence: null } },
                 ],
                 actionGraph: {
                   main: {
                     nodes: {
-                      checkCondition_1: {
-                        action: {
-                          kind: 'checkCondition',
-                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-                        },
-                        next: null,
-                      },
-                      checkCondition_2: {
-                        action: {
-                          kind: 'checkCondition',
-                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-                        },
-                        next: 'checkCondition_1',
-                      },
                       changeResource_3: {
                         action: {
                           kind: 'changeResource',
                           parameters: {
                             resource: 'sp',
-                            amount: { kind: 'valueNode', nodeId: 'data_3' },
+                            amount: { kind: 'valueNode', nodeId: 'data_1' },
                             coefficient: { kind: 'constant', value: 0.3334 },
                             source: { kind: 'source' },
                             targets: { kind: 'source' },
@@ -629,7 +615,21 @@ export const gilbertaChr_0013_aglina_attack4ActionGraph = {
                         },
                         next: null,
                       },
-                      ifElse_opt1: {
+                      checkCondition_1: {
+                        action: {
+                          kind: 'checkCondition',
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
+                        },
+                        next: null,
+                      },
+                      checkCondition_2: {
+                        action: {
+                          kind: 'checkCondition',
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
+                        },
+                        next: 'checkCondition_1',
+                      },
+                      ifElse_4: {
                         action: {
                           kind: 'ifElse',
                           parameters: { alwaysNext: true },
@@ -639,7 +639,7 @@ export const gilbertaChr_0013_aglina_attack4ActionGraph = {
                         },
                         next: null,
                       },
-                      dealDamage_opt2: {
+                      dealDamage_5: {
                         action: {
                           kind: 'dealDamage',
                           parameters: {
@@ -651,23 +651,23 @@ export const gilbertaChr_0013_aglina_attack4ActionGraph = {
                             staggerOnlyWhenCasterControlled: true,
                           },
                         },
-                        next: 'ifElse_opt1',
+                        next: 'ifElse_4',
                       },
                     },
                     dataNodes: {
-                      data_1: {
+                      data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+                      data_2: {
                         type: 'boolean',
                         expression: {
                           kind: 'entityCountCompare',
-                          target: { kind: 'inputTarget' },
+                          target: { kind: 'fixed', target: 'enemy' },
                           containsHittableTarget: false,
                           excludeDeadEntity: false,
                           operator: 'greaterOrEqual',
                           value: 1,
                         },
                       },
-                      data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
-                      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+                      data_3: { type: 'boolean', expression: { kind: 'casterControlled' } },
                       data_4: {
                         type: 'number',
                         expression: { kind: 'blackboard', key: 'atk_scale' },
@@ -683,6 +683,13 @@ export const gilbertaChr_0013_aglina_attack4ActionGraph = {
         },
         next: null,
       },
+      reachSkillOperableBoundary_7: {
+        action: {
+          kind: 'reachSkillOperableBoundary',
+          parameters: { skillIds: ['chr_0013_aglina_attack1'] },
+        },
+        next: null,
+      },
       ifElse_opt1: {
         action: {
           kind: 'ifElse',
@@ -690,13 +697,6 @@ export const gilbertaChr_0013_aglina_attack4ActionGraph = {
           condition: { $sequence: null },
           whenTrue: { $sequence: null },
           whenFalse: { $sequence: null },
-        },
-        next: null,
-      },
-      reachSkillOperableBoundary_7: {
-        action: {
-          kind: 'reachSkillOperableBoundary',
-          parameters: { skillIds: ['chr_0013_aglina_attack1'] },
         },
         next: null,
       },
@@ -768,7 +768,7 @@ export const gilbertaChr_0013_aglina_power_attackActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'nature',
-            attackScale: { kind: 'valueNode', nodeId: 'data_2' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_1' },
             calculation: 'breakingAttack',
             calculationMultiplier: 0.7,
             tags: ['normalAttack', 'powerAttack'],
@@ -781,7 +781,8 @@ export const gilbertaChr_0013_aglina_power_attackActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_full_immune_medium' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -793,7 +794,8 @@ export const gilbertaChr_0013_aglina_power_attackActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_power_attack_disable_cast_skill' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -801,10 +803,7 @@ export const gilbertaChr_0013_aglina_power_attackActionGraph = {
         next: null,
       },
     },
-    dataNodes: {
-      data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_2: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-    },
+    dataNodes: { data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } } },
   },
   macros: {},
 } as const satisfies ActionGraphResourceDefinition;
@@ -1015,7 +1014,7 @@ export const gilbertaChr_0013_aglina_normal_skillActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'nature',
-            attackScale: { kind: 'valueNode', nodeId: 'data_4' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_3' },
             tags: ['normalSkill'],
           },
         },
@@ -1029,8 +1028,8 @@ export const gilbertaChr_0013_aglina_normal_skillActionGraph = {
             alwaysNext: true,
             tags: ['Skill/Character/Common/Heal/NormalSkillHeal'],
             attribute: 'intellect',
-            multiplier: { kind: 'valueNode', nodeId: 'data_5' },
-            addition: { kind: 'valueNode', nodeId: 'data_6' },
+            multiplier: { kind: 'valueNode', nodeId: 'data_4' },
+            addition: { kind: 'valueNode', nodeId: 'data_5' },
           },
         },
         next: null,
@@ -1044,8 +1043,8 @@ export const gilbertaChr_0013_aglina_normal_skillActionGraph = {
             alwaysNext: true,
             tags: ['Skill/Character/Common/Heal/NormalSkillHeal'],
             attribute: 'intellect',
-            multiplier: { kind: 'valueNode', nodeId: 'data_7' },
-            addition: { kind: 'valueNode', nodeId: 'data_8' },
+            multiplier: { kind: 'valueNode', nodeId: 'data_4' },
+            addition: { kind: 'valueNode', nodeId: 'data_5' },
           },
         },
         next: null,
@@ -1053,7 +1052,7 @@ export const gilbertaChr_0013_aglina_normal_skillActionGraph = {
       checkCondition_13: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_9' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_6' } },
         },
         next: null,
       },
@@ -1080,7 +1079,7 @@ export const gilbertaChr_0013_aglina_normal_skillActionGraph = {
       checkCondition_16: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_10' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_7' } },
         },
         next: null,
       },
@@ -1097,14 +1096,14 @@ export const gilbertaChr_0013_aglina_normal_skillActionGraph = {
       checkCondition_20: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_11' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_8' } },
         },
         next: null,
       },
       checkCondition_21: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_13' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_10' } },
         },
         next: 'checkCondition_20',
       },
@@ -1123,10 +1122,10 @@ export const gilbertaChr_0013_aglina_normal_skillActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'nature',
-            attackScale: { kind: 'valueNode', nodeId: 'data_14' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_11' },
             tags: ['normalSkill'],
             features: ['canBreakWeakness'],
-            stagger: { kind: 'valueNode', nodeId: 'data_15' },
+            stagger: { kind: 'valueNode', nodeId: 'data_12' },
           },
         },
         next: 'ifElse_23',
@@ -1161,12 +1160,9 @@ export const gilbertaChr_0013_aglina_normal_skillActionGraph = {
         },
       },
       data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_pull' } },
-      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_pull' } },
-      data_5: { type: 'number', expression: { kind: 'blackboard', key: 'heal_scale' } },
-      data_6: { type: 'number', expression: { kind: 'blackboard', key: 'heal_const' } },
-      data_7: { type: 'number', expression: { kind: 'blackboard', key: 'heal_scale' } },
-      data_8: { type: 'number', expression: { kind: 'blackboard', key: 'heal_const' } },
-      data_9: {
+      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'heal_scale' } },
+      data_5: { type: 'number', expression: { kind: 'blackboard', key: 'heal_const' } },
+      data_6: {
         type: 'boolean',
         expression: {
           kind: 'healthCompare',
@@ -1177,7 +1173,7 @@ export const gilbertaChr_0013_aglina_normal_skillActionGraph = {
           value: { kind: 'constant', value: 0.99 },
         },
       },
-      data_10: {
+      data_7: {
         type: 'boolean',
         expression: {
           kind: 'healthCompare',
@@ -1187,7 +1183,7 @@ export const gilbertaChr_0013_aglina_normal_skillActionGraph = {
           value: { kind: 'constant', value: 0.99 },
         },
       },
-      data_11: {
+      data_8: {
         type: 'boolean',
         expression: {
           kind: 'entityCountCompare',
@@ -1198,21 +1194,21 @@ export const gilbertaChr_0013_aglina_normal_skillActionGraph = {
           value: 2,
         },
       },
-      data_12: {
+      data_9: {
         type: 'number',
         expression: { kind: 'blackboard', key: 'heal_const', fallback: 0 },
       },
-      data_13: {
+      data_10: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_12' },
+          left: { kind: 'valueNode', nodeId: 'data_9' },
           operator: 'greater',
           right: { kind: 'constant', value: 0 },
         },
       },
-      data_14: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_explosion' } },
-      data_15: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
+      data_11: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_explosion' } },
+      data_12: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
     },
   },
   macros: {},
@@ -1378,7 +1374,8 @@ export const gilbertaChr_0013_aglina_ultimate_skillActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_damage_immune_ult_skill' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -1499,8 +1496,8 @@ export const gilbertaChr_0013_aglina_combo_skillActionGraph = {
             alwaysNext: true,
             tags: ['Skill/Character/Common/Heal/ComboSkillHeal'],
             attribute: 'intellect',
-            multiplier: { kind: 'valueNode', nodeId: 'data_3' },
-            addition: { kind: 'valueNode', nodeId: 'data_4' },
+            multiplier: { kind: 'valueNode', nodeId: 'data_1' },
+            addition: { kind: 'valueNode', nodeId: 'data_2' },
           },
         },
         next: null,
@@ -1508,7 +1505,7 @@ export const gilbertaChr_0013_aglina_combo_skillActionGraph = {
       checkCondition_3: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
         },
         next: null,
       },
@@ -1535,7 +1532,7 @@ export const gilbertaChr_0013_aglina_combo_skillActionGraph = {
       checkCondition_6: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_6' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_4' } },
         },
         next: null,
       },
@@ -1552,14 +1549,14 @@ export const gilbertaChr_0013_aglina_combo_skillActionGraph = {
       checkCondition_10: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_7' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
         },
         next: null,
       },
       checkCondition_11: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_9' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_7' } },
         },
         next: 'checkCondition_10',
       },
@@ -1568,7 +1565,7 @@ export const gilbertaChr_0013_aglina_combo_skillActionGraph = {
           kind: 'changeResource',
           parameters: {
             resource: 'ultimateEnergy',
-            amount: { kind: 'valueNode', nodeId: 'data_10' },
+            amount: { kind: 'valueNode', nodeId: 'data_8' },
             coefficient: { kind: 'constant', value: 1 },
             source: { kind: 'source' },
             targets: { kind: 'source' },
@@ -1591,10 +1588,10 @@ export const gilbertaChr_0013_aglina_combo_skillActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'nature',
-            attackScale: { kind: 'valueNode', nodeId: 'data_11' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_9' },
             tags: ['comboSkill'],
             features: ['canBreakWeakness'],
-            stagger: { kind: 'valueNode', nodeId: 'data_12' },
+            stagger: { kind: 'valueNode', nodeId: 'data_10' },
           },
         },
         next: 'ifElse_14',
@@ -1636,9 +1633,7 @@ export const gilbertaChr_0013_aglina_combo_skillActionGraph = {
     dataNodes: {
       data_1: { type: 'number', expression: { kind: 'blackboard', key: 'heal_scale' } },
       data_2: { type: 'number', expression: { kind: 'blackboard', key: 'heal_const' } },
-      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'heal_scale' } },
-      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'heal_const' } },
-      data_5: {
+      data_3: {
         type: 'boolean',
         expression: {
           kind: 'healthCompare',
@@ -1649,7 +1644,7 @@ export const gilbertaChr_0013_aglina_combo_skillActionGraph = {
           value: { kind: 'constant', value: 0.99 },
         },
       },
-      data_6: {
+      data_4: {
         type: 'boolean',
         expression: {
           kind: 'healthCompare',
@@ -1659,7 +1654,7 @@ export const gilbertaChr_0013_aglina_combo_skillActionGraph = {
           value: { kind: 'constant', value: 0.99 },
         },
       },
-      data_7: {
+      data_5: {
         type: 'boolean',
         expression: {
           kind: 'entityCountCompare',
@@ -1670,22 +1665,22 @@ export const gilbertaChr_0013_aglina_combo_skillActionGraph = {
           value: 2,
         },
       },
-      data_8: {
+      data_6: {
         type: 'number',
         expression: { kind: 'blackboard', key: 'heal_const', fallback: 0 },
       },
-      data_9: {
+      data_7: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_8' },
+          left: { kind: 'valueNode', nodeId: 'data_6' },
           operator: 'greater',
           right: { kind: 'constant', value: 0 },
         },
       },
-      data_10: { type: 'number', expression: { kind: 'blackboard', key: 'usp' } },
-      data_11: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_12: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
+      data_8: { type: 'number', expression: { kind: 'blackboard', key: 'usp' } },
+      data_9: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
+      data_10: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
     },
   },
   macros: {},
@@ -1757,7 +1752,7 @@ const gilbertaPassive1ActionGraph = {
                 blackboardAssignments: { add: { kind: 'valueNode', nodeId: 'data_1' } },
               },
             ],
-            target: 'caster',
+            targets: { kind: 'fixed', target: 'caster' },
             inheritSourceSkillCastInfo: false,
           },
         },
@@ -1879,7 +1874,8 @@ const gilbertaBuff2ActionGraph = {
         action: {
           kind: 'aura',
           parameters: {
-            target: 'party',
+            targets: { kind: 'characterTeam', excludeOwner: false },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: false,
             buffs: [
               {
@@ -1925,8 +1921,8 @@ const gilbertaBuff3ActionGraph = {
                 copiedBlackboardAssignments: { add: 'add' },
               },
             ],
-            target: 'buffOwner',
-            source: 'buffSource',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
           },
@@ -2062,8 +2058,8 @@ const gilbertaBuff5ActionGraph = {
                 copiedBlackboardAssignments: { rate: 'FinalRate' },
               },
             ],
-            target: 'buffOwner',
-            source: 'buffSource',
+            targets: { kind: 'inputTarget' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -2154,7 +2150,8 @@ const gilbertaBuff5ActionGraph = {
                 },
               },
             ],
-            target: 'enemy',
+            targets: { kind: 'inputTarget' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -2297,7 +2294,8 @@ const gilbertaBuff6ActionGraph = {
                 },
               },
             ],
-            target: 'enemy',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
           },
@@ -2561,7 +2559,8 @@ export const gilberta: OperatorDefinition = {
                   kind: 'applyBuff',
                   parameters: {
                     buffs: [{ buffId: 'buff_chr_0013_aglina_normal_skill_monitor' }],
-                    target: 'currentAbilityEntity',
+                    targets: { kind: 'owner' },
+                    source: { kind: 'source' },
                     inheritSourceSkillCastInfo: true,
                     finishByAction: true,
                   },
@@ -2639,7 +2638,8 @@ export const gilberta: OperatorDefinition = {
                 action: {
                   kind: 'aura',
                   parameters: {
-                    target: 'enemy',
+                    targets: { kind: 'fixed', target: 'enemy' },
+                    source: { kind: 'source' },
                     inheritSourceSkillCastInfo: true,
                     buffs: [
                       {

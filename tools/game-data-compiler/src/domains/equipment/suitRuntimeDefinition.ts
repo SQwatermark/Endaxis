@@ -231,7 +231,7 @@ export function compileEquipmentSuitRuntimeBatchSource(
                 : { blackboardAssignments: assignments }),
             },
           ],
-          target: 'caster',
+          targets: { kind: 'fixed', target: 'caster' },
         },
       });
     }

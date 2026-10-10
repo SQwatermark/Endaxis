@@ -56,14 +56,14 @@ function fixture(execute?: CombatOperationExecutor['execute']) {
 }
 
 describe('直接图执行', () => {
-  it('Aura 恢复不重入，并逆序清理目标后执行保留 Target 的退出回调', () => {
+  it.each(['restore', 'apply', 'enter', 'exit'] as const)('Aura 生命周期：%s', mode => {
     const program = createActionGraphCompilation(
       {
         nodes: {
           aura: {
             action: {
               kind: 'aura',
-              parameters: { target: 'party', buffs: [] },
+              parameters: { targets: { kind: 'characterTeam', excludeOwner: false }, buffs: [] },
               onEnter: { $sequence: 'enter' },
               onExit: { $sequence: 'exit' },
             },
@@ -88,6 +88,7 @@ describe('直接图执行', () => {
       1,
     ).compileAll();
     const events: string[] = [];
+    let stop: () => void = () => {};
     const targets = [
       { kind: 'operator' as const, operatorId: 'a' },
       { kind: 'operator' as const, operatorId: 'b' },
@@ -100,6 +101,7 @@ describe('直接图执行', () => {
           events.push(
             `${step.parameters.flag}:${target.kind === 'operator' ? target.operatorId : target.kind}`,
           );
+          if (step.parameters.flag === mode) stop();
         }
         return true;
       },
@@ -108,16 +110,29 @@ describe('直接图执行', () => {
         apply: (_parameters, target) => {
           const ownerId = target.kind === 'operator' ? target.operatorId : 'enemy';
           events.push(`apply:${ownerId}`);
+          if (mode === 'apply') stop();
           return [{ ownerId, instanceId: 1 }];
         },
-        finish: references => events.push(`finish:${references[0]!.ownerId}`),
+        finish: references =>
+          references.forEach(reference => events.push(`finish:${reference.ownerId}`)),
       },
     };
     const runtime = new CombatActionSequenceRuntime(operations, {
       blackboard: new ActionBlackboard(),
     });
     const action = runtime.createGraphSequence(program, 'aura', 'root');
+    stop = () => action.end({});
     action.tryExecute({});
+    if (mode === 'apply' || mode === 'enter') {
+      expect(events.filter(event => event.startsWith('apply:'))).toEqual(['apply:a']);
+      expect(events.filter(event => event.startsWith('finish:'))).toEqual(['finish:a']);
+      expect(events.filter(event => event.startsWith('exit:'))).toEqual(['exit:a']);
+      const ended = [...events];
+      action.tick(1 / 30, {});
+      action.end({});
+      expect(events).toEqual(ended);
+      return;
+    }
     expect(events).toEqual(['apply:a', 'enter:a', 'apply:b', 'enter:b']);
     const restored = runtime.createGraphSequence(
       program,
@@ -126,10 +141,25 @@ describe('直接图执行', () => {
       undefined,
       structuredClone(action.runtimeState),
     );
+    stop = () => restored.end({});
+    if (mode === 'exit') {
+      restored.end({});
+      expect(events.slice(4)).toEqual(['finish:b', 'exit:b', 'finish:a', 'exit:a']);
+      restored.end({});
+      expect(events).toHaveLength(8);
+      return;
+    }
     restored.tick(1 / 30, {});
     expect(events).toHaveLength(4);
+    // 离场后重新进入是新的影响实例；恢复不能复用已经结束的回调状态。
+    const departed = targets.pop()!;
+    restored.tick(1 / 30, {});
+    expect(events.slice(4)).toEqual(['finish:b', 'exit:b']);
+    targets.push(departed);
+    restored.tick(1 / 30, {});
+    expect(events.slice(6)).toEqual(['apply:b', 'enter:b']);
     restored.end({});
-    expect(events.slice(4)).toEqual(['finish:b', 'exit:b', 'finish:a', 'exit:a']);
+    expect(events.slice(8)).toEqual(['finish:b', 'exit:b', 'finish:a', 'exit:a']);
   });
 
   it('诊断记录不重放动作，区分共享图调用，并在异常后恢复观察作用域', () => {

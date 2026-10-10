@@ -58,6 +58,38 @@ function optimize(graph: ActionGraphDefinition, entry: ActionGraphReference) {
 }
 
 describe('图侧序列优化', () => {
+  it('简化图检查表达式但不将常量操作数当作条件序列的最终返回值', () => {
+    for (const passed of [true, false]) {
+      for (const unusedAction of [assign('unused', 1), damage()]) {
+        const f = fixture();
+        const unused = f.chain(unusedAction);
+        const selected = f.chain(assign('selected', 2));
+        const entry = f.chain({
+          kind: 'ifElse',
+          parameters: { alwaysNext: false },
+          condition: f.chain({
+            kind: 'checkCondition',
+            parameters: {
+              condition: { kind: 'not', condition: constant(!passed) },
+            },
+          }),
+          whenTrue: passed ? selected : unused,
+          whenFalse: passed ? unused : selected,
+        });
+        const result = optimize({ nodes: f.nodes }, entry);
+        const branch = result.graph.nodes[result.entry.$sequence!]!.action;
+        expect(branch.kind).toBe('ifElse');
+        if (branch.kind !== 'ifElse') throw new Error('missing branch');
+        const retained = passed ? branch.whenFalse : branch.whenTrue;
+        expect(retained.$sequence).not.toBeNull();
+        expect(result.graph.nodes[branch.condition.$sequence!]!.action).toMatchObject({
+          kind: 'checkCondition',
+          parameters: { condition: constant(passed) },
+        });
+      }
+    }
+  });
+
   it('共享检查在结果被忽略的调用处删除，在选择分支的调用处保留', () => {
     const f = fixture();
     const check = f.chain({
@@ -523,14 +555,14 @@ describe('图侧序列优化', () => {
     ).toHaveLength(1);
     const head = result.graph.nodes[result.entry.$sequence!]!.action as Extract<
       ActionGraphStep,
-      { kind: 'conditional' }
+      { kind: 'switch' }
     >;
-    expect(head.kind).toBe('conditional');
-    expect(head.parameters.alwaysNext).toBe(alwaysNext ? true : undefined);
-    expect(head.parameters.condition).toMatchObject({ kind: 'any' });
-    expect(head.whenFalse).toBeUndefined();
+    expect(head.kind).toBe('switch');
+    expect(head.parameters.alwaysNext).toBe(alwaysNext);
+    expect(head.options.map(option => option.value)).toEqual([0, 1, 2].map(literal));
+    expect(new Set(head.options.map(option => option.sequence.$sequence)).size).toBe(1);
     // 公共链保留原选项节点 id（interning 复用），伤害 key 取字典序最小的 options[0]。
-    const bodyHead = result.graph.nodes[head.whenTrue.$sequence!]!;
+    const bodyHead = result.graph.nodes[head.options[0]!.sequence.$sequence!]!;
     expect(bodyHead.action).toMatchObject({
       kind: 'dealDamage',
       key: 'fixture:/scheduledSequences/0/sequence/steps/0/options[0]/sequence/steps/0',

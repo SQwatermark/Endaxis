@@ -363,7 +363,6 @@ function inspectSequence(
       case 'calculateActionValue':
       case 'createTimedMarker':
       case 'setGlobalCooldown':
-      case 'createAbilityEntityTimedMarker':
       case 'gainSquadUltimateEnergyFromSkillCost':
       case 'gainFinisherSp':
       case 'restrictUltimateEnergyRecovery':
@@ -454,6 +453,9 @@ function inspectSequence(
           );
         return;
       case 'aura':
+        inspectSequence(step.onEnter, `${stepPath}.onEnter`, collect, flags, source);
+        inspectSequence(step.onExit, `${stepPath}.onExit`, collect, flags, source);
+        return;
       case 'storeCharacterTypeId':
       case 'changeResource':
         return;

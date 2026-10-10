@@ -77,8 +77,10 @@ it('外层消费 IfElse 返回值时，alwaysNext 仍隔离正文尾部的无用
   const action = result.read(result.entry)[0]!;
   if (action.kind !== 'ifElse') throw new Error('missing branch');
   expect(result.read(action.whenTrue)).toEqual([{ kind: 'leaf', value: 'hit[]' }]);
+  if (branch.body.kind !== 'ifElse') throw new Error('missing source branch');
+  const branchBody = branch.body;
   expect(() =>
-    run(sequence([{ ...branch, body: { ...branch.body, alwaysNext: false } }]), true),
+    run(sequence([{ ...branch, body: { ...branchBody, alwaysNext: false } }]), true),
   ).toThrow('unsupported action');
 });
 

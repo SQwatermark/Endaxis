@@ -38,7 +38,7 @@ const PROGRAM: CompiledOperatorUpgradeEventProgram = {
   sequence: chainSequence('potential:attackAfterSpGain:0', [
     {
       kind: 'applyBuff',
-      parameters: { buffs: [{ buffId: 'attack-up' }], target: 'caster' },
+      parameters: { buffs: [{ buffId: 'attack-up' }], targets: { kind: 'fixed', target: 'caster' } },
     },
   ]),
 };
@@ -218,7 +218,7 @@ describe('OperatorUpgradeEventRuntime', () => {
             kind: 'applyBuff',
             parameters: {
               buffs: [{ buffId: 'physical-up' }],
-              target: 'caster',
+              targets: { kind: 'fixed', target: 'caster' },
               count: { kind: 'valueNode', nodeId: 'input_1' },
             },
           },

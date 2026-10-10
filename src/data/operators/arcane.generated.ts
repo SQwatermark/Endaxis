@@ -44,7 +44,7 @@ export const arcaneChr_0032_lizhiyan_attack1ActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'nature',
-            attackScale: { kind: 'valueNode', nodeId: 'data_3' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_2' },
             tags: ['normalAttack'],
           },
         },
@@ -128,7 +128,6 @@ export const arcaneChr_0032_lizhiyan_attack1ActionGraph = {
         },
       },
       data_2: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
     },
   },
   macros: {},
@@ -204,7 +203,7 @@ export const arcaneChr_0032_lizhiyan_attack2ActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'nature',
-            attackScale: { kind: 'valueNode', nodeId: 'data_3' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_2' },
             tags: ['normalAttack'],
           },
         },
@@ -215,7 +214,7 @@ export const arcaneChr_0032_lizhiyan_attack2ActionGraph = {
           kind: 'changeResource',
           parameters: {
             resource: 'sp',
-            amount: { kind: 'valueNode', nodeId: 'data_4' },
+            amount: { kind: 'valueNode', nodeId: 'data_3' },
             coefficient: { kind: 'constant', value: 0.167 },
             source: { kind: 'source' },
             targets: { kind: 'source' },
@@ -228,7 +227,7 @@ export const arcaneChr_0032_lizhiyan_attack2ActionGraph = {
       checkCondition_14: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_4' } },
         },
         next: null,
       },
@@ -298,9 +297,8 @@ export const arcaneChr_0032_lizhiyan_attack2ActionGraph = {
         },
       },
       data_2: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
-      data_5: { type: 'boolean', expression: { kind: 'casterControlled' } },
+      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+      data_4: { type: 'boolean', expression: { kind: 'casterControlled' } },
     },
   },
   macros: {},
@@ -410,7 +408,7 @@ export const arcaneChr_0032_lizhiyan_attack3ActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'nature',
-            attackScale: { kind: 'valueNode', nodeId: 'data_5' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_1' },
             tags: ['normalAttack'],
           },
         },
@@ -474,7 +472,6 @@ export const arcaneChr_0032_lizhiyan_attack3ActionGraph = {
           value: { kind: 'constant', value: 1 },
         },
       },
-      data_5: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
     },
   },
   macros: {},
@@ -533,10 +530,11 @@ export const arcaneChr_0032_lizhiyan_attack4ActionGraph = {
         action: {
           kind: 'createTimedMarker',
           parameters: {
-            target: 'caster',
+            targets: { kind: 'owner' },
             markerId: 'lizhiyan_attack4',
             durationSeconds: { kind: 'constant', value: 0.1 },
             autoFinishByAction: false,
+            timeDomain: 'globalScaled',
           },
         },
         next: null,
@@ -782,10 +780,11 @@ export const arcaneChr_0032_lizhiyan_attack5ActionGraph = {
         action: {
           kind: 'createTimedMarker',
           parameters: {
-            target: 'caster',
+            targets: { kind: 'owner' },
             markerId: 'lizhiyan_attack5',
             durationSeconds: { kind: 'constant', value: 0.1 },
             autoFinishByAction: false,
+            timeDomain: 'globalScaled',
           },
         },
         next: null,
@@ -949,7 +948,7 @@ export const arcaneChr_0032_lizhiyan_attack5ActionGraph = {
         type: 'boolean',
         expression: {
           kind: 'entityCountCompare',
-          target: { kind: 'inputTarget' },
+          target: { kind: 'fixed', target: 'enemy' },
           containsHittableTarget: false,
           excludeDeadEntity: false,
           operator: 'greaterOrEqual',
@@ -1079,7 +1078,7 @@ export const arcaneChr_0032_lizhiyan_power_attackActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'nature',
-            attackScale: { kind: 'valueNode', nodeId: 'data_2' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_1' },
             calculation: 'breakingAttack',
             calculationMultiplier: 0.5,
             tags: ['normalAttack', 'powerAttack'],
@@ -1107,10 +1106,11 @@ export const arcaneChr_0032_lizhiyan_power_attackActionGraph = {
         action: {
           kind: 'createTimedMarker',
           parameters: {
-            target: 'caster',
+            targets: { kind: 'source' },
             markerId: 'lizhiyan_power_attack_effect',
             durationSeconds: { kind: 'constant', value: 1 },
             autoFinishByAction: false,
+            timeDomain: 'globalScaled',
           },
         },
         next: null,
@@ -1120,7 +1120,8 @@ export const arcaneChr_0032_lizhiyan_power_attackActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_full_immune_medium' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -1132,7 +1133,8 @@ export const arcaneChr_0032_lizhiyan_power_attackActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_power_attack_disable_cast_skill' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -1140,10 +1142,7 @@ export const arcaneChr_0032_lizhiyan_power_attackActionGraph = {
         next: null,
       },
     },
-    dataNodes: {
-      data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_2: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-    },
+    dataNodes: { data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } } },
   },
   macros: {},
 } as const satisfies ActionGraphResourceDefinition;
@@ -1427,7 +1426,7 @@ export const arcaneChr_0032_lizhiyan_combo_skillActionGraph = {
           parameters: {
             key: 'rate_final',
             operation: 'assign',
-            value: { kind: 'valueNode', nodeId: 'data_10' },
+            value: { kind: 'valueNode', nodeId: 'data_3' },
           },
         },
         next: null,
@@ -1435,7 +1434,7 @@ export const arcaneChr_0032_lizhiyan_combo_skillActionGraph = {
       checkCondition_17: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_12' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_11' } },
         },
         next: null,
       },
@@ -1455,7 +1454,7 @@ export const arcaneChr_0032_lizhiyan_combo_skillActionGraph = {
           parameters: {
             key: 'trigger_time',
             operation: 'add',
-            left: { kind: 'valueNode', nodeId: 'data_13' },
+            left: { kind: 'valueNode', nodeId: 'data_12' },
             right: { kind: 'constant', value: -0.5 },
           },
         },
@@ -1467,8 +1466,8 @@ export const arcaneChr_0032_lizhiyan_combo_skillActionGraph = {
           parameters: {
             key: 'duration_final',
             operation: 'add',
-            left: { kind: 'valueNode', nodeId: 'data_14' },
-            right: { kind: 'valueNode', nodeId: 'data_15' },
+            left: { kind: 'valueNode', nodeId: 'data_13' },
+            right: { kind: 'valueNode', nodeId: 'data_14' },
           },
         },
         next: 'calculateActionValue_28',
@@ -1480,7 +1479,7 @@ export const arcaneChr_0032_lizhiyan_combo_skillActionGraph = {
             key: 'duration',
             operation: 'add',
             left: { kind: 'constant', value: 0 },
-            right: { kind: 'valueNode', nodeId: 'data_16' },
+            right: { kind: 'valueNode', nodeId: 'data_15' },
           },
         },
         next: 'calculateActionValue_29',
@@ -1514,43 +1513,44 @@ export const arcaneChr_0032_lizhiyan_combo_skillActionGraph = {
       setAbilityEntityRemainingDuration_33: {
         action: {
           kind: 'setAbilityEntityRemainingDuration',
-          parameters: { value: { kind: 'constant', value: 0.5 } },
+          parameters: {
+            target: { kind: 'context', key: 'bunshin4' },
+            value: { kind: 'constant', value: 0.5 },
+          },
         },
         next: null,
       },
-      forEachContextTarget_37: {
+      setAbilityEntityRemainingDuration_34: {
         action: {
-          kind: 'forEachContextTarget',
-          parameters: { targets: { kind: 'context', key: 'bunshin4' } },
-          body: { $sequence: 'setAbilityEntityRemainingDuration_33' },
+          kind: 'setAbilityEntityRemainingDuration',
+          parameters: {
+            target: { kind: 'context', key: 'bunshin3' },
+            value: { kind: 'constant', value: 0.5 },
+          },
         },
-        next: null,
+        next: 'setAbilityEntityRemainingDuration_33',
       },
-      forEachContextTarget_38: {
+      setAbilityEntityRemainingDuration_35: {
         action: {
-          kind: 'forEachContextTarget',
-          parameters: { targets: { kind: 'context', key: 'bunshin3' } },
-          body: { $sequence: 'setAbilityEntityRemainingDuration_33' },
+          kind: 'setAbilityEntityRemainingDuration',
+          parameters: {
+            target: { kind: 'context', key: 'bunshin2' },
+            value: { kind: 'constant', value: 0.5 },
+          },
         },
-        next: 'forEachContextTarget_37',
+        next: 'setAbilityEntityRemainingDuration_34',
       },
-      forEachContextTarget_39: {
+      setAbilityEntityRemainingDuration_36: {
         action: {
-          kind: 'forEachContextTarget',
-          parameters: { targets: { kind: 'context', key: 'bunshin2' } },
-          body: { $sequence: 'setAbilityEntityRemainingDuration_33' },
+          kind: 'setAbilityEntityRemainingDuration',
+          parameters: {
+            target: { kind: 'context', key: 'bunshin1' },
+            value: { kind: 'constant', value: 0.5 },
+          },
         },
-        next: 'forEachContextTarget_38',
+        next: 'setAbilityEntityRemainingDuration_35',
       },
-      forEachContextTarget_40: {
-        action: {
-          kind: 'forEachContextTarget',
-          parameters: { targets: { kind: 'context', key: 'bunshin1' } },
-          body: { $sequence: 'setAbilityEntityRemainingDuration_33' },
-        },
-        next: 'forEachContextTarget_39',
-      },
-      spawnAbilityEntity_41: {
+      spawnAbilityEntity_37: {
         action: {
           kind: 'spawnAbilityEntity',
           parameters: {
@@ -1562,13 +1562,13 @@ export const arcaneChr_0032_lizhiyan_combo_skillActionGraph = {
             overrideDurationSeconds: { kind: 'constant', value: 40 },
             saveToContextKey: 'bunshin4',
             blackboardAssignments: {
-              EntityBB_wisd_greater_will: { kind: 'valueNode', nodeId: 'data_17' },
+              EntityBB_wisd_greater_will: { kind: 'valueNode', nodeId: 'data_16' },
             },
           },
         },
-        next: 'forEachContextTarget_40',
+        next: 'setAbilityEntityRemainingDuration_36',
       },
-      spawnAbilityEntity_42: {
+      spawnAbilityEntity_38: {
         action: {
           kind: 'spawnAbilityEntity',
           parameters: {
@@ -1580,13 +1580,13 @@ export const arcaneChr_0032_lizhiyan_combo_skillActionGraph = {
             overrideDurationSeconds: { kind: 'constant', value: 40 },
             saveToContextKey: 'bunshin3',
             blackboardAssignments: {
-              EntityBB_wisd_greater_will: { kind: 'valueNode', nodeId: 'data_18' },
+              EntityBB_wisd_greater_will: { kind: 'valueNode', nodeId: 'data_16' },
             },
           },
         },
-        next: 'spawnAbilityEntity_41',
+        next: 'spawnAbilityEntity_37',
       },
-      spawnAbilityEntity_43: {
+      spawnAbilityEntity_39: {
         action: {
           kind: 'spawnAbilityEntity',
           parameters: {
@@ -1598,13 +1598,13 @@ export const arcaneChr_0032_lizhiyan_combo_skillActionGraph = {
             overrideDurationSeconds: { kind: 'constant', value: 40 },
             saveToContextKey: 'bunshin2',
             blackboardAssignments: {
-              EntityBB_wisd_greater_will: { kind: 'valueNode', nodeId: 'data_19' },
+              EntityBB_wisd_greater_will: { kind: 'valueNode', nodeId: 'data_16' },
             },
           },
         },
-        next: 'spawnAbilityEntity_42',
+        next: 'spawnAbilityEntity_38',
       },
-      spawnAbilityEntity_44: {
+      spawnAbilityEntity_40: {
         action: {
           kind: 'spawnAbilityEntity',
           parameters: {
@@ -1616,100 +1616,102 @@ export const arcaneChr_0032_lizhiyan_combo_skillActionGraph = {
             overrideDurationSeconds: { kind: 'constant', value: 40 },
             saveToContextKey: 'bunshin1',
             blackboardAssignments: {
-              EntityBB_wisd_greater_will: { kind: 'valueNode', nodeId: 'data_20' },
+              EntityBB_wisd_greater_will: { kind: 'valueNode', nodeId: 'data_16' },
             },
           },
         },
-        next: 'spawnAbilityEntity_43',
+        next: 'spawnAbilityEntity_39',
       },
-      checkCondition_45: {
+      checkCondition_41: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_21' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_17' } },
         },
-        next: 'spawnAbilityEntity_44',
+        next: 'spawnAbilityEntity_40',
+      },
+      setAbilityEntityRemainingDuration_43: {
+        action: {
+          kind: 'setAbilityEntityRemainingDuration',
+          parameters: {
+            target: { kind: 'context', key: 'bunshin4' },
+            value: { kind: 'constant', value: 30 },
+          },
+        },
+        next: null,
+      },
+      setAbilityEntityRemainingDuration_44: {
+        action: {
+          kind: 'setAbilityEntityRemainingDuration',
+          parameters: {
+            target: { kind: 'context', key: 'bunshin3' },
+            value: { kind: 'constant', value: 30 },
+          },
+        },
+        next: 'setAbilityEntityRemainingDuration_43',
+      },
+      setAbilityEntityRemainingDuration_45: {
+        action: {
+          kind: 'setAbilityEntityRemainingDuration',
+          parameters: {
+            target: { kind: 'context', key: 'bunshin2' },
+            value: { kind: 'constant', value: 30 },
+          },
+        },
+        next: 'setAbilityEntityRemainingDuration_44',
       },
       setAbilityEntityRemainingDuration_46: {
         action: {
           kind: 'setAbilityEntityRemainingDuration',
-          parameters: { value: { kind: 'constant', value: 30 } },
+          parameters: {
+            target: { kind: 'context', key: 'bunshin1' },
+            value: { kind: 'constant', value: 30 },
+          },
         },
-        next: null,
+        next: 'setAbilityEntityRemainingDuration_45',
       },
-      forEachContextTarget_51: {
-        action: {
-          kind: 'forEachContextTarget',
-          parameters: { targets: { kind: 'context', key: 'bunshin4' } },
-          body: { $sequence: 'setAbilityEntityRemainingDuration_46' },
-        },
-        next: null,
-      },
-      forEachContextTarget_52: {
-        action: {
-          kind: 'forEachContextTarget',
-          parameters: { targets: { kind: 'context', key: 'bunshin3' } },
-          body: { $sequence: 'setAbilityEntityRemainingDuration_46' },
-        },
-        next: 'forEachContextTarget_51',
-      },
-      forEachContextTarget_53: {
-        action: {
-          kind: 'forEachContextTarget',
-          parameters: { targets: { kind: 'context', key: 'bunshin2' } },
-          body: { $sequence: 'setAbilityEntityRemainingDuration_46' },
-        },
-        next: 'forEachContextTarget_52',
-      },
-      forEachContextTarget_54: {
-        action: {
-          kind: 'forEachContextTarget',
-          parameters: { targets: { kind: 'context', key: 'bunshin1' } },
-          body: { $sequence: 'setAbilityEntityRemainingDuration_46' },
-        },
-        next: 'forEachContextTarget_53',
-      },
-      checkCondition_50: {
+      checkCondition_42: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_22' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_18' } },
         },
         next: null,
       },
-      ifElse_55: {
+      ifElse_47: {
         action: {
           kind: 'ifElse',
           parameters: { alwaysNext: true },
-          condition: { $sequence: 'checkCondition_50' },
-          whenTrue: { $sequence: 'forEachContextTarget_54' },
+          condition: { $sequence: 'checkCondition_42' },
+          whenTrue: { $sequence: 'setAbilityEntityRemainingDuration_46' },
           whenFalse: { $sequence: null },
         },
         next: null,
       },
-      applyBuff_56: {
+      applyBuff_48: {
         action: {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0032_lizhiyan_combo_skill_precheck' }],
-            target: 'enemy',
+            targets: { kind: 'fixed', target: 'enemy' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
         },
         next: null,
       },
-      calculateActionValue_57: {
+      calculateActionValue_49: {
         action: {
           kind: 'calculateActionValue',
           parameters: {
             key: 'duration_total',
             operation: 'add',
-            left: { kind: 'valueNode', nodeId: 'data_23' },
+            left: { kind: 'valueNode', nodeId: 'data_12' },
             right: { kind: 'constant', value: 0.067 },
           },
         },
         next: null,
       },
-      applyBuff_58: {
+      applyBuff_50: {
         action: {
           kind: 'applyBuff',
           parameters: {
@@ -1734,13 +1736,14 @@ export const arcaneChr_0032_lizhiyan_combo_skillActionGraph = {
                 },
               },
             ],
-            target: 'caster',
+            targets: { kind: 'source' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
         next: null,
       },
-      startTimeDilation_59: {
+      startTimeDilation_51: {
         action: {
           kind: 'startTimeDilation',
           parameters: {
@@ -1756,7 +1759,7 @@ export const arcaneChr_0032_lizhiyan_combo_skillActionGraph = {
         },
         next: null,
       },
-      modifyActionValue_61: {
+      modifyActionValue_53: {
         action: {
           kind: 'modifyActionValue',
           parameters: {
@@ -1767,27 +1770,27 @@ export const arcaneChr_0032_lizhiyan_combo_skillActionGraph = {
         },
         next: null,
       },
-      findCharacterTeamTargets_62: {
+      findCharacterTeamTargets_54: {
         action: {
           kind: 'findCharacterTeamTargets',
           parameters: { saveToContextKey: 'mainchar', selection: { kind: 'controlledOperator' } },
         },
-        next: 'modifyActionValue_61',
+        next: 'modifyActionValue_53',
       },
-      checkCondition_60: {
+      checkCondition_52: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_24' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_19' } },
         },
         next: null,
       },
-      ifElse_63: {
+      ifElse_55: {
         action: {
           kind: 'ifElse',
           parameters: { alwaysNext: true },
-          condition: { $sequence: 'checkCondition_60' },
+          condition: { $sequence: 'checkCondition_52' },
           whenTrue: { $sequence: null },
-          whenFalse: { $sequence: 'findCharacterTeamTargets_62' },
+          whenFalse: { $sequence: 'findCharacterTeamTargets_54' },
         },
         next: null,
       },
@@ -1825,41 +1828,39 @@ export const arcaneChr_0032_lizhiyan_combo_skillActionGraph = {
       },
       data_8: { type: 'number', expression: { kind: 'blackboard', key: 'spell_vul_per_will' } },
       data_9: { type: 'number', expression: { kind: 'blackboard', key: 'will' } },
-      data_10: { type: 'number', expression: { kind: 'blackboard', key: 'rate_pre' } },
-      data_11: {
+      data_10: {
         type: 'number',
         expression: { kind: 'blackboard', key: 'EntityBB_wisd_greater_will', fallback: 0 },
       },
-      data_12: {
+      data_11: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_11' },
+          left: { kind: 'valueNode', nodeId: 'data_10' },
           operator: 'greaterOrEqual',
           right: { kind: 'constant', value: 1 },
         },
       },
-      data_13: { type: 'number', expression: { kind: 'blackboard', key: 'duration_final' } },
-      data_14: { type: 'number', expression: { kind: 'blackboard', key: 'duration_pre' } },
-      data_15: { type: 'number', expression: { kind: 'blackboard', key: 'duration' } },
-      data_16: { type: 'number', expression: { kind: 'blackboard', key: 'duration_will' } },
-      data_17: {
+      data_12: { type: 'number', expression: { kind: 'blackboard', key: 'duration_final' } },
+      data_13: { type: 'number', expression: { kind: 'blackboard', key: 'duration_pre' } },
+      data_14: { type: 'number', expression: { kind: 'blackboard', key: 'duration' } },
+      data_15: { type: 'number', expression: { kind: 'blackboard', key: 'duration_will' } },
+      data_16: {
         type: 'number',
         expression: { kind: 'blackboard', key: 'EntityBB_wisd_greater_will' },
+      },
+      data_17: {
+        type: 'boolean',
+        expression: {
+          kind: 'entityCountCompare',
+          target: { kind: 'fixed', target: 'enemy' },
+          containsHittableTarget: false,
+          excludeDeadEntity: true,
+          operator: 'greaterOrEqual',
+          value: 1,
+        },
       },
       data_18: {
-        type: 'number',
-        expression: { kind: 'blackboard', key: 'EntityBB_wisd_greater_will' },
-      },
-      data_19: {
-        type: 'number',
-        expression: { kind: 'blackboard', key: 'EntityBB_wisd_greater_will' },
-      },
-      data_20: {
-        type: 'number',
-        expression: { kind: 'blackboard', key: 'EntityBB_wisd_greater_will' },
-      },
-      data_21: {
         type: 'boolean',
         expression: {
           kind: 'entityCountCompare',
@@ -1870,19 +1871,7 @@ export const arcaneChr_0032_lizhiyan_combo_skillActionGraph = {
           value: 1,
         },
       },
-      data_22: {
-        type: 'boolean',
-        expression: {
-          kind: 'entityCountCompare',
-          target: { kind: 'fixed', target: 'enemy' },
-          containsHittableTarget: false,
-          excludeDeadEntity: true,
-          operator: 'greaterOrEqual',
-          value: 1,
-        },
-      },
-      data_23: { type: 'number', expression: { kind: 'blackboard', key: 'duration_final' } },
-      data_24: { type: 'boolean', expression: { kind: 'casterControlled' } },
+      data_19: { type: 'boolean', expression: { kind: 'casterControlled' } },
     },
   },
   macros: {},
@@ -1936,13 +1925,13 @@ export const arcaneChr_0032_lizhiyan_combo_skill: SkillDefinition = {
   scheduledSequences: [
     { startFrame: 0, endFrame: 3, sequence: { $sequence: 'ifElse_31' } },
     { startFrame: 9, endFrame: 10, sequence: { $sequence: 'startTimeDilation_32' } },
-    { startFrame: 9, endFrame: 10, sequence: { $sequence: 'checkCondition_45' } },
-    { startFrame: 9, endFrame: 12, sequence: { $sequence: 'ifElse_55' } },
-    { startFrame: 0, endFrame: 11, sequence: { $sequence: 'applyBuff_56' } },
-    { startFrame: 9, endFrame: 12, sequence: { $sequence: 'calculateActionValue_57' } },
-    { startFrame: 9, endFrame: 30, sequence: { $sequence: 'applyBuff_58' } },
-    { startFrame: 0, endFrame: 15, sequence: { $sequence: 'startTimeDilation_59' } },
-    { startFrame: 0, endFrame: 15, sequence: { $sequence: 'ifElse_63' } },
+    { startFrame: 9, endFrame: 10, sequence: { $sequence: 'checkCondition_41' } },
+    { startFrame: 9, endFrame: 12, sequence: { $sequence: 'ifElse_47' } },
+    { startFrame: 0, endFrame: 11, sequence: { $sequence: 'applyBuff_48' } },
+    { startFrame: 9, endFrame: 12, sequence: { $sequence: 'calculateActionValue_49' } },
+    { startFrame: 9, endFrame: 30, sequence: { $sequence: 'applyBuff_50' } },
+    { startFrame: 0, endFrame: 15, sequence: { $sequence: 'startTimeDilation_51' } },
+    { startFrame: 0, endFrame: 15, sequence: { $sequence: 'ifElse_55' } },
   ],
   smartTarget: 'trigger',
   cooldownFrames: [600, 600, 600, 600, 600, 600, 600, 600, 570, 570, 570, 540],
@@ -1975,7 +1964,8 @@ export const arcaneChr_0032_lizhiyan_ultimate_skillActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_time_dilation_listener' }],
-            target: 'caster',
+            targets: { kind: 'source' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -1998,7 +1988,8 @@ export const arcaneChr_0032_lizhiyan_ultimate_skillActionGraph = {
         action: {
           kind: 'finishBuffsById',
           parameters: {
-            target: 'caster',
+            targets: { kind: 'source' },
+            finishSource: { kind: 'source' },
             buffIds: [
               'buff_chr_0032_lizhiyan_ultimate_skill_listener',
               'buff_chr_0032_lizhiyan_ultimate_skill_layer',
@@ -2049,7 +2040,7 @@ export const arcaneChr_0032_lizhiyan_ultimate_skillActionGraph = {
             abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_place',
             inheritActionBlackboard: true,
             dieWhenSourceDies: false,
-            overrideDurationSeconds: { kind: 'valueNode', nodeId: 'data_2' },
+            overrideDurationSeconds: { kind: 'valueNode', nodeId: 'data_1' },
             blackboardAssignments: { EntityBB_index: { kind: 'constant', value: 6 } },
           },
         },
@@ -2063,7 +2054,7 @@ export const arcaneChr_0032_lizhiyan_ultimate_skillActionGraph = {
             abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_place',
             inheritActionBlackboard: true,
             dieWhenSourceDies: false,
-            overrideDurationSeconds: { kind: 'valueNode', nodeId: 'data_3' },
+            overrideDurationSeconds: { kind: 'valueNode', nodeId: 'data_1' },
             blackboardAssignments: { EntityBB_index: { kind: 'constant', value: 5 } },
           },
         },
@@ -2077,7 +2068,7 @@ export const arcaneChr_0032_lizhiyan_ultimate_skillActionGraph = {
             abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_place',
             inheritActionBlackboard: true,
             dieWhenSourceDies: false,
-            overrideDurationSeconds: { kind: 'valueNode', nodeId: 'data_4' },
+            overrideDurationSeconds: { kind: 'valueNode', nodeId: 'data_1' },
             blackboardAssignments: { EntityBB_index: { kind: 'constant', value: 4 } },
           },
         },
@@ -2091,7 +2082,7 @@ export const arcaneChr_0032_lizhiyan_ultimate_skillActionGraph = {
             abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_place',
             inheritActionBlackboard: true,
             dieWhenSourceDies: false,
-            overrideDurationSeconds: { kind: 'valueNode', nodeId: 'data_5' },
+            overrideDurationSeconds: { kind: 'valueNode', nodeId: 'data_1' },
             blackboardAssignments: { EntityBB_index: { kind: 'constant', value: 3 } },
           },
         },
@@ -2105,7 +2096,7 @@ export const arcaneChr_0032_lizhiyan_ultimate_skillActionGraph = {
             abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_place',
             inheritActionBlackboard: true,
             dieWhenSourceDies: false,
-            overrideDurationSeconds: { kind: 'valueNode', nodeId: 'data_6' },
+            overrideDurationSeconds: { kind: 'valueNode', nodeId: 'data_1' },
             blackboardAssignments: { EntityBB_index: { kind: 'constant', value: 2 } },
           },
         },
@@ -2119,7 +2110,7 @@ export const arcaneChr_0032_lizhiyan_ultimate_skillActionGraph = {
             abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_place',
             inheritActionBlackboard: true,
             dieWhenSourceDies: false,
-            overrideDurationSeconds: { kind: 'valueNode', nodeId: 'data_7' },
+            overrideDurationSeconds: { kind: 'valueNode', nodeId: 'data_1' },
             blackboardAssignments: { EntityBB_index: { kind: 'constant', value: 1 } },
           },
         },
@@ -2133,7 +2124,7 @@ export const arcaneChr_0032_lizhiyan_ultimate_skillActionGraph = {
             abilityEntityId: 'abilityentity_chr_0032_lizhiyan_ultimate_skill_place',
             inheritActionBlackboard: true,
             dieWhenSourceDies: false,
-            overrideDurationSeconds: { kind: 'valueNode', nodeId: 'data_8' },
+            overrideDurationSeconds: { kind: 'valueNode', nodeId: 'data_1' },
             blackboardAssignments: { EntityBB_index: { kind: 'constant', value: 0 } },
           },
         },
@@ -2148,7 +2139,7 @@ export const arcaneChr_0032_lizhiyan_ultimate_skillActionGraph = {
             childSkillId: 'chr_0032_lizhiyan_ultimate_skill_abilityrange',
             inheritActionBlackboard: true,
             dieWhenSourceDies: false,
-            overrideDurationSeconds: { kind: 'valueNode', nodeId: 'data_9' },
+            overrideDurationSeconds: { kind: 'valueNode', nodeId: 'data_1' },
           },
         },
         next: 'spawnAbilityEntity_14',
@@ -2159,7 +2150,7 @@ export const arcaneChr_0032_lizhiyan_ultimate_skillActionGraph = {
           parameters: {
             key: 'isWisd',
             operation: 'assign',
-            value: { kind: 'valueNode', nodeId: 'data_10' },
+            value: { kind: 'valueNode', nodeId: 'data_2' },
           },
         },
         next: 'spawnAbilityEntity_15',
@@ -2192,7 +2183,8 @@ export const arcaneChr_0032_lizhiyan_ultimate_skillActionGraph = {
                 },
               },
             ],
-            target: 'caster',
+            targets: { kind: 'source' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -2219,7 +2211,7 @@ export const arcaneChr_0032_lizhiyan_ultimate_skillActionGraph = {
       checkCondition_20: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_11' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
         },
         next: null,
       },
@@ -2243,7 +2235,7 @@ export const arcaneChr_0032_lizhiyan_ultimate_skillActionGraph = {
       checkCondition_22: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_12' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_4' } },
         },
         next: null,
       },
@@ -2267,7 +2259,7 @@ export const arcaneChr_0032_lizhiyan_ultimate_skillActionGraph = {
       checkCondition_25: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_13' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
         },
         next: null,
       },
@@ -2291,7 +2283,7 @@ export const arcaneChr_0032_lizhiyan_ultimate_skillActionGraph = {
       checkCondition_28: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_14' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_6' } },
         },
         next: null,
       },
@@ -2323,7 +2315,8 @@ export const arcaneChr_0032_lizhiyan_ultimate_skillActionGraph = {
                 copiedBlackboardAssignments: { count: 'count', duration: 'duration2' },
               },
             ],
-            target: 'enemy',
+            targets: { kind: 'fixed', target: 'enemy' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -2332,7 +2325,7 @@ export const arcaneChr_0032_lizhiyan_ultimate_skillActionGraph = {
       checkCondition_32: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_16' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_8' } },
         },
         next: null,
       },
@@ -2346,7 +2339,8 @@ export const arcaneChr_0032_lizhiyan_ultimate_skillActionGraph = {
                 copiedBlackboardAssignments: { rate: 'spell_vul_rate', duration: 'duration_vul' },
               },
             ],
-            target: 'enemy',
+            targets: { kind: 'fixed', target: 'enemy' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -2358,7 +2352,7 @@ export const arcaneChr_0032_lizhiyan_ultimate_skillActionGraph = {
           parameters: {
             key: 'spell_vul_rate',
             operation: 'add',
-            value: { kind: 'valueNode', nodeId: 'data_17' },
+            value: { kind: 'valueNode', nodeId: 'data_9' },
           },
         },
         next: 'applyBuff_38',
@@ -2376,7 +2370,8 @@ export const arcaneChr_0032_lizhiyan_ultimate_skillActionGraph = {
                 },
               },
             ],
-            target: 'enemy',
+            targets: { kind: 'fixed', target: 'enemy' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -2388,7 +2383,7 @@ export const arcaneChr_0032_lizhiyan_ultimate_skillActionGraph = {
           parameters: {
             key: 'spell_vul_rate_calc',
             operation: 'add',
-            value: { kind: 'valueNode', nodeId: 'data_18' },
+            value: { kind: 'valueNode', nodeId: 'data_9' },
           },
         },
         next: 'applyBuff_36',
@@ -2396,7 +2391,7 @@ export const arcaneChr_0032_lizhiyan_ultimate_skillActionGraph = {
       checkCondition_35: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_21' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_12' } },
         },
         next: null,
       },
@@ -2416,8 +2411,8 @@ export const arcaneChr_0032_lizhiyan_ultimate_skillActionGraph = {
           parameters: {
             key: 'spell_vul_rate_calc',
             operation: 'multiply',
-            left: { kind: 'valueNode', nodeId: 'data_22' },
-            right: { kind: 'valueNode', nodeId: 'data_23' },
+            left: { kind: 'valueNode', nodeId: 'data_13' },
+            right: { kind: 'valueNode', nodeId: 'data_14' },
           },
         },
         next: 'ifElse_41',
@@ -2464,7 +2459,7 @@ export const arcaneChr_0032_lizhiyan_ultimate_skillActionGraph = {
       checkCondition_46: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_25' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_15' } },
         },
         next: 'readBuffBlackboard_45',
       },
@@ -2474,8 +2469,8 @@ export const arcaneChr_0032_lizhiyan_ultimate_skillActionGraph = {
           parameters: {
             key: 'spell_vul_rate_calc',
             operation: 'add',
-            left: { kind: 'valueNode', nodeId: 'data_26' },
-            right: { kind: 'valueNode', nodeId: 'data_27' },
+            left: { kind: 'valueNode', nodeId: 'data_16' },
+            right: { kind: 'valueNode', nodeId: 'data_9' },
           },
         },
         next: 'checkCondition_46',
@@ -2507,7 +2502,7 @@ export const arcaneChr_0032_lizhiyan_ultimate_skillActionGraph = {
       checkCondition_50: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_28' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_17' } },
         },
         next: 'readBuffBlackboard_49',
       },
@@ -2516,10 +2511,10 @@ export const arcaneChr_0032_lizhiyan_ultimate_skillActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'nature',
-            attackScale: { kind: 'valueNode', nodeId: 'data_29' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_18' },
             tags: ['ultimateSkill'],
             features: ['canBreakWeakness'],
-            stagger: { kind: 'valueNode', nodeId: 'data_30' },
+            stagger: { kind: 'valueNode', nodeId: 'data_19' },
           },
         },
         next: null,
@@ -2549,7 +2544,8 @@ export const arcaneChr_0032_lizhiyan_ultimate_skillActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_damage_immune_ult_skill' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -2563,19 +2559,11 @@ export const arcaneChr_0032_lizhiyan_ultimate_skillActionGraph = {
     },
     dataNodes: {
       data_1: { type: 'number', expression: { kind: 'blackboard', key: 'duration_aura' } },
-      data_2: { type: 'number', expression: { kind: 'blackboard', key: 'duration_aura' } },
-      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'duration_aura' } },
-      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'duration_aura' } },
-      data_5: { type: 'number', expression: { kind: 'blackboard', key: 'duration_aura' } },
-      data_6: { type: 'number', expression: { kind: 'blackboard', key: 'duration_aura' } },
-      data_7: { type: 'number', expression: { kind: 'blackboard', key: 'duration_aura' } },
-      data_8: { type: 'number', expression: { kind: 'blackboard', key: 'duration_aura' } },
-      data_9: { type: 'number', expression: { kind: 'blackboard', key: 'duration_aura' } },
-      data_10: {
+      data_2: {
         type: 'number',
         expression: { kind: 'blackboard', key: 'EntityBB_wisd_greater_will' },
       },
-      data_11: {
+      data_3: {
         type: 'boolean',
         expression: {
           kind: 'buffStackCompare',
@@ -2586,7 +2574,7 @@ export const arcaneChr_0032_lizhiyan_ultimate_skillActionGraph = {
           value: { kind: 'constant', value: 1 },
         },
       },
-      data_12: {
+      data_4: {
         type: 'boolean',
         expression: {
           kind: 'buffStackCompare',
@@ -2597,7 +2585,7 @@ export const arcaneChr_0032_lizhiyan_ultimate_skillActionGraph = {
           value: { kind: 'constant', value: 1 },
         },
       },
-      data_13: {
+      data_5: {
         type: 'boolean',
         expression: {
           kind: 'buffStackCompare',
@@ -2608,7 +2596,7 @@ export const arcaneChr_0032_lizhiyan_ultimate_skillActionGraph = {
           value: { kind: 'constant', value: 1 },
         },
       },
-      data_14: {
+      data_6: {
         type: 'boolean',
         expression: {
           kind: 'buffStackCompare',
@@ -2619,68 +2607,56 @@ export const arcaneChr_0032_lizhiyan_ultimate_skillActionGraph = {
           value: { kind: 'constant', value: 1 },
         },
       },
-      data_15: {
+      data_7: {
         type: 'number',
         expression: { kind: 'blackboard', key: 'EntityBB_wisd_greater_will', fallback: 0 },
       },
-      data_16: {
+      data_8: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_15' },
+          left: { kind: 'valueNode', nodeId: 'data_7' },
           operator: 'greaterOrEqual',
           right: { kind: 'constant', value: 1 },
         },
       },
-      data_17: {
+      data_9: {
         type: 'number',
         expression: { kind: 'blackboard', key: 'spell_vul_rate_potential' },
       },
-      data_18: {
-        type: 'number',
-        expression: { kind: 'blackboard', key: 'spell_vul_rate_potential' },
-      },
-      data_19: {
+      data_10: {
         type: 'number',
         expression: { kind: 'blackboard', key: 'spell_vul_rate_calc', fallback: 0 },
       },
-      data_20: {
+      data_11: {
         type: 'number',
         expression: { kind: 'blackboard', key: 'spell_vul_rate', fallback: 0 },
       },
-      data_21: {
+      data_12: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_19' },
+          left: { kind: 'valueNode', nodeId: 'data_10' },
           operator: 'lessOrEqual',
-          right: { kind: 'valueNode', nodeId: 'data_20' },
+          right: { kind: 'valueNode', nodeId: 'data_11' },
         },
       },
-      data_22: { type: 'number', expression: { kind: 'blackboard', key: 'will' } },
-      data_23: {
+      data_13: { type: 'number', expression: { kind: 'blackboard', key: 'will' } },
+      data_14: {
         type: 'number',
         expression: { kind: 'blackboard', key: 'spell_vul_rate_per_will' },
       },
-      data_24: {
-        type: 'number',
-        expression: { kind: 'blackboard', key: 'spell_vul_rate_calc', fallback: 0 },
-      },
-      data_25: {
+      data_15: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_24' },
+          left: { kind: 'valueNode', nodeId: 'data_10' },
           operator: 'greater',
           right: { kind: 'constant', value: 0 },
         },
       },
-      data_26: { type: 'number', expression: { kind: 'blackboard', key: 'spell_vul_rate' } },
-      data_27: {
-        type: 'number',
-        expression: { kind: 'blackboard', key: 'spell_vul_rate_potential' },
-      },
-      data_28: {
+      data_16: { type: 'number', expression: { kind: 'blackboard', key: 'spell_vul_rate' } },
+      data_17: {
         type: 'boolean',
         expression: {
           kind: 'buffIdStackCompare',
@@ -2690,8 +2666,8 @@ export const arcaneChr_0032_lizhiyan_ultimate_skillActionGraph = {
           value: { kind: 'constant', value: 1 },
         },
       },
-      data_29: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_30: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
+      data_18: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
+      data_19: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
     },
   },
   macros: {},
@@ -2853,7 +2829,7 @@ export const arcaneChr_0032_lizhiyan_ultimate_skill2ActionGraph = {
       checkCondition_13: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_9' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_8' } },
         },
         next: 'readBuffBlackboard_12',
       },
@@ -2867,7 +2843,8 @@ export const arcaneChr_0032_lizhiyan_ultimate_skill2ActionGraph = {
                 copiedBlackboardAssignments: { enhance_rate: 'enhance_rate' },
               },
             ],
-            target: 'caster',
+            targets: { kind: 'source' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
             asChildBuff: true,
@@ -2878,14 +2855,14 @@ export const arcaneChr_0032_lizhiyan_ultimate_skill2ActionGraph = {
       checkCondition_7: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_11' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_10' } },
         },
         next: 'applyBuff_6',
       },
       checkCondition_5: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_13' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_12' } },
         },
         next: null,
       },
@@ -2905,8 +2882,8 @@ export const arcaneChr_0032_lizhiyan_ultimate_skill2ActionGraph = {
           parameters: {
             key: 'spell_vul_rate_calc',
             operation: 'add',
-            left: { kind: 'valueNode', nodeId: 'data_14' },
-            right: { kind: 'valueNode', nodeId: 'data_15' },
+            left: { kind: 'valueNode', nodeId: 'data_13' },
+            right: { kind: 'valueNode', nodeId: 'data_1' },
           },
         },
         next: 'ifElse_15',
@@ -2962,7 +2939,7 @@ export const arcaneChr_0032_lizhiyan_ultimate_skill2ActionGraph = {
       checkCondition_14: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_16' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_14' } },
         },
         next: null,
       },
@@ -2996,7 +2973,8 @@ export const arcaneChr_0032_lizhiyan_ultimate_skill2ActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_time_dilation_listener' }],
-            target: 'caster',
+            targets: { kind: 'source' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -3007,7 +2985,8 @@ export const arcaneChr_0032_lizhiyan_ultimate_skill2ActionGraph = {
         action: {
           kind: 'finishBuffsById',
           parameters: {
-            target: 'caster',
+            targets: { kind: 'source' },
+            finishSource: { kind: 'source' },
             buffIds: [
               'buff_chr_0032_lizhiyan_ultimate_skill_listener',
               'buff_chr_0032_lizhiyan_ultimate_skill_layer',
@@ -3051,10 +3030,10 @@ export const arcaneChr_0032_lizhiyan_ultimate_skill2ActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'nature',
-            attackScale: { kind: 'valueNode', nodeId: 'data_17' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_15' },
             tags: ['ultimateSkill'],
             features: ['canBreakWeakness'],
-            stagger: { kind: 'valueNode', nodeId: 'data_18' },
+            stagger: { kind: 'valueNode', nodeId: 'data_16' },
           },
         },
         next: null,
@@ -3069,7 +3048,8 @@ export const arcaneChr_0032_lizhiyan_ultimate_skill2ActionGraph = {
                 copiedBlackboardAssignments: { rate: 'spell_vul_rate', duration: 'duration_vul' },
               },
             ],
-            target: 'enemy',
+            targets: { kind: 'fixed', target: 'enemy' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -3078,7 +3058,7 @@ export const arcaneChr_0032_lizhiyan_ultimate_skill2ActionGraph = {
       checkCondition_28: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_20' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_17' } },
         },
         next: null,
       },
@@ -3087,10 +3067,10 @@ export const arcaneChr_0032_lizhiyan_ultimate_skill2ActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'nature',
-            attackScale: { kind: 'valueNode', nodeId: 'data_21' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_18' },
             tags: ['ultimateSkill'],
             features: ['canBreakWeakness'],
-            stagger: { kind: 'valueNode', nodeId: 'data_22' },
+            stagger: { kind: 'valueNode', nodeId: 'data_16' },
           },
         },
         next: null,
@@ -3108,7 +3088,7 @@ export const arcaneChr_0032_lizhiyan_ultimate_skill2ActionGraph = {
       checkCondition_30: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_24' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_19' } },
         },
         next: null,
       },
@@ -3119,24 +3099,6 @@ export const arcaneChr_0032_lizhiyan_ultimate_skill2ActionGraph = {
           condition: { $sequence: 'checkCondition_30' },
           whenTrue: { $sequence: 'ifElse_32' },
           whenFalse: { $sequence: 'dealDamage_33' },
-        },
-        next: null,
-      },
-      ifElse_opt1: {
-        action: {
-          kind: 'ifElse',
-          parameters: { alwaysNext: true },
-          condition: { $sequence: null },
-          whenTrue: { $sequence: null },
-          whenFalse: { $sequence: null },
-        },
-        next: null,
-      },
-      forEachContextTarget_opt2: {
-        action: {
-          kind: 'forEachContextTarget',
-          parameters: { targets: { kind: 'fixed', target: 'enemy' } },
-          body: { $sequence: 'ifElse_opt1' },
         },
         next: null,
       },
@@ -3198,7 +3160,7 @@ export const arcaneChr_0032_lizhiyan_ultimate_skill2ActionGraph = {
       checkCondition_39: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_25' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_20' } },
         },
         next: 'startTimeDilation_38',
       },
@@ -3210,7 +3172,7 @@ export const arcaneChr_0032_lizhiyan_ultimate_skill2ActionGraph = {
             skill: { kind: 'id', skillId: 'chr_0032_lizhiyan_combo_skill' },
             operation: 'reduce',
             basis: 'baseDurationRatio',
-            value: { kind: 'valueNode', nodeId: 'data_26' },
+            value: { kind: 'valueNode', nodeId: 'data_21' },
           },
         },
         next: null,
@@ -3218,14 +3180,14 @@ export const arcaneChr_0032_lizhiyan_ultimate_skill2ActionGraph = {
       checkCondition_40: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_28' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_23' } },
         },
         next: null,
       },
       checkCondition_41: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_30' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_24' } },
         },
         next: 'checkCondition_40',
       },
@@ -3256,7 +3218,8 @@ export const arcaneChr_0032_lizhiyan_ultimate_skill2ActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_damage_immune_ult_skill' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -3268,10 +3231,29 @@ export const arcaneChr_0032_lizhiyan_ultimate_skill2ActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_damage_immune_medium' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
+        },
+        next: null,
+      },
+      ifElse_opt1: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: null },
+          whenTrue: { $sequence: null },
+          whenFalse: { $sequence: null },
+        },
+        next: null,
+      },
+      forEachContextTarget_opt2: {
+        action: {
+          kind: 'forEachContextTarget',
+          parameters: { targets: { kind: 'fixed', target: 'enemy' } },
+          body: { $sequence: 'ifElse_opt1' },
         },
         next: null,
       },
@@ -3305,50 +3287,42 @@ export const arcaneChr_0032_lizhiyan_ultimate_skill2ActionGraph = {
         expression: { kind: 'blackboard', key: 'spell_vul_rate_per_will' },
       },
       data_8: {
-        type: 'number',
-        expression: { kind: 'blackboard', key: 'spell_vul_rate_calc', fallback: 0 },
-      },
-      data_9: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_8' },
+          left: { kind: 'valueNode', nodeId: 'data_3' },
           operator: 'greater',
           right: { kind: 'constant', value: 0 },
         },
       },
-      data_10: {
+      data_9: {
         type: 'number',
         expression: { kind: 'blackboard', key: 'enhance_rate', fallback: 0 },
       },
-      data_11: {
+      data_10: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_10' },
+          left: { kind: 'valueNode', nodeId: 'data_9' },
           operator: 'greater',
           right: { kind: 'constant', value: 0 },
         },
       },
-      data_12: {
+      data_11: {
         type: 'number',
         expression: { kind: 'blackboard', key: 'EntityBB_wisd_greater_will', fallback: 0 },
       },
-      data_13: {
+      data_12: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_12' },
+          left: { kind: 'valueNode', nodeId: 'data_11' },
           operator: 'greaterOrEqual',
           right: { kind: 'constant', value: 1 },
         },
       },
-      data_14: { type: 'number', expression: { kind: 'blackboard', key: 'spell_vul_rate' } },
-      data_15: {
-        type: 'number',
-        expression: { kind: 'blackboard', key: 'spell_vul_rate_potential' },
-      },
-      data_16: {
+      data_13: { type: 'number', expression: { kind: 'blackboard', key: 'spell_vul_rate' } },
+      data_14: {
         type: 'boolean',
         expression: {
           kind: 'buffIdStackCompare',
@@ -3358,37 +3332,28 @@ export const arcaneChr_0032_lizhiyan_ultimate_skill2ActionGraph = {
           value: { kind: 'constant', value: 1 },
         },
       },
-      data_17: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_18: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
-      data_19: {
-        type: 'number',
-        expression: { kind: 'blackboard', key: 'spell_vul_rate', fallback: 0 },
-      },
-      data_20: {
+      data_15: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
+      data_16: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
+      data_17: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_19' },
+          left: { kind: 'valueNode', nodeId: 'data_4' },
           operator: 'greater',
           right: { kind: 'constant', value: 0 },
         },
       },
-      data_21: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_will' } },
-      data_22: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
-      data_23: {
-        type: 'number',
-        expression: { kind: 'blackboard', key: 'EntityBB_wisd_greater_will', fallback: 0 },
-      },
-      data_24: {
+      data_18: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_will' } },
+      data_19: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_23' },
+          left: { kind: 'valueNode', nodeId: 'data_11' },
           operator: 'equal',
           right: { kind: 'constant', value: 0 },
         },
       },
-      data_25: {
+      data_20: {
         type: 'boolean',
         expression: {
           kind: 'entityCountCompare',
@@ -3399,26 +3364,22 @@ export const arcaneChr_0032_lizhiyan_ultimate_skill2ActionGraph = {
           value: 1,
         },
       },
-      data_26: { type: 'number', expression: { kind: 'blackboard', key: 'cd_minus' } },
-      data_27: { type: 'number', expression: { kind: 'blackboard', key: 'cd_minus', fallback: 0 } },
-      data_28: {
+      data_21: { type: 'number', expression: { kind: 'blackboard', key: 'cd_minus' } },
+      data_22: { type: 'number', expression: { kind: 'blackboard', key: 'cd_minus', fallback: 0 } },
+      data_23: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_27' },
+          left: { kind: 'valueNode', nodeId: 'data_22' },
           operator: 'greater',
           right: { kind: 'constant', value: 0 },
         },
       },
-      data_29: {
-        type: 'number',
-        expression: { kind: 'blackboard', key: 'EntityBB_wisd_greater_will', fallback: 0 },
-      },
-      data_30: {
+      data_24: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_29' },
+          left: { kind: 'valueNode', nodeId: 'data_11' },
           operator: 'equal',
           right: { kind: 'constant', value: 0 },
         },
@@ -3506,10 +3467,14 @@ export const arcaneCommon_character_perfect_dodge: SkillDefinition = {
 const arcanePassive1ActionGraph = {
   main: {
     nodes: {
-      checkCondition_1: {
+      modifyActionValue_3: {
         action: {
-          kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
+          kind: 'modifyActionValue',
+          parameters: {
+            key: 'EntityBB_wisd_greater_will',
+            operation: 'assign',
+            value: { kind: 'constant', value: 0 },
+          },
         },
         next: null,
       },
@@ -3524,18 +3489,14 @@ const arcanePassive1ActionGraph = {
         },
         next: null,
       },
-      modifyActionValue_3: {
+      checkCondition_1: {
         action: {
-          kind: 'modifyActionValue',
-          parameters: {
-            key: 'EntityBB_wisd_greater_will',
-            operation: 'assign',
-            value: { kind: 'constant', value: 0 },
-          },
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
         },
         next: null,
       },
-      ifElse_opt1: {
+      ifElse_5: {
         action: {
           kind: 'ifElse',
           parameters: { alwaysNext: true },
@@ -3545,16 +3506,16 @@ const arcanePassive1ActionGraph = {
         },
         next: null,
       },
-      applyBuff_opt2: {
+      applyBuff_6: {
         action: {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0032_lizhiyan_passive' }],
-            target: 'caster',
+            targets: { kind: 'fixed', target: 'caster' },
             inheritSourceSkillCastInfo: false,
           },
         },
-        next: 'ifElse_opt1',
+        next: 'ifElse_5',
       },
     },
     dataNodes: {
@@ -3574,7 +3535,7 @@ const arcanePassive1ActionGraph = {
 
 const arcanePassive1: OperatorPassiveSkillDefinition = {
   key: 'chr_0032_lizhiyan_passive',
-  enableSequence: { $sequence: 'applyBuff_opt2' },
+  enableSequence: { $sequence: 'applyBuff_6' },
   actionGraph: arcanePassive1ActionGraph,
 };
 
@@ -3598,7 +3559,7 @@ const arcanePassive2ActionGraph = {
                 },
               },
             ],
-            target: 'caster',
+            targets: { kind: 'fixed', target: 'caster' },
             inheritSourceSkillCastInfo: false,
           },
         },
@@ -3962,8 +3923,8 @@ const arcaneBuff2ActionGraph = {
                 copiedBlackboardAssignments: { duration_vul: 'duration', rate: 'rate_pre' },
               },
             ],
-            target: 'enemy',
-            source: 'buffSource',
+            targets: { kind: 'fixed', target: 'enemy' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
           },
@@ -4110,10 +4071,11 @@ const arcaneBuff4ActionGraph = {
         action: {
           kind: 'createTimedMarker',
           parameters: {
-            target: 'buffSource',
+            targets: { kind: 'source' },
             markerId: 'lizhiyan_combo_hit',
             durationSeconds: { kind: 'constant', value: 0.1 },
             autoFinishByAction: false,
+            timeDomain: 'globalScaled',
           },
         },
         next: 'finishCurrentBuff_1',
@@ -4264,10 +4226,11 @@ const arcaneBuff6ActionGraph = {
         action: {
           kind: 'createTimedMarker',
           parameters: {
-            target: 'caster',
+            targets: { kind: 'source' },
             markerId: 'lizhiyan_combo_hit',
             durationSeconds: { kind: 'constant', value: 0.1 },
             autoFinishByAction: false,
+            timeDomain: 'globalScaled',
           },
         },
         next: null,
@@ -4356,7 +4319,8 @@ const arcaneBuff6ActionGraph = {
         action: {
           kind: 'finishBuffsById',
           parameters: {
-            target: 'enemy',
+            targets: { kind: 'fixed', target: 'enemy' },
+            finishSource: { kind: 'source' },
             buffIds: ['buff_chr_0032_lizhiyan_combo_skill_spell_vulnerable'],
             reason: 'other',
           },
@@ -4440,10 +4404,11 @@ const arcaneBuff7ActionGraph = {
         action: {
           kind: 'createTimedMarker',
           parameters: {
-            target: 'caster',
+            targets: { kind: 'source' },
             markerId: 'lizhiyan_combo_hit',
             durationSeconds: { kind: 'constant', value: 0.1 },
             autoFinishByAction: false,
+            timeDomain: 'globalScaled',
           },
         },
         next: null,
@@ -4599,7 +4564,8 @@ const arcaneBuff7ActionGraph = {
         action: {
           kind: 'finishBuffsById',
           parameters: {
-            target: 'enemy',
+            targets: { kind: 'fixed', target: 'enemy' },
+            finishSource: { kind: 'source' },
             buffIds: ['buff_chr_0032_lizhiyan_combo_skill_spell_vulnerable'],
             reason: 'other',
           },
@@ -4618,10 +4584,11 @@ const arcaneBuff7ActionGraph = {
         action: {
           kind: 'createTimedMarker',
           parameters: {
-            target: 'caster',
+            targets: { kind: 'source' },
             markerId: 'lizhiyan_combo_wisd_has_finish',
             durationSeconds: { kind: 'constant', value: 1 },
             autoFinishByAction: false,
+            timeDomain: 'globalScaled',
           },
         },
         next: null,
@@ -4788,8 +4755,8 @@ const arcaneBuff9ActionGraph = {
                 },
               },
             ],
-            target: 'enemy',
-            source: 'buffSource',
+            targets: { kind: 'fixed', target: 'enemy' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -4810,8 +4777,8 @@ const arcaneBuff9ActionGraph = {
                 },
               },
             ],
-            target: 'enemy',
-            source: 'buffSource',
+            targets: { kind: 'fixed', target: 'enemy' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -4822,8 +4789,8 @@ const arcaneBuff9ActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0032_lizhiyan_combo_skill_precheck' }],
-            target: 'enemy',
-            source: 'buffSource',
+            targets: { kind: 'fixed', target: 'enemy' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -5012,8 +4979,8 @@ const arcaneBuff9ActionGraph = {
                 },
               },
             ],
-            target: 'enemy',
-            source: 'buffSource',
+            targets: { kind: 'fixed', target: 'enemy' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -5134,7 +5101,8 @@ const arcaneBuff10ActionGraph = {
         action: {
           kind: 'finishBuffsById',
           parameters: {
-            target: 'buffOwner',
+            targets: { kind: 'owner' },
+            finishSource: { kind: 'source' },
             buffIds: [
               'buff_chr_0032_lizhiyan_combo_skill_seal',
               'buff_chr_0032_lizhiyan_combo_skill_seal_effect',
@@ -5149,8 +5117,8 @@ const arcaneBuff10ActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0032_lizhiyan_combo_skill_seal_atb' }],
-            target: 'buffOwner',
-            source: 'buffSource',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -5302,7 +5270,8 @@ const arcaneBuff11ActionGraph = {
                 },
               },
             ],
-            target: 'enemy',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
           },
@@ -5317,15 +5286,16 @@ const arcaneBuff11ActionGraph = {
               {
                 buffId: 'buff_common_affixes_vulnerable_natural',
                 blackboardAssignments: {
-                  duration: { kind: 'valueNode', nodeId: 'data_3' },
-                  rate: { kind: 'valueNode', nodeId: 'data_4' },
+                  duration: { kind: 'valueNode', nodeId: 'data_1' },
+                  rate: { kind: 'valueNode', nodeId: 'data_2' },
                 },
                 stringBlackboardAssignments: {
                   child_buff_id: 'buff_common_affixes_vulnerable_natural_lizhiyan_child',
                 },
               },
             ],
-            target: 'enemy',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
           },
@@ -5336,8 +5306,6 @@ const arcaneBuff11ActionGraph = {
     dataNodes: {
       data_1: { type: 'number', expression: { kind: 'blackboard', key: 'duration_vul' } },
       data_2: { type: 'number', expression: { kind: 'blackboard', key: 'rate' } },
-      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'duration_vul' } },
-      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'rate' } },
     },
   },
   macros: {},
@@ -5405,7 +5373,8 @@ const arcaneBuff12ActionGraph = {
                 },
               },
             ],
-            target: 'buffOwner',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
           },
@@ -5420,15 +5389,16 @@ const arcaneBuff12ActionGraph = {
               {
                 buffId: 'buff_common_affixes_vulnerable_natural',
                 blackboardAssignments: {
-                  duration: { kind: 'valueNode', nodeId: 'data_3' },
-                  rate: { kind: 'valueNode', nodeId: 'data_4' },
+                  duration: { kind: 'valueNode', nodeId: 'data_1' },
+                  rate: { kind: 'valueNode', nodeId: 'data_2' },
                 },
                 stringBlackboardAssignments: {
                   child_buff_id: 'buff_common_affixes_vulnerable_natural_lizhiyan_child',
                 },
               },
             ],
-            target: 'buffOwner',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
           },
@@ -5439,8 +5409,6 @@ const arcaneBuff12ActionGraph = {
     dataNodes: {
       data_1: { type: 'number', expression: { kind: 'blackboard', key: 'duration_vul' } },
       data_2: { type: 'number', expression: { kind: 'blackboard', key: 'rate' } },
-      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'duration_vul' } },
-      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'rate' } },
     },
   },
   macros: {},
@@ -5488,8 +5456,8 @@ const arcaneBuff13ActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0032_lizhiyan_normal_skill_listener' }],
-            target: 'buffSource',
-            source: 'buffOwner',
+            targets: { kind: 'source' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -5640,7 +5608,8 @@ const arcaneBuff17ActionGraph = {
                 },
               },
             ],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
           },
@@ -5686,7 +5655,8 @@ const arcaneBuff18ActionGraph = {
                 },
               },
             ],
-            target: 'enemy',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
           },
@@ -5701,15 +5671,16 @@ const arcaneBuff18ActionGraph = {
               {
                 buffId: 'buff_common_affixes_vulnerable_natural',
                 blackboardAssignments: {
-                  duration: { kind: 'valueNode', nodeId: 'data_3' },
-                  rate: { kind: 'valueNode', nodeId: 'data_4' },
+                  duration: { kind: 'valueNode', nodeId: 'data_1' },
+                  rate: { kind: 'valueNode', nodeId: 'data_2' },
                 },
                 stringBlackboardAssignments: {
                   child_buff_id: 'buff_common_affixes_vulnerable_natural_lizhiyan_child',
                 },
               },
             ],
-            target: 'enemy',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
           },
@@ -5720,8 +5691,6 @@ const arcaneBuff18ActionGraph = {
     dataNodes: {
       data_1: { type: 'number', expression: { kind: 'blackboard', key: 'duration' } },
       data_2: { type: 'number', expression: { kind: 'blackboard', key: 'rate' } },
-      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'duration' } },
-      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'rate' } },
     },
   },
   macros: {},
@@ -5829,22 +5798,14 @@ const arcaneBuff20ActionGraph = {
                 },
               },
             ],
-            target: 'currentAbilityEntity',
-            source: 'buffSource',
+            targets: { kind: 'context', key: 'ult_death' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
         next: null,
       },
-      forEachContextTarget_4: {
-        action: {
-          kind: 'forEachContextTarget',
-          parameters: { targets: { kind: 'context', key: 'ult_death' } },
-          body: { $sequence: 'applyBuff_3' },
-        },
-        next: null,
-      },
-      spawnAbilityEntity_5: {
+      spawnAbilityEntity_4: {
         action: {
           kind: 'spawnAbilityEntity',
           parameters: {
@@ -5856,52 +5817,35 @@ const arcaneBuff20ActionGraph = {
             saveToContextKey: 'ult_death',
           },
         },
-        next: 'forEachContextTarget_4',
+        next: 'applyBuff_3',
       },
-      checkCondition_6: {
+      checkCondition_5: {
         action: {
           kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
         },
-        next: 'spawnAbilityEntity_5',
+        next: 'spawnAbilityEntity_4',
       },
-      checkCondition_7: {
+      checkCondition_6: {
         action: {
           kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
         },
-        next: 'checkCondition_6',
+        next: 'checkCondition_5',
       },
-      checkCondition_8: {
+      checkCondition_7: {
         action: {
           kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_4' } },
         },
-        next: 'checkCondition_7',
+        next: 'checkCondition_6',
       },
-      applyBuff_21: {
-        action: {
-          kind: 'applyBuff',
-          parameters: {
-            buffs: [
-              {
-                buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_inaura_laser2',
-                copiedBlackboardAssignments: { atk_scale_laser: 'atk_scale_laser' },
-              },
-            ],
-            target: 'currentAbilityEntity',
-            source: 'buffSource',
-            inheritSourceSkillCastInfo: true,
-          },
-        },
-        next: null,
-      },
-      changeResource_23: {
+      changeResource_18: {
         action: {
           kind: 'changeResource',
           parameters: {
             resource: 'ultimateEnergy',
-            amount: { kind: 'valueNode', nodeId: 'data_5' },
+            amount: { kind: 'valueNode', nodeId: 'data_1' },
             coefficient: { kind: 'constant', value: 1 },
             source: { kind: 'source' },
             targets: { kind: 'source' },
@@ -5911,15 +5855,24 @@ const arcaneBuff20ActionGraph = {
         },
         next: null,
       },
-      forEachContextTarget_24: {
+      applyBuff_19: {
         action: {
-          kind: 'forEachContextTarget',
-          parameters: { targets: { kind: 'context', key: 'laser_target2' } },
-          body: { $sequence: 'applyBuff_21' },
+          kind: 'applyBuff',
+          parameters: {
+            buffs: [
+              {
+                buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_inaura_laser2',
+                copiedBlackboardAssignments: { atk_scale_laser: 'atk_scale_laser' },
+              },
+            ],
+            targets: { kind: 'context', key: 'laser_target2' },
+            source: { kind: 'source' },
+            inheritSourceSkillCastInfo: true,
+          },
         },
-        next: 'changeResource_23',
+        next: 'changeResource_18',
       },
-      spawnAbilityEntity_25: {
+      spawnAbilityEntity_20: {
         action: {
           kind: 'spawnAbilityEntity',
           parameters: {
@@ -5930,26 +5883,26 @@ const arcaneBuff20ActionGraph = {
             saveToContextKey: 'laser_target2',
           },
         },
-        next: 'forEachContextTarget_24',
+        next: 'applyBuff_19',
       },
-      checkCondition_22: {
+      checkCondition_17: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_6' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
         },
         next: null,
       },
-      ifElse_30: {
+      ifElse_25: {
         action: {
           kind: 'ifElse',
           parameters: { alwaysNext: true },
-          condition: { $sequence: 'checkCondition_22' },
-          whenTrue: { $sequence: 'spawnAbilityEntity_25' },
+          condition: { $sequence: 'checkCondition_17' },
+          whenTrue: { $sequence: 'spawnAbilityEntity_20' },
           whenFalse: { $sequence: null },
         },
         next: null,
       },
-      applyBuff_20: {
+      applyBuff_23: {
         action: {
           kind: 'applyBuff',
           parameters: {
@@ -5959,22 +5912,14 @@ const arcaneBuff20ActionGraph = {
                 copiedBlackboardAssignments: { atk_scale_laser: 'atk_scale_laser' },
               },
             ],
-            target: 'currentAbilityEntity',
-            source: 'buffSource',
+            targets: { kind: 'context', key: 'laser_target1' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
-        next: null,
+        next: 'changeResource_18',
       },
-      forEachContextTarget_28: {
-        action: {
-          kind: 'forEachContextTarget',
-          parameters: { targets: { kind: 'context', key: 'laser_target1' } },
-          body: { $sequence: 'applyBuff_20' },
-        },
-        next: 'changeResource_23',
-      },
-      spawnAbilityEntity_29: {
+      spawnAbilityEntity_24: {
         action: {
           kind: 'spawnAbilityEntity',
           parameters: {
@@ -5985,38 +5930,38 @@ const arcaneBuff20ActionGraph = {
             saveToContextKey: 'laser_target1',
           },
         },
-        next: 'forEachContextTarget_28',
+        next: 'applyBuff_23',
       },
-      checkCondition_26: {
+      checkCondition_21: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_7' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_6' } },
         },
         next: null,
       },
-      applyBuff_31: {
+      applyBuff_26: {
         action: {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_layer' }],
-            target: 'buffSource',
-            source: 'buffSource',
+            targets: { kind: 'source' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
         next: null,
       },
-      ifElse_32: {
+      ifElse_27: {
         action: {
           kind: 'ifElse',
           parameters: { alwaysNext: true },
-          condition: { $sequence: 'checkCondition_26' },
-          whenTrue: { $sequence: 'spawnAbilityEntity_29' },
-          whenFalse: { $sequence: 'ifElse_30' },
+          condition: { $sequence: 'checkCondition_21' },
+          whenTrue: { $sequence: 'spawnAbilityEntity_24' },
+          whenFalse: { $sequence: 'ifElse_25' },
         },
-        next: 'applyBuff_31',
+        next: 'applyBuff_26',
       },
-      findOwnerSpawnedAbilityEntities_33: {
+      findOwnerSpawnedAbilityEntities_28: {
         action: {
           kind: 'findOwnerSpawnedAbilityEntities',
           parameters: {
@@ -6024,9 +5969,9 @@ const arcaneBuff20ActionGraph = {
             abilityEntityIds: ['abilityentity_chr_0032_lizhiyan_ultimate_skill'],
           },
         },
-        next: 'ifElse_32',
+        next: 'ifElse_27',
       },
-      modifyActionValue_34: {
+      modifyActionValue_29: {
         action: {
           kind: 'modifyActionValue',
           parameters: {
@@ -6035,56 +5980,57 @@ const arcaneBuff20ActionGraph = {
             value: { kind: 'constant', value: 1 },
           },
         },
-        next: 'findOwnerSpawnedAbilityEntities_33',
+        next: 'findOwnerSpawnedAbilityEntities_28',
       },
-      createTimedMarker_35: {
+      createTimedMarker_30: {
         action: {
           kind: 'createTimedMarker',
           parameters: {
-            target: 'buffSource',
+            targets: { kind: 'source' },
             markerId: 'chr_0032_lizhiyan_ultimate_count',
             durationSeconds: { kind: 'constant', value: 0.4 },
             autoFinishByAction: false,
+            timeDomain: 'globalScaled',
           },
         },
-        next: 'modifyActionValue_34',
+        next: 'modifyActionValue_29',
       },
-      checkCondition_36: {
+      checkCondition_31: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_9' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_8' } },
         },
-        next: 'createTimedMarker_35',
+        next: 'createTimedMarker_30',
       },
-      checkCondition_37: {
+      checkCondition_32: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_10' } },
+        },
+        next: 'checkCondition_31',
+      },
+      checkCondition_33: {
         action: {
           kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_11' } },
         },
-        next: 'checkCondition_36',
+        next: 'checkCondition_32',
       },
-      checkCondition_38: {
+      checkCondition_34: {
         action: {
           kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_12' } },
         },
-        next: 'checkCondition_37',
+        next: 'checkCondition_33',
       },
-      checkCondition_39: {
+      checkCondition_35: {
         action: {
           kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_13' } },
         },
-        next: 'checkCondition_38',
+        next: 'checkCondition_34',
       },
-      checkCondition_40: {
-        action: {
-          kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_14' } },
-        },
-        next: 'checkCondition_39',
-      },
-      modifyActionValue_41: {
+      modifyActionValue_36: {
         action: {
           kind: 'modifyActionValue',
           parameters: {
@@ -6132,8 +6078,7 @@ const arcaneBuff20ActionGraph = {
           operator: 'equal',
         },
       },
-      data_5: { type: 'number', expression: { kind: 'blackboard', key: 'usp_step' } },
-      data_6: {
+      data_5: {
         type: 'boolean',
         expression: {
           kind: 'buffIdStackCompare',
@@ -6143,7 +6088,7 @@ const arcaneBuff20ActionGraph = {
           value: { kind: 'constant', value: 1 },
         },
       },
-      data_7: {
+      data_6: {
         type: 'boolean',
         expression: {
           kind: 'buffIdStackCompare',
@@ -6153,7 +6098,7 @@ const arcaneBuff20ActionGraph = {
           value: { kind: 'constant', value: 0 },
         },
       },
-      data_8: {
+      data_7: {
         type: 'boolean',
         expression: {
           kind: 'timedMarkerPresent',
@@ -6161,28 +6106,28 @@ const arcaneBuff20ActionGraph = {
           markerId: 'chr_0032_lizhiyan_ultimate_count',
         },
       },
-      data_9: {
+      data_8: {
         type: 'boolean',
-        expression: { kind: 'not', condition: { kind: 'conditionNode', nodeId: 'data_8' } },
+        expression: { kind: 'not', condition: { kind: 'conditionNode', nodeId: 'data_7' } },
       },
-      data_10: {
+      data_9: {
         type: 'number',
         expression: { kind: 'blackboard', key: 'is_power_attacked', fallback: 0 },
       },
-      data_11: {
+      data_10: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_10' },
+          left: { kind: 'valueNode', nodeId: 'data_9' },
           operator: 'equal',
           right: { kind: 'constant', value: 0 },
         },
       },
-      data_12: {
+      data_11: {
         type: 'boolean',
         expression: { kind: 'eventDamageTagsMatch', match: 'hasAny', tags: ['powerAttack'] },
       },
-      data_13: {
+      data_12: {
         type: 'boolean',
         expression: {
           kind: 'targetDistance',
@@ -6200,7 +6145,7 @@ const arcaneBuff20ActionGraph = {
           containsHittableObject: false,
         },
       },
-      data_14: {
+      data_13: {
         type: 'boolean',
         expression: {
           kind: 'actionInputTargetIdentityMatch',
@@ -6223,9 +6168,9 @@ const arcaneBuff20: SkillBuffDefinition = {
   attributeModifiers: [],
   lifecycleSequences: { start: { $sequence: 'storeSourceAttributeValue_2' } },
   abilityEventResponses: [
-    { event: 'beforeTakeDamage', priority: 0, sequence: { $sequence: 'checkCondition_8' } },
-    { event: 'beforeTakeDamage', priority: 0, sequence: { $sequence: 'checkCondition_40' } },
-    { event: 'poiseZero', priority: 0, sequence: { $sequence: 'modifyActionValue_41' } },
+    { event: 'beforeTakeDamage', priority: 0, sequence: { $sequence: 'checkCondition_7' } },
+    { event: 'beforeTakeDamage', priority: 0, sequence: { $sequence: 'checkCondition_35' } },
+    { event: 'poiseZero', priority: 0, sequence: { $sequence: 'modifyActionValue_36' } },
   ],
   actionGraph: arcaneBuff20ActionGraph,
 };
@@ -6684,7 +6629,8 @@ const arcaneBuff24ActionGraph = {
         action: {
           kind: 'finishBuffsById',
           parameters: {
-            target: 'buffOwner',
+            targets: { kind: 'owner' },
+            finishSource: { kind: 'source' },
             buffIds: ['buff_chr_0032_lizhiyan_ultimate_skill_layer'],
             reason: 'other',
           },
@@ -6717,7 +6663,8 @@ const arcaneBuff24ActionGraph = {
         action: {
           kind: 'finishBuffsById',
           parameters: {
-            target: 'buffOwner',
+            targets: { kind: 'owner' },
+            finishSource: { kind: 'source' },
             buffIds: ['buff_chr_0032_lizhiyan_ultimate_skill_listener_owner'],
             reason: 'other',
           },
@@ -6734,8 +6681,8 @@ const arcaneBuff24ActionGraph = {
                 copiedBlackboardAssignments: { enhance_rate: 'enhance_rate' },
               },
             ],
-            target: 'buffSource',
-            source: 'buffSource',
+            targets: { kind: 'source' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
           },
@@ -6938,7 +6885,8 @@ const arcaneBuff25ActionGraph = {
         action: {
           kind: 'finishBuffsById',
           parameters: {
-            target: 'caster',
+            targets: { kind: 'source' },
+            finishSource: { kind: 'source' },
             buffIds: ['buff_chr_0032_lizhiyan_ultimate_skill_layer'],
             reason: 'other',
           },
@@ -6982,8 +6930,8 @@ const arcaneBuff26ActionGraph = {
                 copiedBlackboardAssignments: { enhance_rate: 'enhance_rate' },
               },
             ],
-            target: 'buffSource',
-            source: 'buffSource',
+            targets: { kind: 'source' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
           },
@@ -7066,22 +7014,14 @@ const arcaneBuff26ActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_abilityentity_finish_self' }],
-            target: 'currentAbilityEntity',
-            source: 'buffSource',
+            targets: { kind: 'context', key: 'ult_aura' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
         next: null,
       },
-      forEachContextTarget_12: {
-        action: {
-          kind: 'forEachContextTarget',
-          parameters: { targets: { kind: 'context', key: 'ult_aura' } },
-          body: { $sequence: 'applyBuff_11' },
-        },
-        next: null,
-      },
-      findOwnerSpawnedAbilityEntities_13: {
+      findOwnerSpawnedAbilityEntities_12: {
         action: {
           kind: 'findOwnerSpawnedAbilityEntities',
           parameters: {
@@ -7090,9 +7030,9 @@ const arcaneBuff26ActionGraph = {
             sameSourceSkillCast: true,
           },
         },
-        next: 'forEachContextTarget_12',
+        next: 'applyBuff_11',
       },
-      ifElse_14: {
+      ifElse_13: {
         action: {
           kind: 'ifElse',
           parameters: { alwaysNext: true },
@@ -7100,38 +7040,38 @@ const arcaneBuff26ActionGraph = {
           whenTrue: { $sequence: null },
           whenFalse: { $sequence: 'changeResource_10' },
         },
-        next: 'findOwnerSpawnedAbilityEntities_13',
+        next: 'findOwnerSpawnedAbilityEntities_12',
       },
-      checkCondition_15: {
+      checkCondition_14: {
         action: {
           kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_7' } },
         },
         next: null,
       },
-      applyBuff_16: {
+      applyBuff_15: {
         action: {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_listener' }],
-            target: 'buffSource',
-            source: 'buffSource',
+            targets: { kind: 'source' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
         next: null,
       },
-      ifElse_17: {
+      ifElse_16: {
         action: {
           kind: 'ifElse',
           parameters: { alwaysNext: true },
-          condition: { $sequence: 'checkCondition_15' },
-          whenTrue: { $sequence: 'applyBuff_16' },
+          condition: { $sequence: 'checkCondition_14' },
+          whenTrue: { $sequence: 'applyBuff_15' },
           whenFalse: { $sequence: null },
         },
         next: null,
       },
-      withActionBlackboardScope_18: {
+      withActionBlackboardScope_17: {
         action: {
           kind: 'withActionBlackboardScope',
           parameters: {
@@ -7146,7 +7086,7 @@ const arcaneBuff26ActionGraph = {
         },
         next: null,
       },
-      withActionBlackboardScope_19: {
+      withActionBlackboardScope_18: {
         action: {
           kind: 'withActionBlackboardScope',
           parameters: {
@@ -7159,7 +7099,7 @@ const arcaneBuff26ActionGraph = {
           },
           body: { $sequence: 'setCharacterPassiveUiValue_1' },
         },
-        next: 'withActionBlackboardScope_18',
+        next: 'withActionBlackboardScope_17',
       },
     },
     dataNodes: {
@@ -7252,12 +7192,12 @@ const arcaneBuff26: SkillBuffDefinition = {
   blackboard: { duration: 30, enhance_rate: 0, isWisd: 0, lv: 0 },
   attributeModifiers: [],
   lifecycleSequences: {
-    start: { $sequence: 'withActionBlackboardScope_19' },
+    start: { $sequence: 'withActionBlackboardScope_18' },
     enable: { $sequence: 'restrictUltimateEnergyRecovery_7' },
-    finish: { $sequence: 'ifElse_14' },
+    finish: { $sequence: 'ifElse_13' },
   },
   abilityEventResponses: [
-    { event: 'addedBuff', priority: 0, sequence: { $sequence: 'ifElse_17' } },
+    { event: 'addedBuff', priority: 0, sequence: { $sequence: 'ifElse_16' } },
   ],
   skillSlotReplacements: [
     {
@@ -7273,24 +7213,7 @@ const arcaneBuff26: SkillBuffDefinition = {
 const arcaneBuff27ActionGraph = {
   main: {
     nodes: {
-      applyBuff_13: {
-        action: {
-          kind: 'applyBuff',
-          parameters: {
-            buffs: [
-              {
-                buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_inaura_laser2',
-                copiedBlackboardAssignments: { atk_scale_laser: 'atk_scale_laser' },
-              },
-            ],
-            target: 'currentAbilityEntity',
-            source: 'buffSource',
-            inheritSourceSkillCastInfo: true,
-          },
-        },
-        next: null,
-      },
-      changeResource_15: {
+      changeResource_11: {
         action: {
           kind: 'changeResource',
           parameters: {
@@ -7305,15 +7228,24 @@ const arcaneBuff27ActionGraph = {
         },
         next: null,
       },
-      forEachContextTarget_16: {
+      applyBuff_12: {
         action: {
-          kind: 'forEachContextTarget',
-          parameters: { targets: { kind: 'context', key: 'laser_target2' } },
-          body: { $sequence: 'applyBuff_13' },
+          kind: 'applyBuff',
+          parameters: {
+            buffs: [
+              {
+                buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_inaura_laser2',
+                copiedBlackboardAssignments: { atk_scale_laser: 'atk_scale_laser' },
+              },
+            ],
+            targets: { kind: 'context', key: 'laser_target2' },
+            source: { kind: 'source' },
+            inheritSourceSkillCastInfo: true,
+          },
         },
-        next: 'changeResource_15',
+        next: 'changeResource_11',
       },
-      spawnAbilityEntity_17: {
+      spawnAbilityEntity_13: {
         action: {
           kind: 'spawnAbilityEntity',
           parameters: {
@@ -7324,26 +7256,26 @@ const arcaneBuff27ActionGraph = {
             saveToContextKey: 'laser_target2',
           },
         },
-        next: 'forEachContextTarget_16',
+        next: 'applyBuff_12',
       },
-      checkCondition_14: {
+      checkCondition_10: {
         action: {
           kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
         },
         next: null,
       },
-      ifElse_22: {
+      ifElse_18: {
         action: {
           kind: 'ifElse',
           parameters: { alwaysNext: true },
-          condition: { $sequence: 'checkCondition_14' },
-          whenTrue: { $sequence: 'spawnAbilityEntity_17' },
+          condition: { $sequence: 'checkCondition_10' },
+          whenTrue: { $sequence: 'spawnAbilityEntity_13' },
           whenFalse: { $sequence: null },
         },
         next: null,
       },
-      applyBuff_12: {
+      applyBuff_16: {
         action: {
           kind: 'applyBuff',
           parameters: {
@@ -7353,22 +7285,14 @@ const arcaneBuff27ActionGraph = {
                 copiedBlackboardAssignments: { atk_scale_laser: 'atk_scale_laser' },
               },
             ],
-            target: 'currentAbilityEntity',
-            source: 'buffSource',
+            targets: { kind: 'context', key: 'laser_target1' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
-        next: null,
+        next: 'changeResource_11',
       },
-      forEachContextTarget_20: {
-        action: {
-          kind: 'forEachContextTarget',
-          parameters: { targets: { kind: 'context', key: 'laser_target1' } },
-          body: { $sequence: 'applyBuff_12' },
-        },
-        next: 'changeResource_15',
-      },
-      spawnAbilityEntity_21: {
+      spawnAbilityEntity_17: {
         action: {
           kind: 'spawnAbilityEntity',
           parameters: {
@@ -7379,38 +7303,38 @@ const arcaneBuff27ActionGraph = {
             saveToContextKey: 'laser_target1',
           },
         },
-        next: 'forEachContextTarget_20',
+        next: 'applyBuff_16',
       },
-      checkCondition_18: {
+      checkCondition_14: {
         action: {
           kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
         },
         next: null,
       },
-      applyBuff_23: {
+      applyBuff_19: {
         action: {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_layer' }],
-            target: 'buffSource',
-            source: 'buffSource',
+            targets: { kind: 'source' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
         next: null,
       },
-      ifElse_24: {
+      ifElse_20: {
         action: {
           kind: 'ifElse',
           parameters: { alwaysNext: true },
-          condition: { $sequence: 'checkCondition_18' },
-          whenTrue: { $sequence: 'spawnAbilityEntity_21' },
-          whenFalse: { $sequence: 'ifElse_22' },
+          condition: { $sequence: 'checkCondition_14' },
+          whenTrue: { $sequence: 'spawnAbilityEntity_17' },
+          whenFalse: { $sequence: 'ifElse_18' },
         },
-        next: 'applyBuff_23',
+        next: 'applyBuff_19',
       },
-      findOwnerSpawnedAbilityEntities_25: {
+      findOwnerSpawnedAbilityEntities_21: {
         action: {
           kind: 'findOwnerSpawnedAbilityEntities',
           parameters: {
@@ -7418,33 +7342,34 @@ const arcaneBuff27ActionGraph = {
             abilityEntityIds: ['abilityentity_chr_0032_lizhiyan_ultimate_skill'],
           },
         },
-        next: 'ifElse_24',
+        next: 'ifElse_20',
       },
-      createTimedMarker_26: {
+      createTimedMarker_22: {
         action: {
           kind: 'createTimedMarker',
           parameters: {
-            target: 'caster',
+            targets: { kind: 'source' },
             markerId: 'chr_0032_lizhiyan_ultimate_count',
             durationSeconds: { kind: 'constant', value: 0.4 },
             autoFinishByAction: false,
+            timeDomain: 'globalScaled',
           },
         },
-        next: 'findOwnerSpawnedAbilityEntities_25',
+        next: 'findOwnerSpawnedAbilityEntities_21',
       },
-      checkCondition_27: {
+      checkCondition_23: {
         action: {
           kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
         },
-        next: 'createTimedMarker_26',
+        next: 'createTimedMarker_22',
       },
-      checkCondition_28: {
+      checkCondition_24: {
         action: {
           kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_6' } },
         },
-        next: 'checkCondition_27',
+        next: 'checkCondition_23',
       },
     },
     dataNodes: {
@@ -7508,7 +7433,7 @@ const arcaneBuff27: SkillBuffDefinition = {
   extendTags: [],
   blackboard: { atk_scale_laser: 0, usp_step: 0 },
   attributeModifiers: [],
-  lifecycleSequences: { trigger: { $sequence: 'checkCondition_28' } },
+  lifecycleSequences: { trigger: { $sequence: 'checkCondition_24' } },
   actionGraph: arcaneBuff27ActionGraph,
 };
 
@@ -8023,11 +7948,7 @@ export const arcane: OperatorDefinition = {
             { startFrame: 0, endFrame: 15, sequence: { $sequence: 'repeatEachTick_4' } },
             { startFrame: 0, endFrame: 14, sequence: { $sequence: 'checkCondition_8' } },
             { startFrame: 14, endFrame: 20, sequence: { $sequence: 'ifElse_13' } },
-            {
-              startFrame: 0,
-              endFrame: 3,
-              sequence: { $sequence: 'createAbilityEntityTimedMarker_14' },
-            },
+            { startFrame: 0, endFrame: 3, sequence: { $sequence: 'createTimedMarker_14' } },
             { startFrame: 14, endFrame: 17, sequence: { $sequence: 'forEachContextTarget_18' } },
           ],
           actionGraph: {
@@ -8037,7 +7958,8 @@ export const arcane: OperatorDefinition = {
                   action: {
                     kind: 'finishBuffsById',
                     parameters: {
-                      target: 'currentAbilityEntity',
+                      targets: { kind: 'owner' },
+                      finishSource: { kind: 'source' },
                       buffIds: [
                         'buff_chr_0032_lizhiyan_combo_skill_abilityentity_effect',
                         'buff_chr_0032_lizhiyan_combo_skill_abilityentity_effect_line',
@@ -8083,10 +8005,11 @@ export const arcane: OperatorDefinition = {
                   action: {
                     kind: 'createTimedMarker',
                     parameters: {
-                      target: 'caster',
+                      targets: { kind: 'source' },
                       markerId: 'lizhiyan_combo_end_not_finish',
                       durationSeconds: { kind: 'constant', value: 0.1 },
                       autoFinishByAction: false,
+                      timeDomain: 'globalScaled',
                     },
                   },
                   next: null,
@@ -8105,7 +8028,8 @@ export const arcane: OperatorDefinition = {
                           },
                         },
                       ],
-                      target: 'enemy',
+                      targets: { kind: 'fixed', target: 'enemy' },
+                      source: { kind: 'source' },
                       inheritSourceSkillCastInfo: true,
                       finishByAction: true,
                     },
@@ -8137,10 +8061,11 @@ export const arcane: OperatorDefinition = {
                   action: {
                     kind: 'createTimedMarker',
                     parameters: {
-                      target: 'caster',
+                      targets: { kind: 'source' },
                       markerId: 'lizhiyan_combo_hit',
                       durationSeconds: { kind: 'constant', value: 0.1 },
                       autoFinishByAction: false,
+                      timeDomain: 'globalScaled',
                     },
                   },
                   next: null,
@@ -8225,10 +8150,11 @@ export const arcane: OperatorDefinition = {
                   },
                   next: 'startTimeDilation_12',
                 },
-                createAbilityEntityTimedMarker_14: {
+                createTimedMarker_14: {
                   action: {
-                    kind: 'createAbilityEntityTimedMarker',
+                    kind: 'createTimedMarker',
                     parameters: {
+                      targets: { kind: 'owner' },
                       markerId: 'lizhiyan_bunshin_end',
                       durationSeconds: { kind: 'constant', value: 1 },
                       autoFinishByAction: false,
@@ -8248,7 +8174,8 @@ export const arcane: OperatorDefinition = {
                   action: {
                     kind: 'finishBuffsById',
                     parameters: {
-                      target: 'enemy',
+                      targets: { kind: 'fixed', target: 'enemy' },
+                      finishSource: { kind: 'source' },
                       buffIds: ['buff_chr_0032_lizhiyan_combo_skill_spell_vulnerable'],
                       reason: 'other',
                     },
@@ -8376,11 +8303,11 @@ export const arcane: OperatorDefinition = {
           scheduledSequences: [
             { startFrame: 0, endFrame: 3, sequence: { $sequence: 'finishBuffsById_1' } },
             { startFrame: 0, endFrame: 3, sequence: { $sequence: 'ifElse_7' } },
-            { startFrame: 41, endFrame: 44, sequence: { $sequence: 'ifElse_17' } },
-            { startFrame: 23, endFrame: 26, sequence: { $sequence: 'finishBuffsById_18' } },
-            { startFrame: 239, endFrame: 239, sequence: { $sequence: 'checkCondition_23' } },
-            { startFrame: 240, endFrame: 243, sequence: { $sequence: 'finishOwner_24' } },
-            { startFrame: 0, endFrame: 240, sequence: { $sequence: 'checkCondition_30' } },
+            { startFrame: 41, endFrame: 44, sequence: { $sequence: 'ifElse_16' } },
+            { startFrame: 23, endFrame: 26, sequence: { $sequence: 'finishBuffsById_17' } },
+            { startFrame: 239, endFrame: 239, sequence: { $sequence: 'checkCondition_22' } },
+            { startFrame: 240, endFrame: 243, sequence: { $sequence: 'finishOwner_23' } },
+            { startFrame: 0, endFrame: 240, sequence: { $sequence: 'checkCondition_29' } },
           ],
           actionGraph: {
             main: {
@@ -8389,7 +8316,8 @@ export const arcane: OperatorDefinition = {
                   action: {
                     kind: 'finishBuffsById',
                     parameters: {
-                      target: 'currentAbilityEntity',
+                      targets: { kind: 'owner' },
+                      finishSource: { kind: 'source' },
                       buffIds: ['buff_chr_0032_lizhiyan_combo_skill_abilityentity_effect_line'],
                       reason: 'other',
                     },
@@ -8425,7 +8353,7 @@ export const arcane: OperatorDefinition = {
                     parameters: {
                       key: 'duration_calc',
                       operation: 'add',
-                      left: { kind: 'valueNode', nodeId: 'data_3' },
+                      left: { kind: 'valueNode', nodeId: 'data_1' },
                       right: { kind: 'constant', value: 0 },
                     },
                   },
@@ -8445,7 +8373,7 @@ export const arcane: OperatorDefinition = {
                 checkCondition_2: {
                   action: {
                     kind: 'checkCondition',
-                    parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
+                    parameters: { condition: { kind: 'conditionNode', nodeId: 'data_4' } },
                   },
                   next: null,
                 },
@@ -8459,7 +8387,7 @@ export const arcane: OperatorDefinition = {
                   },
                   next: null,
                 },
-                jumpTimeline_14: {
+                jumpTimeline_13: {
                   action: {
                     kind: 'jumpTimeline',
                     parameters: { destinationFrame: 240 },
@@ -8467,7 +8395,15 @@ export const arcane: OperatorDefinition = {
                   },
                   next: null,
                 },
-                applyBuff_8: {
+                jumpTimeline_9: {
+                  action: {
+                    kind: 'jumpTimeline',
+                    parameters: { destinationFrame: 239 },
+                    condition: { $sequence: null },
+                  },
+                  next: null,
+                },
+                applyBuff_10: {
                   action: {
                     kind: 'applyBuff',
                     parameters: {
@@ -8484,33 +8420,18 @@ export const arcane: OperatorDefinition = {
                           },
                         },
                       ],
-                      target: 'currentAbilityEntity',
+                      targets: { kind: 'context', key: 'death' },
+                      source: { kind: 'source' },
                       inheritSourceSkillCastInfo: true,
                     },
                   },
-                  next: null,
+                  next: 'jumpTimeline_9',
                 },
-                jumpTimeline_10: {
-                  action: {
-                    kind: 'jumpTimeline',
-                    parameters: { destinationFrame: 239 },
-                    condition: { $sequence: null },
-                  },
-                  next: null,
-                },
-                forEachContextTarget_11: {
-                  action: {
-                    kind: 'forEachContextTarget',
-                    parameters: { targets: { kind: 'context', key: 'death' } },
-                    body: { $sequence: 'applyBuff_8' },
-                  },
-                  next: 'jumpTimeline_10',
-                },
-                spawnAbilityEntity_12: {
+                spawnAbilityEntity_11: {
                   action: {
                     kind: 'spawnAbilityEntity',
                     parameters: {
-                      bornAt: { kind: 'inputTarget' },
+                      bornAt: { kind: 'fixed', target: 'enemy' },
                       abilityEntityId: 'abilityentity_chr_0032_lizhiyan_combo_skill_death',
                       childSkillId: 'chr_0032_lizhiyan_combo_skill_abilityentity_death_move',
                       inheritActionBlackboard: true,
@@ -8519,24 +8440,41 @@ export const arcane: OperatorDefinition = {
                       saveToContextKey: 'death',
                     },
                   },
-                  next: 'forEachContextTarget_11',
+                  next: 'applyBuff_10',
                 },
-                applyBuff_13: {
+                applyBuff_12: {
                   action: {
                     kind: 'applyBuff',
                     parameters: {
                       buffs: [{ buffId: 'buff_chr_0032_lizhiyan_combo_skill_seal_finish_count' }],
-                      target: 'caster',
-                      source: 'currentAbilityEntity',
+                      targets: { kind: 'source' },
+                      source: { kind: 'owner' },
                       inheritSourceSkillCastInfo: true,
                     },
                   },
-                  next: 'spawnAbilityEntity_12',
+                  next: 'spawnAbilityEntity_11',
                 },
-                checkCondition_9: {
+                checkCondition_8: {
                   action: {
                     kind: 'checkCondition',
-                    parameters: { condition: { kind: 'conditionNode', nodeId: 'data_6' } },
+                    parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
+                  },
+                  next: null,
+                },
+                ifElse_15: {
+                  action: {
+                    kind: 'ifElse',
+                    parameters: { alwaysNext: true },
+                    condition: { $sequence: 'checkCondition_8' },
+                    whenTrue: { $sequence: 'applyBuff_12' },
+                    whenFalse: { $sequence: 'jumpTimeline_13' },
+                  },
+                  next: null,
+                },
+                checkCondition_14: {
+                  action: {
+                    kind: 'checkCondition',
+                    parameters: { condition: { kind: 'conditionNode', nodeId: 'data_7' } },
                   },
                   next: null,
                 },
@@ -8544,53 +8482,38 @@ export const arcane: OperatorDefinition = {
                   action: {
                     kind: 'ifElse',
                     parameters: { alwaysNext: true },
-                    condition: { $sequence: 'checkCondition_9' },
-                    whenTrue: { $sequence: 'applyBuff_13' },
-                    whenFalse: { $sequence: 'jumpTimeline_14' },
-                  },
-                  next: null,
-                },
-                checkCondition_15: {
-                  action: {
-                    kind: 'checkCondition',
-                    parameters: { condition: { kind: 'conditionNode', nodeId: 'data_8' } },
-                  },
-                  next: null,
-                },
-                ifElse_17: {
-                  action: {
-                    kind: 'ifElse',
-                    parameters: { alwaysNext: true },
-                    condition: { $sequence: 'checkCondition_15' },
-                    whenTrue: { $sequence: 'ifElse_16' },
+                    condition: { $sequence: 'checkCondition_14' },
+                    whenTrue: { $sequence: 'ifElse_15' },
                     whenFalse: { $sequence: null },
                   },
                   next: null,
                 },
-                finishBuffsById_18: {
+                finishBuffsById_17: {
                   action: {
                     kind: 'finishBuffsById',
                     parameters: {
-                      target: 'currentAbilityEntity',
+                      targets: { kind: 'owner' },
+                      finishSource: { kind: 'source' },
                       buffIds: ['buff_chr_0032_lizhiyan_combo_skill_abilityentity_effect'],
                       reason: 'other',
                     },
                   },
                   next: null,
                 },
-                createTimedMarker_20: {
+                createTimedMarker_19: {
                   action: {
                     kind: 'createTimedMarker',
                     parameters: {
-                      target: 'caster',
+                      targets: { kind: 'source' },
                       markerId: 'lizhiyan_combo_finisher',
                       durationSeconds: { kind: 'constant', value: 0.1 },
                       autoFinishByAction: false,
+                      timeDomain: 'globalScaled',
                     },
                   },
                   next: null,
                 },
-                applyBuff_21: {
+                applyBuff_20: {
                   action: {
                     kind: 'applyBuff',
                     parameters: {
@@ -8604,34 +8527,35 @@ export const arcane: OperatorDefinition = {
                           },
                         },
                       ],
-                      target: 'enemy',
+                      targets: { kind: 'fixed', target: 'enemy' },
+                      source: { kind: 'source' },
                       inheritSourceSkillCastInfo: true,
                     },
                   },
-                  next: 'createTimedMarker_20',
+                  next: 'createTimedMarker_19',
                 },
-                ifElse_22: {
+                ifElse_21: {
                   action: {
                     kind: 'ifElse',
                     parameters: { alwaysNext: true },
-                    condition: { $sequence: 'checkCondition_15' },
+                    condition: { $sequence: 'checkCondition_14' },
                     whenTrue: { $sequence: null },
-                    whenFalse: { $sequence: 'applyBuff_21' },
+                    whenFalse: { $sequence: 'applyBuff_20' },
                   },
                   next: null,
                 },
-                checkCondition_23: {
+                checkCondition_22: {
                   action: {
                     kind: 'checkCondition',
-                    parameters: { condition: { kind: 'conditionNode', nodeId: 'data_10' } },
+                    parameters: { condition: { kind: 'conditionNode', nodeId: 'data_9' } },
                   },
-                  next: 'ifElse_22',
+                  next: 'ifElse_21',
                 },
-                finishOwner_24: {
+                finishOwner_23: {
                   action: { kind: 'finishOwner', parameters: { targets: { kind: 'owner' } } },
                   next: null,
                 },
-                applyBuff_27: {
+                applyBuff_26: {
                   action: {
                     kind: 'applyBuff',
                     parameters: {
@@ -8649,40 +8573,42 @@ export const arcane: OperatorDefinition = {
                           },
                         },
                       ],
-                      target: 'enemy',
+                      targets: { kind: 'fixed', target: 'enemy' },
+                      source: { kind: 'source' },
                       inheritSourceSkillCastInfo: true,
                     },
                   },
                   next: null,
                 },
-                createTimedMarker_28: {
+                createTimedMarker_27: {
                   action: {
                     kind: 'createTimedMarker',
                     parameters: {
-                      target: 'caster',
+                      targets: { kind: 'source' },
                       markerId: 'lizhiyan_combo_vul',
                       durationSeconds: { kind: 'constant', value: 0.1 },
                       autoFinishByAction: false,
+                      timeDomain: 'globalScaled',
                     },
                   },
-                  next: 'applyBuff_27',
+                  next: 'applyBuff_26',
                 },
-                ifElse_29: {
+                ifElse_28: {
                   action: {
                     kind: 'ifElse',
                     parameters: { alwaysNext: true },
                     condition: { $sequence: null },
-                    whenTrue: { $sequence: 'createTimedMarker_28' },
-                    whenFalse: { $sequence: 'createTimedMarker_28' },
+                    whenTrue: { $sequence: 'createTimedMarker_27' },
+                    whenFalse: { $sequence: 'createTimedMarker_27' },
                   },
                   next: null,
                 },
-                checkCondition_30: {
+                checkCondition_29: {
                   action: {
                     kind: 'checkCondition',
-                    parameters: { condition: { kind: 'conditionNode', nodeId: 'data_12' } },
+                    parameters: { condition: { kind: 'conditionNode', nodeId: 'data_11' } },
                   },
-                  next: 'ifElse_29',
+                  next: 'ifElse_28',
                 },
               },
               dataNodes: {
@@ -8691,8 +8617,7 @@ export const arcane: OperatorDefinition = {
                   type: 'number',
                   expression: { kind: 'blackboard', key: 'duration_extra' },
                 },
-                data_3: { type: 'number', expression: { kind: 'blackboard', key: 'duration_vul' } },
-                data_4: {
+                data_3: {
                   type: 'number',
                   expression: {
                     kind: 'blackboard',
@@ -8700,16 +8625,16 @@ export const arcane: OperatorDefinition = {
                     fallback: 0,
                   },
                 },
-                data_5: {
+                data_4: {
                   type: 'boolean',
                   expression: {
                     kind: 'actionValueCompare',
-                    left: { kind: 'valueNode', nodeId: 'data_4' },
+                    left: { kind: 'valueNode', nodeId: 'data_3' },
                     operator: 'greaterOrEqual',
                     right: { kind: 'constant', value: 1 },
                   },
                 },
-                data_6: {
+                data_5: {
                   type: 'boolean',
                   expression: {
                     kind: 'buffIdStackCompare',
@@ -8720,20 +8645,20 @@ export const arcane: OperatorDefinition = {
                     sameSourceSkillCast: true,
                   },
                 },
-                data_7: {
+                data_6: {
                   type: 'number',
                   expression: { kind: 'blackboard', key: 'isWisd', fallback: 0 },
                 },
-                data_8: {
+                data_7: {
                   type: 'boolean',
                   expression: {
                     kind: 'actionValueCompare',
-                    left: { kind: 'valueNode', nodeId: 'data_7' },
+                    left: { kind: 'valueNode', nodeId: 'data_6' },
                     operator: 'greaterOrEqual',
                     right: { kind: 'constant', value: 1 },
                   },
                 },
-                data_9: {
+                data_8: {
                   type: 'boolean',
                   expression: {
                     kind: 'timedMarkerPresent',
@@ -8741,14 +8666,14 @@ export const arcane: OperatorDefinition = {
                     markerId: 'lizhiyan_combo_finisher',
                   },
                 },
-                data_10: {
+                data_9: {
                   type: 'boolean',
                   expression: {
                     kind: 'not',
-                    condition: { kind: 'conditionNode', nodeId: 'data_9' },
+                    condition: { kind: 'conditionNode', nodeId: 'data_8' },
                   },
                 },
-                data_11: {
+                data_10: {
                   type: 'boolean',
                   expression: {
                     kind: 'timedMarkerPresent',
@@ -8756,11 +8681,11 @@ export const arcane: OperatorDefinition = {
                     markerId: 'lizhiyan_combo_vul',
                   },
                 },
-                data_12: {
+                data_11: {
                   type: 'boolean',
                   expression: {
                     kind: 'not',
-                    condition: { kind: 'conditionNode', nodeId: 'data_11' },
+                    condition: { kind: 'conditionNode', nodeId: 'data_10' },
                   },
                 },
               },
@@ -8942,7 +8867,7 @@ export const arcane: OperatorDefinition = {
                       attackScale: { kind: 'valueNode', nodeId: 'data_10' },
                       tags: ['normalSkill'],
                       features: ['canBreakWeakness'],
-                      stagger: { kind: 'valueNode', nodeId: 'data_11' },
+                      stagger: { kind: 'valueNode', nodeId: 'data_9' },
                     },
                     key: 'abilityentity_chr_0032_lizhiyan_normal_skill:chr_0032_lizhiyan_normal_skill_abilityrange2|chr_0032_lizhiyan_normal_skill_abilityrange:/childSkills/chr_0032_lizhiyan_normal_skill_abilityrange2/actionGraph/main/nodes/dealDamage_9/action',
                   },
@@ -9066,7 +8991,7 @@ export const arcane: OperatorDefinition = {
                   expression: {
                     kind: 'targetDistance',
                     source: { kind: 'owner' },
-                    target: { kind: 'inputTarget' },
+                    target: { kind: 'fixed', target: 'enemy' },
                     distance: 0.5,
                     lessThan: false,
                     includeTargetRadius: true,
@@ -9099,7 +9024,6 @@ export const arcane: OperatorDefinition = {
                   type: 'number',
                   expression: { kind: 'blackboard', key: 'atk_scale_will' },
                 },
-                data_11: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
               },
             },
             macros: {},
@@ -9130,8 +9054,8 @@ export const arcane: OperatorDefinition = {
                   action: {
                     kind: 'aura',
                     parameters: {
-                      target: 'enemy',
-                      source: 'currentAbilityEntity',
+                      targets: { kind: 'fixed', target: 'enemy' },
+                      source: { kind: 'owner' },
                       inheritSourceSkillCastInfo: false,
                       buffs: [
                         {
@@ -9233,9 +9157,9 @@ export const arcane: OperatorDefinition = {
                     kind: 'dealDamage',
                     parameters: {
                       damageType: 'nature',
-                      attackScale: { kind: 'valueNode', nodeId: 'data_6' },
+                      attackScale: { kind: 'valueNode', nodeId: 'data_2' },
                       tags: ['normalSkill'],
-                      stagger: { kind: 'valueNode', nodeId: 'data_7' },
+                      stagger: { kind: 'valueNode', nodeId: 'data_3' },
                     },
                     key: 'abilityentity_chr_0032_lizhiyan_normal_skill:chr_0032_lizhiyan_normal_skill_abilityrange2|chr_0032_lizhiyan_normal_skill_abilityrange:/childSkills/chr_0032_lizhiyan_normal_skill_abilityrange/actionGraph/main/nodes/dealDamage_12/action',
                   },
@@ -9273,8 +9197,6 @@ export const arcane: OperatorDefinition = {
                     right: { kind: 'constant', value: 1 },
                   },
                 },
-                data_6: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-                data_7: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
               },
             },
             macros: {},
@@ -9322,7 +9244,8 @@ export const arcane: OperatorDefinition = {
                     buffs: [
                       { buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_listener_abilityentity' },
                     ],
-                    target: 'currentAbilityEntity',
+                    targets: { kind: 'owner' },
+                    source: { kind: 'source' },
                     inheritSourceSkillCastInfo: true,
                     asChildBuff: true,
                   },
@@ -9340,7 +9263,8 @@ export const arcane: OperatorDefinition = {
                 action: {
                   kind: 'aura',
                   parameters: {
-                    target: 'enemy',
+                    targets: { kind: 'fixed', target: 'enemy' },
+                    source: { kind: 'source' },
                     inheritSourceSkillCastInfo: true,
                     buffs: [
                       {
@@ -9361,7 +9285,8 @@ export const arcane: OperatorDefinition = {
                 action: {
                   kind: 'aura',
                   parameters: {
-                    target: 'enemy',
+                    targets: { kind: 'fixed', target: 'enemy' },
+                    source: { kind: 'source' },
                     inheritSourceSkillCastInfo: true,
                     buffs: [
                       {
@@ -9555,10 +9480,11 @@ export const arcane: OperatorDefinition = {
                 action: {
                   kind: 'createTimedMarker',
                   parameters: {
-                    target: 'caster',
+                    targets: { kind: 'source' },
                     markerId: 'lizhiyan_ult_laser_hit3',
                     durationSeconds: { kind: 'constant', value: 0.8 },
                     autoFinishByAction: false,
+                    timeDomain: 'globalScaled',
                   },
                 },
                 next: null,
@@ -9581,10 +9507,11 @@ export const arcane: OperatorDefinition = {
                 action: {
                   kind: 'createTimedMarker',
                   parameters: {
-                    target: 'caster',
+                    targets: { kind: 'source' },
                     markerId: 'lizhiyan_ult_laser_hit2',
                     durationSeconds: { kind: 'constant', value: 0.8 },
                     autoFinishByAction: false,
+                    timeDomain: 'globalScaled',
                   },
                 },
                 next: null,
@@ -9610,10 +9537,11 @@ export const arcane: OperatorDefinition = {
                 action: {
                   kind: 'createTimedMarker',
                   parameters: {
-                    target: 'caster',
+                    targets: { kind: 'source' },
                     markerId: 'lizhiyan_ult_laser_hit1',
                     durationSeconds: { kind: 'constant', value: 0.8 },
                     autoFinishByAction: false,
+                    timeDomain: 'globalScaled',
                   },
                 },
                 next: null,

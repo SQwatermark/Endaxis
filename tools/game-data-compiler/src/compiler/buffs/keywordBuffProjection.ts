@@ -1,4 +1,6 @@
 import type { KeywordBuffActionSource } from '../../source/keywordActions.ts';
+import { projectActionTargetQuery } from '../conditions/combatConditionProjection.ts';
+import { COMPILED_BUFF_TARGET_KINDS } from './compiledBuffMetadata.ts';
 import type { CompiledBuffStepSource } from '../actions/combatActionProjectionTypes.ts';
 import type { CombatActionProjectionContextSource } from '../combatProjectionCommon.ts';
 import type { ScalarSource } from '../../source/scalar.ts';
@@ -79,7 +81,9 @@ export function projectKeywordBuffAction(
             : {}),
         },
       ],
-      target,
+      targets: projectActionTargetQuery(action.target, context, `${path}.target`),
+      source: projectActionTargetQuery(action.source, context, `${path}.source`),
+      [COMPILED_BUFF_TARGET_KINDS]: { target, source: 'caster' },
       inheritSourceSkillCastInfo: true,
       ...(action.asChildBuff ? { asChildBuff: true } : {}),
       ...(action.autoFinishByAction ? { finishByAction: true } : {}),

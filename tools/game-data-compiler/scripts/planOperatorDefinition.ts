@@ -947,7 +947,8 @@ export function planRoutedSkills(
       routeStep?.kind !== 'applyBuff' ||
       routeStep.parameters.buffs.length !== 1 ||
       routeStep.parameters.buffs[0]?.buffId !== routingBuffId ||
-      routeStep.parameters.target !== 'caster' ||
+      routeStep.parameters.targets.kind !== 'fixed' ||
+      routeStep.parameters.targets.target !== 'caster' ||
       routeStep.parameters.inheritSourceSkillCastInfo !== true ||
       wrapper.scheduledSequences.length !== 0
     ) {

@@ -115,7 +115,6 @@ export function bindRestoredCombatOperatorCore(
     options.timedMarkerHooks,
     options.state.timedMarkers,
     {
-      global: options.globalScaledClock ?? options.clock,
       globalScaled: options.globalScaledClock ?? options.clock,
     },
   );

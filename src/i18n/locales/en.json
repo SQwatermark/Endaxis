@@ -1749,7 +1749,7 @@
       },
       "setAbilityEntityRemainingDuration": {
         "name": "Set Entity Time Remaining",
-        "help": "Set how many seconds the current entity has left."
+        "help": "Set the first target entity's remaining seconds, capped at its spawn duration."
       },
       "finishCurrentAbilityEntityWhenSourceDies": {
         "name": "End Entity if Source Is Gone",
@@ -1894,10 +1894,6 @@
       "createTimedMarker": {
         "name": "Add Timed Marker",
         "help": "Add a timed marker to the target for condition nodes to check."
-      },
-      "createAbilityEntityTimedMarker": {
-        "name": "Add Entity Marker",
-        "help": "Add a timed marker to the current entity."
       },
       "startTimeDilation": {
         "name": "Change Time Scale",
@@ -4203,7 +4199,7 @@
         "pickContextTarget": "Picks one instance from an existing Context target group by stable index and saves it as a new Context target group.",
         "forEachContextTarget": "Synchronously executes one step sequence for each stable target handle already stored in the cast context.",
         "readAbilityEntityRemainingDuration": "Reads the finite remaining lifetime of the current iterated Context target into this cast's action blackboard.",
-        "setAbilityEntityRemainingDuration": "Assigns the remaining lifetime of the current iterated ability entity using the proven native Assign subset.",
+        "setAbilityEntityRemainingDuration": "Sets the first target ability entity's remaining lifetime between zero and its actual spawn period. Infinite lifetimes are unchanged.",
         "finishCurrentAbilityEntityWhenSourceDies": "Finishes the current ability entity only after its source has been recorded as dead.",
         "startCurrentAbilityEntityChildSkill": "Starts an entity-local hidden child timeline on the existing ability entity referenced by the current Context target, without creating a player cast, cost, or cooldown.",
         "startCurrentAbilityEntityChildSkillById": "Starts an existing child timeline by stable child-skill ID on the ability entity referenced by the current Context target.",
@@ -4241,9 +4237,8 @@
         "adjustSkillCooldown": "Reduces or sets current cooldowns selected by skill type or ID, using a base-duration ratio or absolute seconds.",
         "holdBuffsById": "Prevents specified Buffs from ending while this scheduled sequence remains active.",
         "restrictUltimateEnergyRecovery": "Allows only positive ultimate-energy recovery with specified tags while active and may clear ultimate energy when it ends.",
-        "createTimedMarker": "Creates a timed marker on a target; markers with the same ID may coexist.",
+        "createTimedMarker": "Creates markers per target using the target's clock or global scaled time. Identical IDs may coexist. An empty target group returns false.",
         "setGlobalCooldown": "Sets a battle-wide cooldown for a character. Reusing the same character and ID refreshes its remaining time. Independent of ordinary markers, character time dilation and action lifetime.",
-        "createAbilityEntityTimedMarker": "Creates a timed marker on the current ability entity's local clock.",
         "storeCurrentTimelineFrame": "Stores the host skill or ability entity child skill's current local execute frame in the action blackboard.",
         "storeEventSpGainAmount": "Stores the actual SP amount carried by the current SP-gained event in the action blackboard.",
         "storeEventHealValues": "Stores the raw, actual, and overheal values carried by the current healing event in the action blackboard.",
@@ -4398,7 +4393,6 @@
         "holdBuffsById": "Hold buffs",
         "createTimedMarker": "Create timed marker",
         "setGlobalCooldown": "Set global cooldown",
-        "createAbilityEntityTimedMarker": "Create entity-local timed marker",
         "storeCurrentTimelineFrame": "Store current timeline frame",
         "storeEventSpGainAmount": "Store gained SP amount",
         "storeEventHealValues": "Store event healing values",

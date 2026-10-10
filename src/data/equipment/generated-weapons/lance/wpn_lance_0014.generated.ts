@@ -54,10 +54,11 @@ const definition = {
               action: {
                 kind: 'createTimedMarker',
                 parameters: {
-                  target: 'eventTarget',
+                  targets: { kind: 'inputTarget' },
                   markerId: 'sk_wpn_lance_0014',
                   durationSeconds: { kind: 'constant', value: 0.1 },
                   autoFinishByAction: false,
+                  timeDomain: 'globalScaled',
                 },
               },
               next: null,
@@ -76,7 +77,8 @@ const definition = {
                       },
                     },
                   ],
-                  target: 'eventTarget',
+                  targets: { kind: 'inputTarget' },
+                  source: { kind: 'owner' },
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
                 },

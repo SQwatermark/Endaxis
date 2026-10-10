@@ -48,6 +48,54 @@ const singleNodeGraph = (
 const entryOf = (id: string): graph.ActionGraphReference => ({ $sequence: id });
 
 describe('independent operator resource renderer', () => {
+  it('shares identical callback definitions within a host without merging launch sites or differing blackboards', () => {
+    const callback = {
+      skillId: 'projectileHit',
+      blackboard: { scale: 1 },
+      scheduledSequences: [{ startFrame: 0, sequence: entryOf('hit') }],
+      actionGraph: singleNodeGraph('hit', {
+        kind: 'dealDamage',
+        parameters: { damageType: 'physical', attackScale: 1, tags: [] },
+      }),
+    };
+    const launch = (skill: typeof callback, next: string | null) => ({
+      action: {
+        kind: 'launchProjectile',
+        parameters: { finish: 'firstTickReach' },
+        callbacks: [{ event: 'hit', skill }],
+      },
+      next,
+    });
+    const skill = {
+      key: 'battleSkill',
+      blackboard: {},
+      timelineBlockFrames: 10,
+      scheduledSequences: [{ startFrame: 0, sequence: entryOf('first') }],
+      actionGraph: {
+        main: {
+          nodes: {
+            first: launch(callback, 'second'),
+            second: launch(structuredClone(callback), 'third'),
+            third: launch({ ...callback, blackboard: { scale: 2 } }, null),
+          },
+        },
+        macros: {},
+      },
+    };
+    const source = renderOperatorDefinitionSource({
+      operator: {
+        slug: 'sample',
+        skillGroups: [{ key: 'battleSkill', operationType: 'battleSkill', skills: skill }],
+      },
+    });
+    const generated = evaluate(source).sampleBattleSkill as typeof skill;
+    expect(generated).toEqual(skill);
+    const nodes = generated.actionGraph.main.nodes;
+    expect(nodes.first.action.callbacks[0]!.skill).toBe(nodes.second.action.callbacks[0]!.skill);
+    expect(nodes.first.action.callbacks[0]!.skill).not.toBe(nodes.third.action.callbacks[0]!.skill);
+    expect(Object.keys(nodes)).toHaveLength(3);
+  });
+
   it('preserves skill exports, blackboard, numbers, callbacks and shared source identities', () => {
     const skill = {
       key: 'battleSkill',

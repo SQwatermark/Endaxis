@@ -444,7 +444,7 @@ describe('current project document', () => {
               buff: {
                 action: {
                   kind: 'applyBuff',
-                  parameters: { buffs: [{ buffId: 'electric-infliction' }], target: 'party' },
+                  parameters: { buffs: [{ buffId: 'electric-infliction' }], targets: { kind: 'characterTeam', excludeOwner: false } },
                 },
                 next: 'damage',
               },

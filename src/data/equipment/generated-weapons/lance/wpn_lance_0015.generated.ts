@@ -60,21 +60,33 @@ const definition = {
                       copiedBlackboardAssignments: { atk_up: 'atk_up', duration: 'duration' },
                     },
                   ],
-                  target: 'party',
+                  targets: { kind: 'context', key: 'teammates' },
+                  source: { kind: 'source' },
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
                 },
               },
               next: null,
             },
-            checkCondition_2: {
+            findTargets_2: {
+              action: {
+                kind: 'findTargets',
+                parameters: {
+                  owner: { kind: 'owner' },
+                  query: { kind: 'characterTeam', excludeOwner: false, owner: { kind: 'owner' } },
+                  saveToContextKey: 'teammates',
+                },
+              },
+              next: 'applyBuff_1',
+            },
+            checkCondition_3: {
               action: {
                 kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
               },
-              next: 'applyBuff_1',
+              next: 'findTargets_2',
             },
-            applyBuff_3: {
+            applyBuff_4: {
               action: {
                 kind: 'applyBuff',
                 parameters: {
@@ -87,26 +99,38 @@ const definition = {
                       },
                     },
                   ],
-                  target: 'party',
+                  targets: { kind: 'context', key: 'teammates' },
+                  source: { kind: 'source' },
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
                 },
               },
               next: null,
             },
-            checkCondition_4: {
+            findTargets_5: {
+              action: {
+                kind: 'findTargets',
+                parameters: {
+                  owner: { kind: 'owner' },
+                  query: { kind: 'characterTeam', excludeOwner: false, owner: { kind: 'owner' } },
+                  saveToContextKey: 'teammates',
+                },
+              },
+              next: 'applyBuff_4',
+            },
+            checkCondition_6: {
               action: {
                 kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
               },
-              next: 'applyBuff_3',
+              next: 'findTargets_5',
             },
-            checkCondition_5: {
+            checkCondition_7: {
               action: {
                 kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
               },
-              next: 'checkCondition_4',
+              next: 'checkCondition_6',
             },
           },
           dataNodes: {
@@ -135,13 +159,13 @@ const definition = {
           key: 'skill3:event:0:sequence:0',
           abilityEvent: 'skillSpGained',
           priority: 0,
-          sequence: { $sequence: 'checkCondition_2' },
+          sequence: { $sequence: 'checkCondition_3' },
         },
         {
           key: 'skill3:event:1:sequence:0',
           abilityEvent: 'beforeOutputInfliction',
           priority: 0,
-          sequence: { $sequence: 'checkCondition_5' },
+          sequence: { $sequence: 'checkCondition_7' },
         },
       ],
       blackboard: {

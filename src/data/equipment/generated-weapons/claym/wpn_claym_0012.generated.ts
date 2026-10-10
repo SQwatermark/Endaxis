@@ -57,7 +57,7 @@ const definition = {
                       blackboardAssignments: { heal_up: { kind: 'valueNode', nodeId: 'data_1' } },
                     },
                   ],
-                  target: 'caster',
+                  targets: { kind: 'fixed', target: 'caster' },
                 },
               },
               next: null,

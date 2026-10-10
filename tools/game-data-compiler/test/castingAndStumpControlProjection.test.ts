@@ -400,8 +400,9 @@ describe('施法输入限制与木桩物理控制投影', () => {
     ).toEqual({
       steps: [
         {
-          kind: 'createAbilityEntityTimedMarker',
+          kind: 'createTimedMarker',
           parameters: {
+            targets: { kind: 'owner' },
             markerId: 'self_marker',
             durationSeconds: { kind: 'constant', value: 4 },
             autoFinishByAction: true,
@@ -797,28 +798,18 @@ describe('施法输入限制与木桩物理控制投影', () => {
       graph: builder,
     });
     expect(result.state).toEqual(new Map([['fire_inflicted', 'dynamicEnemy']]));
-    const [conditional] = result.steps;
-    if (conditional?.kind !== 'conditional') throw new Error('expected conditional');
-    expect(conditional.parameters.condition).toEqual({
-      kind: 'entityTagMatch',
-      target: 'enemy',
-      tagQueryType: 'hasAny',
-      tags: ['Test/Tag123'],
-    });
-    const graph = builder.finish();
-    expect(readActionGraphChain(graph, conditional.whenTrue)).toEqual([
+    expect(result.steps).toEqual([
       {
-        kind: 'mergeContextTargets',
+        kind: 'findTargets',
         parameters: {
+          owner: { kind: 'owner' },
+          query: {
+            kind: 'enemyByTags',
+            tagQueryType: 'hasAny',
+            tags: ['Test/Tag123'],
+          },
           saveToContextKey: 'fire_inflicted',
-          sources: [{ kind: 'target', target: 'enemy' }],
         },
-      },
-    ]);
-    expect(readActionGraphChain(graph, conditional.whenFalse ?? { $sequence: null })).toEqual([
-      {
-        kind: 'mergeContextTargets',
-        parameters: { saveToContextKey: 'fire_inflicted', sources: [] },
       },
     ]);
   });
@@ -1035,7 +1026,7 @@ describe('施法输入限制与木桩物理控制投影', () => {
     );
     expect(compileEventCondition(node(action), createActiveSkillContext(), new Map())).toEqual({
       kind: 'entityCountCompare',
-      target: { kind: 'inputTarget' },
+      target: { kind: 'fixed', target: 'enemy' },
       containsHittableTarget: false,
       excludeDeadEntity: true,
       operator: 'greaterOrEqual',

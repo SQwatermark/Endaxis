@@ -315,7 +315,7 @@ export const endministratorChr_0003_endminf_attack3ActionGraph = {
           kind: 'changeResource',
           parameters: {
             resource: 'sp',
-            amount: { kind: 'valueNode', nodeId: 'data_5' },
+            amount: { kind: 'valueNode', nodeId: 'data_1' },
             coefficient: { kind: 'constant', value: 0.5 },
             source: { kind: 'source' },
             targets: { kind: 'source' },
@@ -340,9 +340,9 @@ export const endministratorChr_0003_endminf_attack3ActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'physical',
-            attackScale: { kind: 'valueNode', nodeId: 'data_6' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_3' },
             tags: ['normalAttack'],
-            stagger: { kind: 'valueNode', nodeId: 'data_7' },
+            stagger: { kind: 'valueNode', nodeId: 'data_4' },
             staggerOnlyWhenCasterControlled: true,
           },
         },
@@ -361,9 +361,6 @@ export const endministratorChr_0003_endminf_attack3ActionGraph = {
       data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
       data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
       data_4: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
-      data_5: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
-      data_6: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_7: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
     },
   },
   macros: {},
@@ -486,7 +483,7 @@ export const endministratorChr_0003_endminf_attack4ActionGraph = {
           kind: 'changeResource',
           parameters: {
             resource: 'sp',
-            amount: { kind: 'valueNode', nodeId: 'data_4' },
+            amount: { kind: 'valueNode', nodeId: 'data_1' },
             coefficient: { kind: 'constant', value: 0.25 },
             source: { kind: 'source' },
             targets: { kind: 'source' },
@@ -511,7 +508,7 @@ export const endministratorChr_0003_endminf_attack4ActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'physical',
-            attackScale: { kind: 'valueNode', nodeId: 'data_5' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_3' },
             tags: ['normalAttack'],
           },
         },
@@ -537,7 +534,7 @@ export const endministratorChr_0003_endminf_attack4ActionGraph = {
           kind: 'changeResource',
           parameters: {
             resource: 'sp',
-            amount: { kind: 'valueNode', nodeId: 'data_6' },
+            amount: { kind: 'valueNode', nodeId: 'data_1' },
             coefficient: { kind: 'constant', value: 0.25 },
             source: { kind: 'source' },
             targets: { kind: 'source' },
@@ -562,7 +559,7 @@ export const endministratorChr_0003_endminf_attack4ActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'physical',
-            attackScale: { kind: 'valueNode', nodeId: 'data_7' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_3' },
             tags: ['normalAttack'],
           },
         },
@@ -580,10 +577,6 @@ export const endministratorChr_0003_endminf_attack4ActionGraph = {
       data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
       data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
       data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
-      data_5: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_6: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
-      data_7: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
     },
   },
   macros: {},
@@ -745,7 +738,8 @@ export const endministratorChr_0003_endminf_attack5ActionGraph = {
         action: {
           kind: 'finishBuffsById',
           parameters: {
-            target: 'enemy',
+            targets: { kind: 'fixed', target: 'enemy' },
+            finishSource: { kind: 'source' },
             buffIds: ['buff_chr_0003_endminf_attack4'],
             reason: 'other',
           },
@@ -901,7 +895,7 @@ export const endministratorChr_0003_endminf_power_attack2ActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'physical',
-            attackScale: { kind: 'valueNode', nodeId: 'data_3' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_2' },
             calculation: 'breakingAttack',
             calculationMultiplier: 0.9,
             tags: ['normalAttack', 'powerAttack'],
@@ -927,14 +921,14 @@ export const endministratorChr_0003_endminf_power_attack2ActionGraph = {
       checkCondition_10: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_4' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
         },
         next: 'startTimeDilation_9',
       },
       checkCondition_11: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_4' } },
         },
         next: 'checkCondition_10',
       },
@@ -956,14 +950,14 @@ export const endministratorChr_0003_endminf_power_attack2ActionGraph = {
       checkCondition_13: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_6' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
         },
         next: 'startTimeDilation_12',
       },
       checkCondition_14: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_7' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_6' } },
         },
         next: 'checkCondition_13',
       },
@@ -972,7 +966,8 @@ export const endministratorChr_0003_endminf_power_attack2ActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_full_immune_medium' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -984,7 +979,8 @@ export const endministratorChr_0003_endminf_power_attack2ActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_power_attack_disable_cast_skill' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -995,31 +991,30 @@ export const endministratorChr_0003_endminf_power_attack2ActionGraph = {
     dataNodes: {
       data_1: { type: 'boolean', expression: { kind: 'casterControlled' } },
       data_2: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_4: {
+      data_3: {
         type: 'boolean',
         expression: {
           kind: 'entityCountCompare',
-          target: { kind: 'inputTarget' },
+          target: { kind: 'fixed', target: 'enemy' },
           containsHittableTarget: false,
           excludeDeadEntity: false,
           operator: 'greaterOrEqual',
           value: 1,
         },
       },
-      data_5: { type: 'boolean', expression: { kind: 'casterControlled' } },
-      data_6: {
+      data_4: { type: 'boolean', expression: { kind: 'casterControlled' } },
+      data_5: {
         type: 'boolean',
         expression: {
           kind: 'entityCountCompare',
-          target: { kind: 'inputTarget' },
+          target: { kind: 'fixed', target: 'enemy' },
           containsHittableTarget: false,
           excludeDeadEntity: false,
           operator: 'greaterOrEqual',
           value: 1,
         },
       },
-      data_7: { type: 'boolean', expression: { kind: 'casterControlled' } },
+      data_6: { type: 'boolean', expression: { kind: 'casterControlled' } },
     },
   },
   macros: {},
@@ -1436,7 +1431,8 @@ export const endministratorChr_0003_endminf_normal_skillActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0003_endminf_potential5_trigger' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -1731,7 +1727,8 @@ export const endministratorChr_0003_endminf_ultimate_skillActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0003_endminf_potential5_trigger' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -1759,7 +1756,8 @@ export const endministratorChr_0003_endminf_ultimate_skillActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_damage_immune_ult_skill' }],
-            target: 'caster',
+            targets: { kind: 'source' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -1929,7 +1927,8 @@ export const endministratorChr_0003_endminf_combo_skillActionGraph = {
                 },
               },
             ],
-            target: 'enemy',
+            targets: { kind: 'fixed', target: 'enemy' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -2113,7 +2112,7 @@ const endministratorPassive1ActionGraph = {
                 blackboardAssignments: { dmg: { kind: 'valueNode', nodeId: 'data_1' } },
               },
             ],
-            target: 'caster',
+            targets: { kind: 'fixed', target: 'caster' },
             inheritSourceSkillCastInfo: false,
           },
         },
@@ -2266,7 +2265,7 @@ const endministratorBuff4ActionGraph = {
             skill: { kind: 'id', skillId: 'chr_0003_endminf_combo_skill' },
             operation: 'reduce',
             basis: 'absoluteSeconds',
-            value: { kind: 'valueNode', nodeId: 'data_2' },
+            value: { kind: 'valueNode', nodeId: 'data_1' },
           },
         },
         next: 'adjustSkillCooldown_1',
@@ -2274,15 +2273,14 @@ const endministratorBuff4ActionGraph = {
       checkCondition_3: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
         },
         next: 'adjustSkillCooldown_2',
       },
     },
     dataNodes: {
       data_1: { type: 'number', expression: { kind: 'blackboard', key: 'cd_minus' } },
-      data_2: { type: 'number', expression: { kind: 'blackboard', key: 'cd_minus' } },
-      data_3: {
+      data_2: {
         type: 'boolean',
         expression: {
           kind: 'eventBuffIdMatch',
@@ -2395,7 +2393,8 @@ const endministratorBuff7ActionGraph = {
         action: {
           kind: 'aura',
           parameters: {
-            target: 'party',
+            targets: { kind: 'characterTeam', excludeOwner: false },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             buffs: [
               {

@@ -1700,7 +1700,7 @@ describe('CombatRuntimeAssembly', () => {
               kind: 'applyBuff',
               parameters: {
                 buffs: [{ buffId: 'hidden-buff' }],
-                target: 'caster',
+                targets: { kind: 'fixed', target: 'caster' },
                 inheritSourceSkillCastInfo: true,
               },
             },
@@ -2006,7 +2006,7 @@ describe('CombatRuntimeAssembly', () => {
             kind: 'applyBuff' as const,
             parameters: {
               buffs: [{ buffId: 'source-child' }],
-              target: 'buffOwner' as const,
+              targets: { kind: 'owner' } as const,
               inheritSourceSkillCastInfo: true,
             },
           },
@@ -2027,7 +2027,7 @@ describe('CombatRuntimeAssembly', () => {
               kind: 'applyBuff',
               parameters: {
                 buffs: [{ buffId: 'source-parent' }],
-                target: 'partyExceptCaster',
+                targets: { kind: 'characterTeam', excludeOwner: true },
                 inheritSourceSkillCastInfo: true,
               },
             },
@@ -2738,7 +2738,7 @@ describe('CombatRuntimeAssembly', () => {
                                 kind: 'applyBuff',
                                 parameters: {
                                   buffs: [{ buffId: 'entity-monitor' }],
-                                  target: 'currentAbilityEntity',
+                                  targets: { kind: 'owner' },
                                   inheritSourceSkillCastInfo: true,
                                 },
                               },
@@ -2782,7 +2782,7 @@ describe('CombatRuntimeAssembly', () => {
                 kind: 'applyBuff',
                 parameters: {
                   buffs: [{ buffId: 'entity-trigger-result' }],
-                  target: 'buffOwner',
+                  targets: { kind: 'owner' },
                   inheritSourceSkillCastInfo: true,
                 },
               },
@@ -2877,7 +2877,10 @@ describe('CombatRuntimeAssembly', () => {
       timelineBlockFrames: 1,
       costFrame: undefined,
       costs: [],
-      timelineActions: [{ ...spawnAction, startFrame: 0 }],
+      // 保留前置目标查询；抽出 Spawn 并移到零帧会丢失出生位置 Context。
+      timelineActions: compiled.timelineActions.filter(
+        action => action.startFrame <= spawnAction.startFrame,
+      ),
     };
     const operatorVitals = new CombatVitals({
       health: 0,
@@ -2910,6 +2913,7 @@ describe('CombatRuntimeAssembly', () => {
     );
 
     expect(assembly.tryStartSkill('operator', program.skillId, castId)).toBe(true);
+    assembly.advanceFrames(spawnAction.startFrame);
     expect(assembly.abilityEntities.activeCount).toBe(1);
     expect(entityBuffs?.buffs.map(buff => buff.definition.id)).toEqual([
       'buff_chr_0013_aglina_normal_skill_monitor',
@@ -3837,7 +3841,7 @@ describe('CombatRuntimeAssembly', () => {
               kind: 'applyBuff',
               parameters: {
                 buffs: [{ buffId: 'resource-buff' }],
-                target: 'caster',
+                targets: { kind: 'fixed', target: 'caster' },
                 inheritSourceSkillCastInfo: true,
               },
             },
@@ -3931,7 +3935,10 @@ describe('CombatRuntimeAssembly', () => {
               'step-1': {
                 action: {
                   kind: 'applyBuff',
-                  parameters: { buffs: [{ buffId: 'watched-buff' }], target: 'caster' },
+                  parameters: {
+                    buffs: [{ buffId: 'watched-buff' }],
+                    targets: { kind: 'fixed', target: 'caster' },
+                  },
                 },
                 next: null,
               },
@@ -4161,7 +4168,7 @@ describe('CombatRuntimeAssembly', () => {
               kind: 'applyBuff',
               parameters: {
                 buffs: [{ buffId: 'party-owner-buff' }],
-                target: 'party',
+                targets: { kind: 'characterTeam', excludeOwner: false },
                 inheritSourceSkillCastInfo: true,
               },
             },
@@ -4258,8 +4265,8 @@ describe('CombatRuntimeAssembly', () => {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'equipment-child' }],
-            target: 'caster',
-            ...(owner === 'upgrade' ? {} : { source: 'eventSource' as const }),
+            targets: { kind: 'fixed', target: 'caster' },
+            source: { kind: 'source' },
             asChildBuff: true,
           },
         },
@@ -4400,7 +4407,7 @@ describe('CombatRuntimeAssembly', () => {
                         },
                       },
                     ],
-                    target: 'caster',
+                    targets: { kind: 'fixed', target: 'caster' },
                   },
                 },
               ]),
@@ -4446,7 +4453,7 @@ describe('CombatRuntimeAssembly', () => {
                           },
                         },
                       ],
-                      target: 'caster',
+                      targets: { kind: 'fixed', target: 'caster' },
                       asChildBuff: true,
                     },
                   },
@@ -4552,7 +4559,10 @@ describe('CombatRuntimeAssembly', () => {
               sequence: chainEntry('upgrade-attack-after-sp-gain', [
                 {
                   kind: 'applyBuff',
-                  parameters: { buffs: [{ buffId: 'attack-up' }], target: 'caster' },
+                  parameters: {
+                    buffs: [{ buffId: 'attack-up' }],
+                    targets: { kind: 'fixed', target: 'caster' },
+                  },
                 },
               ]),
             },
@@ -4666,7 +4676,10 @@ describe('CombatRuntimeAssembly', () => {
               sequence: chainEntry('skill-sp-listener-apply', [
                 {
                   kind: 'applyBuff',
-                  parameters: { buffs: [{ buffId: 'skill-sp-listener' }], target: 'caster' },
+                  parameters: {
+                    buffs: [{ buffId: 'skill-sp-listener' }],
+                    targets: { kind: 'fixed', target: 'caster' },
+                  },
                 },
               ]),
             },
@@ -4683,7 +4696,7 @@ describe('CombatRuntimeAssembly', () => {
                       kind: 'applyBuff',
                       parameters: {
                         buffs: [{ buffId: 'skill-sp-listener-attack' }],
-                        target: 'caster',
+                        targets: { kind: 'fixed', target: 'caster' },
                       },
                     },
                   ]),
@@ -4715,7 +4728,10 @@ describe('CombatRuntimeAssembly', () => {
               sequence: chainEntry('upgrade-skill-sp-attack', [
                 {
                   kind: 'applyBuff',
-                  parameters: { buffs: [{ buffId: 'skill-sp-attack' }], target: 'caster' },
+                  parameters: {
+                    buffs: [{ buffId: 'skill-sp-attack' }],
+                    targets: { kind: 'fixed', target: 'caster' },
+                  },
                 },
               ]),
             },
@@ -5608,7 +5624,10 @@ describe('CombatRuntimeAssembly', () => {
           sequence: chainEntry('party-buff-apply', [
             {
               kind: 'applyBuff',
-              parameters: { buffs: [{ buffId: 'party-buff' }], target: 'party' },
+              parameters: {
+                buffs: [{ buffId: 'party-buff' }],
+                targets: { kind: 'characterTeam', excludeOwner: false },
+              },
             },
           ]),
         },
@@ -5722,7 +5741,33 @@ describe('CombatRuntimeAssembly', () => {
           {
             startFrame: 0,
             sequence: chainEntry(`teammate-shield-apply-${target}`, [
-              { kind: 'applyBuff', parameters: { buffs: [{ buffId: 'shield' }], target } },
+              {
+                kind: 'findCharacterTeamTargets',
+                parameters: {
+                  saveToContextKey: 'selected',
+                  selection:
+                    target === 'casterAndControlledOperator'
+                      ? { kind: 'controlledOperator' }
+                      : { kind: 'lowestHealthRatioOperator', excludeCaster: true },
+                },
+              },
+              {
+                kind: 'mergeContextTargets',
+                parameters: {
+                  saveToContextKey: 'recipients',
+                  sources: [
+                    { kind: 'target', target: 'caster' },
+                    { kind: 'context', contextKey: 'selected' },
+                  ],
+                },
+              },
+              {
+                kind: 'applyBuff',
+                parameters: {
+                  buffs: [{ buffId: 'shield' }],
+                  targets: { kind: 'context', key: 'recipients' },
+                },
+              },
             ]),
           },
         ],
@@ -5793,7 +5838,8 @@ describe('CombatRuntimeAssembly', () => {
                 action: {
                   kind: 'finishBuffsById',
                   parameters: {
-                    target: 'caster',
+                    targets: { kind: 'fixed', target: 'caster' },
+                    finishSource: { kind: 'source' },
                     buffIds: ['sword-trigger'],
                     reason: 'other',
                   },

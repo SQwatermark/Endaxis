@@ -64,7 +64,7 @@ const definition = {
                       },
                     },
                   ],
-                  target: 'caster',
+                  targets: { kind: 'fixed', target: 'caster' },
                 },
               },
               next: null,
@@ -115,7 +115,8 @@ const definition = {
               action: {
                 kind: 'aura',
                 parameters: {
-                  target: 'enemy',
+                  targets: { kind: 'fixed', target: 'enemy' },
+                  source: { kind: 'source' },
                   inheritSourceSkillCastInfo: true,
                   buffs: [
                     {
@@ -165,10 +166,11 @@ const definition = {
               action: {
                 kind: 'createTimedMarker',
                 parameters: {
-                  target: 'buffSource',
+                  targets: { kind: 'source' },
                   markerId: 'wpn_sword_0010',
                   durationSeconds: { kind: 'constant', value: 0.1 },
                   autoFinishByAction: false,
+                  timeDomain: 'globalScaled',
                 },
               },
               next: null,
@@ -187,8 +189,8 @@ const definition = {
                       },
                     },
                   ],
-                  target: 'buffSource',
-                  source: 'buffSource',
+                  targets: { kind: 'source' },
+                  source: { kind: 'source' },
                   inheritSourceSkillCastInfo: true,
                 },
               },

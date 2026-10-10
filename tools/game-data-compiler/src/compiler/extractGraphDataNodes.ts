@@ -5,6 +5,7 @@ import type {
   ActionGraphResourceDefinition,
 } from '../../../../packages/game-data-contract/src/actionGraph.ts';
 import { COMBAT_CONDITION_KINDS } from '../../../../packages/game-data-contract/src/conditions.ts';
+import { isDeepStrictEqual } from 'node:util';
 import type { IntermediateDefinition } from './intermediateDefinitions.ts';
 
 const conditionKinds = new Set<string>(COMBAT_CONDITION_KINDS);
@@ -21,7 +22,6 @@ function stringFields(kind: unknown): readonly string[] {
     case 'castSkillDuringAction':
       return ['skillId'];
     case 'createTimedMarker':
-    case 'createAbilityEntityTimedMarker':
     case 'timedMarkerPresent':
     case 'abilityEntityTimedMarkerPresent':
       return ['markerId'];
@@ -34,6 +34,29 @@ function stringFields(kind: unknown): readonly string[] {
 function graphExtractor(graph: IntermediateDefinition<ActionGraphDefinition>) {
   const dataNodes: Record<string, ActionGraphDataNode> = {};
   const reserved = new Set(Object.keys(graph.dataNodes ?? {}));
+  // 只共享变量读取的定义；各消费点仍在自己的调用作用域中即时求值。
+  // 缺省值参与严格比较（包括 -0、Infinity），不合并条件或随机求值节点。
+  const reads = new Map<string, string[]>();
+  function readKey(type: ActionGraphDataNode['type'], expression: unknown): string | undefined {
+    if (!expression || typeof expression !== 'object' || type === 'boolean') return undefined;
+    if (type === 'string' && 'blackboardKey' in expression)
+      return JSON.stringify([type, expression.blackboardKey]);
+    if (type === 'number' && 'kind' in expression) {
+      if (expression.kind === 'blackboard' && 'key' in expression)
+        return JSON.stringify([type, expression.kind, expression.key]);
+      if (expression.kind === 'parameter' && 'parameter' in expression)
+        return JSON.stringify([type, expression.kind, expression.parameter]);
+    }
+    return undefined;
+  }
+  function registerRead(id: string): void {
+    const node = dataNodes[id]!;
+    const key = readKey(node.type, node.expression);
+    if (key === undefined) return;
+    const ids = reads.get(key);
+    if (ids) ids.push(id);
+    else reads.set(key, [id]);
+  }
   let serial = 1;
   function children(value: object, parameterStringField: readonly string[] = []): object {
     const kind = 'kind' in value ? value.kind : undefined;
@@ -78,6 +101,13 @@ function graphExtractor(graph: IntermediateDefinition<ActionGraphDefinition>) {
     const type = expressionType(value, stringInput);
     const expression = children(value, parameterStringField);
     if (!type) return expression;
+    const key = readKey(type, expression);
+    const shared =
+      key === undefined
+        ? undefined
+        : reads.get(key)?.find(id => isDeepStrictEqual(dataNodes[id]!.expression, expression));
+    if (shared !== undefined)
+      return { kind: type === 'string' ? 'stringNode' : 'valueNode', nodeId: shared };
     let id: string;
     do {
       id = `data_${serial++}`;
@@ -85,6 +115,7 @@ function graphExtractor(graph: IntermediateDefinition<ActionGraphDefinition>) {
     reserved.add(id);
     // 上方逐个处理表达式子输入；此处是生成中间定义到正式节点的唯一转换。
     dataNodes[id] = { type, expression } as ActionGraphDataNode;
+    registerRead(id);
     return {
       kind: type === 'boolean' ? 'conditionNode' : type === 'string' ? 'stringNode' : 'valueNode',
       nodeId: id,
@@ -94,6 +125,7 @@ function graphExtractor(graph: IntermediateDefinition<ActionGraphDefinition>) {
     const expression =
       typeof node.expression === 'object' ? children(node.expression) : node.expression;
     dataNodes[id] = { ...node, expression } as ActionGraphDataNode;
+    registerRead(id);
   }
   const nodes = Object.fromEntries(
     Object.entries(graph.nodes).map(([id, node]) => {

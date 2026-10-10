@@ -11,6 +11,8 @@ const declarationFiles: Readonly<Record<FieldDeclarationId, string>> = {
   'DealDamageParameters.instantDamageScaleModifiers': 'actions',
   'CombatStepParameters.spawnAbilityEntity.definition': 'actions',
   'BuffApplicationEntry.keywordEnhancements': 'actions',
+  'CombatStepParameters.applyBuff.buffs': 'actions',
+  'CombatStepParameters.aura.buffs': 'actions',
   'CombatStepParameters.readSkillSettingData.items': 'actions',
   'CombatStepParameters.createGlobalBuff.definition': 'actions',
   'CombatStepParameters.listenForCombatEvents.responses': 'actions',

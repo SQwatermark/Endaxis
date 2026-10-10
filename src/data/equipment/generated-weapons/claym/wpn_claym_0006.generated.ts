@@ -49,7 +49,10 @@ const definition = {
             applyBuff_1: {
               action: {
                 kind: 'applyBuff',
-                parameters: { buffs: [{ buffId: 'buff_wpn_claym_0006_icon' }], target: 'caster' },
+                parameters: {
+                  buffs: [{ buffId: 'buff_wpn_claym_0006_icon' }],
+                  targets: { kind: 'fixed', target: 'caster' },
+                },
               },
               next: null,
             },
@@ -85,7 +88,8 @@ const definition = {
                 kind: 'applyBuff',
                 parameters: {
                   buffs: [{ buffId: 'buff_wpn_claym_0006_icon' }],
-                  target: 'caster',
+                  targets: { kind: 'source' },
+                  source: { kind: 'source' },
                   inheritSourceSkillCastInfo: true,
                 },
               },

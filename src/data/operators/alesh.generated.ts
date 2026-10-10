@@ -344,7 +344,7 @@ export const aleshChr_0024_deepfin_attack3ActionGraph = {
         type: 'boolean',
         expression: {
           kind: 'entityCountCompare',
-          target: { kind: 'inputTarget' },
+          target: { kind: 'fixed', target: 'enemy' },
           containsHittableTarget: true,
           excludeDeadEntity: false,
           operator: 'greaterOrEqual',
@@ -629,7 +629,7 @@ export const aleshChr_0024_deepfin_attack5ActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'physical',
-            attackScale: { kind: 'valueNode', nodeId: 'data_5' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_2' },
             tags: ['normalAttack'],
             stagger: { kind: 'constant', value: 0 },
             staggerOnlyWhenCasterControlled: true,
@@ -650,7 +650,6 @@ export const aleshChr_0024_deepfin_attack5ActionGraph = {
       data_2: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
       data_3: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
       data_4: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
-      data_5: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
     },
   },
   macros: {},
@@ -848,7 +847,8 @@ export const aleshChr_0024_deepfin_power_attackActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_full_immune_medium' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -860,7 +860,8 @@ export const aleshChr_0024_deepfin_power_attackActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_power_attack_disable_cast_skill' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -875,7 +876,7 @@ export const aleshChr_0024_deepfin_power_attackActionGraph = {
         type: 'boolean',
         expression: {
           kind: 'entityCountCompare',
-          target: { kind: 'inputTarget' },
+          target: { kind: 'fixed', target: 'enemy' },
           containsHittableTarget: false,
           excludeDeadEntity: false,
           operator: 'greaterOrEqual',
@@ -887,7 +888,7 @@ export const aleshChr_0024_deepfin_power_attackActionGraph = {
         type: 'boolean',
         expression: {
           kind: 'entityCountCompare',
-          target: { kind: 'inputTarget' },
+          target: { kind: 'fixed', target: 'enemy' },
           containsHittableTarget: false,
           excludeDeadEntity: false,
           operator: 'greaterOrEqual',
@@ -1150,8 +1151,8 @@ export const aleshChr_0024_deepfin_normal_skillActionGraph = {
           parameters: {
             key: 'atb_4',
             operation: 'add',
-            left: { kind: 'valueNode', nodeId: 'data_10' },
-            right: { kind: 'valueNode', nodeId: 'data_11' },
+            left: { kind: 'valueNode', nodeId: 'data_5' },
+            right: { kind: 'valueNode', nodeId: 'data_10' },
           },
         },
         next: 'switch_25',
@@ -1162,8 +1163,8 @@ export const aleshChr_0024_deepfin_normal_skillActionGraph = {
           parameters: {
             key: 'atb_3',
             operation: 'add',
-            left: { kind: 'valueNode', nodeId: 'data_12' },
-            right: { kind: 'valueNode', nodeId: 'data_13' },
+            left: { kind: 'valueNode', nodeId: 'data_6' },
+            right: { kind: 'valueNode', nodeId: 'data_10' },
           },
         },
         next: 'calculateActionValue_21',
@@ -1174,8 +1175,8 @@ export const aleshChr_0024_deepfin_normal_skillActionGraph = {
           parameters: {
             key: 'atb_2',
             operation: 'add',
-            left: { kind: 'valueNode', nodeId: 'data_14' },
-            right: { kind: 'valueNode', nodeId: 'data_15' },
+            left: { kind: 'valueNode', nodeId: 'data_7' },
+            right: { kind: 'valueNode', nodeId: 'data_10' },
           },
         },
         next: 'calculateActionValue_22',
@@ -1186,8 +1187,8 @@ export const aleshChr_0024_deepfin_normal_skillActionGraph = {
           parameters: {
             key: 'atb_1',
             operation: 'add',
-            left: { kind: 'valueNode', nodeId: 'data_16' },
-            right: { kind: 'valueNode', nodeId: 'data_17' },
+            left: { kind: 'valueNode', nodeId: 'data_8' },
+            right: { kind: 'valueNode', nodeId: 'data_10' },
           },
         },
         next: 'calculateActionValue_23',
@@ -1195,7 +1196,7 @@ export const aleshChr_0024_deepfin_normal_skillActionGraph = {
       checkCondition_19: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_19' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_12' } },
         },
         next: null,
       },
@@ -1227,7 +1228,7 @@ export const aleshChr_0024_deepfin_normal_skillActionGraph = {
       checkCondition_27: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_20' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_13' } },
         },
         next: null,
       },
@@ -1246,10 +1247,10 @@ export const aleshChr_0024_deepfin_normal_skillActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'physical',
-            attackScale: { kind: 'valueNode', nodeId: 'data_21' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_14' },
             tags: ['normalSkill'],
             features: ['canBreakWeakness'],
-            stagger: { kind: 'valueNode', nodeId: 'data_22' },
+            stagger: { kind: 'valueNode', nodeId: 'data_15' },
           },
         },
         next: 'ifElse_29',
@@ -1291,8 +1292,8 @@ export const aleshChr_0024_deepfin_normal_skillActionGraph = {
             target: 'enemy',
             element: 'cryo',
             consumedElement: 'cryo',
-            consumedLayers: { kind: 'valueNode', nodeId: 'data_23' },
-            count: { kind: 'valueNode', nodeId: 'data_24' },
+            consumedLayers: { kind: 'valueNode', nodeId: 'data_16' },
+            count: { kind: 'valueNode', nodeId: 'data_16' },
             isExtra: false,
           },
         },
@@ -1316,7 +1317,7 @@ export const aleshChr_0024_deepfin_normal_skillActionGraph = {
       checkCondition_34: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_25' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_17' } },
         },
         next: null,
       },
@@ -1375,43 +1376,35 @@ export const aleshChr_0024_deepfin_normal_skillActionGraph = {
       data_7: { type: 'number', expression: { kind: 'blackboard', key: 'atb_2' } },
       data_8: { type: 'number', expression: { kind: 'blackboard', key: 'atb_1' } },
       data_9: { type: 'number', expression: { kind: 'blackboard', key: 'num' } },
-      data_10: { type: 'number', expression: { kind: 'blackboard', key: 'atb_4' } },
-      data_11: { type: 'number', expression: { kind: 'blackboard', key: 'potential_1_atb' } },
-      data_12: { type: 'number', expression: { kind: 'blackboard', key: 'atb_3' } },
-      data_13: { type: 'number', expression: { kind: 'blackboard', key: 'potential_1_atb' } },
-      data_14: { type: 'number', expression: { kind: 'blackboard', key: 'atb_2' } },
-      data_15: { type: 'number', expression: { kind: 'blackboard', key: 'potential_1_atb' } },
-      data_16: { type: 'number', expression: { kind: 'blackboard', key: 'atb_1' } },
-      data_17: { type: 'number', expression: { kind: 'blackboard', key: 'potential_1_atb' } },
-      data_18: {
+      data_10: { type: 'number', expression: { kind: 'blackboard', key: 'potential_1_atb' } },
+      data_11: {
         type: 'number',
         expression: { kind: 'blackboard', key: 'potential_1', fallback: 0 },
       },
-      data_19: {
+      data_12: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_18' },
+          left: { kind: 'valueNode', nodeId: 'data_11' },
           operator: 'equal',
           right: { kind: 'constant', value: 1 },
         },
       },
-      data_20: {
+      data_13: {
         type: 'boolean',
         expression: {
           kind: 'entityCountCompare',
-          target: { kind: 'inputTarget' },
+          target: { kind: 'fixed', target: 'enemy' },
           containsHittableTarget: false,
           excludeDeadEntity: false,
           operator: 'greaterOrEqual',
           value: 1,
         },
       },
-      data_21: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_22: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
-      data_23: { type: 'number', expression: { kind: 'blackboard', key: 'count' } },
-      data_24: { type: 'number', expression: { kind: 'blackboard', key: 'count' } },
-      data_25: {
+      data_14: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
+      data_15: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
+      data_16: { type: 'number', expression: { kind: 'blackboard', key: 'count' } },
+      data_17: {
         type: 'boolean',
         expression: {
           kind: 'buffStackCompare',
@@ -1479,7 +1472,8 @@ export const aleshChr_0024_deepfin_combo_skillActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0024_deepfin_combo_camera' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -1506,7 +1500,7 @@ export const aleshChr_0024_deepfin_combo_skillActionGraph = {
             attackScale: { kind: 'valueNode', nodeId: 'data_3' },
             tags: ['comboSkill'],
             features: ['canBreakWeakness'],
-            stagger: { kind: 'valueNode', nodeId: 'data_4' },
+            stagger: { kind: 'valueNode', nodeId: 'data_2' },
           },
         },
         next: null,
@@ -1516,7 +1510,7 @@ export const aleshChr_0024_deepfin_combo_skillActionGraph = {
           kind: 'changeResource',
           parameters: {
             resource: 'sp',
-            amount: { kind: 'valueNode', nodeId: 'data_5' },
+            amount: { kind: 'valueNode', nodeId: 'data_4' },
             coefficient: { kind: 'constant', value: 1 },
             source: { kind: 'source' },
             targets: { kind: 'source' },
@@ -1559,7 +1553,7 @@ export const aleshChr_0024_deepfin_combo_skillActionGraph = {
       checkCondition_6: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_6' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
         },
         next: null,
       },
@@ -1578,7 +1572,7 @@ export const aleshChr_0024_deepfin_combo_skillActionGraph = {
           kind: 'changeResource',
           parameters: {
             resource: 'ultimateEnergy',
-            amount: { kind: 'valueNode', nodeId: 'data_7' },
+            amount: { kind: 'valueNode', nodeId: 'data_6' },
             coefficient: { kind: 'constant', value: 1 },
             source: { kind: 'source' },
             targets: { kind: 'source' },
@@ -1602,7 +1596,7 @@ export const aleshChr_0024_deepfin_combo_skillActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'physical',
-            attackScale: { kind: 'valueNode', nodeId: 'data_8' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_7' },
             tags: ['comboSkill'],
           },
         },
@@ -1613,7 +1607,7 @@ export const aleshChr_0024_deepfin_combo_skillActionGraph = {
           kind: 'changeResource',
           parameters: {
             resource: 'sp',
-            amount: { kind: 'valueNode', nodeId: 'data_9' },
+            amount: { kind: 'valueNode', nodeId: 'data_8' },
             coefficient: { kind: 'constant', value: 1 },
             source: { kind: 'source' },
             targets: { kind: 'source' },
@@ -1636,7 +1630,7 @@ export const aleshChr_0024_deepfin_combo_skillActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'physical',
-            attackScale: { kind: 'valueNode', nodeId: 'data_10' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_9' },
             tags: ['comboSkill'],
           },
         },
@@ -1647,7 +1641,7 @@ export const aleshChr_0024_deepfin_combo_skillActionGraph = {
           kind: 'changeResource',
           parameters: {
             resource: 'sp',
-            amount: { kind: 'valueNode', nodeId: 'data_11' },
+            amount: { kind: 'valueNode', nodeId: 'data_8' },
             coefficient: { kind: 'constant', value: 1 },
             source: { kind: 'source' },
             targets: { kind: 'source' },
@@ -1657,7 +1651,7 @@ export const aleshChr_0024_deepfin_combo_skillActionGraph = {
         },
         next: 'dealDamage_21',
       },
-      jumpTimeline_opt1: {
+      jumpTimeline_26: {
         action: {
           kind: 'jumpTimeline',
           parameters: { destinationFrame: 65 },
@@ -1665,38 +1659,38 @@ export const aleshChr_0024_deepfin_combo_skillActionGraph = {
         },
         next: null,
       },
-      checkCondition_opt3: {
+      checkCondition_27: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_11' } },
+        },
+        next: 'jumpTimeline_26',
+      },
+      checkCondition_25: {
         action: {
           kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_13' } },
         },
-        next: 'jumpTimeline_opt1',
-      },
-      checkCondition_opt2: {
-        action: {
-          kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_15' } },
-        },
-        next: 'jumpTimeline_opt1',
+        next: 'jumpTimeline_26',
       },
       checkCondition_23: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_18' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_16' } },
         },
         next: null,
       },
-      ifElse_opt4: {
+      ifElse_28: {
         action: {
           kind: 'ifElse',
           parameters: { alwaysNext: true },
           condition: { $sequence: 'checkCondition_23' },
-          whenTrue: { $sequence: 'checkCondition_opt2' },
-          whenFalse: { $sequence: 'checkCondition_opt3' },
+          whenTrue: { $sequence: 'checkCondition_25' },
+          whenFalse: { $sequence: 'checkCondition_27' },
         },
         next: null,
       },
-      storeSourceAttributeValue_opt5: {
+      storeSourceAttributeValue_29: {
         action: {
           kind: 'storeSourceAttributeValue',
           parameters: {
@@ -1704,36 +1698,36 @@ export const aleshChr_0024_deepfin_combo_skillActionGraph = {
             stage: 'finalNonConverted',
             useFloor: false,
             divisor: { kind: 'constant', value: 1 },
-            multiplier: { kind: 'valueNode', nodeId: 'data_19' },
-            base: { kind: 'valueNode', nodeId: 'data_20' },
+            multiplier: { kind: 'valueNode', nodeId: 'data_17' },
+            base: { kind: 'valueNode', nodeId: 'data_12' },
             targetKey: 'prob',
           },
         },
-        next: 'ifElse_opt4',
+        next: 'ifElse_28',
       },
-      calculateActionValue_opt6: {
+      calculateActionValue_30: {
         action: {
           kind: 'calculateActionValue',
           parameters: {
             key: 'prob_add',
             operation: 'divide',
-            left: { kind: 'valueNode', nodeId: 'data_21' },
-            right: { kind: 'valueNode', nodeId: 'data_22' },
+            left: { kind: 'valueNode', nodeId: 'data_17' },
+            right: { kind: 'valueNode', nodeId: 'data_18' },
           },
         },
-        next: 'storeSourceAttributeValue_opt5',
+        next: 'storeSourceAttributeValue_29',
       },
-      calculateActionValue_opt7: {
+      calculateActionValue_31: {
         action: {
           kind: 'calculateActionValue',
           parameters: {
             key: 'prob_max',
             operation: 'add',
-            left: { kind: 'valueNode', nodeId: 'data_23' },
-            right: { kind: 'valueNode', nodeId: 'data_24' },
+            left: { kind: 'valueNode', nodeId: 'data_12' },
+            right: { kind: 'valueNode', nodeId: 'data_10' },
           },
         },
-        next: 'calculateActionValue_opt6',
+        next: 'calculateActionValue_30',
       },
       applyBuff_33: {
         action: {
@@ -1745,41 +1739,53 @@ export const aleshChr_0024_deepfin_combo_skillActionGraph = {
                 copiedBlackboardAssignments: { atk_up: 'atk_up', duration: 'Duration' },
               },
             ],
-            target: 'party',
+            targets: { kind: 'context', key: 'team' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
         next: null,
       },
+      findTargets_34: {
+        action: {
+          kind: 'findTargets',
+          parameters: {
+            owner: { kind: 'owner' },
+            query: { kind: 'characterTeam', excludeOwner: false, owner: { kind: 'owner' } },
+            saveToContextKey: 'team',
+          },
+        },
+        next: 'applyBuff_33',
+      },
       checkCondition_32: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_26' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_20' } },
         },
         next: null,
       },
-      ifElse_34: {
+      ifElse_35: {
         action: {
           kind: 'ifElse',
           parameters: { alwaysNext: true },
           condition: { $sequence: 'checkCondition_32' },
-          whenTrue: { $sequence: 'applyBuff_33' },
+          whenTrue: { $sequence: 'findTargets_34' },
           whenFalse: { $sequence: null },
         },
         next: null,
       },
-      checkCondition_35: {
+      checkCondition_36: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_27' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_21' } },
         },
         next: null,
       },
-      ifElse_36: {
+      ifElse_37: {
         action: {
           kind: 'ifElse',
           parameters: { alwaysNext: true },
-          condition: { $sequence: 'checkCondition_35' },
+          condition: { $sequence: 'checkCondition_36' },
           whenTrue: { $sequence: null },
           whenFalse: { $sequence: null },
         },
@@ -1790,55 +1796,49 @@ export const aleshChr_0024_deepfin_combo_skillActionGraph = {
       data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_2' } },
       data_2: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
       data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_2ex' } },
-      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
-      data_5: { type: 'number', expression: { kind: 'blackboard', key: 'atb_sp' } },
-      data_6: { type: 'boolean', expression: { kind: 'casterControlled' } },
-      data_7: { type: 'number', expression: { kind: 'blackboard', key: 'usp_normal' } },
-      data_8: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_1' } },
-      data_9: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
-      data_10: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_1ex' } },
-      data_11: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
-      data_12: { type: 'number', expression: { kind: 'blackboard', key: 'prob_max' } },
+      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'atb_sp' } },
+      data_5: { type: 'boolean', expression: { kind: 'casterControlled' } },
+      data_6: { type: 'number', expression: { kind: 'blackboard', key: 'usp_normal' } },
+      data_7: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_1' } },
+      data_8: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+      data_9: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_1ex' } },
+      data_10: { type: 'number', expression: { kind: 'blackboard', key: 'prob_max' } },
+      data_11: {
+        type: 'boolean',
+        expression: { kind: 'probability', probability: { kind: 'valueNode', nodeId: 'data_10' } },
+      },
+      data_12: { type: 'number', expression: { kind: 'blackboard', key: 'prob' } },
       data_13: {
         type: 'boolean',
         expression: { kind: 'probability', probability: { kind: 'valueNode', nodeId: 'data_12' } },
       },
-      data_14: { type: 'number', expression: { kind: 'blackboard', key: 'prob' } },
-      data_15: {
-        type: 'boolean',
-        expression: { kind: 'probability', probability: { kind: 'valueNode', nodeId: 'data_14' } },
-      },
-      data_16: { type: 'number', expression: { kind: 'blackboard', key: 'prob', fallback: 0 } },
-      data_17: { type: 'number', expression: { kind: 'blackboard', key: 'prob_max', fallback: 0 } },
-      data_18: {
+      data_14: { type: 'number', expression: { kind: 'blackboard', key: 'prob', fallback: 0 } },
+      data_15: { type: 'number', expression: { kind: 'blackboard', key: 'prob_max', fallback: 0 } },
+      data_16: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_16' },
+          left: { kind: 'valueNode', nodeId: 'data_14' },
           operator: 'lessOrEqual',
-          right: { kind: 'valueNode', nodeId: 'data_17' },
+          right: { kind: 'valueNode', nodeId: 'data_15' },
         },
       },
-      data_19: { type: 'number', expression: { kind: 'blackboard', key: 'prob_add' } },
-      data_20: { type: 'number', expression: { kind: 'blackboard', key: 'prob' } },
-      data_21: { type: 'number', expression: { kind: 'blackboard', key: 'prob_add' } },
-      data_22: { type: 'number', expression: { kind: 'blackboard', key: 'rate' } },
-      data_23: { type: 'number', expression: { kind: 'blackboard', key: 'prob' } },
-      data_24: { type: 'number', expression: { kind: 'blackboard', key: 'prob_max' } },
-      data_25: {
+      data_17: { type: 'number', expression: { kind: 'blackboard', key: 'prob_add' } },
+      data_18: { type: 'number', expression: { kind: 'blackboard', key: 'rate' } },
+      data_19: {
         type: 'number',
         expression: { kind: 'blackboard', key: 'potential_3', fallback: 0 },
       },
-      data_26: {
+      data_20: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_25' },
+          left: { kind: 'valueNode', nodeId: 'data_19' },
           operator: 'greaterOrEqual',
           right: { kind: 'constant', value: 1 },
         },
       },
-      data_27: {
+      data_21: {
         type: 'boolean',
         expression: { kind: 'probability', probability: { kind: 'constant', value: 0.5 } },
       },
@@ -1889,9 +1889,9 @@ export const aleshChr_0024_deepfin_combo_skill: SkillDefinition = {
     { startFrame: 22, endFrame: 24, sequence: { $sequence: 'changeResource_19' } },
     { startFrame: 64, endFrame: 66, sequence: { $sequence: 'jumpTimeline_20' } },
     { startFrame: 77, endFrame: 79, sequence: { $sequence: 'changeResource_22' } },
-    { startFrame: 10, endFrame: 11, sequence: { $sequence: 'calculateActionValue_opt7' } },
-    { startFrame: 93, endFrame: 96, sequence: { $sequence: 'ifElse_34' } },
-    { startFrame: 34, endFrame: 75, sequence: { $sequence: 'ifElse_36' } },
+    { startFrame: 10, endFrame: 11, sequence: { $sequence: 'calculateActionValue_31' } },
+    { startFrame: 93, endFrame: 96, sequence: { $sequence: 'ifElse_35' } },
+    { startFrame: 34, endFrame: 75, sequence: { $sequence: 'ifElse_37' } },
   ],
   smartTarget: 'trigger',
   cooldownFrames: [270, 270, 270, 270, 270, 270, 270, 270, 270, 270, 270, 240],
@@ -1938,8 +1938,8 @@ export const aleshChr_0024_deepfin_ultimate_skillActionGraph = {
           parameters: {
             key: 'atk_scale',
             operation: 'multiply',
-            left: { kind: 'valueNode', nodeId: 'data_3' },
-            right: { kind: 'valueNode', nodeId: 'data_4' },
+            left: { kind: 'valueNode', nodeId: 'data_1' },
+            right: { kind: 'valueNode', nodeId: 'data_3' },
           },
         },
         next: 'dealDamage_8',
@@ -1947,14 +1947,14 @@ export const aleshChr_0024_deepfin_ultimate_skillActionGraph = {
       checkCondition_2: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_6' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
         },
         next: null,
       },
       checkCondition_3: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_8' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_7' } },
         },
         next: 'checkCondition_2',
       },
@@ -2006,7 +2006,7 @@ export const aleshChr_0024_deepfin_ultimate_skillActionGraph = {
           kind: 'changeResource',
           parameters: {
             resource: 'sp',
-            amount: { kind: 'valueNode', nodeId: 'data_9' },
+            amount: { kind: 'valueNode', nodeId: 'data_8' },
             coefficient: { kind: 'constant', value: 1 },
             source: { kind: 'source' },
             targets: { kind: 'source' },
@@ -2021,7 +2021,7 @@ export const aleshChr_0024_deepfin_ultimate_skillActionGraph = {
           kind: 'changeResource',
           parameters: {
             resource: 'sp',
-            amount: { kind: 'valueNode', nodeId: 'data_10' },
+            amount: { kind: 'valueNode', nodeId: 'data_9' },
             coefficient: { kind: 'constant', value: 1 },
             source: { kind: 'source' },
             targets: { kind: 'source' },
@@ -2034,7 +2034,7 @@ export const aleshChr_0024_deepfin_ultimate_skillActionGraph = {
       checkCondition_13: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_12' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_11' } },
         },
         next: null,
       },
@@ -2054,7 +2054,7 @@ export const aleshChr_0024_deepfin_ultimate_skillActionGraph = {
           parameters: {
             key: 'atb_up',
             operation: 'add',
-            value: { kind: 'valueNode', nodeId: 'data_13' },
+            value: { kind: 'valueNode', nodeId: 'data_12' },
           },
         },
         next: 'ifElse_16',
@@ -2065,7 +2065,7 @@ export const aleshChr_0024_deepfin_ultimate_skillActionGraph = {
           parameters: {
             key: 'atb_up',
             operation: 'multiply',
-            value: { kind: 'valueNode', nodeId: 'data_14' },
+            value: { kind: 'valueNode', nodeId: 'data_13' },
           },
         },
         next: 'modifyActionValue_17',
@@ -2108,7 +2108,7 @@ export const aleshChr_0024_deepfin_ultimate_skillActionGraph = {
       checkCondition_22: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_15' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_14' } },
         },
         next: 'ifElse_21',
       },
@@ -2117,7 +2117,8 @@ export const aleshChr_0024_deepfin_ultimate_skillActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_damage_immune_ult_skill' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -2140,47 +2141,46 @@ export const aleshChr_0024_deepfin_ultimate_skillActionGraph = {
     dataNodes: {
       data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
       data_2: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
-      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'atk_up' } },
-      data_5: { type: 'number', expression: { kind: 'blackboard', key: 'hp_tar' } },
-      data_6: {
+      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atk_up' } },
+      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'hp_tar' } },
+      data_5: {
         type: 'boolean',
         expression: {
           kind: 'healthCompare',
           target: 'enemy',
           valueType: 'ratio',
           operator: 'lessOrEqual',
-          value: { kind: 'valueNode', nodeId: 'data_5' },
+          value: { kind: 'valueNode', nodeId: 'data_4' },
         },
       },
-      data_7: {
+      data_6: {
         type: 'number',
         expression: { kind: 'blackboard', key: 'potential_5', fallback: 0 },
       },
-      data_8: {
+      data_7: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_7' },
+          left: { kind: 'valueNode', nodeId: 'data_6' },
           operator: 'greaterOrEqual',
           right: { kind: 'constant', value: 1 },
         },
       },
-      data_9: { type: 'number', expression: { kind: 'blackboard', key: 'atb_max' } },
-      data_10: { type: 'number', expression: { kind: 'blackboard', key: 'atb_up' } },
-      data_11: { type: 'number', expression: { kind: 'blackboard', key: 'atb_up', fallback: 0 } },
-      data_12: {
+      data_8: { type: 'number', expression: { kind: 'blackboard', key: 'atb_max' } },
+      data_9: { type: 'number', expression: { kind: 'blackboard', key: 'atb_up' } },
+      data_10: { type: 'number', expression: { kind: 'blackboard', key: 'atb_up', fallback: 0 } },
+      data_11: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_11' },
+          left: { kind: 'valueNode', nodeId: 'data_10' },
           operator: 'lessOrEqual',
           right: { kind: 'constant', value: 100 },
         },
       },
-      data_13: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
-      data_14: { type: 'number', expression: { kind: 'blackboard', key: 'kill_num' } },
-      data_15: { type: 'boolean', expression: { kind: 'casterControlled' } },
+      data_12: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+      data_13: { type: 'number', expression: { kind: 'blackboard', key: 'kill_num' } },
+      data_14: { type: 'boolean', expression: { kind: 'casterControlled' } },
     },
   },
   macros: {},
@@ -2474,10 +2474,11 @@ const aleshBuff3ActionGraph = {
         action: {
           kind: 'createTimedMarker',
           parameters: {
-            target: 'caster',
+            targets: { kind: 'source' },
             markerId: 'talent',
             durationSeconds: { kind: 'valueNode', nodeId: 'data_1' },
             autoFinishByAction: false,
+            timeDomain: 'globalScaled',
           },
         },
         next: null,
@@ -2582,7 +2583,8 @@ const aleshBuff4ActionGraph = {
         action: {
           kind: 'aura',
           parameters: {
-            target: 'partyExceptCaster',
+            targets: { kind: 'characterTeam', excludeOwner: true },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: false,
             buffs: [
               {
@@ -2604,10 +2606,11 @@ const aleshBuff4ActionGraph = {
         action: {
           kind: 'createTimedMarker',
           parameters: {
-            target: 'caster',
+            targets: { kind: 'source' },
             markerId: 'talent',
-            durationSeconds: { kind: 'valueNode', nodeId: 'data_3' },
+            durationSeconds: { kind: 'valueNode', nodeId: 'data_2' },
             autoFinishByAction: false,
+            timeDomain: 'globalScaled',
           },
         },
         next: null,
@@ -2617,7 +2620,7 @@ const aleshBuff4ActionGraph = {
           kind: 'changeResource',
           parameters: {
             resource: 'ultimateEnergy',
-            amount: { kind: 'valueNode', nodeId: 'data_4' },
+            amount: { kind: 'valueNode', nodeId: 'data_3' },
             coefficient: { kind: 'constant', value: 1 },
             source: { kind: 'source' },
             targets: { kind: 'source' },
@@ -2631,8 +2634,8 @@ const aleshBuff4ActionGraph = {
           parameters: {
             key: 'usp_final',
             operation: 'add',
-            left: { kind: 'valueNode', nodeId: 'data_5' },
-            right: { kind: 'valueNode', nodeId: 'data_6' },
+            left: { kind: 'valueNode', nodeId: 'data_1' },
+            right: { kind: 'valueNode', nodeId: 'data_4' },
           },
         },
         next: 'changeResource_3',
@@ -2640,14 +2643,14 @@ const aleshBuff4ActionGraph = {
       checkCondition_5: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_7' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
         },
         next: 'calculateActionValue_4',
       },
       checkCondition_6: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_9' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_7' } },
         },
         next: 'checkCondition_5',
       },
@@ -2655,11 +2658,9 @@ const aleshBuff4ActionGraph = {
     dataNodes: {
       data_1: { type: 'number', expression: { kind: 'blackboard', key: 'usp' } },
       data_2: { type: 'number', expression: { kind: 'blackboard', key: 'CD' } },
-      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'CD' } },
-      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'usp_final' } },
-      data_5: { type: 'number', expression: { kind: 'blackboard', key: 'usp' } },
-      data_6: { type: 'number', expression: { kind: 'blackboard', key: 'usp_self' } },
-      data_7: {
+      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'usp_final' } },
+      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'usp_self' } },
+      data_5: {
         type: 'boolean',
         expression: {
           kind: 'eventBuffTagsMatch',
@@ -2667,13 +2668,13 @@ const aleshBuff4ActionGraph = {
           buffTags: ['Skill/Character/Common/SpellStatus/Frozen'],
         },
       },
-      data_8: {
+      data_6: {
         type: 'boolean',
         expression: { kind: 'timedMarkerPresent', target: 'caster', markerId: 'talent' },
       },
-      data_9: {
+      data_7: {
         type: 'boolean',
-        expression: { kind: 'not', condition: { kind: 'conditionNode', nodeId: 'data_8' } },
+        expression: { kind: 'not', condition: { kind: 'conditionNode', nodeId: 'data_6' } },
       },
     },
   },

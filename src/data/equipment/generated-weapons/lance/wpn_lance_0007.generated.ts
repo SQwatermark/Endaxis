@@ -60,28 +60,40 @@ const definition = {
                       copiedBlackboardAssignments: { dmg_up2: 'dmg_up2', duration2: 'duration2' },
                     },
                   ],
-                  target: 'party',
+                  targets: { kind: 'context', key: 'teammates' },
+                  source: { kind: 'source' },
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
                 },
               },
               next: null,
             },
-            checkCondition_2: {
+            findTargets_2: {
               action: {
-                kind: 'checkCondition',
-                parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
+                kind: 'findTargets',
+                parameters: {
+                  owner: { kind: 'owner' },
+                  query: { kind: 'characterTeam', excludeOwner: false, owner: { kind: 'owner' } },
+                  saveToContextKey: 'teammates',
+                },
               },
               next: 'applyBuff_1',
             },
             checkCondition_3: {
               action: {
                 kind: 'checkCondition',
+                parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
+              },
+              next: 'findTargets_2',
+            },
+            checkCondition_4: {
+              action: {
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
               },
-              next: 'checkCondition_2',
+              next: 'checkCondition_3',
             },
-            applyBuff_4: {
+            applyBuff_5: {
               action: {
                 kind: 'applyBuff',
                 parameters: {
@@ -91,26 +103,27 @@ const definition = {
                       copiedBlackboardAssignments: { dmg_up: 'dmg_up', duration: 'duration' },
                     },
                   ],
-                  target: 'caster',
+                  targets: { kind: 'source' },
+                  source: { kind: 'source' },
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
                 },
               },
               next: null,
             },
-            checkCondition_5: {
+            checkCondition_6: {
               action: {
                 kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
               },
-              next: 'applyBuff_4',
+              next: 'applyBuff_5',
             },
-            checkCondition_6: {
+            checkCondition_7: {
               action: {
                 kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_4' } },
               },
-              next: 'checkCondition_5',
+              next: 'checkCondition_6',
             },
           },
           dataNodes: {
@@ -150,13 +163,13 @@ const definition = {
           key: 'skill3:event:0:sequence:0',
           abilityEvent: 'beforeOutputBuff',
           priority: 0,
-          sequence: { $sequence: 'checkCondition_3' },
+          sequence: { $sequence: 'checkCondition_4' },
         },
         {
           key: 'skill3:event:1:sequence:0',
           abilityEvent: 'beforeOutputInfliction',
           priority: 0,
-          sequence: { $sequence: 'checkCondition_6' },
+          sequence: { $sequence: 'checkCondition_7' },
         },
       ],
       blackboard: {

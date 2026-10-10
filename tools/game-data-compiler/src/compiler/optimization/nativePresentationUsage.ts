@@ -47,6 +47,13 @@ export function collectCombatInvisiblePresentationAssignmentKeys(
       return [];
     }),
   );
+  // 外部读取不取决于本资源是否创建接收者。先保护这些输出，再让固定点分析
+  // 反向保留它们依赖的计算链，不能只在个别条件分支里检查外部用途。
+  if (isUnusedByExternalResources) {
+    for (const key of candidates) {
+      if (!isUnusedByExternalResources(key)) candidates.delete(key);
+    }
+  }
   const usages = new Map(nodes.map(node => [node, summarizeNativeBlackboardUsage(node)]));
   const references = (node: NativeActionNodeSource<KnownNativeActionLeafSource>, key: string) => {
     const usage = usages.get(node)!;

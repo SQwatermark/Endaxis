@@ -207,7 +207,7 @@ export function compileWeaponRuntimeDefinitionBatchSource(
                     : { blackboardAssignments: assignments }),
                 },
               ],
-              target: 'caster' as const,
+              targets: { kind: 'fixed' as const, target: 'caster' as const },
             },
           };
         },

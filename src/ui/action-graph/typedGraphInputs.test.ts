@@ -56,7 +56,7 @@ it('projects boolean conditions and existing record values but never ordinary st
           stringBlackboardAssignments: { name: 'label' },
         },
       ],
-      target: 'caster',
+      targets: { kind: 'fixed', target: 'caster' },
     },
   });
   expect(inputs.map(input => input.path.join('.'))).toEqual([

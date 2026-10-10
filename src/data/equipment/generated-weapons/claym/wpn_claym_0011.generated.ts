@@ -54,10 +54,11 @@ const definition = {
               action: {
                 kind: 'createTimedMarker',
                 parameters: {
-                  target: 'caster',
+                  targets: { kind: 'owner' },
                   markerId: 'sk_wpn_claym_0011',
                   durationSeconds: { kind: 'valueNode', nodeId: 'data_1' },
                   autoFinishByAction: false,
+                  timeDomain: 'globalScaled',
                 },
               },
               next: null,
@@ -76,7 +77,8 @@ const definition = {
                       },
                     },
                   ],
-                  target: 'caster',
+                  targets: { kind: 'owner' },
+                  source: { kind: 'source' },
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
                 },

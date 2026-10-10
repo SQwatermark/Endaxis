@@ -62,6 +62,7 @@ export class TargetContextOperationExecutor implements CombatOperationExecutor {
     readonly resolveAbilityEntityObjectType?: (instanceId: number) => CombatObjectType,
     readonly listUnfinishedProjectiles?: () => readonly RuntimeTargetRef[],
     readonly targetQueries?: {
+      enemyMatchesTags?(query: Extract<ActionTargetQuery, { kind: 'enemyByTags' }>): boolean;
       entityLifeState?(target: RuntimeTargetRef): 'alive' | 'dead' | 'unknown' | undefined;
       mainTarget(): RuntimeTargetRef | undefined;
       ownerSpawned(
@@ -370,15 +371,9 @@ export class TargetContextOperationExecutor implements CombatOperationExecutor {
     const direct = resolveDirectActionTargets(query, context, this.operatorId);
     if (direct !== undefined) return direct;
     if (query.kind === 'enemyByTags') {
-      const matches = this.delegate.evaluate(
-        {
-          kind: 'entityTagMatch',
-          target: 'enemy',
-          tagQueryType: query.tagQueryType,
-          tags: query.tags,
-        },
-        context,
-      );
+      if (!this.targetQueries?.enemyMatchesTags)
+        throw new Error('enemy tag query requires a target tag reader');
+      const matches = this.targetQueries.enemyMatchesTags(query);
       return matches ? [{ kind: 'enemy' }] : [];
     }
     if (query.kind === 'unfinishedProjectiles') {
@@ -387,7 +382,10 @@ export class TargetContextOperationExecutor implements CombatOperationExecutor {
     }
     if (query.kind === 'characterTeam') {
       if (!this.characterTeam) throw new Error('team query requires a character team');
-      const owner = context.actionOwnerId ?? context.buffOwnerId ?? this.operatorId;
+      const selectedOwner = query.excludeOwner
+        ? this.queryTargets(query.owner ?? { kind: 'owner' }, context)[0]
+        : undefined;
+      const owner = selectedOwner === undefined ? undefined : runtimeTargetEntityId(selectedOwner);
       return [...this.characterTeam.listOperatorIds()]
         .reverse()
         .filter(id => !query.excludeOwner || id !== owner)

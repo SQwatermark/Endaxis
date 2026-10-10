@@ -224,11 +224,13 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
       return true;
     }
     if (step.kind === 'setAbilityEntityRemainingDuration') {
-      if (context?.currentTarget === undefined) {
-        throw new Error('AbilityEntity duration assignment requires a current Context target');
-      }
+      if (!context) throw new Error('AbilityEntity duration assignment requires an action context');
+      const target = this.#delegate.queryTargets(step.parameters.target, context)[0];
+      // 原生 _ApplyDurationToTarget 先检查目标及实体控制器，之后才读取数值。
+      // 单目标模式不能越过首个非能力实体，继续寻找其他可赋值目标。
+      if (target?.kind !== 'abilityEntity') return true;
       this.#entities.setRemainingDuration(
-        context.currentTarget,
+        target,
         resolveActionValueOperand(step.parameters.value, context.blackboard),
       );
       return true;

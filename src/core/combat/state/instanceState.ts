@@ -145,6 +145,8 @@ export interface LogicalAbilityEntityState {
   target?: RuntimeTargetRef;
   readonly dieWhenSourceDies: boolean;
   readonly blackboard: ActionBlackboardState;
+  /** 出生时实际采用的计时器周期，包含时长覆盖；null 表示无限寿命。赋值不改变周期。 */
+  readonly durationPeriodSeconds: number | null;
   remainingDurationSeconds: number | null;
   elapsedDurationSeconds: number;
   isAlive: boolean;

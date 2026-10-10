@@ -689,7 +689,7 @@ export const avywennaChr_0012_avywen_power_attackActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'physical',
-            attackScale: { kind: 'valueNode', nodeId: 'data_3' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_2' },
             calculation: 'breakingAttack',
             calculationMultiplier: 0.2,
             tags: ['normalAttack', 'powerAttack'],
@@ -727,7 +727,7 @@ export const avywennaChr_0012_avywen_power_attackActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'physical',
-            attackScale: { kind: 'valueNode', nodeId: 'data_4' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_2' },
             calculation: 'breakingAttack',
             calculationMultiplier: 0.5,
             tags: ['normalAttack', 'powerAttack'],
@@ -740,7 +740,8 @@ export const avywennaChr_0012_avywen_power_attackActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_full_immune_medium' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -752,7 +753,8 @@ export const avywennaChr_0012_avywen_power_attackActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_power_attack_disable_cast_skill' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -763,8 +765,6 @@ export const avywennaChr_0012_avywen_power_attackActionGraph = {
     dataNodes: {
       data_1: { type: 'boolean', expression: { kind: 'casterControlled' } },
       data_2: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
     },
   },
   macros: {},
@@ -879,6 +879,140 @@ export const avywennaChr_0012_avywen_plunging_attack_end: SkillDefinition = {
   nativeSkillType: 'attack',
   actionGraph: avywennaChr_0012_avywen_plunging_attack_endActionGraph,
 };
+
+const avywennaChr_0012_avywen_normal_skillActionGraphCallback2 = {
+  skillId: 'chr_0012_avywen_combo_skill_lance_back_reach',
+  nativeSkillType: 'normalSkill',
+  naturalDurationFrames: 15,
+  castResource: {
+    costFrame: 0,
+    cooldownSeconds: 0,
+    maxChargeTime: 1,
+    cost: { resource: 'ultimateEnergy', value: 0, availabilityThreshold: 0 },
+  },
+  blackboard: { atk_scale: 3, radius: 4 },
+  scheduledSequences: [
+    { startFrame: 0, endFrame: 15, sequence: { $sequence: null } },
+    { startFrame: 0, endFrame: 9, sequence: { $sequence: 'ifElse_opt1' } },
+    { startFrame: 0, endFrame: 3, sequence: { $sequence: 'checkCondition_7' } },
+  ],
+  actionGraph: {
+    main: {
+      nodes: {
+        startTimeDilation_3: {
+          action: {
+            kind: 'startTimeDilation',
+            parameters: {
+              scope: 'global',
+              durationSeconds: { kind: 'constant', value: 0.2 },
+              slot: 'TimeDilation/Layer/Entity/HitStop',
+              priority: 10,
+              curve: {
+                kind: 'inline',
+                keys: [
+                  {
+                    time: 0,
+                    value: 0.2,
+                    inTangent: 0.04379496,
+                    outTangent: 0.04379496,
+                    weightedMode: 0,
+                    inWeight: 0,
+                    outWeight: 0,
+                  },
+                  {
+                    time: 0.8847446,
+                    value: 0.2387474,
+                    inTangent: 0.04379496,
+                    outTangent: 6.604918,
+                    weightedMode: 0,
+                    inWeight: 0,
+                    outWeight: 0,
+                  },
+                  {
+                    time: 1,
+                    value: 1,
+                    inTangent: 6.604918,
+                    outTangent: 6.604918,
+                    weightedMode: 0,
+                    inWeight: 0,
+                    outWeight: 0,
+                  },
+                ],
+              },
+              finishByAction: false,
+              ignoredTargets: ['controlled'],
+            },
+          },
+          next: null,
+        },
+        changeResource_5: {
+          action: {
+            kind: 'changeResource',
+            parameters: {
+              resource: 'ultimateEnergy',
+              amount: { kind: 'valueNode', nodeId: 'data_1' },
+              coefficient: { kind: 'constant', value: 1 },
+              source: { kind: 'source' },
+              targets: { kind: 'source' },
+            },
+          },
+          next: null,
+        },
+        checkCondition_6: {
+          action: {
+            kind: 'checkCondition',
+            parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
+          },
+          next: 'changeResource_5',
+        },
+        checkCondition_7: {
+          action: {
+            kind: 'checkCondition',
+            parameters: { condition: { kind: 'conditionNode', nodeId: 'data_4' } },
+          },
+          next: 'checkCondition_6',
+        },
+        ifElse_opt1: {
+          action: {
+            kind: 'ifElse',
+            parameters: { alwaysNext: true },
+            condition: { $sequence: null },
+            whenTrue: { $sequence: 'startTimeDilation_3' },
+            whenFalse: { $sequence: 'startTimeDilation_3' },
+          },
+          next: null,
+        },
+      },
+      dataNodes: {
+        data_1: { type: 'number', expression: { kind: 'blackboard', key: 'EntityBB_talent0' } },
+        data_2: {
+          type: 'boolean',
+          expression: {
+            kind: 'buffIdStackCompare',
+            target: 'caster',
+            buffIds: ['buff_chr_0012_avywen_talent_0'],
+            operator: 'greaterOrEqual',
+            value: { kind: 'constant', value: 1 },
+          },
+        },
+        data_3: {
+          type: 'number',
+          expression: { kind: 'blackboard', key: 'EntityBB_talent0', fallback: 0 },
+        },
+        data_4: {
+          type: 'boolean',
+          expression: {
+            kind: 'actionValueCompare',
+            left: { kind: 'valueNode', nodeId: 'data_3' },
+            operator: 'greater',
+            right: { kind: 'constant', value: 0 },
+          },
+        },
+      },
+    },
+    macros: {},
+  },
+} as const;
 
 export const avywennaChr_0012_avywen_normal_skillActionGraph = {
   main: {
@@ -1028,7 +1162,7 @@ export const avywennaChr_0012_avywen_normal_skillActionGraph = {
                   talent0_usp: 0,
                 },
                 scheduledSequences: [
-                  { startFrame: 0, endFrame: 1, sequence: { $sequence: 'checkCondition_opt3' } },
+                  { startFrame: 0, endFrame: 1, sequence: { $sequence: 'checkCondition_8' } },
                 ],
                 actionGraph: {
                   main: {
@@ -1071,7 +1205,7 @@ export const avywennaChr_0012_avywen_normal_skillActionGraph = {
                         },
                         next: 'checkCondition_1',
                       },
-                      ifElse_opt1: {
+                      ifElse_6: {
                         action: {
                           kind: 'ifElse',
                           parameters: { alwaysNext: true },
@@ -1081,7 +1215,7 @@ export const avywennaChr_0012_avywen_normal_skillActionGraph = {
                         },
                         next: null,
                       },
-                      modifyActionValue_opt2: {
+                      modifyActionValue_7: {
                         action: {
                           kind: 'modifyActionValue',
                           parameters: {
@@ -1090,14 +1224,14 @@ export const avywennaChr_0012_avywen_normal_skillActionGraph = {
                             value: { kind: 'valueNode', nodeId: 'data_7' },
                           },
                         },
-                        next: 'ifElse_opt1',
+                        next: 'ifElse_6',
                       },
-                      checkCondition_opt3: {
+                      checkCondition_8: {
                         action: {
                           kind: 'checkCondition',
                           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_8' } },
                         },
-                        next: 'modifyActionValue_opt2',
+                        next: 'modifyActionValue_7',
                       },
                     },
                     dataNodes: {
@@ -1145,7 +1279,7 @@ export const avywennaChr_0012_avywen_normal_skillActionGraph = {
                         type: 'boolean',
                         expression: {
                           kind: 'entityCountCompare',
-                          target: { kind: 'inputTarget' },
+                          target: { kind: 'fixed', target: 'enemy' },
                           containsHittableTarget: false,
                           excludeDeadEntity: false,
                           operator: 'greaterOrEqual',
@@ -1158,145 +1292,7 @@ export const avywennaChr_0012_avywen_normal_skillActionGraph = {
                 },
               },
             },
-            {
-              event: 'reach',
-              skill: {
-                skillId: 'chr_0012_avywen_combo_skill_lance_back_reach',
-                nativeSkillType: 'normalSkill',
-                naturalDurationFrames: 15,
-                castResource: {
-                  costFrame: 0,
-                  cooldownSeconds: 0,
-                  maxChargeTime: 1,
-                  cost: { resource: 'ultimateEnergy', value: 0, availabilityThreshold: 0 },
-                },
-                blackboard: { atk_scale: 3, radius: 4 },
-                scheduledSequences: [
-                  { startFrame: 0, endFrame: 15, sequence: { $sequence: null } },
-                  { startFrame: 0, endFrame: 9, sequence: { $sequence: 'ifElse_opt1' } },
-                  { startFrame: 0, endFrame: 3, sequence: { $sequence: 'checkCondition_7' } },
-                ],
-                actionGraph: {
-                  main: {
-                    nodes: {
-                      startTimeDilation_3: {
-                        action: {
-                          kind: 'startTimeDilation',
-                          parameters: {
-                            scope: 'global',
-                            durationSeconds: { kind: 'constant', value: 0.2 },
-                            slot: 'TimeDilation/Layer/Entity/HitStop',
-                            priority: 10,
-                            curve: {
-                              kind: 'inline',
-                              keys: [
-                                {
-                                  time: 0,
-                                  value: 0.2,
-                                  inTangent: 0.04379496,
-                                  outTangent: 0.04379496,
-                                  weightedMode: 0,
-                                  inWeight: 0,
-                                  outWeight: 0,
-                                },
-                                {
-                                  time: 0.8847446,
-                                  value: 0.2387474,
-                                  inTangent: 0.04379496,
-                                  outTangent: 6.604918,
-                                  weightedMode: 0,
-                                  inWeight: 0,
-                                  outWeight: 0,
-                                },
-                                {
-                                  time: 1,
-                                  value: 1,
-                                  inTangent: 6.604918,
-                                  outTangent: 6.604918,
-                                  weightedMode: 0,
-                                  inWeight: 0,
-                                  outWeight: 0,
-                                },
-                              ],
-                            },
-                            finishByAction: false,
-                            ignoredTargets: ['controlled'],
-                          },
-                        },
-                        next: null,
-                      },
-                      changeResource_5: {
-                        action: {
-                          kind: 'changeResource',
-                          parameters: {
-                            resource: 'ultimateEnergy',
-                            amount: { kind: 'valueNode', nodeId: 'data_1' },
-                            coefficient: { kind: 'constant', value: 1 },
-                            source: { kind: 'source' },
-                            targets: { kind: 'source' },
-                          },
-                        },
-                        next: null,
-                      },
-                      checkCondition_6: {
-                        action: {
-                          kind: 'checkCondition',
-                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-                        },
-                        next: 'changeResource_5',
-                      },
-                      checkCondition_7: {
-                        action: {
-                          kind: 'checkCondition',
-                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_4' } },
-                        },
-                        next: 'checkCondition_6',
-                      },
-                      ifElse_opt1: {
-                        action: {
-                          kind: 'ifElse',
-                          parameters: { alwaysNext: true },
-                          condition: { $sequence: null },
-                          whenTrue: { $sequence: 'startTimeDilation_3' },
-                          whenFalse: { $sequence: 'startTimeDilation_3' },
-                        },
-                        next: null,
-                      },
-                    },
-                    dataNodes: {
-                      data_1: {
-                        type: 'number',
-                        expression: { kind: 'blackboard', key: 'EntityBB_talent0' },
-                      },
-                      data_2: {
-                        type: 'boolean',
-                        expression: {
-                          kind: 'buffIdStackCompare',
-                          target: 'caster',
-                          buffIds: ['buff_chr_0012_avywen_talent_0'],
-                          operator: 'greaterOrEqual',
-                          value: { kind: 'constant', value: 1 },
-                        },
-                      },
-                      data_3: {
-                        type: 'number',
-                        expression: { kind: 'blackboard', key: 'EntityBB_talent0', fallback: 0 },
-                      },
-                      data_4: {
-                        type: 'boolean',
-                        expression: {
-                          kind: 'actionValueCompare',
-                          left: { kind: 'valueNode', nodeId: 'data_3' },
-                          operator: 'greater',
-                          right: { kind: 'constant', value: 0 },
-                        },
-                      },
-                    },
-                  },
-                  macros: {},
-                },
-              },
-            },
+            { event: 'reach', skill: avywennaChr_0012_avywen_normal_skillActionGraphCallback2 },
           ],
         },
         next: null,
@@ -1306,7 +1302,8 @@ export const avywennaChr_0012_avywen_normal_skillActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0012_avywen_lance_becalled' }],
-            target: 'currentAbilityEntity',
+            targets: { kind: 'inputTarget' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -1376,7 +1373,7 @@ export const avywennaChr_0012_avywen_normal_skillActionGraph = {
                   talent0_usp: 0,
                 },
                 scheduledSequences: [
-                  { startFrame: 0, endFrame: 3, sequence: { $sequence: 'checkCondition_opt4' } },
+                  { startFrame: 0, endFrame: 3, sequence: { $sequence: 'checkCondition_11' } },
                 ],
                 actionGraph: {
                   main: {
@@ -1434,7 +1431,7 @@ export const avywennaChr_0012_avywen_normal_skillActionGraph = {
                         },
                         next: 'checkCondition_1',
                       },
-                      ifElse_opt1: {
+                      ifElse_8: {
                         action: {
                           kind: 'ifElse',
                           parameters: { alwaysNext: true },
@@ -1444,7 +1441,7 @@ export const avywennaChr_0012_avywen_normal_skillActionGraph = {
                         },
                         next: null,
                       },
-                      modifyActionValue_opt2: {
+                      modifyActionValue_9: {
                         action: {
                           kind: 'modifyActionValue',
                           parameters: {
@@ -1453,25 +1450,26 @@ export const avywennaChr_0012_avywen_normal_skillActionGraph = {
                             value: { kind: 'valueNode', nodeId: 'data_7' },
                           },
                         },
-                        next: 'ifElse_opt1',
+                        next: 'ifElse_8',
                       },
-                      applyBuff_opt3: {
+                      applyBuff_10: {
                         action: {
                           kind: 'applyBuff',
                           parameters: {
                             buffs: [{ buffId: 'buff_chr_0012_avywen_lance_pulse_check' }],
-                            target: 'enemy',
+                            targets: { kind: 'fixed', target: 'enemy' },
+                            source: { kind: 'source' },
                             inheritSourceSkillCastInfo: true,
                           },
                         },
-                        next: 'modifyActionValue_opt2',
+                        next: 'modifyActionValue_9',
                       },
-                      checkCondition_opt4: {
+                      checkCondition_11: {
                         action: {
                           kind: 'checkCondition',
                           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_8' } },
                         },
-                        next: 'applyBuff_opt3',
+                        next: 'applyBuff_10',
                       },
                     },
                     dataNodes: {
@@ -1519,7 +1517,7 @@ export const avywennaChr_0012_avywen_normal_skillActionGraph = {
                         type: 'boolean',
                         expression: {
                           kind: 'entityCountCompare',
-                          target: { kind: 'inputTarget' },
+                          target: { kind: 'fixed', target: 'enemy' },
                           containsHittableTarget: false,
                           excludeDeadEntity: false,
                           operator: 'greaterOrEqual',
@@ -1532,145 +1530,7 @@ export const avywennaChr_0012_avywen_normal_skillActionGraph = {
                 },
               },
             },
-            {
-              event: 'reach',
-              skill: {
-                skillId: 'chr_0012_avywen_combo_skill_lance_back_reach',
-                nativeSkillType: 'normalSkill',
-                naturalDurationFrames: 15,
-                castResource: {
-                  costFrame: 0,
-                  cooldownSeconds: 0,
-                  maxChargeTime: 1,
-                  cost: { resource: 'ultimateEnergy', value: 0, availabilityThreshold: 0 },
-                },
-                blackboard: { atk_scale: 3, radius: 4 },
-                scheduledSequences: [
-                  { startFrame: 0, endFrame: 15, sequence: { $sequence: null } },
-                  { startFrame: 0, endFrame: 9, sequence: { $sequence: 'ifElse_opt1' } },
-                  { startFrame: 0, endFrame: 3, sequence: { $sequence: 'checkCondition_7' } },
-                ],
-                actionGraph: {
-                  main: {
-                    nodes: {
-                      startTimeDilation_3: {
-                        action: {
-                          kind: 'startTimeDilation',
-                          parameters: {
-                            scope: 'global',
-                            durationSeconds: { kind: 'constant', value: 0.2 },
-                            slot: 'TimeDilation/Layer/Entity/HitStop',
-                            priority: 10,
-                            curve: {
-                              kind: 'inline',
-                              keys: [
-                                {
-                                  time: 0,
-                                  value: 0.2,
-                                  inTangent: 0.04379496,
-                                  outTangent: 0.04379496,
-                                  weightedMode: 0,
-                                  inWeight: 0,
-                                  outWeight: 0,
-                                },
-                                {
-                                  time: 0.8847446,
-                                  value: 0.2387474,
-                                  inTangent: 0.04379496,
-                                  outTangent: 6.604918,
-                                  weightedMode: 0,
-                                  inWeight: 0,
-                                  outWeight: 0,
-                                },
-                                {
-                                  time: 1,
-                                  value: 1,
-                                  inTangent: 6.604918,
-                                  outTangent: 6.604918,
-                                  weightedMode: 0,
-                                  inWeight: 0,
-                                  outWeight: 0,
-                                },
-                              ],
-                            },
-                            finishByAction: false,
-                            ignoredTargets: ['controlled'],
-                          },
-                        },
-                        next: null,
-                      },
-                      changeResource_5: {
-                        action: {
-                          kind: 'changeResource',
-                          parameters: {
-                            resource: 'ultimateEnergy',
-                            amount: { kind: 'valueNode', nodeId: 'data_1' },
-                            coefficient: { kind: 'constant', value: 1 },
-                            source: { kind: 'source' },
-                            targets: { kind: 'source' },
-                          },
-                        },
-                        next: null,
-                      },
-                      checkCondition_6: {
-                        action: {
-                          kind: 'checkCondition',
-                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-                        },
-                        next: 'changeResource_5',
-                      },
-                      checkCondition_7: {
-                        action: {
-                          kind: 'checkCondition',
-                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_4' } },
-                        },
-                        next: 'checkCondition_6',
-                      },
-                      ifElse_opt1: {
-                        action: {
-                          kind: 'ifElse',
-                          parameters: { alwaysNext: true },
-                          condition: { $sequence: null },
-                          whenTrue: { $sequence: 'startTimeDilation_3' },
-                          whenFalse: { $sequence: 'startTimeDilation_3' },
-                        },
-                        next: null,
-                      },
-                    },
-                    dataNodes: {
-                      data_1: {
-                        type: 'number',
-                        expression: { kind: 'blackboard', key: 'EntityBB_talent0' },
-                      },
-                      data_2: {
-                        type: 'boolean',
-                        expression: {
-                          kind: 'buffIdStackCompare',
-                          target: 'caster',
-                          buffIds: ['buff_chr_0012_avywen_talent_0'],
-                          operator: 'greaterOrEqual',
-                          value: { kind: 'constant', value: 1 },
-                        },
-                      },
-                      data_3: {
-                        type: 'number',
-                        expression: { kind: 'blackboard', key: 'EntityBB_talent0', fallback: 0 },
-                      },
-                      data_4: {
-                        type: 'boolean',
-                        expression: {
-                          kind: 'actionValueCompare',
-                          left: { kind: 'valueNode', nodeId: 'data_3' },
-                          operator: 'greater',
-                          right: { kind: 'constant', value: 0 },
-                        },
-                      },
-                    },
-                  },
-                  macros: {},
-                },
-              },
-            },
+            { event: 'reach', skill: avywennaChr_0012_avywen_normal_skillActionGraphCallback2 },
           ],
         },
         next: null,
@@ -1680,7 +1540,8 @@ export const avywennaChr_0012_avywen_normal_skillActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0012_avywen_lance_becalled' }],
-            target: 'currentAbilityEntity',
+            targets: { kind: 'inputTarget' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -1887,7 +1748,7 @@ export const avywennaChr_0012_avywen_combo_skillActionGraph = {
                         action: {
                           kind: 'spawnAbilityEntity',
                           parameters: {
-                            bornAt: { kind: 'inputTarget' },
+                            bornAt: { kind: 'fixed', target: 'enemy' },
                             abilityEntityId: 'abilityentity_chr_0012_avywen_combo_skill_lance',
                             childSkillId: 'chr_0012_avywen_combo_skill_lance',
                             inheritActionBlackboard: true,
@@ -2110,7 +1971,7 @@ export const avywennaChr_0012_avywen_ultimate_skillActionGraph = {
                         action: {
                           kind: 'spawnAbilityEntity',
                           parameters: {
-                            bornAt: { kind: 'inputTarget' },
+                            bornAt: { kind: 'fixed', target: 'enemy' },
                             abilityEntityId: 'abilityentity_chr_0012_avywen_ultimate_skill_lance',
                             childSkillId: 'chr_0012_avywen_ultimate_skill_lance',
                             inheritActionBlackboard: true,
@@ -2149,7 +2010,8 @@ export const avywennaChr_0012_avywen_ultimate_skillActionGraph = {
                 },
               },
             ],
-            target: 'enemy',
+            targets: { kind: 'fixed', target: 'enemy' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -2211,7 +2073,8 @@ export const avywennaChr_0012_avywen_ultimate_skillActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_damage_immune_ult_skill' }],
-            target: 'caster',
+            targets: { kind: 'source' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -2490,7 +2353,8 @@ const avywennaBuff4ActionGraph = {
                 },
               },
             ],
-            target: 'enemy',
+            targets: { kind: 'inputTarget' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
           },

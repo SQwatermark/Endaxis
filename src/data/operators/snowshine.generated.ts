@@ -414,7 +414,7 @@ export const snowshineChr_0014_aurora_attack3ActionGraph = {
           parameters: {
             key: 'atk_scale2',
             operation: 'multiply',
-            left: { kind: 'valueNode', nodeId: 'data_8' },
+            left: { kind: 'valueNode', nodeId: 'data_4' },
             right: { kind: 'constant', value: 0.6 },
           },
         },
@@ -449,7 +449,7 @@ export const snowshineChr_0014_aurora_attack3ActionGraph = {
         type: 'boolean',
         expression: {
           kind: 'entityCountCompare',
-          target: { kind: 'inputTarget' },
+          target: { kind: 'fixed', target: 'enemy' },
           containsHittableTarget: false,
           excludeDeadEntity: false,
           operator: 'greaterOrEqual',
@@ -462,7 +462,6 @@ export const snowshineChr_0014_aurora_attack3ActionGraph = {
       data_5: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
       data_6: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale2' } },
       data_7: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
-      data_8: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
     },
   },
   macros: {},
@@ -580,7 +579,8 @@ export const snowshineChr_0014_aurora_power_attackActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_full_immune_medium' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -592,7 +592,8 @@ export const snowshineChr_0014_aurora_power_attackActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_power_attack_disable_cast_skill' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -605,7 +606,7 @@ export const snowshineChr_0014_aurora_power_attackActionGraph = {
         type: 'boolean',
         expression: {
           kind: 'entityCountCompare',
-          target: { kind: 'inputTarget' },
+          target: { kind: 'fixed', target: 'enemy' },
           containsHittableTarget: false,
           excludeDeadEntity: false,
           operator: 'greaterOrEqual',
@@ -752,7 +753,8 @@ export const snowshineChr_0014_aurora_normal_skillActionGraph = {
                 blackboardAssignments: { ratio: { kind: 'constant', value: 0.5 } },
               },
             ],
-            target: 'caster',
+            targets: { kind: 'source' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -809,7 +811,8 @@ export const snowshineChr_0014_aurora_normal_skillActionGraph = {
                 blackboardAssignments: { ratio: { kind: 'constant', value: 0.5 } },
               },
             ],
-            target: 'caster',
+            targets: { kind: 'source' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -833,72 +836,10 @@ export const snowshineChr_0014_aurora_normal_skillActionGraph = {
         },
         next: null,
       },
-      checkCondition_16: {
-        action: {
-          kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
-        },
-        next: null,
-      },
-      ifElse_25: {
-        action: {
-          kind: 'ifElse',
-          parameters: { alwaysNext: true },
-          condition: { $sequence: 'checkCondition_16' },
-          whenTrue: { $sequence: 'copyContextTargets_20' },
-          whenFalse: { $sequence: 'copyContextTargets_20' },
-        },
-        next: null,
-      },
-      checkCondition_13: {
-        action: {
-          kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_6' } },
-        },
-        next: null,
-      },
-      ifElse_22: {
-        action: {
-          kind: 'ifElse',
-          parameters: { alwaysNext: true },
-          condition: { $sequence: 'checkCondition_13' },
-          whenTrue: { $sequence: null },
-          whenFalse: { $sequence: null },
-        },
-        next: null,
-      },
-      copyContextTargets_23: {
-        action: {
-          kind: 'copyContextTargets',
-          parameters: { source: { kind: 'fixed', target: 'enemy' }, saveToContextKey: 'HitTar' },
-        },
-        next: 'ifElse_22',
-      },
-      findTargets_24: {
-        action: {
-          kind: 'findTargets',
-          parameters: {
-            owner: { kind: 'owner' },
-            query: { kind: 'mainTarget', owner: { kind: 'owner' } },
-            saveToContextKey: 'MainTar',
-          },
-        },
-        next: 'copyContextTargets_23',
-      },
       checkCondition_21: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_7' } },
-        },
-        next: null,
-      },
-      ifElse_26: {
-        action: {
-          kind: 'ifElse',
-          parameters: { alwaysNext: true },
-          condition: { $sequence: 'checkCondition_21' },
-          whenTrue: { $sequence: 'findTargets_24' },
-          whenFalse: { $sequence: 'ifElse_25' },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
         },
         next: null,
       },
@@ -906,7 +847,8 @@ export const snowshineChr_0014_aurora_normal_skillActionGraph = {
         action: {
           kind: 'aura',
           parameters: {
-            target: 'party',
+            targets: { kind: 'characterTeam', excludeOwner: false },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: false,
             buffs: [{ buffId: 'buff_chr_0014_aurora_potential_1_listener' }],
           },
@@ -918,7 +860,7 @@ export const snowshineChr_0014_aurora_normal_skillActionGraph = {
       checkCondition_27: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_9' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_7' } },
         },
         next: null,
       },
@@ -936,14 +878,15 @@ export const snowshineChr_0014_aurora_normal_skillActionGraph = {
         action: {
           kind: 'aura',
           parameters: {
-            target: 'party',
+            targets: { kind: 'characterTeam', excludeOwner: false },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: false,
             buffs: [
               {
                 buffId: 'buff_chr_0014_aurora_reduce_damage',
                 blackboardAssignments: {
-                  taken_dmg: { kind: 'valueNode', nodeId: 'data_10' },
-                  potential_1: { kind: 'valueNode', nodeId: 'data_11' },
+                  taken_dmg: { kind: 'valueNode', nodeId: 'data_8' },
+                  potential_1: { kind: 'valueNode', nodeId: 'data_9' },
                 },
                 stringBlackboardAssignments: {},
               },
@@ -954,7 +897,7 @@ export const snowshineChr_0014_aurora_normal_skillActionGraph = {
         },
         next: 'ifElse_29',
       },
-      jumpTimeline_opt1: {
+      jumpTimeline_34: {
         action: {
           kind: 'jumpTimeline',
           parameters: { destinationFrame: 107 },
@@ -962,35 +905,42 @@ export const snowshineChr_0014_aurora_normal_skillActionGraph = {
         },
         next: null,
       },
-      copyContextTargets_opt2: {
+      copyContextTargets_35: {
         action: {
           kind: 'copyContextTargets',
           parameters: { source: { kind: 'inputTarget' }, saveToContextKey: 'Attacker' },
         },
-        next: 'jumpTimeline_opt1',
+        next: 'jumpTimeline_34',
       },
-      checkCondition_opt4: {
+      checkCondition_36: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_10' } },
+        },
+        next: 'copyContextTargets_35',
+      },
+      checkCondition_37: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_11' } },
+        },
+        next: 'checkCondition_36',
+      },
+      copyContextTargets_32: {
+        action: {
+          kind: 'copyContextTargets',
+          parameters: { source: { kind: 'fixed', target: 'enemy' }, saveToContextKey: 'Attacker' },
+        },
+        next: 'jumpTimeline_34',
+      },
+      checkCondition_33: {
         action: {
           kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_12' } },
         },
-        next: 'copyContextTargets_opt2',
+        next: 'copyContextTargets_32',
       },
-      checkCondition_opt5: {
-        action: {
-          kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_13' } },
-        },
-        next: 'checkCondition_opt4',
-      },
-      checkCondition_opt3: {
-        action: {
-          kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_14' } },
-        },
-        next: 'copyContextTargets_opt2',
-      },
-      listenForCombatEvents_opt6: {
+      listenForCombatEvents_38: {
         action: {
           kind: 'listenForCombatEvents',
           parameters: {
@@ -1000,14 +950,14 @@ export const snowshineChr_0014_aurora_normal_skillActionGraph = {
                 event: { kind: 'operatorHit' },
                 phase: 'dataAction',
                 priority: 0,
-                sequence: { $sequence: 'checkCondition_opt3' },
+                sequence: { $sequence: 'checkCondition_33' },
               },
               {
                 key: 'SkillData.chr_0014_aurora_normal_skill.actionGroupData.timelineActions[19]._sequenceActionData.actionData[0].abilityActionMap[1].actions[0]',
                 event: { kind: 'abilityEvent', event: 'addedBuff' },
                 phase: 'dataAction',
                 priority: 0,
-                sequence: { $sequence: 'checkCondition_opt5' },
+                sequence: { $sequence: 'checkCondition_37' },
               },
             ],
           },
@@ -1025,7 +975,8 @@ export const snowshineChr_0014_aurora_normal_skillActionGraph = {
                 copiedBlackboardAssignments: { taken_dmg: 'taken_dmg' },
               },
             ],
-            target: 'caster',
+            targets: { kind: 'source' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -1036,7 +987,7 @@ export const snowshineChr_0014_aurora_normal_skillActionGraph = {
           kind: 'changeResource',
           parameters: {
             resource: 'sp',
-            amount: { kind: 'valueNode', nodeId: 'data_15' },
+            amount: { kind: 'valueNode', nodeId: 'data_13' },
             coefficient: { kind: 'constant', value: 1 },
             source: { kind: 'source' },
             targets: { kind: 'source' },
@@ -1064,7 +1015,7 @@ export const snowshineChr_0014_aurora_normal_skillActionGraph = {
       checkCondition_41: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_16' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_14' } },
         },
         next: null,
       },
@@ -1083,10 +1034,10 @@ export const snowshineChr_0014_aurora_normal_skillActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'cryo',
-            attackScale: { kind: 'valueNode', nodeId: 'data_17' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_15' },
             tags: ['normalSkill'],
             features: ['canBreakWeakness'],
-            stagger: { kind: 'valueNode', nodeId: 'data_18' },
+            stagger: { kind: 'valueNode', nodeId: 'data_16' },
           },
         },
         next: 'ifElse_43',
@@ -1168,18 +1119,67 @@ export const snowshineChr_0014_aurora_normal_skillActionGraph = {
         action: {
           kind: 'aura',
           parameters: {
-            target: 'party',
+            targets: { kind: 'characterTeam', excludeOwner: false },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: false,
             buffs: [
               {
                 buffId: 'buff_chr_0014_aurora_reduce_damage',
-                blackboardAssignments: { taken_dmg: { kind: 'valueNode', nodeId: 'data_19' } },
+                blackboardAssignments: { taken_dmg: { kind: 'valueNode', nodeId: 'data_8' } },
                 stringBlackboardAssignments: {},
               },
             ],
           },
           onEnter: { $sequence: null },
           onExit: { $sequence: null },
+        },
+        next: null,
+      },
+      ifElse_opt1: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: null },
+          whenTrue: { $sequence: null },
+          whenFalse: { $sequence: null },
+        },
+        next: null,
+      },
+      copyContextTargets_opt2: {
+        action: {
+          kind: 'copyContextTargets',
+          parameters: { source: { kind: 'fixed', target: 'enemy' }, saveToContextKey: 'HitTar' },
+        },
+        next: 'ifElse_opt1',
+      },
+      findTargets_opt3: {
+        action: {
+          kind: 'findTargets',
+          parameters: {
+            owner: { kind: 'owner' },
+            query: { kind: 'mainTarget', owner: { kind: 'owner' } },
+            saveToContextKey: 'MainTar',
+          },
+        },
+        next: 'copyContextTargets_opt2',
+      },
+      ifElse_opt4: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: null },
+          whenTrue: { $sequence: 'copyContextTargets_20' },
+          whenFalse: { $sequence: 'copyContextTargets_20' },
+        },
+        next: null,
+      },
+      ifElse_opt5: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: 'checkCondition_21' },
+          whenTrue: { $sequence: 'findTargets_opt3' },
+          whenFalse: { $sequence: 'ifElse_opt4' },
         },
         next: null,
       },
@@ -1203,26 +1203,6 @@ export const snowshineChr_0014_aurora_normal_skillActionGraph = {
       data_5: {
         type: 'boolean',
         expression: {
-          kind: 'targetFacingAngle',
-          origin: { kind: 'context', key: 'Attacker' },
-          target: { kind: 'owner' },
-          angleType: 'forward',
-          angle: { kind: 'constant', value: 180 },
-        },
-      },
-      data_6: {
-        type: 'boolean',
-        expression: {
-          kind: 'targetFacingAngle',
-          origin: { kind: 'context', key: 'HitTar' },
-          target: { kind: 'owner' },
-          angleType: 'forward',
-          angle: { kind: 'constant', value: 180 },
-        },
-      },
-      data_7: {
-        type: 'boolean',
-        expression: {
           kind: 'targetDistance',
           source: { kind: 'owner' },
           target: { kind: 'context', key: 'Attacker' },
@@ -1232,22 +1212,22 @@ export const snowshineChr_0014_aurora_normal_skillActionGraph = {
           containsHittableObject: false,
         },
       },
-      data_8: {
+      data_6: {
         type: 'number',
         expression: { kind: 'blackboard', key: 'potential_1', fallback: 0 },
       },
-      data_9: {
+      data_7: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_8' },
+          left: { kind: 'valueNode', nodeId: 'data_6' },
           operator: 'greaterOrEqual',
           right: { kind: 'constant', value: 1 },
         },
       },
-      data_10: { type: 'number', expression: { kind: 'blackboard', key: 'taken_dmg' } },
-      data_11: { type: 'number', expression: { kind: 'blackboard', key: 'potential_1' } },
-      data_12: {
+      data_8: { type: 'number', expression: { kind: 'blackboard', key: 'taken_dmg' } },
+      data_9: { type: 'number', expression: { kind: 'blackboard', key: 'potential_1' } },
+      data_10: {
         type: 'boolean',
         expression: {
           kind: 'targetDistance',
@@ -1259,11 +1239,11 @@ export const snowshineChr_0014_aurora_normal_skillActionGraph = {
           containsHittableObject: false,
         },
       },
-      data_13: {
+      data_11: {
         type: 'boolean',
         expression: { kind: 'eventBuffIdMatch', buffIds: ['buff_eny_0018_lbtough_pre_catch'] },
       },
-      data_14: {
+      data_12: {
         type: 'boolean',
         expression: {
           kind: 'eventDamageFeaturesMatch',
@@ -1271,21 +1251,20 @@ export const snowshineChr_0014_aurora_normal_skillActionGraph = {
           features: ['dot', 'remainArea'],
         },
       },
-      data_15: { type: 'number', expression: { kind: 'blackboard', key: 'potential_5_atb' } },
-      data_16: {
+      data_13: { type: 'number', expression: { kind: 'blackboard', key: 'potential_5_atb' } },
+      data_14: {
         type: 'boolean',
         expression: {
           kind: 'entityCountCompare',
-          target: { kind: 'inputTarget' },
+          target: { kind: 'fixed', target: 'enemy' },
           containsHittableTarget: false,
           excludeDeadEntity: false,
           operator: 'greaterOrEqual',
           value: 1,
         },
       },
-      data_17: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_18: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
-      data_19: { type: 'number', expression: { kind: 'blackboard', key: 'taken_dmg' } },
+      data_15: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
+      data_16: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
     },
   },
   macros: {},
@@ -1320,9 +1299,9 @@ export const snowshineChr_0014_aurora_normal_skill: SkillDefinition = {
     { startFrame: 67, endFrame: 70, sequence: { $sequence: 'markCurrentSkillCanInterrupt_6' } },
     { startFrame: 107, endFrame: 109, sequence: { $sequence: 'checkCondition_11' } },
     { startFrame: 106, endFrame: 107, sequence: { $sequence: 'interruptCurrentSkill_12' } },
-    { startFrame: 107, endFrame: 110, sequence: { $sequence: 'ifElse_26' } },
+    { startFrame: 107, endFrame: 110, sequence: { $sequence: 'ifElse_opt5' } },
     { startFrame: 0, endFrame: 51, sequence: { $sequence: 'aura_30' } },
-    { startFrame: 0, endFrame: 51, sequence: { $sequence: 'listenForCombatEvents_opt6' } },
+    { startFrame: 0, endFrame: 51, sequence: { $sequence: 'listenForCombatEvents_38' } },
     { startFrame: 107, endFrame: 108, sequence: { $sequence: 'applyBuff_39' } },
     { startFrame: 125, endFrame: 127, sequence: { $sequence: 'repeatEachTick_47' } },
     { startFrame: 107, endFrame: 110, sequence: { $sequence: 'startTimeDilation_48' } },
@@ -1403,7 +1382,7 @@ export const snowshineChr_0014_aurora_combo_skillActionGraph = {
                         action: {
                           kind: 'spawnAbilityEntity',
                           parameters: {
-                            bornAt: { kind: 'inputTarget' },
+                            bornAt: { kind: 'fixed', target: 'enemy' },
                             abilityEntityId: 'abilityentity_chr_0014_aurora_combo_skill',
                             childSkillId: 'chr_0014_aurora_combo_skill_abilityrange',
                             inheritActionBlackboard: true,
@@ -1647,7 +1626,8 @@ export const snowshineChr_0014_aurora_ultimate_skillActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_damage_immune_ult_skill' }],
-            target: 'caster',
+            targets: { kind: 'source' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -1912,8 +1892,8 @@ const snowshineBuff4ActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0014_aurora_potential_1' }],
-            target: 'buffOwner',
-            source: 'buffSource',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -1977,7 +1957,8 @@ const snowshineBuff5ActionGraph = {
                 },
               },
             ],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
           },
@@ -1995,8 +1976,8 @@ const snowshineBuff5ActionGraph = {
                 copiedBlackboardAssignments: { potential_1: 'potential_1', taken_dmg: 'taken_dmg' },
               },
             ],
-            target: 'buffOwner',
-            source: 'buffSource',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -2040,7 +2021,8 @@ const snowshineBuff6ActionGraph = {
                 },
               },
             ],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
           },
@@ -2214,8 +2196,8 @@ const snowshineBuff9ActionGraph = {
                 copiedBlackboardAssignments: { extra_duration: 'extra_duration' },
               },
             ],
-            target: 'buffOwner',
-            source: 'buffSource',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -2472,7 +2454,8 @@ export const snowshine: OperatorDefinition = {
                 action: {
                   kind: 'aura',
                   parameters: {
-                    target: 'party',
+                    targets: { kind: 'characterTeam', excludeOwner: true },
+                    source: { kind: 'source' },
                     inheritSourceSkillCastInfo: true,
                     buffs: [
                       {
@@ -2494,7 +2477,8 @@ export const snowshine: OperatorDefinition = {
                 action: {
                   kind: 'aura',
                   parameters: {
-                    target: 'party',
+                    targets: { kind: 'characterTeam', excludeOwner: true },
+                    source: { kind: 'source' },
                     inheritSourceSkillCastInfo: true,
                     buffs: [
                       {
@@ -2571,7 +2555,8 @@ export const snowshine: OperatorDefinition = {
                   action: {
                     kind: 'aura',
                     parameters: {
-                      target: 'enemy',
+                      targets: { kind: 'fixed', target: 'enemy' },
+                      source: { kind: 'source' },
                       inheritSourceSkillCastInfo: true,
                       buffs: [
                         {
@@ -2629,7 +2614,8 @@ export const snowshine: OperatorDefinition = {
                   action: {
                     kind: 'aura',
                     parameters: {
-                      target: 'enemy',
+                      targets: { kind: 'fixed', target: 'enemy' },
+                      source: { kind: 'source' },
                       inheritSourceSkillCastInfo: true,
                       buffs: [
                         {

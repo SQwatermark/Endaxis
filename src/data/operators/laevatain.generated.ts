@@ -168,7 +168,7 @@ export const laevatainChr_0016_laevat_attack2ActionGraph = {
           kind: 'changeResource',
           parameters: {
             resource: 'sp',
-            amount: { kind: 'valueNode', nodeId: 'data_4' },
+            amount: { kind: 'valueNode', nodeId: 'data_1' },
             coefficient: { kind: 'constant', value: 0.5 },
             source: { kind: 'source' },
             targets: { kind: 'source' },
@@ -184,7 +184,7 @@ export const laevatainChr_0016_laevat_attack2ActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'heat',
-            attackScale: { kind: 'valueNode', nodeId: 'data_5' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_2' },
             tags: ['normalAttack'],
           },
         },
@@ -202,8 +202,6 @@ export const laevatainChr_0016_laevat_attack2ActionGraph = {
       data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
       data_2: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
       data_3: { type: 'boolean', expression: { kind: 'casterControlled' } },
-      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
-      data_5: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
     },
   },
   macros: {},
@@ -666,9 +664,9 @@ export const laevatainChr_0016_laevat_attack5ActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'heat',
-            attackScale: { kind: 'valueNode', nodeId: 'data_7' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_1' },
             tags: ['normalAttack', 'normalAttackLastCombo'],
-            stagger: { kind: 'valueNode', nodeId: 'data_8' },
+            stagger: { kind: 'valueNode', nodeId: 'data_7' },
             staggerOnlyWhenCasterControlled: true,
           },
         },
@@ -723,8 +721,7 @@ export const laevatainChr_0016_laevat_attack5ActionGraph = {
           value: 1,
         },
       },
-      data_7: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_8: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
+      data_7: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
     },
   },
   macros: {},
@@ -1123,7 +1120,7 @@ export const laevatainChr_0016_laevat_ult_attack2ActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'heat',
-            attackScale: { kind: 'valueNode', nodeId: 'data_11' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_6' },
             tags: ['normalAttack'],
           },
         },
@@ -1148,7 +1145,7 @@ export const laevatainChr_0016_laevat_ult_attack2ActionGraph = {
       checkCondition_20: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_12' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_11' } },
         },
         next: null,
       },
@@ -1207,8 +1204,7 @@ export const laevatainChr_0016_laevat_ult_attack2ActionGraph = {
           value: 1,
         },
       },
-      data_11: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_12: {
+      data_11: {
         type: 'boolean',
         expression: {
           kind: 'buffIdStackCompare',
@@ -1607,9 +1603,9 @@ export const laevatainChr_0016_laevat_ult_attack4ActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'heat',
-            attackScale: { kind: 'valueNode', nodeId: 'data_9' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_1' },
             tags: ['normalAttack', 'normalAttackLastCombo'],
-            stagger: { kind: 'valueNode', nodeId: 'data_10' },
+            stagger: { kind: 'valueNode', nodeId: 'data_9' },
             staggerOnlyWhenCasterControlled: true,
           },
         },
@@ -1634,7 +1630,7 @@ export const laevatainChr_0016_laevat_ult_attack4ActionGraph = {
       checkCondition_14: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_11' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_10' } },
         },
         next: null,
       },
@@ -1673,9 +1669,8 @@ export const laevatainChr_0016_laevat_ult_attack4ActionGraph = {
           value: 1,
         },
       },
-      data_9: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_10: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
-      data_11: {
+      data_9: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
+      data_10: {
         type: 'boolean',
         expression: {
           kind: 'buffIdStackCompare',
@@ -1883,7 +1878,7 @@ export const laevatainChr_0016_laevat_power_attackActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'heat',
-            attackScale: { kind: 'valueNode', nodeId: 'data_3' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_2' },
             calculation: 'breakingAttack',
             calculationMultiplier: 0.8,
             tags: ['normalAttack', 'powerAttack'],
@@ -1896,7 +1891,8 @@ export const laevatainChr_0016_laevat_power_attackActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_full_immune_medium' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -1908,7 +1904,8 @@ export const laevatainChr_0016_laevat_power_attackActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_power_attack_disable_cast_skill' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -1918,7 +1915,7 @@ export const laevatainChr_0016_laevat_power_attackActionGraph = {
       checkCondition_14: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_4' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
         },
         next: null,
       },
@@ -1936,8 +1933,7 @@ export const laevatainChr_0016_laevat_power_attackActionGraph = {
     dataNodes: {
       data_1: { type: 'boolean', expression: { kind: 'casterControlled' } },
       data_2: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_4: {
+      data_3: {
         type: 'boolean',
         expression: {
           kind: 'buffIdStackCompare',
@@ -2105,7 +2101,8 @@ export const laevatainChr_0016_laevat_normal_skillActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0016_laevat_has_max_energy' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -2129,7 +2126,8 @@ export const laevatainChr_0016_laevat_normal_skillActionGraph = {
         action: {
           kind: 'finishBuffsById',
           parameters: {
-            target: 'caster',
+            targets: { kind: 'owner' },
+            finishSource: { kind: 'source' },
             buffIds: ['buff_chr_0016_laevat_has_max_energy'],
             reason: 'other',
           },
@@ -2204,7 +2202,7 @@ export const laevatainChr_0016_laevat_normal_skillActionGraph = {
       checkCondition_12: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_8' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_7' } },
         },
         next: 'changeResource_11',
       },
@@ -2228,10 +2226,10 @@ export const laevatainChr_0016_laevat_normal_skillActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'heat',
-            attackScale: { kind: 'valueNode', nodeId: 'data_9' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_8' },
             tags: ['normalSkill'],
             features: ['canBreakWeakness'],
-            stagger: { kind: 'valueNode', nodeId: 'data_10' },
+            stagger: { kind: 'valueNode', nodeId: 'data_9' },
           },
         },
         next: 'startTimeDilation_13',
@@ -2270,7 +2268,8 @@ export const laevatainChr_0016_laevat_normal_skillActionGraph = {
                 },
               },
             ],
-            target: 'enemy',
+            targets: { kind: 'fixed', target: 'enemy' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -2296,7 +2295,8 @@ export const laevatainChr_0016_laevat_normal_skillActionGraph = {
         action: {
           kind: 'finishBuffsById',
           parameters: {
-            target: 'caster',
+            targets: { kind: 'owner' },
+            finishSource: { kind: 'source' },
             buffIds: ['buff_chr_0016_laevat_energy'],
             reason: 'other',
           },
@@ -2309,7 +2309,7 @@ export const laevatainChr_0016_laevat_normal_skillActionGraph = {
           parameters: {
             key: 'atk_scale_3',
             operation: 'multiply',
-            value: { kind: 'valueNode', nodeId: 'data_11' },
+            value: { kind: 'valueNode', nodeId: 'data_10' },
           },
         },
         next: 'finishBuffsById_19',
@@ -2321,7 +2321,7 @@ export const laevatainChr_0016_laevat_normal_skillActionGraph = {
       checkCondition_26: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_12' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_11' } },
         },
         next: null,
       },
@@ -2338,7 +2338,7 @@ export const laevatainChr_0016_laevat_normal_skillActionGraph = {
       checkCondition_27: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_13' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_12' } },
         },
         next: null,
       },
@@ -2365,7 +2365,7 @@ export const laevatainChr_0016_laevat_normal_skillActionGraph = {
       checkCondition_31: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_14' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_13' } },
         },
         next: null,
       },
@@ -2427,22 +2427,18 @@ export const laevatainChr_0016_laevat_normal_skillActionGraph = {
       },
       data_6: { type: 'number', expression: { kind: 'blackboard', key: 'extra_usp' } },
       data_7: {
-        type: 'number',
-        expression: { kind: 'blackboard', key: 'second_hit', fallback: 0 },
-      },
-      data_8: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_7' },
+          left: { kind: 'valueNode', nodeId: 'data_4' },
           operator: 'equal',
           right: { kind: 'constant', value: 1 },
         },
       },
-      data_9: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_3' } },
-      data_10: { type: 'number', expression: { kind: 'blackboard', key: 'poise_extra' } },
-      data_11: { type: 'number', expression: { kind: 'blackboard', key: 'ratio' } },
-      data_12: {
+      data_8: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_3' } },
+      data_9: { type: 'number', expression: { kind: 'blackboard', key: 'poise_extra' } },
+      data_10: { type: 'number', expression: { kind: 'blackboard', key: 'ratio' } },
+      data_11: {
         type: 'boolean',
         expression: {
           kind: 'targetDistance',
@@ -2454,7 +2450,7 @@ export const laevatainChr_0016_laevat_normal_skillActionGraph = {
           containsHittableObject: false,
         },
       },
-      data_13: {
+      data_12: {
         type: 'boolean',
         expression: {
           kind: 'targetDistance',
@@ -2466,7 +2462,7 @@ export const laevatainChr_0016_laevat_normal_skillActionGraph = {
           containsHittableObject: false,
         },
       },
-      data_14: { type: 'boolean', expression: { kind: 'casterControlled' } },
+      data_13: { type: 'boolean', expression: { kind: 'casterControlled' } },
     },
   },
   macros: {},
@@ -2521,7 +2517,8 @@ export const laevatainChr_0016_laevat_normal_skill_during_ultActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0016_laevat_has_max_energy' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -2595,7 +2592,8 @@ export const laevatainChr_0016_laevat_normal_skill_during_ultActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0016_laevat_energy' }],
-            target: 'caster',
+            targets: { kind: 'source' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -2687,7 +2685,7 @@ export const laevatainChr_0016_laevat_normal_skill_during_ultActionGraph = {
       checkCondition_23: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_11' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_10' } },
         },
         next: 'gainSquadUltimateEnergyFromSkillCost_22',
       },
@@ -2711,10 +2709,10 @@ export const laevatainChr_0016_laevat_normal_skill_during_ultActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'heat',
-            attackScale: { kind: 'valueNode', nodeId: 'data_12' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_11' },
             tags: ['normalSkill'],
             features: ['canBreakWeakness'],
-            stagger: { kind: 'valueNode', nodeId: 'data_13' },
+            stagger: { kind: 'valueNode', nodeId: 'data_9' },
           },
         },
         next: 'startTimeDilation_24',
@@ -2750,7 +2748,7 @@ export const laevatainChr_0016_laevat_normal_skill_during_ultActionGraph = {
           kind: 'changeResource',
           parameters: {
             resource: 'sp',
-            amount: { kind: 'valueNode', nodeId: 'data_14' },
+            amount: { kind: 'valueNode', nodeId: 'data_12' },
             coefficient: { kind: 'constant', value: 1 },
             source: { kind: 'source' },
             targets: { kind: 'source' },
@@ -2763,7 +2761,7 @@ export const laevatainChr_0016_laevat_normal_skill_during_ultActionGraph = {
       checkCondition_28: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_16' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_14' } },
         },
         next: null,
       },
@@ -2785,7 +2783,7 @@ export const laevatainChr_0016_laevat_normal_skill_during_ultActionGraph = {
       checkCondition_31: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_18' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_15' } },
         },
         next: 'startTimeDilation_30',
       },
@@ -2794,10 +2792,10 @@ export const laevatainChr_0016_laevat_normal_skill_during_ultActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'heat',
-            attackScale: { kind: 'valueNode', nodeId: 'data_19' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_16' },
             tags: ['normalSkill'],
             features: ['canBreakWeakness'],
-            stagger: { kind: 'valueNode', nodeId: 'data_20' },
+            stagger: { kind: 'valueNode', nodeId: 'data_9' },
           },
         },
         next: 'checkCondition_31',
@@ -2836,7 +2834,8 @@ export const laevatainChr_0016_laevat_normal_skill_during_ultActionGraph = {
                 },
               },
             ],
-            target: 'enemy',
+            targets: { kind: 'fixed', target: 'enemy' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -2862,7 +2861,8 @@ export const laevatainChr_0016_laevat_normal_skill_during_ultActionGraph = {
         action: {
           kind: 'finishBuffsById',
           parameters: {
-            target: 'caster',
+            targets: { kind: 'owner' },
+            finishSource: { kind: 'source' },
             buffIds: ['buff_chr_0016_laevat_energy'],
             reason: 'other',
           },
@@ -2875,7 +2875,7 @@ export const laevatainChr_0016_laevat_normal_skill_during_ultActionGraph = {
           parameters: {
             key: 'atk_scale_3',
             operation: 'multiply',
-            value: { kind: 'valueNode', nodeId: 'data_21' },
+            value: { kind: 'valueNode', nodeId: 'data_17' },
           },
         },
         next: 'finishBuffsById_37',
@@ -2883,7 +2883,7 @@ export const laevatainChr_0016_laevat_normal_skill_during_ultActionGraph = {
       checkCondition_43: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_22' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_18' } },
         },
         next: null,
       },
@@ -2900,7 +2900,7 @@ export const laevatainChr_0016_laevat_normal_skill_during_ultActionGraph = {
       checkCondition_44: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_23' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_19' } },
         },
         next: null,
       },
@@ -2927,7 +2927,7 @@ export const laevatainChr_0016_laevat_normal_skill_during_ultActionGraph = {
       checkCondition_48: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_24' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_20' } },
         },
         next: null,
       },
@@ -2946,7 +2946,8 @@ export const laevatainChr_0016_laevat_normal_skill_during_ultActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0016_laevat_pause_ult' }],
-            target: 'caster',
+            targets: { kind: 'source' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -2966,7 +2967,7 @@ export const laevatainChr_0016_laevat_normal_skill_during_ultActionGraph = {
       checkCondition_opt2: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_25' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_21' } },
         },
         next: 'ifElse_opt1',
       },
@@ -3027,49 +3028,42 @@ export const laevatainChr_0016_laevat_normal_skill_during_ultActionGraph = {
       },
       data_8: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
       data_9: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
-      data_10: { type: 'number', expression: { kind: 'blackboard', key: 'entered', fallback: 0 } },
-      data_11: {
+      data_10: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_10' },
+          left: { kind: 'valueNode', nodeId: 'data_6' },
           operator: 'equal',
           right: { kind: 'constant', value: 0 },
         },
       },
-      data_12: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_2' } },
-      data_13: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
-      data_14: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
-      data_15: {
+      data_11: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_2' } },
+      data_12: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+      data_13: {
         type: 'number',
         expression: { kind: 'blackboard', key: 'second_hit', fallback: 0 },
       },
-      data_16: {
+      data_14: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_15' },
+          left: { kind: 'valueNode', nodeId: 'data_13' },
           operator: 'equal',
           right: { kind: 'constant', value: 1 },
         },
       },
-      data_17: {
-        type: 'number',
-        expression: { kind: 'blackboard', key: 'second_hit', fallback: 0 },
-      },
-      data_18: {
+      data_15: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_17' },
+          left: { kind: 'valueNode', nodeId: 'data_13' },
           operator: 'lessOrEqual',
           right: { kind: 'constant', value: 1 },
         },
       },
-      data_19: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_3' } },
-      data_20: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
-      data_21: { type: 'number', expression: { kind: 'blackboard', key: 'ratio' } },
-      data_22: {
+      data_16: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_3' } },
+      data_17: { type: 'number', expression: { kind: 'blackboard', key: 'ratio' } },
+      data_18: {
         type: 'boolean',
         expression: {
           kind: 'targetDistance',
@@ -3081,7 +3075,7 @@ export const laevatainChr_0016_laevat_normal_skill_during_ultActionGraph = {
           containsHittableObject: false,
         },
       },
-      data_23: {
+      data_19: {
         type: 'boolean',
         expression: {
           kind: 'targetDistance',
@@ -3093,8 +3087,8 @@ export const laevatainChr_0016_laevat_normal_skill_during_ultActionGraph = {
           containsHittableObject: false,
         },
       },
-      data_24: { type: 'boolean', expression: { kind: 'casterControlled' } },
-      data_25: { type: 'boolean', expression: { kind: 'casterControlled' } },
+      data_20: { type: 'boolean', expression: { kind: 'casterControlled' } },
+      data_21: { type: 'boolean', expression: { kind: 'casterControlled' } },
     },
   },
   macros: {},
@@ -3158,7 +3152,8 @@ export const laevatainChr_0016_laevat_ultimate_skillActionGraph = {
         action: {
           kind: 'finishBuffsById',
           parameters: {
-            target: 'caster',
+            targets: { kind: 'owner' },
+            finishSource: { kind: 'source' },
             buffIds: [
               'buff_chr_0016_laevat_ult_dash',
               'buff_chr_0016_laevat_show_weapon',
@@ -3204,7 +3199,8 @@ export const laevatainChr_0016_laevat_ultimate_skillActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0016_laevat_show_weapon' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -3215,7 +3211,8 @@ export const laevatainChr_0016_laevat_ultimate_skillActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_damage_immune_ult_skill' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -3295,7 +3292,8 @@ export const laevatainChr_0016_laevat_combo_skillActionGraph = {
                 copiedBlackboardAssignments: { atk_scale: 'atk_scale', poise: 'poise' },
               },
             ],
-            target: 'enemy',
+            targets: { kind: 'fixed', target: 'enemy' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -3312,7 +3310,8 @@ export const laevatainChr_0016_laevat_combo_skillActionGraph = {
                 copiedBlackboardAssignments: { atk_scale: 'atk_scale', poise: 'poise' },
               },
             ],
-            target: 'enemy',
+            targets: { kind: 'fixed', target: 'enemy' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -3329,7 +3328,8 @@ export const laevatainChr_0016_laevat_combo_skillActionGraph = {
                 copiedBlackboardAssignments: { atk_scale: 'atk_scale', poise: 'poise' },
               },
             ],
-            target: 'enemy',
+            targets: { kind: 'fixed', target: 'enemy' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -3346,7 +3346,8 @@ export const laevatainChr_0016_laevat_combo_skillActionGraph = {
                 copiedBlackboardAssignments: { atk_scale: 'atk_scale', poise: 'poise' },
               },
             ],
-            target: 'enemy',
+            targets: { kind: 'fixed', target: 'enemy' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -3357,7 +3358,8 @@ export const laevatainChr_0016_laevat_combo_skillActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0016_laevat_combo_skill_hitstop' }],
-            target: 'enemy',
+            targets: { kind: 'fixed', target: 'enemy' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -3400,7 +3402,8 @@ export const laevatainChr_0016_laevat_combo_skillActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0016_laevat_combo_skill_hit_self' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -3439,7 +3442,8 @@ export const laevatainChr_0016_laevat_combo_skillActionGraph = {
                 blackboardAssignments: { duration: { kind: 'constant', value: 0.1 } },
               },
             ],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -3455,7 +3459,8 @@ export const laevatainChr_0016_laevat_combo_skillActionGraph = {
                 blackboardAssignments: { duration: { kind: 'constant', value: 0.1 } },
               },
             ],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -3484,14 +3489,7 @@ export const laevatainChr_0016_laevat_combo_skillActionGraph = {
         },
         next: null,
       },
-      mergeContextTargets_22: {
-        action: {
-          kind: 'mergeContextTargets',
-          parameters: { saveToContextKey: 'tar', sources: [] },
-        },
-        next: null,
-      },
-      mergeContextTargets_28: {
+      mergeContextTargets_26: {
         action: {
           kind: 'mergeContextTargets',
           parameters: {
@@ -3501,7 +3499,7 @@ export const laevatainChr_0016_laevat_combo_skillActionGraph = {
         },
         next: null,
       },
-      modifyActionValue_23: {
+      modifyActionValue_21: {
         action: {
           kind: 'modifyActionValue',
           parameters: {
@@ -3512,48 +3510,57 @@ export const laevatainChr_0016_laevat_combo_skillActionGraph = {
         },
         next: null,
       },
-      checkCondition_24: {
+      checkCondition_22: {
         action: {
           kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_9' } },
         },
-        next: 'modifyActionValue_23',
+        next: 'modifyActionValue_21',
       },
-      modifyActionValue_25: {
+      modifyActionValue_23: {
         action: {
           kind: 'modifyActionValue',
           parameters: { key: 'count', operation: 'add', value: { kind: 'constant', value: 1 } },
         },
-        next: 'checkCondition_24',
+        next: 'checkCondition_22',
       },
-      forEachContextTarget_27: {
+      forEachContextTarget_25: {
         action: {
           kind: 'forEachContextTarget',
           parameters: { targets: { kind: 'context', key: 'tar' } },
-          body: { $sequence: 'modifyActionValue_25' },
+          body: { $sequence: 'modifyActionValue_23' },
         },
         next: null,
       },
-      ifElse_29: {
+      ifElse_27: {
         action: {
           kind: 'ifElse',
           parameters: { alwaysNext: true },
           condition: { $sequence: 'checkCondition_1' },
-          whenTrue: { $sequence: 'forEachContextTarget_27' },
-          whenFalse: { $sequence: 'mergeContextTargets_28' },
+          whenTrue: { $sequence: 'forEachContextTarget_25' },
+          whenFalse: { $sequence: 'mergeContextTargets_26' },
         },
         next: null,
       },
-      conditional_30: {
+      findTargets_28: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_10' } },
-          whenTrue: { $sequence: 'mergeContextTargets_2' },
-          whenFalse: { $sequence: 'mergeContextTargets_22' },
+          kind: 'findTargets',
+          parameters: {
+            owner: { kind: 'owner' },
+            query: {
+              kind: 'enemyByTags',
+              tagQueryType: 'hasAny',
+              tags: [
+                'Skill/Character/Common/SpellStatus/Burning',
+                'Skill/Character/Common/SpellStatus/Corrupt',
+              ],
+            },
+            saveToContextKey: 'tar',
+          },
         },
-        next: 'ifElse_29',
+        next: 'ifElse_27',
       },
-      ifElse_32: {
+      ifElse_30: {
         action: {
           kind: 'ifElse',
           parameters: { alwaysNext: true },
@@ -3563,14 +3570,14 @@ export const laevatainChr_0016_laevat_combo_skillActionGraph = {
         },
         next: null,
       },
-      checkCondition_33: {
+      checkCondition_31: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_11' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_10' } },
         },
-        next: 'ifElse_32',
+        next: 'ifElse_30',
       },
-      startTimeDilation_34: {
+      startTimeDilation_32: {
         action: {
           kind: 'startTimeDilation',
           parameters: {
@@ -3586,10 +3593,10 @@ export const laevatainChr_0016_laevat_combo_skillActionGraph = {
         },
         next: null,
       },
-      checkCondition_35: {
+      checkCondition_33: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_12' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_11' } },
         },
         next: null,
       },
@@ -3639,20 +3646,8 @@ export const laevatainChr_0016_laevat_combo_skillActionGraph = {
           right: { kind: 'valueNode', nodeId: 'data_8' },
         },
       },
-      data_10: {
-        type: 'boolean',
-        expression: {
-          kind: 'entityTagMatch',
-          target: 'enemy',
-          tagQueryType: 'hasAny',
-          tags: [
-            'Skill/Character/Common/SpellStatus/Burning',
-            'Skill/Character/Common/SpellStatus/Corrupt',
-          ],
-        },
-      },
-      data_11: { type: 'boolean', expression: { kind: 'casterControlled' } },
-      data_12: {
+      data_10: { type: 'boolean', expression: { kind: 'casterControlled' } },
+      data_11: {
         type: 'boolean',
         expression: {
           kind: 'buffIdStackCompare',
@@ -3695,10 +3690,10 @@ export const laevatainChr_0016_laevat_combo_skill: SkillDefinition = {
   scheduledSequences: [
     { startFrame: 20, endFrame: 56, sequence: { $sequence: 'ifElse_16' } },
     { startFrame: 0, endFrame: 57, sequence: { $sequence: 'repeatEachTick_20' } },
-    { startFrame: 5, endFrame: 8, sequence: { $sequence: 'conditional_30' } },
-    { startFrame: 0, endFrame: 36, sequence: { $sequence: 'checkCondition_33' } },
-    { startFrame: 0, endFrame: 15, sequence: { $sequence: 'startTimeDilation_34' } },
-    { startFrame: 76, endFrame: 93, sequence: { $sequence: 'checkCondition_35' } },
+    { startFrame: 5, endFrame: 8, sequence: { $sequence: 'findTargets_28' } },
+    { startFrame: 0, endFrame: 36, sequence: { $sequence: 'checkCondition_31' } },
+    { startFrame: 0, endFrame: 15, sequence: { $sequence: 'startTimeDilation_32' } },
+    { startFrame: 76, endFrame: 93, sequence: { $sequence: 'checkCondition_33' } },
   ],
   smartTarget: 'trigger',
   cooldownFrames: [300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 270],
@@ -3784,7 +3779,8 @@ const laevatainBuff1ActionGraph = {
         action: {
           kind: 'finishBuffsByTag',
           parameters: {
-            target: 'buffOwner',
+            targets: { kind: 'inputTarget' },
+            finishSource: { kind: 'source' },
             tagQueryType: 'hasAny',
             buffTags: ['Skill/Character/Common/SpellInflict/FireInflict'],
             reason: 'early',
@@ -3869,8 +3865,8 @@ const laevatainBuff2ActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0016_laevat_combo_skill_usp' }],
-            target: 'buffSource',
-            source: 'buffSource',
+            targets: { kind: 'source' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -3936,8 +3932,8 @@ const laevatainBuff3ActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0016_laevat_energy' }],
-            target: 'buffOwner',
-            source: 'buffSource',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -4012,8 +4008,8 @@ const laevatainBuff5ActionGraph = {
                 copiedBlackboardAssignments: { poise: 'poise', atk_scale: 'atk_scale' },
               },
             ],
-            target: 'buffOwner',
-            source: 'buffSource',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -4160,12 +4156,43 @@ const laevatainBuff7ActionGraph = {
                 },
               },
             ],
-            target: 'buffOwner',
-            source: 'buffSource',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
         next: null,
+      },
+      switch_2: {
+        action: {
+          kind: 'switch',
+          parameters: { choice: { kind: 'valueNode', nodeId: 'data_1' }, alwaysNext: true },
+          options: [
+            {
+              value: { kind: 'valueNode', nodeId: 'data_2' },
+              sequence: { $sequence: 'applyBuff_1' },
+            },
+          ],
+        },
+        next: null,
+      },
+      setCharacterPassiveUiValue_3: {
+        action: {
+          kind: 'setCharacterPassiveUiValue',
+          parameters: { target: 'caster', value: { kind: 'valueNode', nodeId: 'data_1' } },
+        },
+        next: 'switch_2',
+      },
+      readBuffStackCount_4: {
+        action: {
+          kind: 'readBuffStackCount',
+          parameters: {
+            target: 'buffOwner',
+            outputKey: 'count',
+            query: { kind: 'id', buffIds: ['buff_chr_0016_laevat_energy'] },
+          },
+        },
+        next: 'setCharacterPassiveUiValue_3',
       },
       setCharacterPassiveUiValue_5: {
         action: {
@@ -4202,7 +4229,8 @@ const laevatainBuff7ActionGraph = {
         action: {
           kind: 'finishBuffsById',
           parameters: {
-            target: 'buffOwner',
+            targets: { kind: 'owner' },
+            finishSource: { kind: 'source' },
             buffIds: ['buff_chr_0016_laevat_energy_icon_5'],
             reason: 'other',
           },
@@ -4246,46 +4274,10 @@ const laevatainBuff7ActionGraph = {
         },
         next: 'withActionBlackboardScope_10',
       },
-      conditional_opt1: {
-        action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' }, alwaysNext: true },
-          whenTrue: { $sequence: 'applyBuff_1' },
-        },
-        next: null,
-      },
-      setCharacterPassiveUiValue_opt2: {
-        action: {
-          kind: 'setCharacterPassiveUiValue',
-          parameters: { target: 'caster', value: { kind: 'valueNode', nodeId: 'data_4' } },
-        },
-        next: 'conditional_opt1',
-      },
-      readBuffStackCount_opt3: {
-        action: {
-          kind: 'readBuffStackCount',
-          parameters: {
-            target: 'buffOwner',
-            outputKey: 'count',
-            query: { kind: 'id', buffIds: ['buff_chr_0016_laevat_energy'] },
-          },
-        },
-        next: 'setCharacterPassiveUiValue_opt2',
-      },
     },
     dataNodes: {
       data_1: { type: 'number', expression: { kind: 'blackboard', key: 'count' } },
       data_2: { type: 'number', expression: { kind: 'blackboard', key: 'max_stack' } },
-      data_3: {
-        type: 'boolean',
-        expression: {
-          kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_1' },
-          operator: 'equal',
-          right: { kind: 'valueNode', nodeId: 'data_2' },
-        },
-      },
-      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'count' } },
     },
   },
   macros: {},
@@ -4308,7 +4300,7 @@ const laevatainBuff7: SkillBuffDefinition = {
   attributeModifiers: [],
   lifecycleSequences: {
     start: { $sequence: 'withActionBlackboardScope_11' },
-    enhanceChanged: { $sequence: 'readBuffStackCount_opt3' },
+    enhanceChanged: { $sequence: 'readBuffStackCount_4' },
     finish: { $sequence: 'setCharacterPassiveUiValue_9' },
   },
   actionGraph: laevatainBuff7ActionGraph,
@@ -4337,8 +4329,8 @@ const laevatainBuff8ActionGraph = {
                 },
               },
             ],
-            target: 'buffOwner',
-            source: 'buffSource',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -4502,7 +4494,8 @@ const laevatainBuff11ActionGraph = {
         action: {
           kind: 'aura',
           parameters: {
-            target: 'enemy',
+            targets: { kind: 'fixed', target: 'enemy' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             buffs: [{ buffId: 'buff_chr_0016_laevat_passive_enemy' }],
           },
@@ -4515,7 +4508,8 @@ const laevatainBuff11ActionGraph = {
         action: {
           kind: 'aura',
           parameters: {
-            target: 'party',
+            targets: { kind: 'characterTeam', excludeOwner: false },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             buffs: [
               {
@@ -4632,120 +4626,196 @@ const laevatainBuff12: SkillBuffDefinition = {
 const laevatainBuff13ActionGraph = {
   main: {
     nodes: {
-      mergeContextTargets_2: {
-        action: {
-          kind: 'mergeContextTargets',
-          parameters: { saveToContextKey: 'fire_inflicted', sources: [] },
-        },
-        next: null,
-      },
-      mergeContextTargets_1: {
-        action: {
-          kind: 'mergeContextTargets',
-          parameters: {
-            saveToContextKey: 'fire_inflicted',
-            sources: [{ kind: 'target', target: 'enemy' }],
-          },
-        },
-        next: null,
-      },
-      applyBuff_24: {
+      applyBuff_22: {
         action: {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0016_laevat_energy' }],
-            target: 'buffSource',
-            source: 'buffSource',
+            targets: { kind: 'source' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
         next: null,
       },
-      finishBuffsByTag_25: {
+      finishBuffsByTag_23: {
         action: {
           kind: 'finishBuffsByTag',
           parameters: {
-            target: 'enemy',
+            targets: { kind: 'fixed', target: 'enemy' },
+            finishSource: { kind: 'source' },
             tagQueryType: 'hasAny',
             buffTags: ['Skill/Character/Common/SpellInflict/FireInflict'],
             reason: 'absorbed',
             count: { kind: 'constant', value: 1 },
           },
         },
-        next: 'applyBuff_24',
+        next: 'applyBuff_22',
       },
-      checkCondition_26: {
+      checkCondition_24: {
         action: {
           kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
         },
-        next: 'finishBuffsByTag_25',
+        next: 'finishBuffsByTag_23',
       },
-      applyBuff_27: {
+      applyBuff_25: {
         action: {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0016_laevat_energy' }],
-            target: 'buffSource',
-            source: 'buffSource',
+            targets: { kind: 'source' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
-        next: 'checkCondition_26',
+        next: 'checkCondition_24',
       },
-      finishBuffsByTag_28: {
+      finishBuffsByTag_26: {
         action: {
           kind: 'finishBuffsByTag',
           parameters: {
-            target: 'enemy',
+            targets: { kind: 'fixed', target: 'enemy' },
+            finishSource: { kind: 'source' },
             tagQueryType: 'hasAny',
             buffTags: ['Skill/Character/Common/SpellInflict/FireInflict'],
             reason: 'absorbed',
             count: { kind: 'constant', value: 1 },
           },
         },
-        next: 'applyBuff_27',
+        next: 'applyBuff_25',
       },
-      checkCondition_29: {
+      checkCondition_27: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
+        },
+        next: 'finishBuffsByTag_26',
+      },
+      applyBuff_28: {
+        action: {
+          kind: 'applyBuff',
+          parameters: {
+            buffs: [{ buffId: 'buff_chr_0016_laevat_energy' }],
+            targets: { kind: 'source' },
+            source: { kind: 'source' },
+            inheritSourceSkillCastInfo: true,
+          },
+        },
+        next: 'checkCondition_27',
+      },
+      finishBuffsByTag_29: {
+        action: {
+          kind: 'finishBuffsByTag',
+          parameters: {
+            targets: { kind: 'fixed', target: 'enemy' },
+            finishSource: { kind: 'source' },
+            tagQueryType: 'hasAny',
+            buffTags: ['Skill/Character/Common/SpellInflict/FireInflict'],
+            reason: 'absorbed',
+            count: { kind: 'constant', value: 1 },
+          },
+        },
+        next: 'applyBuff_28',
+      },
+      checkCondition_30: {
         action: {
           kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_4' } },
         },
-        next: 'finishBuffsByTag_28',
+        next: 'finishBuffsByTag_29',
       },
-      applyBuff_30: {
+      launchProjectile_31: {
+        action: {
+          kind: 'launchProjectile',
+          parameters: {
+            inheritActionBlackboard: true,
+            finish: 'firstTickReach',
+            recycleDelaySeconds: 5,
+          },
+          callbacks: [],
+        },
+        next: 'checkCondition_30',
+      },
+      applyBuff_32: {
         action: {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0016_laevat_energy' }],
-            target: 'buffSource',
-            source: 'buffSource',
+            targets: { kind: 'source' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
-        next: 'checkCondition_29',
+        next: 'launchProjectile_31',
       },
-      finishBuffsByTag_31: {
+      finishBuffsByTag_33: {
         action: {
           kind: 'finishBuffsByTag',
           parameters: {
-            target: 'enemy',
+            targets: { kind: 'fixed', target: 'enemy' },
+            finishSource: { kind: 'source' },
             tagQueryType: 'hasAny',
             buffTags: ['Skill/Character/Common/SpellInflict/FireInflict'],
             reason: 'absorbed',
             count: { kind: 'constant', value: 1 },
           },
         },
-        next: 'applyBuff_30',
+        next: 'applyBuff_32',
       },
-      checkCondition_32: {
+      checkCondition_34: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
+        },
+        next: 'finishBuffsByTag_33',
+      },
+      launchProjectile_18: {
+        action: {
+          kind: 'launchProjectile',
+          parameters: {
+            inheritActionBlackboard: true,
+            finish: 'firstTickReach',
+            recycleDelaySeconds: 5,
+          },
+          callbacks: [],
+        },
+        next: 'checkCondition_27',
+      },
+      applyBuff_19: {
+        action: {
+          kind: 'applyBuff',
+          parameters: {
+            buffs: [{ buffId: 'buff_chr_0016_laevat_energy' }],
+            targets: { kind: 'source' },
+            source: { kind: 'source' },
+            inheritSourceSkillCastInfo: true,
+          },
+        },
+        next: 'launchProjectile_18',
+      },
+      finishBuffsByTag_20: {
+        action: {
+          kind: 'finishBuffsByTag',
+          parameters: {
+            targets: { kind: 'fixed', target: 'enemy' },
+            finishSource: { kind: 'source' },
+            tagQueryType: 'hasAny',
+            buffTags: ['Skill/Character/Common/SpellInflict/FireInflict'],
+            reason: 'absorbed',
+            count: { kind: 'constant', value: 1 },
+          },
+        },
+        next: 'applyBuff_19',
+      },
+      checkCondition_21: {
         action: {
           kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_6' } },
         },
-        next: 'finishBuffsByTag_31',
+        next: 'finishBuffsByTag_20',
       },
-      launchProjectile_33: {
+      launchProjectile_8: {
         action: {
           kind: 'launchProjectile',
           parameters: {
@@ -4755,185 +4825,99 @@ const laevatainBuff13ActionGraph = {
           },
           callbacks: [],
         },
-        next: 'checkCondition_32',
+        next: 'checkCondition_24',
       },
-      applyBuff_34: {
+      applyBuff_9: {
         action: {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0016_laevat_energy' }],
-            target: 'buffSource',
-            source: 'buffSource',
+            targets: { kind: 'source' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
-        next: 'launchProjectile_33',
+        next: 'launchProjectile_8',
       },
-      finishBuffsByTag_35: {
+      finishBuffsByTag_10: {
         action: {
           kind: 'finishBuffsByTag',
           parameters: {
-            target: 'enemy',
+            targets: { kind: 'fixed', target: 'enemy' },
+            finishSource: { kind: 'source' },
             tagQueryType: 'hasAny',
             buffTags: ['Skill/Character/Common/SpellInflict/FireInflict'],
             reason: 'absorbed',
             count: { kind: 'constant', value: 1 },
           },
         },
-        next: 'applyBuff_34',
+        next: 'applyBuff_9',
       },
-      checkCondition_36: {
+      checkCondition_11: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_7' } },
+        },
+        next: 'finishBuffsByTag_10',
+      },
+      launchProjectile_1: {
+        action: {
+          kind: 'launchProjectile',
+          parameters: {
+            inheritActionBlackboard: true,
+            finish: 'firstTickReach',
+            recycleDelaySeconds: 5,
+          },
+          callbacks: [],
+        },
+        next: null,
+      },
+      applyBuff_2: {
+        action: {
+          kind: 'applyBuff',
+          parameters: {
+            buffs: [{ buffId: 'buff_chr_0016_laevat_energy' }],
+            targets: { kind: 'source' },
+            source: { kind: 'source' },
+            inheritSourceSkillCastInfo: true,
+          },
+        },
+        next: 'launchProjectile_1',
+      },
+      finishBuffsByTag_3: {
+        action: {
+          kind: 'finishBuffsByTag',
+          parameters: {
+            targets: { kind: 'fixed', target: 'enemy' },
+            finishSource: { kind: 'source' },
+            tagQueryType: 'hasAny',
+            buffTags: ['Skill/Character/Common/SpellInflict/FireInflict'],
+            reason: 'absorbed',
+          },
+        },
+        next: 'applyBuff_2',
+      },
+      checkCondition_4: {
         action: {
           kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_8' } },
         },
-        next: 'finishBuffsByTag_35',
+        next: 'finishBuffsByTag_3',
       },
-      launchProjectile_20: {
-        action: {
-          kind: 'launchProjectile',
-          parameters: {
-            inheritActionBlackboard: true,
-            finish: 'firstTickReach',
-            recycleDelaySeconds: 5,
-          },
-          callbacks: [],
-        },
-        next: 'checkCondition_29',
-      },
-      applyBuff_21: {
-        action: {
-          kind: 'applyBuff',
-          parameters: {
-            buffs: [{ buffId: 'buff_chr_0016_laevat_energy' }],
-            target: 'buffSource',
-            source: 'buffSource',
-            inheritSourceSkillCastInfo: true,
-          },
-        },
-        next: 'launchProjectile_20',
-      },
-      finishBuffsByTag_22: {
-        action: {
-          kind: 'finishBuffsByTag',
-          parameters: {
-            target: 'enemy',
-            tagQueryType: 'hasAny',
-            buffTags: ['Skill/Character/Common/SpellInflict/FireInflict'],
-            reason: 'absorbed',
-            count: { kind: 'constant', value: 1 },
-          },
-        },
-        next: 'applyBuff_21',
-      },
-      checkCondition_23: {
-        action: {
-          kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_10' } },
-        },
-        next: 'finishBuffsByTag_22',
-      },
-      launchProjectile_10: {
-        action: {
-          kind: 'launchProjectile',
-          parameters: {
-            inheritActionBlackboard: true,
-            finish: 'firstTickReach',
-            recycleDelaySeconds: 5,
-          },
-          callbacks: [],
-        },
-        next: 'checkCondition_26',
-      },
-      applyBuff_11: {
-        action: {
-          kind: 'applyBuff',
-          parameters: {
-            buffs: [{ buffId: 'buff_chr_0016_laevat_energy' }],
-            target: 'buffSource',
-            source: 'buffSource',
-            inheritSourceSkillCastInfo: true,
-          },
-        },
-        next: 'launchProjectile_10',
-      },
-      finishBuffsByTag_12: {
-        action: {
-          kind: 'finishBuffsByTag',
-          parameters: {
-            target: 'enemy',
-            tagQueryType: 'hasAny',
-            buffTags: ['Skill/Character/Common/SpellInflict/FireInflict'],
-            reason: 'absorbed',
-            count: { kind: 'constant', value: 1 },
-          },
-        },
-        next: 'applyBuff_11',
-      },
-      checkCondition_13: {
-        action: {
-          kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_12' } },
-        },
-        next: 'finishBuffsByTag_12',
-      },
-      launchProjectile_3: {
-        action: {
-          kind: 'launchProjectile',
-          parameters: {
-            inheritActionBlackboard: true,
-            finish: 'firstTickReach',
-            recycleDelaySeconds: 5,
-          },
-          callbacks: [],
-        },
-        next: null,
-      },
-      applyBuff_4: {
-        action: {
-          kind: 'applyBuff',
-          parameters: {
-            buffs: [{ buffId: 'buff_chr_0016_laevat_energy' }],
-            target: 'buffSource',
-            source: 'buffSource',
-            inheritSourceSkillCastInfo: true,
-          },
-        },
-        next: 'launchProjectile_3',
-      },
-      finishBuffsByTag_5: {
-        action: {
-          kind: 'finishBuffsByTag',
-          parameters: {
-            target: 'enemy',
-            tagQueryType: 'hasAny',
-            buffTags: ['Skill/Character/Common/SpellInflict/FireInflict'],
-            reason: 'absorbed',
-          },
-        },
-        next: 'applyBuff_4',
-      },
-      checkCondition_6: {
-        action: {
-          kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_14' } },
-        },
-        next: 'finishBuffsByTag_5',
-      },
-      switch_37: {
+      switch_35: {
         action: {
           kind: 'switch',
-          parameters: { choice: { kind: 'valueNode', nodeId: 'data_15' }, alwaysNext: true },
+          parameters: { choice: { kind: 'valueNode', nodeId: 'data_9' }, alwaysNext: true },
           options: [
-            { value: { kind: 'constant', value: 1 }, sequence: { $sequence: 'checkCondition_6' } },
-            { value: { kind: 'constant', value: 2 }, sequence: { $sequence: 'checkCondition_13' } },
-            { value: { kind: 'constant', value: 3 }, sequence: { $sequence: 'checkCondition_23' } },
-            { value: { kind: 'constant', value: 4 }, sequence: { $sequence: 'checkCondition_36' } },
+            { value: { kind: 'constant', value: 1 }, sequence: { $sequence: 'checkCondition_4' } },
+            { value: { kind: 'constant', value: 2 }, sequence: { $sequence: 'checkCondition_11' } },
+            { value: { kind: 'constant', value: 3 }, sequence: { $sequence: 'checkCondition_21' } },
+            { value: { kind: 'constant', value: 4 }, sequence: { $sequence: 'checkCondition_34' } },
           ],
         },
         next: null,
       },
-      readBuffStackCount_38: {
+      readBuffStackCount_36: {
         action: {
           kind: 'readBuffStackCount',
           parameters: {
@@ -4946,17 +4930,17 @@ const laevatainBuff13ActionGraph = {
             },
           },
         },
-        next: 'switch_37',
+        next: 'switch_35',
       },
-      forEachContextTarget_39: {
+      forEachContextTarget_37: {
         action: {
           kind: 'forEachContextTarget',
           parameters: { targets: { kind: 'context', key: 'fire_inflicted' } },
-          body: { $sequence: 'readBuffStackCount_38' },
+          body: { $sequence: 'readBuffStackCount_36' },
         },
         next: null,
       },
-      modifyActionValue_40: {
+      modifyActionValue_38: {
         action: {
           kind: 'modifyActionValue',
           parameters: {
@@ -4965,56 +4949,62 @@ const laevatainBuff13ActionGraph = {
             value: { kind: 'constant', value: 0 },
           },
         },
-        next: 'forEachContextTarget_39',
+        next: 'forEachContextTarget_37',
       },
-      conditional_41: {
+      findTargets_39: {
         action: {
-          kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_16' } },
-          whenTrue: { $sequence: 'mergeContextTargets_1' },
-          whenFalse: { $sequence: 'mergeContextTargets_2' },
+          kind: 'findTargets',
+          parameters: {
+            owner: { kind: 'owner' },
+            query: {
+              kind: 'enemyByTags',
+              tagQueryType: 'hasAny',
+              tags: ['Skill/Character/Common/SpellInflict/FireInflict'],
+            },
+            saveToContextKey: 'fire_inflicted',
+          },
         },
-        next: 'modifyActionValue_40',
+        next: 'modifyActionValue_38',
       },
-      applyBuff_42: {
+      applyBuff_40: {
         action: {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0016_laevat_passive_teammate_cd' }],
-            target: 'buffOwner',
-            source: 'buffSource',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
-        next: 'conditional_41',
+        next: 'findTargets_39',
+      },
+      checkCondition_41: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_10' } },
+        },
+        next: 'applyBuff_40',
+      },
+      checkCondition_42: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_11' } },
+        },
+        next: 'checkCondition_41',
       },
       checkCondition_43: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_17' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_12' } },
         },
-        next: 'applyBuff_42',
+        next: 'checkCondition_42',
       },
       checkCondition_44: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_19' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_13' } },
         },
         next: 'checkCondition_43',
-      },
-      checkCondition_45: {
-        action: {
-          kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_20' } },
-        },
-        next: 'checkCondition_44',
-      },
-      checkCondition_46: {
-        action: {
-          kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_21' } },
-        },
-        next: 'checkCondition_45',
       },
     },
     dataNodes: {
@@ -5029,7 +5019,16 @@ const laevatainBuff13ActionGraph = {
           value: { kind: 'valueNode', nodeId: 'data_1' },
         },
       },
-      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'max_stack' } },
+      data_3: {
+        type: 'boolean',
+        expression: {
+          kind: 'buffIdStackCompare',
+          target: 'caster',
+          buffIds: ['buff_chr_0016_laevat_energy'],
+          operator: 'less',
+          value: { kind: 'valueNode', nodeId: 'data_1' },
+        },
+      },
       data_4: {
         type: 'boolean',
         expression: {
@@ -5037,10 +5036,19 @@ const laevatainBuff13ActionGraph = {
           target: 'caster',
           buffIds: ['buff_chr_0016_laevat_energy'],
           operator: 'less',
-          value: { kind: 'valueNode', nodeId: 'data_3' },
+          value: { kind: 'valueNode', nodeId: 'data_1' },
         },
       },
-      data_5: { type: 'number', expression: { kind: 'blackboard', key: 'max_stack' } },
+      data_5: {
+        type: 'boolean',
+        expression: {
+          kind: 'buffIdStackCompare',
+          target: 'caster',
+          buffIds: ['buff_chr_0016_laevat_energy'],
+          operator: 'less',
+          value: { kind: 'valueNode', nodeId: 'data_1' },
+        },
+      },
       data_6: {
         type: 'boolean',
         expression: {
@@ -5048,10 +5056,19 @@ const laevatainBuff13ActionGraph = {
           target: 'caster',
           buffIds: ['buff_chr_0016_laevat_energy'],
           operator: 'less',
-          value: { kind: 'valueNode', nodeId: 'data_5' },
+          value: { kind: 'valueNode', nodeId: 'data_1' },
         },
       },
-      data_7: { type: 'number', expression: { kind: 'blackboard', key: 'max_stack' } },
+      data_7: {
+        type: 'boolean',
+        expression: {
+          kind: 'buffIdStackCompare',
+          target: 'caster',
+          buffIds: ['buff_chr_0016_laevat_energy'],
+          operator: 'less',
+          value: { kind: 'valueNode', nodeId: 'data_1' },
+        },
+      },
       data_8: {
         type: 'boolean',
         expression: {
@@ -5059,53 +5076,11 @@ const laevatainBuff13ActionGraph = {
           target: 'caster',
           buffIds: ['buff_chr_0016_laevat_energy'],
           operator: 'less',
-          value: { kind: 'valueNode', nodeId: 'data_7' },
+          value: { kind: 'valueNode', nodeId: 'data_1' },
         },
       },
-      data_9: { type: 'number', expression: { kind: 'blackboard', key: 'max_stack' } },
+      data_9: { type: 'number', expression: { kind: 'blackboard', key: 'count' } },
       data_10: {
-        type: 'boolean',
-        expression: {
-          kind: 'buffIdStackCompare',
-          target: 'caster',
-          buffIds: ['buff_chr_0016_laevat_energy'],
-          operator: 'less',
-          value: { kind: 'valueNode', nodeId: 'data_9' },
-        },
-      },
-      data_11: { type: 'number', expression: { kind: 'blackboard', key: 'max_stack' } },
-      data_12: {
-        type: 'boolean',
-        expression: {
-          kind: 'buffIdStackCompare',
-          target: 'caster',
-          buffIds: ['buff_chr_0016_laevat_energy'],
-          operator: 'less',
-          value: { kind: 'valueNode', nodeId: 'data_11' },
-        },
-      },
-      data_13: { type: 'number', expression: { kind: 'blackboard', key: 'max_stack' } },
-      data_14: {
-        type: 'boolean',
-        expression: {
-          kind: 'buffIdStackCompare',
-          target: 'caster',
-          buffIds: ['buff_chr_0016_laevat_energy'],
-          operator: 'less',
-          value: { kind: 'valueNode', nodeId: 'data_13' },
-        },
-      },
-      data_15: { type: 'number', expression: { kind: 'blackboard', key: 'count' } },
-      data_16: {
-        type: 'boolean',
-        expression: {
-          kind: 'entityTagMatch',
-          target: 'enemy',
-          tagQueryType: 'hasAny',
-          tags: ['Skill/Character/Common/SpellInflict/FireInflict'],
-        },
-      },
-      data_17: {
         type: 'boolean',
         expression: {
           kind: 'buffIdStackCompare',
@@ -5115,19 +5090,18 @@ const laevatainBuff13ActionGraph = {
           value: { kind: 'constant', value: 0 },
         },
       },
-      data_18: { type: 'number', expression: { kind: 'blackboard', key: 'max_stack' } },
-      data_19: {
+      data_11: {
         type: 'boolean',
         expression: {
           kind: 'buffIdStackCompare',
           target: 'caster',
           buffIds: ['buff_chr_0016_laevat_energy'],
           operator: 'less',
-          value: { kind: 'valueNode', nodeId: 'data_18' },
+          value: { kind: 'valueNode', nodeId: 'data_1' },
         },
       },
-      data_20: { type: 'boolean', expression: { kind: 'casterControlled' } },
-      data_21: {
+      data_12: { type: 'boolean', expression: { kind: 'casterControlled' } },
+      data_13: {
         type: 'boolean',
         expression: {
           kind: 'eventDamageTagsMatch',
@@ -5149,7 +5123,7 @@ const laevatainBuff13: SkillBuffDefinition = {
   blackboard: { count: 0, curve_rate: 0, distance: 0, max_stack: 0, speed: 0 },
   attributeModifiers: [],
   abilityEventResponses: [
-    { event: 'beforeOutputDamage', priority: 0, sequence: { $sequence: 'checkCondition_46' } },
+    { event: 'beforeOutputDamage', priority: 0, sequence: { $sequence: 'checkCondition_44' } },
   ],
   actionGraph: laevatainBuff13ActionGraph,
 };
@@ -5250,7 +5224,8 @@ const laevatainBuff17ActionGraph = {
         action: {
           kind: 'finishBuffsById',
           parameters: {
-            target: 'buffOwner',
+            targets: { kind: 'owner' },
+            finishSource: { kind: 'source' },
             buffIds: ['buff_chr_0016_laevat_wpn_vfx'],
             reason: 'other',
           },
@@ -5320,8 +5295,8 @@ const laevatainBuff18ActionGraph = {
               { buffId: 'buff_chr_0016_laevat_ring_start_asset' },
               { buffId: 'buff_chr_0016_laevat_ult_end' },
             ],
-            target: 'buffOwner',
-            source: 'buffSource',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -5426,8 +5401,8 @@ const laevatainBuff19ActionGraph = {
                 },
               },
             ],
-            target: 'buffOwner',
-            source: 'buffSource',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -5533,7 +5508,8 @@ const laevatainBuff20ActionGraph = {
                 },
               },
             ],
-            target: 'caster',
+            targets: { kind: 'inputTarget' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
           },
@@ -5573,7 +5549,8 @@ const laevatainBuff21ActionGraph = {
         action: {
           kind: 'finishBuffsById',
           parameters: {
-            target: 'buffOwner',
+            targets: { kind: 'owner' },
+            finishSource: { kind: 'source' },
             buffIds: [
               'buff_chr_0016_laevat_ring_start_asset',
               'buff_chr_0016_laevat_ultimate_sfx_loop',
@@ -6034,7 +6011,8 @@ export const laevatain: OperatorDefinition = {
                   kind: 'applyBuff',
                   parameters: {
                     buffs: [{ buffId: 'buff_chr_0016_laevat_energy' }],
-                    target: 'caster',
+                    targets: { kind: 'source' },
+                    source: { kind: 'source' },
                     inheritSourceSkillCastInfo: true,
                   },
                 },
@@ -6060,7 +6038,8 @@ export const laevatain: OperatorDefinition = {
                   kind: 'applyBuff',
                   parameters: {
                     buffs: [{ buffId: 'buff_common_obtain_ultimate_sp' }],
-                    target: 'caster',
+                    targets: { kind: 'source' },
+                    source: { kind: 'source' },
                     inheritSourceSkillCastInfo: true,
                   },
                 },
@@ -6071,7 +6050,8 @@ export const laevatain: OperatorDefinition = {
                   kind: 'applyBuff',
                   parameters: {
                     buffs: [{ buffId: 'buff_chr_0016_laevat_energy' }],
-                    target: 'caster',
+                    targets: { kind: 'source' },
+                    source: { kind: 'source' },
                     inheritSourceSkillCastInfo: true,
                   },
                 },
@@ -6119,7 +6099,7 @@ export const laevatain: OperatorDefinition = {
                   kind: 'dealDamage',
                   parameters: {
                     damageType: 'heat',
-                    attackScale: { kind: 'valueNode', nodeId: 'data_8' },
+                    attackScale: { kind: 'valueNode', nodeId: 'data_7' },
                     tags: ['normalSkill'],
                   },
                   key: 'abilityentity_chr_0016_laevat_normal_skill:chr_0016_laevat_normal_skill_abilityentity:/childSkill/actionGraph/main/nodes/dealDamage_18/action',
@@ -6131,7 +6111,7 @@ export const laevatain: OperatorDefinition = {
                   kind: 'dealDamage',
                   parameters: {
                     damageType: 'heat',
-                    attackScale: { kind: 'valueNode', nodeId: 'data_9' },
+                    attackScale: { kind: 'valueNode', nodeId: 'data_7' },
                     tags: ['normalSkill'],
                   },
                   key: 'abilityentity_chr_0016_laevat_normal_skill:chr_0016_laevat_normal_skill_abilityentity:/childSkill/actionGraph/main/nodes/dealDamage_24/action',
@@ -6143,7 +6123,7 @@ export const laevatain: OperatorDefinition = {
                   kind: 'dealDamage',
                   parameters: {
                     damageType: 'heat',
-                    attackScale: { kind: 'valueNode', nodeId: 'data_10' },
+                    attackScale: { kind: 'valueNode', nodeId: 'data_7' },
                     tags: ['normalSkill'],
                   },
                   key: 'abilityentity_chr_0016_laevat_normal_skill:chr_0016_laevat_normal_skill_abilityentity:/childSkill/actionGraph/main/nodes/dealDamage_30/action',
@@ -6155,7 +6135,7 @@ export const laevatain: OperatorDefinition = {
                   kind: 'dealDamage',
                   parameters: {
                     damageType: 'heat',
-                    attackScale: { kind: 'valueNode', nodeId: 'data_11' },
+                    attackScale: { kind: 'valueNode', nodeId: 'data_7' },
                     tags: ['normalSkill'],
                   },
                   key: 'abilityentity_chr_0016_laevat_normal_skill:chr_0016_laevat_normal_skill_abilityentity:/childSkill/actionGraph/main/nodes/dealDamage_36/action',
@@ -6167,7 +6147,7 @@ export const laevatain: OperatorDefinition = {
                   kind: 'dealDamage',
                   parameters: {
                     damageType: 'heat',
-                    attackScale: { kind: 'valueNode', nodeId: 'data_12' },
+                    attackScale: { kind: 'valueNode', nodeId: 'data_7' },
                     tags: ['normalSkill'],
                   },
                   key: 'abilityentity_chr_0016_laevat_normal_skill:chr_0016_laevat_normal_skill_abilityentity:/childSkill/actionGraph/main/nodes/dealDamage_42/action',
@@ -6179,7 +6159,7 @@ export const laevatain: OperatorDefinition = {
                   kind: 'dealDamage',
                   parameters: {
                     damageType: 'heat',
-                    attackScale: { kind: 'valueNode', nodeId: 'data_13' },
+                    attackScale: { kind: 'valueNode', nodeId: 'data_7' },
                     tags: ['normalSkill'],
                   },
                   key: 'abilityentity_chr_0016_laevat_normal_skill:chr_0016_laevat_normal_skill_abilityentity:/childSkill/actionGraph/main/nodes/dealDamage_48/action',
@@ -6191,7 +6171,7 @@ export const laevatain: OperatorDefinition = {
                   kind: 'dealDamage',
                   parameters: {
                     damageType: 'heat',
-                    attackScale: { kind: 'valueNode', nodeId: 'data_14' },
+                    attackScale: { kind: 'valueNode', nodeId: 'data_7' },
                     tags: ['normalSkill'],
                   },
                   key: 'abilityentity_chr_0016_laevat_normal_skill:chr_0016_laevat_normal_skill_abilityentity:/childSkill/actionGraph/main/nodes/dealDamage_54/action',
@@ -6203,7 +6183,7 @@ export const laevatain: OperatorDefinition = {
                   kind: 'dealDamage',
                   parameters: {
                     damageType: 'heat',
-                    attackScale: { kind: 'valueNode', nodeId: 'data_15' },
+                    attackScale: { kind: 'valueNode', nodeId: 'data_7' },
                     tags: ['normalSkill'],
                   },
                   key: 'abilityentity_chr_0016_laevat_normal_skill:chr_0016_laevat_normal_skill_abilityentity:/childSkill/actionGraph/main/nodes/dealDamage_60/action',
@@ -6215,7 +6195,7 @@ export const laevatain: OperatorDefinition = {
                   kind: 'dealDamage',
                   parameters: {
                     damageType: 'heat',
-                    attackScale: { kind: 'valueNode', nodeId: 'data_16' },
+                    attackScale: { kind: 'valueNode', nodeId: 'data_7' },
                     tags: ['normalSkill'],
                   },
                   key: 'abilityentity_chr_0016_laevat_normal_skill:chr_0016_laevat_normal_skill_abilityentity:/childSkill/actionGraph/main/nodes/dealDamage_66/action',
@@ -6262,15 +6242,6 @@ export const laevatain: OperatorDefinition = {
                 },
               },
               data_7: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_2' } },
-              data_8: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_2' } },
-              data_9: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_2' } },
-              data_10: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_2' } },
-              data_11: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_2' } },
-              data_12: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_2' } },
-              data_13: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_2' } },
-              data_14: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_2' } },
-              data_15: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_2' } },
-              data_16: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_2' } },
             },
           },
           macros: {},

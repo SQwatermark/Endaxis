@@ -10,6 +10,7 @@ import type {
   TimeScaleCurveDefinition,
 } from '../intermediateDefinitions.ts';
 import type { AbilityEntityTargetQuery } from '../../../../../packages/game-data-contract/src/skills.ts';
+import { COMPILED_BUFF_TARGET_KINDS } from '../buffs/compiledBuffMetadata.ts';
 
 /**
  * 公共动作投影的输出子集，不是第二套游戏 schema。
@@ -157,29 +158,6 @@ type EntityTimeDilation = Omit<
 };
 
 type ContextTargetSource = Parameters<'mergeContextTargets'>['sources'][number];
-type BuffApplicationParameters = Omit<
-  Parameters<'applyBuff'>,
-  'definition' | 'durationSeconds' | 'effectiveness' | 'target' | 'source'
-> & {
-  readonly target:
-    | 'caster'
-    | 'actionInputTarget'
-    | 'enemy'
-    | 'currentAbilityEntity'
-    | 'eventTarget'
-    | 'eventSource'
-    | 'buffOwner'
-    | 'buffSource'
-    | 'controlledOperator'
-    | 'party'
-    | 'partyExceptCaster'
-    | 'partyExceptCasterAndSameCharacterType'
-    | 'casterAndControlledOperator'
-    | 'casterAndLowestHealthRatioOperatorExceptCaster'
-    | 'currentTarget';
-  readonly source?: 'enemy' | 'eventSource' | 'buffSource' | 'buffOwner' | 'currentAbilityEntity';
-};
-
 type DamageParameters = Pick<
   Parameters<'dealDamage'>,
   | 'damageType'
@@ -401,11 +379,27 @@ export type CompiledBuffStepSource =
         readonly sources: readonly ContextTargetSource[];
       }
     >
-  | (Step<'aura'> & {
+  | (Step<
+      'aura',
+      Parameters<'aura'> & {
+        readonly [COMPILED_BUFF_TARGET_KINDS]?: {
+          readonly target: string;
+          readonly source?: string;
+        };
+      }
+    > & {
       readonly onEnter: CompiledBuffSequenceSource;
       readonly onExit: CompiledBuffSequenceSource;
     })
-  | Step<'applyBuff', BuffApplicationParameters>
+  | Step<
+      'applyBuff',
+      Parameters<'applyBuff'> & {
+        readonly [COMPILED_BUFF_TARGET_KINDS]?: {
+          readonly target: string;
+          readonly source?: string;
+        };
+      }
+    >
   | Step<'createGlobalBuff'>
   | Step<'finishParentGlobalBuff'>
   | Step<'finishGlobalBuffsById'>
@@ -473,25 +467,10 @@ export type CompiledBuffStepSource =
   | CompiledSimpleDamageOperationSource
   | CompiledSimplePoiseOperationSource
   | Step<'heal', HealParameters>
-  | Step<
-      'finishBuffsById',
-      Parameters<'finishBuffsById'> & {
-        readonly target:
-          | 'buffOwner'
-          | 'buffSource'
-          | 'caster'
-          | 'enemy'
-          | 'currentAbilityEntity'
-          | 'currentTarget'
-          | 'party'
-          | 'partyExceptCaster';
-        readonly reason: 'early' | 'absorbed' | 'other';
-      }
-    >
+  | Step<'finishBuffsById'>
   | Step<'finishBuffsByTag'>
-  | Step<'createTimedMarker', Parameters<'createTimedMarker'> & { readonly target: MarkerTarget }>
+  | Step<'createTimedMarker'>
   | Step<'setGlobalCooldown'>
-  | Step<'createAbilityEntityTimedMarker'>
   | Step<'finishCurrentBuff'>
   | Step<'skillAffix'>
   | Step<'setCurrentBuffTimePaused'>;

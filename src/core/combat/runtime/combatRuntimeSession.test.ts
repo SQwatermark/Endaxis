@@ -252,7 +252,7 @@ function createFixture(
               kind: 'applyBuff',
               parameters: {
                 buffs: [{ buffId: 'switch-counter' }],
-                target: 'caster',
+                targets: { kind: 'fixed', target: 'caster' },
                 asChildBuff: true,
               },
             },

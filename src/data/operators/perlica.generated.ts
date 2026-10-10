@@ -33,31 +33,17 @@ export const perlicaChr_0004_pelica_attack1ActionGraph = {
                 },
                 blackboard: { atb: 0, atk_scale: 0 },
                 scheduledSequences: [
-                  { startFrame: 0, endFrame: 3, sequence: { $sequence: 'dealDamage_opt2' } },
+                  { startFrame: 0, endFrame: 3, sequence: { $sequence: 'dealDamage_5' } },
                 ],
                 actionGraph: {
                   main: {
                     nodes: {
-                      checkCondition_1: {
-                        action: {
-                          kind: 'checkCondition',
-                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-                        },
-                        next: null,
-                      },
-                      checkCondition_2: {
-                        action: {
-                          kind: 'checkCondition',
-                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-                        },
-                        next: 'checkCondition_1',
-                      },
                       changeResource_3: {
                         action: {
                           kind: 'changeResource',
                           parameters: {
                             resource: 'sp',
-                            amount: { kind: 'valueNode', nodeId: 'data_3' },
+                            amount: { kind: 'valueNode', nodeId: 'data_1' },
                             coefficient: { kind: 'constant', value: 1 },
                             source: { kind: 'source' },
                             targets: { kind: 'source' },
@@ -67,7 +53,21 @@ export const perlicaChr_0004_pelica_attack1ActionGraph = {
                         },
                         next: null,
                       },
-                      ifElse_opt1: {
+                      checkCondition_1: {
+                        action: {
+                          kind: 'checkCondition',
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
+                        },
+                        next: null,
+                      },
+                      checkCondition_2: {
+                        action: {
+                          kind: 'checkCondition',
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
+                        },
+                        next: 'checkCondition_1',
+                      },
+                      ifElse_4: {
                         action: {
                           kind: 'ifElse',
                           parameters: { alwaysNext: true },
@@ -77,7 +77,7 @@ export const perlicaChr_0004_pelica_attack1ActionGraph = {
                         },
                         next: null,
                       },
-                      dealDamage_opt2: {
+                      dealDamage_5: {
                         action: {
                           kind: 'dealDamage',
                           parameters: {
@@ -86,23 +86,23 @@ export const perlicaChr_0004_pelica_attack1ActionGraph = {
                             tags: ['normalAttack'],
                           },
                         },
-                        next: 'ifElse_opt1',
+                        next: 'ifElse_4',
                       },
                     },
                     dataNodes: {
-                      data_1: {
+                      data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+                      data_2: {
                         type: 'boolean',
                         expression: {
                           kind: 'entityCountCompare',
-                          target: { kind: 'inputTarget' },
+                          target: { kind: 'fixed', target: 'enemy' },
                           containsHittableTarget: false,
                           excludeDeadEntity: false,
                           operator: 'greaterOrEqual',
                           value: 1,
                         },
                       },
-                      data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
-                      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+                      data_3: { type: 'boolean', expression: { kind: 'casterControlled' } },
                       data_4: {
                         type: 'number',
                         expression: { kind: 'blackboard', key: 'atk_scale' },
@@ -191,24 +191,17 @@ export const perlicaChr_0004_pelica_attack2ActionGraph = {
                 },
                 blackboard: { atb: 0, atk_scale: 0 },
                 scheduledSequences: [
-                  { startFrame: 0, endFrame: 3, sequence: { $sequence: 'dealDamage_opt2' } },
+                  { startFrame: 0, endFrame: 3, sequence: { $sequence: 'dealDamage_4' } },
                 ],
                 actionGraph: {
                   main: {
                     nodes: {
-                      checkCondition_1: {
-                        action: {
-                          kind: 'checkCondition',
-                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-                        },
-                        next: null,
-                      },
                       changeResource_2: {
                         action: {
                           kind: 'changeResource',
                           parameters: {
                             resource: 'sp',
-                            amount: { kind: 'valueNode', nodeId: 'data_2' },
+                            amount: { kind: 'valueNode', nodeId: 'data_1' },
                             coefficient: { kind: 'constant', value: 0.3333333 },
                             source: { kind: 'source' },
                             targets: { kind: 'source' },
@@ -218,7 +211,14 @@ export const perlicaChr_0004_pelica_attack2ActionGraph = {
                         },
                         next: null,
                       },
-                      ifElse_opt1: {
+                      checkCondition_1: {
+                        action: {
+                          kind: 'checkCondition',
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
+                        },
+                        next: null,
+                      },
+                      ifElse_3: {
                         action: {
                           kind: 'ifElse',
                           parameters: { alwaysNext: true },
@@ -228,7 +228,7 @@ export const perlicaChr_0004_pelica_attack2ActionGraph = {
                         },
                         next: null,
                       },
-                      dealDamage_opt2: {
+                      dealDamage_4: {
                         action: {
                           kind: 'dealDamage',
                           parameters: {
@@ -237,12 +237,12 @@ export const perlicaChr_0004_pelica_attack2ActionGraph = {
                             tags: ['normalAttack'],
                           },
                         },
-                        next: 'ifElse_opt1',
+                        next: 'ifElse_3',
                       },
                     },
                     dataNodes: {
-                      data_1: { type: 'boolean', expression: { kind: 'casterControlled' } },
-                      data_2: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+                      data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+                      data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
                       data_3: {
                         type: 'number',
                         expression: { kind: 'blackboard', key: 'atk_scale' },
@@ -332,31 +332,17 @@ export const perlicaChr_0004_pelica_attack3ActionGraph = {
                 },
                 blackboard: {},
                 scheduledSequences: [
-                  { startFrame: 0, endFrame: 3, sequence: { $sequence: 'dealDamage_opt2' } },
+                  { startFrame: 0, endFrame: 3, sequence: { $sequence: 'dealDamage_5' } },
                 ],
                 actionGraph: {
                   main: {
                     nodes: {
-                      checkCondition_1: {
-                        action: {
-                          kind: 'checkCondition',
-                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-                        },
-                        next: null,
-                      },
-                      checkCondition_2: {
-                        action: {
-                          kind: 'checkCondition',
-                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-                        },
-                        next: 'checkCondition_1',
-                      },
                       changeResource_3: {
                         action: {
                           kind: 'changeResource',
                           parameters: {
                             resource: 'sp',
-                            amount: { kind: 'valueNode', nodeId: 'data_3' },
+                            amount: { kind: 'valueNode', nodeId: 'data_1' },
                             coefficient: { kind: 'constant', value: 1 },
                             source: { kind: 'source' },
                             targets: { kind: 'source' },
@@ -366,7 +352,21 @@ export const perlicaChr_0004_pelica_attack3ActionGraph = {
                         },
                         next: null,
                       },
-                      ifElse_opt1: {
+                      checkCondition_1: {
+                        action: {
+                          kind: 'checkCondition',
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
+                        },
+                        next: null,
+                      },
+                      checkCondition_2: {
+                        action: {
+                          kind: 'checkCondition',
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
+                        },
+                        next: 'checkCondition_1',
+                      },
+                      ifElse_4: {
                         action: {
                           kind: 'ifElse',
                           parameters: { alwaysNext: true },
@@ -376,7 +376,7 @@ export const perlicaChr_0004_pelica_attack3ActionGraph = {
                         },
                         next: null,
                       },
-                      dealDamage_opt2: {
+                      dealDamage_5: {
                         action: {
                           kind: 'dealDamage',
                           parameters: {
@@ -385,23 +385,23 @@ export const perlicaChr_0004_pelica_attack3ActionGraph = {
                             tags: ['normalAttack'],
                           },
                         },
-                        next: 'ifElse_opt1',
+                        next: 'ifElse_4',
                       },
                     },
                     dataNodes: {
-                      data_1: {
+                      data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+                      data_2: {
                         type: 'boolean',
                         expression: {
                           kind: 'entityCountCompare',
-                          target: { kind: 'inputTarget' },
+                          target: { kind: 'fixed', target: 'enemy' },
                           containsHittableTarget: false,
                           excludeDeadEntity: false,
                           operator: 'greaterOrEqual',
                           value: 1,
                         },
                       },
-                      data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
-                      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+                      data_3: { type: 'boolean', expression: { kind: 'casterControlled' } },
                       data_4: {
                         type: 'number',
                         expression: { kind: 'blackboard', key: 'atk_scale' },
@@ -492,31 +492,17 @@ export const perlicaChr_0004_pelica_attack4ActionGraph = {
                 },
                 blackboard: {},
                 scheduledSequences: [
-                  { startFrame: 0, endFrame: 3, sequence: { $sequence: 'dealDamage_opt2' } },
+                  { startFrame: 0, endFrame: 3, sequence: { $sequence: 'dealDamage_5' } },
                 ],
                 actionGraph: {
                   main: {
                     nodes: {
-                      checkCondition_1: {
-                        action: {
-                          kind: 'checkCondition',
-                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-                        },
-                        next: null,
-                      },
-                      checkCondition_2: {
-                        action: {
-                          kind: 'checkCondition',
-                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-                        },
-                        next: 'checkCondition_1',
-                      },
                       changeResource_3: {
                         action: {
                           kind: 'changeResource',
                           parameters: {
                             resource: 'sp',
-                            amount: { kind: 'valueNode', nodeId: 'data_3' },
+                            amount: { kind: 'valueNode', nodeId: 'data_1' },
                             coefficient: { kind: 'constant', value: 1 },
                             source: { kind: 'source' },
                             targets: { kind: 'source' },
@@ -526,7 +512,21 @@ export const perlicaChr_0004_pelica_attack4ActionGraph = {
                         },
                         next: null,
                       },
-                      ifElse_opt1: {
+                      checkCondition_1: {
+                        action: {
+                          kind: 'checkCondition',
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
+                        },
+                        next: null,
+                      },
+                      checkCondition_2: {
+                        action: {
+                          kind: 'checkCondition',
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
+                        },
+                        next: 'checkCondition_1',
+                      },
+                      ifElse_4: {
                         action: {
                           kind: 'ifElse',
                           parameters: { alwaysNext: true },
@@ -536,7 +536,7 @@ export const perlicaChr_0004_pelica_attack4ActionGraph = {
                         },
                         next: null,
                       },
-                      dealDamage_opt2: {
+                      dealDamage_5: {
                         action: {
                           kind: 'dealDamage',
                           parameters: {
@@ -547,23 +547,23 @@ export const perlicaChr_0004_pelica_attack4ActionGraph = {
                             staggerOnlyWhenCasterControlled: true,
                           },
                         },
-                        next: 'ifElse_opt1',
+                        next: 'ifElse_4',
                       },
                     },
                     dataNodes: {
-                      data_1: {
+                      data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+                      data_2: {
                         type: 'boolean',
                         expression: {
                           kind: 'entityCountCompare',
-                          target: { kind: 'inputTarget' },
+                          target: { kind: 'fixed', target: 'enemy' },
                           containsHittableTarget: false,
                           excludeDeadEntity: false,
                           operator: 'greaterOrEqual',
                           value: 1,
                         },
                       },
-                      data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
-                      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+                      data_3: { type: 'boolean', expression: { kind: 'casterControlled' } },
                       data_4: {
                         type: 'number',
                         expression: { kind: 'blackboard', key: 'atk_scale' },
@@ -708,7 +708,8 @@ export const perlicaChr_0004_pelica_power_attackActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_full_immune_medium' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -720,7 +721,8 @@ export const perlicaChr_0004_pelica_power_attackActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_power_attack_disable_cast_skill' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -971,7 +973,7 @@ export const perlicaChr_0004_pelica_normal_skillActionGraph = {
         type: 'boolean',
         expression: {
           kind: 'targetDistance',
-          source: { kind: 'inputTarget' },
+          source: { kind: 'fixed', target: 'enemy' },
           target: { kind: 'mainCharacter' },
           distance: 4,
           lessThan: true,
@@ -1052,11 +1054,29 @@ export const perlicaChr_0004_pelica_combo_skillActionGraph = {
                   usp: 0,
                 },
                 scheduledSequences: [
-                  { startFrame: 0, endFrame: 3, sequence: { $sequence: 'ifElse_opt5' } },
+                  { startFrame: 0, endFrame: 3, sequence: { $sequence: 'ifElse_10' } },
                 ],
                 actionGraph: {
                   main: {
                     nodes: {
+                      mergeContextTargets_4: {
+                        action: {
+                          kind: 'mergeContextTargets',
+                          parameters: { saveToContextKey: 'extra_target', sources: [] },
+                        },
+                        next: null,
+                      },
+                      modifyActionValue_5: {
+                        action: {
+                          kind: 'modifyActionValue',
+                          parameters: {
+                            key: 'EntityBB_bounced',
+                            operation: 'assign',
+                            value: { kind: 'constant', value: 1 },
+                          },
+                        },
+                        next: 'mergeContextTargets_4',
+                      },
                       checkCondition_1: {
                         action: {
                           kind: 'checkCondition',
@@ -1078,25 +1098,7 @@ export const perlicaChr_0004_pelica_combo_skillActionGraph = {
                         },
                         next: 'checkCondition_2',
                       },
-                      mergeContextTargets_4: {
-                        action: {
-                          kind: 'mergeContextTargets',
-                          parameters: { saveToContextKey: 'extra_target', sources: [] },
-                        },
-                        next: null,
-                      },
-                      modifyActionValue_5: {
-                        action: {
-                          kind: 'modifyActionValue',
-                          parameters: {
-                            key: 'EntityBB_bounced',
-                            operation: 'assign',
-                            value: { kind: 'constant', value: 1 },
-                          },
-                        },
-                        next: 'mergeContextTargets_4',
-                      },
-                      changeResource_opt1: {
+                      changeResource_6: {
                         action: {
                           kind: 'changeResource',
                           parameters: {
@@ -1109,14 +1111,14 @@ export const perlicaChr_0004_pelica_combo_skillActionGraph = {
                         },
                         next: null,
                       },
-                      checkCondition_opt2: {
+                      checkCondition_7: {
                         action: {
                           kind: 'checkCondition',
                           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_7' } },
                         },
-                        next: 'changeResource_opt1',
+                        next: 'changeResource_6',
                       },
-                      dealDamage_opt3: {
+                      dealDamage_8: {
                         action: {
                           kind: 'dealDamage',
                           parameters: {
@@ -1127,9 +1129,9 @@ export const perlicaChr_0004_pelica_combo_skillActionGraph = {
                             stagger: { kind: 'valueNode', nodeId: 'data_9' },
                           },
                         },
-                        next: 'checkCondition_opt2',
+                        next: 'checkCondition_7',
                       },
-                      applyBuff_opt4: {
+                      applyBuff_9: {
                         action: {
                           kind: 'applyBuff',
                           parameters: {
@@ -1142,13 +1144,14 @@ export const perlicaChr_0004_pelica_combo_skillActionGraph = {
                                 },
                               },
                             ],
-                            target: 'enemy',
+                            targets: { kind: 'fixed', target: 'enemy' },
+                            source: { kind: 'source' },
                             inheritSourceSkillCastInfo: true,
                           },
                         },
-                        next: 'dealDamage_opt3',
+                        next: 'dealDamage_8',
                       },
-                      ifElse_opt5: {
+                      ifElse_10: {
                         action: {
                           kind: 'ifElse',
                           parameters: { alwaysNext: true },
@@ -1156,7 +1159,7 @@ export const perlicaChr_0004_pelica_combo_skillActionGraph = {
                           whenTrue: { $sequence: 'modifyActionValue_5' },
                           whenFalse: { $sequence: null },
                         },
-                        next: 'applyBuff_opt4',
+                        next: 'applyBuff_9',
                       },
                     },
                     dataNodes: {
@@ -1200,7 +1203,7 @@ export const perlicaChr_0004_pelica_combo_skillActionGraph = {
                         type: 'boolean',
                         expression: {
                           kind: 'entityCountCompare',
-                          target: { kind: 'inputTarget' },
+                          target: { kind: 'fixed', target: 'enemy' },
                           containsHittableTarget: false,
                           excludeDeadEntity: false,
                           operator: 'greaterOrEqual',
@@ -1317,7 +1320,8 @@ export const perlicaChr_0004_pelica_ultimate_skillActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_damage_immune_ult_skill' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -1481,8 +1485,8 @@ const perlicaBuff1ActionGraph = {
                 copiedBlackboardAssignments: { atk_up: 'atk_up', atk_duration: 'atk_duration' },
               },
             ],
-            target: 'buffOwner',
-            source: 'buffSource',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },

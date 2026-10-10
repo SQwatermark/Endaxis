@@ -1,6 +1,5 @@
 import { projectActionTargetQuery } from '../conditions/combatConditionProjection.ts';
 import {
-  isDynamicSingleEnemySmartTargetGroup,
   isPartyHitBoxTargetGroup,
   isDynamicSingleEnemyTagTargetGroup,
   projectGameplayTags,
@@ -466,7 +465,10 @@ export function compileBuffLeafNode(
         steps: [
           {
             kind: 'setAbilityEntityRemainingDuration',
-            parameters: { value: actionValueOperand(action.value) },
+            parameters: {
+              target: { kind: 'inputTarget' },
+              value: actionValueOperand(action.value),
+            },
           },
         ],
         state: partyTargetGroups,
@@ -487,14 +489,11 @@ export function compileBuffLeafNode(
     return {
       steps: [
         {
-          kind: 'forEachContextTarget',
-          parameters: { targets: { kind: 'context', key: action.targetContextKey } },
-          body: context.graph.sequence([
-            {
-              kind: 'setAbilityEntityRemainingDuration',
-              parameters: { value: actionValueOperand(action.value) },
-            },
-          ]),
+          kind: 'setAbilityEntityRemainingDuration',
+          parameters: {
+            target: { kind: 'context', key: action.targetContextKey },
+            value: actionValueOperand(action.value),
+          },
         },
       ],
       state: partyTargetGroups,
@@ -1481,65 +1480,31 @@ export function compileBuffLeafNode(
         state: nextGroups,
       };
     }
-    if (context.actionTargetTarget === 'enemy' && isDynamicSingleEnemySmartTargetGroup(write)) {
-      const selection = write.smartTargetSelection!;
+    if (
+      context.actionSourceTarget === 'caster' &&
+      (context.fixedBuffOwnerTarget === 'caster' ||
+        context.actionOwnerTarget === 'caster' ||
+        context.actionOwnerTarget === 'currentAbilityEntity') &&
+      isZeroSpaceSingleEnemySmartTargetGroup(write)
+    ) {
+      // 智能选择未命中仍回退主目标。零空间单敌人下两条路径等价，但必须保留
+      // FindTargetAction 的宿主检查和结果覆盖，不能改成 Buff 条件或抹掉查询。
+      const owner = { kind: write.selectorOwner === 'ActionOwner' ? 'owner' : 'source' } as const;
       const nextGroups = new Map(partyTargetGroups);
       nextGroups.set(write.targetGroupKey, 'dynamicEnemy');
-      const mergeEnemy = {
-        kind: 'mergeContextTargets' as const,
-        parameters: {
-          saveToContextKey: write.targetGroupKey,
-          sources: [{ kind: 'target' as const, target: 'enemy' as const }],
-        },
-      };
-      const clearGroup = {
-        kind: 'mergeContextTargets' as const,
-        parameters: { saveToContextKey: write.targetGroupKey, sources: [] },
-      };
       return {
         steps: [
           {
-            kind: 'conditional',
+            kind: 'findTargets',
             parameters: {
-              condition: {
-                kind: 'buffIdStackCompare',
-                target: 'enemy',
-                buffIds: [selection.buffIds[0]!],
-                operator: 'greaterOrEqual',
-                value: { kind: 'constant', value: 1 },
-              },
+              owner,
+              query: { kind: 'mainTarget', owner },
+              saveToContextKey: write.targetGroupKey,
             },
-            whenTrue: context.graph.sequence([mergeEnemy]),
-            whenFalse: context.graph.sequence([clearGroup]),
           },
         ],
         state: nextGroups,
       };
-    }
-    if (
-      context.fixedBuffOwnerTarget === 'caster' &&
-      write.producerType === 'FindTargetAction' &&
-      write.finderType === 'SmartTargetFinder' &&
-      write.validatorTypes.length === 0 &&
-      write.postProcessorTypes.length === 0 &&
-      write.priorityFilters.length === 0 &&
-      write.shuffleTargets.length === 0 &&
-      write.distanceValidators.length === 0 &&
-      write.center === 'ActionSource' &&
-      write.centerContextKey === '' &&
-      write.selectorOwner === 'ActionOwner' &&
-      write.selectorOwnerContextKey === '' &&
-      write.smartTargetSelection?.strategy === 'SelectByBuff' &&
-      write.smartTargetSelection.buffIds.length === 1 &&
-      !write.smartTargetSelection.useCustomRange &&
-      write.smartTargetSelection.range.blackboardKey === '' &&
-      write.smartTargetSelection.limitFallbackRange
-    ) {
-      // 该形状优先选择带指定 Buff 的敌人，找不到时按 fallback 范围选敌人。固定模型只有一个
-      // 敌人且所有距离为 0，因此 range=0 的受限 fallback 仍必然回到同一木桩。
-      const nextGroups = new Map(partyTargetGroups);
-      nextGroups.set(write.targetGroupKey, 'enemy');
-      return { steps: [], state: nextGroups };
     }
     if (queryInputs !== undefined && write.finderType === 'OwnerSpawnedEntityFinder') {
       const ownerEnvironmentSupported =
@@ -1917,7 +1882,7 @@ export function compileBuffLeafNode(
             ? 'spatialPoint'
             : source.kind === 'mainCharacter'
               ? 'controlledOperator'
-              : source.kind === 'inputTarget' && context.actionTargetTarget === 'enemy'
+              : source.kind === 'fixed' && source.target === 'enemy'
                 ? 'dynamicEnemy'
                 : undefined;
       if (group !== undefined) nextGroups.set(write.targetGroupKey, group);
@@ -2123,17 +2088,6 @@ export function compileBuffLeafNode(
       };
     }
     if (
-      context.actionSourceTarget === 'caster' &&
-      (context.fixedBuffOwnerTarget === 'caster' ||
-        context.actionOwnerTarget === 'caster' ||
-        context.actionOwnerTarget === 'currentAbilityEntity') &&
-      isZeroSpaceSingleEnemySmartTargetGroup(write)
-    ) {
-      const nextGroups = new Map(partyTargetGroups);
-      nextGroups.set(write.targetGroupKey, 'enemy');
-      return { steps: [], state: nextGroups };
-    }
-    if (
       ((isStaticSingleEnemyTargetGroup(write) ||
         isCurrentTargetRestrictedSingleEnemyTargetGroup(write)) &&
         (context.actionTargetTarget === 'enemy' ||
@@ -2265,7 +2219,26 @@ export function compileBuffLeafNode(
     ) {
       const nextGroups = new Map(partyTargetGroups);
       nextGroups.set(write.targetGroupKey, partyKind);
-      return { steps: [], state: nextGroups };
+      const owner = {
+        kind: write.selectorOwner === 'ActionSource' ? ('source' as const) : ('owner' as const),
+      };
+      return {
+        steps: [
+          {
+            kind: 'findTargets',
+            parameters: {
+              owner,
+              query: {
+                kind: 'characterTeam',
+                excludeOwner: partyKind === 'partyExceptCaster',
+                owner,
+              },
+              saveToContextKey: write.targetGroupKey,
+            },
+          },
+        ],
+        state: nextGroups,
+      };
     }
     if (context.actionTargetTarget === 'currentAbilityEntity')
       throw new Error(`${node.sourcePath}: unaudited AbilityEntity target group`);

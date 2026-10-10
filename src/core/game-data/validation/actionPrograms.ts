@@ -3,10 +3,7 @@ import { validateTimeScaleCurve } from './timeScaleCurve.ts';
  * 动作程序的严格结构校验。序列、内联能力实体和子技能互相递归，保留同一校验入口；
  * 条件和值规则独立复用，Buff 安装校验通过回调继续检查嵌套程序。
  */
-import {
-  BUFF_TAG_FINISH_TARGETS,
-  DIRECT_COMBAT_EVENT_TRIGGER_EVENTS,
-} from '../../../../packages/game-data-contract/src/actions';
+import { DIRECT_COMBAT_EVENT_TRIGGER_EVENTS } from '../../../../packages/game-data-contract/src/actions';
 import {
   ACTION_VALUE_CALCULATION_OPERATIONS,
   ACTION_VALUE_OPERATIONS,
@@ -37,7 +34,6 @@ import {
   DAMAGE_TAGS_SET,
   INFLICTION_ELEMENTS_SET,
   COMBAT_TARGETS_SET,
-  TIMED_MARKER_TARGETS_SET,
   OPERATOR_ATTRIBUTES_SET,
   PHYSICAL_INFLICTION_TYPES_SET,
   SKILL_TYPES_SET,
@@ -727,8 +723,8 @@ function validateCombatStep(
       if (!currentTargetAvailable) push(out, path, 'requires a forEachContextTarget body');
       break;
     case 'setAbilityEntityRemainingDuration':
+      validateTargetQuery(parameters.target, `${path}.parameters.target`, out);
       validateActionValueOperand(parameters.value, `${path}.parameters.value`, out);
-      if (!currentTargetAvailable) push(out, path, 'requires a forEachContextTarget body');
       break;
     case 'finishCurrentAbilityEntityWhenSourceDies':
       if (!currentTargetAvailable) push(out, path, 'requires a forEachContextTarget body');
@@ -1170,7 +1166,7 @@ function validateCombatStep(
       validateGameplayTags(parameters.tags, `${path}.parameters.tags`, out, true);
       break;
     case 'aura': {
-      validateBuffApplication(parameters, path, out, currentTargetAvailable, true);
+      validateBuffApplication(parameters, path, out, 'aura');
       requireEnum(
         parameters,
         'target',
@@ -1181,7 +1177,7 @@ function validateCombatStep(
       break;
     }
     case 'applyBuff': {
-      validateBuffApplication(parameters, path, out, currentTargetAvailable);
+      validateBuffApplication(parameters, path, out);
       break;
     }
     case 'createGlobalBuff': {
@@ -1523,13 +1519,8 @@ function validateCombatStep(
       break;
     }
     case 'finishBuffsByTag':
-      requireEnum(
-        parameters,
-        'target',
-        new Set(BUFF_TAG_FINISH_TARGETS),
-        `${path}.parameters`,
-        out,
-      );
+      validateTargetQuery(parameters.targets, `${path}.parameters.targets`, out);
+      validateTargetQuery(parameters.finishSource, `${path}.parameters.finishSource`, out);
       requireEnum(parameters, 'tagQueryType', TAG_QUERY_TYPES_SET, `${path}.parameters`, out);
       validateGameplayTags(parameters.buffTags, `${path}.parameters.buffTags`, out);
       requireEnum(parameters, 'reason', BUFF_FINISH_REASONS_SET, `${path}.parameters`, out);
@@ -1538,13 +1529,8 @@ function validateCombatStep(
       }
       break;
     case 'finishBuffsById':
-      requireEnum(
-        parameters,
-        'target',
-        new Set(BUFF_APPLICATION_TARGETS),
-        `${path}.parameters`,
-        out,
-      );
+      validateTargetQuery(parameters.targets, `${path}.parameters.targets`, out);
+      validateTargetQuery(parameters.finishSource, `${path}.parameters.finishSource`, out);
       validateNonEmptyStringArray(parameters.buffIds, `${path}.parameters.buffIds`, out);
       requireEnum(parameters, 'reason', BUFF_FINISH_REASONS_SET, `${path}.parameters`, out);
       if (parameters.count !== undefined) {
@@ -1655,7 +1641,7 @@ function validateCombatStep(
       );
       break;
     case 'createTimedMarker':
-      requireEnum(parameters, 'target', TIMED_MARKER_TARGETS_SET, `${path}.parameters`, out);
+      validateTargetQuery(parameters.targets, `${path}.parameters.targets`, out);
       validateActionStringOperand(parameters.markerId, `${path}.parameters.markerId`, out);
       validateActionValueOperand(
         parameters.durationSeconds,
@@ -1663,18 +1649,13 @@ function validateCombatStep(
         out,
       );
       requireBoolean(parameters, 'autoFinishByAction', `${path}.parameters`, out);
-      if (parameters.timeDomain !== undefined)
-        requireEnum(parameters, 'timeDomain', new Set(['globalScaled']), `${path}.parameters`, out);
-      break;
-    case 'createAbilityEntityTimedMarker':
-      validateActionStringOperand(parameters.markerId, `${path}.parameters.markerId`, out);
-      validateActionValueOperand(
-        parameters.durationSeconds,
-        `${path}.parameters.durationSeconds`,
+      requireEnum(
+        parameters,
+        'timeDomain',
+        new Set(['globalScaled', 'self']),
+        `${path}.parameters`,
         out,
       );
-      requireBoolean(parameters, 'autoFinishByAction', `${path}.parameters`, out);
-      requireEnum(parameters, 'timeDomain', new Set(['global', 'self']), `${path}.parameters`, out);
       break;
     case 'startTimeDilation': {
       const parameterPath = `${path}.parameters`;
@@ -2080,6 +2061,8 @@ function validateCombatStep(
       validateActionValueOperand(parameters.count, `${path}.parameters.count`, out);
       break;
     case 'launchProjectile': {
+      if (parameters.onlyHitTargets !== undefined)
+        validateTargetQuery(parameters.onlyHitTargets, `${path}.parameters.onlyHitTargets`, out);
       requireBoolean(parameters, 'inheritActionBlackboard', `${path}.parameters`, out);
       validateEntityBlackboardInputs(parameters, path, out);
       if (parameters.targets !== undefined) {
@@ -2710,7 +2693,6 @@ export function validateActionGraphContexts(
         const parameters = lenientRecord(action.parameters);
         switch (action.kind) {
           case 'readAbilityEntityRemainingDuration':
-          case 'setAbilityEntityRemainingDuration':
           case 'finishCurrentAbilityEntityWhenSourceDies':
           case 'startCurrentAbilityEntityChildSkill':
           case 'startCurrentAbilityEntityChildSkillById':
@@ -2719,22 +2701,6 @@ export function validateActionGraphContexts(
           case 'spawnAbilityEntity':
             if (!context.currentTarget && parameters?.target === 'currentAbilityEntity')
               push(out, nodePath, 'requires a forEachContextTarget body');
-            break;
-          case 'applyBuff':
-            if (!context.currentTarget && parameters !== null) {
-              if (parameters.target === 'currentAbilityEntity')
-                push(
-                  out,
-                  nodePath,
-                  'currentAbilityEntity target requires a forEachContextTarget body',
-                );
-              if (parameters.source === 'currentAbilityEntity')
-                push(
-                  out,
-                  nodePath,
-                  'currentAbilityEntity source requires a forEachContextTarget body',
-                );
-            }
             break;
         }
         // 子入口按所属种类的上下文规则递归；同级 next 不继承 forEach 的实体上下文。

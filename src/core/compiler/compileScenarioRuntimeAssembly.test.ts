@@ -814,7 +814,7 @@ describe('compileScenarioRuntimeAssembly', () => {
             init: {
               action: {
                 kind: 'applyBuff',
-                parameters: { buffs: [{ buffId: 'buff.runtime-set' }], target: 'caster' },
+                parameters: { buffs: [{ buffId: 'buff.runtime-set' }], targets: { kind: 'fixed', target: 'caster' } },
               },
               next: null,
             },

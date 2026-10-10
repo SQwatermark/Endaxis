@@ -1153,7 +1153,7 @@ describe('SkillRuntime', () => {
           steps: [
             {
               kind: 'applyBuff',
-              parameters: { buffs: [{ buffId: 'end-signal' }], target: 'caster' },
+              parameters: { buffs: [{ buffId: 'end-signal' }], targets: { kind: 'fixed', target: 'caster' } },
             },
           ],
         },

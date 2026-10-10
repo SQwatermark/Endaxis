@@ -549,7 +549,7 @@ export const arclightChr_0007_ikut_power_attackActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'physical',
-            attackScale: { kind: 'valueNode', nodeId: 'data_2' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_1' },
             calculation: 'breakingAttack',
             calculationMultiplier: 0.9,
             tags: ['normalAttack', 'powerAttack'],
@@ -577,7 +577,8 @@ export const arclightChr_0007_ikut_power_attackActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_full_immune_medium' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -589,7 +590,8 @@ export const arclightChr_0007_ikut_power_attackActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_power_attack_disable_cast_skill' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -597,10 +599,7 @@ export const arclightChr_0007_ikut_power_attackActionGraph = {
         next: null,
       },
     },
-    dataNodes: {
-      data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_2: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-    },
+    dataNodes: { data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } } },
   },
   macros: {},
 } as const satisfies ActionGraphResourceDefinition;
@@ -767,10 +766,10 @@ export const arclightChr_0007_ikut_normal_skillActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'physical',
-            attackScale: { kind: 'valueNode', nodeId: 'data_2' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_1' },
             tags: ['normalSkill'],
             features: ['canBreakWeakness'],
-            stagger: { kind: 'valueNode', nodeId: 'data_3' },
+            stagger: { kind: 'valueNode', nodeId: 'data_2' },
           },
         },
         next: 'startTimeDilation_4',
@@ -780,10 +779,10 @@ export const arclightChr_0007_ikut_normal_skillActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'physical',
-            attackScale: { kind: 'valueNode', nodeId: 'data_4' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_1' },
             tags: ['normalSkill'],
             features: ['canBreakWeakness'],
-            stagger: { kind: 'valueNode', nodeId: 'data_5' },
+            stagger: { kind: 'valueNode', nodeId: 'data_2' },
           },
         },
         next: 'startTimeDilation_1',
@@ -793,7 +792,8 @@ export const arclightChr_0007_ikut_normal_skillActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_obtain_ultimate_sp' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -804,7 +804,7 @@ export const arclightChr_0007_ikut_normal_skillActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'physical',
-            attackScale: { kind: 'valueNode', nodeId: 'data_6' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_1' },
             tags: ['normalSkill'],
             features: ['canBreakWeakness'],
           },
@@ -816,10 +816,10 @@ export const arclightChr_0007_ikut_normal_skillActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'physical',
-            attackScale: { kind: 'valueNode', nodeId: 'data_7' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_1' },
             tags: ['normalSkill'],
             features: ['canBreakWeakness'],
-            stagger: { kind: 'valueNode', nodeId: 'data_8' },
+            stagger: { kind: 'valueNode', nodeId: 'data_3' },
           },
         },
         next: 'dealDamage_21',
@@ -838,7 +838,8 @@ export const arclightChr_0007_ikut_normal_skillActionGraph = {
                 },
               },
             ],
-            target: 'caster',
+            targets: { kind: 'source' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -847,7 +848,7 @@ export const arclightChr_0007_ikut_normal_skillActionGraph = {
       checkCondition_10: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_10' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
         },
         next: null,
       },
@@ -855,7 +856,8 @@ export const arclightChr_0007_ikut_normal_skillActionGraph = {
         action: {
           kind: 'finishBuffsByTag',
           parameters: {
-            target: 'enemy',
+            targets: { kind: 'fixed', target: 'enemy' },
+            finishSource: { kind: 'source' },
             tagQueryType: 'hasAny',
             buffTags: ['Skill/Character/Common/SpellStatus/Conduct'],
             reason: 'early',
@@ -872,7 +874,7 @@ export const arclightChr_0007_ikut_normal_skillActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'physical',
-            attackScale: { kind: 'valueNode', nodeId: 'data_11' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_1' },
             tags: ['normalSkill'],
             features: ['canBreakWeakness'],
           },
@@ -895,10 +897,10 @@ export const arclightChr_0007_ikut_normal_skillActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'electric',
-            attackScale: { kind: 'valueNode', nodeId: 'data_12' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_6' },
             tags: ['normalSkill'],
             features: ['canBreakWeakness'],
-            stagger: { kind: 'valueNode', nodeId: 'data_13' },
+            stagger: { kind: 'valueNode', nodeId: 'data_3' },
           },
         },
         next: 'modifyActionValue_16',
@@ -908,7 +910,7 @@ export const arclightChr_0007_ikut_normal_skillActionGraph = {
           kind: 'changeResource',
           parameters: {
             resource: 'sp',
-            amount: { kind: 'valueNode', nodeId: 'data_14' },
+            amount: { kind: 'valueNode', nodeId: 'data_7' },
             coefficient: { kind: 'constant', value: 1 },
             source: { kind: 'source' },
             targets: { kind: 'source' },
@@ -931,7 +933,7 @@ export const arclightChr_0007_ikut_normal_skillActionGraph = {
       checkCondition_12: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_15' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_8' } },
         },
         next: null,
       },
@@ -1022,7 +1024,7 @@ export const arclightChr_0007_ikut_normal_skillActionGraph = {
       checkCondition_25: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_17' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_10' } },
         },
         next: null,
       },
@@ -1064,7 +1066,7 @@ export const arclightChr_0007_ikut_normal_skillActionGraph = {
       checkCondition_32: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_19' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_12' } },
         },
         next: null,
       },
@@ -1087,7 +1089,7 @@ export const arclightChr_0007_ikut_normal_skillActionGraph = {
       checkCondition_38: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_20' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_13' } },
         },
         next: null,
       },
@@ -1104,7 +1106,7 @@ export const arclightChr_0007_ikut_normal_skillActionGraph = {
       checkCondition_39: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_21' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_14' } },
         },
         next: null,
       },
@@ -1131,7 +1133,7 @@ export const arclightChr_0007_ikut_normal_skillActionGraph = {
       checkCondition_43: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_22' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_15' } },
         },
         next: null,
       },
@@ -1158,28 +1160,21 @@ export const arclightChr_0007_ikut_normal_skillActionGraph = {
     },
     dataNodes: {
       data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_2: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'poise1' } },
-      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_5: { type: 'number', expression: { kind: 'blackboard', key: 'poise1' } },
-      data_6: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_7: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_8: { type: 'number', expression: { kind: 'blackboard', key: 'poise2' } },
-      data_9: { type: 'number', expression: { kind: 'blackboard', key: 'talent_1', fallback: 0 } },
-      data_10: {
+      data_2: { type: 'number', expression: { kind: 'blackboard', key: 'poise1' } },
+      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'poise2' } },
+      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'talent_1', fallback: 0 } },
+      data_5: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_9' },
+          left: { kind: 'valueNode', nodeId: 'data_4' },
           operator: 'greater',
           right: { kind: 'constant', value: 0 },
         },
       },
-      data_11: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_12: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale2' } },
-      data_13: { type: 'number', expression: { kind: 'blackboard', key: 'poise2' } },
-      data_14: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
-      data_15: {
+      data_6: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale2' } },
+      data_7: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+      data_8: {
         type: 'boolean',
         expression: {
           kind: 'entityTagMatch',
@@ -1188,30 +1183,30 @@ export const arclightChr_0007_ikut_normal_skillActionGraph = {
           tags: ['Skill/Character/Common/SpellStatus/Conduct'],
         },
       },
-      data_16: { type: 'number', expression: { kind: 'blackboard', key: 'thirdhit', fallback: 0 } },
-      data_17: {
+      data_9: { type: 'number', expression: { kind: 'blackboard', key: 'thirdhit', fallback: 0 } },
+      data_10: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_16' },
+          left: { kind: 'valueNode', nodeId: 'data_9' },
           operator: 'equal',
           right: { kind: 'constant', value: 1 },
         },
       },
-      data_18: {
+      data_11: {
         type: 'number',
         expression: { kind: 'blackboard', key: 'SpawnThird', fallback: 0 },
       },
-      data_19: {
+      data_12: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_18' },
+          left: { kind: 'valueNode', nodeId: 'data_11' },
           operator: 'equal',
           right: { kind: 'constant', value: 1 },
         },
       },
-      data_20: {
+      data_13: {
         type: 'boolean',
         expression: {
           kind: 'targetDistance',
@@ -1223,7 +1218,7 @@ export const arclightChr_0007_ikut_normal_skillActionGraph = {
           containsHittableObject: false,
         },
       },
-      data_21: {
+      data_14: {
         type: 'boolean',
         expression: {
           kind: 'targetDistance',
@@ -1235,7 +1230,7 @@ export const arclightChr_0007_ikut_normal_skillActionGraph = {
           containsHittableObject: false,
         },
       },
-      data_22: { type: 'boolean', expression: { kind: 'casterControlled' } },
+      data_15: { type: 'boolean', expression: { kind: 'casterControlled' } },
     },
   },
   macros: {},
@@ -1325,7 +1320,8 @@ export const arclightChr_0007_ikut_ultimate_skillActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_damage_immune_ult_skill' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -1448,7 +1444,8 @@ export const arclightChr_0007_ikut_combo_skillActionGraph = {
         action: {
           kind: 'finishBuffsById',
           parameters: {
-            target: 'caster',
+            targets: { kind: 'source' },
+            finishSource: { kind: 'source' },
             buffIds: ['buff_chr_0007_ikut_combo_skill_counts'],
             reason: 'other',
           },
@@ -1531,7 +1528,7 @@ export const arclightChr_0007_ikut_combo_skillActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'physical',
-            attackScale: { kind: 'valueNode', nodeId: 'data_6' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_3' },
             tags: ['comboSkill'],
             features: ['canBreakWeakness'],
           },
@@ -1543,7 +1540,7 @@ export const arclightChr_0007_ikut_combo_skillActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'physical',
-            attackScale: { kind: 'valueNode', nodeId: 'data_7' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_3' },
             tags: ['comboSkill'],
             features: ['canBreakWeakness'],
           },
@@ -1567,8 +1564,6 @@ export const arclightChr_0007_ikut_combo_skillActionGraph = {
       data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
       data_4: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
       data_5: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
-      data_6: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_7: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
     },
   },
   macros: {},
@@ -1751,7 +1746,8 @@ const arclightBuff2ActionGraph = {
         action: {
           kind: 'finishBuffsById',
           parameters: {
-            target: 'buffOwner',
+            targets: { kind: 'owner' },
+            finishSource: { kind: 'source' },
             buffIds: ['buff_chr_0007_ikut_normal_skill_extra_count'],
             reason: 'other',
           },
@@ -1782,7 +1778,8 @@ const arclightBuff3ActionGraph = {
         action: {
           kind: 'finishBuffsById',
           parameters: {
-            target: 'buffOwner',
+            targets: { kind: 'owner' },
+            finishSource: { kind: 'source' },
             buffIds: ['buff_chr_0007_ikut_normal_skill_extra_count'],
             reason: 'other',
           },
@@ -1799,8 +1796,8 @@ const arclightBuff3ActionGraph = {
                 copiedBlackboardAssignments: { pulse_up: 'final_pulse_up', duration: 'duration' },
               },
             ],
-            target: 'party',
-            source: 'buffSource',
+            targets: { kind: 'characterTeam', excludeOwner: false },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -1893,8 +1890,8 @@ const arclightBuff4ActionGraph = {
                 blackboardAssignments: { duration: { kind: 'constant', value: 0.067 } },
               },
             ],
-            target: 'buffOwner',
-            source: 'buffSource',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -2235,7 +2232,7 @@ export const arclight: OperatorDefinition = {
                     element: 'electric',
                     consumedElement: 'electric',
                     consumedLayers: { kind: 'valueNode', nodeId: 'data_6' },
-                    count: { kind: 'valueNode', nodeId: 'data_7' },
+                    count: { kind: 'valueNode', nodeId: 'data_6' },
                     isExtra: false,
                   },
                 },
@@ -2290,7 +2287,6 @@ export const arclight: OperatorDefinition = {
                 },
               },
               data_6: { type: 'number', expression: { kind: 'blackboard', key: 'count' } },
-              data_7: { type: 'number', expression: { kind: 'blackboard', key: 'count' } },
             },
           },
           macros: {},

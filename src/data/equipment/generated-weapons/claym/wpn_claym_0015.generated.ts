@@ -72,7 +72,8 @@ const definition = {
                       copiedBlackboardAssignments: { def_up: 'def_up', duration: 'duration' },
                     },
                   ],
-                  target: 'caster',
+                  targets: { kind: 'source' },
+                  source: { kind: 'source' },
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
                 },
@@ -83,10 +84,11 @@ const definition = {
               action: {
                 kind: 'createTimedMarker',
                 parameters: {
-                  target: 'caster',
+                  targets: { kind: 'source' },
                   markerId: 'wpn_claym_0015',
                   durationSeconds: { kind: 'valueNode', nodeId: 'data_1' },
                   autoFinishByAction: false,
+                  timeDomain: 'globalScaled',
                 },
               },
               next: 'applyBuff_1',

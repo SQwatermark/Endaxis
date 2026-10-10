@@ -6,6 +6,7 @@ import type {
   ResolvedSkillBuffLifecycleSequences,
 } from '../../compiler/combatProgram';
 import { LogicalAbilityEntityRuntime } from '../abilities/logicalAbilityEntityRuntime';
+import { resolveDirectActionTargets } from '../abilities/targetContextOperationExecutor';
 import {
   ProjectileLifecycleRuntime,
   type ProjectileFinishTiming,
@@ -75,7 +76,7 @@ describe('attachBuffLifecycleSequences', () => {
               kind: 'applyBuff',
               parameters: {
                 buffs: [{ buffId: childDefinition.id }],
-                target: 'caster',
+                targets: { kind: 'fixed', target: 'caster' },
                 finishByAction: true,
               },
             },
@@ -102,6 +103,7 @@ describe('attachBuffLifecycleSequences', () => {
         () =>
           new BuffOperationExecutor({
             sourceId: 'owner',
+            queryTargets: (query, context) => resolveDirectActionTargets(query, context, 'owner')!,
             resolveTarget: () => target,
             resolveEventTarget: () => target,
             delegate: { execute: () => false, evaluate: () => false },
@@ -1576,7 +1578,7 @@ describe('attachBuffLifecycleSequences', () => {
             kind: 'applyBuff',
             parameters: {
               buffs: [{ buffId: 'aura-child' }],
-              target: 'enemy',
+              targets: { kind: 'fixed', target: 'enemy' },
               finishByAction: true,
             },
           },

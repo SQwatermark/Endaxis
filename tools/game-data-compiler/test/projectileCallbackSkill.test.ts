@@ -21,7 +21,10 @@ type ProjectileFixture = {
   recycleDelaySeconds: number;
   castResource: import('../../../packages/game-data-contract/src/skills.ts').SkillCastResourceDefinition;
   callbackContext: typeof returnProjectionContext;
-  projectionContext: typeof returnProjectionContext;
+  projectionContext: Omit<
+    import('../src/compiler/combatProjectionCommon.ts').CombatActionProjectionContextSource,
+    'graph'
+  >;
   reachGraph: SkillActionGraphSource<KnownNativeActionLeafSource>;
   template: { projectileId: string; entityBlackboard: [] };
   launch: import('../src/source/referenceActions.ts').ProjectileLaunchActionSource;
@@ -181,6 +184,29 @@ it('Source 来源不读取未启用的目标组名', () => {
 });
 
 describe('独立到达回调的编译', () => {
+  it('零空间输入只证明可到达，OnlyHit 仍按实际输入身份筛选', () => {
+    const input = reachInput();
+    const result = projectFixture({
+      ...input,
+      projectionContext: {
+        ...input.projectionContext,
+        actionTargetTarget: 'actionInputTarget',
+        actionInputIsZeroSpace: true,
+      },
+      launch: {
+        ...input.launch,
+        targetFilterMode: 'OnlyHit',
+        targetFilterSettings: input.launch.target,
+      },
+    });
+    const launch = result.steps[0];
+    if (launch?.kind !== 'launchProjectile') throw new Error('expected projectile');
+    expect(launch.parameters).toMatchObject({
+      onlyHitTargets: { kind: 'inputTarget' },
+      finish: 'firstTickReach',
+    });
+  });
+
   it('独立落地回调编译成统一投射物程序，不展开进发射者技能', () => {
     const input = reachInput();
     input.launch = {

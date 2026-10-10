@@ -98,7 +98,7 @@ function setup(
     kind: 'applyBuff' as const,
     parameters: {
       buffs: [{ buffId }],
-      target: 'caster' as const,
+      targets: { kind: 'fixed', target: 'caster' } as const,
       inheritSourceSkillCastInfo: true,
     },
   });

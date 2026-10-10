@@ -64,7 +64,7 @@ const definition = {
                       },
                     },
                   ],
-                  target: 'caster',
+                  targets: { kind: 'fixed', target: 'caster' },
                 },
               },
               next: null,
@@ -115,7 +115,8 @@ const definition = {
               action: {
                 kind: 'aura',
                 parameters: {
-                  target: 'enemy',
+                  targets: { kind: 'fixed', target: 'enemy' },
+                  source: { kind: 'source' },
                   inheritSourceSkillCastInfo: true,
                   buffs: [
                     {
@@ -183,8 +184,8 @@ const definition = {
                       },
                     },
                   ],
-                  target: 'buffSource',
-                  source: 'buffSource',
+                  targets: { kind: 'source' },
+                  source: { kind: 'source' },
                   inheritSourceSkillCastInfo: true,
                 },
               },
@@ -209,7 +210,7 @@ const definition = {
                   key: 'dmg_up_dynamic',
                   operation: 'multiply',
                   left: { kind: 'valueNode', nodeId: 'data_3' },
-                  right: { kind: 'valueNode', nodeId: 'data_4' },
+                  right: { kind: 'valueNode', nodeId: 'data_2' },
                 },
               },
               next: 'calculateActionValue_2',
@@ -217,14 +218,14 @@ const definition = {
             checkCondition_4: {
               action: {
                 kind: 'checkCondition',
-                parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
+                parameters: { condition: { kind: 'conditionNode', nodeId: 'data_4' } },
               },
               next: 'calculateActionValue_3',
             },
             checkCondition_5: {
               action: {
                 kind: 'checkCondition',
-                parameters: { condition: { kind: 'conditionNode', nodeId: 'data_6' } },
+                parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
               },
               next: 'checkCondition_4',
             },
@@ -242,8 +243,8 @@ const definition = {
                       },
                     },
                   ],
-                  target: 'buffSource',
-                  source: 'buffSource',
+                  targets: { kind: 'source' },
+                  source: { kind: 'source' },
                   inheritSourceSkillCastInfo: true,
                 },
               },
@@ -252,7 +253,7 @@ const definition = {
             checkCondition_7: {
               action: {
                 kind: 'checkCondition',
-                parameters: { condition: { kind: 'conditionNode', nodeId: 'data_7' } },
+                parameters: { condition: { kind: 'conditionNode', nodeId: 'data_6' } },
               },
               next: 'applyBuff_6',
             },
@@ -263,7 +264,7 @@ const definition = {
             checkCondition_9: {
               action: {
                 kind: 'checkCondition',
-                parameters: { condition: { kind: 'conditionNode', nodeId: 'data_8' } },
+                parameters: { condition: { kind: 'conditionNode', nodeId: 'data_7' } },
               },
               next: 'invertNextResult_8',
             },
@@ -272,8 +273,7 @@ const definition = {
             data_1: { type: 'number', expression: { kind: 'blackboard', key: 'crit_up2' } },
             data_2: { type: 'number', expression: { kind: 'blackboard', key: 'multi' } },
             data_3: { type: 'number', expression: { kind: 'blackboard', key: 'dmg_up' } },
-            data_4: { type: 'number', expression: { kind: 'blackboard', key: 'multi' } },
-            data_5: {
+            data_4: {
               type: 'boolean',
               expression: {
                 kind: 'actionInputTargetIdentityMatch',
@@ -281,7 +281,7 @@ const definition = {
                 operator: 'equal',
               },
             },
-            data_6: {
+            data_5: {
               type: 'boolean',
               expression: {
                 kind: 'eventBuffTagsMatch',
@@ -292,7 +292,7 @@ const definition = {
                 ],
               },
             },
-            data_7: {
+            data_6: {
               type: 'boolean',
               expression: {
                 kind: 'actionInputTargetIdentityMatch',
@@ -300,7 +300,7 @@ const definition = {
                 operator: 'equal',
               },
             },
-            data_8: {
+            data_7: {
               type: 'boolean',
               expression: {
                 kind: 'eventBuffTagsMatch',

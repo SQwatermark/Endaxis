@@ -18,7 +18,7 @@ const definition = {
                   blackboardAssignments: { spell_dmg_up: { kind: 'constant', value: 0.2 } },
                 },
               ],
-              target: 'caster',
+              targets: { kind: 'fixed', target: 'caster' },
             },
           },
           next: null,

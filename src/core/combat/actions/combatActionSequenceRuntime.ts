@@ -216,6 +216,12 @@ class ProjectileLaunchStep extends StatelessCombatStep {
       this.step.parameters.entityAssignments,
     );
     const targets = this.step.parameters.targets;
+    const filter = this.step.parameters.onlyHitTargets;
+    if (filter && !this.runtime.operations.queryTargets)
+      throw new Error('projectile hit filter requires a target query');
+    const onlyHitTargets = filter
+      ? this.runtime.operations.queryTargets!(filter, parent).map(target => ({ ...target }))
+      : undefined;
     if (targets?.kind === 'context') {
       if (!parent.targetContext) throw new Error('projectile launch requires a target context');
       const selected = parent.targetContext.get(targets.contextKey).map(target => ({ ...target }));
@@ -223,6 +229,7 @@ class ProjectileLaunchStep extends StatelessCombatStep {
         this.launchSingle(
           { ...parent, currentTarget: target, actionInputTarget: target },
           prepared.forkEntityScope(),
+          onlyHitTargets,
         );
     } else {
       const count =
@@ -230,12 +237,16 @@ class ProjectileLaunchStep extends StatelessCombatStep {
       if (!Number.isInteger(count) || count < 0)
         throw new RangeError('projectile target count must be a non-negative integer');
       for (let index = 0; index < count; index++)
-        this.launchSingle(parent, prepared.forkEntityScope());
+        this.launchSingle(parent, prepared.forkEntityScope(), onlyHitTargets);
     }
     return true;
   }
 
-  private launchSingle(parent: CombatOperationContext, blackboard: ActionBlackboard): void {
+  private launchSingle(
+    parent: CombatOperationContext,
+    blackboard: ActionBlackboard,
+    onlyHitTargets?: readonly import('../../game-data/logicalAbilityEntity').RuntimeTargetRef[],
+  ): void {
     const launch = parent.launchProjectile!;
     const sourceId =
       this.step.parameters.source === 'actionOwner'
@@ -298,6 +309,7 @@ class ProjectileLaunchStep extends StatelessCombatStep {
       };
     });
     entity = launch({
+      onlyHitTargets,
       syncTimeScale: this.step.parameters.syncTimeScale,
       finish: this.step.parameters.finish,
       recycleDelaySeconds: this.step.parameters.recycleDelaySeconds ?? 0,

@@ -61,7 +61,8 @@ const definition = {
                       },
                     },
                   ],
-                  target: 'caster',
+                  targets: { kind: 'source' },
+                  source: { kind: 'source' },
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
                 },
@@ -72,10 +73,11 @@ const definition = {
               action: {
                 kind: 'createTimedMarker',
                 parameters: {
-                  target: 'caster',
+                  targets: { kind: 'owner' },
                   markerId: 'wpn_pistol_0010',
                   durationSeconds: { kind: 'constant', value: 0.1 },
                   autoFinishByAction: false,
+                  timeDomain: 'globalScaled',
                 },
               },
               next: 'applyBuff_1',

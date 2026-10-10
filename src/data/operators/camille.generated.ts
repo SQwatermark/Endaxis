@@ -983,7 +983,8 @@ export const camilleChr_0033_camille_power_attackActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_full_immune_medium' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -995,7 +996,8 @@ export const camilleChr_0033_camille_power_attackActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_power_attack_disable_cast_skill' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -1163,30 +1165,19 @@ export const camilleChr_0033_camille_normal_skillActionGraph = {
                   weak_scale: 0.1,
                 },
                 scheduledSequences: [
-                  { startFrame: 0, endFrame: 1, sequence: { $sequence: 'checkCondition_7' } },
+                  { startFrame: 0, endFrame: 1, sequence: { $sequence: 'checkCondition_6' } },
                 ],
                 actionGraph: {
                   main: {
                     nodes: {
-                      applyBuff_1: {
-                        action: {
-                          kind: 'applyBuff',
-                          parameters: {
-                            buffs: [{ buffId: 'buff_chr_0033_camille_normal_skill_bateffect' }],
-                            target: 'currentAbilityEntity',
-                            inheritSourceSkillCastInfo: true,
-                          },
-                        },
-                        next: null,
-                      },
-                      gainSquadUltimateEnergyFromSkillCost_2: {
+                      gainSquadUltimateEnergyFromSkillCost_1: {
                         action: {
                           kind: 'gainSquadUltimateEnergyFromSkillCost',
                           parameters: { coefficient: 1 },
                         },
                         next: null,
                       },
-                      startTimeDilation_3: {
+                      startTimeDilation_2: {
                         action: {
                           kind: 'startTimeDilation',
                           parameters: {
@@ -1199,17 +1190,21 @@ export const camilleChr_0033_camille_normal_skillActionGraph = {
                             targets: ['enemy', 'caster'],
                           },
                         },
-                        next: 'gainSquadUltimateEnergyFromSkillCost_2',
+                        next: 'gainSquadUltimateEnergyFromSkillCost_1',
                       },
-                      forEachContextTarget_4: {
+                      applyBuff_3: {
                         action: {
-                          kind: 'forEachContextTarget',
-                          parameters: { targets: { kind: 'context', key: 'Camille_Bat' } },
-                          body: { $sequence: 'applyBuff_1' },
+                          kind: 'applyBuff',
+                          parameters: {
+                            buffs: [{ buffId: 'buff_chr_0033_camille_normal_skill_bateffect' }],
+                            targets: { kind: 'context', key: 'Camille_Bat' },
+                            source: { kind: 'source' },
+                            inheritSourceSkillCastInfo: true,
+                          },
                         },
-                        next: 'startTimeDilation_3',
+                        next: 'startTimeDilation_2',
                       },
-                      modifyActionValue_5: {
+                      modifyActionValue_4: {
                         action: {
                           kind: 'modifyActionValue',
                           parameters: {
@@ -1218,13 +1213,13 @@ export const camilleChr_0033_camille_normal_skillActionGraph = {
                             value: { kind: 'constant', value: 1 },
                           },
                         },
-                        next: 'forEachContextTarget_4',
+                        next: 'applyBuff_3',
                       },
-                      spawnAbilityEntity_6: {
+                      spawnAbilityEntity_5: {
                         action: {
                           kind: 'spawnAbilityEntity',
                           parameters: {
-                            bornAt: { kind: 'inputTarget' },
+                            bornAt: { kind: 'fixed', target: 'enemy' },
                             abilityEntityId: 'abilityentity_chr_0033_camille_normal_skill',
                             childSkillId: 'chr_0033_camille_normal_skill_abilityrange_first',
                             inheritActionBlackboard: true,
@@ -1241,14 +1236,14 @@ export const camilleChr_0033_camille_normal_skillActionGraph = {
                             },
                           },
                         },
-                        next: 'modifyActionValue_5',
+                        next: 'modifyActionValue_4',
                       },
-                      checkCondition_7: {
+                      checkCondition_6: {
                         action: {
                           kind: 'checkCondition',
                           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_7' } },
                         },
-                        next: 'spawnAbilityEntity_6',
+                        next: 'spawnAbilityEntity_5',
                       },
                     },
                     dataNodes: {
@@ -1277,7 +1272,7 @@ export const camilleChr_0033_camille_normal_skillActionGraph = {
                         type: 'boolean',
                         expression: {
                           kind: 'entityCountCompare',
-                          target: { kind: 'inputTarget' },
+                          target: { kind: 'fixed', target: 'enemy' },
                           containsHittableTarget: false,
                           excludeDeadEntity: true,
                           operator: 'greaterOrEqual',
@@ -1348,7 +1343,8 @@ export const camilleChr_0033_camille_normal_skill_2ActionGraph = {
         action: {
           kind: 'finishBuffsById',
           parameters: {
-            target: 'caster',
+            targets: { kind: 'source' },
+            finishSource: { kind: 'source' },
             buffIds: ['buff_chr_0033_camille_ult_henshin_state'],
             reason: 'early',
           },
@@ -1581,26 +1577,19 @@ export const camilleChr_0033_camille_normal_skill_2ActionGraph = {
         },
         next: null,
       },
-      applyBuff_24: {
+      applyBuff_25: {
         action: {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0033_camille_normal_skill_bateffect' }],
-            target: 'currentAbilityEntity',
+            targets: { kind: 'context', key: 'Camille_Bat' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
         next: null,
       },
-      forEachContextTarget_26: {
-        action: {
-          kind: 'forEachContextTarget',
-          parameters: { targets: { kind: 'context', key: 'Camille_Bat' } },
-          body: { $sequence: 'applyBuff_24' },
-        },
-        next: null,
-      },
-      findOwnerSpawnedAbilityEntities_27: {
+      findOwnerSpawnedAbilityEntities_26: {
         action: {
           kind: 'findOwnerSpawnedAbilityEntities',
           parameters: {
@@ -1608,16 +1597,16 @@ export const camilleChr_0033_camille_normal_skill_2ActionGraph = {
             abilityEntityIds: ['abilityentity_chr_0033_camille_normal_skill'],
           },
         },
-        next: 'forEachContextTarget_26',
+        next: 'applyBuff_25',
       },
-      checkCondition_25: {
+      checkCondition_24: {
         action: {
           kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_11' } },
         },
         next: null,
       },
-      changeResource_28: {
+      changeResource_27: {
         action: {
           kind: 'changeResource',
           parameters: {
@@ -1632,7 +1621,7 @@ export const camilleChr_0033_camille_normal_skill_2ActionGraph = {
         },
         next: null,
       },
-      heal_32: {
+      heal_31: {
         action: {
           kind: 'heal',
           parameters: {
@@ -1646,7 +1635,7 @@ export const camilleChr_0033_camille_normal_skill_2ActionGraph = {
         },
         next: null,
       },
-      modifyActionValue_opt1: {
+      modifyActionValue_39: {
         action: {
           kind: 'modifyActionValue',
           parameters: {
@@ -1657,7 +1646,7 @@ export const camilleChr_0033_camille_normal_skill_2ActionGraph = {
         },
         next: null,
       },
-      changeResource_opt2: {
+      changeResource_40: {
         action: {
           kind: 'changeResource',
           parameters: {
@@ -1668,16 +1657,16 @@ export const camilleChr_0033_camille_normal_skill_2ActionGraph = {
             targets: { kind: 'source' },
           },
         },
-        next: 'modifyActionValue_opt1',
+        next: 'modifyActionValue_39',
       },
-      checkCondition_opt3: {
+      checkCondition_41: {
         action: {
           kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_17' } },
         },
-        next: 'changeResource_opt2',
+        next: 'changeResource_40',
       },
-      startTimeDilation_opt4: {
+      startTimeDilation_42: {
         action: {
           kind: 'startTimeDilation',
           parameters: {
@@ -1712,19 +1701,19 @@ export const camilleChr_0033_camille_normal_skill_2ActionGraph = {
             targets: ['enemy', 'caster'],
           },
         },
-        next: 'checkCondition_opt3',
+        next: 'checkCondition_41',
       },
-      ifElse_opt7: {
+      ifElse_43: {
         action: {
           kind: 'ifElse',
           parameters: { alwaysNext: true },
           condition: { $sequence: 'checkCondition_22' },
-          whenTrue: { $sequence: 'heal_32' },
+          whenTrue: { $sequence: 'heal_31' },
           whenFalse: { $sequence: null },
         },
-        next: 'startTimeDilation_opt4',
+        next: 'startTimeDilation_42',
       },
-      dealDamage_opt8: {
+      dealDamage_44: {
         action: {
           kind: 'dealDamage',
           parameters: {
@@ -1735,28 +1724,28 @@ export const camilleChr_0033_camille_normal_skill_2ActionGraph = {
             stagger: { kind: 'valueNode', nodeId: 'data_19' },
           },
         },
-        next: 'ifElse_opt7',
+        next: 'ifElse_43',
       },
       ifElse_opt1: {
         action: {
           kind: 'ifElse',
           parameters: { alwaysNext: true },
           condition: { $sequence: null },
-          whenTrue: { $sequence: 'dealDamage_opt8' },
-          whenFalse: { $sequence: 'dealDamage_opt8' },
+          whenTrue: { $sequence: 'dealDamage_44' },
+          whenFalse: { $sequence: 'dealDamage_44' },
         },
         next: null,
       },
       once_opt2: {
-        action: { kind: 'once', parameters: {}, body: { $sequence: 'changeResource_28' } },
+        action: { kind: 'once', parameters: {}, body: { $sequence: 'changeResource_27' } },
         next: 'ifElse_opt1',
       },
       ifElse_opt3: {
         action: {
           kind: 'ifElse',
           parameters: { alwaysNext: true },
-          condition: { $sequence: 'checkCondition_25' },
-          whenTrue: { $sequence: 'findOwnerSpawnedAbilityEntities_27' },
+          condition: { $sequence: 'checkCondition_24' },
+          whenTrue: { $sequence: 'findOwnerSpawnedAbilityEntities_26' },
           whenFalse: { $sequence: null },
         },
         next: 'once_opt2',
@@ -2024,18 +2013,7 @@ export const camilleChr_0033_camille_combo_skillActionGraph = {
         },
         next: null,
       },
-      applyBuff_16: {
-        action: {
-          kind: 'applyBuff',
-          parameters: {
-            buffs: [{ buffId: 'buff_chr_0033_camille_normal_skill_bateffect' }],
-            target: 'currentAbilityEntity',
-            inheritSourceSkillCastInfo: true,
-          },
-        },
-        next: null,
-      },
-      createGlobalBuff_18: {
+      createGlobalBuff_17: {
         action: {
           kind: 'createGlobalBuff',
           parameters: {
@@ -2058,32 +2036,36 @@ export const camilleChr_0033_camille_combo_skillActionGraph = {
         },
         next: null,
       },
-      checkCondition_17: {
+      checkCondition_16: {
         action: {
           kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_7' } },
         },
         next: null,
       },
-      ifElse_20: {
+      ifElse_19: {
         action: {
           kind: 'ifElse',
           parameters: { alwaysNext: true },
-          condition: { $sequence: 'checkCondition_17' },
-          whenTrue: { $sequence: 'createGlobalBuff_18' },
+          condition: { $sequence: 'checkCondition_16' },
+          whenTrue: { $sequence: 'createGlobalBuff_17' },
           whenFalse: { $sequence: null },
         },
         next: null,
       },
-      forEachContextTarget_21: {
+      applyBuff_20: {
         action: {
-          kind: 'forEachContextTarget',
-          parameters: { targets: { kind: 'context', key: 'Camille_Bat' } },
-          body: { $sequence: 'applyBuff_16' },
+          kind: 'applyBuff',
+          parameters: {
+            buffs: [{ buffId: 'buff_chr_0033_camille_normal_skill_bateffect' }],
+            targets: { kind: 'context', key: 'Camille_Bat' },
+            source: { kind: 'source' },
+            inheritSourceSkillCastInfo: true,
+          },
         },
-        next: 'ifElse_20',
+        next: 'ifElse_19',
       },
-      findOwnerSpawnedAbilityEntities_22: {
+      findOwnerSpawnedAbilityEntities_21: {
         action: {
           kind: 'findOwnerSpawnedAbilityEntities',
           parameters: {
@@ -2091,16 +2073,16 @@ export const camilleChr_0033_camille_combo_skillActionGraph = {
             abilityEntityIds: ['abilityentity_chr_0033_camille_normal_skill'],
           },
         },
-        next: 'forEachContextTarget_21',
+        next: 'applyBuff_20',
       },
-      checkCondition_19: {
+      checkCondition_18: {
         action: {
           kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_8' } },
         },
         next: null,
       },
-      changeResource_23: {
+      changeResource_22: {
         action: {
           kind: 'changeResource',
           parameters: {
@@ -2115,7 +2097,7 @@ export const camilleChr_0033_camille_combo_skillActionGraph = {
         },
         next: null,
       },
-      heal_31: {
+      heal_30: {
         action: {
           kind: 'heal',
           parameters: {
@@ -2129,17 +2111,17 @@ export const camilleChr_0033_camille_combo_skillActionGraph = {
         },
         next: null,
       },
-      ifElse_33: {
+      ifElse_32: {
         action: {
           kind: 'ifElse',
           parameters: { alwaysNext: true },
-          condition: { $sequence: 'checkCondition_17' },
-          whenTrue: { $sequence: 'heal_31' },
+          condition: { $sequence: 'checkCondition_16' },
+          whenTrue: { $sequence: 'heal_30' },
           whenFalse: { $sequence: null },
         },
         next: null,
       },
-      startTimeDilation_35: {
+      startTimeDilation_34: {
         action: {
           kind: 'startTimeDilation',
           parameters: {
@@ -2154,7 +2136,7 @@ export const camilleChr_0033_camille_combo_skillActionGraph = {
         },
         next: null,
       },
-      modifyActionValue_opt1: {
+      modifyActionValue_42: {
         action: {
           kind: 'modifyActionValue',
           parameters: {
@@ -2165,7 +2147,7 @@ export const camilleChr_0033_camille_combo_skillActionGraph = {
         },
         next: null,
       },
-      changeResource_opt2: {
+      changeResource_43: {
         action: {
           kind: 'changeResource',
           parameters: {
@@ -2176,36 +2158,36 @@ export const camilleChr_0033_camille_combo_skillActionGraph = {
             targets: { kind: 'source' },
           },
         },
-        next: 'modifyActionValue_opt1',
+        next: 'modifyActionValue_42',
       },
-      checkCondition_opt3: {
+      checkCondition_44: {
         action: {
           kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_14' } },
         },
-        next: 'changeResource_opt2',
+        next: 'changeResource_43',
       },
-      ifElse_opt7: {
+      ifElse_45: {
         action: {
           kind: 'ifElse',
           parameters: { alwaysNext: true },
           condition: { $sequence: 'checkCondition_2' },
-          whenTrue: { $sequence: 'startTimeDilation_35' },
+          whenTrue: { $sequence: 'startTimeDilation_34' },
           whenFalse: { $sequence: null },
         },
-        next: 'checkCondition_opt3',
+        next: 'checkCondition_44',
       },
-      ifElse_opt8: {
+      ifElse_46: {
         action: {
           kind: 'ifElse',
           parameters: { alwaysNext: true },
-          condition: { $sequence: 'checkCondition_19' },
-          whenTrue: { $sequence: 'ifElse_33' },
+          condition: { $sequence: 'checkCondition_18' },
+          whenTrue: { $sequence: 'ifElse_32' },
           whenFalse: { $sequence: null },
         },
-        next: 'ifElse_opt7',
+        next: 'ifElse_45',
       },
-      dealDamage_opt9: {
+      dealDamage_47: {
         action: {
           kind: 'dealDamage',
           parameters: {
@@ -2216,43 +2198,33 @@ export const camilleChr_0033_camille_combo_skillActionGraph = {
             stagger: { kind: 'valueNode', nodeId: 'data_16' },
           },
         },
-        next: 'ifElse_opt8',
+        next: 'ifElse_46',
       },
       ifElse_opt1: {
         action: {
           kind: 'ifElse',
           parameters: { alwaysNext: true },
           condition: { $sequence: null },
-          whenTrue: { $sequence: null },
-          whenFalse: { $sequence: null },
+          whenTrue: { $sequence: 'dealDamage_47' },
+          whenFalse: { $sequence: 'dealDamage_47' },
         },
         next: null,
       },
-      ifElse_opt2: {
+      once_opt2: {
+        action: { kind: 'once', parameters: {}, body: { $sequence: 'changeResource_22' } },
+        next: 'ifElse_opt1',
+      },
+      ifElse_opt3: {
         action: {
           kind: 'ifElse',
           parameters: { alwaysNext: true },
-          condition: { $sequence: null },
-          whenTrue: { $sequence: 'dealDamage_opt9' },
-          whenFalse: { $sequence: 'dealDamage_opt9' },
-        },
-        next: null,
-      },
-      once_opt3: {
-        action: { kind: 'once', parameters: {}, body: { $sequence: 'changeResource_23' } },
-        next: 'ifElse_opt2',
-      },
-      ifElse_opt4: {
-        action: {
-          kind: 'ifElse',
-          parameters: { alwaysNext: true },
-          condition: { $sequence: 'checkCondition_19' },
-          whenTrue: { $sequence: 'findOwnerSpawnedAbilityEntities_22' },
+          condition: { $sequence: 'checkCondition_18' },
+          whenTrue: { $sequence: 'findOwnerSpawnedAbilityEntities_21' },
           whenFalse: { $sequence: null },
         },
-        next: 'once_opt3',
+        next: 'once_opt2',
       },
-      repeatEachTick_opt5: {
+      repeatEachTick_opt4: {
         action: {
           kind: 'repeatEachTick',
           parameters: {
@@ -2264,7 +2236,17 @@ export const camilleChr_0033_camille_combo_skillActionGraph = {
               targetTriggerIntervalSeconds: 0.033,
             },
           },
-          body: { $sequence: 'ifElse_opt4' },
+          body: { $sequence: 'ifElse_opt3' },
+        },
+        next: null,
+      },
+      ifElse_opt2: {
+        action: {
+          kind: 'ifElse',
+          parameters: { alwaysNext: true },
+          condition: { $sequence: null },
+          whenTrue: { $sequence: null },
+          whenFalse: { $sequence: null },
         },
         next: null,
       },
@@ -2355,10 +2337,10 @@ export const camilleChr_0033_camille_combo_skill: SkillDefinition = {
   costFrame: 0,
   scheduledSequences: [
     { startFrame: 0, endFrame: 15, sequence: { $sequence: 'startTimeDilation_1' } },
-    { startFrame: 0, endFrame: 9, sequence: { $sequence: 'ifElse_opt1' } },
+    { startFrame: 0, endFrame: 9, sequence: { $sequence: 'ifElse_opt2' } },
     { startFrame: 19, endFrame: 21, sequence: { $sequence: 'repeatEachTick_10' } },
     { startFrame: 27, endFrame: 29, sequence: { $sequence: 'repeatEachTick_15' } },
-    { startFrame: 47, endFrame: 50, sequence: { $sequence: 'repeatEachTick_opt5' } },
+    { startFrame: 47, endFrame: 50, sequence: { $sequence: 'repeatEachTick_opt4' } },
   ],
   smartTarget: 'enemy',
   cooldownFrames: [600, 600, 600, 600, 600, 600, 600, 600, 570, 570, 570, 540],
@@ -2375,7 +2357,8 @@ export const camilleChr_0033_camille_combo_skill_2ActionGraph = {
         action: {
           kind: 'finishBuffsById',
           parameters: {
-            target: 'caster',
+            targets: { kind: 'source' },
+            finishSource: { kind: 'source' },
             buffIds: ['buff_chr_0033_camille_ult_henshin_state'],
             reason: 'early',
           },
@@ -2608,26 +2591,19 @@ export const camilleChr_0033_camille_combo_skill_2ActionGraph = {
         },
         next: null,
       },
-      applyBuff_24: {
+      applyBuff_25: {
         action: {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0033_camille_normal_skill_bateffect' }],
-            target: 'currentAbilityEntity',
+            targets: { kind: 'context', key: 'Camille_Bat' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
         next: null,
       },
-      forEachContextTarget_26: {
-        action: {
-          kind: 'forEachContextTarget',
-          parameters: { targets: { kind: 'context', key: 'Camille_Bat' } },
-          body: { $sequence: 'applyBuff_24' },
-        },
-        next: null,
-      },
-      findOwnerSpawnedAbilityEntities_27: {
+      findOwnerSpawnedAbilityEntities_26: {
         action: {
           kind: 'findOwnerSpawnedAbilityEntities',
           parameters: {
@@ -2635,16 +2611,16 @@ export const camilleChr_0033_camille_combo_skill_2ActionGraph = {
             abilityEntityIds: ['abilityentity_chr_0033_camille_normal_skill'],
           },
         },
-        next: 'forEachContextTarget_26',
+        next: 'applyBuff_25',
       },
-      checkCondition_25: {
+      checkCondition_24: {
         action: {
           kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_11' } },
         },
         next: null,
       },
-      changeResource_28: {
+      changeResource_27: {
         action: {
           kind: 'changeResource',
           parameters: {
@@ -2659,7 +2635,7 @@ export const camilleChr_0033_camille_combo_skill_2ActionGraph = {
         },
         next: null,
       },
-      heal_32: {
+      heal_31: {
         action: {
           kind: 'heal',
           parameters: {
@@ -2673,7 +2649,7 @@ export const camilleChr_0033_camille_combo_skill_2ActionGraph = {
         },
         next: null,
       },
-      modifyActionValue_opt1: {
+      modifyActionValue_39: {
         action: {
           kind: 'modifyActionValue',
           parameters: {
@@ -2684,7 +2660,7 @@ export const camilleChr_0033_camille_combo_skill_2ActionGraph = {
         },
         next: null,
       },
-      changeResource_opt2: {
+      changeResource_40: {
         action: {
           kind: 'changeResource',
           parameters: {
@@ -2695,16 +2671,16 @@ export const camilleChr_0033_camille_combo_skill_2ActionGraph = {
             targets: { kind: 'source' },
           },
         },
-        next: 'modifyActionValue_opt1',
+        next: 'modifyActionValue_39',
       },
-      checkCondition_opt3: {
+      checkCondition_41: {
         action: {
           kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_17' } },
         },
-        next: 'changeResource_opt2',
+        next: 'changeResource_40',
       },
-      startTimeDilation_opt4: {
+      startTimeDilation_42: {
         action: {
           kind: 'startTimeDilation',
           parameters: {
@@ -2739,19 +2715,19 @@ export const camilleChr_0033_camille_combo_skill_2ActionGraph = {
             targets: ['enemy', 'caster'],
           },
         },
-        next: 'checkCondition_opt3',
+        next: 'checkCondition_41',
       },
-      ifElse_opt7: {
+      ifElse_43: {
         action: {
           kind: 'ifElse',
           parameters: { alwaysNext: true },
           condition: { $sequence: 'checkCondition_22' },
-          whenTrue: { $sequence: 'heal_32' },
+          whenTrue: { $sequence: 'heal_31' },
           whenFalse: { $sequence: null },
         },
-        next: 'startTimeDilation_opt4',
+        next: 'startTimeDilation_42',
       },
-      dealDamage_opt8: {
+      dealDamage_44: {
         action: {
           kind: 'dealDamage',
           parameters: {
@@ -2762,28 +2738,28 @@ export const camilleChr_0033_camille_combo_skill_2ActionGraph = {
             stagger: { kind: 'valueNode', nodeId: 'data_19' },
           },
         },
-        next: 'ifElse_opt7',
+        next: 'ifElse_43',
       },
       ifElse_opt1: {
         action: {
           kind: 'ifElse',
           parameters: { alwaysNext: true },
           condition: { $sequence: null },
-          whenTrue: { $sequence: 'dealDamage_opt8' },
-          whenFalse: { $sequence: 'dealDamage_opt8' },
+          whenTrue: { $sequence: 'dealDamage_44' },
+          whenFalse: { $sequence: 'dealDamage_44' },
         },
         next: null,
       },
       once_opt2: {
-        action: { kind: 'once', parameters: {}, body: { $sequence: 'changeResource_28' } },
+        action: { kind: 'once', parameters: {}, body: { $sequence: 'changeResource_27' } },
         next: 'ifElse_opt1',
       },
       ifElse_opt3: {
         action: {
           kind: 'ifElse',
           parameters: { alwaysNext: true },
-          condition: { $sequence: 'checkCondition_25' },
-          whenTrue: { $sequence: 'findOwnerSpawnedAbilityEntities_27' },
+          condition: { $sequence: 'checkCondition_24' },
+          whenTrue: { $sequence: 'findOwnerSpawnedAbilityEntities_26' },
           whenFalse: { $sequence: null },
         },
         next: 'once_opt2',
@@ -3027,7 +3003,8 @@ export const camilleChr_0033_camille_ultimate_skillActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0033_camille_ult_hit' }],
-            target: 'enemy',
+            targets: { kind: 'fixed', target: 'enemy' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
           },
@@ -3146,7 +3123,8 @@ export const camilleChr_0033_camille_ultimate_skillActionGraph = {
                 copiedBlackboardAssignments: { duration: 'duration' },
               },
             ],
-            target: 'caster',
+            targets: { kind: 'source' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -3157,7 +3135,8 @@ export const camilleChr_0033_camille_ultimate_skillActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_damage_immune_ult_skill' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -3260,7 +3239,8 @@ const camillePassive1ActionGraph = {
         action: {
           kind: 'finishBuffsById',
           parameters: {
-            target: 'caster',
+            targets: { kind: 'source' },
+            finishSource: { kind: 'source' },
             buffIds: ['buff_chr_0033_camille_normal_skill_bat_duration_icon'],
             reason: 'other',
           },
@@ -3290,7 +3270,7 @@ const camillePassive1ActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0033_camille_combo_2_type' }],
-            target: 'caster',
+            targets: { kind: 'fixed', target: 'caster' },
             inheritSourceSkillCastInfo: false,
           },
         },
@@ -3335,7 +3315,8 @@ const camillePassive2ActionGraph = {
                 copiedBlackboardAssignments: { atk_up: 'atk_up_teammate', duration: 'duration' },
               },
             ],
-            target: 'currentTarget',
+            targets: { kind: 'inputTarget' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -3359,7 +3340,8 @@ const camillePassive2ActionGraph = {
                 copiedBlackboardAssignments: { atk_up: 'atk_up', duration: 'duration' },
               },
             ],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -3390,7 +3372,8 @@ const camillePassive2ActionGraph = {
                 copiedBlackboardAssignments: { atk_up: 'atk_up', duration: 'duration' },
               },
             ],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -3887,7 +3870,8 @@ const camilleBuff9ActionGraph = {
                 },
               },
             ],
-            target: 'enemy',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
           },
@@ -3902,15 +3886,16 @@ const camilleBuff9ActionGraph = {
               {
                 buffId: 'buff_common_affixes_weak',
                 blackboardAssignments: {
-                  duration: { kind: 'valueNode', nodeId: 'data_3' },
-                  rate: { kind: 'valueNode', nodeId: 'data_4' },
+                  duration: { kind: 'valueNode', nodeId: 'data_1' },
+                  rate: { kind: 'valueNode', nodeId: 'data_3' },
                 },
                 stringBlackboardAssignments: {
                   child_buff_id: 'buff_chr_0033_camille_normal_skill_weak_child',
                 },
               },
             ],
-            target: 'enemy',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
           },
@@ -3921,8 +3906,7 @@ const camilleBuff9ActionGraph = {
     dataNodes: {
       data_1: { type: 'number', expression: { kind: 'blackboard', key: 'duration' } },
       data_2: { type: 'number', expression: { kind: 'blackboard', key: 'vulnerable_scale' } },
-      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'duration' } },
-      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'weak_scale' } },
+      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'weak_scale' } },
     },
   },
   macros: {},
@@ -4478,8 +4462,8 @@ export const camille: OperatorDefinition = {
                     kind: 'applyBuff',
                     parameters: {
                       buffs: [{ buffId: 'buff_common_full_immune' }],
-                      target: 'currentAbilityEntity',
-                      source: 'currentAbilityEntity',
+                      targets: { kind: 'owner' },
+                      source: { kind: 'owner' },
                       inheritSourceSkillCastInfo: true,
                     },
                   },
@@ -4499,7 +4483,8 @@ export const camille: OperatorDefinition = {
                           },
                         },
                       ],
-                      target: 'enemy',
+                      targets: { kind: 'fixed', target: 'enemy' },
+                      source: { kind: 'source' },
                       inheritSourceSkillCastInfo: true,
                       iconDurationSource: { kind: 'actionOwnerAbilityEntity' },
                       finishByAction: true,
@@ -4513,8 +4498,8 @@ export const camille: OperatorDefinition = {
                     kind: 'applyBuff',
                     parameters: {
                       buffs: [{ buffId: 'buff_chr_0033_camille_normal_skill_listen_target_dead' }],
-                      target: 'enemy',
-                      source: 'currentAbilityEntity',
+                      targets: { kind: 'fixed', target: 'enemy' },
+                      source: { kind: 'owner' },
                       inheritSourceSkillCastInfo: true,
                       finishByAction: true,
                       asChildBuff: true,
@@ -4532,7 +4517,8 @@ export const camille: OperatorDefinition = {
                           copiedBlackboardAssignments: { bat_duration: 'EntityBB_bat_duration' },
                         },
                       ],
-                      target: 'caster',
+                      targets: { kind: 'source' },
+                      source: { kind: 'source' },
                       inheritSourceSkillCastInfo: true,
                       iconDurationSource: { kind: 'actionOwnerAbilityEntity' },
                     },
@@ -4601,8 +4587,8 @@ export const camille: OperatorDefinition = {
                     kind: 'applyBuff',
                     parameters: {
                       buffs: [{ buffId: 'buff_common_full_immune' }],
-                      target: 'currentAbilityEntity',
-                      source: 'currentAbilityEntity',
+                      targets: { kind: 'owner' },
+                      source: { kind: 'owner' },
                       inheritSourceSkillCastInfo: true,
                     },
                   },
@@ -4622,7 +4608,8 @@ export const camille: OperatorDefinition = {
                           },
                         },
                       ],
-                      target: 'enemy',
+                      targets: { kind: 'fixed', target: 'enemy' },
+                      source: { kind: 'source' },
                       inheritSourceSkillCastInfo: true,
                       iconDurationSource: { kind: 'actionOwnerAbilityEntity' },
                       finishByAction: true,
@@ -4636,8 +4623,8 @@ export const camille: OperatorDefinition = {
                     kind: 'applyBuff',
                     parameters: {
                       buffs: [{ buffId: 'buff_chr_0033_camille_normal_skill_listen_target_dead' }],
-                      target: 'enemy',
-                      source: 'currentAbilityEntity',
+                      targets: { kind: 'fixed', target: 'enemy' },
+                      source: { kind: 'owner' },
                       inheritSourceSkillCastInfo: true,
                       finishByAction: true,
                       asChildBuff: true,
@@ -4704,24 +4691,7 @@ export const camille: OperatorDefinition = {
           actionGraph: {
             main: {
               nodes: {
-                mergeContextTargets_1: {
-                  action: {
-                    kind: 'mergeContextTargets',
-                    parameters: {
-                      saveToContextKey: 'tar',
-                      sources: [{ kind: 'target', target: 'enemy' }],
-                    },
-                  },
-                  next: null,
-                },
-                mergeContextTargets_2: {
-                  action: {
-                    kind: 'mergeContextTargets',
-                    parameters: { saveToContextKey: 'tar', sources: [] },
-                  },
-                  next: null,
-                },
-                applyBuff_3: {
+                applyBuff_1: {
                   action: {
                     kind: 'applyBuff',
                     parameters: {
@@ -4734,22 +4704,14 @@ export const camille: OperatorDefinition = {
                           },
                         },
                       ],
-                      target: 'enemy',
-                      sourceContextKey: 'src',
+                      targets: { kind: 'context', key: 'tar' },
+                      source: { kind: 'context', key: 'src' },
                       inheritSourceSkillCastInfo: true,
                     },
                   },
                   next: null,
                 },
-                forEachContextTarget_4: {
-                  action: {
-                    kind: 'forEachContextTarget',
-                    parameters: { targets: { kind: 'context', key: 'tar' } },
-                    body: { $sequence: 'applyBuff_3' },
-                  },
-                  next: null,
-                },
-                mergeContextTargets_5: {
+                mergeContextTargets_2: {
                   action: {
                     kind: 'mergeContextTargets',
                     parameters: {
@@ -4757,38 +4719,44 @@ export const camille: OperatorDefinition = {
                       sources: [{ kind: 'abilitySystemSource', owner: 'actionOwner' }],
                     },
                   },
-                  next: 'forEachContextTarget_4',
+                  next: 'applyBuff_1',
                 },
-                conditional_6: {
+                findTargets_3: {
                   action: {
-                    kind: 'conditional',
-                    parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-                    whenTrue: { $sequence: 'mergeContextTargets_1' },
-                    whenFalse: { $sequence: 'mergeContextTargets_2' },
+                    kind: 'findTargets',
+                    parameters: {
+                      owner: { kind: 'owner' },
+                      query: {
+                        kind: 'enemyByTags',
+                        tagQueryType: 'hasAny',
+                        tags: ['Skill/Character/chr_0033_camille/NormalSkillBatTarget'],
+                      },
+                      saveToContextKey: 'tar',
+                    },
                   },
-                  next: 'mergeContextTargets_5',
+                  next: 'mergeContextTargets_2',
                 },
-                checkCondition_7: {
+                checkCondition_4: {
+                  action: {
+                    kind: 'checkCondition',
+                    parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
+                  },
+                  next: 'findTargets_3',
+                },
+                checkCondition_5: {
                   action: {
                     kind: 'checkCondition',
                     parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
                   },
-                  next: 'conditional_6',
+                  next: 'checkCondition_4',
                 },
-                checkCondition_8: {
-                  action: {
-                    kind: 'checkCondition',
-                    parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
-                  },
-                  next: 'checkCondition_7',
-                },
-                applyBuff_9: {
+                applyBuff_6: {
                   action: {
                     kind: 'applyBuff',
                     parameters: {
                       buffs: [{ buffId: 'buff_chr_0033_camille_normal_skill_bat_checktarget' }],
-                      target: 'currentAbilityEntity',
-                      source: 'currentAbilityEntity',
+                      targets: { kind: 'owner' },
+                      source: { kind: 'owner' },
                       inheritSourceSkillCastInfo: false,
                     },
                   },
@@ -4799,15 +4767,6 @@ export const camille: OperatorDefinition = {
                 data_1: {
                   type: 'boolean',
                   expression: {
-                    kind: 'entityTagMatch',
-                    target: 'enemy',
-                    tagQueryType: 'hasAny',
-                    tags: ['Skill/Character/chr_0033_camille/NormalSkillBatTarget'],
-                  },
-                },
-                data_2: {
-                  type: 'boolean',
-                  expression: {
                     kind: 'buffIdStackCompare',
                     target: 'currentAbilityEntity',
                     buffIds: ['buff_chr_0033_camille_normal_skill_bateffect'],
@@ -4815,7 +4774,7 @@ export const camille: OperatorDefinition = {
                     value: { kind: 'constant', value: 2 },
                   },
                 },
-                data_3: {
+                data_2: {
                   type: 'boolean',
                   expression: {
                     kind: 'eventBuffIdMatch',
@@ -4828,9 +4787,9 @@ export const camille: OperatorDefinition = {
           },
           key: 'chr_0033_camille_passive_normal_skill_ability_entity',
           blackboard: { atb: 15 },
-          enableSequence: { $sequence: 'applyBuff_9' },
+          enableSequence: { $sequence: 'applyBuff_6' },
           abilityEventResponses: [
-            { event: 'addedBuff', priority: 0, sequence: { $sequence: 'checkCondition_8' } },
+            { event: 'addedBuff', priority: 0, sequence: { $sequence: 'checkCondition_5' } },
           ],
         },
       ],

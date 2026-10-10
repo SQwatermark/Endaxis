@@ -55,7 +55,7 @@ function skill(action: ActionGraphStep): SkillDefinition {
 it('Buff 的同名节点和宏属于自己的资源，返回后仍能继续技能入口', () => {
   const definition = skill({
     kind: 'applyBuff',
-    parameters: { buffs: [{ buffId: 'buff' }], target: 'enemy' },
+    parameters: { buffs: [{ buffId: 'buff' }], targets: { kind: 'fixed', target: 'enemy' } },
   });
   const operator = {
     ...perlica,

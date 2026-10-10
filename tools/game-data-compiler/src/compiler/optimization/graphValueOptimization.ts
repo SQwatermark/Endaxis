@@ -1,4 +1,5 @@
 import type { SkillDefinition } from '../intermediateDefinitions.ts';
+import { visitActionGraphReferences } from './actionGraphReferences.ts';
 /**
  * 汇总资源图及其外部接收者的变量用途，删除无人读取的初值和可省略的写入。
  * 共享节点只分析一次；重接所有入口与后继后清除不可达节点。
@@ -65,25 +66,6 @@ function isGraphReference(value: unknown): value is ActionGraphReference {
   return typeof target === 'string' || target === null;
 }
 
-/** 与 graphSequenceOptimization 的 scanStepReferences 同一规则：深遍历动作字段中的 $sequence 引用。 */
-function scanGraphReferences(
-  value: unknown,
-  visit: (reference: ActionGraphReference) => void,
-): void {
-  if (value && typeof value === 'object' && 'actionGraph' in value) return;
-  if (Array.isArray(value)) {
-    value.forEach(item => scanGraphReferences(item, visit));
-    return;
-  }
-  if (!value || typeof value !== 'object') return;
-  for (const [key, item] of Object.entries(value)) {
-    if (key === 'nodeBindings') continue;
-    if (key === '$sequence' && (typeof item === 'string' || item === null))
-      visit({ $sequence: item });
-    else scanGraphReferences(item, visit);
-  }
-}
-
 /** 从入口沿 next 与动作内 $sequence 引用走访每个可达节点一次；供收集器发现内联实体定义。 */
 function walkGraphActions(
   graph: ActionGraphDefinition,
@@ -111,7 +93,7 @@ function walkGraphActions(
       active.add(cursor);
       chain.push(cursor);
       visit(node.action, cursor);
-      scanGraphReferences(node.action, walk);
+      visitActionGraphReferences(node.action, walk);
       cursor = node.next;
     }
     chain.forEach(id => active.delete(id));
@@ -641,7 +623,7 @@ export function pruneUnusedGraphSkillValues(
           );
         } else if (!candidateByNode.has(id)) {
           // 子序列的时机未纳入同步控制流；保留其用途，不阻断其他区域分析。
-          scanGraphReferences(action, retainDeferred);
+          visitActionGraphReferences(action, retainDeferred);
           if (action.kind === 'jumpTimeline') live.forEach(key => deferredUses.add(key));
           // 非控制动作可能同步发布事件或保存变量快照，保守保留整图用途。
           reads.set(id, live);
@@ -839,7 +821,7 @@ export function pruneUnusedGraphSkillValues(
       reachable.add(cursor);
       const node = nextNodes[cursor];
       if (!node) return;
-      scanGraphReferences(node.action, visitReference);
+      visitActionGraphReferences(node.action, visitReference);
       cursor = node.next;
     }
   };

@@ -1,4 +1,5 @@
 import { numberInput } from '../../../test/compiledGraphInputs';
+import { TargetContextOperationExecutor } from '../abilities/targetContextOperationExecutor';
 import { extractResourceDataNodes } from '../../../../tools/game-data-compiler/src/compiler/extractGraphDataNodes';
 import bedazzlingNightDebut from '../../../data/equipment/generated-weapons/lance/wpn_lance_0014.generated';
 import {
@@ -546,10 +547,17 @@ it.each([
     const operations = new BuffOperationExecutor({
       sourceId: 'operator',
       resolveTarget: () => target,
+      resolveEventTarget: () => target,
+      queryTargets: (query, context) =>
+        new TargetContextOperationExecutor('operator', {
+          execute: () => false,
+          evaluate: () => false,
+        }).queryTargets(query, context),
       delegate: { execute: () => false, evaluate: () => false },
     });
     const common = {
-      target: 'enemy' as const,
+      targets: { kind: 'fixed', target: 'enemy' } as const,
+      finishSource: { kind: 'source' } as const,
       reason: 'other' as const,
       ...(count === undefined ? {} : { count: { kind: 'constant' as const, value: count } }),
     };
@@ -3914,7 +3922,7 @@ describe('StandardPlayerDamageEnvironment', () => {
     expect(() =>
       executor.execute({
         kind: 'applyBuff',
-        parameters: { buffs: [{ buffId: 'buff:missing' }], target: 'enemy' },
+        parameters: { buffs: [{ buffId: 'buff:missing' }], targets: { kind: 'fixed', target: 'enemy' } },
       }),
     ).toThrow("does not support 'applyBuff'");
   });

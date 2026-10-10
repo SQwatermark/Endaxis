@@ -172,7 +172,7 @@ describe('AbilityEntityOperationExecutor', () => {
       parameters: {
         bornAt: { kind: 'context', key: 'birth' },
         abilityEntityId: 'spawned',
-        definition: { lifetime: { kind: 'infinite' } },
+        definition: { lifetime: { kind: 'limited', durationSeconds: 12 } },
         overrideDurationSeconds: numberInput({ kind: 'blackboard', key: 'duration' }),
         dieWhenSourceDies: false,
         saveToContextKey: 'birth',
@@ -1134,12 +1134,57 @@ describe('AbilityEntityOperationExecutor', () => {
       executor.execute(
         {
           kind: 'setAbilityEntityRemainingDuration',
-          parameters: { value: { kind: 'constant', value: 30 } },
+          parameters: { target: { kind: 'inputTarget' }, value: { kind: 'constant', value: 30 } },
         },
         { blackboard, currentTarget: entity, actionInputTarget: entity },
       ),
     ).toBe(true);
-    expect(entities.snapshot(entity).remainingDurationSeconds).toBe(30);
+    expect(entities.snapshot(entity).remainingDurationSeconds).toBe(12);
+
+    const second = entities.spawn({
+      abilityEntityId: 'water',
+      definition: { lifetime: { kind: 'limited', durationSeconds: 12 } },
+      ownerId: 'tangtang',
+      source: { kind: 'operator', operatorId: 'tangtang' },
+    });
+    const targetContext = new RuntimeTargetContext();
+    targetContext.set('waters', [entity, second]);
+    executor.execute(
+      {
+        kind: 'setAbilityEntityRemainingDuration',
+        parameters: {
+          target: { kind: 'context', key: 'waters' },
+          value: { kind: 'constant', value: 3 },
+        },
+      },
+      { blackboard, targetContext },
+    );
+    expect(entities.snapshot(entity).remainingDurationSeconds).toBe(3);
+    expect(entities.snapshot(second).remainingDurationSeconds).toBe(12);
+    for (const targets of [[], [{ kind: 'enemy' as const }, second]]) {
+      targetContext.set('waters', targets);
+      expect(
+        executor.execute(
+          {
+            kind: 'setAbilityEntityRemainingDuration',
+            parameters: {
+              target: { kind: 'context', key: 'waters' },
+              value: {
+                kind: 'valueNode',
+                nodeId: 'duration',
+                node: {
+                  type: 'number',
+                  expression: { kind: 'blackboard', key: 'missing_duration' },
+                },
+              },
+            },
+          },
+          { blackboard, targetContext },
+        ),
+      ).toBe(true);
+    }
+    expect(entities.snapshot(second).remainingDurationSeconds).toBe(12);
+    entities.finish(second);
 
     expect(
       executor.execute(

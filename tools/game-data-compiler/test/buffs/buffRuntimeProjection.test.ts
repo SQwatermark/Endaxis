@@ -1,4 +1,13 @@
 import { targetFixture } from '../sourceFixtures.ts';
+import { compileGraphSequence } from '../support/graphSequence.ts';
+import {
+  TargetContextOperationExecutor,
+  resolveDirectActionTargets,
+} from '../../../../src/core/combat/abilities/targetContextOperationExecutor';
+import { RuntimeTargetContext } from '../../../../src/core/combat/abilities/runtimeTargetContext';
+import { ActionBlackboard } from '../../../../src/core/combat/actions/actionBlackboard';
+import { CombatActionSequenceRuntime } from '../../../../src/core/combat/actions/combatActionSequenceRuntime';
+import { simplifyNativeSequences } from '../../src/compiler/optimization/nativeSequenceOptimization.ts';
 import { parseKnownNativeActionSequenceSource } from '../../src/source/actionLeaf.ts';
 import { readGraphActions, readResourceActions, graphBranch } from '../support/graphAssertions.ts';
 import { fixtureGameplayTagRegistry } from '../gameplayTagFixtures.ts';
@@ -380,50 +389,56 @@ describe('公共 Buff 运行时投影', () => {
     else expect(project).toThrow('empty-target damage short-circuit');
   });
 
-  it('施加 Buff 的 Context 接收者保留查询身份，与来源分别解析', () => {
-    const node = sourceFixture().graph.abilityEvents[0]!.actions[0]!.actions[1]!;
-    if (node.body.kind !== 'leaf' || node.body.value.family !== 'buffApplication')
-      throw new Error('missing Buff application fixture');
-    const builder = createActionGraphBuilder<CompiledBuffStepSource>();
-    const steps = compileActionNode(
-      {
-        ...node,
-        body: {
-          kind: 'leaf',
-          value: {
-            ...node.body.value,
-            action: {
-              ...node.body.value.action,
-              target: { ...fixedTarget('Context'), targetGroupKey: 'recipient' },
-              buffSource: 'ContextTarget',
-              contextKey: 'source',
+  it.each([false, true])(
+    '施加 Buff 的 Context 接收者与来源分别解析，来源已证明固定=%s',
+    fixedSource => {
+      const node = sourceFixture().graph.abilityEvents[0]!.actions[0]!.actions[1]!;
+      if (node.body.kind !== 'leaf' || node.body.value.family !== 'buffApplication')
+        throw new Error('missing Buff application fixture');
+      const builder = createActionGraphBuilder<CompiledBuffStepSource>();
+      const steps = compileActionNode(
+        {
+          ...node,
+          body: {
+            kind: 'leaf',
+            value: {
+              ...node.body.value,
+              action: {
+                ...node.body.value.action,
+                target: { ...fixedTarget('Context'), targetGroupKey: 'recipient' },
+                buffSource: 'ContextTarget',
+                contextKey: 'source',
+              },
             },
           },
         },
-      },
-      new Set(),
-      new Map([
-        ['recipient', 'sourceFinderResult'],
-        ['source', 'sourceFinderResult'],
-      ]),
-      {
-        actionOwnerTarget: 'buffOwner',
-        actionSourceTarget: 'caster',
-        actionTargetTarget: 'enemy',
-        graph: builder,
-      },
-    );
-    expect(steps).toHaveLength(1);
-    const [each] = steps;
-    if (each?.kind !== 'forEachContextTarget') throw new Error('expected forEachContextTarget');
-    expect(each.parameters.targets).toEqual({ kind: 'context', key: 'recipient' });
-    expect(readGraphActions(builder.finish(), each.body)).toMatchObject([
-      {
-        kind: 'applyBuff',
-        parameters: { target: 'currentTarget', sourceContextKey: 'source' },
-      },
-    ]);
-  });
+        new Set(),
+        new Map([
+          ['recipient', 'sourceFinderResult'],
+          ['source', 'sourceFinderResult'],
+        ]),
+        {
+          actionOwnerTarget: 'buffOwner',
+          actionSourceTarget: 'caster',
+          actionTargetTarget: 'enemy',
+          staticEnemyTargetGroupKeys: fixedSource ? new Set(['source']) : undefined,
+          graph: builder,
+        },
+      );
+      expect(steps).toHaveLength(1);
+      expect(steps).toMatchObject([
+        {
+          kind: 'applyBuff',
+          parameters: {
+            targets: { kind: 'context', key: 'recipient' },
+            source: fixedSource
+              ? { kind: 'fixed', target: 'enemy' }
+              : { kind: 'context', key: 'source' },
+          },
+        },
+      ]);
+    },
+  );
   it('结束 Buff 保留 SourceFinder 的 Context 身份，不重新读取 buffSource', () => {
     const metadata = sourceFixture().graph.abilityEvents[0]!.actions[0]!.actions[0]!.metadata;
     const builder = createActionGraphBuilder<CompiledBuffStepSource>();
@@ -458,13 +473,15 @@ describe('公共 Buff 运行时投影', () => {
         graph: builder,
       },
     );
-    const [each] = steps;
-    if (each?.kind !== 'forEachContextTarget') throw new Error('expected forEachContextTarget');
-    expect(each.parameters.targets).toEqual({ kind: 'context', key: 'queried' });
-    expect(readGraphActions(builder.finish(), each.body)).toEqual([
+    expect(steps).toEqual([
       {
         kind: 'finishBuffsById',
-        parameters: { target: 'currentTarget', buffIds: ['buff.fixture'], reason: 'other' },
+        parameters: {
+          targets: { kind: 'context', key: 'queried' },
+          finishSource: { kind: 'source' },
+          buffIds: ['buff.fixture'],
+          reason: 'other',
+        },
       },
     ]);
   });
@@ -593,7 +610,7 @@ describe('公共 Buff 运行时投影', () => {
     expect(
       readResourceActions(definition, definition.damageModifiers![0]!.condition!)[0],
     ).toMatchObject({
-      kind: 'conditional',
+      kind: 'checkCondition',
       parameters: { condition: { kind: 'poiseCompare', target: 'currentTarget' } },
     });
   });
@@ -645,7 +662,7 @@ describe('公共 Buff 运行时投影', () => {
       ],
     });
     expect(readResourceActions(result, result.damageModifiers![0]!.condition!)[0]).toMatchObject({
-      kind: 'conditional',
+      kind: 'checkCondition',
       parameters: {
         condition: {
           kind,
@@ -698,15 +715,13 @@ describe('公共 Buff 运行时投影', () => {
         },
       ],
     });
-    expect(readResourceActions(result, result.damageModifiers![0]!.condition!)[0]).toMatchObject({
-      kind: 'conditional',
-      parameters: {
-        condition: {
-          kind: 'not',
-          condition: { kind: 'eventSkillCastMatchesBuffSource' },
-        },
+    expect(readResourceActions(result, result.damageModifiers![0]!.condition!)).toEqual([
+      { kind: 'invertNextResult', parameters: {} },
+      {
+        kind: 'checkCondition',
+        parameters: { condition: { kind: 'eventSkillCastMatchesBuffSource' } },
       },
-    });
+    ]);
   });
 
   it('空处理器列表不能直接丢弃具有黑板副作用的条件', () => {
@@ -888,7 +903,7 @@ describe('公共 Buff 运行时投影', () => {
             },
             {
               kind: 'applyBuff',
-              parameters: { target: 'buffOwner', source: 'buffOwner' },
+              parameters: { targets: { kind: 'owner' }, source: { kind: 'owner' } },
             },
           ],
           true,
@@ -1015,7 +1030,7 @@ describe('公共 Buff 运行时投影', () => {
               event: { kind: 'abilityEvent', event: 'addedBuff' },
               sequence: graphBranch(projectedResult.graph, [
                 {
-                  kind: 'conditional',
+                  kind: 'checkCondition',
                   parameters: {
                     condition: {
                       kind: 'buffIdStackCompare',
@@ -1025,23 +1040,21 @@ describe('公共 Buff 运行时投影', () => {
                       value: { kind: 'constant', value: 1 },
                     },
                   },
-                  whenTrue: graphBranch(projectedResult.graph, [
-                    {
-                      kind: 'adjustSkillCooldown',
-                      parameters: {
-                        target: 'caster',
-                        skill: { kind: 'id', skillId: 'skill.normal' },
-                        operation: 'set',
-                        basis: 'absoluteSeconds',
-                        value: { kind: 'blackboard', key: 'set_cd' },
-                      },
-                    },
-                    {
-                      kind: 'jumpTimeline',
-                      parameters: { destinationFrame: 540 },
-                      condition: { $sequence: null },
-                    },
-                  ]),
+                },
+                {
+                  kind: 'adjustSkillCooldown',
+                  parameters: {
+                    target: 'caster',
+                    skill: { kind: 'id', skillId: 'skill.normal' },
+                    operation: 'set',
+                    basis: 'absoluteSeconds',
+                    value: { kind: 'blackboard', key: 'set_cd' },
+                  },
+                },
+                {
+                  kind: 'jumpTimeline',
+                  parameters: { destinationFrame: 540 },
+                  condition: { $sequence: null },
                 },
               ]),
             },
@@ -1186,6 +1199,10 @@ describe('公共 Buff 运行时投影', () => {
   });
 
   it('距离黑板只进入纯空间条件树时整体省略，不要求不存在的表现目标组', () => {
+    const flags = {
+      onlyExecuteWhenSourceIsMainCharacter: false,
+      onlyExecuteWhenSourceIsGuard: false,
+    };
     const metadata = {
       nativeType: 'Example.Action+Data, Example',
       nativeName: 'Action',
@@ -1205,6 +1222,7 @@ describe('公共 Buff 运行时投影', () => {
       body: {
         kind: 'ifElse' as const,
         condition: {
+          ...flags,
           actions: [
             leaf(
               'condition',
@@ -1214,9 +1232,10 @@ describe('公共 Buff 运行时投影', () => {
           ],
         },
         whenTrue: {
+          ...flags,
           actions: [leaf('presentation', { kind: 'cameraControl' }, 'SkillData.spatial.camera')],
         },
-        whenFalse: { actions: [] },
+        whenFalse: { ...flags, actions: [] },
         alwaysNext: true,
       },
     };
@@ -1230,9 +1249,11 @@ describe('公共 Buff 运行时投影', () => {
           body: {
             kind: 'ifElse' as const,
             condition: {
+              ...flags,
               actions: [leaf('condition', { kind: 'mainOperator' }, 'SkillData.spatial.owner')],
             },
             whenTrue: {
+              ...flags,
               actions: [
                 leaf(
                   'spatialMeasurement',
@@ -1247,20 +1268,45 @@ describe('公共 Buff 运行时投影', () => {
                 nested,
               ],
             },
-            whenFalse: { actions: [] },
+            whenFalse: { ...flags, actions: [] },
             alwaysNext: true,
           },
         },
       ],
     };
-    expect(
+    expect(() =>
       projectSequence(source as never, {
         gameplayTagRegistry: fixtureGameplayTagRegistry,
         actionOwnerTarget: 'caster',
         actionSourceTarget: 'caster',
         actionTargetTarget: 'enemy',
-      }).steps,
-    ).toEqual([]);
+      }),
+    ).toThrow('unresolved target-distance endpoint');
+    const context = {
+      gameplayTagRegistry: fixtureGameplayTagRegistry,
+      actionOwnerTarget: 'caster' as const,
+      actionSourceTarget: 'caster' as const,
+      actionTargetTarget: 'enemy' as const,
+      isBlackboardKeyUnusedByExternalResources: (key: string) => key === 'distance',
+    };
+    // 单个入口不能证明其他生命周期没有读取，即使已经排除外部资源。
+    expect(() => projectSequence(source as never, context)).toThrow(
+      'unresolved target-distance endpoint',
+    );
+    const optimized = simplifyNativeSequences(
+      { start: source },
+      context.isBlackboardKeyUnusedByExternalResources,
+      'resource',
+    );
+    expect(projectSequence(optimized.start as never, context).steps).toEqual([]);
+    const withLaterReader = simplifyNativeSequences(
+      { start: source, finish: nested.body.condition },
+      context.isBlackboardKeyUnusedByExternalResources,
+      'resource',
+    );
+    expect(() => projectSequence(withLaterReader.start as never, context)).toThrow(
+      'unresolved target-distance endpoint',
+    );
   });
 
   it('角色外部受击事件只省略唯一敌人来源的精确对象类型守卫', () => {
@@ -1589,8 +1635,18 @@ describe('公共 Buff 运行时投影', () => {
     expect(project().steps[0]).toMatchObject({
       parameters: { buffs: [{ stringBlackboardAssignments: { rate: 'label' } }] },
     });
-    // 已证明纯表现的整项先省略，不因其中未执行的字符串写入阻塞。
-    expect(project(new Set([entry.buffId])).steps).toEqual([]);
+    // 只省略纯表现 Buff 条目；光环本身仍保留进入/退出生命周期。
+    const filtered = project(new Set([entry.buffId]));
+    if (family === 'aura') {
+      expect(filtered.steps).toMatchObject([
+        {
+          kind: 'aura',
+          parameters: { buffs: [] },
+          onEnter: { $sequence: null },
+          onExit: { $sequence: null },
+        },
+      ]);
+    } else expect(filtered.steps).toEqual([]);
     assignment.useDirectValue = false;
     expect(project().steps[0]).toMatchObject({
       parameters: {
@@ -1665,10 +1721,10 @@ describe('公共 Buff 运行时投影', () => {
     );
 
     expect(projected.steps[0]).toMatchObject({
-      kind: 'applyBuff',
+      kind: 'aura',
       parameters: {
-        source: 'currentAbilityEntity',
-        target: 'party',
+        source: { kind: 'owner' },
+        targets: { kind: 'characterTeam', excludeOwner: true },
         iconDurationSource: {
           kind: 'actionOwnerTimedMarker',
           markerId: 'ultimate-window',
@@ -1729,7 +1785,7 @@ describe('公共 Buff 运行时投影', () => {
         kind: 'applyBuff',
         parameters: {
           buffs: [{ buffId: 'buff_common_pulse_pulse_conduct_triggered_do' }],
-          target: 'enemy',
+          targets: { kind: 'fixed', target: 'enemy' },
         },
       },
     ]);
@@ -1778,7 +1834,7 @@ describe('公共 Buff 运行时投影', () => {
 
     expect(projected.steps[0]).toMatchObject({
       kind: 'applyBuff',
-      parameters: { target: 'enemy', source: 'buffSource' },
+      parameters: { targets: { kind: 'fixed', target: 'enemy' }, source: { kind: 'source' } },
     });
   });
   it.each([
@@ -1844,11 +1900,20 @@ describe('公共 Buff 运行时投影', () => {
     const step = lifecycleSteps(definition, key)[0];
     expect(step).toMatchObject({
       kind: 'applyBuff',
-      parameters: { target: targetSource === 'Source' ? 'caster' : 'buffOwner' },
+      parameters: {
+        targets: {
+          kind:
+            targetSource === 'Source'
+              ? 'source'
+              : targetSource === 'Owner'
+                ? 'owner'
+                : 'inputTarget',
+        },
+      },
     });
-    expect(step?.kind === 'applyBuff' && step.parameters.source).toBe(
-      buffSource === 'ActionOwner' ? 'buffOwner' : undefined,
-    );
+    expect(step?.kind === 'applyBuff' && step.parameters.source).toEqual({
+      kind: buffSource === 'ActionOwner' ? 'owner' : 'source',
+    });
   });
 
   it('把 DuringBuffEnable 末尾的 SkillAffix 保留为动作而非提前构造身份', () => {
@@ -1926,12 +1991,13 @@ describe('公共 Buff 运行时投影', () => {
       expect(projected.steps[0]).toMatchObject({
         kind: 'applyBuff',
         parameters: {
-          target: targetSource === 'Target' ? 'enemy' : 'caster',
+          targets:
+            targetSource === 'Target' ? { kind: 'fixed', target: 'enemy' } : { kind: 'source' },
         },
       });
       expect(
         projected.steps[0]!.kind === 'applyBuff' && projected.steps[0]!.parameters.source,
-      ).toBeUndefined();
+      ).toEqual({ kind: 'source' });
     },
   );
 
@@ -2100,10 +2166,12 @@ describe('公共 Buff 运行时投影', () => {
       },
     );
 
-    expect(
-      readResourceActions(definition, definition.abilityEventResponses?.[0]?.sequence)[0],
-    ).toMatchObject({
-      kind: 'conditional',
+    const responseActions = readResourceActions(
+      definition,
+      definition.abilityEventResponses?.[0]?.sequence,
+    );
+    expect(responseActions[0]).toMatchObject({
+      kind: 'checkCondition',
       parameters: {
         condition: {
           kind: 'entityTagMatch',
@@ -2111,16 +2179,10 @@ describe('公共 Buff 运行时投影', () => {
           tagQueryType: 'exceptAny',
         },
       },
-      whenTrue: graphBranch(
-        definition.actionGraph!.main,
-        [
-          {
-            kind: 'conditional',
-            parameters: { condition: { kind: 'eventDamageTypeIn', damageTypes: ['heat'] } },
-          },
-        ],
-        true,
-      ),
+    });
+    expect(responseActions[1]).toMatchObject({
+      kind: 'checkCondition',
+      parameters: { condition: { kind: 'eventDamageTypeIn', damageTypes: ['heat'] } },
     });
   });
   it.each(['Source', 'Target', 'Owner'] as const)(
@@ -2186,30 +2248,26 @@ describe('公共 Buff 运行时投影', () => {
         { gameplayTagRegistry: fixtureGameplayTagRegistry, ...{} },
       );
       expect(
-        readResourceActions(definition, definition.abilityEventResponses?.[0]?.sequence)[0],
-      ).toMatchObject({
-        kind: 'conditional',
-        parameters: {
-          condition: {
-            kind: 'actionInputTargetIdentityMatch',
-            other: 'actionSource',
-            operator: 'equal',
+        readResourceActions(definition, definition.abilityEventResponses?.[0]?.sequence),
+      ).toMatchObject([
+        {
+          kind: 'checkCondition',
+          parameters: {
+            condition: {
+              kind: 'actionInputTargetIdentityMatch',
+              other: 'actionSource',
+              operator: 'equal',
+            },
           },
         },
-        whenTrue: graphBranch(
-          definition.actionGraph!.main,
-          [
-            {
-              kind: 'applyBuff',
-              parameters: {
-                target: { Source: 'buffSource', Target: 'eventSource', Owner: 'buffOwner' }[target],
-                source: 'buffSource',
-              },
-            },
-          ],
-          true,
-        ),
-      });
+        {
+          kind: 'applyBuff',
+          parameters: {
+            targets: { kind: { Source: 'source', Target: 'inputTarget', Owner: 'owner' }[target] },
+            source: { kind: 'source' },
+          },
+        },
+      ]);
     },
   );
 
@@ -2294,7 +2352,7 @@ describe('公共 Buff 运行时投影', () => {
     });
   });
 
-  it('数量真分支把至多一个的零空间 Context 细化为单例且不泄漏编译标记', () => {
+  it('单目标数量证明不能把位置目标提升为可读取 Buff 的敌人', () => {
     const sequence = sourceFixture().graph.abilityEvents[0]!.actions[0]!;
     const metadata = sequence.actions[0]!.metadata;
     const target = { ...fixedTarget('Context'), targetGroupKey: 'tar2' };
@@ -2320,88 +2378,71 @@ describe('公共 Buff 运行时投影', () => {
         },
       },
     };
-    const result = projectSequence(
-      {
-        ...sequence,
-        actions: [
-          {
-            sourcePath: 'SkillData.fixture.guard',
-            metadata,
-            body: {
-              kind: 'ifElse',
-              condition: {
-                ...sequence,
-                actions: [
-                  {
-                    sourcePath: 'SkillData.fixture.guard.count',
-                    metadata,
-                    body: {
-                      kind: 'leaf',
-                      value: {
-                        family: 'condition',
-                        action: {
-                          kind: 'entityCount',
-                          targetSource: 'Context',
-                          targetGroupKey: 'tar2',
-                          containsHittableTarget: false,
-                          excludeDeadEntity: false,
-                          storeKey: '',
-                          comparison: 'GE',
-                          minimumCount: 1,
+    expect(() =>
+      projectSequence(
+        {
+          ...sequence,
+          actions: [
+            {
+              sourcePath: 'SkillData.fixture.guard',
+              metadata,
+              body: {
+                kind: 'ifElse',
+                condition: {
+                  ...sequence,
+                  actions: [
+                    {
+                      sourcePath: 'SkillData.fixture.guard.count',
+                      metadata,
+                      body: {
+                        kind: 'leaf',
+                        value: {
+                          family: 'condition',
+                          action: {
+                            kind: 'entityCount',
+                            target,
+                            targetSource: 'Context',
+                            targetGroupKey: 'tar2',
+                            containsHittableTarget: false,
+                            excludeDeadEntity: false,
+                            storeKey: '',
+                            comparison: 'GE',
+                            minimumCount: 1,
+                          },
                         },
                       },
                     },
-                  },
-                ],
-              },
-              whenTrue: {
-                ...sequence,
-                actions: [
-                  {
-                    sourcePath: 'SkillData.fixture.guard.forEach',
-                    metadata,
-                    body: {
-                      kind: 'forEach',
-                      target,
-                      action: { ...sequence, actions: [readNode] },
+                  ],
+                },
+                whenTrue: {
+                  ...sequence,
+                  actions: [
+                    {
+                      sourcePath: 'SkillData.fixture.guard.forEach',
+                      metadata,
+                      body: {
+                        kind: 'forEach',
+                        target,
+                        action: { ...sequence, actions: [readNode] },
+                      },
                     },
-                  },
-                ],
+                  ],
+                },
+                whenFalse: { ...sequence, actions: [] },
+                alwaysNext: true,
               },
-              whenFalse: { ...sequence, actions: [] },
-              alwaysNext: true,
             },
-          },
-        ],
-      } as never,
-      {
-        gameplayTagRegistry: fixtureGameplayTagRegistry,
-        actionOwnerTarget: 'currentAbilityEntity',
-        actionSourceTarget: 'caster',
-        actionTargetTarget: 'caster',
-        atMostOneZeroSpaceTargetGroupKeys: new Set(['tar2']),
-      },
-    );
-
-    expect(readGraphActions(result.graph, result.entry)[0]).toMatchObject({
-      kind: 'conditional',
-      whenTrue: graphBranch(
-        result.graph,
-        [
-          {
-            kind: 'forEachContextTarget',
-            parameters: { targets: { kind: 'fixed', target: 'enemy' } },
-            body: graphBranch(
-              result.graph,
-              [{ kind: 'readBuffStackCount', parameters: { target: 'enemy' } }],
-              true,
-            ),
-          },
-        ],
-        true,
+          ],
+        } as never,
+        {
+          gameplayTagRegistry: fixtureGameplayTagRegistry,
+          actionOwnerTarget: 'currentAbilityEntity',
+          actionSourceTarget: 'caster',
+          actionTargetTarget: 'caster',
+          atMostOneZeroSpaceTargetGroupKeys: new Set(['tar2']),
+        },
       ),
-    });
-    expect(JSON.stringify(result)).not.toContain('guaranteedSingletonZeroSpace');
+    ).toThrow('unsupported Buff stack read');
   });
 
   it('公共动作投影按宿主上下文解析 ActionOwner，而不把武器宿主伪装成 Buff', () => {
@@ -2414,14 +2455,10 @@ describe('公共 Buff 运行时投影', () => {
       actionSourceTarget: 'caster',
       actionTargetTarget: 'eventTarget',
     });
-    expect(readGraphActions(result.graph, result.entry)[0]).toMatchObject({
-      kind: 'conditional',
-      whenTrue: graphBranch(
-        result.graph,
-        [{ kind: 'applyBuff', parameters: { target: 'caster' } }],
-        true,
-      ),
-    });
+    expect(readGraphActions(result.graph, result.entry)).toMatchObject([
+      { kind: 'checkCondition' },
+      { kind: 'applyBuff', parameters: { targets: { kind: 'owner' } } },
+    ]);
   });
 
   it('保留 FinishBuffAdvanced 的 Buff 来源目标与吸收原因', () => {
@@ -2485,7 +2522,8 @@ describe('公共 Buff 运行时投影', () => {
       {
         kind: 'finishBuffsById',
         parameters: {
-          target: 'caster',
+          targets: { kind: 'source' },
+          finishSource: { kind: 'source' },
           buffIds: ['buff.weapon.exist'],
           reason: 'absorbed',
         },
@@ -2493,7 +2531,7 @@ describe('公共 Buff 运行时投影', () => {
     ]);
   });
 
-  it('FinishBuffAdvanced 将原生 MainCharacter owner 投影为固定施法者', () => {
+  it('FinishBuffAdvanced 保留原生 MainCharacter 查询，不固定为施法者', () => {
     const source = sourceFixture();
     const baseSequence = source.graph.abilityEvents[0]!.actions[0]!;
     const metadata = baseSequence.actions[0]!.metadata;
@@ -2541,7 +2579,8 @@ describe('公共 Buff 运行时投影', () => {
       {
         kind: 'finishBuffsById',
         parameters: {
-          target: 'caster',
+          targets: { kind: 'mainCharacter' },
+          finishSource: { kind: 'source' },
           buffIds: ['buff_cc_chr_stack'],
           reason: 'other',
         },
@@ -2643,7 +2682,8 @@ describe('公共 Buff 运行时投影', () => {
       {
         kind: 'finishBuffsById',
         parameters: {
-          target: 'party',
+          targets: { kind: 'characterTeam', excludeOwner: false },
+          finishSource: { kind: 'source' },
           buffIds: ['buff.fixture'],
           reason: 'other',
         },
@@ -2705,7 +2745,8 @@ describe('公共 Buff 运行时投影', () => {
       {
         kind: 'finishBuffsByTag',
         parameters: {
-          target: 'enemy',
+          targets: { kind: 'fixed', target: 'enemy' },
+          finishSource: { kind: 'source' },
           tagQueryType: 'hasAny',
           buffTags: ['Skill/Character/Common/SpellStatus/Conduct'],
           reason: 'early',
@@ -2762,7 +2803,8 @@ describe('公共 Buff 运行时投影', () => {
       {
         kind: 'finishBuffsByTag',
         parameters: {
-          target: 'enemy',
+          targets: { kind: 'fixed', target: 'enemy' },
+          finishSource: { kind: 'owner' },
           tagQueryType: 'hasAny',
           buffTags: ['Skill/Character/Common/SpellInflict/FireInflict'],
           reason: 'early',
@@ -2826,7 +2868,7 @@ describe('公共 Buff 运行时投影', () => {
     expect(
       readResourceActions(definition, definition.healModifiers![0]!.condition!)[0],
     ).toMatchObject({
-      kind: 'conditional',
+      kind: 'checkCondition',
       parameters: {
         condition: {
           kind: 'eventHealTagsMatch',
@@ -2898,7 +2940,7 @@ describe('公共 Buff 运行时投影', () => {
     expect(
       readResourceActions(definition, definition.healModifiers![0]!.condition!)[0],
     ).toMatchObject({
-      kind: 'conditional',
+      kind: 'checkCondition',
       parameters: {
         condition: {
           kind: 'healthCompare',
@@ -2996,7 +3038,7 @@ describe('公共 Buff 运行时投影', () => {
     const definition = project(2097152);
     const guard = readResourceActions(definition, definition.poiseModifiers![0]!.condition!)[0]!;
     expect(guard).toMatchObject({
-      kind: 'conditional',
+      kind: 'checkCondition',
       parameters: {
         condition: {
           kind: 'eventDamageTagsMatch',
@@ -3005,10 +3047,12 @@ describe('公共 Buff 运行时投影', () => {
         },
       },
     });
-    if (guard.kind !== 'conditional') throw new Error('expected conditional action');
-    expect(readResourceActions(definition, guard.whenTrue)).toMatchObject([
-      { kind: 'conditional', parameters: { condition: { kind: 'casterControlled' } } },
-    ]);
+    expect(
+      readResourceActions(definition, definition.poiseModifiers![0]!.condition!)[1],
+    ).toMatchObject({
+      kind: 'checkCondition',
+      parameters: { condition: { kind: 'casterControlled' } },
+    });
     expect(definition.poiseModifiers).toEqual([
       {
         enabledSide: 'attacker',
@@ -3162,7 +3206,7 @@ describe('公共 Buff 运行时投影', () => {
         return readResourceActions(compiled, compiled.abilityEventResponses?.[0]?.sequence)[0];
       })(),
     ).toMatchObject({
-      kind: 'conditional',
+      kind: 'checkCondition',
       parameters: {
         condition: {
           kind: 'originSkillTypeIn',
@@ -3231,7 +3275,7 @@ describe('公共 Buff 运行时投影', () => {
         return readResourceActions(compiled, compiled.abilityEventResponses?.[0]?.sequence)[0];
       })(),
     ).toMatchObject({
-      kind: 'conditional',
+      kind: 'checkCondition',
       parameters: { condition: { kind: 'originSkillTypeIn', skillTypes: expected } },
     });
   });
@@ -3298,7 +3342,7 @@ describe('公共 Buff 运行时投影', () => {
         return readResourceActions(compiled, compiled.abilityEventResponses?.[0]?.sequence)[0];
       })(),
     ).toMatchObject({
-      kind: 'conditional',
+      kind: 'checkCondition',
       parameters: {
         condition: {
           kind: 'currentSkillTypeIn',
@@ -3433,7 +3477,7 @@ describe('公共 Buff 运行时投影', () => {
             definition.actionGraph!.main,
             [
               {
-                kind: 'conditional',
+                kind: 'checkCondition',
                 parameters: {
                   condition: {
                     kind: 'eventSpGainMatch',
@@ -3441,17 +3485,68 @@ describe('公共 Buff 运行时投影', () => {
                     gainKinds: ['gain'],
                   },
                 },
-                whenTrue: graphBranch(
-                  definition.actionGraph!.main,
-                  [{ kind: 'applyBuff', parameters: { target: expectedTarget } }],
-                  true,
-                ),
               },
+              {
+                kind: 'findTargets',
+                parameters: {
+                  query: {
+                    kind: 'characterTeam',
+                    excludeOwner: expectedTarget === 'partyExceptCaster',
+                    owner: { kind: 'source' },
+                  },
+                  saveToContextKey: 'teammate',
+                },
+              },
+              { kind: 'applyBuff', parameters: { targets: { kind: 'context', key: 'teammate' } } },
             ],
             true,
           ),
         },
       ]);
+      const members = ['caster', 'ally'];
+      const recipients: unknown[] = [];
+      const executor = new TargetContextOperationExecutor(
+        'definition-owner',
+        {
+          evaluate: () => true,
+          execute: (step, context) => {
+            if (step.kind !== 'applyBuff') throw new Error(`unexpected ${step.kind}`);
+            // 施加前队伍发生变化，必须消费 Finder 保存的身份，不重新选择。
+            members.length = 0;
+            recipients.push(
+              ...resolveDirectActionTargets(step.parameters.targets, context!, 'definition-owner')!,
+            );
+            return true;
+          },
+        },
+        undefined,
+        {
+          listOperatorIds: () => members,
+          isOperatorControlled: () => false,
+          resolveVitals: () => {
+            throw new Error('party query must not read health');
+          },
+        },
+      );
+      new CombatActionSequenceRuntime(executor, {
+        blackboard: new ActionBlackboard(),
+        targetContext: new RuntimeTargetContext(),
+        actionOwnerId: 'ally',
+        actionSourceId: 'caster',
+      })
+        .createSequence(
+          compileGraphSequence(
+            definition.abilityEventResponses![0]!.sequence,
+            definition.actionGraph!,
+          ),
+        )
+        .executeInstant({});
+      expect(recipients).toEqual(
+        (expectedTarget === 'party' ? ['ally', 'caster'] : ['ally']).map(operatorId => ({
+          kind: 'operator',
+          operatorId,
+        })),
+      );
     },
   );
 
@@ -3646,7 +3741,7 @@ describe('公共 Buff 运行时投影', () => {
           operator: 'less',
           value: { kind: 'blackboard', key: 'hp_remain' },
         },
-      ].map(condition => ({ kind: 'conditional', parameters: { condition } })),
+      ].map(condition => ({ kind: 'checkCondition', parameters: { condition } })),
     );
   });
 
@@ -3673,20 +3768,14 @@ describe('公共 Buff 运行时投影', () => {
           definition.actionGraph!.main,
           [
             {
-              kind: 'conditional',
+              kind: 'checkCondition',
               parameters: {
                 condition: { kind: 'eventSkillTypeIn', skillTypes: ['battleSkill'] },
               },
-              whenTrue: graphBranch(
-                definition.actionGraph!.main,
-                [
-                  {
-                    kind: 'applyBuff',
-                    parameters: { buffs: [{ buffId: 'buff_child' }], target: 'buffOwner' },
-                  },
-                ],
-                true,
-              ),
+            },
+            {
+              kind: 'applyBuff',
+              parameters: { buffs: [{ buffId: 'buff_child' }], targets: { kind: 'owner' } },
             },
           ],
           true,
@@ -3709,12 +3798,12 @@ describe('公共 Buff 运行时投影', () => {
         { attribute: 'Atk', slot: 'baseMultiplier', value: { blackboardKey: 'atk_up' } },
       ],
     });
-    const condition = readResourceActions(
+    const actions = readResourceActions(
       definition,
       definition.abilityEventResponses?.[0]?.sequence,
-    )[0];
-    if (condition?.kind !== 'conditional') throw new Error('expected guarded child Buff');
-    const child = readResourceActions(definition, condition.whenTrue)[0];
+    );
+    if (actions[0]?.kind !== 'checkCondition') throw new Error('expected guarded child Buff');
+    const child = actions[1];
     if (child?.kind !== 'applyBuff') throw new Error('expected child Buff application');
     expect(child.parameters).not.toHaveProperty('blackboardAssignments');
   });
@@ -3929,7 +4018,7 @@ describe('公共 Buff 运行时投影', () => {
         priority: 0,
         sequence: graphBranch(outputBuffDefinition.actionGraph!.main, [
           {
-            kind: 'conditional',
+            kind: 'checkCondition',
             parameters: {
               condition: {
                 kind: 'eventBuffTagsMatch',
@@ -3937,8 +4026,8 @@ describe('公共 Buff 运行时投影', () => {
                 buffTags: ['Skill/Character/Common/SpellStatus/Conduct'],
               },
             },
-            whenTrue: expect.any(Object),
           },
+          expect.objectContaining({ kind: 'applyBuff' }),
         ]),
       },
     ]);
@@ -4014,33 +4103,29 @@ describe('公共 Buff 运行时投影', () => {
     );
     expect(steps).toEqual([
       {
-        kind: 'conditional',
+        kind: 'checkCondition',
         parameters: {
           condition: {
             kind: 'eventSkillTypeIn',
             skillTypes: ['battleSkill'],
           },
         },
-        whenTrue: graphBranch(countDefinition.actionGraph!.main, [
-          expect.objectContaining({ kind: 'applyBuff' }),
-          {
-            kind: 'conditional',
-            parameters: {
-              condition: {
-                kind: 'buffStackCompare',
-                target,
-                tagQueryType: 'hasAny',
-                buffTags: ['Skill/Character/Common/NoGuard'],
-                operator: 'greaterOrEqual',
-                value: { kind: 'blackboard', key: 'stack_cond' },
-              },
-            },
-            whenTrue: graphBranch(countDefinition.actionGraph!.main, [
-              expect.objectContaining({ kind: 'applyBuff' }),
-            ]),
-          },
-        ]),
       },
+      expect.objectContaining({ kind: 'applyBuff' }),
+      {
+        kind: 'checkCondition',
+        parameters: {
+          condition: {
+            kind: 'buffStackCompare',
+            target,
+            tagQueryType: 'hasAny',
+            buffTags: ['Skill/Character/Common/NoGuard'],
+            operator: 'greaterOrEqual',
+            value: { kind: 'blackboard', key: 'stack_cond' },
+          },
+        },
+      },
+      expect.objectContaining({ kind: 'applyBuff' }),
     ]);
   });
 
@@ -4084,7 +4169,7 @@ describe('公共 Buff 运行时投影', () => {
         },
       ).steps[0],
     ).toMatchObject({
-      kind: 'conditional',
+      kind: 'checkCondition',
       parameters: {
         condition: {
           kind: 'buffStackCompare',
@@ -4137,7 +4222,7 @@ describe('公共 Buff 运行时投影', () => {
         },
       ).steps[0],
     ).toMatchObject({
-      kind: 'conditional',
+      kind: 'checkCondition',
       parameters: {
         condition: {
           kind: 'buffTagIdCountCompare',
@@ -4214,34 +4299,35 @@ describe('公共 Buff 运行时投影', () => {
           onlyExecuteWhenSourceIsMainCharacter: false,
           onlyExecuteWhenSourceIsGuard: false,
           actions: [
-            conditionNode(
-              'BuffData.buff_root.specialMultiplier.any',
-              {
-                kind: 'any',
-                sourceType: 'OrConditionAction',
-                groups: [
-                  { conditions: [buffStack('Tag', [], [1066759270])], negated: [false] },
+            {
+              sourcePath: 'BuffData.buff_root.specialMultiplier.any',
+              metadata: { ...metadata, serverActionIndex: 4 },
+              body: {
+                kind: 'anyCondition',
+                conditions: [
+                  buffStack('Tag', [], [1066759270]),
+                  buffStack('Id', ['buff_common_originum_frozen'], []),
                   {
-                    conditions: [buffStack('Id', ['buff_common_originum_frozen'], [])],
-                    negated: [false],
+                    kind: 'poise',
+                    sourceType: 'CheckPoiseValue',
+                    target,
+                    returnValueIfMissing: false,
+                    comparison: 'Equals',
+                    value: scalar(0),
                   },
-                  {
-                    conditions: [
-                      {
-                        kind: 'poise',
-                        sourceType: 'CheckPoiseValue',
-                        target,
-                        returnValueIfMissing: false,
-                        comparison: 'Equals',
-                        value: scalar(0),
-                      },
-                    ],
-                    negated: [false],
-                  },
-                ],
+                ].map((condition, index) => ({
+                  onlyExecuteWhenSourceIsMainCharacter: false,
+                  onlyExecuteWhenSourceIsGuard: false,
+                  actions: [
+                    conditionNode(
+                      `BuffData.buff_root.specialMultiplier.any.${index}`,
+                      condition,
+                      4,
+                    ),
+                  ],
+                })),
               },
-              4,
-            ),
+            },
           ],
         },
         whenTrue: {
@@ -4352,30 +4438,65 @@ describe('公共 Buff 运行时投影', () => {
                   types: ['fracture', 'crush'],
                 },
               },
+            },
+            {
+              kind: 'readBuffStackCount',
+              parameters: { target: 'eventTarget', outputKey: 'count' },
+            },
+            {
+              kind: 'modifyActionValue',
+              parameters: { key: 'perStack', operation: 'assign' },
+            },
+            {
+              kind: 'ifElse',
+              parameters: { alwaysNext: true },
+              condition: graphBranch(
+                compiledDefinition.actionGraph!.main,
+                [
+                  {
+                    kind: 'anyCondition',
+                    conditions: [
+                      graphBranch(
+                        compiledDefinition.actionGraph!.main,
+                        [
+                          {
+                            kind: 'checkCondition',
+                            parameters: { condition: { kind: 'buffStackCompare' } },
+                          },
+                        ],
+                        true,
+                      ),
+                      graphBranch(
+                        compiledDefinition.actionGraph!.main,
+                        [
+                          {
+                            kind: 'checkCondition',
+                            parameters: { condition: { kind: 'buffIdStackCompare' } },
+                          },
+                        ],
+                        true,
+                      ),
+                      graphBranch(
+                        compiledDefinition.actionGraph!.main,
+                        [
+                          {
+                            kind: 'checkCondition',
+                            parameters: { condition: { kind: 'poiseCompare' } },
+                          },
+                        ],
+                        true,
+                      ),
+                    ],
+                  },
+                ],
+                true,
+              ),
               whenTrue: graphBranch(
                 compiledDefinition.actionGraph!.main,
                 [
                   {
-                    kind: 'readBuffStackCount',
-                    parameters: { target: 'eventTarget', outputKey: 'count' },
-                  },
-                  {
                     kind: 'modifyActionValue',
-                    parameters: { key: 'perStack', operation: 'assign' },
-                  },
-                  {
-                    kind: 'conditional',
-                    parameters: { condition: { kind: 'any' }, alwaysNext: true },
-                    whenTrue: graphBranch(
-                      compiledDefinition.actionGraph!.main,
-                      [
-                        {
-                          kind: 'modifyActionValue',
-                          parameters: { key: 'perStack', operation: 'multiply' },
-                        },
-                      ],
-                      true,
-                    ),
+                    parameters: { key: 'perStack', operation: 'multiply' },
                   },
                 ],
                 true,
@@ -4491,7 +4612,7 @@ describe('公共 Buff 运行时投影', () => {
       ),
     ).toEqual([
       {
-        kind: 'conditional',
+        kind: 'checkCondition',
         parameters: {
           condition: {
             kind: 'eventBuffTagsMatch',
@@ -4499,40 +4620,36 @@ describe('公共 Buff 运行时投影', () => {
             buffTags: ['Skill/Character/Common/PhysicalStatus'],
           },
         },
-        whenTrue: graphBranch(runtimeDefinition.actionGraph!.main, [
-          {
-            kind: 'conditional',
-            parameters: {
-              condition: {
-                kind: 'not',
-                condition: {
-                  kind: 'globalCooldownPresent',
-                  target: 'buffOwner',
-                  markerId: 'buff_equipsuit_physuit_01',
-                },
-              },
+      },
+      {
+        kind: 'checkCondition',
+        parameters: {
+          condition: {
+            kind: 'not',
+            condition: {
+              kind: 'globalCooldownPresent',
+              target: 'buffOwner',
+              markerId: 'buff_equipsuit_physuit_01',
             },
-            whenTrue: graphBranch(runtimeDefinition.actionGraph!.main, [
-              {
-                kind: 'dealDamage',
-                parameters: {
-                  damageType: 'physical',
-                  attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                  tags: [],
-                  stagger: { kind: 'blackboard', key: 'poise' },
-                },
-              },
-              {
-                kind: 'setGlobalCooldown',
-                parameters: {
-                  target: 'caster',
-                  markerId: 'buff_equipsuit_physuit_01',
-                  durationSeconds: { kind: 'blackboard', key: 'duration' },
-                },
-              },
-            ]),
           },
-        ]),
+        },
+      },
+      {
+        kind: 'dealDamage',
+        parameters: {
+          damageType: 'physical',
+          attackScale: { kind: 'blackboard', key: 'atk_scale' },
+          tags: [],
+          stagger: { kind: 'blackboard', key: 'poise' },
+        },
+      },
+      {
+        kind: 'setGlobalCooldown',
+        parameters: {
+          target: 'caster',
+          markerId: 'buff_equipsuit_physuit_01',
+          durationSeconds: { kind: 'blackboard', key: 'duration' },
+        },
       },
     ]);
   });
@@ -4624,7 +4741,7 @@ describe('公共 Buff 运行时投影', () => {
     );
 
     expect(readResourceActions(compiled, compiled.lifecycleSequences?.start)).toMatchObject([
-      { kind: 'applyBuff', parameters: { target: 'buffOwner' } },
+      { kind: 'applyBuff', parameters: { targets: { kind: 'owner' } } },
     ]);
     expect(
       compiled.abilityEventResponses?.map(response => ({
@@ -4639,12 +4756,8 @@ describe('公共 Buff 运行时投影', () => {
           [
             {
               parameters: { condition: { kind: 'eventOverheal' } },
-              whenTrue: graphBranch(
-                compiled.actionGraph!.main,
-                [{ parameters: { target: 'eventTarget' } }],
-                true,
-              ),
             },
+            { parameters: { targets: { kind: 'inputTarget' } } },
           ],
           true,
         ),
@@ -4654,16 +4767,13 @@ describe('公共 Buff 运行时投影', () => {
         sequence: graphBranch(
           compiled.actionGraph!.main,
           [
+            { kind: 'invertNextResult' },
             {
               parameters: {
-                condition: { kind: 'not', condition: { kind: 'eventOverheal' } },
+                condition: { kind: 'eventOverheal' },
               },
-              whenTrue: graphBranch(
-                compiled.actionGraph!.main,
-                [{ parameters: { target: 'eventTarget' } }],
-                true,
-              ),
             },
+            { parameters: { targets: { kind: 'inputTarget' } } },
           ],
           true,
         ),
@@ -4766,7 +4876,7 @@ describe('固定木桩 RangedAura 投影', () => {
     const aura = result.steps[0]!;
     expect(aura).toMatchObject({
       kind: 'aura',
-      parameters: { target: 'enemy', buffs: [] },
+      parameters: { targets: { kind: 'fixed', target: 'enemy' }, buffs: [] },
       onExit: { $sequence: null },
     });
     if (aura.kind !== 'aura') throw new Error('expected Aura');

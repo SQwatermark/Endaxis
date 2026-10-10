@@ -67,7 +67,12 @@ export type ActionTargetQuery =
       readonly tagQueryType: GameplayTagQueryType;
       readonly tags: readonly GameplayTag[];
     }
-  | { readonly kind: 'characterTeam'; readonly excludeOwner: boolean }
+  | {
+      readonly kind: 'characterTeam';
+      readonly excludeOwner: boolean;
+      /** 排除的 selector owner；省略时使用动作 Owner，不能替换成定义所属干员。 */
+      readonly owner?: ActionEntitySelection;
+    }
   | { readonly kind: 'mainTarget'; readonly owner: ActionEntitySelection }
   | {
       readonly kind: 'fixedPoint';

@@ -165,7 +165,7 @@ export function compileStrictSwitchToBuffCastSource(
               : { stringBlackboardAssignments: stringAssignments }),
           },
         ],
-        target,
+        targets: { kind: 'fixed' as const, target },
         inheritSourceSkillCastInfo: true,
       },
     };

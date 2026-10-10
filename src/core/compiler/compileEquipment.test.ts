@@ -328,7 +328,7 @@ describe('compile equipment contributions', () => {
             init: {
               action: {
                 kind: 'applyBuff',
-                parameters: { buffs: [{ buffId: 'marker' }], target: 'caster' },
+                parameters: { buffs: [{ buffId: 'marker' }], targets: { kind: 'fixed', target: 'caster' } },
               },
               next: null,
             },

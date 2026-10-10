@@ -2,7 +2,8 @@ import { isCombatInvisiblePresentationLeaf } from './nativePresentationUsage.ts'
 import { isDeepStrictEqual } from 'node:util';
 import type { KnownNativeActionLeafSource } from '../../source/actionLeaf.ts';
 import type { NativeActionNodeSource, NativeSequenceSource } from '../../source/controlFlow.ts';
-import { canOmitUnusedNativeCondition } from './nativeConditionUsage.ts';
+import { canOmitUnusedNativeCondition, isReadOnlyNativeTarget } from './nativeConditionUsage.ts';
+import { summarizeNativeBlackboardUsage } from './nativeBlackboardUsage.ts';
 
 type Sequence = NativeSequenceSource<KnownNativeActionLeafSource>;
 
@@ -76,17 +77,28 @@ function comparable(value: unknown): unknown {
  * 保留 IfElse 调用及 alwaysNext，
  * 不能把多动作分支展开到父序列，否则 NotNext 和返回 false 的边界会改变。
  * 来源 IR 是纯数据；递归覆盖控制子序列及叶动作持有的事件、回调。
+ * resource 仅供包含全部生命周期、调度及修正条件的完整来源使用，允许清理无读取的
+ * 距离写入；sequence 无法排除其他入口的读取，只简化控制流与已有外部赋值证明。
  */
 export function simplifyNativeSequences<T>(
   source: T,
   isEntityBlackboardKeyUnused?: (key: string) => boolean,
+  scope: 'sequence' | 'resource' = 'sequence',
 ): T {
+  let previousReads: ReadonlySet<string> | undefined;
+  let reads = new Set<string>();
   const visit = (value: unknown): unknown => {
     if (Array.isArray(value)) return value.map(visit);
     if (value === null || typeof value !== 'object') return value;
     const object = Object.fromEntries(
       Object.entries(value).map(([key, child]) => [key, visit(child)]),
     );
+    if ('body' in object && 'metadata' in object && 'sourcePath' in object) {
+      const usage = summarizeNativeBlackboardUsage(
+        object as unknown as NativeActionNodeSource<KnownNativeActionLeafSource>,
+      );
+      for (const key of usage.reads) reads.add(key);
+    }
     if (object.family === 'projectile' || object.family === 'abilityEntity') {
       const leaf = object as unknown as Extract<
         KnownNativeActionLeafSource,
@@ -115,6 +127,20 @@ export function simplifyNativeSequences<T>(
         .filter(node => {
           if (hasResultInversion) return true;
           const body = node.body;
+          // 先消除纯表现消费者，再用上一轮的保守读取集合清理距离写入。
+          // 外部证明必须涵盖其他入口和资源；缺少证明时不能把局部无读取当作无用途。
+          if (body.kind === 'leaf' && body.value.family === 'spatialMeasurement') {
+            const action = body.value.action;
+            if (
+              scope === 'resource' &&
+              previousReads &&
+              !previousReads.has(action.outputKey) &&
+              isEntityBlackboardKeyUnused?.(action.outputKey) &&
+              isReadOnlyNativeTarget(action.source) &&
+              isReadOnlyNativeTarget(action.target)
+            )
+              return false;
+          }
           if (
             body.kind === 'ifElse' &&
             body.alwaysNext &&
@@ -163,5 +189,17 @@ export function simplifyNativeSequences<T>(
         }),
     };
   };
-  return visit(source) as T;
+  let current: unknown = source;
+  for (;;) {
+    reads = new Set();
+    const next = visit(current);
+    if (
+      previousReads &&
+      isDeepStrictEqual(previousReads, reads) &&
+      isDeepStrictEqual(current, next)
+    )
+      return next as T;
+    previousReads = reads;
+    current = next;
+  }
 }

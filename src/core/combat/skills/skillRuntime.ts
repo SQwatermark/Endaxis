@@ -43,6 +43,7 @@ export type LaunchProjectile = (request: {
   readonly producedBy?: import('../receipt/combatReceipt').CombatObjectRef;
   readonly hit?: CompiledStepParameters['launchProjectile']['hit'];
   readonly hitTarget?: import('../../game-data/logicalAbilityEntity').RuntimeTargetRef;
+  readonly onlyHitTargets?: readonly import('../../game-data/logicalAbilityEntity').RuntimeTargetRef[];
 }) => ProjectileLifetimeReference;
 
 export interface ProjectileRuntimeDependencies {
@@ -792,9 +793,7 @@ export class SkillRuntime {
     // 旁路不启动候选技能；为这次同步执行固定快照施法身份，不能把一个事后会
     // 回落到候选技能的 getter 泄漏给操作执行器。
     const routeContext: CombatOperationContext = {
-      blackboard: this.#blackboard,
-      damageCalculationSnapshots: this.#operationContext.damageCalculationSnapshots,
-      targetContext: this.#targetContext,
+      ...this.#operationContext,
       skillCastInfo,
     };
     if (route.condition !== undefined) {

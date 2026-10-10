@@ -54,11 +54,6 @@ const definition = {
           sequence: { $sequence: 'checkCondition_2' },
         },
       ],
-      blackboard: {
-        dmg_up: [0.08, 0.096, 0.112, 0.128, 0.144, 0.16, 0.176, 0.192, 0.224],
-        duration: [15, 15, 15, 15, 15, 15, 15, 15, 15],
-        lv: 1,
-      },
       actionGraph: {
         main: {
           nodes: {
@@ -76,7 +71,8 @@ const definition = {
                       },
                     },
                   ],
-                  target: 'party',
+                  targets: { kind: 'characterTeam', excludeOwner: false },
+                  source: { kind: 'source' },
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
                 },
@@ -99,6 +95,11 @@ const definition = {
           },
         },
         macros: {},
+      },
+      blackboard: {
+        dmg_up: [0.08, 0.096, 0.112, 0.128, 0.144, 0.16, 0.176, 0.192, 0.224],
+        duration: [15, 15, 15, 15, 15, 15, 15, 15, 15],
+        lv: 1,
       },
     },
   ],

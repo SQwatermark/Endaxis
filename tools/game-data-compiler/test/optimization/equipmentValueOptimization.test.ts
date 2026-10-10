@@ -23,7 +23,12 @@ const literal = (value: number) => ({ kind: 'constant' as const, value });
 const board = (key: string) => ({ kind: 'blackboard' as const, key });
 const spend = (key: string): ActionGraphStep => ({
   kind: 'changeResource',
-  parameters: { resource: 'sp', recipient: 'team', amount: board(key) },
+  parameters: {
+    resource: 'sp',
+    source: { kind: 'owner' },
+    targets: { kind: 'owner' },
+    amount: board(key),
+  },
 });
 const gate = (key: string): CombatCondition => ({
   kind: 'actionValueCompare',
@@ -345,7 +350,7 @@ describe('有运行入口的装备贡献按键裁剪初值', () => {
                 blackboardAssignments: { received: board('transfer') },
               },
             ],
-            target: 'caster',
+            targets: { kind: 'fixed', target: 'caster' },
           },
         },
       ]),

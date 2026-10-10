@@ -12,6 +12,7 @@ import { EventContextConditionExecutor } from '../../../../src/core/combat/event
 import { AbilityEntityOperationExecutor } from '../../../../src/core/combat/abilities/abilityEntityOperationExecutor.ts';
 import { LogicalAbilityEntityRuntime } from '../../../../src/core/combat/abilities/logicalAbilityEntityRuntime.ts';
 import { RuntimeTargetContext } from '../../../../src/core/combat/abilities/runtimeTargetContext.ts';
+import { TargetContextOperationExecutor } from '../../../../src/core/combat/abilities/targetContextOperationExecutor.ts';
 import {
   analyzeConditionUsage,
   analyzeStepUsage,
@@ -276,10 +277,11 @@ describe('黑板用途的读取对象', () => {
         blackboardAssignments: { slot },
       });
     }
-    const executor = new AbilityEntityOperationExecutor('caster', entities, {
+    const operations = new TargetContextOperationExecutor('caster', {
       execute: () => false,
       evaluate: () => false,
     });
+    const executor = new AbilityEntityOperationExecutor('caster', entities, operations);
     const run = (blackboard: ActionBlackboard) => {
       const targetContext = new RuntimeTargetContext();
       expect(executor.execute(query, { blackboard, targetContext })).toBe(true);
@@ -366,7 +368,7 @@ it('keeps unresolved string graphs as conservative usage barriers without invent
   const usages = [
     analyzeStepUsage({
       kind: 'applyBuff',
-      parameters: { buffs: [{ buffId: stringNode }], target: 'caster' },
+      parameters: { buffs: [{ buffId: stringNode }], targets: { kind: 'fixed', target: 'caster' } },
     }),
     analyzeStepUsage({
       kind: 'castSkillDuringAction',
@@ -381,18 +383,20 @@ it('keeps unresolved string graphs as conservative usage barriers without invent
       kind: 'createTimedMarker',
       parameters: {
         markerId: stringNode,
-        target: 'caster',
+        targets: { kind: 'fixed', target: 'caster' },
+        timeDomain: 'self',
         durationSeconds: { kind: 'blackboard', key: 'duration' },
         autoFinishByAction: false,
       },
     }),
     analyzeStepUsage({
-      kind: 'createAbilityEntityTimedMarker',
+      kind: 'createTimedMarker',
       parameters: {
         markerId: stringNode,
         durationSeconds: { kind: 'constant', value: 1 },
         autoFinishByAction: false,
-        timeDomain: 'global',
+        targets: { kind: 'owner' },
+        timeDomain: 'globalScaled',
       },
     }),
     analyzeConditionUsage({ kind: 'timedMarkerPresent', target: 'caster', markerId: stringNode }),
@@ -443,7 +447,8 @@ it('does not prune prior writes or initial values through an unresolved string d
               kind: 'createTimedMarker',
               parameters: {
                 markerId: { kind: 'stringNode', nodeId: 'source' },
-                target: 'caster',
+                targets: { kind: 'fixed', target: 'caster' },
+                timeDomain: 'self',
                 durationSeconds: { kind: 'constant', value: 1 },
                 autoFinishByAction: false,
               },

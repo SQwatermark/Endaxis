@@ -1,4 +1,5 @@
 import type { DeclaredBlackboardValueSource } from '../../source/blackboard.ts';
+import { projectActionTargetQuery } from '../conditions/combatConditionProjection.ts';
 import type { ProjectileLaunchActionSource } from '../../source/referenceActions.ts';
 import type { ProjectileRuntimeSource } from '../../source/projectileRuntime.ts';
 import type { KnownNativeActionLeafSource } from '../../source/actionLeaf.ts';
@@ -259,7 +260,12 @@ export function createZeroDistanceProjectileProjectionExtensionSource(input: {
         },
       ];
     }
-    assertSupportedLaunchTargetControls(launch, sourcePath, projectionContext);
+    const onlyHitTargets = assertSupportedLaunchTargetControls(
+      launch,
+      sourcePath,
+      projectionContext,
+      true,
+    );
     if (!['Source', 'Owner'].includes(launch.projectileSource.targetSource))
       throw new Error(`${sourcePath}: projectile source must resolve to Source or Owner`);
     if (!hasNoModeledBlockingSurfaces(runtime))
@@ -424,6 +430,7 @@ export function createZeroDistanceProjectileProjectionExtensionSource(input: {
         kind: 'launchProjectile',
         parameters: {
           ...blackboard,
+          ...(onlyHitTargets === undefined ? {} : { onlyHitTargets }),
           finish,
           ...(launch.projectileSource.targetSource === 'Owner'
             ? { source: 'actionOwner' as const }
@@ -555,7 +562,15 @@ function assertSupportedLaunchTargetControls(
   launch: ProjectileLaunchActionSource,
   path: string,
   context?: CombatActionProjectionContextSource,
-): void {
+  retainDynamicFilter = false,
+):
+  | import('../../../../../packages/game-data-contract/src/conditions.ts').ActionTargetQuery
+  | undefined {
+  if (launch.alsoLaunchToHittableTarget !== false) {
+    throw new Error(
+      `${path}.alsoLaunchToHittableTarget: additional projectile launches are not modeled`,
+    );
+  }
   if (
     launch.targetFilterMode === 'OnlyHit' &&
     launch.targetFilterSettings !== null &&
@@ -563,14 +578,20 @@ function assertSupportedLaunchTargetControls(
       context?.provenOnlyHitProjectilePaths?.has(path) === true)
   ) {
     // 唯一可能碰撞的敌人属于白名单，过滤前后可见 hit 集合相同。
+  } else if (
+    retainDynamicFilter &&
+    launch.targetFilterMode === 'OnlyHit' &&
+    launch.targetFilterSettings !== null &&
+    context !== undefined
+  ) {
+    return projectActionTargetQuery(
+      launch.targetFilterSettings,
+      context,
+      `${path}.targetFilterSettings`,
+    );
   } else if (launch.targetFilterMode !== 'None') {
     throw new Error(
       `${path}.targetFilterMode: projectile target filter ${launch.targetFilterMode} is not modeled`,
-    );
-  }
-  if (launch.alsoLaunchToHittableTarget !== false) {
-    throw new Error(
-      `${path}.alsoLaunchToHittableTarget: additional projectile launches are not modeled`,
     );
   }
 }
@@ -841,7 +862,9 @@ function isPlainZeroSpaceFixedPoint(
     (context.actionTargetTarget === 'enemy' ||
       context.actionTargetTarget === 'caster' ||
       context.actionTargetTarget === 'currentOperator' ||
-      context.actionTargetTarget === 'currentAbilityEntity');
+      context.actionTargetTarget === 'currentAbilityEntity' ||
+      (context.actionTargetTarget === 'actionInputTarget' &&
+        context.actionInputIsZeroSpace === true));
   const contextTargetIsProvenZeroSpace =
     target.targetSource === 'Context' &&
     target.targetGroupKey !== '' &&

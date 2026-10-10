@@ -129,7 +129,8 @@ async function run(
                   action: {
                     kind: 'finishBuffsByTag' as const,
                     parameters: {
-                      target: 'enemy' as const,
+                      targets: { kind: 'fixed', target: 'enemy' } as const,
+                      finishSource: { kind: 'source' } as const,
                       tagQueryType: 'hasAny' as const,
                       buffTags: [
                         consume === 'electrification'

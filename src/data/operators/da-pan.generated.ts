@@ -115,7 +115,7 @@ export const daPanChr_0018_dapan_attack1ActionGraph = {
         type: 'boolean',
         expression: {
           kind: 'entityCountCompare',
-          target: { kind: 'inputTarget' },
+          target: { kind: 'fixed', target: 'enemy' },
           containsHittableTarget: false,
           excludeDeadEntity: false,
           operator: 'greaterOrEqual',
@@ -439,7 +439,7 @@ export const daPanChr_0018_dapan_attack3ActionGraph = {
         type: 'boolean',
         expression: {
           kind: 'entityCountCompare',
-          target: { kind: 'inputTarget' },
+          target: { kind: 'fixed', target: 'enemy' },
           containsHittableTarget: false,
           excludeDeadEntity: false,
           operator: 'greaterOrEqual',
@@ -671,7 +671,7 @@ export const daPanChr_0018_dapan_power_attackActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'physical',
-            attackScale: { kind: 'valueNode', nodeId: 'data_2' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_1' },
             calculation: 'breakingAttack',
             calculationMultiplier: 0.6,
             tags: ['normalAttack', 'powerAttack'],
@@ -684,7 +684,8 @@ export const daPanChr_0018_dapan_power_attackActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_full_immune_medium' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -696,7 +697,8 @@ export const daPanChr_0018_dapan_power_attackActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_power_attack_disable_cast_skill' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -704,10 +706,7 @@ export const daPanChr_0018_dapan_power_attackActionGraph = {
         next: null,
       },
     },
-    dataNodes: {
-      data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_2: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-    },
+    dataNodes: { data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } } },
   },
   macros: {},
 } as const satisfies ActionGraphResourceDefinition;
@@ -859,10 +858,11 @@ export const daPanChr_0018_dapan_normal_skillActionGraph = {
         action: {
           kind: 'createTimedMarker',
           parameters: {
-            target: 'caster',
+            targets: { kind: 'owner' },
             markerId: 'potential_5_interval',
             durationSeconds: { kind: 'valueNode', nodeId: 'data_4' },
             autoFinishByAction: false,
+            timeDomain: 'globalScaled',
           },
         },
         next: null,
@@ -872,7 +872,8 @@ export const daPanChr_0018_dapan_normal_skillActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_physical_no_guard' }],
-            target: 'enemy',
+            targets: { kind: 'fixed', target: 'enemy' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -1133,7 +1134,8 @@ export const daPanChr_0018_dapan_ultimate_skillActionGraph = {
                 },
               },
             ],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -1249,7 +1251,8 @@ export const daPanChr_0018_dapan_ultimate_skillActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_damage_immune_ult_skill' }],
-            target: 'caster',
+            targets: { kind: 'source' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -1555,8 +1558,8 @@ const daPanBuff1ActionGraph = {
                 },
               },
             ],
-            target: 'buffSource',
-            source: 'buffSource',
+            targets: { kind: 'source' },
+            source: { kind: 'source' },
             count: { kind: 'valueNode', nodeId: 'data_1' },
             inheritSourceSkillCastInfo: true,
           },
@@ -1664,7 +1667,8 @@ const daPanBuff3ActionGraph = {
         action: {
           kind: 'finishBuffsById',
           parameters: {
-            target: 'caster',
+            targets: { kind: 'source' },
+            finishSource: { kind: 'source' },
             buffIds: ['buff_chr_0018_dapan_talent_1_cd_reduce'],
             reason: 'other',
           },
@@ -1675,7 +1679,8 @@ const daPanBuff3ActionGraph = {
         action: {
           kind: 'finishBuffsById',
           parameters: {
-            target: 'caster',
+            targets: { kind: 'source' },
+            finishSource: { kind: 'source' },
             buffIds: ['buff_chr_0018_dapan_talent_1_preparation'],
             reason: 'other',
             count: { kind: 'constant', value: 1 },
@@ -1730,8 +1735,8 @@ const daPanBuff4ActionGraph = {
                 copiedBlackboardAssignments: { cd_reduce: 'talent_1_cd_reduce' },
               },
             ],
-            target: 'buffOwner',
-            source: 'buffSource',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },

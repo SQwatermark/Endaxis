@@ -1,4 +1,5 @@
 import type { CompiledStepParameters } from '../../compiler/compiledGraphData.ts';
+import { runtimeTargetEntityId } from '../../game-data/logicalAbilityEntity';
 import { isEmptyActionProgram } from '../../compiler/actionProgramInspection';
 import { hasUnmodeledIncomingAttackTrigger } from '../skills/comboConditionCheckability';
 import { bindProjectileCallbackLifecycle } from '../abilities/projectileCallbackRuntime';
@@ -964,7 +965,7 @@ export class CombatRuntimeAssembly {
         this.timeDilation?.getEntityClock('enemy') ?? this.clock,
         undefined,
         preparation.graph.enemy.timedMarkers,
-        { global: this.timeDilation ?? this.clock, globalScaled: this.timeDilation ?? this.clock },
+        { globalScaled: this.timeDilation ?? this.clock },
       );
 
       for (const [operatorId, program] of preparation.programs) {
@@ -1492,7 +1493,6 @@ export class CombatRuntimeAssembly {
     this.abilityEntities = new LogicalAbilityEntityRuntime({
       allocateInstanceId: () => this.#abilityEntityInstanceIds.allocate(),
       timedMarkerClocks: {
-        global: this.timeDilation ?? this.clock,
         globalScaled: this.timeDilation ?? this.clock,
       },
       resolveDeltaSeconds: entity =>
@@ -1787,10 +1787,10 @@ export class CombatRuntimeAssembly {
             {
               blackboard,
               actionOwnerId: operator.operatorId,
+              actionSourceId: operator.operatorId,
               ...(initialization.equipmentContributionIndex === undefined
                 ? {}
                 : {
-                    actionSourceId: operator.operatorId,
                     addAbilityChildBuff: (child: BuffApplicationHandle) => {
                       const ability = this.#equipmentEventRuntimes.get(operator.operatorId);
                       if (ability === undefined)
@@ -1878,13 +1878,14 @@ export class CombatRuntimeAssembly {
             this.#createReactiveTerminal(operator, `passive:${passive.key}`, options),
             options,
           );
+          const ownerContext = {
+            blackboard,
+            actionOwnerId: operator.operatorId,
+            actionSourceId: operator.operatorId,
+          };
           const eventHost = new PassiveAbilityEventRuntime(
             operations,
-            {
-              blackboard,
-              actionOwnerId: operator.operatorId,
-              actionSourceId: operator.operatorId,
-            },
+            ownerContext,
             passive.abilityEventResponses ?? [],
             (event, priority, handle, subscriptions) => {
               const register = options.registerPassiveAbilityEventAction;
@@ -1905,7 +1906,7 @@ export class CombatRuntimeAssembly {
           const runtime = new CombatActionSequenceRuntime(
             operations,
             {
-              blackboard,
+              ...ownerContext,
               addAbilityChildBuff: child => eventHost.addChildBuff(child),
             },
             {},
@@ -2916,6 +2917,19 @@ export class CombatRuntimeAssembly {
                 operatorId,
               }));
           }
+        // 发射集合与碰撞对象都是稳定身份；筛选后的输入随回调状态进入切面。
+        // 空白名单不能触发命中，也不能触发 maxHitCount 导致的提前结束。
+        if (request.onlyHitTargets !== undefined) {
+          const allowed = new Set(request.onlyHitTargets.map(runtimeTargetEntityId));
+          allowed.delete(undefined);
+          for (const { runtime } of request.callbacks) {
+            const state = runtime.runtimeState;
+            if (state.event !== 'hit') continue;
+            state.inputTargets = (state.inputTargets ?? [hitTarget]).filter(target =>
+              allowed.has(runtimeTargetEntityId(target)),
+            );
+          }
+        }
         const entity = this.projectileLifetimes.launch({
           callbacks: request.callbacks.map(callback => callback.runtime.runtimeState),
           callbackPrograms: request.callbacks.map(callback => callback.program),
@@ -4096,6 +4110,8 @@ export class CombatRuntimeAssembly {
       {
         // MainTargetFinder 读取全局主目标；单敌场景固定为木桩。
         mainTarget: () => ({ kind: 'enemy' }),
+        enemyMatchesTags: query =>
+          this.#resolveBuffTargetById('enemy').matchesEntityTags(query.tags, query.tagQueryType),
         ownerSpawned: query => this.abilityEntities.findOwnerSpawned(query),
         ownerSpawnedProjectiles: ownerId => this.projectileLifetimes.findOwnerSpawned(ownerId),
         entityLifeState: target => this.#queryEntityLifeState(target),
@@ -4202,9 +4218,8 @@ export class CombatRuntimeAssembly {
           target === 'enemy'
             ? this.#enemyTimedMarkers
             : this.#requireTimedMarkerContainer(operatorId),
-        resolveAbilityEntityTarget: target => this.abilityEntities.timedMarkers(target),
+        queryTargets: (query, context) => targetContextOperations.queryTargets(query, context),
         resolveEventTarget: targetId => this.#resolveTimedMarkerContainerById(targetId),
-        globalClock: this.timeDilation ?? this.clock,
         globalScaledClock: this.timeDilation ?? this.clock,
         delegate: statusOperations,
       },
@@ -4464,6 +4479,8 @@ export class CombatRuntimeAssembly {
       {
         // MainTargetFinder 读取全局主目标；单敌场景固定为木桩。
         mainTarget: () => ({ kind: 'enemy' }),
+        enemyMatchesTags: query =>
+          this.#resolveBuffTargetById('enemy').matchesEntityTags(query.tags, query.tagQueryType),
         ownerSpawned: query => this.abilityEntities.findOwnerSpawned(query),
         ownerSpawnedProjectiles: ownerId => this.projectileLifetimes.findOwnerSpawned(ownerId),
         entityLifeState: target => this.#queryEntityLifeState(target),
@@ -4564,9 +4581,8 @@ export class CombatRuntimeAssembly {
           target === 'enemy'
             ? this.#enemyTimedMarkers
             : this.#requireTimedMarkerContainer(operatorId),
-        resolveAbilityEntityTarget: target => this.abilityEntities.timedMarkers(target),
+        queryTargets: (query, context) => targetContextOperations.queryTargets(query, context),
         resolveEventTarget: targetId => this.#resolveTimedMarkerContainerById(targetId),
-        globalClock: this.timeDilation ?? this.clock,
         globalScaledClock: this.timeDilation ?? this.clock,
         delegate: statusOperations,
       },

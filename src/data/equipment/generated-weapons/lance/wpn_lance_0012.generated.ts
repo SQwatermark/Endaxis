@@ -48,10 +48,11 @@ const definition = {
               action: {
                 kind: 'createTimedMarker',
                 parameters: {
-                  target: 'caster',
+                  targets: { kind: 'source' },
                   markerId: 'wpn_lance_0012_2',
                   durationSeconds: { kind: 'valueNode', nodeId: 'data_1' },
                   autoFinishByAction: false,
+                  timeDomain: 'globalScaled',
                 },
               },
               next: null,
@@ -69,7 +70,8 @@ const definition = {
                       },
                     },
                   ],
-                  target: 'caster',
+                  targets: { kind: 'source' },
+                  source: { kind: 'source' },
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
                 },
@@ -101,10 +103,11 @@ const definition = {
               action: {
                 kind: 'createTimedMarker',
                 parameters: {
-                  target: 'caster',
+                  targets: { kind: 'source' },
                   markerId: 'wpn_lance_0012',
-                  durationSeconds: { kind: 'valueNode', nodeId: 'data_6' },
+                  durationSeconds: { kind: 'valueNode', nodeId: 'data_1' },
                   autoFinishByAction: false,
+                  timeDomain: 'globalScaled',
                 },
               },
               next: null,
@@ -122,7 +125,8 @@ const definition = {
                       },
                     },
                   ],
-                  target: 'caster',
+                  targets: { kind: 'source' },
+                  source: { kind: 'source' },
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
                 },
@@ -132,21 +136,21 @@ const definition = {
             checkCondition_8: {
               action: {
                 kind: 'checkCondition',
-                parameters: { condition: { kind: 'conditionNode', nodeId: 'data_8' } },
+                parameters: { condition: { kind: 'conditionNode', nodeId: 'data_7' } },
               },
               next: 'applyBuff_7',
             },
             checkCondition_9: {
               action: {
                 kind: 'checkCondition',
-                parameters: { condition: { kind: 'conditionNode', nodeId: 'data_9' } },
+                parameters: { condition: { kind: 'conditionNode', nodeId: 'data_8' } },
               },
               next: 'checkCondition_8',
             },
             checkCondition_10: {
               action: {
                 kind: 'checkCondition',
-                parameters: { condition: { kind: 'conditionNode', nodeId: 'data_10' } },
+                parameters: { condition: { kind: 'conditionNode', nodeId: 'data_9' } },
               },
               next: 'checkCondition_9',
             },
@@ -157,10 +161,10 @@ const definition = {
                   buffs: [
                     {
                       buffId: 'buff_wpn_lance_0012_noguard',
-                      blackboardAssignments: { dmg_up: { kind: 'valueNode', nodeId: 'data_11' } },
+                      blackboardAssignments: { dmg_up: { kind: 'valueNode', nodeId: 'data_10' } },
                     },
                   ],
-                  target: 'caster',
+                  targets: { kind: 'fixed', target: 'caster' },
                 },
               },
               next: null,
@@ -192,8 +196,7 @@ const definition = {
                 buffTags: ['Skill/Character/Common/Affixes/Vulnerable/VulnerablePhysic'],
               },
             },
-            data_6: { type: 'number', expression: { kind: 'blackboard', key: 'cd' } },
-            data_7: {
+            data_6: {
               type: 'boolean',
               expression: {
                 kind: 'timedMarkerPresent',
@@ -201,15 +204,15 @@ const definition = {
                 markerId: 'wpn_lance_0012',
               },
             },
-            data_8: {
+            data_7: {
               type: 'boolean',
-              expression: { kind: 'not', condition: { kind: 'conditionNode', nodeId: 'data_7' } },
+              expression: { kind: 'not', condition: { kind: 'conditionNode', nodeId: 'data_6' } },
             },
-            data_9: {
+            data_8: {
               type: 'boolean',
               expression: { kind: 'originSkillTypeIn', skillTypes: ['battleSkill'] },
             },
-            data_10: {
+            data_9: {
               type: 'boolean',
               expression: {
                 kind: 'eventBuffTagsMatch',
@@ -217,7 +220,7 @@ const definition = {
                 buffTags: ['Skill/Character/Common/NoGuard'],
               },
             },
-            data_11: {
+            data_10: {
               type: 'number',
               expression: { kind: 'blackboard', key: 'install_0_dmg_up' },
             },

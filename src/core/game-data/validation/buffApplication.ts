@@ -1,4 +1,5 @@
 import { parseCombatBuffDefinitionEntry } from '../../combat/buffs/combatBuffDefinitions';
+import { validateTargetQuery } from './combatConditions';
 import type { ActionGraphContextEntry } from './actionPrograms';
 import { validateActionGraphResource } from '../../action-graph/actionGraphValidation';
 import type { ActionGraphResourceDefinition } from '../../../../packages/game-data-contract/src/actionGraph';
@@ -13,8 +14,6 @@ import {
   validateLevelValues,
   validateActionValueOperand,
   validateActionStringOperand,
-  BUFF_APPLICATION_TARGETS_SET,
-  BUFF_APPLICATION_SOURCES_SET,
   requireInteger,
 } from './definitionValues';
 interface BuffSequenceValidators {
@@ -35,33 +34,16 @@ export function validateBuffApplication(
   parameters: Record<string, unknown>,
   path: string,
   out: SkillDefinitionValidationIssue[],
-  currentTargetAvailable: boolean,
-  allowEmptyBuffs = false,
+  host: 'applyBuff' | 'aura' = 'applyBuff',
 ): void {
-  if (parameters.sourceContextKey !== undefined) {
-    requireString(parameters, 'sourceContextKey', `${path}.parameters`, out);
-    if (parameters.source !== undefined)
-      push(out, `${path}.parameters.source`, 'source and sourceContextKey are mutually exclusive');
-  }
-  if (!Array.isArray(parameters.buffs) || (!allowEmptyBuffs && parameters.buffs.length === 0)) {
+  if (!Array.isArray(parameters.buffs) || (host === 'applyBuff' && parameters.buffs.length === 0)) {
     push(out, `${path}.parameters.buffs`, 'expected a non-empty Buff list');
   } else {
     parameters.buffs.forEach((value, index) => {
       const itemPath = `${path}.parameters.buffs[${index}]`;
       const entry = asRecord(value, itemPath, out);
       if (entry === null) return;
-      const dynamicId = typeof entry.buffId === 'object' && entry.buffId !== null;
       validateActionStringOperand(entry.buffId, `${itemPath}.buffId`, out);
-      if (dynamicId) {
-        for (const field of ['durationSeconds', 'effectiveness']) {
-          if (parameters[field] !== undefined)
-            push(
-              out,
-              `${path}.parameters.${field}`,
-              '动态 Buff ID 只能通过定义目录查表，不能使用内联或旧式覆盖',
-            );
-        }
-      }
 
       if (entry.blackboardAssignments !== undefined) {
         const assignments = asRecord(
@@ -143,24 +125,15 @@ export function validateBuffApplication(
   }
   if ('definition' in parameters)
     push(out, `${path}.parameters.definition`, 'applyBuff must reference an owner Buff definition');
-  requireEnum(parameters, 'target', BUFF_APPLICATION_TARGETS_SET, `${path}.parameters`, out);
-  if (parameters.target === 'currentAbilityEntity' && !currentTargetAvailable) {
-    push(out, path, 'currentAbilityEntity target requires a forEachContextTarget body');
+  validateTargetQuery(parameters.targets, `${path}.parameters.targets`, out);
+  if (parameters.source !== undefined)
+    validateTargetQuery(parameters.source, `${path}.parameters.source`, out);
+  for (const removed of ['target', 'sourceContextKey']) {
+    if (removed in parameters)
+      push(out, `${path}.parameters.${removed}`, 'use action target queries');
   }
   if (parameters.count !== undefined) {
     validateActionValueOperand(parameters.count, `${path}.parameters.count`, out);
-  }
-  if (parameters.source !== undefined) {
-    requireEnum(
-      parameters,
-      'source',
-      new Set([...BUFF_APPLICATION_SOURCES_SET, 'battle']),
-      `${path}.parameters`,
-      out,
-    );
-    if (parameters.source === 'currentAbilityEntity' && !currentTargetAvailable) {
-      push(out, path, 'currentAbilityEntity source requires a forEachContextTarget body');
-    }
   }
   if (parameters.inheritSourceSkillCastInfo !== undefined) {
     requireBoolean(parameters, 'inheritSourceSkillCastInfo', `${path}.parameters`, out);
@@ -199,11 +172,13 @@ export function validateBuffApplication(
       out,
     );
   }
-  if (parameters.durationSeconds !== undefined) {
-    requireFiniteNumber(parameters, 'durationSeconds', `${path}.parameters`, out);
-  }
-  if (parameters.effectiveness !== undefined) {
-    requireFiniteNumber(parameters, 'effectiveness', `${path}.parameters`, out);
+  for (const field of ['durationSeconds', 'effectiveness']) {
+    if (parameters[field] !== undefined)
+      push(
+        out,
+        `${path}.parameters.${field}`,
+        'use the Buff definition and blackboard assignments',
+      );
   }
 }
 

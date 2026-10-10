@@ -180,7 +180,7 @@ it('整场恢复基础阶段直接绑定共享账本、环境和全部基础 Buf
   ] as const) {
     const markers = new TimedMarkerContainer(ownerId, originalShared.clock, {}, state);
     markers.add('scaled-marker', 3, originalShared.clock, 'globalScaled');
-    markers.add('global-marker', 3, originalShared.clock, 'global');
+    markers.add('local-marker', 3);
   }
   const assemblyGraph = structuredClone(graph);
   const program = {
@@ -265,7 +265,7 @@ it('整场恢复基础阶段直接绑定共享账本、环境和全部基础 Buf
   const { foundation: restored, entities, objects, frame } = candidate;
   expect(candidate.enemyTimedMarkers.runtimeState).toBe(graph.enemy.timedMarkers);
   expect(candidate.enemyTimedMarkers.has('scaled-marker')).toBe(true);
-  expect(candidate.enemyTimedMarkers.has('global-marker')).toBe(true);
+  expect(candidate.enemyTimedMarkers.has('local-marker')).toBe(true);
   expect(objects.operators.cores.get('operator')!.timedMarkers.has('scaled-marker')).toBe(true);
 
   expect(restored.shared.runtimeState).toBe(saved.shared);
@@ -433,7 +433,7 @@ it('正式装配从活动技能切面恢复后继续得到相同逐帧结果', (
         kind: 'applyBuff' as const,
         parameters: {
           buffs: [{ buffId: 'persistent' }],
-          target: 'caster' as const,
+          targets: { kind: 'fixed', target: 'caster' } as const,
           inheritSourceSkillCastInfo: true,
         },
       },
@@ -541,7 +541,7 @@ it('正式装配从活动技能切面恢复后继续得到相同逐帧结果', (
       enableSequence: chainEntry('passive-enable', [
         {
           kind: 'applyBuff' as const,
-          parameters: { buffs: [{ buffId: 'passivePersistent' }], target: 'caster' as const },
+          parameters: { buffs: [{ buffId: 'passivePersistent' }], targets: { kind: 'fixed', target: 'caster' } as const },
         },
       ]),
     },
@@ -658,7 +658,7 @@ it('正式装配从活动技能切面恢复后继续得到相同逐帧结果', (
       sequence: chainEntry('potential-skill-hit-buff', [
         {
           kind: 'applyBuff' as const,
-          parameters: { buffs: [{ buffId: 'potentialPersistent' }], target: 'caster' as const },
+          parameters: { buffs: [{ buffId: 'potentialPersistent' }], targets: { kind: 'fixed', target: 'caster' } as const },
         },
       ]),
     },

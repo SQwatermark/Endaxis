@@ -33,31 +33,17 @@ export const antalChr_0023_antal_attack1ActionGraph = {
                 },
                 blackboard: { atb: 0, atk_scale: 0 },
                 scheduledSequences: [
-                  { startFrame: 0, endFrame: 3, sequence: { $sequence: 'dealDamage_opt2' } },
+                  { startFrame: 0, endFrame: 3, sequence: { $sequence: 'dealDamage_5' } },
                 ],
                 actionGraph: {
                   main: {
                     nodes: {
-                      checkCondition_1: {
-                        action: {
-                          kind: 'checkCondition',
-                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-                        },
-                        next: null,
-                      },
-                      checkCondition_2: {
-                        action: {
-                          kind: 'checkCondition',
-                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-                        },
-                        next: 'checkCondition_1',
-                      },
                       changeResource_3: {
                         action: {
                           kind: 'changeResource',
                           parameters: {
                             resource: 'sp',
-                            amount: { kind: 'valueNode', nodeId: 'data_3' },
+                            amount: { kind: 'valueNode', nodeId: 'data_1' },
                             coefficient: { kind: 'constant', value: 1 },
                             source: { kind: 'source' },
                             targets: { kind: 'source' },
@@ -67,7 +53,21 @@ export const antalChr_0023_antal_attack1ActionGraph = {
                         },
                         next: null,
                       },
-                      ifElse_opt1: {
+                      checkCondition_1: {
+                        action: {
+                          kind: 'checkCondition',
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
+                        },
+                        next: null,
+                      },
+                      checkCondition_2: {
+                        action: {
+                          kind: 'checkCondition',
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
+                        },
+                        next: 'checkCondition_1',
+                      },
+                      ifElse_4: {
                         action: {
                           kind: 'ifElse',
                           parameters: { alwaysNext: true },
@@ -77,7 +77,7 @@ export const antalChr_0023_antal_attack1ActionGraph = {
                         },
                         next: null,
                       },
-                      dealDamage_opt2: {
+                      dealDamage_5: {
                         action: {
                           kind: 'dealDamage',
                           parameters: {
@@ -86,23 +86,23 @@ export const antalChr_0023_antal_attack1ActionGraph = {
                             tags: ['normalAttack'],
                           },
                         },
-                        next: 'ifElse_opt1',
+                        next: 'ifElse_4',
                       },
                     },
                     dataNodes: {
-                      data_1: {
+                      data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+                      data_2: {
                         type: 'boolean',
                         expression: {
                           kind: 'entityCountCompare',
-                          target: { kind: 'inputTarget' },
+                          target: { kind: 'fixed', target: 'enemy' },
                           containsHittableTarget: false,
                           excludeDeadEntity: false,
                           operator: 'greaterOrEqual',
                           value: 1,
                         },
                       },
-                      data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
-                      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+                      data_3: { type: 'boolean', expression: { kind: 'casterControlled' } },
                       data_4: {
                         type: 'number',
                         expression: { kind: 'blackboard', key: 'atk_scale' },
@@ -191,31 +191,17 @@ export const antalChr_0023_antal_attack2ActionGraph = {
                 },
                 blackboard: { atb: 0, atk_scale: 0 },
                 scheduledSequences: [
-                  { startFrame: 0, endFrame: 3, sequence: { $sequence: 'dealDamage_opt2' } },
+                  { startFrame: 0, endFrame: 3, sequence: { $sequence: 'dealDamage_5' } },
                 ],
                 actionGraph: {
                   main: {
                     nodes: {
-                      checkCondition_1: {
-                        action: {
-                          kind: 'checkCondition',
-                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-                        },
-                        next: null,
-                      },
-                      checkCondition_2: {
-                        action: {
-                          kind: 'checkCondition',
-                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-                        },
-                        next: 'checkCondition_1',
-                      },
                       changeResource_3: {
                         action: {
                           kind: 'changeResource',
                           parameters: {
                             resource: 'sp',
-                            amount: { kind: 'valueNode', nodeId: 'data_3' },
+                            amount: { kind: 'valueNode', nodeId: 'data_1' },
                             coefficient: { kind: 'constant', value: 1 },
                             source: { kind: 'source' },
                             targets: { kind: 'source' },
@@ -225,7 +211,21 @@ export const antalChr_0023_antal_attack2ActionGraph = {
                         },
                         next: null,
                       },
-                      ifElse_opt1: {
+                      checkCondition_1: {
+                        action: {
+                          kind: 'checkCondition',
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
+                        },
+                        next: null,
+                      },
+                      checkCondition_2: {
+                        action: {
+                          kind: 'checkCondition',
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
+                        },
+                        next: 'checkCondition_1',
+                      },
+                      ifElse_4: {
                         action: {
                           kind: 'ifElse',
                           parameters: { alwaysNext: true },
@@ -235,7 +235,7 @@ export const antalChr_0023_antal_attack2ActionGraph = {
                         },
                         next: null,
                       },
-                      dealDamage_opt2: {
+                      dealDamage_5: {
                         action: {
                           kind: 'dealDamage',
                           parameters: {
@@ -244,23 +244,23 @@ export const antalChr_0023_antal_attack2ActionGraph = {
                             tags: ['normalAttack'],
                           },
                         },
-                        next: 'ifElse_opt1',
+                        next: 'ifElse_4',
                       },
                     },
                     dataNodes: {
-                      data_1: {
+                      data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+                      data_2: {
                         type: 'boolean',
                         expression: {
                           kind: 'entityCountCompare',
-                          target: { kind: 'inputTarget' },
+                          target: { kind: 'fixed', target: 'enemy' },
                           containsHittableTarget: false,
                           excludeDeadEntity: false,
                           operator: 'greaterOrEqual',
                           value: 1,
                         },
                       },
-                      data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
-                      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+                      data_3: { type: 'boolean', expression: { kind: 'casterControlled' } },
                       data_4: {
                         type: 'number',
                         expression: { kind: 'blackboard', key: 'atk_scale' },
@@ -349,31 +349,17 @@ export const antalChr_0023_antal_attack3ActionGraph = {
                 },
                 blackboard: { atb: 0, atk_scale: 0 },
                 scheduledSequences: [
-                  { startFrame: 0, endFrame: 3, sequence: { $sequence: 'dealDamage_opt2' } },
+                  { startFrame: 0, endFrame: 3, sequence: { $sequence: 'dealDamage_5' } },
                 ],
                 actionGraph: {
                   main: {
                     nodes: {
-                      checkCondition_1: {
-                        action: {
-                          kind: 'checkCondition',
-                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-                        },
-                        next: null,
-                      },
-                      checkCondition_2: {
-                        action: {
-                          kind: 'checkCondition',
-                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-                        },
-                        next: 'checkCondition_1',
-                      },
                       changeResource_3: {
                         action: {
                           kind: 'changeResource',
                           parameters: {
                             resource: 'sp',
-                            amount: { kind: 'valueNode', nodeId: 'data_3' },
+                            amount: { kind: 'valueNode', nodeId: 'data_1' },
                             coefficient: { kind: 'constant', value: 1 },
                             source: { kind: 'source' },
                             targets: { kind: 'source' },
@@ -383,7 +369,21 @@ export const antalChr_0023_antal_attack3ActionGraph = {
                         },
                         next: null,
                       },
-                      ifElse_opt1: {
+                      checkCondition_1: {
+                        action: {
+                          kind: 'checkCondition',
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
+                        },
+                        next: null,
+                      },
+                      checkCondition_2: {
+                        action: {
+                          kind: 'checkCondition',
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
+                        },
+                        next: 'checkCondition_1',
+                      },
+                      ifElse_4: {
                         action: {
                           kind: 'ifElse',
                           parameters: { alwaysNext: true },
@@ -393,7 +393,7 @@ export const antalChr_0023_antal_attack3ActionGraph = {
                         },
                         next: null,
                       },
-                      dealDamage_opt2: {
+                      dealDamage_5: {
                         action: {
                           kind: 'dealDamage',
                           parameters: {
@@ -402,23 +402,23 @@ export const antalChr_0023_antal_attack3ActionGraph = {
                             tags: ['normalAttack'],
                           },
                         },
-                        next: 'ifElse_opt1',
+                        next: 'ifElse_4',
                       },
                     },
                     dataNodes: {
-                      data_1: {
+                      data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+                      data_2: {
                         type: 'boolean',
                         expression: {
                           kind: 'entityCountCompare',
-                          target: { kind: 'inputTarget' },
+                          target: { kind: 'fixed', target: 'enemy' },
                           containsHittableTarget: false,
                           excludeDeadEntity: false,
                           operator: 'greaterOrEqual',
                           value: 1,
                         },
                       },
-                      data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
-                      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+                      data_3: { type: 'boolean', expression: { kind: 'casterControlled' } },
                       data_4: {
                         type: 'number',
                         expression: { kind: 'blackboard', key: 'atk_scale' },
@@ -491,6 +491,145 @@ export const antalChr_0023_antal_attack3: SkillDefinition = {
   actionGraph: antalChr_0023_antal_attack3ActionGraph,
 };
 
+const antalChr_0023_antal_attack4ActionGraphCallback1 = {
+  skillId: 'chr_0023_antal_attack4_powerattack_projhit',
+  nativeSkillType: 'normalSkill',
+  naturalDurationFrames: 1,
+  castResource: {
+    costFrame: 0,
+    cooldownSeconds: 0,
+    maxChargeTime: 1,
+    cost: { resource: 'ultimateEnergy', value: 0, availabilityThreshold: 0 },
+  },
+  blackboard: { atb: 0, atk_scale: 0, poise: 0 },
+  scheduledSequences: [{ startFrame: 0, endFrame: 3, sequence: { $sequence: 'ifElse_9' } }],
+  actionGraph: {
+    main: {
+      nodes: {
+        dealDamage_8: {
+          action: {
+            kind: 'dealDamage',
+            parameters: {
+              damageType: 'electric',
+              attackScale: { kind: 'valueNode', nodeId: 'data_1' },
+              tags: ['normalAttack'],
+            },
+          },
+          next: null,
+        },
+        createTimedMarker_3: {
+          action: {
+            kind: 'createTimedMarker',
+            parameters: {
+              targets: { kind: 'source' },
+              markerId: 'have_recovered',
+              durationSeconds: { kind: 'constant', value: 0.5 },
+              autoFinishByAction: false,
+              timeDomain: 'globalScaled',
+            },
+          },
+          next: null,
+        },
+        changeResource_4: {
+          action: {
+            kind: 'changeResource',
+            parameters: {
+              resource: 'sp',
+              amount: { kind: 'valueNode', nodeId: 'data_2' },
+              coefficient: { kind: 'constant', value: 1 },
+              source: { kind: 'source' },
+              targets: { kind: 'source' },
+              spGainKind: 'gain',
+              spGainSource: 'normalAttack',
+            },
+          },
+          next: 'createTimedMarker_3',
+        },
+        checkCondition_1: {
+          action: {
+            kind: 'checkCondition',
+            parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
+          },
+          next: null,
+        },
+        checkCondition_2: {
+          action: {
+            kind: 'checkCondition',
+            parameters: { condition: { kind: 'conditionNode', nodeId: 'data_4' } },
+          },
+          next: 'checkCondition_1',
+        },
+        ifElse_6: {
+          action: {
+            kind: 'ifElse',
+            parameters: { alwaysNext: true },
+            condition: { $sequence: 'checkCondition_2' },
+            whenTrue: { $sequence: 'changeResource_4' },
+            whenFalse: { $sequence: null },
+          },
+          next: null,
+        },
+        dealDamage_7: {
+          action: {
+            kind: 'dealDamage',
+            parameters: {
+              damageType: 'electric',
+              attackScale: { kind: 'valueNode', nodeId: 'data_1' },
+              tags: ['normalAttack', 'normalAttackLastCombo'],
+              stagger: { kind: 'valueNode', nodeId: 'data_5' },
+              staggerOnlyWhenCasterControlled: true,
+            },
+          },
+          next: 'ifElse_6',
+        },
+        checkCondition_5: {
+          action: {
+            kind: 'checkCondition',
+            parameters: { condition: { kind: 'conditionNode', nodeId: 'data_7' } },
+          },
+          next: null,
+        },
+        ifElse_9: {
+          action: {
+            kind: 'ifElse',
+            parameters: { alwaysNext: true },
+            condition: { $sequence: 'checkCondition_5' },
+            whenTrue: { $sequence: 'dealDamage_7' },
+            whenFalse: { $sequence: 'dealDamage_8' },
+          },
+          next: null,
+        },
+      },
+      dataNodes: {
+        data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
+        data_2: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+        data_3: {
+          type: 'boolean',
+          expression: {
+            kind: 'entityCountCompare',
+            target: { kind: 'fixed', target: 'enemy' },
+            containsHittableTarget: false,
+            excludeDeadEntity: false,
+            operator: 'greaterOrEqual',
+            value: 1,
+          },
+        },
+        data_4: { type: 'boolean', expression: { kind: 'casterControlled' } },
+        data_5: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
+        data_6: {
+          type: 'boolean',
+          expression: { kind: 'timedMarkerPresent', target: 'caster', markerId: 'have_recovered' },
+        },
+        data_7: {
+          type: 'boolean',
+          expression: { kind: 'not', condition: { kind: 'conditionNode', nodeId: 'data_6' } },
+        },
+      },
+    },
+    macros: {},
+  },
+} as const;
+
 export const antalChr_0023_antal_attack4ActionGraph = {
   main: {
     nodes: {
@@ -504,164 +643,7 @@ export const antalChr_0023_antal_attack4ActionGraph = {
             recycleDelaySeconds: 0.0333333350718021,
             hit: { finishOnHit: true },
           },
-          callbacks: [
-            {
-              event: 'hit',
-              skill: {
-                skillId: 'chr_0023_antal_attack4_powerattack_projhit',
-                nativeSkillType: 'normalSkill',
-                naturalDurationFrames: 1,
-                castResource: {
-                  costFrame: 0,
-                  cooldownSeconds: 0,
-                  maxChargeTime: 1,
-                  cost: { resource: 'ultimateEnergy', value: 0, availabilityThreshold: 0 },
-                },
-                blackboard: { atb: 0, atk_scale: 0, poise: 0 },
-                scheduledSequences: [
-                  { startFrame: 0, endFrame: 3, sequence: { $sequence: 'ifElse_opt1' } },
-                ],
-                actionGraph: {
-                  main: {
-                    nodes: {
-                      checkCondition_1: {
-                        action: {
-                          kind: 'checkCondition',
-                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-                        },
-                        next: null,
-                      },
-                      checkCondition_2: {
-                        action: {
-                          kind: 'checkCondition',
-                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-                        },
-                        next: 'checkCondition_1',
-                      },
-                      createTimedMarker_3: {
-                        action: {
-                          kind: 'createTimedMarker',
-                          parameters: {
-                            target: 'caster',
-                            markerId: 'have_recovered',
-                            durationSeconds: { kind: 'constant', value: 0.5 },
-                            autoFinishByAction: false,
-                          },
-                        },
-                        next: null,
-                      },
-                      changeResource_4: {
-                        action: {
-                          kind: 'changeResource',
-                          parameters: {
-                            resource: 'sp',
-                            amount: { kind: 'valueNode', nodeId: 'data_3' },
-                            coefficient: { kind: 'constant', value: 1 },
-                            source: { kind: 'source' },
-                            targets: { kind: 'source' },
-                            spGainKind: 'gain',
-                            spGainSource: 'normalAttack',
-                          },
-                        },
-                        next: 'createTimedMarker_3',
-                      },
-                      checkCondition_5: {
-                        action: {
-                          kind: 'checkCondition',
-                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
-                        },
-                        next: null,
-                      },
-                      ifElse_6: {
-                        action: {
-                          kind: 'ifElse',
-                          parameters: { alwaysNext: true },
-                          condition: { $sequence: 'checkCondition_2' },
-                          whenTrue: { $sequence: 'changeResource_4' },
-                          whenFalse: { $sequence: null },
-                        },
-                        next: null,
-                      },
-                      dealDamage_7: {
-                        action: {
-                          kind: 'dealDamage',
-                          parameters: {
-                            damageType: 'electric',
-                            attackScale: { kind: 'valueNode', nodeId: 'data_6' },
-                            tags: ['normalAttack', 'normalAttackLastCombo'],
-                            stagger: { kind: 'valueNode', nodeId: 'data_7' },
-                            staggerOnlyWhenCasterControlled: true,
-                          },
-                        },
-                        next: 'ifElse_6',
-                      },
-                      dealDamage_8: {
-                        action: {
-                          kind: 'dealDamage',
-                          parameters: {
-                            damageType: 'electric',
-                            attackScale: { kind: 'valueNode', nodeId: 'data_8' },
-                            tags: ['normalAttack'],
-                          },
-                        },
-                        next: null,
-                      },
-                      ifElse_opt1: {
-                        action: {
-                          kind: 'ifElse',
-                          parameters: { alwaysNext: true },
-                          condition: { $sequence: 'checkCondition_5' },
-                          whenTrue: { $sequence: 'dealDamage_7' },
-                          whenFalse: { $sequence: 'dealDamage_8' },
-                        },
-                        next: null,
-                      },
-                    },
-                    dataNodes: {
-                      data_1: {
-                        type: 'boolean',
-                        expression: {
-                          kind: 'entityCountCompare',
-                          target: { kind: 'inputTarget' },
-                          containsHittableTarget: false,
-                          excludeDeadEntity: false,
-                          operator: 'greaterOrEqual',
-                          value: 1,
-                        },
-                      },
-                      data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
-                      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
-                      data_4: {
-                        type: 'boolean',
-                        expression: {
-                          kind: 'timedMarkerPresent',
-                          target: 'caster',
-                          markerId: 'have_recovered',
-                        },
-                      },
-                      data_5: {
-                        type: 'boolean',
-                        expression: {
-                          kind: 'not',
-                          condition: { kind: 'conditionNode', nodeId: 'data_4' },
-                        },
-                      },
-                      data_6: {
-                        type: 'number',
-                        expression: { kind: 'blackboard', key: 'atk_scale' },
-                      },
-                      data_7: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
-                      data_8: {
-                        type: 'number',
-                        expression: { kind: 'blackboard', key: 'atk_scale' },
-                      },
-                    },
-                  },
-                  macros: {},
-                },
-              },
-            },
-          ],
+          callbacks: [{ event: 'hit', skill: antalChr_0023_antal_attack4ActionGraphCallback1 }],
         },
         next: null,
       },
@@ -675,164 +657,7 @@ export const antalChr_0023_antal_attack4ActionGraph = {
             recycleDelaySeconds: 0.0333333350718021,
             hit: { finishOnHit: true },
           },
-          callbacks: [
-            {
-              event: 'hit',
-              skill: {
-                skillId: 'chr_0023_antal_attack4_powerattack_projhit',
-                nativeSkillType: 'normalSkill',
-                naturalDurationFrames: 1,
-                castResource: {
-                  costFrame: 0,
-                  cooldownSeconds: 0,
-                  maxChargeTime: 1,
-                  cost: { resource: 'ultimateEnergy', value: 0, availabilityThreshold: 0 },
-                },
-                blackboard: { atb: 0, atk_scale: 0, poise: 0 },
-                scheduledSequences: [
-                  { startFrame: 0, endFrame: 3, sequence: { $sequence: 'ifElse_opt1' } },
-                ],
-                actionGraph: {
-                  main: {
-                    nodes: {
-                      checkCondition_1: {
-                        action: {
-                          kind: 'checkCondition',
-                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-                        },
-                        next: null,
-                      },
-                      checkCondition_2: {
-                        action: {
-                          kind: 'checkCondition',
-                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-                        },
-                        next: 'checkCondition_1',
-                      },
-                      createTimedMarker_3: {
-                        action: {
-                          kind: 'createTimedMarker',
-                          parameters: {
-                            target: 'caster',
-                            markerId: 'have_recovered',
-                            durationSeconds: { kind: 'constant', value: 0.5 },
-                            autoFinishByAction: false,
-                          },
-                        },
-                        next: null,
-                      },
-                      changeResource_4: {
-                        action: {
-                          kind: 'changeResource',
-                          parameters: {
-                            resource: 'sp',
-                            amount: { kind: 'valueNode', nodeId: 'data_3' },
-                            coefficient: { kind: 'constant', value: 1 },
-                            source: { kind: 'source' },
-                            targets: { kind: 'source' },
-                            spGainKind: 'gain',
-                            spGainSource: 'normalAttack',
-                          },
-                        },
-                        next: 'createTimedMarker_3',
-                      },
-                      checkCondition_5: {
-                        action: {
-                          kind: 'checkCondition',
-                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
-                        },
-                        next: null,
-                      },
-                      ifElse_6: {
-                        action: {
-                          kind: 'ifElse',
-                          parameters: { alwaysNext: true },
-                          condition: { $sequence: 'checkCondition_2' },
-                          whenTrue: { $sequence: 'changeResource_4' },
-                          whenFalse: { $sequence: null },
-                        },
-                        next: null,
-                      },
-                      dealDamage_7: {
-                        action: {
-                          kind: 'dealDamage',
-                          parameters: {
-                            damageType: 'electric',
-                            attackScale: { kind: 'valueNode', nodeId: 'data_6' },
-                            tags: ['normalAttack', 'normalAttackLastCombo'],
-                            stagger: { kind: 'valueNode', nodeId: 'data_7' },
-                            staggerOnlyWhenCasterControlled: true,
-                          },
-                        },
-                        next: 'ifElse_6',
-                      },
-                      dealDamage_8: {
-                        action: {
-                          kind: 'dealDamage',
-                          parameters: {
-                            damageType: 'electric',
-                            attackScale: { kind: 'valueNode', nodeId: 'data_8' },
-                            tags: ['normalAttack'],
-                          },
-                        },
-                        next: null,
-                      },
-                      ifElse_opt1: {
-                        action: {
-                          kind: 'ifElse',
-                          parameters: { alwaysNext: true },
-                          condition: { $sequence: 'checkCondition_5' },
-                          whenTrue: { $sequence: 'dealDamage_7' },
-                          whenFalse: { $sequence: 'dealDamage_8' },
-                        },
-                        next: null,
-                      },
-                    },
-                    dataNodes: {
-                      data_1: {
-                        type: 'boolean',
-                        expression: {
-                          kind: 'entityCountCompare',
-                          target: { kind: 'inputTarget' },
-                          containsHittableTarget: false,
-                          excludeDeadEntity: false,
-                          operator: 'greaterOrEqual',
-                          value: 1,
-                        },
-                      },
-                      data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
-                      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
-                      data_4: {
-                        type: 'boolean',
-                        expression: {
-                          kind: 'timedMarkerPresent',
-                          target: 'caster',
-                          markerId: 'have_recovered',
-                        },
-                      },
-                      data_5: {
-                        type: 'boolean',
-                        expression: {
-                          kind: 'not',
-                          condition: { kind: 'conditionNode', nodeId: 'data_4' },
-                        },
-                      },
-                      data_6: {
-                        type: 'number',
-                        expression: { kind: 'blackboard', key: 'atk_scale' },
-                      },
-                      data_7: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
-                      data_8: {
-                        type: 'number',
-                        expression: { kind: 'blackboard', key: 'atk_scale' },
-                      },
-                    },
-                  },
-                  macros: {},
-                },
-              },
-            },
-          ],
+          callbacks: [{ event: 'hit', skill: antalChr_0023_antal_attack4ActionGraphCallback1 }],
         },
         next: 'launchProjectile_1',
       },
@@ -922,31 +747,17 @@ export const antalChr_0023_antal_power_attackActionGraph = {
                 },
                 blackboard: { atb: 0, atk_scale: 0 },
                 scheduledSequences: [
-                  { startFrame: 0, endFrame: 3, sequence: { $sequence: 'dealDamage_opt2' } },
+                  { startFrame: 0, endFrame: 3, sequence: { $sequence: 'dealDamage_5' } },
                 ],
                 actionGraph: {
                   main: {
                     nodes: {
-                      checkCondition_1: {
-                        action: {
-                          kind: 'checkCondition',
-                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-                        },
-                        next: null,
-                      },
-                      checkCondition_2: {
-                        action: {
-                          kind: 'checkCondition',
-                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-                        },
-                        next: 'checkCondition_1',
-                      },
                       changeResource_3: {
                         action: {
                           kind: 'changeResource',
                           parameters: {
                             resource: 'sp',
-                            amount: { kind: 'valueNode', nodeId: 'data_3' },
+                            amount: { kind: 'valueNode', nodeId: 'data_1' },
                             coefficient: { kind: 'constant', value: 1 },
                             source: { kind: 'source' },
                             targets: { kind: 'source' },
@@ -956,7 +767,21 @@ export const antalChr_0023_antal_power_attackActionGraph = {
                         },
                         next: null,
                       },
-                      ifElse_opt1: {
+                      checkCondition_1: {
+                        action: {
+                          kind: 'checkCondition',
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
+                        },
+                        next: null,
+                      },
+                      checkCondition_2: {
+                        action: {
+                          kind: 'checkCondition',
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
+                        },
+                        next: 'checkCondition_1',
+                      },
+                      ifElse_4: {
                         action: {
                           kind: 'ifElse',
                           parameters: { alwaysNext: true },
@@ -966,7 +791,7 @@ export const antalChr_0023_antal_power_attackActionGraph = {
                         },
                         next: null,
                       },
-                      dealDamage_opt2: {
+                      dealDamage_5: {
                         action: {
                           kind: 'dealDamage',
                           parameters: {
@@ -977,23 +802,23 @@ export const antalChr_0023_antal_power_attackActionGraph = {
                             tags: ['normalAttack', 'powerAttack'],
                           },
                         },
-                        next: 'ifElse_opt1',
+                        next: 'ifElse_4',
                       },
                     },
                     dataNodes: {
-                      data_1: {
+                      data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+                      data_2: {
                         type: 'boolean',
                         expression: {
                           kind: 'entityCountCompare',
-                          target: { kind: 'inputTarget' },
+                          target: { kind: 'fixed', target: 'enemy' },
                           containsHittableTarget: false,
                           excludeDeadEntity: false,
                           operator: 'greaterOrEqual',
                           value: 1,
                         },
                       },
-                      data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
-                      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+                      data_3: { type: 'boolean', expression: { kind: 'casterControlled' } },
                       data_4: {
                         type: 'number',
                         expression: { kind: 'blackboard', key: 'atk_scale' },
@@ -1096,7 +921,8 @@ export const antalChr_0023_antal_power_attackActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_power_attack_disable_cast_skill' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -1108,7 +934,8 @@ export const antalChr_0023_antal_power_attackActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_full_immune_medium' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -1250,8 +1077,8 @@ export const antalChr_0023_antal_normal_skillActionGraph = {
                 },
               },
             ],
-            target: 'caster',
-            source: 'enemy',
+            targets: { kind: 'owner' },
+            source: { kind: 'fixed', target: 'enemy' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -1261,7 +1088,8 @@ export const antalChr_0023_antal_normal_skillActionGraph = {
         action: {
           kind: 'finishBuffsById',
           parameters: {
-            target: 'caster',
+            targets: { kind: 'owner' },
+            finishSource: { kind: 'source' },
             buffIds: ['buff_chr_0023_antal_normal_skill'],
             reason: 'other',
           },
@@ -1362,7 +1190,7 @@ export const antalChr_0023_antal_normal_skillActionGraph = {
         type: 'boolean',
         expression: {
           kind: 'entityCountCompare',
-          target: { kind: 'inputTarget' },
+          target: { kind: 'fixed', target: 'enemy' },
           containsHittableTarget: false,
           excludeDeadEntity: false,
           operator: 'greaterOrEqual',
@@ -1373,7 +1201,7 @@ export const antalChr_0023_antal_normal_skillActionGraph = {
         type: 'boolean',
         expression: {
           kind: 'targetDistance',
-          source: { kind: 'inputTarget' },
+          source: { kind: 'fixed', target: 'enemy' },
           target: { kind: 'mainCharacter' },
           distance: 4,
           lessThan: true,
@@ -1530,7 +1358,7 @@ export const antalChr_0023_antal_combo_skillActionGraph = {
       switch_5: {
         action: {
           kind: 'switch',
-          parameters: { choice: { kind: 'valueNode', nodeId: 'data_2' }, alwaysNext: true },
+          parameters: { choice: { kind: 'valueNode', nodeId: 'data_1' }, alwaysNext: true },
           options: [
             {
               value: { kind: 'constant', value: 2 },
@@ -1557,7 +1385,7 @@ export const antalChr_0023_antal_combo_skillActionGraph = {
           kind: 'changeResource',
           parameters: {
             resource: 'ultimateEnergy',
-            amount: { kind: 'valueNode', nodeId: 'data_3' },
+            amount: { kind: 'valueNode', nodeId: 'data_2' },
             coefficient: { kind: 'constant', value: 1 },
             source: { kind: 'source' },
             targets: { kind: 'source' },
@@ -1570,10 +1398,10 @@ export const antalChr_0023_antal_combo_skillActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'electric',
-            attackScale: { kind: 'valueNode', nodeId: 'data_4' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_3' },
             tags: ['comboSkill'],
             features: ['canBreakWeakness'],
-            stagger: { kind: 'valueNode', nodeId: 'data_5' },
+            stagger: { kind: 'valueNode', nodeId: 'data_4' },
           },
         },
         next: 'changeResource_11',
@@ -1581,7 +1409,7 @@ export const antalChr_0023_antal_combo_skillActionGraph = {
       switch_13: {
         action: {
           kind: 'switch',
-          parameters: { choice: { kind: 'valueNode', nodeId: 'data_6' }, alwaysNext: true },
+          parameters: { choice: { kind: 'valueNode', nodeId: 'data_5' }, alwaysNext: true },
           options: [
             { value: { kind: 'constant', value: 1 }, sequence: { $sequence: 'switch_5' } },
             { value: { kind: 'constant', value: 0 }, sequence: { $sequence: 'switch_10' } },
@@ -1634,11 +1462,10 @@ export const antalChr_0023_antal_combo_skillActionGraph = {
     },
     dataNodes: {
       data_1: { type: 'number', expression: { kind: 'blackboard', key: 'EntityBB_combo_index' } },
-      data_2: { type: 'number', expression: { kind: 'blackboard', key: 'EntityBB_combo_index' } },
-      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'usp' } },
-      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_5: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
-      data_6: { type: 'number', expression: { kind: 'blackboard', key: 'EntityBB_combo_type' } },
+      data_2: { type: 'number', expression: { kind: 'blackboard', key: 'usp' } },
+      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
+      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
+      data_5: { type: 'number', expression: { kind: 'blackboard', key: 'EntityBB_combo_type' } },
     },
   },
   macros: {},
@@ -1710,7 +1537,8 @@ export const antalChr_0023_antal_ultimate_skillActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_damage_immune_ult_skill' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -1727,11 +1555,23 @@ export const antalChr_0023_antal_ultimate_skillActionGraph = {
                 copiedBlackboardAssignments: { duration: 'duration', rate: 'rate' },
               },
             ],
-            target: 'party',
+            targets: { kind: 'context', key: 'team' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
         next: null,
+      },
+      findTargets_6: {
+        action: {
+          kind: 'findTargets',
+          parameters: {
+            owner: { kind: 'owner' },
+            query: { kind: 'characterTeam', excludeOwner: false, owner: { kind: 'owner' } },
+            saveToContextKey: 'team',
+          },
+        },
+        next: 'applyBuff_5',
       },
     },
   },
@@ -1777,7 +1617,7 @@ export const antalChr_0023_antal_ultimate_skill: SkillDefinition = {
     { startFrame: 0, endFrame: 42, sequence: { $sequence: 'startUltimateTimeDilation_2' } },
     { startFrame: 0, endFrame: 44, sequence: { $sequence: 'hideUi_3' } },
     { startFrame: 0, endFrame: 60, sequence: { $sequence: 'applyBuff_4' } },
-    { startFrame: 49, endFrame: 51, sequence: { $sequence: 'applyBuff_5' } },
+    { startFrame: 49, endFrame: 51, sequence: { $sequence: 'findTargets_6' } },
   ],
   cooldownFrames: 600,
   costs: [{ resource: 'ultimateEnergy', value: 100 }],
@@ -1986,8 +1826,8 @@ const antalBuff3ActionGraph = {
                 },
               },
             ],
-            target: 'buffSource',
-            source: 'buffOwner',
+            targets: { kind: 'source' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
           },
@@ -2044,7 +1884,8 @@ const antalBuff4ActionGraph = {
                 stringBlackboardAssignments: { child_buff_id: 'buff_chr_0023_antal_normal_icon' },
               },
             ],
-            target: 'enemy',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
           },
@@ -2059,20 +1900,21 @@ const antalBuff4ActionGraph = {
               {
                 buffId: 'buff_common_affixes_vulnerable_pulse',
                 blackboardAssignments: {
-                  duration: { kind: 'valueNode', nodeId: 'data_4' },
-                  rate: { kind: 'valueNode', nodeId: 'data_5' },
+                  duration: { kind: 'valueNode', nodeId: 'data_1' },
+                  rate: { kind: 'valueNode', nodeId: 'data_2' },
                 },
                 keywordEnhancements: [
                   {
                     triggerBuffIds: ['buff_chr_0023_antal_talent_1_combotrigger'],
                     operation: 'add',
-                    value: { kind: 'valueNode', nodeId: 'data_6' },
+                    value: { kind: 'valueNode', nodeId: 'data_3' },
                   },
                 ],
                 stringBlackboardAssignments: { child_buff_id: 'buff_chr_0023_antal_normal_icon_2' },
               },
             ],
-            target: 'enemy',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
           },
@@ -2083,7 +1925,8 @@ const antalBuff4ActionGraph = {
         action: {
           kind: 'finishBuffsById',
           parameters: {
-            target: 'buffOwner',
+            targets: { kind: 'owner' },
+            finishSource: { kind: 'source' },
             buffIds: ['buff_chr_0023_antal_talent_1_combotrigger'],
             reason: 'other',
           },
@@ -2095,8 +1938,8 @@ const antalBuff4ActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0023_antal_talent_1_combotrigger' }],
-            target: 'buffOwner',
-            source: 'buffSource',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -2105,7 +1948,7 @@ const antalBuff4ActionGraph = {
       checkCondition_5: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_8' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
         },
         next: 'applyBuff_4',
       },
@@ -2114,18 +1957,15 @@ const antalBuff4ActionGraph = {
       data_1: { type: 'number', expression: { kind: 'blackboard', key: 'duration' } },
       data_2: { type: 'number', expression: { kind: 'blackboard', key: 'rate' } },
       data_3: { type: 'number', expression: { kind: 'blackboard', key: 'potential_5_rate' } },
-      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'duration' } },
-      data_5: { type: 'number', expression: { kind: 'blackboard', key: 'rate' } },
-      data_6: { type: 'number', expression: { kind: 'blackboard', key: 'potential_5_rate' } },
-      data_7: {
+      data_4: {
         type: 'number',
         expression: { kind: 'blackboard', key: 'potential_5', fallback: 0 },
       },
-      data_8: {
+      data_5: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_7' },
+          left: { kind: 'valueNode', nodeId: 'data_4' },
           operator: 'equal',
           right: { kind: 'constant', value: 1 },
         },
@@ -2193,7 +2033,8 @@ const antalBuff5ActionGraph = {
         action: {
           kind: 'aura',
           parameters: {
-            target: 'party',
+            targets: { kind: 'characterTeam', excludeOwner: false },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             buffs: [
               {
@@ -2380,8 +2221,8 @@ const antalBuff8ActionGraph = {
                 blackboardAssignments: { duration: { kind: 'constant', value: 0.01 } },
               },
             ],
-            target: 'buffSource',
-            source: 'buffSource',
+            targets: { kind: 'source' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -2543,7 +2384,8 @@ const antalBuff11ActionGraph = {
                 stringBlackboardAssignments: { child_buff_id: 'buff_chr_0023_antal_ultimate_icon' },
               },
             ],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
           },
@@ -2558,15 +2400,16 @@ const antalBuff11ActionGraph = {
               {
                 buffId: 'buff_common_affixes_enhance_pulse',
                 blackboardAssignments: {
-                  duration: { kind: 'valueNode', nodeId: 'data_3' },
-                  rate: { kind: 'valueNode', nodeId: 'data_4' },
+                  duration: { kind: 'valueNode', nodeId: 'data_1' },
+                  rate: { kind: 'valueNode', nodeId: 'data_2' },
                 },
                 stringBlackboardAssignments: {
                   child_buff_id: 'buff_chr_0023_antal_ultimate_icon_2',
                 },
               },
             ],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
           },
@@ -2577,8 +2420,6 @@ const antalBuff11ActionGraph = {
     dataNodes: {
       data_1: { type: 'number', expression: { kind: 'blackboard', key: 'duration' } },
       data_2: { type: 'number', expression: { kind: 'blackboard', key: 'rate' } },
-      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'duration' } },
-      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'rate' } },
     },
   },
   macros: {},

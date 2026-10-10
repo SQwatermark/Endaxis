@@ -5,6 +5,8 @@ export type FieldDeclarationId =
   | 'DealDamageParameters.instantDamageScaleModifiers'
   | 'CombatStepParameters.spawnAbilityEntity.definition'
   | 'BuffApplicationEntry.keywordEnhancements'
+  | 'CombatStepParameters.applyBuff.buffs'
+  | 'CombatStepParameters.aura.buffs'
   | 'CombatStepParameters.readSkillSettingData.items'
   | 'CombatStepParameters.createGlobalBuff.definition'
   | 'CombatStepParameters.listenForCombatEvents.responses'

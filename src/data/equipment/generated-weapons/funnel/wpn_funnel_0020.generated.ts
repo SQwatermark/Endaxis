@@ -79,7 +79,8 @@ const definition = {
                       },
                     },
                   ],
-                  target: 'caster',
+                  targets: { kind: 'owner' },
+                  source: { kind: 'source' },
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
                 },
@@ -97,10 +98,11 @@ const definition = {
               action: {
                 kind: 'createTimedMarker',
                 parameters: {
-                  target: 'caster',
+                  targets: { kind: 'owner' },
                   markerId: 'sk_wpn_funnel_0020',
                   durationSeconds: { kind: 'constant', value: 0.1 },
                   autoFinishByAction: false,
+                  timeDomain: 'globalScaled',
                 },
               },
               next: 'checkCondition_2',
@@ -118,7 +120,8 @@ const definition = {
                       },
                     },
                   ],
-                  target: 'caster',
+                  targets: { kind: 'owner' },
+                  source: { kind: 'source' },
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
                 },
@@ -143,7 +146,8 @@ const definition = {
               action: {
                 kind: 'finishBuffsById',
                 parameters: {
-                  target: 'caster',
+                  targets: { kind: 'owner' },
+                  finishSource: { kind: 'source' },
                   buffIds: ['buff_wpn_funnel_0020_maxup'],
                   reason: 'other',
                 },

@@ -543,7 +543,7 @@ export const emberChr_0009_azrila_power_attackActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'physical',
-            attackScale: { kind: 'valueNode', nodeId: 'data_3' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_1' },
             calculation: 'breakingAttack',
             calculationMultiplier: 0.1,
             tags: ['normalAttack', 'powerAttack'],
@@ -556,7 +556,8 @@ export const emberChr_0009_azrila_power_attackActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_full_immune_medium' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -568,7 +569,8 @@ export const emberChr_0009_azrila_power_attackActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_power_attack_disable_cast_skill' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -579,7 +581,6 @@ export const emberChr_0009_azrila_power_attackActionGraph = {
     dataNodes: {
       data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
       data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
-      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
     },
   },
   macros: {},
@@ -703,7 +704,8 @@ export const emberChr_0009_azrila_normal_skillActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0009_azrila_normal_skill_gpsuccess' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -762,7 +764,8 @@ export const emberChr_0009_azrila_normal_skillActionGraph = {
                 copiedBlackboardAssignments: { rate: 'shelterrate' },
               },
             ],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -849,7 +852,8 @@ export const emberChr_0009_azrila_normal_skillActionGraph = {
                 copiedBlackboardAssignments: { rate: 'shelterrate', duration: 'extratime' },
               },
             ],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -865,21 +869,21 @@ export const emberChr_0009_azrila_normal_skillActionGraph = {
       checkCondition_20: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_10' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_9' } },
         },
         next: 'checkCondition_19',
       },
       dealStagger_23: {
         action: {
           kind: 'dealStagger',
-          parameters: { value: { kind: 'valueNode', nodeId: 'data_11' } },
+          parameters: { value: { kind: 'valueNode', nodeId: 'data_10' } },
         },
         next: null,
       },
       checkCondition_22: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_12' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_11' } },
         },
         next: null,
       },
@@ -905,7 +909,7 @@ export const emberChr_0009_azrila_normal_skillActionGraph = {
       checkCondition_24: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_13' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_12' } },
         },
         next: null,
       },
@@ -934,10 +938,10 @@ export const emberChr_0009_azrila_normal_skillActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'heat',
-            attackScale: { kind: 'valueNode', nodeId: 'data_14' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_13' },
             tags: ['normalSkill'],
             features: ['canBreakWeakness'],
-            stagger: { kind: 'valueNode', nodeId: 'data_15' },
+            stagger: { kind: 'valueNode', nodeId: 'data_14' },
           },
         },
         next: 'ifElse_28',
@@ -1042,20 +1046,16 @@ export const emberChr_0009_azrila_normal_skillActionGraph = {
         },
       },
       data_9: {
-        type: 'number',
-        expression: { kind: 'blackboard', key: 'potential_1', fallback: 0 },
-      },
-      data_10: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_9' },
+          left: { kind: 'valueNode', nodeId: 'data_3' },
           operator: 'greater',
           right: { kind: 'constant', value: 0 },
         },
       },
-      data_11: { type: 'number', expression: { kind: 'blackboard', key: 'extrapoise' } },
-      data_12: {
+      data_10: { type: 'number', expression: { kind: 'blackboard', key: 'extrapoise' } },
+      data_11: {
         type: 'boolean',
         expression: {
           kind: 'buffIdStackCompare',
@@ -1065,7 +1065,7 @@ export const emberChr_0009_azrila_normal_skillActionGraph = {
           value: { kind: 'constant', value: 1 },
         },
       },
-      data_13: {
+      data_12: {
         type: 'boolean',
         expression: {
           kind: 'entityCountCompare',
@@ -1076,8 +1076,8 @@ export const emberChr_0009_azrila_normal_skillActionGraph = {
           value: 1,
         },
       },
-      data_14: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale2' } },
-      data_15: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
+      data_13: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale2' } },
+      data_14: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
     },
   },
   macros: {},
@@ -1175,7 +1175,8 @@ export const emberChr_0009_azrila_ultimate_skillActionGraph = {
                 },
               },
             ],
-            target: 'party',
+            targets: { kind: 'context', key: 'Teammate' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -1220,7 +1221,18 @@ export const emberChr_0009_azrila_ultimate_skillActionGraph = {
         },
         next: 'modifyActionValue_6',
       },
-      ifElse_8: {
+      findTargets_8: {
+        action: {
+          kind: 'findTargets',
+          parameters: {
+            owner: { kind: 'owner' },
+            query: { kind: 'characterTeam', excludeOwner: false, owner: { kind: 'owner' } },
+            saveToContextKey: 'Teammate',
+          },
+        },
+        next: 'storeSourceAttributeValue_7',
+      },
+      ifElse_9: {
         action: {
           kind: 'ifElse',
           parameters: { alwaysNext: true },
@@ -1228,22 +1240,23 @@ export const emberChr_0009_azrila_ultimate_skillActionGraph = {
           whenTrue: { $sequence: 'modifyActionValue_3' },
           whenFalse: { $sequence: null },
         },
-        next: 'storeSourceAttributeValue_7',
+        next: 'findTargets_8',
       },
-      applyBuff_9: {
+      applyBuff_10: {
         action: {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_damage_immune_ult_skill' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
         },
         next: null,
       },
-      hideUi_10: { action: { kind: 'hideUi', parameters: { onlyBlockInput: false } }, next: null },
-      startUltimateTimeDilation_11: {
+      hideUi_11: { action: { kind: 'hideUi', parameters: { onlyBlockInput: false } }, next: null },
+      startUltimateTimeDilation_12: {
         action: {
           kind: 'startUltimateTimeDilation',
           parameters: {
@@ -1307,10 +1320,10 @@ export const emberChr_0009_azrila_ultimate_skill: SkillDefinition = {
   costFrame: 0,
   scheduledSequences: [
     { startFrame: 0, endFrame: 3, sequence: { $sequence: 'startTimeDilation_1' } },
-    { startFrame: 50, endFrame: 51, sequence: { $sequence: 'ifElse_8' } },
-    { startFrame: 0, endFrame: 90, sequence: { $sequence: 'applyBuff_9' } },
-    { startFrame: 0, endFrame: 48, sequence: { $sequence: 'hideUi_10' } },
-    { startFrame: 0, endFrame: 48, sequence: { $sequence: 'startUltimateTimeDilation_11' } },
+    { startFrame: 50, endFrame: 51, sequence: { $sequence: 'ifElse_9' } },
+    { startFrame: 0, endFrame: 90, sequence: { $sequence: 'applyBuff_10' } },
+    { startFrame: 0, endFrame: 48, sequence: { $sequence: 'hideUi_11' } },
+    { startFrame: 0, endFrame: 48, sequence: { $sequence: 'startUltimateTimeDilation_12' } },
   ],
   cooldownFrames: 600,
   costs: [{ resource: 'ultimateEnergy', value: 100 }],
@@ -1359,7 +1372,8 @@ export const emberChr_0009_azrila_combo_skillActionGraph = {
                 copiedBlackboardAssignments: { rate: 'shelterrate' },
               },
             ],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -1396,14 +1410,14 @@ export const emberChr_0009_azrila_combo_skillActionGraph = {
       checkCondition_11: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_8' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_7' } },
         },
         next: 'checkCondition_10',
       },
       checkCondition_12: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_10' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_8' } },
         },
         next: 'checkCondition_11',
       },
@@ -1417,7 +1431,8 @@ export const emberChr_0009_azrila_combo_skillActionGraph = {
                 copiedBlackboardAssignments: { rate: 'shelterrate', duration: 'extratime' },
               },
             ],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -1426,7 +1441,7 @@ export const emberChr_0009_azrila_combo_skillActionGraph = {
       checkCondition_14: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_12' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_10' } },
         },
         next: null,
       },
@@ -1439,8 +1454,8 @@ export const emberChr_0009_azrila_combo_skillActionGraph = {
             alwaysNext: true,
             tags: ['Skill/Character/Common/Heal/ComboSkillHeal'],
             attribute: 'will',
-            multiplier: { kind: 'valueNode', nodeId: 'data_13' },
-            addition: { kind: 'valueNode', nodeId: 'data_14' },
+            multiplier: { kind: 'valueNode', nodeId: 'data_11' },
+            addition: { kind: 'valueNode', nodeId: 'data_12' },
           },
         },
         next: null,
@@ -1451,7 +1466,7 @@ export const emberChr_0009_azrila_combo_skillActionGraph = {
           parameters: {
             key: 'heal_base',
             operation: 'multiply',
-            value: { kind: 'valueNode', nodeId: 'data_15' },
+            value: { kind: 'valueNode', nodeId: 'data_13' },
           },
         },
         next: 'heal_15',
@@ -1462,7 +1477,7 @@ export const emberChr_0009_azrila_combo_skillActionGraph = {
           parameters: {
             key: 'will_additive',
             operation: 'multiply',
-            value: { kind: 'valueNode', nodeId: 'data_16' },
+            value: { kind: 'valueNode', nodeId: 'data_13' },
           },
         },
         next: 'modifyActionValue_16',
@@ -1489,7 +1504,7 @@ export const emberChr_0009_azrila_combo_skillActionGraph = {
           kind: 'changeResource',
           parameters: {
             resource: 'ultimateEnergy',
-            amount: { kind: 'valueNode', nodeId: 'data_17' },
+            amount: { kind: 'valueNode', nodeId: 'data_14' },
             coefficient: { kind: 'constant', value: 1 },
             source: { kind: 'source' },
             targets: { kind: 'source' },
@@ -1525,8 +1540,8 @@ export const emberChr_0009_azrila_combo_skillActionGraph = {
             alwaysNext: true,
             tags: ['Skill/Character/Common/Heal/ComboSkillHeal'],
             attribute: 'will',
-            multiplier: { kind: 'valueNode', nodeId: 'data_18' },
-            addition: { kind: 'valueNode', nodeId: 'data_19' },
+            multiplier: { kind: 'valueNode', nodeId: 'data_11' },
+            addition: { kind: 'valueNode', nodeId: 'data_12' },
           },
         },
         next: 'ifElse_22',
@@ -1536,10 +1551,10 @@ export const emberChr_0009_azrila_combo_skillActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'physical',
-            attackScale: { kind: 'valueNode', nodeId: 'data_20' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_15' },
             tags: ['comboSkill'],
             features: ['canBreakWeakness'],
-            stagger: { kind: 'valueNode', nodeId: 'data_21' },
+            stagger: { kind: 'valueNode', nodeId: 'data_16' },
           },
         },
         next: 'heal_23',
@@ -1632,19 +1647,27 @@ export const emberChr_0009_azrila_combo_skillActionGraph = {
           value: 1,
         },
       },
-      data_7: { type: 'number', expression: { kind: 'blackboard', key: 'talent1', fallback: 0 } },
+      data_7: {
+        type: 'boolean',
+        expression: {
+          kind: 'actionValueCompare',
+          left: { kind: 'valueNode', nodeId: 'data_4' },
+          operator: 'greater',
+          right: { kind: 'constant', value: 0 },
+        },
+      },
       data_8: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_7' },
+          left: { kind: 'valueNode', nodeId: 'data_1' },
           operator: 'greater',
           right: { kind: 'constant', value: 0 },
         },
       },
       data_9: {
         type: 'number',
-        expression: { kind: 'blackboard', key: 'potential_1', fallback: 0 },
+        expression: { kind: 'blackboard', key: 'potential_3', fallback: 0 },
       },
       data_10: {
         type: 'boolean',
@@ -1655,28 +1678,12 @@ export const emberChr_0009_azrila_combo_skillActionGraph = {
           right: { kind: 'constant', value: 0 },
         },
       },
-      data_11: {
-        type: 'number',
-        expression: { kind: 'blackboard', key: 'potential_3', fallback: 0 },
-      },
-      data_12: {
-        type: 'boolean',
-        expression: {
-          kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_11' },
-          operator: 'greater',
-          right: { kind: 'constant', value: 0 },
-        },
-      },
-      data_13: { type: 'number', expression: { kind: 'blackboard', key: 'will_additive' } },
-      data_14: { type: 'number', expression: { kind: 'blackboard', key: 'heal_base' } },
-      data_15: { type: 'number', expression: { kind: 'blackboard', key: 'extracure' } },
-      data_16: { type: 'number', expression: { kind: 'blackboard', key: 'extracure' } },
-      data_17: { type: 'number', expression: { kind: 'blackboard', key: 'usp' } },
-      data_18: { type: 'number', expression: { kind: 'blackboard', key: 'will_additive' } },
-      data_19: { type: 'number', expression: { kind: 'blackboard', key: 'heal_base' } },
-      data_20: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_21: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
+      data_11: { type: 'number', expression: { kind: 'blackboard', key: 'will_additive' } },
+      data_12: { type: 'number', expression: { kind: 'blackboard', key: 'heal_base' } },
+      data_13: { type: 'number', expression: { kind: 'blackboard', key: 'extracure' } },
+      data_14: { type: 'number', expression: { kind: 'blackboard', key: 'usp' } },
+      data_15: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
+      data_16: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
     },
   },
   macros: {},
@@ -1758,7 +1765,7 @@ const emberPassive1ActionGraph = {
                 },
               },
             ],
-            target: 'caster',
+            targets: { kind: 'fixed', target: 'caster' },
             inheritSourceSkillCastInfo: false,
           },
         },
@@ -1919,7 +1926,8 @@ const emberBuff2ActionGraph = {
                 },
               },
             ],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
           },
@@ -1982,8 +1990,8 @@ const emberBuff3ActionGraph = {
                 copiedBlackboardAssignments: { attack: 'attack', duration: 'duration' },
               },
             ],
-            target: 'buffOwner',
-            source: 'buffOwner',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
           },
@@ -2108,8 +2116,8 @@ const emberBuff6ActionGraph = {
                 copiedBlackboardAssignments: { extraattack: 'extraattack' },
               },
             ],
-            target: 'buffOwner',
-            source: 'buffSource',
+            targets: { kind: 'inputTarget' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
           },

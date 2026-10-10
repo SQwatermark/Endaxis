@@ -143,7 +143,6 @@
     "action/applyBuff/parameters/onActionEndFinishBuffs",
     "action/applyBuff/parameters/stringBlackboardAssignments",
     "action/castSkillDuringAction/parameters/skillId",
-    "action/createAbilityEntityTimedMarker/parameters/markerId",
     "action/createTimedMarker/parameters/markerId",
     "action/findCharacterTeamTargets/parameters/selection",
     "action/findOwnerSpawnedAbilityEntities/parameters/abilityEntityIds",

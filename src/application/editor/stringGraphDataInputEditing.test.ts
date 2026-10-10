@@ -20,7 +20,7 @@ function fixture(): ActionGraphDefinition {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: { kind: 'stringNode', nodeId: 'shared' } }],
-            target: 'caster',
+            targets: { kind: 'fixed', target: 'caster' },
           },
         },
         next: 'second',
@@ -30,7 +30,7 @@ function fixture(): ActionGraphDefinition {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: { kind: 'stringNode', nodeId: 'shared' } }],
-            target: 'caster',
+            targets: { kind: 'fixed', target: 'caster' },
           },
         },
         next: 'independent',
@@ -40,7 +40,7 @@ function fixture(): ActionGraphDefinition {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: { kind: 'stringNode', nodeId: 'independent' } }],
-            target: 'caster',
+            targets: { kind: 'fixed', target: 'caster' },
           },
         },
         next: null,
@@ -207,7 +207,7 @@ it('workspace save and official project import preserve literal and connected st
           literal: {
             action: {
               kind: 'applyBuff' as const,
-              parameters: { buffs: [{ buffId: 'legacy literal' }], target: 'caster' as const },
+              parameters: { buffs: [{ buffId: 'legacy literal' }], targets: { kind: 'fixed', target: 'caster' } as const },
             },
             next: 'invoke',
           },

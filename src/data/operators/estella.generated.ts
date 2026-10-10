@@ -567,7 +567,8 @@ export const estellaChr_0021_whiten_power_attackActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_full_immune_medium' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -579,7 +580,8 @@ export const estellaChr_0021_whiten_power_attackActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_power_attack_disable_cast_skill' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -823,16 +825,22 @@ export const estellaChr_0021_whiten_normal_skillActionGraph = {
                   {
                     startFrame: 0,
                     endFrame: 0,
-                    sequence: { $sequence: 'applyElementalInfliction_opt2' },
+                    sequence: { $sequence: 'applyElementalInfliction_10' },
                   },
                 ],
                 actionGraph: {
                   main: {
                     nodes: {
-                      checkCondition_1: {
+                      dealDamage_7: {
                         action: {
-                          kind: 'checkCondition',
-                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
+                          kind: 'dealDamage',
+                          parameters: {
+                            damageType: 'cryo',
+                            attackScale: { kind: 'valueNode', nodeId: 'data_1' },
+                            tags: ['normalSkill'],
+                            features: ['canBreakWeakness'],
+                            stagger: { kind: 'valueNode', nodeId: 'data_2' },
+                          },
                         },
                         next: null,
                       },
@@ -873,7 +881,7 @@ export const estellaChr_0021_whiten_normal_skillActionGraph = {
                                 addition: { kind: 'valueNode', nodeId: 'data_4' },
                               },
                             ],
-                            stagger: { kind: 'valueNode', nodeId: 'data_5' },
+                            stagger: { kind: 'valueNode', nodeId: 'data_2' },
                           },
                         },
                         next: 'gainSquadUltimateEnergyFromSkillCost_3',
@@ -884,7 +892,7 @@ export const estellaChr_0021_whiten_normal_skillActionGraph = {
                           parameters: {
                             key: 'up_atk_scale',
                             operation: 'assign',
-                            value: { kind: 'valueNode', nodeId: 'data_6' },
+                            value: { kind: 'valueNode', nodeId: 'data_1' },
                           },
                         },
                         next: 'dealDamage_4',
@@ -900,16 +908,10 @@ export const estellaChr_0021_whiten_normal_skillActionGraph = {
                         },
                         next: 'modifyActionValue_5',
                       },
-                      dealDamage_7: {
+                      checkCondition_1: {
                         action: {
-                          kind: 'dealDamage',
-                          parameters: {
-                            damageType: 'cryo',
-                            attackScale: { kind: 'valueNode', nodeId: 'data_7' },
-                            tags: ['normalSkill'],
-                            features: ['canBreakWeakness'],
-                            stagger: { kind: 'valueNode', nodeId: 'data_8' },
-                          },
+                          kind: 'checkCondition',
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_6' } },
                         },
                         next: null,
                       },
@@ -923,7 +925,7 @@ export const estellaChr_0021_whiten_normal_skillActionGraph = {
                         },
                         next: null,
                       },
-                      forEachContextTarget_opt1: {
+                      forEachContextTarget_9: {
                         action: {
                           kind: 'forEachContextTarget',
                           parameters: { targets: { kind: 'fixed', target: 'enemy' } },
@@ -931,43 +933,38 @@ export const estellaChr_0021_whiten_normal_skillActionGraph = {
                         },
                         next: null,
                       },
-                      applyElementalInfliction_opt2: {
+                      applyElementalInfliction_10: {
                         action: {
                           kind: 'applyElementalInfliction',
                           parameters: { element: 'cryo', isExtra: false },
                         },
-                        next: 'forEachContextTarget_opt1',
+                        next: 'forEachContextTarget_9',
                       },
                     },
                     dataNodes: {
                       data_1: {
                         type: 'number',
-                        expression: { kind: 'blackboard', key: 'EntityBB_first_hit', fallback: 0 },
+                        expression: { kind: 'blackboard', key: 'atk_scale' },
                       },
-                      data_2: {
-                        type: 'boolean',
-                        expression: {
-                          kind: 'actionValueCompare',
-                          left: { kind: 'valueNode', nodeId: 'data_1' },
-                          operator: 'equal',
-                          right: { kind: 'constant', value: 0 },
-                        },
-                      },
+                      data_2: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
                       data_3: {
                         type: 'number',
                         expression: { kind: 'blackboard', key: 'up_atk_scale' },
                       },
                       data_4: { type: 'number', expression: { kind: 'blackboard', key: 'dmg_up' } },
-                      data_5: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
+                      data_5: {
+                        type: 'number',
+                        expression: { kind: 'blackboard', key: 'EntityBB_first_hit', fallback: 0 },
+                      },
                       data_6: {
-                        type: 'number',
-                        expression: { kind: 'blackboard', key: 'atk_scale' },
+                        type: 'boolean',
+                        expression: {
+                          kind: 'actionValueCompare',
+                          left: { kind: 'valueNode', nodeId: 'data_5' },
+                          operator: 'equal',
+                          right: { kind: 'constant', value: 0 },
+                        },
                       },
-                      data_7: {
-                        type: 'number',
-                        expression: { kind: 'blackboard', key: 'atk_scale' },
-                      },
-                      data_8: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
                     },
                   },
                   macros: {},
@@ -1003,7 +1000,8 @@ export const estellaChr_0021_whiten_normal_skillActionGraph = {
         action: {
           kind: 'finishBuffsById',
           parameters: {
-            target: 'caster',
+            targets: { kind: 'owner' },
+            finishSource: { kind: 'source' },
             buffIds: ['buff_chr_0021_whiten_talent_0_active'],
             reason: 'other',
           },
@@ -1230,7 +1228,8 @@ export const estellaChr_0021_whiten_ultimate_skillActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_damage_immune_ult_skill' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -1349,7 +1348,7 @@ export const estellaChr_0021_whiten_combo_skillActionGraph = {
             attackScale: { kind: 'valueNode', nodeId: 'data_3' },
             tags: ['comboSkill'],
             features: ['canBreakWeakness'],
-            stagger: { kind: 'valueNode', nodeId: 'data_4' },
+            stagger: { kind: 'valueNode', nodeId: 'data_2' },
           },
         },
         next: null,
@@ -1381,7 +1380,8 @@ export const estellaChr_0021_whiten_combo_skillActionGraph = {
                 copiedBlackboardAssignments: { duration: 'duration', rate: 'rate' },
               },
             ],
-            target: 'enemy',
+            targets: { kind: 'fixed', target: 'enemy' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -1393,7 +1393,7 @@ export const estellaChr_0021_whiten_combo_skillActionGraph = {
           parameters: {
             key: 'duration',
             operation: 'add',
-            value: { kind: 'valueNode', nodeId: 'data_5' },
+            value: { kind: 'valueNode', nodeId: 'data_4' },
           },
         },
         next: 'applyBuff_8',
@@ -1401,7 +1401,7 @@ export const estellaChr_0021_whiten_combo_skillActionGraph = {
       checkCondition_1: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_7' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_6' } },
         },
         next: null,
       },
@@ -1418,7 +1418,7 @@ export const estellaChr_0021_whiten_combo_skillActionGraph = {
       checkCondition_9: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_8' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_7' } },
         },
         next: null,
       },
@@ -1437,7 +1437,7 @@ export const estellaChr_0021_whiten_combo_skillActionGraph = {
           kind: 'changeResource',
           parameters: {
             resource: 'ultimateEnergy',
-            amount: { kind: 'valueNode', nodeId: 'data_9' },
+            amount: { kind: 'valueNode', nodeId: 'data_8' },
             coefficient: { kind: 'constant', value: 1 },
             source: { kind: 'source' },
             targets: { kind: 'source' },
@@ -1496,7 +1496,7 @@ export const estellaChr_0021_whiten_combo_skillActionGraph = {
       checkCondition_17: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_10' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_9' } },
         },
         next: null,
       },
@@ -1513,7 +1513,7 @@ export const estellaChr_0021_whiten_combo_skillActionGraph = {
       checkCondition_21: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_11' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_10' } },
         },
         next: 'ifElse_20',
       },
@@ -1538,22 +1538,21 @@ export const estellaChr_0021_whiten_combo_skillActionGraph = {
       data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
       data_2: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
       data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale2' } },
-      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
-      data_5: { type: 'number', expression: { kind: 'blackboard', key: 'rate_plus' } },
-      data_6: {
+      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'rate_plus' } },
+      data_5: {
         type: 'number',
         expression: { kind: 'blackboard', key: 'has_potential1', fallback: 0 },
       },
-      data_7: {
+      data_6: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_6' },
+          left: { kind: 'valueNode', nodeId: 'data_5' },
           operator: 'greaterOrEqual',
           right: { kind: 'constant', value: 1 },
         },
       },
-      data_8: {
+      data_7: {
         type: 'boolean',
         expression: {
           kind: 'entityTagMatch',
@@ -1562,9 +1561,9 @@ export const estellaChr_0021_whiten_combo_skillActionGraph = {
           tags: ['Skill/Character/Common/SpellStatus/Frozen'],
         },
       },
-      data_9: { type: 'number', expression: { kind: 'blackboard', key: 'usp' } },
-      data_10: { type: 'boolean', expression: { kind: 'casterControlled' } },
-      data_11: {
+      data_8: { type: 'number', expression: { kind: 'blackboard', key: 'usp' } },
+      data_9: { type: 'boolean', expression: { kind: 'casterControlled' } },
+      data_10: {
         type: 'boolean',
         expression: {
           kind: 'entityCountCompare',
@@ -1701,7 +1700,8 @@ const estellaBuff1ActionGraph = {
                 },
               },
             ],
-            target: 'enemy',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
           },
@@ -1737,8 +1737,8 @@ const estellaBuff2ActionGraph = {
         action: {
           kind: 'aura',
           parameters: {
-            target: 'enemy',
-            source: 'buffOwner',
+            targets: { kind: 'fixed', target: 'enemy' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             buffs: [
               {
@@ -1797,10 +1797,11 @@ const estellaBuff3ActionGraph = {
         action: {
           kind: 'createTimedMarker',
           parameters: {
-            target: 'caster',
+            targets: { kind: 'source' },
             markerId: 'buff_chr_0021_whiten_potential_5_cd',
             durationSeconds: { kind: 'valueNode', nodeId: 'data_2' },
             autoFinishByAction: false,
+            timeDomain: 'globalScaled',
           },
         },
         next: 'changeResource_1',
@@ -1875,8 +1876,8 @@ const estellaBuff4ActionGraph = {
                 copiedBlackboardAssignments: { atb: 'atb' },
               },
             ],
-            target: 'buffSource',
-            source: 'buffSource',
+            targets: { kind: 'source' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },

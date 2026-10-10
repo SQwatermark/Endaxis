@@ -1,4 +1,7 @@
-import { collectUnobservedTargetQueryOutputs } from '../optimization/nativeTargetUsage.ts';
+import {
+  collectUnobservedTargetQueryOutputs,
+  summarizeNativeTargetUsage,
+} from '../optimization/nativeTargetUsage.ts';
 import { collectCombatInvisiblePresentationAssignmentKeys } from '../optimization/nativePresentationUsage.ts';
 import type { ScheduledSequenceDefinition } from '../../../../../packages/game-data-contract/src/actions.ts';
 import { createActionGraphBuilder } from '../actions/actionGraphBuilder.ts';
@@ -22,7 +25,7 @@ import type {
   CombatActionProjectionExtensionsSource,
 } from '../combatProjectionCommon.ts';
 import {
-  isDynamicSingleEnemySmartTargetGroup,
+  isZeroSpaceSingleEnemySmartTargetGroup,
   isPartyHitBoxTargetGroup,
   isDynamicSingleEnemyTagTargetGroup,
   isStaticSingleEnemyTargetGroup,
@@ -953,7 +956,7 @@ export function compileActiveSkillRuntimeProjectionSource(input: {
           write =>
             isStaticActiveSkillEnemyTargetGroup(write) ||
             isDynamicSingleEnemyTagTargetGroup(write) ||
-            isDynamicSingleEnemySmartTargetGroup(write) ||
+            isZeroSpaceSingleEnemySmartTargetGroup(write) ||
             isAtMostSingleEnemyMerge(write, singleEnemyTargetGroupKeys) ||
             isAtMostSingleEnemyConversion(write, singleEnemyTargetGroupKeys) ||
             isAtMostSingleEnemyFilteredFind(write),
@@ -1196,25 +1199,12 @@ export function compileActiveSkillRuntimeProjectionSource(input: {
           ...(hasConditionalInputActions ? { hasConditionalActions: true } : {}),
         };
   // 静态查询可证明单次写入的结果，却不一定支配另一时间段的读取（例如只在非主控分支写入）。
-  // 数量条件仍需在运行时读取的组必须保留写入，不能留下一个从未创建的 Context 名称。
+  // 出生位置、循环、过滤器等也读取 Context；统一使用目标用途分析，不能仅保护数量条件。
   const materializedTargetGroupKeys = new Set(
     graph.actionGroup.timelineActions.flatMap(timeline =>
-      collectNativeActionNodes(timeline.sequence).flatMap(node => {
-        if (
-          !node.metadata.enabled ||
-          node.body.kind !== 'leaf' ||
-          node.body.value.family !== 'condition'
-        )
-          return [];
-        const condition = node.body.value.action;
-        return condition.kind === 'entityCount' &&
-          condition.targetSource === 'Context' &&
-          !condition.containsHittableTarget &&
-          !condition.excludeDeadEntity &&
-          !staticEnemyTargetGroupKeys.has(condition.targetGroupKey)
-          ? [condition.targetGroupKey]
-          : [];
-      }),
+      collectNativeActionNodes(timeline.sequence).flatMap(node => [
+        ...summarizeNativeTargetUsage(node).reads,
+      ]),
     ),
   );
   const context = {

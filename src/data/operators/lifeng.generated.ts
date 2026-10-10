@@ -652,7 +652,7 @@ export const lifengChr_0015_lifeng_power_attackActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'physical',
-            attackScale: { kind: 'valueNode', nodeId: 'data_2' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_1' },
             calculation: 'breakingAttack',
             calculationMultiplier: 0.9,
             tags: ['normalAttack', 'powerAttack'],
@@ -663,7 +663,7 @@ export const lifengChr_0015_lifeng_power_attackActionGraph = {
       checkCondition_4: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
         },
         next: null,
       },
@@ -737,7 +737,8 @@ export const lifengChr_0015_lifeng_power_attackActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_power_attack_disable_cast_skill' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -749,7 +750,8 @@ export const lifengChr_0015_lifeng_power_attackActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_full_immune_medium' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -759,12 +761,11 @@ export const lifengChr_0015_lifeng_power_attackActionGraph = {
     },
     dataNodes: {
       data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_2: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_3: {
+      data_2: {
         type: 'boolean',
         expression: {
           kind: 'entityCountCompare',
-          target: { kind: 'inputTarget' },
+          target: { kind: 'fixed', target: 'enemy' },
           containsHittableTarget: false,
           excludeDeadEntity: false,
           operator: 'greaterOrEqual',
@@ -957,7 +958,8 @@ export const lifengChr_0015_lifeng_normal_skillActionGraph = {
                 copiedBlackboardAssignments: { rate: 'phy_resist_down', duration: 'duration' },
               },
             ],
-            target: 'enemy',
+            targets: { kind: 'fixed', target: 'enemy' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -1175,7 +1177,8 @@ export const lifengChr_0015_lifeng_ultimate_skillActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_damage_immune_ult_skill' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -1192,13 +1195,6 @@ export const lifengChr_0015_lifeng_ultimate_skillActionGraph = {
         },
         next: null,
       },
-      checkCondition_6: {
-        action: {
-          kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-        },
-        next: null,
-      },
       modifyActionValue_7: {
         action: {
           kind: 'modifyActionValue',
@@ -1207,6 +1203,13 @@ export const lifengChr_0015_lifeng_ultimate_skillActionGraph = {
             operation: 'assign',
             value: { kind: 'constant', value: 1 },
           },
+        },
+        next: null,
+      },
+      checkCondition_6: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
         },
         next: null,
       },
@@ -1220,14 +1223,7 @@ export const lifengChr_0015_lifeng_ultimate_skillActionGraph = {
         },
         next: null,
       },
-      checkCondition_9: {
-        action: {
-          kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
-        },
-        next: null,
-      },
-      spawnAbilityEntity_10: {
+      spawnAbilityEntity_12: {
         action: {
           kind: 'spawnAbilityEntity',
           parameters: {
@@ -1248,18 +1244,12 @@ export const lifengChr_0015_lifeng_ultimate_skillActionGraph = {
             sources: [{ kind: 'target', target: 'enemy' }],
           },
         },
-        next: 'spawnAbilityEntity_10',
+        next: 'spawnAbilityEntity_12',
       },
-      spawnAbilityEntity_12: {
+      checkCondition_9: {
         action: {
-          kind: 'spawnAbilityEntity',
-          parameters: {
-            bornAt: { kind: 'inputTarget' },
-            abilityEntityId: 'abilityentity_chr_0015_lifeng_ultimate_skill',
-            childSkillId: 'chr_0015_lifeng_ultimate_skill_abentity',
-            inheritActionBlackboard: true,
-            dieWhenSourceDies: false,
-          },
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
         },
         next: null,
       },
@@ -1530,7 +1520,7 @@ const lifengPassive1ActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0015_lifeng_passive' }],
-            target: 'caster',
+            targets: { kind: 'fixed', target: 'caster' },
             inheritSourceSkillCastInfo: false,
           },
         },
@@ -1560,7 +1550,7 @@ const lifengPassive2ActionGraph = {
                 blackboardAssignments: { atk_up: { kind: 'valueNode', nodeId: 'data_1' } },
               },
             ],
-            target: 'caster',
+            targets: { kind: 'fixed', target: 'caster' },
             inheritSourceSkillCastInfo: false,
           },
         },
@@ -1715,7 +1705,8 @@ const lifengBuff2ActionGraph = {
         action: {
           kind: 'finishBuffsById',
           parameters: {
-            target: 'buffOwner',
+            targets: { kind: 'owner' },
+            finishSource: { kind: 'source' },
             buffIds: ['buff_chr_0015_lifeng_potential_5'],
             reason: 'other',
           },
@@ -1736,8 +1727,8 @@ const lifengBuff2ActionGraph = {
                 },
               },
             ],
-            target: 'buffOwner',
-            source: 'buffSource',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -1836,7 +1827,8 @@ const lifengBuff4ActionGraph = {
                 stringBlackboardAssignments: { child_buff_id: 'buff_chr_0015_lifeng_purify_icon' },
               },
             ],
-            target: 'enemy',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
           },
@@ -1957,8 +1949,8 @@ const lifengBuff7ActionGraph = {
                 },
               },
             ],
-            target: 'buffOwner',
-            source: 'buffSource',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -1968,7 +1960,8 @@ const lifengBuff7ActionGraph = {
         action: {
           kind: 'finishBuffsById',
           parameters: {
-            target: 'buffOwner',
+            targets: { kind: 'owner' },
+            finishSource: { kind: 'source' },
             buffIds: ['buff_chr_0015_lifeng_potential_5_1'],
             reason: 'other',
           },
@@ -2040,7 +2033,7 @@ const lifengBuff7ActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'physical',
-            attackScale: { kind: 'valueNode', nodeId: 'data_6' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_4' },
             tags: [],
           },
         },
@@ -2075,7 +2068,6 @@ const lifengBuff7ActionGraph = {
       data_3: { type: 'number', expression: { kind: 'blackboard', key: 'poise_potential5' } },
       data_4: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_talent2' } },
       data_5: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_potential5' } },
-      data_6: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_talent2' } },
     },
   },
   macros: {},

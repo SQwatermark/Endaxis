@@ -159,7 +159,7 @@ it('records string operand reads and copied-source reads without fabricating dyn
                 copiedBlackboardAssignments: { targetKey: 'sourceKey' },
               },
             ],
-            target: 'caster',
+            targets: { kind: 'fixed', target: 'caster' },
           },
         },
         next: null,

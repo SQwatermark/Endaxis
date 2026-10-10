@@ -369,7 +369,7 @@ describe('ChannelingAction 单目标身份投影', () => {
     expect(readActionGraphChain(compiled.graph, step.body)).toMatchObject([
       {
         kind: 'applyBuff',
-        parameters: { buffs: [{ buffId: 'buff_common_obtain_ultimate_sp' }], target: 'caster' },
+        parameters: { buffs: [{ buffId: 'buff_common_obtain_ultimate_sp' }], targets: { kind: 'fixed', target: 'caster' } },
       },
     ]);
   });
@@ -419,7 +419,7 @@ describe('ChannelingAction 单目标身份投影', () => {
     expect(readActionGraphChain(compiled.graph, step.body)).toMatchObject([
       {
         kind: 'applyBuff',
-        parameters: { buffs: [{ buffId: 'buff_common_obtain_ultimate_sp' }], target: 'enemy' },
+        parameters: { buffs: [{ buffId: 'buff_common_obtain_ultimate_sp' }], targets: { kind: 'fixed', target: 'enemy' } },
       },
     ]);
   });

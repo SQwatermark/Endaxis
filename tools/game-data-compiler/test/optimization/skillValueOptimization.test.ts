@@ -27,7 +27,12 @@ const assign = (key: string, value: number): CombatStepForKind<'modifyActionValu
 });
 const spend = (key: string): ActionGraphStep => ({
   kind: 'changeResource',
-  parameters: { resource: 'sp', recipient: 'team', amount: board(key) },
+  parameters: {
+    resource: 'sp',
+    source: { kind: 'owner' },
+    targets: { kind: 'owner' },
+    amount: board(key),
+  },
 });
 const signal: ActionGraphStep = {
   kind: 'triggerCustomAbilityEvent',
@@ -475,7 +480,12 @@ describe('技能黑板和算术写入裁剪', () => {
             },
             {
               kind: 'changeResource',
-              parameters: { resource: 'sp', recipient: 'team', amount: board('second') },
+              parameters: {
+                resource: 'sp',
+                source: { kind: 'owner' },
+                targets: { kind: 'owner' },
+                amount: board('second'),
+              },
             },
           ]),
         },
@@ -547,7 +557,12 @@ describe('技能黑板和算术写入裁剪', () => {
           sequence: chain(nodes, 'later', [
             {
               kind: 'changeResource',
-              parameters: { resource: 'sp', recipient: 'team', amount: board('later') },
+              parameters: {
+                resource: 'sp',
+                source: { kind: 'owner' },
+                targets: { kind: 'owner' },
+                amount: board('later'),
+              },
             },
           ]),
         },
@@ -566,7 +581,8 @@ describe('技能黑板和算术写入裁剪', () => {
                         kind: 'changeResource',
                         parameters: {
                           resource: 'sp',
-                          recipient: 'team',
+                          source: { kind: 'owner' },
+                          targets: { kind: 'owner' },
                           amount: board('eventValue'),
                         },
                       },

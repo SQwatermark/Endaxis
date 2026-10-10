@@ -15,6 +15,7 @@ import {
   type BuffApplicationRequest,
 } from '../combat/buffs/buffOperationExecutor';
 import { CombatBuffContainer } from '../combat/buffs/combatBuffs';
+import { TargetContextOperationExecutor } from '../combat/abilities/targetContextOperationExecutor';
 import { StateStepper } from '../combat/runtime/stateStepper';
 import {
   SkillCastOperationExecutor,
@@ -178,9 +179,12 @@ describe('字符串数据图实际消费与切面恢复', () => {
       apply,
     });
     const lookup = vi.fn((_id: string) => ({ stackingType: 'unique' as const }));
+    const queries = new TargetContextOperationExecutor('caster', delegate);
     const executor = new BuffOperationExecutor({
       sourceId: 'caster',
+      queryTargets: queries.queryTargets.bind(queries),
       resolveTarget: () => target,
+      resolveEventTarget: () => target,
       resolveBuffDefinition: lookup,
       delegate,
     });
@@ -188,7 +192,7 @@ describe('字符串数据图实际消费与切面恢复', () => {
       kind: 'applyBuff',
       parameters: {
         buffs: [{ buffId: reference }],
-        target: 'caster',
+        targets: { kind: 'fixed', target: 'caster' },
         count: { kind: 'constant', value: 2 },
       },
     });
@@ -197,18 +201,21 @@ describe('字符串数据图实际消费与切面恢复', () => {
       { $sequence: 'entry' },
       'buff',
     );
-    new CombatActionSequenceRuntime(executor, { blackboard: board })
+    new CombatActionSequenceRuntime(executor, { blackboard: board, actionSourceId: 'caster' })
       .createSequence(entry)
       .executeInstant({});
     expect(lookup.mock.calls.map(([id]) => id)).toEqual(['first', 'second']);
     expect(apply).toHaveBeenCalledTimes(2);
     const bad = graph({
       kind: 'applyBuff',
-      parameters: { buffs: [{ buffId: reference }], target: 'caster', durationSeconds: 1 },
+      parameters: { buffs: [{ buffId: reference }], targets: { kind: 'fixed', target: 'caster' } },
     });
+    const badAction = bad.nodes.entry!.action;
+    if (badAction.kind !== 'applyBuff') throw new Error('expected applyBuff');
+    Object.assign(badAction.parameters, { durationSeconds: 1 });
     expect(
       validateActionGraphActions(bad, 'graph').some(issue =>
-        issue.message.includes('动态 Buff ID'),
+        issue.path.endsWith('.durationSeconds'),
       ),
     ).toBe(true);
   });
@@ -305,8 +312,9 @@ describe('字符串数据图实际消费与切面恢复', () => {
     const source = graph({
       kind: 'createTimedMarker',
       parameters: {
-        target: 'caster',
         markerId: reference,
+        targets: { kind: 'fixed', target: 'caster' },
+        timeDomain: 'self',
         durationSeconds: { kind: 'constant', value: 10 },
         autoFinishByAction: true,
       },
@@ -320,6 +328,8 @@ describe('字符串数据图实际消费与切面恢复', () => {
     const executor = new TimedMarkerOperationExecutor({
       resolveTarget: () => markers,
       resolveEventTarget: () => markers,
+      queryTargets: () => [{ kind: 'operator', operatorId: 'caster' }],
+      globalScaledClock: clock,
       delegate,
     });
     const board = new ActionBlackboard({ id: 'original-id' });
@@ -340,7 +350,13 @@ describe('字符串数据图实际消费与切面恢复', () => {
     const restoredClock = new CombatClock(saved.clock);
     const restoredMarkers = new TimedMarkerContainer('caster', restoredClock, {}, saved.markers);
     const restoredExecutor = new TimedMarkerOperationExecutor(
-      { resolveTarget: () => restoredMarkers, resolveEventTarget: () => restoredMarkers, delegate },
+      {
+        resolveTarget: () => restoredMarkers,
+        resolveEventTarget: () => restoredMarkers,
+        queryTargets: () => [{ kind: 'operator', operatorId: 'caster' }],
+        globalScaledClock: restoredClock,
+        delegate,
+      },
       { state: saved.executor, programs: executor.programs },
     );
     const restoredBoard = ActionBlackboard.bindRuntimeState(saved.board);

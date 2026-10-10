@@ -51,7 +51,12 @@ const childSkillRuntime = {
 } as const;
 const spend = (key: string): ActionGraphStep => ({
   kind: 'changeResource',
-  parameters: { resource: 'sp', recipient: 'team', amount: board(key) },
+  parameters: {
+    resource: 'sp',
+    source: { kind: 'owner' },
+    targets: { kind: 'owner' },
+    amount: board(key),
+  },
 });
 const assign = (key: string, value: number): ActionGraphStep => ({
   kind: 'modifyActionValue',

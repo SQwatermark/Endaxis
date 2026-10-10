@@ -52,7 +52,8 @@ const definition = {
                       },
                     },
                   ],
-                  target: 'party',
+                  targets: { kind: 'characterTeam', excludeOwner: false },
+                  source: { kind: 'source' },
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
                 },
@@ -154,10 +155,11 @@ const definition = {
               action: {
                 kind: 'createTimedMarker',
                 parameters: {
-                  target: 'buffOwner',
+                  targets: { kind: 'owner' },
                   markerId: 'wpn_sword_0026_heal',
                   durationSeconds: { kind: 'constant', value: 0.1 },
                   autoFinishByAction: false,
+                  timeDomain: 'globalScaled',
                 },
               },
               next: null,

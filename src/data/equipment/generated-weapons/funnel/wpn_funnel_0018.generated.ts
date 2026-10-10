@@ -53,31 +53,31 @@ const definition = {
           key: 'skill3:event:0:sequence:0',
           abilityEvent: 'beforeOutputBuff',
           priority: 0,
-          sequence: { $sequence: 'checkCondition_4' },
+          sequence: { $sequence: 'checkCondition_5' },
         },
         {
           key: 'skill3:event:1:sequence:0',
           abilityEvent: 'beforeOutputBuff',
           priority: 0,
-          sequence: { $sequence: 'checkCondition_8' },
+          sequence: { $sequence: 'checkCondition_10' },
         },
         {
           key: 'skill3:event:2:sequence:0',
           abilityEvent: 'beforeOutputBuff',
           priority: 0,
-          sequence: { $sequence: 'checkCondition_12' },
+          sequence: { $sequence: 'checkCondition_15' },
         },
         {
           key: 'skill3:event:3:sequence:0',
           abilityEvent: 'beforeOutputBuff',
           priority: 0,
-          sequence: { $sequence: 'checkCondition_16' },
+          sequence: { $sequence: 'checkCondition_20' },
         },
         {
           key: 'skill3:event:4:sequence:0',
           abilityEvent: 'beforeOutputInfliction',
           priority: 0,
-          sequence: { $sequence: 'checkCondition_3' },
+          sequence: { $sequence: 'checkCondition_4' },
         },
       ],
       actionGraph: {
@@ -97,14 +97,26 @@ const definition = {
                       },
                     },
                   ],
-                  target: 'partyExceptCaster',
+                  targets: { kind: 'context', key: 'teammates' },
+                  source: { kind: 'source' },
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
                 },
               },
               next: null,
             },
-            applyBuff_2: {
+            findTargets_2: {
+              action: {
+                kind: 'findTargets',
+                parameters: {
+                  owner: { kind: 'owner' },
+                  query: { kind: 'characterTeam', excludeOwner: true, owner: { kind: 'owner' } },
+                  saveToContextKey: 'teammates',
+                },
+              },
+              next: 'applyBuff_1',
+            },
+            applyBuff_3: {
               action: {
                 kind: 'applyBuff',
                 parameters: {
@@ -118,47 +130,48 @@ const definition = {
                       },
                     },
                   ],
-                  target: 'caster',
+                  targets: { kind: 'source' },
+                  source: { kind: 'source' },
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
                 },
               },
-              next: 'applyBuff_1',
-            },
-            checkCondition_3: {
-              action: {
-                kind: 'checkCondition',
-                parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-              },
-              next: 'applyBuff_2',
+              next: 'findTargets_2',
             },
             checkCondition_4: {
               action: {
                 kind: 'checkCondition',
+                parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
+              },
+              next: 'applyBuff_3',
+            },
+            checkCondition_5: {
+              action: {
+                kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
               },
-              next: 'checkCondition_3',
+              next: 'checkCondition_4',
             },
-            checkCondition_8: {
+            checkCondition_10: {
               action: {
                 kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
               },
-              next: 'checkCondition_3',
+              next: 'checkCondition_4',
             },
-            checkCondition_12: {
+            checkCondition_15: {
               action: {
                 kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_4' } },
               },
-              next: 'checkCondition_3',
+              next: 'checkCondition_4',
             },
-            checkCondition_16: {
+            checkCondition_20: {
               action: {
                 kind: 'checkCondition',
                 parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
               },
-              next: 'checkCondition_3',
+              next: 'checkCondition_4',
             },
           },
           dataNodes: {

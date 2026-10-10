@@ -65,7 +65,7 @@ const gearSet: GearSetDefinition = {
         init: {
           action: {
             kind: 'applyBuff',
-            parameters: { buffs: [{ buffId: 'buff.test-set' }], target: 'caster' },
+            parameters: { buffs: [{ buffId: 'buff.test-set' }], targets: { kind: 'fixed', target: 'caster' } },
           },
           next: null,
         },

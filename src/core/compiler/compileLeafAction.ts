@@ -51,7 +51,6 @@ const LEAF_ACTION_KINDS = [
   'inheritBuffById',
   'createTimedMarker',
   'setGlobalCooldown',
-  'createAbilityEntityTimedMarker',
   'startTimeDilation',
   'startUltimateTimeDilation',
   'hideUi',
@@ -460,8 +459,6 @@ export function compileLeafAction(
     case 'createTimedMarker':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'setGlobalCooldown':
-      return { ...keyed, kind: step.kind, parameters: step.parameters };
-    case 'createAbilityEntityTimedMarker':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'startTimeDilation':
       return { ...keyed, kind: step.kind, parameters: step.parameters };

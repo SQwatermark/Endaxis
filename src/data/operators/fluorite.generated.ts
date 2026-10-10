@@ -244,31 +244,17 @@ export const fluoriteChr_0022_bounda_attack3ActionGraph = {
                 },
                 blackboard: { atb: 0, atk_scale: 0 },
                 scheduledSequences: [
-                  { startFrame: 0, endFrame: 3, sequence: { $sequence: 'dealDamage_opt2' } },
+                  { startFrame: 0, endFrame: 3, sequence: { $sequence: 'dealDamage_5' } },
                 ],
                 actionGraph: {
                   main: {
                     nodes: {
-                      checkCondition_1: {
-                        action: {
-                          kind: 'checkCondition',
-                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-                        },
-                        next: null,
-                      },
-                      checkCondition_2: {
-                        action: {
-                          kind: 'checkCondition',
-                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-                        },
-                        next: 'checkCondition_1',
-                      },
                       changeResource_3: {
                         action: {
                           kind: 'changeResource',
                           parameters: {
                             resource: 'sp',
-                            amount: { kind: 'valueNode', nodeId: 'data_3' },
+                            amount: { kind: 'valueNode', nodeId: 'data_1' },
                             coefficient: { kind: 'constant', value: 0.3333333 },
                             source: { kind: 'source' },
                             targets: { kind: 'source' },
@@ -279,7 +265,21 @@ export const fluoriteChr_0022_bounda_attack3ActionGraph = {
                         },
                         next: null,
                       },
-                      ifElse_opt1: {
+                      checkCondition_1: {
+                        action: {
+                          kind: 'checkCondition',
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
+                        },
+                        next: null,
+                      },
+                      checkCondition_2: {
+                        action: {
+                          kind: 'checkCondition',
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
+                        },
+                        next: 'checkCondition_1',
+                      },
+                      ifElse_4: {
                         action: {
                           kind: 'ifElse',
                           parameters: { alwaysNext: true },
@@ -289,7 +289,7 @@ export const fluoriteChr_0022_bounda_attack3ActionGraph = {
                         },
                         next: null,
                       },
-                      dealDamage_opt2: {
+                      dealDamage_5: {
                         action: {
                           kind: 'dealDamage',
                           parameters: {
@@ -298,23 +298,23 @@ export const fluoriteChr_0022_bounda_attack3ActionGraph = {
                             tags: ['normalAttack'],
                           },
                         },
-                        next: 'ifElse_opt1',
+                        next: 'ifElse_4',
                       },
                     },
                     dataNodes: {
-                      data_1: {
+                      data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+                      data_2: {
                         type: 'boolean',
                         expression: {
                           kind: 'entityCountCompare',
-                          target: { kind: 'inputTarget' },
+                          target: { kind: 'fixed', target: 'enemy' },
                           containsHittableTarget: false,
                           excludeDeadEntity: false,
                           operator: 'greaterOrEqual',
                           value: 1,
                         },
                       },
-                      data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
-                      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+                      data_3: { type: 'boolean', expression: { kind: 'casterControlled' } },
                       data_4: {
                         type: 'number',
                         expression: { kind: 'blackboard', key: 'atk_scale' },
@@ -420,31 +420,17 @@ export const fluoriteChr_0022_bounda_attack4ActionGraph = {
                 },
                 blackboard: { atb: 0, atk_scale: 0, attack_poise: 20 },
                 scheduledSequences: [
-                  { startFrame: 0, endFrame: 3, sequence: { $sequence: 'dealDamage_opt2' } },
+                  { startFrame: 0, endFrame: 3, sequence: { $sequence: 'dealDamage_5' } },
                 ],
                 actionGraph: {
                   main: {
                     nodes: {
-                      checkCondition_1: {
-                        action: {
-                          kind: 'checkCondition',
-                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-                        },
-                        next: null,
-                      },
-                      checkCondition_2: {
-                        action: {
-                          kind: 'checkCondition',
-                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-                        },
-                        next: 'checkCondition_1',
-                      },
                       changeResource_3: {
                         action: {
                           kind: 'changeResource',
                           parameters: {
                             resource: 'sp',
-                            amount: { kind: 'valueNode', nodeId: 'data_3' },
+                            amount: { kind: 'valueNode', nodeId: 'data_1' },
                             coefficient: { kind: 'constant', value: 1 },
                             source: { kind: 'source' },
                             targets: { kind: 'source' },
@@ -455,7 +441,21 @@ export const fluoriteChr_0022_bounda_attack4ActionGraph = {
                         },
                         next: null,
                       },
-                      ifElse_opt1: {
+                      checkCondition_1: {
+                        action: {
+                          kind: 'checkCondition',
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
+                        },
+                        next: null,
+                      },
+                      checkCondition_2: {
+                        action: {
+                          kind: 'checkCondition',
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
+                        },
+                        next: 'checkCondition_1',
+                      },
+                      ifElse_4: {
                         action: {
                           kind: 'ifElse',
                           parameters: { alwaysNext: true },
@@ -465,7 +465,7 @@ export const fluoriteChr_0022_bounda_attack4ActionGraph = {
                         },
                         next: null,
                       },
-                      dealDamage_opt2: {
+                      dealDamage_5: {
                         action: {
                           kind: 'dealDamage',
                           parameters: {
@@ -476,23 +476,23 @@ export const fluoriteChr_0022_bounda_attack4ActionGraph = {
                             staggerOnlyWhenCasterControlled: true,
                           },
                         },
-                        next: 'ifElse_opt1',
+                        next: 'ifElse_4',
                       },
                     },
                     dataNodes: {
-                      data_1: {
+                      data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+                      data_2: {
                         type: 'boolean',
                         expression: {
                           kind: 'entityCountCompare',
-                          target: { kind: 'inputTarget' },
+                          target: { kind: 'fixed', target: 'enemy' },
                           containsHittableTarget: false,
                           excludeDeadEntity: false,
                           operator: 'greaterOrEqual',
                           value: 1,
                         },
                       },
-                      data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
-                      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+                      data_3: { type: 'boolean', expression: { kind: 'casterControlled' } },
                       data_4: {
                         type: 'number',
                         expression: { kind: 'blackboard', key: 'atk_scale' },
@@ -601,31 +601,17 @@ export const fluoriteChr_0022_bounda_attack4_1ActionGraph = {
                 },
                 blackboard: { atb: 0, atk_scale: 0, attack_poise: 20 },
                 scheduledSequences: [
-                  { startFrame: 0, endFrame: 3, sequence: { $sequence: 'dealDamage_opt2' } },
+                  { startFrame: 0, endFrame: 3, sequence: { $sequence: 'dealDamage_5' } },
                 ],
                 actionGraph: {
                   main: {
                     nodes: {
-                      checkCondition_1: {
-                        action: {
-                          kind: 'checkCondition',
-                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-                        },
-                        next: null,
-                      },
-                      checkCondition_2: {
-                        action: {
-                          kind: 'checkCondition',
-                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-                        },
-                        next: 'checkCondition_1',
-                      },
                       changeResource_3: {
                         action: {
                           kind: 'changeResource',
                           parameters: {
                             resource: 'sp',
-                            amount: { kind: 'valueNode', nodeId: 'data_3' },
+                            amount: { kind: 'valueNode', nodeId: 'data_1' },
                             coefficient: { kind: 'constant', value: 1 },
                             source: { kind: 'source' },
                             targets: { kind: 'source' },
@@ -636,7 +622,21 @@ export const fluoriteChr_0022_bounda_attack4_1ActionGraph = {
                         },
                         next: null,
                       },
-                      ifElse_opt1: {
+                      checkCondition_1: {
+                        action: {
+                          kind: 'checkCondition',
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
+                        },
+                        next: null,
+                      },
+                      checkCondition_2: {
+                        action: {
+                          kind: 'checkCondition',
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
+                        },
+                        next: 'checkCondition_1',
+                      },
+                      ifElse_4: {
                         action: {
                           kind: 'ifElse',
                           parameters: { alwaysNext: true },
@@ -646,7 +646,7 @@ export const fluoriteChr_0022_bounda_attack4_1ActionGraph = {
                         },
                         next: null,
                       },
-                      dealDamage_opt2: {
+                      dealDamage_5: {
                         action: {
                           kind: 'dealDamage',
                           parameters: {
@@ -657,23 +657,23 @@ export const fluoriteChr_0022_bounda_attack4_1ActionGraph = {
                             staggerOnlyWhenCasterControlled: true,
                           },
                         },
-                        next: 'ifElse_opt1',
+                        next: 'ifElse_4',
                       },
                     },
                     dataNodes: {
-                      data_1: {
+                      data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+                      data_2: {
                         type: 'boolean',
                         expression: {
                           kind: 'entityCountCompare',
-                          target: { kind: 'inputTarget' },
+                          target: { kind: 'fixed', target: 'enemy' },
                           containsHittableTarget: false,
                           excludeDeadEntity: false,
                           operator: 'greaterOrEqual',
                           value: 1,
                         },
                       },
-                      data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
-                      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
+                      data_3: { type: 'boolean', expression: { kind: 'casterControlled' } },
                       data_4: {
                         type: 'number',
                         expression: { kind: 'blackboard', key: 'atk_scale' },
@@ -824,7 +824,8 @@ export const fluoriteChr_0022_bounda_power_attackActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_full_immune_medium' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -836,7 +837,8 @@ export const fluoriteChr_0022_bounda_power_attackActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_power_attack_disable_cast_skill' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -960,7 +962,8 @@ export const fluoriteChr_0022_bounda_normal_skillActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0022_bounda_normal_skill_onlymark' }],
-            target: 'caster',
+            targets: { kind: 'source' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -1018,7 +1021,8 @@ export const fluoriteChr_0022_bounda_normal_skillActionGraph = {
                                 },
                               },
                             ],
-                            target: 'enemy',
+                            targets: { kind: 'fixed', target: 'enemy' },
+                            source: { kind: 'source' },
                             inheritSourceSkillCastInfo: true,
                           },
                         },
@@ -1028,7 +1032,7 @@ export const fluoriteChr_0022_bounda_normal_skillActionGraph = {
                         action: {
                           kind: 'spawnAbilityEntity',
                           parameters: {
-                            bornAt: { kind: 'inputTarget' },
+                            bornAt: { kind: 'fixed', target: 'enemy' },
                             abilityEntityId: 'abilityentity_chr_0022_bounda_normal_skill',
                             childSkillId: 'chr_0022_bounda_normal_skill_abilityrange',
                             inheritActionBlackboard: true,
@@ -1224,7 +1228,8 @@ export const fluoriteChr_0022_bounda_ultimate_skillActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_damage_immune_ult_skill' }],
-            target: 'caster',
+            targets: { kind: 'source' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -1278,7 +1283,8 @@ export const fluoriteChr_0022_bounda_ultimate_skillActionGraph = {
                           kind: 'applyBuff',
                           parameters: {
                             buffs: [{ buffId: 'buff_chr_0022_bounda_ultimate_skill' }],
-                            target: 'enemy',
+                            targets: { kind: 'fixed', target: 'enemy' },
+                            source: { kind: 'source' },
                             inheritSourceSkillCastInfo: true,
                           },
                         },
@@ -1349,7 +1355,8 @@ export const fluoriteChr_0022_bounda_ultimate_skillActionGraph = {
                           kind: 'applyBuff',
                           parameters: {
                             buffs: [{ buffId: 'buff_chr_0022_bounda_ultimate_skill' }],
-                            target: 'enemy',
+                            targets: { kind: 'fixed', target: 'enemy' },
+                            source: { kind: 'source' },
                             inheritSourceSkillCastInfo: true,
                           },
                         },
@@ -1419,7 +1426,8 @@ export const fluoriteChr_0022_bounda_ultimate_skillActionGraph = {
                           kind: 'applyBuff',
                           parameters: {
                             buffs: [{ buffId: 'buff_chr_0022_bounda_ultimate_skill' }],
-                            target: 'enemy',
+                            targets: { kind: 'fixed', target: 'enemy' },
+                            source: { kind: 'source' },
                             inheritSourceSkillCastInfo: true,
                           },
                         },
@@ -1479,18 +1487,11 @@ export const fluoriteChr_0022_bounda_ultimate_skillActionGraph = {
                 },
                 blackboard: { atb: 0, atk_scale4: 0, poise: 0 },
                 scheduledSequences: [
-                  { startFrame: 0, endFrame: 3, sequence: { $sequence: 'ifElse_opt3' } },
+                  { startFrame: 0, endFrame: 3, sequence: { $sequence: 'ifElse_8' } },
                 ],
                 actionGraph: {
                   main: {
                     nodes: {
-                      checkCondition_1: {
-                        action: {
-                          kind: 'checkCondition',
-                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
-                        },
-                        next: null,
-                      },
                       applyElementalInfliction_2: {
                         action: {
                           kind: 'applyElementalInfliction',
@@ -1498,17 +1499,10 @@ export const fluoriteChr_0022_bounda_ultimate_skillActionGraph = {
                         },
                         next: null,
                       },
-                      checkCondition_3: {
+                      checkCondition_1: {
                         action: {
                           kind: 'checkCondition',
-                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
-                        },
-                        next: null,
-                      },
-                      applyElementalInfliction_4: {
-                        action: {
-                          kind: 'applyElementalInfliction',
-                          parameters: { element: 'nature', isExtra: false },
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
                         },
                         next: null,
                       },
@@ -1522,18 +1516,33 @@ export const fluoriteChr_0022_bounda_ultimate_skillActionGraph = {
                         },
                         next: null,
                       },
-                      applyBuff_opt1: {
+                      applyElementalInfliction_4: {
+                        action: {
+                          kind: 'applyElementalInfliction',
+                          parameters: { element: 'nature', isExtra: false },
+                        },
+                        next: null,
+                      },
+                      checkCondition_3: {
+                        action: {
+                          kind: 'checkCondition',
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_2' } },
+                        },
+                        next: null,
+                      },
+                      applyBuff_6: {
                         action: {
                           kind: 'applyBuff',
                           parameters: {
                             buffs: [{ buffId: 'buff_chr_0022_bounda_ultimate_skill' }],
-                            target: 'enemy',
+                            targets: { kind: 'fixed', target: 'enemy' },
+                            source: { kind: 'source' },
                             inheritSourceSkillCastInfo: true,
                           },
                         },
                         next: null,
                       },
-                      dealDamage_opt2: {
+                      dealDamage_7: {
                         action: {
                           kind: 'dealDamage',
                           parameters: {
@@ -1543,9 +1552,9 @@ export const fluoriteChr_0022_bounda_ultimate_skillActionGraph = {
                             stagger: { kind: 'valueNode', nodeId: 'data_4' },
                           },
                         },
-                        next: 'applyBuff_opt1',
+                        next: 'applyBuff_6',
                       },
-                      ifElse_opt3: {
+                      ifElse_8: {
                         action: {
                           kind: 'ifElse',
                           parameters: { alwaysNext: true },
@@ -1553,7 +1562,7 @@ export const fluoriteChr_0022_bounda_ultimate_skillActionGraph = {
                           whenTrue: { $sequence: 'applyElementalInfliction_4' },
                           whenFalse: { $sequence: 'ifElse_5' },
                         },
-                        next: 'dealDamage_opt2',
+                        next: 'dealDamage_7',
                       },
                     },
                     dataNodes: {
@@ -1901,7 +1910,7 @@ const fluoritePassive1ActionGraph = {
                 blackboardAssignments: { dmg_up: { kind: 'valueNode', nodeId: 'data_1' } },
               },
             ],
-            target: 'caster',
+            targets: { kind: 'fixed', target: 'caster' },
             inheritSourceSkillCastInfo: false,
           },
         },
@@ -1937,7 +1946,7 @@ const fluoritePassive2ActionGraph = {
                 },
               },
             ],
-            target: 'caster',
+            targets: { kind: 'fixed', target: 'caster' },
             inheritSourceSkillCastInfo: false,
           },
         },
@@ -2093,8 +2102,8 @@ const fluoriteBuff2ActionGraph = {
         action: {
           kind: 'aura',
           parameters: {
-            target: 'enemy',
-            source: 'buffOwner',
+            targets: { kind: 'fixed', target: 'enemy' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: false,
             buffs: [
               {
@@ -2140,10 +2149,11 @@ const fluoriteBuff3ActionGraph = {
         action: {
           kind: 'createTimedMarker',
           parameters: {
-            target: 'caster',
+            targets: { kind: 'source' },
             markerId: 'potential',
             durationSeconds: { kind: 'valueNode', nodeId: 'data_1' },
             autoFinishByAction: false,
+            timeDomain: 'globalScaled',
           },
         },
         next: null,
@@ -2278,8 +2288,8 @@ const fluoriteBuff5ActionGraph = {
                 copiedBlackboardAssignments: { atk_up: 'atk_up', duration: 'duration' },
               },
             ],
-            target: 'buffSource',
-            source: 'buffSource',
+            targets: { kind: 'source' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -2690,7 +2700,8 @@ export const fluorite: OperatorDefinition = {
                         },
                       },
                     ],
-                    target: 'enemy',
+                    targets: { kind: 'fixed', target: 'enemy' },
+                    source: { kind: 'source' },
                     inheritSourceSkillCastInfo: true,
                   },
                 },
@@ -2762,7 +2773,8 @@ export const fluorite: OperatorDefinition = {
                 action: {
                   kind: 'finishBuffsById',
                   parameters: {
-                    target: 'caster',
+                    targets: { kind: 'source' },
+                    finishSource: { kind: 'source' },
                     buffIds: [
                       'buff_chr_0022_bounda_normal_skill_onlymark',
                       'buff_chr_0022_bounda_ultimate_skill',
@@ -2801,7 +2813,7 @@ export const fluorite: OperatorDefinition = {
                   kind: 'dealDamage',
                   parameters: {
                     damageType: 'nature',
-                    attackScale: { kind: 'valueNode', nodeId: 'data_8' },
+                    attackScale: { kind: 'valueNode', nodeId: 'data_6' },
                     tags: ['normalSkill'],
                     features: ['canBreakWeakness'],
                     instantDamageScaleModifiers: [
@@ -2811,7 +2823,7 @@ export const fluorite: OperatorDefinition = {
                         addition: { kind: 'constant', value: 0.3 },
                       },
                     ],
-                    stagger: { kind: 'valueNode', nodeId: 'data_9' },
+                    stagger: { kind: 'valueNode', nodeId: 'data_7' },
                   },
                   key: 'abilityentity_chr_0022_bounda_normal_skill:chr_0022_bounda_normal_skill_abilityrange:/childSkill/actionGraph/main/nodes/dealDamage_16/action',
                 },
@@ -2828,7 +2840,8 @@ export const fluorite: OperatorDefinition = {
                 action: {
                   kind: 'finishBuffsById',
                   parameters: {
-                    target: 'caster',
+                    targets: { kind: 'source' },
+                    finishSource: { kind: 'source' },
                     buffIds: [
                       'buff_chr_0022_bounda_normal_skill_onlymark',
                       'buff_chr_0022_bounda_ultimate_skill',
@@ -2841,7 +2854,7 @@ export const fluorite: OperatorDefinition = {
               checkCondition_20: {
                 action: {
                   kind: 'checkCondition',
-                  parameters: { condition: { kind: 'conditionNode', nodeId: 'data_10' } },
+                  parameters: { condition: { kind: 'conditionNode', nodeId: 'data_8' } },
                 },
                 next: null,
               },
@@ -2856,7 +2869,7 @@ export const fluorite: OperatorDefinition = {
               checkCondition_22: {
                 action: {
                   kind: 'checkCondition',
-                  parameters: { condition: { kind: 'conditionNode', nodeId: 'data_11' } },
+                  parameters: { condition: { kind: 'conditionNode', nodeId: 'data_9' } },
                 },
                 next: null,
               },
@@ -2904,9 +2917,7 @@ export const fluorite: OperatorDefinition = {
               },
               data_6: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
               data_7: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
-              data_8: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-              data_9: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
-              data_10: {
+              data_8: {
                 type: 'boolean',
                 expression: {
                   kind: 'healthCompare',
@@ -2916,7 +2927,7 @@ export const fluorite: OperatorDefinition = {
                   value: { kind: 'constant', value: 0 },
                 },
               },
-              data_11: {
+              data_9: {
                 type: 'boolean',
                 expression: {
                   kind: 'buffIdStackCompare',

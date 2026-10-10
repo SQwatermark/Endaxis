@@ -32,7 +32,6 @@ import {
   type ActionStringOperand,
   type TimeDilationIgnoreTarget,
   type TimeDilationEntityTarget,
-  type TimedMarkerTarget,
   type GlobalCooldownTarget,
 } from './primitives.ts';
 import {
@@ -71,21 +70,6 @@ export type HealTargetBinding =
       /** 非 Context 目标禁止携带查询键。 */
       contextKey?: never;
     };
-
-/** 标签结束使用单个已绑定对象；集合与主控选择器不在此动作的目标范围内。 */
-export const BUFF_TAG_FINISH_TARGETS = [
-  'party',
-  'caster',
-  'enemy',
-  'currentAbilityEntity',
-  'eventTarget',
-  'eventSource',
-  'buffOwner',
-  'buffSource',
-  'currentTarget',
-] as const satisfies readonly BuffApplicationTarget[];
-/** 按标签结束 Buff 的单体或队伍目标。 */
-export type BuffTagFinishTarget = (typeof BUFF_TAG_FINISH_TARGETS)[number];
 
 /** 一条 CreateBuffAction 输入；不持有独立目标或生命周期。 */
 export interface BuffApplicationEntry {
@@ -395,8 +379,10 @@ export interface CombatStepParameters {
     /** 保存剩余秒数的动作黑板键。 */
     outputKey: string;
   };
-  /** 将当前 Context 迭代目标的能力实体剩余时长赋为一个明确数值。 */
+  /** 将单个目标的能力实体剩余时长赋值；对应原生单目标模式，不遍历目标组。 */
   setAbilityEntityRemainingDuration: {
+    /** 读取目标组的首个实体；空目标或非能力实体不执行赋值。 */
+    target: ActionTargetQuery;
     /** 新的剩余秒数。 */
     value: ActionValueOperand;
   };
@@ -634,11 +620,11 @@ export interface CombatStepParameters {
   /** 原生 Aura：每个进入目标分别施加区域 Buff，并执行进入/退出回调。 */
   aura: {
     /** 零空间下的候选集合；排除的是动作 Owner。 */
-    target: 'party' | 'partyExceptCaster' | 'enemy';
+    targets: ActionTargetQuery;
     /** 按原生顺序施加到每个进入目标。 */
     buffs: readonly BuffApplicationEntry[];
     /** 区域 Buff 的来源，不改写回调环境的 Owner/Source。 */
-    source?: BuffApplicationSource;
+    source?: ActionTargetQuery;
     /** 将当前施法身份传给区域 Buff。 */
     inheritSourceSkillCastInfo?: boolean;
     /** 仅覆盖显示倒计时，不改变实例寿命。 */
@@ -649,17 +635,15 @@ export interface CombatStepParameters {
   applyBuff: {
     /** 每次循环按顺序施加；ID 与赋值在轮到该项时求值。 */
     buffs: readonly BuffApplicationEntry[];
-    /** 接收 Buff 的单体或队伍目标。 */
-    target: BuffApplicationTarget;
+    /** 原生接收者查询；动作内部按查询顺序处理全部实体，跳过位置目标。 */
+    targets: ActionTargetQuery;
     /** 原生 CreateBuffAction 的循环次数；省略时执行一次，正小数按 `int < float` 语义向上取整。 */
     count?: ActionValueOperand;
     /**
-     * Buff 的来源实体；省略时沿用当前动作来源。
-     * 该字段与接收 Buff 的 `target` 相互独立，只应在原生动作显式改写来源时配置。
+     * 每个接收者处理前读取查询首项作为 Buff 来源；省略时读取动作 Source。
+     * 空结果或首项为位置目标时跳过该接收者，不读取 Buff ID 和赋值。
      */
-    source?: BuffApplicationSource;
-    /** 已确定为单一目标的 Context 来源，与 source 互斥；保留查询结果的实例身份。 */
-    sourceContextKey?: string;
+    source?: ActionTargetQuery;
     /**
      * 原生 Buff 图标的倒计时来源。它只改变可视倒计时，不改变 Buff 自身生命周期；
      * 来源在施加边沿解析成稳定实例身份，同名 TimedMarker 重建不会串线。
@@ -691,10 +675,6 @@ export interface CombatStepParameters {
     asChildBuff?: boolean;
     /** CreateBuffAttachingSkill：绑定事件当前技能而非动作 owner 的寿命。 */
     lifetimeOwner?: 'currentCastSkill';
-    /** 覆盖本次 Buff 实例持续时间的秒数。 */
-    durationSeconds?: number;
-    /** 覆盖本次 Buff 实例效果系数。 */
-    effectiveness?: number;
   };
   /** 创建一个独立的战斗级 GlobalBuff 实例，并把其子 Buff 投影到当前固定队伍。 */
   createGlobalBuff: {
@@ -847,26 +827,30 @@ export interface CombatStepParameters {
   };
   /** 按原生标签查询结束目标身上的匹配 Buff；count 缺省时结束全部。 */
   finishBuffsByTag: {
-    /** 要结束 Buff 的对象。 */
-    target: BuffTagFinishTarget;
+    /** 按原生查询顺序逐个结束 Buff 的接收者；不另建遍历动作。 */
+    targets: ActionTargetQuery;
+    /** Early/Absorbed 读取此查询的第一个对象；Other 不求值。 */
+    finishSource: ActionTargetQuery;
     /** 标签集合匹配方式。 */
     tagQueryType: GameplayTagQueryType;
     /** 用于查找 Buff 的标签。 */
     buffTags: readonly GameplayTag[];
     /** 记录到结束事件中的原因。 */
     reason: 'early' | 'absorbed' | 'other';
-    /** 最多结束的实例数；省略时结束全部匹配项。 */
+    /** 原生结束层数，执行时向零取整；由 Buff 叠层类型决定扣增强层还是结束实例。省略时结束全部。 */
     count?: ActionValueOperand;
   };
   /** 按 Buff 定义身份结束目标身上的匹配实例；count 缺省时结束全部。 */
   finishBuffsById: {
-    /** 要结束 Buff 的单体或队伍目标。 */
-    target: BuffApplicationTarget;
-    /** 任一匹配即可选中的 Buff ID。 */
+    /** 按原生查询顺序逐个结束 Buff 的接收者；不另建遍历动作。 */
+    targets: ActionTargetQuery;
+    /** Early/Absorbed 读取此查询的第一个对象；Other 不求值。 */
+    finishSource: ActionTargetQuery;
+    /** 每个接收者按列表顺序处理，不排序或去重。 */
     buffIds: readonly string[];
     /** 记录到结束事件中的原因。 */
     reason: 'early' | 'absorbed' | 'other';
-    /** 最多结束的实例数；省略时结束全部匹配项。 */
+    /** 每个 ID 独立使用的原生结束层数，执行时向零取整；省略时结束全部。 */
     count?: ActionValueOperand;
   };
   /** 结束当前正在执行生命周期或事件响应的 Buff 实例。 */
@@ -958,27 +942,16 @@ export interface CombatStepParameters {
   };
   /** 在目标能力系统上创建定时标记；同 ID 标记不会互相覆盖。 */
   createTimedMarker: {
-    /** 标记所属对象。 */
-    target: TimedMarkerTarget;
+    /** 逐目标创建标记；空目标组返回失败。 */
+    targets: ActionTargetQuery;
     /** 标记 ID。 */
     markerId: ActionStringOperand;
     /** 标记持续秒数。 */
     durationSeconds: ActionValueOperand;
     /** 是否随当前动作结束。 */
     autoFinishByAction: boolean;
-    /** 对应原生 useTimeDilationDt：设置后使用目标实体最终时间；缺省使用全局缩放时间。 */
-    timeDomain?: 'globalScaled';
-  };
-  /** 在当前能力实体上创建定时标记；每个标记显式选择共享战斗或实体自身时钟。 */
-  createAbilityEntityTimedMarker: {
-    /** 标记 ID。 */
-    markerId: ActionStringOperand;
-    /** 标记持续秒数。 */
-    durationSeconds: ActionValueOperand;
-    /** 是否随当前动作结束。 */
-    autoFinishByAction: boolean;
-    /** 使用全局时钟还是能力实体自身时钟。 */
-    timeDomain: 'global' | 'self';
+    /** 原生 useTimeDilationDt=true 使用目标实体时钟，false 使用全局缩放时钟。 */
+    timeDomain: 'globalScaled' | 'self';
   };
   /** 创建普通全局或实体时间膨胀实例；终结技专用时间动作另行建模。 */
   startTimeDilation:
@@ -1323,6 +1296,8 @@ export interface CombatStepParameters {
   };
   /** 发射一个独立投射物；所有事件回调共享这一个对象的寿命和实体黑板。 */
   launchProjectile: {
+    /** 发射时解析的碰撞白名单；空间点不具备可命中的实体身份。 */
+    onlyHitTargets?: ActionTargetQuery;
     /** 每个目标各发射一枚；count 用于已折算为数量的零空间目标。省略时发射一枚。 */
     targets?:
       { kind: 'context'; contextKey: string } | { kind: 'count'; count: ActionValueOperand };
@@ -1504,7 +1479,6 @@ export const COMBAT_STEP_KINDS = [
   'restrictUltimateEnergyRecovery',
   'createTimedMarker',
   'setGlobalCooldown',
-  'createAbilityEntityTimedMarker',
   'startTimeDilation',
   'startUltimateTimeDilation',
   'hideUi',

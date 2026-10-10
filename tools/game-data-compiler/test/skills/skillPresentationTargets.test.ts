@@ -663,6 +663,7 @@ describe('来源裁剪的跨入口消费者', () => {
       },
     }).actions[0]!;
     if (motion.body.kind !== 'leaf') throw new Error('expected spatial action');
+    const motionValue = motion.body.value;
     const withCallback = (callback: NativeSequenceSource<KnownNativeActionLeafSource>) => ({
       ...sequence(),
       actions: [
@@ -670,7 +671,7 @@ describe('来源裁剪的跨入口消费者', () => {
           ...motion,
           body: {
             kind: 'actionWithCallback' as const,
-            value: motion.body.value,
+            value: motionValue,
             trigger: 'targetPointInvalid' as const,
             callback,
           },

@@ -62,7 +62,6 @@ import {
   type CombatActionProjectionContextSource,
   type CombatActionProjectionExtensionsSource,
   BUFF_ACTION_CONTEXT,
-  isDynamicSingleEnemySmartTargetGroup,
   isDynamicSingleEnemyTagTargetGroup,
   isStaticExplicitBadFactionEnemyTargetGroup,
   isStaticSingleEnemyOwnerAllyTargetGroup,
@@ -177,6 +176,12 @@ export function compileBuffRuntimeDefinitionSource(
     | 'staticAbilityEntityTargetGroupKeys'
   > = {},
 ): CompiledBuffDefinitionSource {
+  // 生命周期、定时入口和修正条件共用黑板；写入裁剪必须看到整个 Buff。
+  source = simplifyNativeSequences(
+    source,
+    contextOverrides.isBlackboardKeyUnusedByExternalResources,
+    'resource',
+  );
   const graph = createActionGraphBuilder<CompiledBuffStepSource>();
   const mergeSequences = (sequences: readonly CompiledBuffSequenceSource[]) =>
     mergeIndependentActionSequencesSource(sequences, 'native-buff-callback', graph.sequence);
@@ -271,7 +276,7 @@ export function compileBuffRuntimeDefinitionSource(
         write =>
           isStaticSingleEnemyTargetGroup(write) ||
           isDynamicSingleEnemyTagTargetGroup(write) ||
-          isDynamicSingleEnemySmartTargetGroup(write),
+          isZeroSpaceSingleEnemySmartTargetGroup(write),
       )
     ) {
       singleEnemyTargetGroupKeys.add(key);
@@ -359,7 +364,10 @@ export function compileBuffRuntimeDefinitionSource(
     key => contextOverrides.isBlackboardKeyUnusedByExternalResources?.(key) === true,
   );
   const combatInvisiblePresentationBlackboardKeys =
-    collectCombatInvisiblePresentationAssignmentKeys(allSequences);
+    collectCombatInvisiblePresentationAssignmentKeys(
+      allSequences,
+      key => contextOverrides.isBlackboardKeyUnusedByExternalResources?.(key) === true,
+    );
   const staticAbilityEntityTargetGroupKeys = new Set([
     ...(contextOverrides.staticAbilityEntityTargetGroupKeys ?? []),
     ...targetGroupNodes.flatMap(node =>
@@ -1311,7 +1319,13 @@ function createBuffSequenceProjection(
             parameters:
               aura.kind === 'globalPartyAura'
                 ? projectAuraParameters(node, visualOnlyIds, context)
-                : { target: aura.target, buffs: [] },
+                : {
+                    targets:
+                      aura.target === 'enemy'
+                        ? { kind: 'fixed' as const, target: 'enemy' as const }
+                        : { kind: 'characterTeam' as const, excludeOwner: false },
+                    buffs: [],
+                  },
             onEnter: compileCallback(aura.actionOnEnter),
             onExit:
               aura.kind === 'globalPartyAura'
@@ -1621,12 +1635,11 @@ function createBuffSequenceProjection(
         !node.body.action.onlyExecuteWhenSourceIsMainCharacter &&
         !node.body.action.onlyExecuteWhenSourceIsGuard
       ) {
-        // 该 Context 可在敌人和 FixedPoint 之间切换，但当前控制流已证明严格产生一个目标。
-        // 固定模型把二者都置于唯一木桩的零空间位置，因此逐目标子序列精确执行一次；
-        // 这里只消去循环几何，不把该 Context 提升为全局 enemy 身份。
+        // 单目标证明不等于敌人身份证明；位置目标仍保留位置身份。
         const loopContext: CombatActionProjectionContextSource = {
           ...context,
-          actionTargetTarget: 'enemy',
+          actionTargetTarget: 'actionInputTarget',
+          actionInputIsZeroSpace: true,
         };
         const body = compileActionSequenceProgram(node.body.action, {
           ...createBuffSequenceProjection(visualOnlyIds, loopContext, extensions),
@@ -1636,7 +1649,7 @@ function createBuffSequenceProjection(
           steps: [
             {
               kind: 'forEachContextTarget',
-              parameters: { targets: { kind: 'fixed', target: 'enemy' } },
+              parameters: { targets: { kind: 'context', key: node.body.target.targetGroupKey } },
               body,
             },
           ],

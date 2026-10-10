@@ -254,7 +254,6 @@ export interface ResolvedCombatStepParameters {
   inheritBuffById: CompiledStepParameters['inheritBuffById'];
   createTimedMarker: CompiledStepParameters['createTimedMarker'];
   setGlobalCooldown: CompiledStepParameters['setGlobalCooldown'];
-  createAbilityEntityTimedMarker: CompiledStepParameters['createAbilityEntityTimedMarker'];
   startTimeDilation: CompiledStepParameters['startTimeDilation'];
   startUltimateTimeDilation: CompiledStepParameters['startUltimateTimeDilation'];
   hideUi: CompiledStepParameters['hideUi'];
@@ -343,45 +342,47 @@ type ResolvedCombatStepNode<K extends CombatStepKind> = {
   readonly hitId?: string;
   readonly kind: K;
   readonly parameters: Readonly<ResolvedCombatStepParameters[K]>;
-} & (K extends 'jumpTimeline'
-  ? { readonly condition: ResolvedActionSequence }
-  : K extends 'anyCondition'
-    ? { readonly conditions: readonly ResolvedActionSequence[] }
-    : K extends 'ifElse'
-      ? {
-          readonly condition: ResolvedActionSequence;
-          readonly whenTrue: ResolvedActionSequence;
-          readonly whenFalse: ResolvedActionSequence;
-        }
-      : K extends 'conditional'
+} & (K extends 'aura'
+  ? { readonly onEnter: ResolvedActionSequence; readonly onExit: ResolvedActionSequence }
+  : K extends 'jumpTimeline'
+    ? { readonly condition: ResolvedActionSequence }
+    : K extends 'anyCondition'
+      ? { readonly conditions: readonly ResolvedActionSequence[] }
+      : K extends 'ifElse'
         ? {
+            readonly condition: ResolvedActionSequence;
             readonly whenTrue: ResolvedActionSequence;
-            readonly whenFalse?: ResolvedActionSequence;
+            readonly whenFalse: ResolvedActionSequence;
           }
-        : K extends 'once'
-          ? { readonly body: ResolvedActionSequence }
-          : K extends 'switch'
-            ? {
-                readonly options: readonly (Omit<ActionSwitchOptionDefinition, 'sequence'> & {
-                  readonly sequence: ResolvedActionSequence;
-                })[];
-              }
-            : K extends 'withActionBlackboardScope'
-              ? { readonly body: ResolvedActionSequence }
-              : K extends 'repeatEachTick'
+        : K extends 'conditional'
+          ? {
+              readonly whenTrue: ResolvedActionSequence;
+              readonly whenFalse?: ResolvedActionSequence;
+            }
+          : K extends 'once'
+            ? { readonly body: ResolvedActionSequence }
+            : K extends 'switch'
+              ? {
+                  readonly options: readonly (Omit<ActionSwitchOptionDefinition, 'sequence'> & {
+                    readonly sequence: ResolvedActionSequence;
+                  })[];
+                }
+              : K extends 'withActionBlackboardScope'
                 ? { readonly body: ResolvedActionSequence }
-                : K extends 'repeatByActionValue'
+                : K extends 'repeatEachTick'
                   ? { readonly body: ResolvedActionSequence }
-                  : K extends 'launchProjectile'
-                    ? {
-                        readonly callbacks: readonly {
-                          readonly event: 'hit' | 'block' | 'reach' | 'finish';
-                          readonly skill: CompiledAbilityEntityChildSkillProgram;
-                        }[];
-                      }
-                    : K extends 'forEachContextTarget'
-                      ? { readonly body: ResolvedActionSequence }
-                      : {});
+                  : K extends 'repeatByActionValue'
+                    ? { readonly body: ResolvedActionSequence }
+                    : K extends 'launchProjectile'
+                      ? {
+                          readonly callbacks: readonly {
+                            readonly event: 'hit' | 'block' | 'reach' | 'finish';
+                            readonly skill: CompiledAbilityEntityChildSkillProgram;
+                          }[];
+                        }
+                      : K extends 'forEachContextTarget'
+                        ? { readonly body: ResolvedActionSequence }
+                        : {});
 
 /** 按成员逐一构造，联合kind仍保留parameters与子序列字段的判别关联。 */
 export type ResolvedCombatStepForKind<K extends CombatStepKind> = {
@@ -449,7 +450,6 @@ export const COMBAT_STEP_EXECUTION_ROUTES = {
   restrictUltimateEnergyRecovery: 'operation',
   createTimedMarker: 'operation',
   setGlobalCooldown: 'operation',
-  createAbilityEntityTimedMarker: 'operation',
   startTimeDilation: 'operation',
   startUltimateTimeDilation: 'operation',
   hideUi: 'operation',

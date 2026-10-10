@@ -6,7 +6,7 @@ import type {
   ActionEntitySelection,
   ActionTargetQuery,
 } from '../../../../../packages/game-data-contract/src/conditions.ts';
-import { projectGameplayTags } from '../combatProjectionCommon.ts';
+import { isPartyInstantSearch, isPartyExceptOwnerInstantSearch, isUniqueEnemyHitBoxInstantSearch, projectGameplayTags } from '../combatProjectionCommon.ts';
 import { projectSpGainKind, projectSpGainSource } from '../../source/spGainEnums.ts';
 import { projectGlobalCooldownTarget } from '../actions/globalCooldownProjection.ts';
 import { NATIVE_SKILL_HAS_HIT_BLACKBOARD_KEY } from '../../../../../packages/game-data-contract/src/conditions.ts';
@@ -1534,6 +1534,9 @@ export function projectActionTargetQuery(
   context: CombatActionProjectionContextSource,
   path: string,
 ): ActionTargetQuery {
+  if (isPartyInstantSearch(target)) return { kind: 'characterTeam', excludeOwner: false };
+  if (isPartyExceptOwnerInstantSearch(target)) return { kind: 'characterTeam', excludeOwner: true };
+  if (isUniqueEnemyHitBoxInstantSearch(target)) return { kind: 'fixed', target: 'enemy' };
   if (target.targetSource !== 'InstantSearch') {
     switch (target.targetSource) {
       case 'Owner':
@@ -1541,6 +1544,9 @@ export function projectActionTargetQuery(
       case 'Source':
         return { kind: 'source' };
       case 'Target':
+        // 宿主明确提供的固定目标与回调输入槽不是同一来源；后者允许为空。
+        if (context.actionTargetTarget === 'enemy' || context.actionTargetTarget === 'caster')
+          return { kind: 'fixed', target: context.actionTargetTarget };
         return { kind: 'inputTarget' };
       case 'MainCharacter':
         return { kind: 'mainCharacter' };

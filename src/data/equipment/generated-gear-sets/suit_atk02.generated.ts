@@ -26,8 +26,8 @@ const definition = {
               action: {
                 kind: 'aura',
                 parameters: {
-                  target: 'party',
-                  source: 'buffOwner',
+                  targets: { kind: 'characterTeam', excludeOwner: false },
+                  source: { kind: 'owner' },
                   inheritSourceSkillCastInfo: false,
                   buffs: [
                     {
@@ -96,7 +96,8 @@ const definition = {
               action: {
                 kind: 'finishBuffsById',
                 parameters: {
-                  target: 'buffOwner',
+                  targets: { kind: 'owner' },
+                  finishSource: { kind: 'source' },
                   buffIds: ['buff_equipsuit_atk_02_addcombodamage'],
                   reason: 'other',
                 },
@@ -113,8 +114,8 @@ const definition = {
                       copiedBlackboardAssignments: { dmg_up: 'dmg_up' },
                     },
                   ],
-                  target: 'buffOwner',
-                  source: 'buffOwner',
+                  targets: { kind: 'owner' },
+                  source: { kind: 'owner' },
                   inheritSourceSkillCastInfo: true,
                 },
               },
@@ -244,7 +245,8 @@ const definition = {
                       copiedBlackboardAssignments: { dmg_up: 'dmg_up', max_stack: 'max_stack' },
                     },
                   ],
-                  target: 'caster',
+                  targets: { kind: 'source' },
+                  source: { kind: 'source' },
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
                 },
@@ -288,7 +290,7 @@ const definition = {
                   },
                 },
               ],
-              target: 'caster',
+              targets: { kind: 'fixed', target: 'caster' },
             },
           },
           next: null,

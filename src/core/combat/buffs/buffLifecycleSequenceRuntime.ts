@@ -541,6 +541,9 @@ export function attachBuffLifecycleSequences<Key extends string>(
     const actionOwner = runtimeTargetFromEntityId(buff.owner.ownerId);
     const context: CombatOperationContext = {
       actionOwnerId: buff.owner.ownerId,
+      actionSourceId: buff.sourceId,
+      // 普通生命周期使用 owner.selfTargetHandle；事件与点燃入口临时覆盖输入。
+      actionInputTarget: actionOwner,
       ...(actionOwner.kind === 'abilityEntity' ? { actionOwnerAbilityEntity: actionOwner } : {}),
       blackboard: buff.blackboard,
       canExecuteAction: () => buff.isEnabled && !buff.isFinished,

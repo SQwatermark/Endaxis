@@ -270,23 +270,34 @@ describe('standardPlayerDamageCompatibility', () => {
       }),
     ).toEqual([expect.objectContaining({ code: 'unsupported-damage-calculation' })]);
   });
-  it('递归检查 repeatByActionValue 的动作体，不把运行时已支持的容器误报为未支持', () => {
+  it.each(['repeat', 'enter', 'exit'] as const)('检查 %s 回调中的不支持行为', port => {
     const issues = inspectStandardPlayerDamageCompatibility(
       compatibilityInput(
         operator(
           compileGraphEntry('compat-repeat-body', 'repeat', {
             repeat: {
-              action: {
-                kind: 'repeatByActionValue',
-                parameters: { count: { kind: 'constant', value: 2 } },
-                body: { $sequence: 'repeat-body' },
-              },
+              action:
+                port === 'repeat'
+                  ? {
+                      kind: 'repeatByActionValue',
+                      parameters: { count: { kind: 'constant', value: 2 } },
+                      body: { $sequence: 'repeat-body' },
+                    }
+                  : {
+                      kind: 'aura',
+                      parameters: {
+                        targets: { kind: 'characterTeam', excludeOwner: false },
+                        buffs: [],
+                      },
+                      onEnter: { $sequence: port === 'enter' ? 'repeat-body' : null },
+                      onExit: { $sequence: port === 'exit' ? 'repeat-body' : null },
+                    },
               next: null,
             },
             'repeat-body': {
               action: {
                 kind: 'dealDamage',
-                parameters: { damageType: 'electric', attackScale: 1, tags: [] },
+                parameters: { damageType: 'lifeDrain', attackScale: 1, tags: [] },
               },
               next: null,
             },
@@ -295,7 +306,7 @@ describe('standardPlayerDamageCompatibility', () => {
       ),
     );
 
-    expect(issues).toEqual([]);
+    expect(issues).toEqual([expect.objectContaining({ code: 'unsupported-damage-calculation' })]);
   });
 
   it('允许技能动作上下文读取既有 Buff 黑板并参与条件判断', () => {
@@ -347,7 +358,7 @@ describe('standardPlayerDamageCompatibility', () => {
               kind: 'applyBuff',
               parameters: {
                 buffs: [{ buffId: 'buff:attached' }],
-                target: 'caster',
+                targets: { kind: 'fixed', target: 'caster' },
                 lifetimeOwner: 'currentCastSkill',
               },
             },
@@ -510,7 +521,13 @@ describe('standardPlayerDamageCompatibility', () => {
   it('does not reject unsupported skills that cannot run before the requested end frame', () => {
     const entry = operator(
       chainEntry('compat-missing-buff', [
-        { kind: 'applyBuff', parameters: { buffs: [{ buffId: 'buff:missing' }], target: 'enemy' } },
+        {
+          kind: 'applyBuff',
+          parameters: {
+            buffs: [{ buffId: 'buff:missing' }],
+            targets: { kind: 'fixed', target: 'enemy' },
+          },
+        },
       ]),
     );
 
@@ -584,7 +601,10 @@ describe('standardPlayerDamageCompatibility', () => {
               sequence: chainEntry('compat-late-action', [
                 {
                   kind: 'applyBuff',
-                  parameters: { buffs: [{ buffId: 'buff:missing' }], target: 'enemy' },
+                  parameters: {
+                    buffs: [{ buffId: 'buff:missing' }],
+                    targets: { kind: 'fixed', target: 'enemy' },
+                  },
                 },
               ]),
             },
@@ -771,7 +791,10 @@ describe('standardPlayerDamageCompatibility', () => {
           { kind: 'dealStagger', parameters: { value: 10 } },
           {
             kind: 'applyBuff',
-            parameters: { buffs: [{ buffId: 'buff:missing' }], target: 'enemy' },
+            parameters: {
+              buffs: [{ buffId: 'buff:missing' }],
+              targets: { kind: 'fixed', target: 'enemy' },
+            },
           },
           { kind: 'setContextFlag', parameters: { flag: 'ready', value: true, target: 'caster' } },
         ]),

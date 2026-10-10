@@ -330,7 +330,7 @@ export const lastRiteChr_0026_lastrite_attack3ActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'cryo',
-            attackScale: { kind: 'valueNode', nodeId: 'data_4' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_3' },
             tags: ['normalAttack'],
           },
         },
@@ -423,7 +423,6 @@ export const lastRiteChr_0026_lastrite_attack3ActionGraph = {
       data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
       data_2: { type: 'boolean', expression: { kind: 'casterControlled' } },
       data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
     },
   },
   macros: {},
@@ -730,7 +729,8 @@ export const lastRiteChr_0026_lastrite_power_attackActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_power_attack_disable_cast_skill' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -742,7 +742,8 @@ export const lastRiteChr_0026_lastrite_power_attackActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_full_immune_medium' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -867,7 +868,7 @@ export const lastRiteChr_0026_lastrite_normal_skillActionGraph = {
                 },
               },
             ],
-            target: 'caster',
+            targets: { kind: 'fixed', target: 'caster' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -879,7 +880,7 @@ export const lastRiteChr_0026_lastrite_normal_skillActionGraph = {
           parameters: {
             key: 'EntityBB_ns_atb',
             operation: 'assign',
-            value: { kind: 'valueNode', nodeId: 'data_8' },
+            value: { kind: 'valueNode', nodeId: 'data_3' },
           },
         },
         next: null,
@@ -890,7 +891,7 @@ export const lastRiteChr_0026_lastrite_normal_skillActionGraph = {
           parameters: {
             key: 'EntityBB_ns_atkscale2',
             operation: 'assign',
-            value: { kind: 'valueNode', nodeId: 'data_9' },
+            value: { kind: 'valueNode', nodeId: 'data_1' },
           },
         },
         next: 'modifyActionValue_2',
@@ -901,7 +902,7 @@ export const lastRiteChr_0026_lastrite_normal_skillActionGraph = {
           parameters: {
             key: 'EntityBB_ns_atkscale1',
             operation: 'assign',
-            value: { kind: 'valueNode', nodeId: 'data_10' },
+            value: { kind: 'valueNode', nodeId: 'data_1' },
           },
         },
         next: 'modifyActionValue_3',
@@ -920,7 +921,7 @@ export const lastRiteChr_0026_lastrite_normal_skillActionGraph = {
       checkCondition_6: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_11' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_8' } },
         },
         next: null,
       },
@@ -972,7 +973,8 @@ export const lastRiteChr_0026_lastrite_normal_skillActionGraph = {
                 },
               },
             ],
-            target: 'caster',
+            targets: { kind: 'source' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -1018,7 +1020,7 @@ export const lastRiteChr_0026_lastrite_normal_skillActionGraph = {
           kind: 'changeResource',
           parameters: {
             resource: 'ultimateEnergy',
-            amount: { kind: 'valueNode', nodeId: 'data_12' },
+            amount: { kind: 'valueNode', nodeId: 'data_7' },
             coefficient: { kind: 'constant', value: 1 },
             source: { kind: 'source' },
             targets: { kind: 'source' },
@@ -1055,7 +1057,8 @@ export const lastRiteChr_0026_lastrite_normal_skillActionGraph = {
                 },
               },
             ],
-            target: 'caster',
+            targets: { kind: 'source' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -1065,12 +1068,24 @@ export const lastRiteChr_0026_lastrite_normal_skillActionGraph = {
         action: {
           kind: 'finishBuffsById',
           parameters: {
-            target: 'party',
+            targets: { kind: 'context', key: 'team' },
+            finishSource: { kind: 'source' },
             buffIds: ['buff_chr_0026_lastrite_normal_skill_tag'],
             reason: 'other',
           },
         },
         next: 'applyBuff_17',
+      },
+      findTargets_19: {
+        action: {
+          kind: 'findTargets',
+          parameters: {
+            owner: { kind: 'owner' },
+            query: { kind: 'characterTeam', excludeOwner: false, owner: { kind: 'owner' } },
+            saveToContextKey: 'team',
+          },
+        },
+        next: 'finishBuffsById_18',
       },
     },
     dataNodes: {
@@ -1081,12 +1096,8 @@ export const lastRiteChr_0026_lastrite_normal_skillActionGraph = {
       data_5: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
       data_6: { type: 'number', expression: { kind: 'blackboard', key: 'potential_1' } },
       data_7: { type: 'number', expression: { kind: 'blackboard', key: 'usp' } },
-      data_8: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
-      data_9: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_10: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_11: { type: 'boolean', expression: { kind: 'casterControlled' } },
-      data_12: { type: 'number', expression: { kind: 'blackboard', key: 'usp' } },
-      data_13: { type: 'boolean', expression: { kind: 'casterControlled' } },
+      data_8: { type: 'boolean', expression: { kind: 'casterControlled' } },
+      data_9: { type: 'boolean', expression: { kind: 'casterControlled' } },
     },
   },
   macros: {},
@@ -1131,12 +1142,12 @@ export const lastRiteChr_0026_lastrite_normal_skill: SkillDefinition = {
     { startFrame: 300, endFrame: 301, sequence: { $sequence: 'findCharacterTeamTargets_11' } },
     { startFrame: 6, endFrame: 7, sequence: { $sequence: 'applyBuff_12' } },
     { startFrame: 300, endFrame: 301, sequence: { $sequence: 'launchProjectile_13' } },
-    { startFrame: 300, endFrame: 301, sequence: { $sequence: 'finishBuffsById_18' } },
+    { startFrame: 300, endFrame: 301, sequence: { $sequence: 'findTargets_19' } },
   ],
   switchToBuffCast: {
     currentSkillTypes: ['basicAttack'],
     requiresCurrentSkillNotInterruptible: true,
-    condition: { kind: 'conditionNode', nodeId: 'data_13' },
+    condition: { kind: 'conditionNode', nodeId: 'data_9' },
     asSkillCast: true,
     sequence: { $sequence: 'applyBuff_1' },
   },
@@ -1200,7 +1211,8 @@ export const lastRiteChr_0026_lastrite_ultimate_skillActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_damage_immune_ult_skill' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -1225,7 +1237,7 @@ export const lastRiteChr_0026_lastrite_ultimate_skillActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'cryo',
-            attackScale: { kind: 'valueNode', nodeId: 'data_3' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_1' },
             tags: ['ultimateSkill'],
             features: ['canBreakWeakness'],
             instantAttributeModifiers: [
@@ -1233,11 +1245,11 @@ export const lastRiteChr_0026_lastrite_ultimate_skillActionGraph = {
                 targetSide: 'defender',
                 attribute: 'cryoVulnerabilityIncrease',
                 slot: 'baseFinalMultiplier',
-                value: { kind: 'valueNode', nodeId: 'data_4' },
+                value: { kind: 'valueNode', nodeId: 'data_3' },
                 attributeTiming: 'runtime',
               },
             ],
-            stagger: { kind: 'valueNode', nodeId: 'data_5' },
+            stagger: { kind: 'valueNode', nodeId: 'data_2' },
           },
         },
         next: null,
@@ -1245,14 +1257,14 @@ export const lastRiteChr_0026_lastrite_ultimate_skillActionGraph = {
       checkCondition_7: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_7' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
         },
         next: null,
       },
       checkCondition_10: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_8' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_6' } },
         },
         next: null,
       },
@@ -1297,10 +1309,10 @@ export const lastRiteChr_0026_lastrite_ultimate_skillActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'cryo',
-            attackScale: { kind: 'valueNode', nodeId: 'data_9' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_7' },
             tags: ['ultimateSkill'],
             features: ['canBreakWeakness'],
-            stagger: { kind: 'valueNode', nodeId: 'data_10' },
+            stagger: { kind: 'valueNode', nodeId: 'data_8' },
           },
         },
         next: null,
@@ -1310,7 +1322,7 @@ export const lastRiteChr_0026_lastrite_ultimate_skillActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'cryo',
-            attackScale: { kind: 'valueNode', nodeId: 'data_11' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_7' },
             tags: ['ultimateSkill'],
             features: ['canBreakWeakness'],
             instantAttributeModifiers: [
@@ -1318,11 +1330,11 @@ export const lastRiteChr_0026_lastrite_ultimate_skillActionGraph = {
                 targetSide: 'defender',
                 attribute: 'cryoVulnerabilityIncrease',
                 slot: 'baseFinalMultiplier',
-                value: { kind: 'valueNode', nodeId: 'data_12' },
+                value: { kind: 'valueNode', nodeId: 'data_3' },
                 attributeTiming: 'runtime',
               },
             ],
-            stagger: { kind: 'valueNode', nodeId: 'data_13' },
+            stagger: { kind: 'valueNode', nodeId: 'data_8' },
           },
         },
         next: null,
@@ -1388,25 +1400,20 @@ export const lastRiteChr_0026_lastrite_ultimate_skillActionGraph = {
     dataNodes: {
       data_1: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
       data_2: { type: 'number', expression: { kind: 'blackboard', key: 'poise1' } },
-      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'rate' } },
-      data_5: { type: 'number', expression: { kind: 'blackboard', key: 'poise1' } },
-      data_6: { type: 'number', expression: { kind: 'blackboard', key: 'talent_2', fallback: 0 } },
-      data_7: {
+      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'rate' } },
+      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'talent_2', fallback: 0 } },
+      data_5: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_6' },
+          left: { kind: 'valueNode', nodeId: 'data_4' },
           operator: 'equal',
           right: { kind: 'constant', value: 1 },
         },
       },
-      data_8: { type: 'boolean', expression: { kind: 'enemyRankIn', ranks: ['mob'] } },
-      data_9: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale2' } },
-      data_10: { type: 'number', expression: { kind: 'blackboard', key: 'poise2' } },
-      data_11: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale2' } },
-      data_12: { type: 'number', expression: { kind: 'blackboard', key: 'rate' } },
-      data_13: { type: 'number', expression: { kind: 'blackboard', key: 'poise2' } },
+      data_6: { type: 'boolean', expression: { kind: 'enemyRankIn', ranks: ['mob'] } },
+      data_7: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale2' } },
+      data_8: { type: 'number', expression: { kind: 'blackboard', key: 'poise2' } },
     },
   },
   macros: {},
@@ -1554,7 +1561,8 @@ export const lastRiteChr_0026_lastrite_combo_skillActionGraph = {
         action: {
           kind: 'finishBuffsByTag',
           parameters: {
-            target: 'enemy',
+            targets: { kind: 'fixed', target: 'enemy' },
+            finishSource: { kind: 'source' },
             tagQueryType: 'hasAny',
             buffTags: ['Skill/Character/Common/SpellInflict/CrystInflict'],
             reason: 'early',
@@ -1593,7 +1601,7 @@ export const lastRiteChr_0026_lastrite_combo_skillActionGraph = {
           parameters: {
             key: 'infliction_num_total',
             operation: 'add',
-            value: { kind: 'valueNode', nodeId: 'data_9' },
+            value: { kind: 'valueNode', nodeId: 'data_3' },
           },
         },
         next: 'dealDamage_10',
@@ -1604,8 +1612,8 @@ export const lastRiteChr_0026_lastrite_combo_skillActionGraph = {
           parameters: {
             key: 'final_combo_atkscale',
             operation: 'multiply',
-            left: { kind: 'valueNode', nodeId: 'data_10' },
-            right: { kind: 'valueNode', nodeId: 'data_11' },
+            left: { kind: 'valueNode', nodeId: 'data_9' },
+            right: { kind: 'valueNode', nodeId: 'data_3' },
           },
         },
         next: 'modifyActionValue_11',
@@ -1638,7 +1646,8 @@ export const lastRiteChr_0026_lastrite_combo_skillActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0026_lastrite_combo_skill_hitstop' }],
-            target: 'enemy',
+            targets: { kind: 'fixed', target: 'enemy' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -1657,7 +1666,7 @@ export const lastRiteChr_0026_lastrite_combo_skillActionGraph = {
       checkCondition_17: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_13' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_11' } },
         },
         next: null,
       },
@@ -1666,7 +1675,7 @@ export const lastRiteChr_0026_lastrite_combo_skillActionGraph = {
           kind: 'changeResource',
           parameters: {
             resource: 'ultimateEnergy',
-            amount: { kind: 'valueNode', nodeId: 'data_14' },
+            amount: { kind: 'valueNode', nodeId: 'data_2' },
             coefficient: { kind: 'constant', value: 4 },
             source: { kind: 'source' },
             targets: { kind: 'source' },
@@ -1680,8 +1689,8 @@ export const lastRiteChr_0026_lastrite_combo_skillActionGraph = {
           kind: 'changeResource',
           parameters: {
             resource: 'ultimateEnergy',
-            amount: { kind: 'valueNode', nodeId: 'data_15' },
-            coefficient: { kind: 'valueNode', nodeId: 'data_16' },
+            amount: { kind: 'valueNode', nodeId: 'data_2' },
+            coefficient: { kind: 'valueNode', nodeId: 'data_12' },
             source: { kind: 'source' },
             targets: { kind: 'source' },
             ultimateRecoveryTag: 'Skill/Character/chr_0026_lastrite',
@@ -1692,7 +1701,7 @@ export const lastRiteChr_0026_lastrite_combo_skillActionGraph = {
       checkCondition_20: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_18' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_14' } },
         },
         next: null,
       },
@@ -1776,34 +1785,30 @@ export const lastRiteChr_0026_lastrite_combo_skillActionGraph = {
       data_6: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale2' } },
       data_7: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
       data_8: { type: 'number', expression: { kind: 'blackboard', key: 'final_combo_atkscale' } },
-      data_9: { type: 'number', expression: { kind: 'blackboard', key: 'infliction_num' } },
-      data_10: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale3' } },
-      data_11: { type: 'number', expression: { kind: 'blackboard', key: 'infliction_num' } },
-      data_12: {
+      data_9: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale3' } },
+      data_10: {
         type: 'number',
         expression: { kind: 'blackboard', key: 'infliction_num_total', fallback: 0 },
       },
-      data_13: {
+      data_11: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_12' },
+          left: { kind: 'valueNode', nodeId: 'data_10' },
           operator: 'greaterOrEqual',
           right: { kind: 'constant', value: 4 },
         },
       },
-      data_14: { type: 'number', expression: { kind: 'blackboard', key: 'usp' } },
-      data_15: { type: 'number', expression: { kind: 'blackboard', key: 'usp' } },
-      data_16: { type: 'number', expression: { kind: 'blackboard', key: 'infliction_num_total' } },
-      data_17: {
+      data_12: { type: 'number', expression: { kind: 'blackboard', key: 'infliction_num_total' } },
+      data_13: {
         type: 'number',
         expression: { kind: 'blackboard', key: 'recover_usp', fallback: 0 },
       },
-      data_18: {
+      data_14: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_17' },
+          left: { kind: 'valueNode', nodeId: 'data_13' },
           operator: 'equal',
           right: { kind: 'constant', value: 0 },
         },
@@ -1882,7 +1887,7 @@ const lastRitePassive1ActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0026_lastrite_passive' }],
-            target: 'caster',
+            targets: { kind: 'fixed', target: 'caster' },
             inheritSourceSkillCastInfo: false,
           },
         },
@@ -2040,28 +2045,28 @@ const lastRiteBuff2ActionGraph = {
       checkCondition_2: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_7' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_6' } },
         },
         next: 'dealStagger_1',
       },
       checkCondition_3: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_8' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_7' } },
         },
         next: 'checkCondition_2',
       },
       checkCondition_4: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_9' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_8' } },
         },
         next: 'checkCondition_3',
       },
       checkCondition_5: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_10' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_9' } },
         },
         next: 'checkCondition_4',
       },
@@ -2070,8 +2075,8 @@ const lastRiteBuff2ActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0026_lastrite_normal_skill_tag' }],
-            target: 'buffSource',
-            source: 'buffSource',
+            targets: { kind: 'source' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -2087,8 +2092,8 @@ const lastRiteBuff2ActionGraph = {
                 copiedBlackboardAssignments: { atk_scale: 'atk_scale' },
               },
             ],
-            target: 'enemy',
-            source: 'buffSource',
+            targets: { kind: 'mainTarget', owner: { kind: 'owner' } },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -2104,8 +2109,8 @@ const lastRiteBuff2ActionGraph = {
                 copiedBlackboardAssignments: { atk_scale1: 'atk_scale' },
               },
             ],
-            target: 'enemy',
-            source: 'buffSource',
+            targets: { kind: 'mainTarget', owner: { kind: 'owner' } },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -2114,7 +2119,7 @@ const lastRiteBuff2ActionGraph = {
       checkCondition_6: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_11' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_10' } },
         },
         next: null,
       },
@@ -2122,10 +2127,11 @@ const lastRiteBuff2ActionGraph = {
         action: {
           kind: 'createTimedMarker',
           parameters: {
-            target: 'buffOwner',
+            targets: { kind: 'owner' },
             markerId: 'buff_chr_0026_lastrite_normal_skill_marker',
             durationSeconds: { kind: 'constant', value: 0.1 },
             autoFinishByAction: false,
+            timeDomain: 'globalScaled',
           },
         },
         next: null,
@@ -2143,28 +2149,28 @@ const lastRiteBuff2ActionGraph = {
       checkCondition_13: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_12' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_11' } },
         },
         next: 'ifElse_12',
       },
       checkCondition_14: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_13' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_12' } },
         },
         next: 'checkCondition_13',
       },
       checkCondition_15: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_15' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_14' } },
         },
         next: 'checkCondition_14',
       },
       checkCondition_16: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_16' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_15' } },
         },
         next: 'checkCondition_15',
       },
@@ -2194,20 +2200,16 @@ const lastRiteBuff2ActionGraph = {
       data_4: { type: 'boolean', expression: { kind: 'casterControlled' } },
       data_5: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
       data_6: {
-        type: 'number',
-        expression: { kind: 'blackboard', key: 'potential_1', fallback: 0 },
-      },
-      data_7: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_6' },
+          left: { kind: 'valueNode', nodeId: 'data_1' },
           operator: 'equal',
           right: { kind: 'constant', value: 1 },
         },
       },
-      data_8: { type: 'boolean', expression: { kind: 'casterControlled' } },
-      data_9: {
+      data_7: { type: 'boolean', expression: { kind: 'casterControlled' } },
+      data_8: {
         type: 'boolean',
         expression: {
           kind: 'eventDamageTagsMatch',
@@ -2215,7 +2217,7 @@ const lastRiteBuff2ActionGraph = {
           tags: ['normalAttackLastCombo'],
         },
       },
-      data_10: {
+      data_9: {
         type: 'boolean',
         expression: {
           kind: 'healthCompare',
@@ -2225,7 +2227,7 @@ const lastRiteBuff2ActionGraph = {
           value: { kind: 'constant', value: 0 },
         },
       },
-      data_11: {
+      data_10: {
         type: 'boolean',
         expression: {
           kind: 'entityTagMatch',
@@ -2234,8 +2236,8 @@ const lastRiteBuff2ActionGraph = {
           tags: ['Skill/Character/chr_0026_lastrite'],
         },
       },
-      data_12: { type: 'boolean', expression: { kind: 'casterControlled' } },
-      data_13: {
+      data_11: { type: 'boolean', expression: { kind: 'casterControlled' } },
+      data_12: {
         type: 'boolean',
         expression: {
           kind: 'eventDamageTagsMatch',
@@ -2243,7 +2245,7 @@ const lastRiteBuff2ActionGraph = {
           tags: ['normalAttackLastCombo'],
         },
       },
-      data_14: {
+      data_13: {
         type: 'boolean',
         expression: {
           kind: 'timedMarkerPresent',
@@ -2251,11 +2253,11 @@ const lastRiteBuff2ActionGraph = {
           markerId: 'buff_chr_0026_lastrite_normal_skill_marker',
         },
       },
-      data_15: {
+      data_14: {
         type: 'boolean',
-        expression: { kind: 'not', condition: { kind: 'conditionNode', nodeId: 'data_14' } },
+        expression: { kind: 'not', condition: { kind: 'conditionNode', nodeId: 'data_13' } },
       },
-      data_16: {
+      data_15: {
         type: 'boolean',
         expression: {
           kind: 'healthCompare',
@@ -2341,8 +2343,8 @@ const lastRiteBuff3ActionGraph = {
                 },
               },
             ],
-            target: 'buffSource',
-            source: 'buffSource',
+            targets: { kind: 'source' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -2352,14 +2354,26 @@ const lastRiteBuff3ActionGraph = {
         action: {
           kind: 'finishBuffsById',
           parameters: {
-            target: 'party',
+            targets: { kind: 'context', key: 'team' },
+            finishSource: { kind: 'source' },
             buffIds: ['buff_chr_0026_lastrite_normal_skill'],
             reason: 'other',
           },
         },
         next: 'applyBuff_1',
       },
-      modifyActionValue_3: {
+      findTargets_3: {
+        action: {
+          kind: 'findTargets',
+          parameters: {
+            owner: { kind: 'owner' },
+            query: { kind: 'characterTeam', excludeOwner: false, owner: { kind: 'owner' } },
+            saveToContextKey: 'team',
+          },
+        },
+        next: 'finishBuffsById_2',
+      },
+      modifyActionValue_4: {
         action: {
           kind: 'modifyActionValue',
           parameters: {
@@ -2368,9 +2382,9 @@ const lastRiteBuff3ActionGraph = {
             value: { kind: 'constant', value: 0.5 },
           },
         },
-        next: 'finishBuffsById_2',
+        next: 'findTargets_3',
       },
-      changeResource_4: {
+      changeResource_5: {
         action: {
           kind: 'changeResource',
           parameters: {
@@ -2384,18 +2398,18 @@ const lastRiteBuff3ActionGraph = {
         },
         next: null,
       },
-      gainSquadUltimateEnergyFromSkillCost_5: {
+      gainSquadUltimateEnergyFromSkillCost_6: {
         action: { kind: 'gainSquadUltimateEnergyFromSkillCost', parameters: { coefficient: 1 } },
-        next: 'changeResource_4',
+        next: 'changeResource_5',
       },
-      checkCondition_6: {
+      checkCondition_7: {
         action: {
           kind: 'checkCondition',
           parameters: { condition: { kind: 'constant', value: true } },
         },
-        next: 'gainSquadUltimateEnergyFromSkillCost_5',
+        next: 'gainSquadUltimateEnergyFromSkillCost_6',
       },
-      withActionBlackboardScope_7: {
+      withActionBlackboardScope_8: {
         action: {
           kind: 'withActionBlackboardScope',
           parameters: {
@@ -2406,11 +2420,11 @@ const lastRiteBuff3ActionGraph = {
             initialValues: {},
             inheritParent: true,
           },
-          body: { $sequence: 'checkCondition_6' },
+          body: { $sequence: 'checkCondition_7' },
         },
         next: null,
       },
-      withActionBlackboardScope_8: {
+      withActionBlackboardScope_9: {
         action: {
           kind: 'withActionBlackboardScope',
           parameters: {
@@ -2421,9 +2435,9 @@ const lastRiteBuff3ActionGraph = {
             initialValues: {},
             inheritParent: true,
           },
-          body: { $sequence: 'modifyActionValue_3' },
+          body: { $sequence: 'modifyActionValue_4' },
         },
-        next: 'withActionBlackboardScope_7',
+        next: 'withActionBlackboardScope_8',
       },
     },
     dataNodes: { data_1: { type: 'number', expression: { kind: 'blackboard', key: 'usp' } } },
@@ -2440,7 +2454,7 @@ const lastRiteBuff3: SkillBuffDefinition = {
   extendTags: [],
   blackboard: { atb: 0, atk_scale: 0, atk_up: 0, duration: 0, poise: 0, potential_1: 0, usp: 0 },
   attributeModifiers: [],
-  lifecycleSequences: { start: { $sequence: 'withActionBlackboardScope_8' } },
+  lifecycleSequences: { start: { $sequence: 'withActionBlackboardScope_9' } },
   actionGraph: lastRiteBuff3ActionGraph,
 };
 
@@ -2488,8 +2502,8 @@ const lastRiteBuff4ActionGraph = {
                 },
               },
             ],
-            target: 'buffSource',
-            source: 'buffSource',
+            targets: { kind: 'source' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -2499,12 +2513,24 @@ const lastRiteBuff4ActionGraph = {
         action: {
           kind: 'finishBuffsById',
           parameters: {
-            target: 'party',
+            targets: { kind: 'context', key: 'team' },
+            finishSource: { kind: 'source' },
             buffIds: ['buff_chr_0026_lastrite_normal_skill_tag'],
             reason: 'other',
           },
         },
         next: 'applyBuff_4',
+      },
+      findTargets_6: {
+        action: {
+          kind: 'findTargets',
+          parameters: {
+            owner: { kind: 'owner' },
+            query: { kind: 'characterTeam', excludeOwner: false, owner: { kind: 'owner' } },
+            saveToContextKey: 'team',
+          },
+        },
+        next: 'finishBuffsById_5',
       },
     },
     dataNodes: { data_1: { type: 'number', expression: { kind: 'blackboard', key: 'usp' } } },
@@ -2521,9 +2547,7 @@ const lastRiteBuff4: SkillBuffDefinition = {
   extendTags: [],
   blackboard: { atb: 0, atk_scale: 0, atk_up: 0, duration: 0, potential_1: 0, usp: 0 },
   attributeModifiers: [],
-  scheduledSequences: [
-    { startFrame: 26, endFrame: 27, sequence: { $sequence: 'finishBuffsById_5' } },
-  ],
+  scheduledSequences: [{ startFrame: 26, endFrame: 27, sequence: { $sequence: 'findTargets_6' } }],
   actionGraph: lastRiteBuff4ActionGraph,
 };
 
@@ -2712,8 +2736,8 @@ const lastRiteBuff7ActionGraph = {
                 },
               },
             ],
-            target: 'party',
-            source: 'buffSource',
+            targets: { kind: 'characterTeam', excludeOwner: false },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -2745,7 +2769,8 @@ const lastRiteBuff8ActionGraph = {
         action: {
           kind: 'finishBuffsById',
           parameters: {
-            target: 'buffOwner',
+            targets: { kind: 'owner' },
+            finishSource: { kind: 'source' },
             buffIds: ['buff_chr_0026_lastrite_normal_skill_tag'],
             reason: 'other',
           },
@@ -2756,19 +2781,31 @@ const lastRiteBuff8ActionGraph = {
         action: {
           kind: 'finishBuffsById',
           parameters: {
-            target: 'party',
+            targets: { kind: 'context', key: 'team' },
+            finishSource: { kind: 'source' },
             buffIds: ['buff_chr_0026_lastrite_normal_skill'],
             reason: 'other',
           },
         },
         next: 'finishBuffsById_1',
       },
-      checkCondition_3: {
+      findTargets_3: {
+        action: {
+          kind: 'findTargets',
+          parameters: {
+            owner: { kind: 'owner' },
+            query: { kind: 'characterTeam', excludeOwner: false, owner: { kind: 'owner' } },
+            saveToContextKey: 'team',
+          },
+        },
+        next: 'finishBuffsById_2',
+      },
+      checkCondition_4: {
         action: {
           kind: 'checkCondition',
           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_1' } },
         },
-        next: 'finishBuffsById_2',
+        next: 'findTargets_3',
       },
     },
     dataNodes: {
@@ -2796,7 +2833,7 @@ const lastRiteBuff8: SkillBuffDefinition = {
   blackboard: {},
   attributeModifiers: [],
   abilityEventResponses: [
-    { event: 'addedBuff', priority: 0, sequence: { $sequence: 'checkCondition_3' } },
+    { event: 'addedBuff', priority: 0, sequence: { $sequence: 'checkCondition_4' } },
   ],
   actionGraph: lastRiteBuff8ActionGraph,
 };
@@ -2845,8 +2882,8 @@ const lastRiteBuff10ActionGraph = {
                 copiedBlackboardAssignments: { crystal_vul: 'crystal_vul', duration: 'duration' },
               },
             ],
-            target: 'eventTarget',
-            source: 'buffSource',
+            targets: { kind: 'inputTarget' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -2934,7 +2971,8 @@ const lastRiteBuff11ActionGraph = {
                 },
               },
             ],
-            target: 'buffOwner',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
             finishByAction: true,

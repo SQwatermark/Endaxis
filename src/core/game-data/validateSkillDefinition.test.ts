@@ -72,8 +72,8 @@ describe('validateSkillDefinition', () => {
       kind: 'applyBuff' as const,
       parameters: {
         buffs: [{ buffId: 'entity-monitor' }],
-        target: 'currentAbilityEntity' as const,
-        source: 'currentAbilityEntity' as const,
+        targets: { kind: 'inputTarget' } as const,
+        source: { kind: 'inputTarget' } as const,
       },
     };
 
@@ -662,8 +662,8 @@ describe('validateSkillDefinition', () => {
       kind: 'applyBuff' as const,
       parameters: {
         buffs: [{ buffId: 'entity-monitor' }],
-        target: 'currentAbilityEntity' as const,
-        source: 'currentAbilityEntity' as const,
+        targets: { kind: 'inputTarget' } as const,
+        source: { kind: 'inputTarget' } as const,
       },
     };
     const wrapped = skillWithSteps(
@@ -842,8 +842,8 @@ describe('validateSkillDefinition', () => {
         kind: 'applyBuff',
         parameters: {
           buffs: [{ buffId: 'test' }],
-          target: 'caster',
-          sourceContextKey: 'queried',
+          targets: { kind: 'fixed', target: 'caster' },
+          source: { kind: 'context', key: 'queried' },
           ...(conflicting ? { source: 'caster' } : {}),
         },
       },

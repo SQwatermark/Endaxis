@@ -172,10 +172,29 @@ export function collectCompiledBuffApplications(
       const parameters = record.parameters;
       if (parameters === null || typeof parameters !== 'object')
         throw new Error('compiled applyBuff step is missing parameters');
-      const target = (parameters as Record<string, unknown>).target;
+      const kinds = (
+        parameters as {
+          readonly [COMPILED_BUFF_TARGET_KINDS]?: { target: string; source?: string };
+        }
+      )[COMPILED_BUFF_TARGET_KINDS];
+      const query = (parameters as { targets?: { kind?: string; target?: string } }).targets;
+      const target =
+        kinds?.target ??
+        (query?.kind === 'fixed'
+          ? query.target
+          : query?.kind === 'characterTeam' || query?.kind === 'mainCharacter'
+            ? 'caster'
+            : query?.kind
+              ? 'unknown'
+              : undefined);
       if (typeof target !== 'string' || target.length === 0)
         throw new Error('compiled applyBuff step has an invalid target');
-      const source = (parameters as Record<string, unknown>).source;
+      const source =
+        kinds !== undefined
+          ? kinds.source
+          : (parameters as Record<string, unknown>).source === undefined
+            ? undefined
+            : 'unknown';
       const capturedTargetGroups = (
         parameters as {
           readonly [COMPILED_BUFF_CAPTURED_TARGET_GROUPS]?: CompiledBuffCapturedTargetGroupsSource;
@@ -294,6 +313,7 @@ export function collectCompiledBuffIdentityReadIds(value: unknown): ReadonlySet<
 import { isRecoveredKeywordCarrierBuffId } from '../../source/keywordActions.ts';
 import {
   COMPILED_BUFF_CAPTURED_TARGET_GROUPS,
+  COMPILED_BUFF_TARGET_KINDS,
   type CompiledBuffCapturedTargetGroupsSource,
 } from '../buffs/compiledBuffMetadata.ts';
 function buffEntries(parameters: Record<string, unknown>): readonly Record<string, unknown>[] {

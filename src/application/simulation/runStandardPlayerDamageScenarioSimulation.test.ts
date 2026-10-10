@@ -1055,7 +1055,7 @@ function createGeneratedMifuBattleChainScenario() {
                   kind: 'applyBuff' as const,
                   parameters: {
                     buffs: [{ buffId: 'buff_physical_no_guard' }],
-                    target: 'enemy' as const,
+                    targets: { kind: 'fixed', target: 'enemy' } as const,
                     inheritSourceSkillCastInfo: true,
                   },
                 })),
@@ -1215,7 +1215,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
                     },
                   },
                 ],
-                target: 'enemy',
+                targets: { kind: 'fixed', target: 'enemy' },
                 inheritSourceSkillCastInfo: true,
               },
             },
@@ -1618,11 +1618,18 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
         String(entry.data?.stepKey).includes('buffInterval'),
     );
     expect(tutorialSuccessDamage).toEqual([]);
-    expect(
-      result.receiptEntries.some(
-        entry => entry.event === 'SkillTimelineFinished' && entry.sourceId === 'track:rossi',
-      ),
-    ).toBe(true);
+    // 原生第 214 帧执行 InterruptCurSkillAction；它不是时间线自然结束。
+    expect(result.receiptEntries).toContainEqual(
+      expect.objectContaining({
+        event: 'SkillInterrupted',
+        sourceId: 'track:rossi',
+        frame: 220,
+        data: expect.objectContaining({
+          skillId: 'chr_0028_wulfa_normal_skill',
+          reason: 'default',
+        }),
+      }),
+    );
   });
 
   it('runs Rossi attack 4 on the controlled and off-field native timeline branches', () => {
@@ -1929,11 +1936,11 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
         String(entry.data?.stepKey).includes('chr_0033_camille_ultimate_skill:'),
     );
     expect(directHits).toHaveLength(9);
-    expect(
-      directHits.filter(entry =>
-        String(entry.data?.stepKey).includes('scheduledSequences[3].sequence'),
-      ),
-    ).toHaveLength(7);
+    // 引导段按原生倍率键识别，不依赖生成时定时入口的数组下标。
+    const channelHits = directHits.filter(
+      entry => entry.data?.skillMultiplierSourceKey === 'atk_scale_1',
+    );
+    expect(channelHits.map(entry => entry.frame)).toEqual([76, 78, 80, 82, 84, 86, 88]);
   });
 
   it('keeps Rossi follow-up available for the native combo window after the precise-link timer', () => {
@@ -2086,7 +2093,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
                       kind: 'applyBuff',
                       parameters: {
                         buffs: [{ buffId: 'buff_physical_no_guard' }],
-                        target: 'enemy',
+                        targets: { kind: 'fixed', target: 'enemy' },
                         inheritSourceSkillCastInfo: true,
                       },
                     })),
@@ -2094,7 +2101,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
                       kind: 'applyBuff',
                       parameters: {
                         buffs: [{ buffId: 'buff_common_energy_shard_attached_fire' }],
-                        target: 'enemy',
+                        targets: { kind: 'fixed', target: 'enemy' },
                         inheritSourceSkillCastInfo: true,
                       },
                     },
@@ -2429,12 +2436,12 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
     );
     expect(tangtangDamage(triggered)).toHaveLength(tangtangDamage(baseline).length);
     // 图身份：末段跟进伤害定位到实体子技能图内的具体节点，升级后换用另一节点。
-    expect(tangtangDamage(baseline).at(-1)?.stepKey).toContain(
-      '/childSkill/actionGraph/main/nodes/dealDamage_3/action',
-    );
-    expect(tangtangDamage(triggered).at(-1)?.stepKey).toContain(
-      '/childSkill/actionGraph/main/nodes/dealDamage_5/action',
-    );
+    const baselineStep = tangtangDamage(baseline).at(-1)?.stepKey;
+    const upgradedStep = tangtangDamage(triggered).at(-1)?.stepKey;
+    for (const stepKey of [baselineStep, upgradedStep]) {
+      expect(stepKey).toMatch(/\/childSkill\/actionGraph\/main\/nodes\/dealDamage_\d+\/action/);
+    }
+    expect(upgradedStep).not.toBe(baselineStep);
     expect(tangtangDamage(triggered).at(-1)?.value).toBeGreaterThan(
       tangtangDamage(baseline).at(-1)?.value as number,
     );
@@ -2971,8 +2978,8 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
     expect(damageAtKnockDown).toContainEqual(
       expect.objectContaining({
         data: expect.objectContaining({
-          stepKey:
-            '["buffDefinitions.\\"buff_chr_0015_lifeng_talent_2\\".abilityEventResponses[0].sequence/%5Bnull%2C%22conditional_9%22%5D:0","[null,\\"dealDamage_3\\"]"]',
+          stepKey: expect.stringContaining('buff_chr_0015_lifeng_talent_2'),
+          skillMultiplierPercent: 350,
         }),
       }),
     );

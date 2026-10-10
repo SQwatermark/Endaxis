@@ -169,7 +169,7 @@ export const rossiChr_0028_wulfa_attack2ActionGraph = {
           parameters: {
             key: 'atk_scale',
             operation: 'multiply',
-            left: { kind: 'valueNode', nodeId: 'data_3' },
+            left: { kind: 'valueNode', nodeId: 'data_2' },
             right: { kind: 'constant', value: 0.5 },
           },
         },
@@ -205,7 +205,7 @@ export const rossiChr_0028_wulfa_attack2ActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'physical',
-            attackScale: { kind: 'valueNode', nodeId: 'data_4' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_2' },
             tags: ['normalAttack'],
           },
         },
@@ -222,8 +222,6 @@ export const rossiChr_0028_wulfa_attack2ActionGraph = {
     dataNodes: {
       data_1: { type: 'boolean', expression: { kind: 'casterControlled' } },
       data_2: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
     },
   },
   macros: {},
@@ -317,7 +315,7 @@ export const rossiChr_0028_wulfa_attack3ActionGraph = {
           parameters: {
             key: 'atk_scale',
             operation: 'multiply',
-            left: { kind: 'valueNode', nodeId: 'data_4' },
+            left: { kind: 'valueNode', nodeId: 'data_2' },
             right: { kind: 'constant', value: 0.5 },
           },
         },
@@ -343,7 +341,7 @@ export const rossiChr_0028_wulfa_attack3ActionGraph = {
           kind: 'changeResource',
           parameters: {
             resource: 'sp',
-            amount: { kind: 'valueNode', nodeId: 'data_5' },
+            amount: { kind: 'valueNode', nodeId: 'data_4' },
             coefficient: { kind: 'constant', value: 0.5 },
             source: { kind: 'source' },
             targets: { kind: 'source' },
@@ -368,9 +366,9 @@ export const rossiChr_0028_wulfa_attack3ActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'physical',
-            attackScale: { kind: 'valueNode', nodeId: 'data_6' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_2' },
             tags: ['normalAttack'],
-            stagger: { kind: 'valueNode', nodeId: 'data_7' },
+            stagger: { kind: 'valueNode', nodeId: 'data_3' },
             staggerOnlyWhenCasterControlled: true,
           },
         },
@@ -388,10 +386,7 @@ export const rossiChr_0028_wulfa_attack3ActionGraph = {
       data_1: { type: 'boolean', expression: { kind: 'casterControlled' } },
       data_2: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
       data_3: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
-      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_5: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
-      data_6: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_7: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
+      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
     },
   },
   macros: {},
@@ -503,7 +498,7 @@ export const rossiChr_0028_wulfa_attack4ActionGraph = {
           parameters: {
             key: 'atk_scale',
             operation: 'multiply',
-            left: { kind: 'valueNode', nodeId: 'data_4' },
+            left: { kind: 'valueNode', nodeId: 'data_3' },
             right: { kind: 'constant', value: 0.2 },
           },
         },
@@ -515,7 +510,7 @@ export const rossiChr_0028_wulfa_attack4ActionGraph = {
           parameters: {
             key: 'atk_scale',
             operation: 'multiply',
-            left: { kind: 'valueNode', nodeId: 'data_5' },
+            left: { kind: 'valueNode', nodeId: 'data_3' },
             right: { kind: 'constant', value: 0.5 },
           },
         },
@@ -541,8 +536,6 @@ export const rossiChr_0028_wulfa_attack4ActionGraph = {
       data_1: { type: 'boolean', expression: { kind: 'casterControlled' } },
       data_2: { type: 'number', expression: { kind: 'blackboard', key: 'atb' } },
       data_3: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_5: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
     },
   },
   macros: {},
@@ -913,46 +906,12 @@ export const rossiChr_0028_wulfa_power_attackActionGraph = {
         },
         next: 'ifElse_4',
       },
-      checkCondition_6: {
-        action: {
-          kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
-        },
-        next: 'dealDamage_5',
-      },
-      findTargets_7: {
-        action: {
-          kind: 'findTargets',
-          parameters: {
-            owner: { kind: 'owner' },
-            query: { kind: 'mainTarget', owner: { kind: 'owner' } },
-            saveToContextKey: 'MainTar',
-          },
-        },
-        next: 'checkCondition_6',
-      },
-      repeatEachTick_8: {
-        action: {
-          kind: 'repeatEachTick',
-          parameters: {
-            nativeChanneling: {
-              target: { kind: 'fixed', target: 'enemy' },
-              executeEachFrame: true,
-              triggerIntervalSeconds: 0.033,
-              maxCountPerTarget: 1,
-              targetTriggerIntervalSeconds: 0.033,
-            },
-          },
-          body: { $sequence: 'findTargets_7' },
-        },
-        next: null,
-      },
       dealDamage_17: {
         action: {
           kind: 'dealDamage',
           parameters: {
             damageType: 'physical',
-            attackScale: { kind: 'valueNode', nodeId: 'data_4' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_2' },
             calculation: 'breakingAttack',
             calculationMultiplier: 0.8,
             tags: ['normalAttack', 'powerAttack'],
@@ -1034,7 +993,8 @@ export const rossiChr_0028_wulfa_power_attackActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0028_wulfa_powerattack_resumecombo' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -1044,7 +1004,7 @@ export const rossiChr_0028_wulfa_power_attackActionGraph = {
       checkCondition_22: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_3' } },
         },
         next: 'applyBuff_21',
       },
@@ -1053,7 +1013,8 @@ export const rossiChr_0028_wulfa_power_attackActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_full_immune_medium' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -1065,10 +1026,45 @@ export const rossiChr_0028_wulfa_power_attackActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_power_attack_disable_cast_skill' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'owner' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
+        },
+        next: null,
+      },
+      checkCondition_opt1: {
+        action: {
+          kind: 'checkCondition',
+          parameters: { condition: { kind: 'constant', value: true } },
+        },
+        next: 'dealDamage_5',
+      },
+      findTargets_opt2: {
+        action: {
+          kind: 'findTargets',
+          parameters: {
+            owner: { kind: 'owner' },
+            query: { kind: 'mainTarget', owner: { kind: 'owner' } },
+            saveToContextKey: 'MainTar',
+          },
+        },
+        next: 'checkCondition_opt1',
+      },
+      repeatEachTick_opt3: {
+        action: {
+          kind: 'repeatEachTick',
+          parameters: {
+            nativeChanneling: {
+              target: { kind: 'fixed', target: 'enemy' },
+              executeEachFrame: true,
+              triggerIntervalSeconds: 0.033,
+              maxCountPerTarget: 1,
+              targetTriggerIntervalSeconds: 0.033,
+            },
+          },
+          body: { $sequence: 'findTargets_opt2' },
         },
         next: null,
       },
@@ -1077,16 +1073,6 @@ export const rossiChr_0028_wulfa_power_attackActionGraph = {
       data_1: { type: 'boolean', expression: { kind: 'casterControlled' } },
       data_2: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
       data_3: {
-        type: 'boolean',
-        expression: {
-          kind: 'actionValueCompare',
-          left: { kind: 'constant', value: 1 },
-          operator: 'equal',
-          right: { kind: 'constant', value: 1 },
-        },
-      },
-      data_4: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_5: {
         type: 'boolean',
         expression: {
           kind: 'buffIdStackCompare',
@@ -1111,8 +1097,8 @@ export const rossiChr_0028_wulfa_power_attack: SkillDefinition = {
   offsetRecordFrame: 0,
   costFrame: 4,
   scheduledSequences: [
-    { startFrame: 6, endFrame: 8, sequence: { $sequence: 'repeatEachTick_8' } },
-    { startFrame: 15, endFrame: 17, sequence: { $sequence: 'repeatEachTick_8' } },
+    { startFrame: 6, endFrame: 8, sequence: { $sequence: 'repeatEachTick_opt3' } },
+    { startFrame: 15, endFrame: 17, sequence: { $sequence: 'repeatEachTick_opt3' } },
     { startFrame: 36, endFrame: 39, sequence: { $sequence: 'gainFinisherSp_18' } },
     { startFrame: 38, endFrame: 41, sequence: { $sequence: 'ifElse_20' } },
     { startFrame: 0, endFrame: 65, sequence: { $sequence: 'checkCondition_22' } },
@@ -1433,10 +1419,10 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'physical',
-            attackScale: { kind: 'valueNode', nodeId: 'data_10' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_5' },
             tags: ['normalSkill'],
             features: ['canBreakWeakness'],
-            stagger: { kind: 'valueNode', nodeId: 'data_11' },
+            stagger: { kind: 'valueNode', nodeId: 'data_10' },
           },
         },
         next: 'ifElse_54',
@@ -1472,7 +1458,7 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
       checkCondition_47: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_12' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_11' } },
         },
         next: null,
       },
@@ -1519,7 +1505,7 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
           parameters: {
             key: 'atk_scale_once',
             operation: 'multiply',
-            left: { kind: 'valueNode', nodeId: 'data_13' },
+            left: { kind: 'valueNode', nodeId: 'data_6' },
             right: { kind: 'constant', value: 0.4 },
           },
         },
@@ -1530,7 +1516,8 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0028_wulfa_normal_wolf_timer' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -1588,7 +1575,7 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                   { startFrame: 0, endFrame: 1, sequence: { $sequence: null } },
                   { startFrame: 0, endFrame: 1, sequence: { $sequence: 'repeatEachTick_58' } },
                   { startFrame: 0, endFrame: 3, sequence: { $sequence: null } },
-                  { startFrame: 0, endFrame: 3, sequence: { $sequence: 'checkCondition_opt4' } },
+                  { startFrame: 0, endFrame: 3, sequence: { $sequence: 'checkCondition_66' } },
                 ],
                 actionGraph: {
                   main: {
@@ -1625,7 +1612,8 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                                 },
                               },
                             ],
-                            target: 'enemy',
+                            targets: { kind: 'fixed', target: 'enemy' },
+                            source: { kind: 'source' },
                           },
                         },
                         next: 'dealDamage_54',
@@ -1649,7 +1637,8 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                                 },
                               },
                             ],
-                            target: 'enemy',
+                            targets: { kind: 'fixed', target: 'enemy' },
+                            source: { kind: 'source' },
                           },
                         },
                         next: 'dealDamage_54',
@@ -1762,7 +1751,7 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                           parameters: {
                             key: 'poise_2',
                             operation: 'multiply',
-                            left: { kind: 'valueNode', nodeId: 'data_13' },
+                            left: { kind: 'valueNode', nodeId: 'data_2' },
                             right: { kind: 'constant', value: 0.25 },
                           },
                         },
@@ -1774,7 +1763,7 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                           parameters: {
                             key: 'atk_scale_once',
                             operation: 'multiply',
-                            left: { kind: 'valueNode', nodeId: 'data_14' },
+                            left: { kind: 'valueNode', nodeId: 'data_13' },
                             right: { kind: 'constant', value: 0.25 },
                           },
                         },
@@ -1800,7 +1789,8 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                         action: {
                           kind: 'finishBuffsById',
                           parameters: {
-                            target: 'caster',
+                            targets: { kind: 'source' },
+                            finishSource: { kind: 'source' },
                             buffIds: ['buff_chr_0028_wulfa_normal_wolf_timer'],
                             reason: 'early',
                           },
@@ -1812,7 +1802,7 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                           kind: 'changeResource',
                           parameters: {
                             resource: 'sp',
-                            amount: { kind: 'valueNode', nodeId: 'data_15' },
+                            amount: { kind: 'valueNode', nodeId: 'data_14' },
                             coefficient: { kind: 'constant', value: 1 },
                             source: { kind: 'source' },
                             targets: { kind: 'source' },
@@ -1825,11 +1815,11 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                       checkCondition_59: {
                         action: {
                           kind: 'checkCondition',
-                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_17' } },
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_16' } },
                         },
                         next: null,
                       },
-                      ifElse_opt1: {
+                      ifElse_63: {
                         action: {
                           kind: 'ifElse',
                           parameters: { alwaysNext: true },
@@ -1839,32 +1829,32 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                         },
                         next: null,
                       },
-                      changeResource_opt2: {
+                      changeResource_64: {
                         action: {
                           kind: 'changeResource',
                           parameters: {
                             resource: 'ultimateEnergy',
-                            amount: { kind: 'valueNode', nodeId: 'data_18' },
+                            amount: { kind: 'valueNode', nodeId: 'data_17' },
                             coefficient: { kind: 'constant', value: 1 },
                             source: { kind: 'source' },
                             targets: { kind: 'source' },
                           },
                         },
-                        next: 'ifElse_opt1',
+                        next: 'ifElse_63',
                       },
-                      checkCondition_opt3: {
+                      checkCondition_65: {
+                        action: {
+                          kind: 'checkCondition',
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_18' } },
+                        },
+                        next: 'changeResource_64',
+                      },
+                      checkCondition_66: {
                         action: {
                           kind: 'checkCondition',
                           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_19' } },
                         },
-                        next: 'changeResource_opt2',
-                      },
-                      checkCondition_opt4: {
-                        action: {
-                          kind: 'checkCondition',
-                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_20' } },
-                        },
-                        next: 'checkCondition_opt3',
+                        next: 'checkCondition_65',
                       },
                     },
                     dataNodes: {
@@ -1950,31 +1940,27 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                       },
                       data_13: {
                         type: 'number',
-                        expression: { kind: 'blackboard', key: 'poise_2' },
+                        expression: { kind: 'blackboard', key: 'atk_scale_3' },
                       },
                       data_14: {
                         type: 'number',
-                        expression: { kind: 'blackboard', key: 'atk_scale_3' },
+                        expression: { kind: 'blackboard', key: 'atb_return' },
                       },
                       data_15: {
                         type: 'number',
-                        expression: { kind: 'blackboard', key: 'atb_return' },
-                      },
-                      data_16: {
-                        type: 'number',
                         expression: { kind: 'blackboard', key: 'potential_upgrade', fallback: 0 },
                       },
-                      data_17: {
+                      data_16: {
                         type: 'boolean',
                         expression: {
                           kind: 'actionValueCompare',
-                          left: { kind: 'valueNode', nodeId: 'data_16' },
+                          left: { kind: 'valueNode', nodeId: 'data_15' },
                           operator: 'equal',
                           right: { kind: 'constant', value: 1 },
                         },
                       },
-                      data_18: { type: 'number', expression: { kind: 'blackboard', key: 'usp_2' } },
-                      data_19: {
+                      data_17: { type: 'number', expression: { kind: 'blackboard', key: 'usp_2' } },
+                      data_18: {
                         type: 'boolean',
                         expression: {
                           kind: 'buffIdStackCompare',
@@ -1984,7 +1970,7 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                           value: { kind: 'constant', value: 1 },
                         },
                       },
-                      data_20: {
+                      data_19: {
                         type: 'boolean',
                         expression: {
                           kind: 'entityCountCompare',
@@ -2057,7 +2043,7 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                   { startFrame: 0, endFrame: 1, sequence: { $sequence: null } },
                   { startFrame: 0, endFrame: 1, sequence: { $sequence: 'repeatEachTick_58' } },
                   { startFrame: 0, endFrame: 3, sequence: { $sequence: null } },
-                  { startFrame: 0, endFrame: 3, sequence: { $sequence: 'checkCondition_opt4' } },
+                  { startFrame: 0, endFrame: 3, sequence: { $sequence: 'checkCondition_66' } },
                 ],
                 actionGraph: {
                   main: {
@@ -2094,7 +2080,8 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                                 },
                               },
                             ],
-                            target: 'enemy',
+                            targets: { kind: 'fixed', target: 'enemy' },
+                            source: { kind: 'source' },
                           },
                         },
                         next: 'dealDamage_54',
@@ -2118,7 +2105,8 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                                 },
                               },
                             ],
-                            target: 'enemy',
+                            targets: { kind: 'fixed', target: 'enemy' },
+                            source: { kind: 'source' },
                           },
                         },
                         next: 'dealDamage_54',
@@ -2231,7 +2219,7 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                           parameters: {
                             key: 'poise_2',
                             operation: 'multiply',
-                            left: { kind: 'valueNode', nodeId: 'data_13' },
+                            left: { kind: 'valueNode', nodeId: 'data_2' },
                             right: { kind: 'constant', value: 0.25 },
                           },
                         },
@@ -2243,7 +2231,7 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                           parameters: {
                             key: 'atk_scale_once',
                             operation: 'multiply',
-                            left: { kind: 'valueNode', nodeId: 'data_14' },
+                            left: { kind: 'valueNode', nodeId: 'data_13' },
                             right: { kind: 'constant', value: 0.25 },
                           },
                         },
@@ -2269,7 +2257,8 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                         action: {
                           kind: 'finishBuffsById',
                           parameters: {
-                            target: 'caster',
+                            targets: { kind: 'source' },
+                            finishSource: { kind: 'source' },
                             buffIds: ['buff_chr_0028_wulfa_normal_wolf_timer'],
                             reason: 'early',
                           },
@@ -2281,7 +2270,7 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                           kind: 'changeResource',
                           parameters: {
                             resource: 'sp',
-                            amount: { kind: 'valueNode', nodeId: 'data_15' },
+                            amount: { kind: 'valueNode', nodeId: 'data_14' },
                             coefficient: { kind: 'constant', value: 1 },
                             source: { kind: 'source' },
                             targets: { kind: 'source' },
@@ -2294,11 +2283,11 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                       checkCondition_59: {
                         action: {
                           kind: 'checkCondition',
-                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_17' } },
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_16' } },
                         },
                         next: null,
                       },
-                      ifElse_opt1: {
+                      ifElse_63: {
                         action: {
                           kind: 'ifElse',
                           parameters: { alwaysNext: true },
@@ -2308,32 +2297,32 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                         },
                         next: null,
                       },
-                      changeResource_opt2: {
+                      changeResource_64: {
                         action: {
                           kind: 'changeResource',
                           parameters: {
                             resource: 'ultimateEnergy',
-                            amount: { kind: 'valueNode', nodeId: 'data_18' },
+                            amount: { kind: 'valueNode', nodeId: 'data_17' },
                             coefficient: { kind: 'constant', value: 1 },
                             source: { kind: 'source' },
                             targets: { kind: 'source' },
                           },
                         },
-                        next: 'ifElse_opt1',
+                        next: 'ifElse_63',
                       },
-                      checkCondition_opt3: {
+                      checkCondition_65: {
+                        action: {
+                          kind: 'checkCondition',
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_18' } },
+                        },
+                        next: 'changeResource_64',
+                      },
+                      checkCondition_66: {
                         action: {
                           kind: 'checkCondition',
                           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_19' } },
                         },
-                        next: 'changeResource_opt2',
-                      },
-                      checkCondition_opt4: {
-                        action: {
-                          kind: 'checkCondition',
-                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_20' } },
-                        },
-                        next: 'checkCondition_opt3',
+                        next: 'checkCondition_65',
                       },
                     },
                     dataNodes: {
@@ -2419,31 +2408,27 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                       },
                       data_13: {
                         type: 'number',
-                        expression: { kind: 'blackboard', key: 'poise_2' },
+                        expression: { kind: 'blackboard', key: 'atk_scale_3' },
                       },
                       data_14: {
                         type: 'number',
-                        expression: { kind: 'blackboard', key: 'atk_scale_3' },
+                        expression: { kind: 'blackboard', key: 'atb_return' },
                       },
                       data_15: {
                         type: 'number',
-                        expression: { kind: 'blackboard', key: 'atb_return' },
-                      },
-                      data_16: {
-                        type: 'number',
                         expression: { kind: 'blackboard', key: 'potential_upgrade', fallback: 0 },
                       },
-                      data_17: {
+                      data_16: {
                         type: 'boolean',
                         expression: {
                           kind: 'actionValueCompare',
-                          left: { kind: 'valueNode', nodeId: 'data_16' },
+                          left: { kind: 'valueNode', nodeId: 'data_15' },
                           operator: 'equal',
                           right: { kind: 'constant', value: 1 },
                         },
                       },
-                      data_18: { type: 'number', expression: { kind: 'blackboard', key: 'usp_2' } },
-                      data_19: {
+                      data_17: { type: 'number', expression: { kind: 'blackboard', key: 'usp_2' } },
+                      data_18: {
                         type: 'boolean',
                         expression: {
                           kind: 'buffIdStackCompare',
@@ -2453,7 +2438,7 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                           value: { kind: 'constant', value: 1 },
                         },
                       },
-                      data_20: {
+                      data_19: {
                         type: 'boolean',
                         expression: {
                           kind: 'entityCountCompare',
@@ -2526,7 +2511,7 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                   { startFrame: 0, endFrame: 1, sequence: { $sequence: null } },
                   { startFrame: 0, endFrame: 1, sequence: { $sequence: 'repeatEachTick_59' } },
                   { startFrame: 0, endFrame: 1, sequence: { $sequence: 'checkCondition_62' } },
-                  { startFrame: 0, endFrame: 3, sequence: { $sequence: 'checkCondition_opt4' } },
+                  { startFrame: 0, endFrame: 3, sequence: { $sequence: 'checkCondition_70' } },
                   { startFrame: 0, endFrame: 3, sequence: { $sequence: null } },
                 ],
                 actionGraph: {
@@ -2564,7 +2549,8 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                                 },
                               },
                             ],
-                            target: 'enemy',
+                            targets: { kind: 'fixed', target: 'enemy' },
+                            source: { kind: 'source' },
                           },
                         },
                         next: 'dealDamage_54',
@@ -2588,7 +2574,8 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                                 },
                               },
                             ],
-                            target: 'enemy',
+                            targets: { kind: 'fixed', target: 'enemy' },
+                            source: { kind: 'source' },
                           },
                         },
                         next: 'dealDamage_54',
@@ -2700,7 +2687,8 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                           kind: 'applyBuff',
                           parameters: {
                             buffs: [{ buffId: 'buff_chr_0028_wulfa_tut_normalskill_success' }],
-                            target: 'caster',
+                            targets: { kind: 'source' },
+                            source: { kind: 'source' },
                             inheritSourceSkillCastInfo: true,
                             finishByAction: true,
                           },
@@ -2713,7 +2701,7 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                           parameters: {
                             key: 'poise_2',
                             operation: 'multiply',
-                            left: { kind: 'valueNode', nodeId: 'data_13' },
+                            left: { kind: 'valueNode', nodeId: 'data_2' },
                             right: { kind: 'constant', value: 0.25 },
                           },
                         },
@@ -2725,7 +2713,7 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                           parameters: {
                             key: 'atk_scale_once',
                             operation: 'multiply',
-                            left: { kind: 'valueNode', nodeId: 'data_14' },
+                            left: { kind: 'valueNode', nodeId: 'data_13' },
                             right: { kind: 'constant', value: 0.25 },
                           },
                         },
@@ -2753,7 +2741,7 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                           parameters: {
                             key: 'hit_bleed_num',
                             operation: 'add',
-                            left: { kind: 'valueNode', nodeId: 'data_15' },
+                            left: { kind: 'valueNode', nodeId: 'data_14' },
                             right: { kind: 'constant', value: 1 },
                           },
                         },
@@ -2762,14 +2750,14 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                       checkCondition_61: {
                         action: {
                           kind: 'checkCondition',
-                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_16' } },
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_15' } },
                         },
                         next: 'calculateActionValue_60',
                       },
                       checkCondition_62: {
                         action: {
                           kind: 'checkCondition',
-                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_17' } },
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_16' } },
                         },
                         next: 'checkCondition_61',
                       },
@@ -2777,7 +2765,8 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                         action: {
                           kind: 'finishBuffsById',
                           parameters: {
-                            target: 'caster',
+                            targets: { kind: 'source' },
+                            finishSource: { kind: 'source' },
                             buffIds: ['buff_chr_0028_wulfa_normal_wolf_timer'],
                             reason: 'early',
                           },
@@ -2789,7 +2778,7 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                           kind: 'changeResource',
                           parameters: {
                             resource: 'sp',
-                            amount: { kind: 'valueNode', nodeId: 'data_18' },
+                            amount: { kind: 'valueNode', nodeId: 'data_17' },
                             coefficient: { kind: 'constant', value: 1 },
                             source: { kind: 'source' },
                             targets: { kind: 'source' },
@@ -2802,11 +2791,11 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                       checkCondition_63: {
                         action: {
                           kind: 'checkCondition',
-                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_20' } },
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_19' } },
                         },
                         next: null,
                       },
-                      ifElse_opt1: {
+                      ifElse_67: {
                         action: {
                           kind: 'ifElse',
                           parameters: { alwaysNext: true },
@@ -2816,32 +2805,32 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                         },
                         next: null,
                       },
-                      changeResource_opt2: {
+                      changeResource_68: {
                         action: {
                           kind: 'changeResource',
                           parameters: {
                             resource: 'ultimateEnergy',
-                            amount: { kind: 'valueNode', nodeId: 'data_21' },
+                            amount: { kind: 'valueNode', nodeId: 'data_20' },
                             coefficient: { kind: 'constant', value: 1 },
                             source: { kind: 'source' },
                             targets: { kind: 'source' },
                           },
                         },
-                        next: 'ifElse_opt1',
+                        next: 'ifElse_67',
                       },
-                      checkCondition_opt3: {
+                      checkCondition_69: {
+                        action: {
+                          kind: 'checkCondition',
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_21' } },
+                        },
+                        next: 'changeResource_68',
+                      },
+                      checkCondition_70: {
                         action: {
                           kind: 'checkCondition',
                           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_22' } },
                         },
-                        next: 'changeResource_opt2',
-                      },
-                      checkCondition_opt4: {
-                        action: {
-                          kind: 'checkCondition',
-                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_23' } },
-                        },
-                        next: 'checkCondition_opt3',
+                        next: 'checkCondition_69',
                       },
                     },
                     dataNodes: {
@@ -2927,17 +2916,13 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                       },
                       data_13: {
                         type: 'number',
-                        expression: { kind: 'blackboard', key: 'poise_2' },
+                        expression: { kind: 'blackboard', key: 'atk_scale_3' },
                       },
                       data_14: {
                         type: 'number',
-                        expression: { kind: 'blackboard', key: 'atk_scale_3' },
-                      },
-                      data_15: {
-                        type: 'number',
                         expression: { kind: 'blackboard', key: 'hit_bleed_num' },
                       },
-                      data_16: {
+                      data_15: {
                         type: 'boolean',
                         expression: {
                           kind: 'buffIdStackCompare',
@@ -2947,7 +2932,7 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                           value: { kind: 'constant', value: 1 },
                         },
                       },
-                      data_17: {
+                      data_16: {
                         type: 'boolean',
                         expression: {
                           kind: 'entityCountCompare',
@@ -2958,25 +2943,25 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                           value: 1,
                         },
                       },
-                      data_18: {
+                      data_17: {
                         type: 'number',
                         expression: { kind: 'blackboard', key: 'atb_return' },
                       },
-                      data_19: {
+                      data_18: {
                         type: 'number',
                         expression: { kind: 'blackboard', key: 'potential_upgrade', fallback: 0 },
                       },
-                      data_20: {
+                      data_19: {
                         type: 'boolean',
                         expression: {
                           kind: 'actionValueCompare',
-                          left: { kind: 'valueNode', nodeId: 'data_19' },
+                          left: { kind: 'valueNode', nodeId: 'data_18' },
                           operator: 'equal',
                           right: { kind: 'constant', value: 1 },
                         },
                       },
-                      data_21: { type: 'number', expression: { kind: 'blackboard', key: 'usp_2' } },
-                      data_22: {
+                      data_20: { type: 'number', expression: { kind: 'blackboard', key: 'usp_2' } },
+                      data_21: {
                         type: 'boolean',
                         expression: {
                           kind: 'buffIdStackCompare',
@@ -2986,7 +2971,7 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                           value: { kind: 'constant', value: 1 },
                         },
                       },
-                      data_23: {
+                      data_22: {
                         type: 'boolean',
                         expression: {
                           kind: 'entityCountCompare',
@@ -3059,7 +3044,7 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                   { startFrame: 0, endFrame: 1, sequence: { $sequence: null } },
                   { startFrame: 0, endFrame: 1, sequence: { $sequence: 'repeatEachTick_58' } },
                   { startFrame: 0, endFrame: 3, sequence: { $sequence: null } },
-                  { startFrame: 0, endFrame: 3, sequence: { $sequence: 'checkCondition_opt4' } },
+                  { startFrame: 0, endFrame: 3, sequence: { $sequence: 'checkCondition_66' } },
                 ],
                 actionGraph: {
                   main: {
@@ -3096,7 +3081,8 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                                 },
                               },
                             ],
-                            target: 'enemy',
+                            targets: { kind: 'fixed', target: 'enemy' },
+                            source: { kind: 'source' },
                           },
                         },
                         next: 'dealDamage_54',
@@ -3120,7 +3106,8 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                                 },
                               },
                             ],
-                            target: 'enemy',
+                            targets: { kind: 'fixed', target: 'enemy' },
+                            source: { kind: 'source' },
                           },
                         },
                         next: 'dealDamage_54',
@@ -3233,7 +3220,7 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                           parameters: {
                             key: 'poise_2',
                             operation: 'multiply',
-                            left: { kind: 'valueNode', nodeId: 'data_13' },
+                            left: { kind: 'valueNode', nodeId: 'data_2' },
                             right: { kind: 'constant', value: 0.25 },
                           },
                         },
@@ -3245,7 +3232,7 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                           parameters: {
                             key: 'atk_scale_once',
                             operation: 'multiply',
-                            left: { kind: 'valueNode', nodeId: 'data_14' },
+                            left: { kind: 'valueNode', nodeId: 'data_13' },
                             right: { kind: 'constant', value: 0.25 },
                           },
                         },
@@ -3271,7 +3258,8 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                         action: {
                           kind: 'finishBuffsById',
                           parameters: {
-                            target: 'caster',
+                            targets: { kind: 'source' },
+                            finishSource: { kind: 'source' },
                             buffIds: ['buff_chr_0028_wulfa_normal_wolf_timer'],
                             reason: 'early',
                           },
@@ -3283,7 +3271,7 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                           kind: 'changeResource',
                           parameters: {
                             resource: 'sp',
-                            amount: { kind: 'valueNode', nodeId: 'data_15' },
+                            amount: { kind: 'valueNode', nodeId: 'data_14' },
                             coefficient: { kind: 'constant', value: 1 },
                             source: { kind: 'source' },
                             targets: { kind: 'source' },
@@ -3296,11 +3284,11 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                       checkCondition_59: {
                         action: {
                           kind: 'checkCondition',
-                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_17' } },
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_16' } },
                         },
                         next: null,
                       },
-                      ifElse_opt1: {
+                      ifElse_63: {
                         action: {
                           kind: 'ifElse',
                           parameters: { alwaysNext: true },
@@ -3310,32 +3298,32 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                         },
                         next: null,
                       },
-                      changeResource_opt2: {
+                      changeResource_64: {
                         action: {
                           kind: 'changeResource',
                           parameters: {
                             resource: 'ultimateEnergy',
-                            amount: { kind: 'valueNode', nodeId: 'data_18' },
+                            amount: { kind: 'valueNode', nodeId: 'data_17' },
                             coefficient: { kind: 'constant', value: 1 },
                             source: { kind: 'source' },
                             targets: { kind: 'source' },
                           },
                         },
-                        next: 'ifElse_opt1',
+                        next: 'ifElse_63',
                       },
-                      checkCondition_opt3: {
+                      checkCondition_65: {
+                        action: {
+                          kind: 'checkCondition',
+                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_18' } },
+                        },
+                        next: 'changeResource_64',
+                      },
+                      checkCondition_66: {
                         action: {
                           kind: 'checkCondition',
                           parameters: { condition: { kind: 'conditionNode', nodeId: 'data_19' } },
                         },
-                        next: 'changeResource_opt2',
-                      },
-                      checkCondition_opt4: {
-                        action: {
-                          kind: 'checkCondition',
-                          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_20' } },
-                        },
-                        next: 'checkCondition_opt3',
+                        next: 'checkCondition_65',
                       },
                     },
                     dataNodes: {
@@ -3421,31 +3409,27 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                       },
                       data_13: {
                         type: 'number',
-                        expression: { kind: 'blackboard', key: 'poise_2' },
+                        expression: { kind: 'blackboard', key: 'atk_scale_3' },
                       },
                       data_14: {
                         type: 'number',
-                        expression: { kind: 'blackboard', key: 'atk_scale_3' },
+                        expression: { kind: 'blackboard', key: 'atb_return' },
                       },
                       data_15: {
                         type: 'number',
-                        expression: { kind: 'blackboard', key: 'atb_return' },
-                      },
-                      data_16: {
-                        type: 'number',
                         expression: { kind: 'blackboard', key: 'potential_upgrade', fallback: 0 },
                       },
-                      data_17: {
+                      data_16: {
                         type: 'boolean',
                         expression: {
                           kind: 'actionValueCompare',
-                          left: { kind: 'valueNode', nodeId: 'data_16' },
+                          left: { kind: 'valueNode', nodeId: 'data_15' },
                           operator: 'equal',
                           right: { kind: 'constant', value: 1 },
                         },
                       },
-                      data_18: { type: 'number', expression: { kind: 'blackboard', key: 'usp_2' } },
-                      data_19: {
+                      data_17: { type: 'number', expression: { kind: 'blackboard', key: 'usp_2' } },
+                      data_18: {
                         type: 'boolean',
                         expression: {
                           kind: 'buffIdStackCompare',
@@ -3455,7 +3439,7 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
                           value: { kind: 'constant', value: 1 },
                         },
                       },
-                      data_20: {
+                      data_19: {
                         type: 'boolean',
                         expression: {
                           kind: 'entityCountCompare',
@@ -3481,7 +3465,8 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0028_wulfa_normal_smarttarget' }],
-            target: 'enemy',
+            targets: { kind: 'fixed', target: 'enemy' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -3494,7 +3479,7 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
       checkCondition_68: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_15' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_13' } },
         },
         next: 'gainSquadUltimateEnergyFromSkillCost_67',
       },
@@ -3502,7 +3487,8 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
         action: {
           kind: 'finishBuffsById',
           parameters: {
-            target: 'caster',
+            targets: { kind: 'source' },
+            finishSource: { kind: 'source' },
             buffIds: ['buff_chr_0028_wulfa_normal_wolf_timer'],
             reason: 'early',
           },
@@ -3512,7 +3498,7 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
       checkCondition_70: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_16' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_14' } },
         },
         next: null,
       },
@@ -3529,7 +3515,7 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
       checkCondition_74: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_18' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_15' } },
         },
         next: null,
       },
@@ -3554,7 +3540,8 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0028_wulfa_tut_normalskill_failure' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -3564,7 +3551,7 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
       checkCondition_78: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_20' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_16' } },
         },
         next: null,
       },
@@ -3583,7 +3570,8 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0028_wulfa_normal_defup' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -3631,7 +3619,7 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
         type: 'boolean',
         expression: {
           kind: 'entityCountCompare',
-          target: { kind: 'inputTarget' },
+          target: { kind: 'fixed', target: 'enemy' },
           containsHittableTarget: false,
           excludeDeadEntity: false,
           operator: 'greaterOrEqual',
@@ -3657,9 +3645,8 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
           right: { kind: 'constant', value: 0 },
         },
       },
-      data_10: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_once' } },
-      data_11: { type: 'number', expression: { kind: 'blackboard', key: 'poise_1' } },
-      data_12: {
+      data_10: { type: 'number', expression: { kind: 'blackboard', key: 'poise_1' } },
+      data_11: {
         type: 'boolean',
         expression: {
           kind: 'buffStackCompare',
@@ -3670,18 +3657,17 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
           value: { kind: 'constant', value: 1 },
         },
       },
-      data_13: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_1' } },
-      data_14: { type: 'number', expression: { kind: 'blackboard', key: 'trigger', fallback: 0 } },
-      data_15: {
+      data_12: { type: 'number', expression: { kind: 'blackboard', key: 'trigger', fallback: 0 } },
+      data_13: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_14' },
+          left: { kind: 'valueNode', nodeId: 'data_12' },
           operator: 'greater',
           right: { kind: 'constant', value: 0.5 },
         },
       },
-      data_16: {
+      data_14: {
         type: 'boolean',
         expression: {
           kind: 'entityTagMatch',
@@ -3690,28 +3676,20 @@ export const rossiChr_0028_wulfa_normal_skillActionGraph = {
           tags: ['Skill/Character/Common/Affixes/skillimbue'],
         },
       },
-      data_17: {
-        type: 'number',
-        expression: { kind: 'blackboard', key: 'FollowAttackTrigger', fallback: 0 },
-      },
-      data_18: {
+      data_15: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_17' },
+          left: { kind: 'valueNode', nodeId: 'data_8' },
           operator: 'greaterOrEqual',
           right: { kind: 'constant', value: 0.9 },
         },
       },
-      data_19: {
-        type: 'number',
-        expression: { kind: 'blackboard', key: 'FollowAttackTrigger', fallback: 0 },
-      },
-      data_20: {
+      data_16: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_19' },
+          left: { kind: 'valueNode', nodeId: 'data_8' },
           operator: 'equal',
           right: { kind: 'constant', value: 1 },
         },
@@ -3967,7 +3945,7 @@ export const rossiChr_0028_wulfa_combo_2_skillActionGraph = {
           parameters: {
             key: 'count',
             operation: 'add',
-            left: { kind: 'valueNode', nodeId: 'data_10' },
+            left: { kind: 'valueNode', nodeId: 'data_5' },
             right: { kind: 'constant', value: 1 },
           },
         },
@@ -3988,7 +3966,8 @@ export const rossiChr_0028_wulfa_combo_2_skillActionGraph = {
                 copiedBlackboardAssignments: { atk_scale: 'atk_scale_once' },
               },
             ],
-            target: 'enemy',
+            targets: { kind: 'fixed', target: 'enemy' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -4000,7 +3979,7 @@ export const rossiChr_0028_wulfa_combo_2_skillActionGraph = {
           parameters: {
             key: 'atk_scale_once',
             operation: 'multiply',
-            left: { kind: 'valueNode', nodeId: 'data_11' },
+            left: { kind: 'valueNode', nodeId: 'data_9' },
             right: { kind: 'constant', value: 0.1 },
           },
         },
@@ -4011,10 +3990,10 @@ export const rossiChr_0028_wulfa_combo_2_skillActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'physical',
-            attackScale: { kind: 'valueNode', nodeId: 'data_12' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_6' },
             tags: ['comboSkill'],
             features: ['canBreakWeakness'],
-            stagger: { kind: 'valueNode', nodeId: 'data_13' },
+            stagger: { kind: 'valueNode', nodeId: 'data_7' },
             staggerOnlyWhenCasterControlled: true,
           },
         },
@@ -4026,7 +4005,7 @@ export const rossiChr_0028_wulfa_combo_2_skillActionGraph = {
           parameters: {
             key: 'poise_once',
             operation: 'multiply',
-            left: { kind: 'valueNode', nodeId: 'data_14' },
+            left: { kind: 'valueNode', nodeId: 'data_8' },
             right: { kind: 'constant', value: 0.5 },
           },
         },
@@ -4038,7 +4017,7 @@ export const rossiChr_0028_wulfa_combo_2_skillActionGraph = {
           parameters: {
             key: 'atk_scale_once',
             operation: 'multiply',
-            left: { kind: 'valueNode', nodeId: 'data_15' },
+            left: { kind: 'valueNode', nodeId: 'data_9' },
             right: { kind: 'constant', value: 0.35 },
           },
         },
@@ -4076,7 +4055,7 @@ export const rossiChr_0028_wulfa_combo_2_skillActionGraph = {
           kind: 'changeResource',
           parameters: {
             resource: 'ultimateEnergy',
-            amount: { kind: 'valueNode', nodeId: 'data_16' },
+            amount: { kind: 'valueNode', nodeId: 'data_10' },
             coefficient: { kind: 'constant', value: 1 },
             source: { kind: 'source' },
             targets: { kind: 'source' },
@@ -4087,7 +4066,7 @@ export const rossiChr_0028_wulfa_combo_2_skillActionGraph = {
       checkCondition_35: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_18' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_11' } },
         },
         next: null,
       },
@@ -4105,7 +4084,8 @@ export const rossiChr_0028_wulfa_combo_2_skillActionGraph = {
         action: {
           kind: 'finishBuffsById',
           parameters: {
-            target: 'caster',
+            targets: { kind: 'owner' },
+            finishSource: { kind: 'source' },
             buffIds: ['buff_chr_0028_wulfa_combo_2_qte_timerlistening'],
             reason: 'other',
           },
@@ -4115,7 +4095,7 @@ export const rossiChr_0028_wulfa_combo_2_skillActionGraph = {
       checkCondition_40: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_20' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_13' } },
         },
         next: 'finishBuffsById_38',
       },
@@ -4129,7 +4109,8 @@ export const rossiChr_0028_wulfa_combo_2_skillActionGraph = {
                 copiedBlackboardAssignments: { time_succeed: 'time_succeed' },
               },
             ],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -4138,14 +4119,14 @@ export const rossiChr_0028_wulfa_combo_2_skillActionGraph = {
       checkCondition_41: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_22' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_15' } },
         },
         next: null,
       },
       checkCondition_42: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_24' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_16' } },
         },
         next: 'checkCondition_41',
       },
@@ -4175,7 +4156,7 @@ export const rossiChr_0028_wulfa_combo_2_skillActionGraph = {
       checkCondition_46: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_26' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_17' } },
         },
         next: 'changeSkillSlot_45',
       },
@@ -4183,7 +4164,8 @@ export const rossiChr_0028_wulfa_combo_2_skillActionGraph = {
         action: {
           kind: 'finishBuffsById',
           parameters: {
-            target: 'caster',
+            targets: { kind: 'owner' },
+            finishSource: { kind: 'source' },
             buffIds: ['buff_chr_0028_wulfa_combo_usetimer'],
             reason: 'other',
           },
@@ -4193,7 +4175,7 @@ export const rossiChr_0028_wulfa_combo_2_skillActionGraph = {
       checkCondition_48: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_27' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_18' } },
         },
         next: 'finishBuffsById_47',
       },
@@ -4202,7 +4184,8 @@ export const rossiChr_0028_wulfa_combo_2_skillActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0028_wulfa_combo_usecount' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -4212,7 +4195,8 @@ export const rossiChr_0028_wulfa_combo_2_skillActionGraph = {
         action: {
           kind: 'finishBuffsById',
           parameters: {
-            target: 'caster',
+            targets: { kind: 'owner' },
+            finishSource: { kind: 'source' },
             buffIds: ['buff_chr_0028_wulfa_combo_usecount'],
             reason: 'other',
           },
@@ -4224,7 +4208,8 @@ export const rossiChr_0028_wulfa_combo_2_skillActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0028_wulfa_combo_usetimer' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -4250,7 +4235,7 @@ export const rossiChr_0028_wulfa_combo_2_skillActionGraph = {
       checkCondition_50: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_28' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_19' } },
         },
         next: null,
       },
@@ -4267,7 +4252,7 @@ export const rossiChr_0028_wulfa_combo_2_skillActionGraph = {
       checkCondition_57: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_30' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_20' } },
         },
         next: null,
       },
@@ -4302,7 +4287,8 @@ export const rossiChr_0028_wulfa_combo_2_skillActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0028_wulfa_normal_defup' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -4328,73 +4314,61 @@ export const rossiChr_0028_wulfa_combo_2_skillActionGraph = {
       data_7: { type: 'number', expression: { kind: 'blackboard', key: 'poise_once' } },
       data_8: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
       data_9: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_10: { type: 'number', expression: { kind: 'blackboard', key: 'count' } },
-      data_11: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_12: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_once' } },
-      data_13: { type: 'number', expression: { kind: 'blackboard', key: 'poise_once' } },
-      data_14: { type: 'number', expression: { kind: 'blackboard', key: 'poise' } },
-      data_15: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_16: { type: 'number', expression: { kind: 'blackboard', key: 'usp' } },
-      data_17: { type: 'number', expression: { kind: 'blackboard', key: 'count', fallback: 0 } },
-      data_18: {
+      data_10: { type: 'number', expression: { kind: 'blackboard', key: 'usp' } },
+      data_11: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_17' },
+          left: { kind: 'valueNode', nodeId: 'data_2' },
           operator: 'greater',
           right: { kind: 'constant', value: 0 },
         },
       },
-      data_19: {
+      data_12: {
         type: 'number',
         expression: { kind: 'blackboard', key: 'EntityBB_Combo_qte_proto_use', fallback: 0 },
       },
-      data_20: {
+      data_13: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_19' },
+          left: { kind: 'valueNode', nodeId: 'data_12' },
           operator: 'equal',
           right: { kind: 'constant', value: 1 },
         },
       },
-      data_21: {
+      data_14: {
         type: 'number',
         expression: { kind: 'blackboard', key: 'can_trigger_combo', fallback: 0 },
       },
-      data_22: {
+      data_15: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_21' },
+          left: { kind: 'valueNode', nodeId: 'data_14' },
           operator: 'greater',
           right: { kind: 'constant', value: 0 },
         },
       },
-      data_23: { type: 'number', expression: { kind: 'blackboard', key: 'count', fallback: 0 } },
-      data_24: {
+      data_16: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_23' },
+          left: { kind: 'valueNode', nodeId: 'data_2' },
           operator: 'greater',
           right: { kind: 'constant', value: 0 },
         },
       },
-      data_25: {
-        type: 'number',
-        expression: { kind: 'blackboard', key: 'can_trigger_combo', fallback: 0 },
-      },
-      data_26: {
+      data_17: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_25' },
+          left: { kind: 'valueNode', nodeId: 'data_14' },
           operator: 'greaterOrEqual',
           right: { kind: 'constant', value: 1 },
         },
       },
-      data_27: {
+      data_18: {
         type: 'boolean',
         expression: {
           kind: 'buffIdStackCompare',
@@ -4404,7 +4378,7 @@ export const rossiChr_0028_wulfa_combo_2_skillActionGraph = {
           value: { kind: 'constant', value: 2 },
         },
       },
-      data_28: {
+      data_19: {
         type: 'boolean',
         expression: {
           kind: 'healthCompare',
@@ -4414,15 +4388,11 @@ export const rossiChr_0028_wulfa_combo_2_skillActionGraph = {
           value: { kind: 'constant', value: 0 },
         },
       },
-      data_29: {
-        type: 'number',
-        expression: { kind: 'blackboard', key: 'can_trigger_combo', fallback: 0 },
-      },
-      data_30: {
+      data_20: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_29' },
+          left: { kind: 'valueNode', nodeId: 'data_14' },
           operator: 'greaterOrEqual',
           right: { kind: 'constant', value: 1 },
         },
@@ -4597,7 +4567,8 @@ export const rossiChr_0028_wulfa_combo_3_skillActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0028_wulfa_combo_hasinflict' }],
-            target: 'enemy',
+            targets: { kind: 'fixed', target: 'enemy' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -4608,7 +4579,8 @@ export const rossiChr_0028_wulfa_combo_3_skillActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0028_wulfa_combo_inflictnum' }],
-            target: 'enemy',
+            targets: { kind: 'fixed', target: 'enemy' },
+            source: { kind: 'source' },
             count: { kind: 'valueNode', nodeId: 'data_3' },
             inheritSourceSkillCastInfo: true,
           },
@@ -4619,7 +4591,8 @@ export const rossiChr_0028_wulfa_combo_3_skillActionGraph = {
         action: {
           kind: 'finishBuffsByTag',
           parameters: {
-            target: 'enemy',
+            targets: { kind: 'fixed', target: 'enemy' },
+            finishSource: { kind: 'owner' },
             tagQueryType: 'hasAny',
             buffTags: ['Skill/Character/Common/SpellInflict/CrystInflict'],
             reason: 'early',
@@ -4663,7 +4636,8 @@ export const rossiChr_0028_wulfa_combo_3_skillActionGraph = {
         action: {
           kind: 'finishBuffsByTag',
           parameters: {
-            target: 'enemy',
+            targets: { kind: 'fixed', target: 'enemy' },
+            finishSource: { kind: 'owner' },
             tagQueryType: 'hasAny',
             buffTags: ['Skill/Character/Common/SpellInflict/PulseInflict'],
             reason: 'early',
@@ -4707,7 +4681,8 @@ export const rossiChr_0028_wulfa_combo_3_skillActionGraph = {
         action: {
           kind: 'finishBuffsByTag',
           parameters: {
-            target: 'enemy',
+            targets: { kind: 'fixed', target: 'enemy' },
+            finishSource: { kind: 'owner' },
             tagQueryType: 'hasAny',
             buffTags: ['Skill/Character/Common/SpellInflict/NaturalInflict'],
             reason: 'early',
@@ -4751,7 +4726,8 @@ export const rossiChr_0028_wulfa_combo_3_skillActionGraph = {
         action: {
           kind: 'finishBuffsByTag',
           parameters: {
-            target: 'enemy',
+            targets: { kind: 'fixed', target: 'enemy' },
+            finishSource: { kind: 'owner' },
             tagQueryType: 'hasAny',
             buffTags: ['Skill/Character/Common/SpellInflict/FireInflict'],
             reason: 'early',
@@ -4811,7 +4787,8 @@ export const rossiChr_0028_wulfa_combo_3_skillActionGraph = {
         action: {
           kind: 'finishBuffsById',
           parameters: {
-            target: 'enemy',
+            targets: { kind: 'fixed', target: 'enemy' },
+            finishSource: { kind: 'source' },
             buffIds: ['buff_chr_0028_wulfa_combo_hasinflict'],
             reason: 'other',
           },
@@ -4863,7 +4840,7 @@ export const rossiChr_0028_wulfa_combo_3_skillActionGraph = {
       checkCondition_48: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_10' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_9' } },
         },
         next: null,
       },
@@ -4883,7 +4860,7 @@ export const rossiChr_0028_wulfa_combo_3_skillActionGraph = {
           parameters: {
             key: 'count',
             operation: 'add',
-            left: { kind: 'valueNode', nodeId: 'data_11' },
+            left: { kind: 'valueNode', nodeId: 'data_10' },
             right: { kind: 'constant', value: 1 },
           },
         },
@@ -4894,10 +4871,10 @@ export const rossiChr_0028_wulfa_combo_3_skillActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'physical',
-            attackScale: { kind: 'valueNode', nodeId: 'data_12' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_11' },
             tags: ['comboSkill'],
             features: ['canBreakWeakness'],
-            stagger: { kind: 'valueNode', nodeId: 'data_13' },
+            stagger: { kind: 'valueNode', nodeId: 'data_12' },
           },
         },
         next: 'calculateActionValue_60',
@@ -4906,7 +4883,8 @@ export const rossiChr_0028_wulfa_combo_3_skillActionGraph = {
         action: {
           kind: 'finishBuffsById',
           parameters: {
-            target: 'enemy',
+            targets: { kind: 'fixed', target: 'enemy' },
+            finishSource: { kind: 'source' },
             buffIds: ['buff_chr_0028_wulfa_combo_inflictnum'],
             reason: 'other',
           },
@@ -4919,7 +4897,7 @@ export const rossiChr_0028_wulfa_combo_3_skillActionGraph = {
           parameters: {
             key: 'poise_once',
             operation: 'divide',
-            left: { kind: 'valueNode', nodeId: 'data_14' },
+            left: { kind: 'valueNode', nodeId: 'data_13' },
             right: { kind: 'constant', value: 1 },
           },
         },
@@ -4931,7 +4909,7 @@ export const rossiChr_0028_wulfa_combo_3_skillActionGraph = {
           parameters: {
             key: 'atk_scale_once',
             operation: 'divide',
-            left: { kind: 'valueNode', nodeId: 'data_15' },
+            left: { kind: 'valueNode', nodeId: 'data_11' },
             right: { kind: 'constant', value: 1 },
           },
         },
@@ -4943,8 +4921,8 @@ export const rossiChr_0028_wulfa_combo_3_skillActionGraph = {
           parameters: {
             key: 'atk_scale_once',
             operation: 'multiply',
-            left: { kind: 'valueNode', nodeId: 'data_16' },
-            right: { kind: 'valueNode', nodeId: 'data_17' },
+            left: { kind: 'valueNode', nodeId: 'data_11' },
+            right: { kind: 'valueNode', nodeId: 'data_14' },
           },
         },
         next: 'calculateActionValue_64',
@@ -4955,8 +4933,8 @@ export const rossiChr_0028_wulfa_combo_3_skillActionGraph = {
           parameters: {
             key: 'atk_scale_once',
             operation: 'add',
-            left: { kind: 'valueNode', nodeId: 'data_18' },
-            right: { kind: 'valueNode', nodeId: 'data_19' },
+            left: { kind: 'valueNode', nodeId: 'data_11' },
+            right: { kind: 'valueNode', nodeId: 'data_15' },
           },
         },
         next: 'calculateActionValue_65',
@@ -4967,8 +4945,8 @@ export const rossiChr_0028_wulfa_combo_3_skillActionGraph = {
           parameters: {
             key: 'atk_scale_once',
             operation: 'multiply',
-            left: { kind: 'valueNode', nodeId: 'data_20' },
-            right: { kind: 'valueNode', nodeId: 'data_21' },
+            left: { kind: 'valueNode', nodeId: 'data_16' },
+            right: { kind: 'valueNode', nodeId: 'data_17' },
           },
         },
         next: 'calculateActionValue_66',
@@ -5015,7 +4993,8 @@ export const rossiChr_0028_wulfa_combo_3_skillActionGraph = {
         action: {
           kind: 'finishBuffsById',
           parameters: {
-            target: 'caster',
+            targets: { kind: 'owner' },
+            finishSource: { kind: 'source' },
             buffIds: ['buff_chr_0028_wulfa_combo_usetimer', 'buff_chr_0028_wulfa_combo_usecount'],
             reason: 'other',
           },
@@ -5025,7 +5004,7 @@ export const rossiChr_0028_wulfa_combo_3_skillActionGraph = {
       checkCondition_72: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_22' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_18' } },
         },
         next: 'finishBuffsById_71',
       },
@@ -5059,7 +5038,8 @@ export const rossiChr_0028_wulfa_combo_3_skillActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0028_wulfa_combo_usecount' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -5070,7 +5050,7 @@ export const rossiChr_0028_wulfa_combo_3_skillActionGraph = {
           kind: 'changeResource',
           parameters: {
             resource: 'ultimateEnergy',
-            amount: { kind: 'valueNode', nodeId: 'data_23' },
+            amount: { kind: 'valueNode', nodeId: 'data_19' },
             coefficient: { kind: 'constant', value: 1 },
             source: { kind: 'source' },
             targets: { kind: 'source' },
@@ -5081,7 +5061,7 @@ export const rossiChr_0028_wulfa_combo_3_skillActionGraph = {
       checkCondition_77: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_25' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_21' } },
         },
         next: 'changeResource_76',
       },
@@ -5157,7 +5137,8 @@ export const rossiChr_0028_wulfa_combo_3_skillActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_physical_no_guard' }],
-            target: 'enemy',
+            targets: { kind: 'fixed', target: 'enemy' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -5183,7 +5164,7 @@ export const rossiChr_0028_wulfa_combo_3_skillActionGraph = {
       checkCondition_117: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_26' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_22' } },
         },
         next: 'applyPhysicalInfliction_116',
       },
@@ -5208,7 +5189,7 @@ export const rossiChr_0028_wulfa_combo_3_skillActionGraph = {
       checkCondition_120: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_28' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_23' } },
         },
         next: null,
       },
@@ -5228,7 +5209,7 @@ export const rossiChr_0028_wulfa_combo_3_skillActionGraph = {
           parameters: {
             key: 'poise_once',
             operation: 'divide',
-            left: { kind: 'valueNode', nodeId: 'data_29' },
+            left: { kind: 'valueNode', nodeId: 'data_24' },
             right: { kind: 'constant', value: 1 },
           },
         },
@@ -5240,7 +5221,7 @@ export const rossiChr_0028_wulfa_combo_3_skillActionGraph = {
           parameters: {
             key: 'atk_scale_once',
             operation: 'divide',
-            left: { kind: 'valueNode', nodeId: 'data_30' },
+            left: { kind: 'valueNode', nodeId: 'data_11' },
             right: { kind: 'constant', value: 1 },
           },
         },
@@ -5252,8 +5233,8 @@ export const rossiChr_0028_wulfa_combo_3_skillActionGraph = {
           parameters: {
             key: 'atk_scale_once',
             operation: 'multiply',
-            left: { kind: 'valueNode', nodeId: 'data_31' },
-            right: { kind: 'valueNode', nodeId: 'data_32' },
+            left: { kind: 'valueNode', nodeId: 'data_11' },
+            right: { kind: 'valueNode', nodeId: 'data_14' },
           },
         },
         next: 'calculateActionValue_144',
@@ -5264,8 +5245,8 @@ export const rossiChr_0028_wulfa_combo_3_skillActionGraph = {
           parameters: {
             key: 'atk_scale_once',
             operation: 'add',
-            left: { kind: 'valueNode', nodeId: 'data_33' },
-            right: { kind: 'valueNode', nodeId: 'data_34' },
+            left: { kind: 'valueNode', nodeId: 'data_11' },
+            right: { kind: 'valueNode', nodeId: 'data_15' },
           },
         },
         next: 'calculateActionValue_145',
@@ -5276,8 +5257,8 @@ export const rossiChr_0028_wulfa_combo_3_skillActionGraph = {
           parameters: {
             key: 'atk_scale_once',
             operation: 'multiply',
-            left: { kind: 'valueNode', nodeId: 'data_35' },
-            right: { kind: 'valueNode', nodeId: 'data_36' },
+            left: { kind: 'valueNode', nodeId: 'data_16' },
+            right: { kind: 'valueNode', nodeId: 'data_17' },
           },
         },
         next: 'calculateActionValue_146',
@@ -5357,7 +5338,8 @@ export const rossiChr_0028_wulfa_combo_3_skillActionGraph = {
         action: {
           kind: 'finishBuffsById',
           parameters: {
-            target: 'caster',
+            targets: { kind: 'owner' },
+            finishSource: { kind: 'owner' },
             buffIds: [
               'buff_chr_0028_wulfa_combo_2_qte_timer',
               'buff_chr_0028_wulfa_combo_2_qte_timerlistening',
@@ -5373,8 +5355,8 @@ export const rossiChr_0028_wulfa_combo_3_skillActionGraph = {
           parameters: {
             key: 'atk_scale_s',
             operation: 'multiply',
-            left: { kind: 'valueNode', nodeId: 'data_37' },
-            right: { kind: 'valueNode', nodeId: 'data_38' },
+            left: { kind: 'valueNode', nodeId: 'data_15' },
+            right: { kind: 'valueNode', nodeId: 'data_14' },
           },
         },
         next: null,
@@ -5382,7 +5364,7 @@ export const rossiChr_0028_wulfa_combo_3_skillActionGraph = {
       checkCondition_151: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_40' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_26' } },
         },
         next: null,
       },
@@ -5494,7 +5476,8 @@ export const rossiChr_0028_wulfa_combo_3_skillActionGraph = {
         action: {
           kind: 'finishBuffsById',
           parameters: {
-            target: 'caster',
+            targets: { kind: 'owner' },
+            finishSource: { kind: 'owner' },
             buffIds: [
               'buff_chr_0028_wulfa_combo_2_qte_timer',
               'buff_chr_0028_wulfa_combo_2_qte_timerlistening',
@@ -5507,7 +5490,7 @@ export const rossiChr_0028_wulfa_combo_3_skillActionGraph = {
       checkCondition_153: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_42' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_28' } },
         },
         next: null,
       },
@@ -5524,14 +5507,14 @@ export const rossiChr_0028_wulfa_combo_3_skillActionGraph = {
       checkCondition_165: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_44' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_29' } },
         },
         next: null,
       },
       checkCondition_166: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_46' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_30' } },
         },
         next: 'checkCondition_165',
       },
@@ -5559,7 +5542,8 @@ export const rossiChr_0028_wulfa_combo_3_skillActionGraph = {
                 },
               },
             ],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -5594,7 +5578,8 @@ export const rossiChr_0028_wulfa_combo_3_skillActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0028_wulfa_tut_comboskill_failure' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -5605,7 +5590,8 @@ export const rossiChr_0028_wulfa_combo_3_skillActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0028_wulfa_tut_comboskill_success' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -5622,19 +5608,20 @@ export const rossiChr_0028_wulfa_combo_3_skillActionGraph = {
         },
         next: null,
       },
-      applyBuff_opt1: {
+      applyBuff_181: {
         action: {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0028_wulfa_tut_comboskill_finish' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
         },
         next: null,
       },
-      ifElse_opt2: {
+      ifElse_182: {
         action: {
           kind: 'ifElse',
           parameters: { alwaysNext: true },
@@ -5642,14 +5629,15 @@ export const rossiChr_0028_wulfa_combo_3_skillActionGraph = {
           whenTrue: { $sequence: null },
           whenFalse: { $sequence: 'applyBuff_177' },
         },
-        next: 'applyBuff_opt1',
+        next: 'applyBuff_181',
       },
       applyBuff_187: {
         action: {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0028_wulfa_normal_defup' }],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -5727,36 +5715,29 @@ export const rossiChr_0028_wulfa_combo_3_skillActionGraph = {
         },
       },
       data_9: {
-        type: 'number',
-        expression: { kind: 'blackboard', key: 'timing_success', fallback: 0 },
-      },
-      data_10: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_9' },
+          left: { kind: 'valueNode', nodeId: 'data_1' },
           operator: 'equal',
           right: { kind: 'constant', value: 0 },
         },
       },
-      data_11: { type: 'number', expression: { kind: 'blackboard', key: 'count' } },
-      data_12: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_once' } },
-      data_13: { type: 'number', expression: { kind: 'blackboard', key: 'poise_once' } },
-      data_14: { type: 'number', expression: { kind: 'blackboard', key: 'poise_f' } },
-      data_15: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_once' } },
-      data_16: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_once' } },
-      data_17: {
+      data_10: { type: 'number', expression: { kind: 'blackboard', key: 'count' } },
+      data_11: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_once' } },
+      data_12: { type: 'number', expression: { kind: 'blackboard', key: 'poise_once' } },
+      data_13: { type: 'number', expression: { kind: 'blackboard', key: 'poise_f' } },
+      data_14: {
         type: 'number',
         expression: { kind: 'blackboard', key: 'potential_atk_multiply' },
       },
-      data_18: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_once' } },
-      data_19: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_s' } },
-      data_20: {
+      data_15: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_s' } },
+      data_16: {
         type: 'number',
         expression: { kind: 'blackboard', key: 'spellinflict_stack_max' },
       },
-      data_21: { type: 'number', expression: { kind: 'blackboard', key: 'damage_add' } },
-      data_22: {
+      data_17: { type: 'number', expression: { kind: 'blackboard', key: 'damage_add' } },
+      data_18: {
         type: 'boolean',
         expression: {
           kind: 'buffIdStackCompare',
@@ -5766,18 +5747,18 @@ export const rossiChr_0028_wulfa_combo_3_skillActionGraph = {
           value: { kind: 'constant', value: 2 },
         },
       },
-      data_23: { type: 'number', expression: { kind: 'blackboard', key: 'usp_s' } },
-      data_24: { type: 'number', expression: { kind: 'blackboard', key: 'count', fallback: 0 } },
-      data_25: {
+      data_19: { type: 'number', expression: { kind: 'blackboard', key: 'usp_s' } },
+      data_20: { type: 'number', expression: { kind: 'blackboard', key: 'count', fallback: 0 } },
+      data_21: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_24' },
+          left: { kind: 'valueNode', nodeId: 'data_20' },
           operator: 'greaterOrEqual',
           right: { kind: 'constant', value: 1 },
         },
       },
-      data_26: {
+      data_22: {
         type: 'boolean',
         expression: {
           kind: 'buffIdStackCompare',
@@ -5787,83 +5768,56 @@ export const rossiChr_0028_wulfa_combo_3_skillActionGraph = {
           value: { kind: 'constant', value: 1 },
         },
       },
+      data_23: {
+        type: 'boolean',
+        expression: {
+          kind: 'actionValueCompare',
+          left: { kind: 'valueNode', nodeId: 'data_1' },
+          operator: 'equal',
+          right: { kind: 'constant', value: 1 },
+        },
+      },
+      data_24: { type: 'number', expression: { kind: 'blackboard', key: 'poise_s' } },
+      data_25: {
+        type: 'number',
+        expression: { kind: 'blackboard', key: 'potential_1', fallback: 0 },
+      },
+      data_26: {
+        type: 'boolean',
+        expression: {
+          kind: 'actionValueCompare',
+          left: { kind: 'valueNode', nodeId: 'data_25' },
+          operator: 'greater',
+          right: { kind: 'constant', value: 0.5 },
+        },
+      },
       data_27: {
         type: 'number',
-        expression: { kind: 'blackboard', key: 'timing_success', fallback: 0 },
+        expression: { kind: 'blackboard', key: 'EntityBB_Combo_QTE_Trigger', fallback: 0 },
       },
       data_28: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
           left: { kind: 'valueNode', nodeId: 'data_27' },
-          operator: 'equal',
-          right: { kind: 'constant', value: 1 },
-        },
-      },
-      data_29: { type: 'number', expression: { kind: 'blackboard', key: 'poise_s' } },
-      data_30: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_once' } },
-      data_31: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_once' } },
-      data_32: {
-        type: 'number',
-        expression: { kind: 'blackboard', key: 'potential_atk_multiply' },
-      },
-      data_33: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_once' } },
-      data_34: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_s' } },
-      data_35: {
-        type: 'number',
-        expression: { kind: 'blackboard', key: 'spellinflict_stack_max' },
-      },
-      data_36: { type: 'number', expression: { kind: 'blackboard', key: 'damage_add' } },
-      data_37: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_s' } },
-      data_38: {
-        type: 'number',
-        expression: { kind: 'blackboard', key: 'potential_atk_multiply' },
-      },
-      data_39: {
-        type: 'number',
-        expression: { kind: 'blackboard', key: 'potential_1', fallback: 0 },
-      },
-      data_40: {
-        type: 'boolean',
-        expression: {
-          kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_39' },
           operator: 'greater',
           right: { kind: 'constant', value: 0.5 },
         },
       },
-      data_41: {
-        type: 'number',
-        expression: { kind: 'blackboard', key: 'EntityBB_Combo_QTE_Trigger', fallback: 0 },
-      },
-      data_42: {
+      data_29: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_41' },
-          operator: 'greater',
-          right: { kind: 'constant', value: 0.5 },
-        },
-      },
-      data_43: { type: 'number', expression: { kind: 'blackboard', key: 'count', fallback: 0 } },
-      data_44: {
-        type: 'boolean',
-        expression: {
-          kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_43' },
+          left: { kind: 'valueNode', nodeId: 'data_20' },
           operator: 'greaterOrEqual',
           right: { kind: 'constant', value: 1 },
         },
       },
-      data_45: {
-        type: 'number',
-        expression: { kind: 'blackboard', key: 'timing_success', fallback: 0 },
-      },
-      data_46: {
+      data_30: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_45' },
+          left: { kind: 'valueNode', nodeId: 'data_1' },
           operator: 'equal',
           right: { kind: 'constant', value: 1 },
         },
@@ -5926,8 +5880,8 @@ export const rossiChr_0028_wulfa_combo_3_skill: SkillDefinition = {
     { startFrame: 0, endFrame: 16, sequence: { $sequence: 'startTimeDilation_173' } },
     { startFrame: 212, endFrame: 222, sequence: { $sequence: 'startTimeDilation_173' } },
     { startFrame: 29, endFrame: 58, sequence: { $sequence: 'ifElse_178' } },
-    { startFrame: 29, endFrame: 59, sequence: { $sequence: 'ifElse_opt2' } },
-    { startFrame: 227, endFrame: 257, sequence: { $sequence: 'ifElse_opt2' } },
+    { startFrame: 29, endFrame: 59, sequence: { $sequence: 'ifElse_182' } },
+    { startFrame: 227, endFrame: 257, sequence: { $sequence: 'ifElse_182' } },
     { startFrame: 0, endFrame: 60, sequence: { $sequence: 'applyBuff_187' } },
     { startFrame: 212, endFrame: 259, sequence: { $sequence: 'applyBuff_187' } },
   ],
@@ -5966,7 +5920,8 @@ export const rossiChr_0028_wulfa_ultimate_skillActionGraph = {
                 blackboardAssignments: { duration: { kind: 'constant', value: 3.099969 } },
               },
             ],
-            target: 'enemy',
+            targets: { kind: 'fixed', target: 'enemy' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -6035,7 +5990,8 @@ export const rossiChr_0028_wulfa_ultimate_skillActionGraph = {
                 blackboardAssignments: { duration: { kind: 'constant', value: 2.866664 } },
               },
             ],
-            target: 'enemy',
+            targets: { kind: 'fixed', target: 'enemy' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -6092,7 +6048,8 @@ export const rossiChr_0028_wulfa_ultimate_skillActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0028_wulfa_ult_addtional_battleshape' }],
-            target: 'enemy',
+            targets: { kind: 'fixed', target: 'enemy' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -6277,7 +6234,8 @@ export const rossiChr_0028_wulfa_ultimate_skillActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_common_damage_immune_ult_skill' }],
-            target: 'caster',
+            targets: { kind: 'source' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -6314,8 +6272,8 @@ export const rossiChr_0028_wulfa_ultimate_skillActionGraph = {
           parameters: {
             key: 'atk_scale_3',
             operation: 'multiply',
-            left: { kind: 'valueNode', nodeId: 'data_14' },
-            right: { kind: 'valueNode', nodeId: 'data_15' },
+            left: { kind: 'valueNode', nodeId: 'data_7' },
+            right: { kind: 'valueNode', nodeId: 'data_14' },
           },
         },
         next: 'calculateActionValue_45',
@@ -6326,8 +6284,8 @@ export const rossiChr_0028_wulfa_ultimate_skillActionGraph = {
           parameters: {
             key: 'atk_scale_2',
             operation: 'multiply',
-            left: { kind: 'valueNode', nodeId: 'data_16' },
-            right: { kind: 'valueNode', nodeId: 'data_17' },
+            left: { kind: 'valueNode', nodeId: 'data_6' },
+            right: { kind: 'valueNode', nodeId: 'data_14' },
           },
         },
         next: 'calculateActionValue_46',
@@ -6338,8 +6296,8 @@ export const rossiChr_0028_wulfa_ultimate_skillActionGraph = {
           parameters: {
             key: 'atk_scale_1',
             operation: 'multiply',
-            left: { kind: 'valueNode', nodeId: 'data_18' },
-            right: { kind: 'valueNode', nodeId: 'data_19' },
+            left: { kind: 'valueNode', nodeId: 'data_15' },
+            right: { kind: 'valueNode', nodeId: 'data_14' },
           },
         },
         next: 'calculateActionValue_47',
@@ -6347,7 +6305,7 @@ export const rossiChr_0028_wulfa_ultimate_skillActionGraph = {
       checkCondition_49: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_21' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_17' } },
         },
         next: 'calculateActionValue_48',
       },
@@ -6363,7 +6321,8 @@ export const rossiChr_0028_wulfa_ultimate_skillActionGraph = {
                 },
               },
             ],
-            target: 'caster',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
           },
@@ -6375,7 +6334,7 @@ export const rossiChr_0028_wulfa_ultimate_skillActionGraph = {
           kind: 'dealDamage',
           parameters: {
             damageType: 'heat',
-            attackScale: { kind: 'valueNode', nodeId: 'data_22' },
+            attackScale: { kind: 'valueNode', nodeId: 'data_15' },
             tags: ['ultimateSkill'],
             features: ['canBreakWeakness'],
           },
@@ -6412,7 +6371,7 @@ export const rossiChr_0028_wulfa_ultimate_skillActionGraph = {
       checkCondition_276: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_23' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_18' } },
         },
         next: null,
       },
@@ -6498,36 +6457,25 @@ export const rossiChr_0028_wulfa_ultimate_skillActionGraph = {
         type: 'number',
         expression: { kind: 'blackboard', key: 'potential_5_critical_damage' },
       },
-      data_14: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_3' } },
-      data_15: {
+      data_14: {
         type: 'number',
         expression: { kind: 'blackboard', key: 'potential_5_damage_scale' },
       },
-      data_16: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_2' } },
-      data_17: {
-        type: 'number',
-        expression: { kind: 'blackboard', key: 'potential_5_damage_scale' },
-      },
-      data_18: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_1' } },
-      data_19: {
-        type: 'number',
-        expression: { kind: 'blackboard', key: 'potential_5_damage_scale' },
-      },
-      data_20: {
+      data_15: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_1' } },
+      data_16: {
         type: 'number',
         expression: { kind: 'blackboard', key: 'potential_5', fallback: 0 },
       },
-      data_21: {
+      data_17: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_20' },
+          left: { kind: 'valueNode', nodeId: 'data_16' },
           operator: 'greater',
           right: { kind: 'constant', value: 0.5 },
         },
       },
-      data_22: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale_1' } },
-      data_23: { type: 'boolean', expression: { kind: 'enemyRankIn', ranks: ['elite', 'boss'] } },
+      data_18: { type: 'boolean', expression: { kind: 'enemyRankIn', ranks: ['elite', 'boss'] } },
     },
   },
   macros: {},
@@ -6824,8 +6772,8 @@ const rossiBuff2ActionGraph = {
                 },
               },
             ],
-            target: 'buffOwner',
-            source: 'buffSource',
+            targets: { kind: 'inputTarget' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -6916,7 +6864,7 @@ const rossiBuff3ActionGraph = {
       checkCondition_6: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_6' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_5' } },
         },
         next: 'spawnAbilityEntity_5',
       },
@@ -6924,7 +6872,8 @@ const rossiBuff3ActionGraph = {
         action: {
           kind: 'finishBuffsById',
           parameters: {
-            target: 'buffOwner',
+            targets: { kind: 'owner' },
+            finishSource: { kind: 'owner' },
             buffIds: ['buff_train_output_succbuff_or_failbuff_by_id'],
             reason: 'early',
           },
@@ -6941,8 +6890,8 @@ const rossiBuff3ActionGraph = {
                 blackboardAssignments: { duration: { kind: 'constant', value: 0.2 } },
               },
             ],
-            target: 'buffOwner',
-            source: 'buffSource',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -6951,7 +6900,7 @@ const rossiBuff3ActionGraph = {
       checkCondition_9: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_7' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_6' } },
         },
         next: null,
       },
@@ -6962,7 +6911,7 @@ const rossiBuff3ActionGraph = {
       checkCondition_11: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_8' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_7' } },
         },
         next: 'setCurrentBuffTimePaused_10',
       },
@@ -6973,7 +6922,7 @@ const rossiBuff3ActionGraph = {
       checkCondition_13: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_9' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_8' } },
         },
         next: 'setCurrentBuffTimePaused_12',
       },
@@ -6987,8 +6936,8 @@ const rossiBuff3ActionGraph = {
                 blackboardAssignments: { duration: { kind: 'constant', value: 0.2 } },
               },
             ],
-            target: 'buffOwner',
-            source: 'buffSource',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -7008,7 +6957,7 @@ const rossiBuff3ActionGraph = {
       conditional_16: {
         action: {
           kind: 'conditional',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_12' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_11' } },
           whenTrue: { $sequence: 'modifyActionValue_15' },
         },
         next: null,
@@ -7031,48 +6980,44 @@ const rossiBuff3ActionGraph = {
         },
       },
       data_5: {
-        type: 'number',
-        expression: { kind: 'blackboard', key: 'EntityBB_Combo_qte_proto_use', fallback: 0 },
-      },
-      data_6: {
         type: 'boolean',
         expression: {
           kind: 'actionValueCompare',
-          left: { kind: 'valueNode', nodeId: 'data_5' },
+          left: { kind: 'valueNode', nodeId: 'data_3' },
           operator: 'equal',
           right: { kind: 'constant', value: 1 },
         },
       },
-      data_7: {
+      data_6: {
         type: 'boolean',
         expression: {
           kind: 'eventBuffIdMatch',
           buffIds: ['buff_chr_0028_wulfa_combo_1_qte_timer'],
         },
       },
-      data_8: {
+      data_7: {
         type: 'boolean',
         expression: {
           kind: 'eventBuffIdMatch',
           buffIds: ['buff_chr_0028_wulfa_powerattack_resumecombo'],
         },
       },
-      data_9: {
+      data_8: {
         type: 'boolean',
         expression: { kind: 'eventSkillIdIn', skillIds: ['chr_0028_wulfa_power_attack'] },
       },
-      data_10: {
+      data_9: {
         type: 'boolean',
         expression: { kind: 'eventSkillTypeIn', skillTypes: ['comboSkill'] },
       },
-      data_11: { type: 'boolean', expression: { kind: 'eventComboRingQteSucceeded' } },
-      data_12: {
+      data_10: { type: 'boolean', expression: { kind: 'eventComboRingQteSucceeded' } },
+      data_11: {
         type: 'boolean',
         expression: {
           kind: 'all',
           conditions: [
+            { kind: 'conditionNode', nodeId: 'data_9' },
             { kind: 'conditionNode', nodeId: 'data_10' },
-            { kind: 'conditionNode', nodeId: 'data_11' },
           ],
         },
       },
@@ -7248,7 +7193,8 @@ const rossiBuff8ActionGraph = {
         action: {
           kind: 'finishBuffsById',
           parameters: {
-            target: 'buffOwner',
+            targets: { kind: 'owner' },
+            finishSource: { kind: 'source' },
             buffIds: ['buff_chr_0028_wulfa_combo_usecount'],
             reason: 'other',
           },
@@ -7333,8 +7279,8 @@ const rossiBuff9ActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0028_wulfa_normal_bleed_effect' }],
-            target: 'buffOwner',
-            source: 'buffSource',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -7368,8 +7314,8 @@ const rossiBuff9ActionGraph = {
                 },
               },
             ],
-            target: 'buffOwner',
-            source: 'buffSource',
+            targets: { kind: 'owner' },
+            source: { kind: 'source' },
           },
         },
         next: null,
@@ -7535,8 +7481,8 @@ const rossiBuff10ActionGraph = {
           kind: 'applyBuff',
           parameters: {
             buffs: [{ buffId: 'buff_chr_0028_wulfa_talent2_heal_effect' }],
-            target: 'buffSource',
-            source: 'buffSource',
+            targets: { kind: 'source' },
+            source: { kind: 'source' },
             inheritSourceSkillCastInfo: true,
           },
         },
@@ -7597,8 +7543,8 @@ const rossiBuff10ActionGraph = {
           parameters: {
             key: 'heal_scale',
             operation: 'multiply',
-            left: { kind: 'valueNode', nodeId: 'data_5' },
-            right: { kind: 'valueNode', nodeId: 'data_6' },
+            left: { kind: 'valueNode', nodeId: 'data_3' },
+            right: { kind: 'valueNode', nodeId: 'data_5' },
           },
         },
         next: 'dealDamage_15',
@@ -7609,8 +7555,8 @@ const rossiBuff10ActionGraph = {
           parameters: {
             key: 'atk_scale',
             operation: 'multiply',
-            left: { kind: 'valueNode', nodeId: 'data_7' },
-            right: { kind: 'valueNode', nodeId: 'data_8' },
+            left: { kind: 'valueNode', nodeId: 'data_4' },
+            right: { kind: 'valueNode', nodeId: 'data_5' },
           },
         },
         next: 'calculateActionValue_11',
@@ -7618,7 +7564,7 @@ const rossiBuff10ActionGraph = {
       checkCondition_7: {
         action: {
           kind: 'checkCondition',
-          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_9' } },
+          parameters: { condition: { kind: 'conditionNode', nodeId: 'data_6' } },
         },
         next: null,
       },
@@ -7656,11 +7602,8 @@ const rossiBuff10ActionGraph = {
       },
       data_3: { type: 'number', expression: { kind: 'blackboard', key: 'heal_scale' } },
       data_4: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_5: { type: 'number', expression: { kind: 'blackboard', key: 'heal_scale' } },
-      data_6: { type: 'number', expression: { kind: 'blackboard', key: 'burning_damage_scale' } },
-      data_7: { type: 'number', expression: { kind: 'blackboard', key: 'atk_scale' } },
-      data_8: { type: 'number', expression: { kind: 'blackboard', key: 'burning_damage_scale' } },
-      data_9: {
+      data_5: { type: 'number', expression: { kind: 'blackboard', key: 'burning_damage_scale' } },
+      data_6: {
         type: 'boolean',
         expression: {
           kind: 'buffStackCompare',

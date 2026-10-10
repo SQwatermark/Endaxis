@@ -4,6 +4,7 @@
  * 报告路径由入口、节点 ID 和子序列字段组成，便于定位每次改写。
  */
 import type { CombatStepDefinition } from '../intermediateDefinitions.ts';
+import { visitActionGraphReferences } from './actionGraphReferences.ts';
 import type { CombatCondition } from '../intermediateDefinitions.ts';
 import type {
   ActionGraphDefinition,
@@ -289,6 +290,21 @@ function processAction(
   context: GraphOptimizationContext,
 ): readonly ActionGraphStep[] {
   switch (action.kind) {
+    case 'checkCondition': {
+      const condition = optimizeCondition(
+        action.parameters.condition,
+        `${path}.parameters.condition`,
+        context,
+      );
+      return [
+        condition === action.parameters.condition
+          ? action
+          : {
+              ...action,
+              parameters: { ...action.parameters, condition },
+            },
+      ];
+    }
     case 'anyCondition':
       return [
         {
@@ -317,6 +333,8 @@ function processAction(
         context,
         !(action.parameters.alwaysNext && whenTrue.$sequence === whenFalse.$sequence),
       );
+      // 常量检查不代表条件序列的最终返回值：外层 NotNext 可通过共享执行上下文反转它。
+      // 在未证明入口返回值策略前，不能据此删除任一分支。
       // 单次变量运算没有准备、Tick 或 End 行为，并保留外层一次返回值边界。
       // 多动作分支不可直接展开：NotNext 可能让展开后的第一步提前停止整段。
       const isSingleCalculation = (reference: ActionGraphReference) => {
@@ -527,34 +545,13 @@ function processSwitch(
     for (let index = 1; index < options.length && common !== NOT_EQUIVALENT; index++)
       common = mergeGraphChains(common, options[index]!.sequence, context, new Set());
     if (common !== NOT_EQUIVALENT) {
-      const matchAnyOption = optimizeCondition(
-        {
-          kind: 'any',
-          conditions: options.map(option => ({
-            kind: 'actionValueCompare' as const,
-            left: action.parameters.choice,
-            operator: 'equal' as const,
-            right: option.value,
-          })),
-        },
-        `${path}.parameters.choiceMatch`,
-        context,
-      );
       change(
         context,
         path,
         'equivalent-branches',
-        `switch 的 ${options.length} 个候选效果相同，合并为一次候选匹配和一份公共序列`,
+        `switch 的 ${options.length} 个候选共享一份公共序列，保留选择与生命周期语义`,
       );
-      const synthetic: GraphConditional = {
-        kind: 'conditional',
-        parameters: {
-          condition: matchAnyOption,
-          ...(action.parameters.alwaysNext === true ? { alwaysNext: true } : {}),
-        },
-        whenTrue: common,
-      };
-      return processConditional(synthetic, path, context);
+      return [{ ...action, options: options.map(option => ({ ...option, sequence: common })) }];
     }
   }
   return [
@@ -683,6 +680,7 @@ function isDiscardableCheck(action: ActionGraphStep): boolean {
       'comboCameraAlphaSetting',
       'casterControlled',
       'entityCountCompare',
+      'targetFacingAngle',
     ].includes(action.parameters.condition.kind) &&
     canDiscardEquivalentBranchCondition(action.parameters.condition)
   );
@@ -767,7 +765,7 @@ function pruneUnreachable(
       reachable.add(cursor);
       const node = nodes.get(cursor);
       if (!node) return;
-      scanStepReferences(node.action, visitReference);
+      visitActionGraphReferences(node.action, visitReference);
       cursor = node.next;
     }
   };
@@ -775,24 +773,6 @@ function pruneUnreachable(
   const pruned: Record<string, ActionGraphNode> = {};
   for (const [id, node] of nodes) if (reachable.has(id)) pruned[id] = node;
   return pruned;
-}
-
-function scanStepReferences(
-  value: unknown,
-  visit: (reference: ActionGraphReference) => void,
-): void {
-  if (value && typeof value === 'object' && 'actionGraph' in value) return;
-  if (Array.isArray(value)) {
-    value.forEach(item => scanStepReferences(item, visit));
-    return;
-  }
-  if (!value || typeof value !== 'object') return;
-  for (const [key, item] of Object.entries(value)) {
-    if (key === 'nodeBindings') continue;
-    if (key === '$sequence' && (typeof item === 'string' || item === null))
-      visit({ $sequence: item });
-    else scanStepReferences(item, visit);
-  }
 }
 
 function countGraph(
@@ -808,7 +788,7 @@ function countGraph(
       reachable.add(cursor);
       const node = graph.nodes[cursor];
       if (!node) return;
-      scanStepReferences(node.action, visitReference);
+      visitActionGraphReferences(node.action, visitReference);
       cursor = node.next;
     }
   };

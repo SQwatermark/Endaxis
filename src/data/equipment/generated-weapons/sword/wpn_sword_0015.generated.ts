@@ -55,10 +55,11 @@ const definition = {
               action: {
                 kind: 'createTimedMarker',
                 parameters: {
-                  target: 'caster',
+                  targets: { kind: 'owner' },
                   markerId: 'sk_wpn_sword_0015',
                   durationSeconds: { kind: 'constant', value: 0.5 },
                   autoFinishByAction: false,
+                  timeDomain: 'globalScaled',
                 },
               },
               next: null,
@@ -73,7 +74,8 @@ const definition = {
                       copiedBlackboardAssignments: { duration: 'duration', max_stack: 'max_stack' },
                     },
                   ],
-                  target: 'caster',
+                  targets: { kind: 'owner' },
+                  source: { kind: 'source' },
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
                   lifetimeOwner: 'currentCastSkill',
@@ -105,7 +107,8 @@ const definition = {
                       copiedBlackboardAssignments: { phy_dmg_up: 'phy_dmg' },
                     },
                   ],
-                  target: 'caster',
+                  targets: { kind: 'owner' },
+                  source: { kind: 'source' },
                   inheritSourceSkillCastInfo: true,
                   lifetimeOwner: 'currentCastSkill',
                 },
@@ -255,7 +258,8 @@ const definition = {
               action: {
                 kind: 'finishBuffsById',
                 parameters: {
-                  target: 'caster',
+                  targets: { kind: 'source' },
+                  finishSource: { kind: 'source' },
                   buffIds: ['buff_wpn_sword_0015_exist'],
                   reason: 'other',
                 },

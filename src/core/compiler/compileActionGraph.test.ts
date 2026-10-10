@@ -45,7 +45,7 @@ const graph: ActionGraphDefinition = {
               },
             },
           ],
-          target: 'caster',
+          targets: { kind: 'fixed', target: 'caster' },
         },
       },
       next: null,
