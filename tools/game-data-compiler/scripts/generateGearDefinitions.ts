@@ -59,13 +59,6 @@ export async function compileGearDefinitionsFromFiles(tablesDirectory: string) {
   return batch;
 }
 
-/** 只读规划供生成、确定性检查与应用层候选验证共用；不会导入现有装备定义。 */
-export async function planGearDefinitions(tablesDirectory: string) {
-  const batch = await compileGearDefinitionsFromFiles(tablesDirectory);
-  const { files } = await renderGearDefinitionsFromCompiled(batch);
-  return { batch, files };
-}
-
 /** 只把同批编译结果变成文件内容，来源目录不再参与本阶段。 */
 export async function renderGearDefinitionsFromCompiled(
   batch: CompiledEquipmentDefinitionBatchSource,

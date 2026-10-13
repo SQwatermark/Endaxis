@@ -24,51 +24,6 @@ describe('OperatorCenterStateRuntime', () => {
     });
   });
 
-  it('uses movement facts, not timers, to decide Dash to Free', () => {
-    const state = createOperatorCenterState();
-    const runtime = new OperatorCenterStateRuntime({
-      operatorId: 'op',
-      clock: { frame: 0, time: 0 },
-      timing: {
-        blockAttackFramesInDash: 99,
-        allowAttackAfterFramesInDash: 99,
-        blockAttackFramesInPerfectDodge: 99,
-        allowAttackAfterFramesInPerfectDodge: 99,
-        blockDashAfterPerfectDodgeFrames: 0,
-      },
-      receipt: { record: () => undefined },
-      interruptCurrentSkillForDash: () => null,
-      addDashBuffs: () => [],
-      clearDashBuffs: () => undefined,
-    });
-    runtime.enterDash(state, { dashId: 'dash', operatorId: 'op', direction: 'forward' });
-
-    expect(
-      runtime.shouldLeaveDashForFree(state, {
-        hasMoveCommand: true,
-        sharedExitCondition: false,
-        movementModeIsDash: true,
-        movementBlocksFreeTransition: true,
-      }),
-    ).toBe(true);
-    expect(
-      runtime.shouldLeaveDashForFree(state, {
-        hasMoveCommand: false,
-        sharedExitCondition: false,
-        movementModeIsDash: true,
-        movementBlocksFreeTransition: false,
-      }),
-    ).toBe(false);
-    expect(
-      runtime.shouldLeaveDashForFree(state, {
-        hasMoveCommand: false,
-        sharedExitCondition: false,
-        movementModeIsDash: false,
-        movementBlocksFreeTransition: false,
-      }),
-    ).toBe(true);
-  });
-
   it('interrupts the current skill and keeps the two attack timers separate', () => {
     const state = createOperatorCenterState();
     const events: string[] = [];

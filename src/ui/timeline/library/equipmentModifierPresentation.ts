@@ -4,7 +4,7 @@ import type {
 } from '../../../core/game-data/equipmentDefinition';
 import {
   formatEquipmentNumber,
-  getEquipmentEffectModifierIds,
+  getEquipmentDamageBonusModifierId,
   normalizeEquipmentAttributeId,
 } from '../../../utils/equipmentEffectDisplay';
 
@@ -68,18 +68,7 @@ export function projectEquipmentModifier(
   }
   if (modifier.kind === 'damageBonus') {
     return {
-      modifierId:
-        getEquipmentEffectModifierIds({
-          modifier: 'dmgBonus',
-          elements:
-            typeof modifier.damageTypes === 'string'
-              ? modifier.damageTypes
-              : [...modifier.damageTypes],
-          skillTypes:
-            typeof modifier.skillTypes === 'string' || modifier.skillTypes === undefined
-              ? modifier.skillTypes
-              : [...modifier.skillTypes],
-        })[0] ?? 'all_skill_dmg_bonus',
+      modifierId: getEquipmentDamageBonusModifierId(modifier.damageTypes, modifier.skillTypes),
       values: levelValues(modifier.value),
       percent: true,
     };

@@ -1,3 +1,8 @@
+/**
+ * 发布和消费共用的事件载荷。事件身份在外层，载荷不另造 kind 或重命名字段。
+ * 同步修改端口和嵌套对象保持原始引用，不序列化或复制。
+ * 原生依据：combo-event-gates-and-pending、origin-skill-event-context、buff-ability-event-actions。
+ */
 import type { AbilityEvent } from '../../../../packages/game-data-contract/src/abilityEvents';
 import type { SkillInterruptReason } from '../../../../packages/game-data-contract/src/conditions';
 import type { GameplayTag } from '../../../../packages/game-data-contract/src/gameplayTags';
@@ -78,84 +83,20 @@ export function skillAbilityEvent(event: AbilityEventCandidate): SkillAbilityEve
   return event;
 }
 
-export type LifecycleAbilityEvent = CombatAbilityEvent<
-  | 'enterFight'
-  | 'ownerSwitchToCenter'
-  | 'ownerSwitchToGuard'
-  | 'ownerHpZero'
-  | 'hpChanged'
-  | 'abilityEntitySpawned'
-  | 'abilityEntityFinished'
-> & { readonly kind?: never };
-/** 生命周期只识别原始发布身份，不合并事件或重建出生/结束时的实体关系。 */
-export function lifecycleAbilityEvent(
-  event: AbilityEventCandidate,
-): LifecycleAbilityEvent | undefined {
-  if (!('event' in event)) return undefined;
-  switch (event.event) {
-    case 'enterFight':
-    case 'ownerSwitchToCenter':
-    case 'ownerSwitchToGuard':
-    case 'ownerHpZero':
-    case 'hpChanged':
-    case 'abilityEntitySpawned':
-    case 'abilityEntityFinished': {
-      return event;
-    }
-    default:
-      return undefined;
-  }
-}
-
-export type WeaknessAbilityEvent = CombatAbilityEvent<
-  'weaknessSet' | 'afterOutputWeaknessTriggered'
-> & { readonly kind?: never };
 export type CustomAbilityEvent = CombatAbilityEvent<'customAbilityEvent'> & {
   readonly kind?: never;
 };
-/** 设置与触发是两个原生事件；此处仅识别，不互相转换。 */
-export function weaknessAbilityEvent(
-  event: AbilityEventCandidate,
-): WeaknessAbilityEvent | undefined {
-  if (
-    !('event' in event) ||
-    (event.event !== 'weaknessSet' && event.event !== 'afterOutputWeaknessTriggered')
-  )
-    return undefined;
-  return event;
-}
 /** 自定义事件的名称和参数保持原值，不推测名称语义。 */
 export function customAbilityEvent(event: AbilityEventCandidate): CustomAbilityEvent | undefined {
   if (!('event' in event) || event.event !== 'customAbilityEvent') return undefined;
   return event;
 }
 
-export type PoiseAbilityEvent = CombatAbilityEvent<'poiseZero' | 'poiseKnotBreak'> & {
-  readonly kind?: never;
-};
 export type ShieldAbilityEvent = CombatAbilityEvent<'afterAddedShield'> & { readonly kind?: never };
-/** 失衡事件保留发布端载荷，不压平来源、目标或施法信息。 */
-export function poiseAbilityEvent(event: AbilityEventCandidate): PoiseAbilityEvent | undefined {
-  if (!('event' in event) || (event.event !== 'poiseZero' && event.event !== 'poiseKnotBreak'))
-    return undefined;
-  return event;
-}
 /** 护盾新增量与当前值保持独立；识别事件不重新计算或复制它们。 */
 export function shieldAbilityEvent(event: AbilityEventCandidate): ShieldAbilityEvent | undefined {
   if (!('event' in event) || event.event !== 'afterAddedShield') return undefined;
   return event;
-}
-
-/**
- * 发布和消费共用的事件载荷。事件身份在外层，载荷不再另造 kind 或重命名字段。
- * 原生依据：combo-event-gates-and-pending、origin-skill-event-context、buff-ability-event-actions。
- * 对象由发布者持有；同步修改端口和嵌套对象仍是原始引用，不序列化/复制。
- */
-export type NativeKillEvent = CombatAbilityEvent<'afterKillEntity'> & { readonly kind?: never };
-
-/** 击杀沿用结算载荷与发布对象，不经 Buff 专用事件适配。 */
-export function killAbilityEvent(event: AbilityEventCandidate): NativeKillEvent | undefined {
-  return 'event' in event && event.event === 'afterKillEntity' ? event : undefined;
 }
 
 /** 附着四阶段使用生产者的完整载荷，保留 isExtra 与施法来源，不压平为第二套事件。 */
@@ -268,6 +209,7 @@ export interface AbilityBuffEnhancePayload {
   readonly buffTags: readonly GameplayTag[];
   /** 正向为本次施加来源，负向为结束/减层来源；不回退 Buff 初始来源。 */
   readonly skillCastInfo?: CombatSkillCastInfo | null;
+  /** 正向增强尝试固定 +1（包括满层），结束/减层为负数；不是当前总层数或统一的实际层差。 */
   readonly layerCount: number;
   readonly reason?: BuffFinishReason;
 }
@@ -487,9 +429,6 @@ export type PhysicalAbilityEvent = CombatAbilityEvent<
   | 'afterTakePhysicalInfliction'
   | 'afterOutputPhysicalInfliction'
 > & { readonly kind?: never };
-export type KnockDownAbilityEvent = CombatAbilityEvent<
-  'beforeOutputKnockDown' | 'afterOutputKnockDown'
-> & { readonly kind?: never };
 export function physicalAbilityEvent(
   event: AbilityEventCandidate,
 ): PhysicalAbilityEvent | undefined {
@@ -503,25 +442,4 @@ export function physicalAbilityEvent(
     default:
       return undefined;
   }
-}
-export function knockDownAbilityEvent(
-  event: AbilityEventCandidate,
-): KnockDownAbilityEvent | undefined {
-  if (
-    !('event' in event) ||
-    (event.event !== 'beforeOutputKnockDown' && event.event !== 'afterOutputKnockDown')
-  )
-    return undefined;
-  return event;
-}
-
-/** 正向增强尝试固定+1（包括满层），结束/减层为负数；不是当前总层数或统一的实际层差。 */
-export type BuffEnhanceAbilityEvent = CombatAbilityEvent<'buffEnhanceChanged'> & {
-  readonly kind?: never;
-};
-export function buffEnhanceAbilityEvent(
-  event: AbilityEventCandidate,
-): BuffEnhanceAbilityEvent | undefined {
-  if (!('event' in event) || event.event !== 'buffEnhanceChanged') return undefined;
-  return event;
 }

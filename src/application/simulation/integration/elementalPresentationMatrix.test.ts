@@ -12,8 +12,7 @@ import { createEmptyScenario } from '../../../core/project/createProject';
 import { gameDataRepository } from '../../../data/gameDataRepository';
 import { elementalAttachments } from '../../../data/buffs/elementalAttachments';
 import { compoundStatusFactories } from '../../../data/buffs/compoundStatusFactories';
-import { skillSettings } from '../../../data/combat/skillSettings';
-import { ScenarioSimulationService } from '../scenarioSimulationService';
+import { createScenarioSimulationService } from '../createScenarioSimulationService';
 import {
   mergeOverlappingBuffTimelineSegments,
   projectBuffTimelineViz,
@@ -180,18 +179,9 @@ async function run(
       },
     ],
   };
-  const result = await new ScenarioSimulationService({
-    index: {
-      ...gameDataRepository,
-      getOperator: slug => (slug === operator.slug ? operator : null),
-    },
-    spellInflictionSettings: skillSettings,
-    resources: {
-      sharedSpGain: { baseGainEfficiency: 1 },
-      spRecoveryPauseDuration: 1.5,
-      ultimateEnergySystemUnlocked: true,
-      normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
-    },
+  const result = await createScenarioSimulationService({
+    ...gameDataRepository,
+    getOperator: slug => (slug === operator.slug ? operator : null),
   }).simulate(scenario, 1800);
   return {
     receipts: result.receiptEntries,

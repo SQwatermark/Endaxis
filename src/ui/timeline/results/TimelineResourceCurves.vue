@@ -2,7 +2,7 @@
 /**
  * 时间轴下方资源曲线的展示组件（对齐旧版 ResourceMonitor 的坐标与画法）。
  *
- * 只画"全队 SP、敌人生命、失衡"三类曲线；各干员终结技能量画在各自轨道上，不在这里。
+ * 只画全队 SP 和失衡曲线；各干员终结技能量画在各自轨道上，不在这里。
  * 横轴坐标和时间轴共用同一换算（准备区偏移 + 每帧像素），并跟随时间轴横向滚动，
  * 保证曲线和上方标尺、技能块位置一一对齐。每帧自动回复不单独标点。
  */
@@ -10,7 +10,6 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { EaNumberInput } from '@/design-system';
 import { poiseProgressPoints, poiseDisplayPoints, spDisplayPoints } from './resourceCurveDisplay';
 import type { SharedSpCurve } from '../../../core/projection/resourceCurves';
-import type { EnemyHealthCurve } from '../../../core/projection/enemyHealthCurves';
 import type { PoiseCurve } from '../../../core/projection/poiseCurves';
 import type { PoiseBrokenSegment, PoiseKnotSegment } from '../../../core/projection/poiseCurves';
 import { frameToCondensedTimelinePx } from '../timelineGeometry';
@@ -27,12 +26,10 @@ const props = defineProps<{
   trackHeaderWidth: number;
   /** 时间轴当前的横向滚动距离；曲线按它平移，跟着时间轴一起滚。 */
   scrollLeft: number;
-  enemyHealthCurve?: EnemyHealthCurve | null;
   poiseCurve?: PoiseCurve | null;
   poiseBrokenSegments?: readonly PoiseBrokenSegment[];
   poiseKnotSegments?: readonly PoiseKnotSegment[];
   poiseKnotThresholds?: readonly number[];
-  enemyHealthLabel?: string;
   poiseLabel?: string;
   spLabel?: string;
   compact?: boolean;
@@ -85,9 +82,8 @@ onBeforeUnmount(() => sizeObserver?.disconnect());
 const SP_NEGATIVE_BUFFER = 40;
 
 interface ResourceCurveRow {
-  readonly key: string;
   readonly label: string;
-  readonly kind: 'sp' | 'enemyHealth' | 'poise';
+  readonly kind: 'sp' | 'poise';
   readonly maxValue: number;
   readonly points: readonly ResourceCurvePointView[];
 }
@@ -102,28 +98,15 @@ const width = computed(() => Math.max(1, props.trackHeaderWidth + props.timeline
 const duration = computed(() => Math.max(0, props.durationFrames));
 const rows = computed<readonly ResourceCurveRow[]>(() => [
   {
-    key: 'sp',
     label: props.spLabel ?? 'SP',
     kind: 'sp',
     maxValue: props.spCurve.maxValue,
     points: props.spCurve.points,
   },
-  ...(props.enemyHealthCurve === null || props.enemyHealthCurve === undefined
-    ? []
-    : [
-        {
-          key: 'enemyHealth',
-          label: props.enemyHealthLabel ?? 'HP',
-          kind: 'enemyHealth' as const,
-          maxValue: props.enemyHealthCurve.maxValue,
-          points: props.enemyHealthCurve.points,
-        },
-      ]),
   ...(props.poiseCurve === null || props.poiseCurve === undefined
     ? []
     : [
         {
-          key: 'poise',
           label: props.poiseLabel ?? 'POISE',
           kind: 'poise' as const,
           maxValue: props.poiseCurve.maxValue,
@@ -178,13 +161,13 @@ function baselineY(row: ResourceCurveRow): number {
 /** 资源 SVG 使用真实像素高度，避免拖高面板时拉伸条纹、文字和命中圆点。 */
 function rowHeight(row: ResourceCurveRow): number {
   if (row.kind === 'poise') return poiseBodyHeight.value;
-  return row.kind === 'sp' ? spBodyHeight.value : ROW_HEIGHT;
+  return spBodyHeight.value;
 }
 
 /** 曲线绘图补瞬时跳变、保持段与显示终点；不改变原始事实点、标记和读数。 */
 function displayPoints(row: ResourceCurveRow): readonly ResourceCurvePointView[] {
   if (row.kind === 'sp') return spDisplayPoints(row.points, -props.prepFrames, duration.value);
-  return row.kind === 'poise' ? poiseDisplayPoints(row.points, duration.value) : row.points;
+  return poiseDisplayPoints(row.points, duration.value);
 }
 
 /** 旧版资源监控器直接连接相邻事实点；同帧的连续事实自然形成竖直线。 */
@@ -212,7 +195,7 @@ const curvePaths = computed(
   () =>
     new Map(
       visibleRows.value.map(row => [
-        row.key,
+        row.kind,
         {
           line: linePath(row),
           fill: fillPath(row),
@@ -277,7 +260,7 @@ const spWarnings = computed(() => {
     <div
       v-for="row in visibleRows"
       v-else
-      :key="row.key"
+      :key="row.kind"
       class="curve-row"
       :class="`curve-row--${row.kind}`"
     >
@@ -365,7 +348,7 @@ const spWarnings = computed(() => {
       </span>
       <svg
         v-memo="[
-          curvePaths.get(row.key),
+          curvePaths.get(row.kind),
           width,
           rowHeight(row),
           row.points,
@@ -496,9 +479,9 @@ const spWarnings = computed(() => {
         <path
           class="curve-fill"
           :style="{ fill: `url(#curve-fill-${row.kind})` }"
-          :d="curvePaths.get(row.key)?.fill ?? ''"
+          :d="curvePaths.get(row.kind)?.fill ?? ''"
         />
-        <path class="curve-line" :d="curvePaths.get(row.key)?.line ?? ''" />
+        <path class="curve-line" :d="curvePaths.get(row.kind)?.line ?? ''" />
         <circle
           v-for="(point, index) in row.points.filter(point => point.source !== 'autoRecovery')"
           :key="`${point.frame}:${index}`"
@@ -557,10 +540,6 @@ const spWarnings = computed(() => {
   border-bottom: 1px solid var(--ea-border, rgb(255 255 255 / 10%));
   color: #e6c928;
   background: var(--ea-workbench-main, #18181c);
-}
-
-.curve-row--enemyHealth {
-  color: #e0492f;
 }
 
 .curve-row--sp {

@@ -4,6 +4,5 @@ export interface PassiveUiWidgetState {
   readonly maximum: number;
   readonly active: boolean;
   readonly mode: 'normal' | 'ultimate';
-  readonly ratio: number | null;
   readonly points: number;
 }

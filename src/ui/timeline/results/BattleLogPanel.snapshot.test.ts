@@ -1,5 +1,5 @@
-import { createRenderer, h, nextTick, shallowRef, ssrContextKey, type ComponentOptions } from 'vue';
-import { createI18n } from 'vue-i18n';
+import { shallowRef } from 'vue';
+import { mountSetup } from '../../../test/componentSetup';
 import { expect, it } from 'vitest';
 import BattleLogPanel from './BattleLogPanel.vue';
 import type { TimelineBattleLogSnapshot } from './timelineBattleLogProjection';
@@ -35,47 +35,21 @@ const log = (name: string, damage: number): TimelineBattleLogSnapshot => ({
   ],
 });
 
-// Mounted production setup and watchers, deliberately without a DOM/template.
-// Browser rendering and pointer/keyboard activation are separate verification.
 async function mount(initial: TimelineBattleLogSnapshot | null) {
-  const current = shallowRef(initial);
   const locations: Array<{ frame: number; castId: string | null }> = [];
-  let panel: any;
-  const renderer = createRenderer<object, object>({
-    insert() {},
-    remove() {},
-    patchProp() {},
-    setText() {},
-    setElementText() {},
-    createElement: () => ({}),
-    createText: () => ({}),
-    createComment: () => ({}),
-    parentNode: () => null,
-    nextSibling: () => null,
+  const mounted = await mountSetup(BattleLogPanel, {
+    log: initial,
+    selectedCastId: null,
+    eventLabel: String,
+    damageTypeLabel: String,
+    onLocate: (frame: number, castId: string | null) => locations.push({ frame, castId }),
   });
-  const component = {
-    ...(BattleLogPanel as ComponentOptions),
-    setup(props: any, context: any) {
-      panel = (BattleLogPanel as any).setup(props, context);
-      return panel;
-    },
-    render: () => null,
+  return {
+    panel: mounted.state,
+    locations,
+    update: (log: TimelineBattleLogSnapshot | null) => mounted.update({ log }),
+    stop: mounted.stop,
   };
-  const app = renderer.createApp({
-    render: () =>
-      h(component, {
-        log: current.value,
-        selectedCastId: null,
-        eventLabel: String,
-        damageTypeLabel: String,
-        onLocate: (frame: number, castId: string | null) => locations.push({ frame, castId }),
-      }),
-  });
-  app.use(createI18n({ legacy: false, locale: 'en', messages: { en: {} } }));
-  app.provide(ssrContextKey, { modules: new Set() });
-  app.mount({});
-  await nextTick();
-  return { current, panel, locations, stop: () => app.unmount() };
 }
 
 it('locates preparation receipts at their negative frame without toggling the group closed', async () => {
@@ -103,8 +77,7 @@ it('holds receipts, group labels and source labels until one explicit refresh', 
   try {
     expect(f.panel.sourceLabel(firstEntry(first))).toBe('佩丽卡 · 战技');
     expect(f.panel.groupedEntries.value[0].damage).toBe(100);
-    f.current.value = log('弧光', 500);
-    await nextTick();
+    await f.update(log('弧光', 500));
     expect(f.panel.dirty.value).toBe(true);
     expect(f.panel.snapshot.value).toBe(first);
     expect(f.panel.sourceLabel(firstEntry(first))).toBe('佩丽卡 · 战技');
@@ -123,11 +96,9 @@ it('loads the first publication but does not auto-refresh a published empty log'
   const f = await mount(null);
   try {
     const empty = { history: historyOf([]), resolveCastOwners: () => [] };
-    f.current.value = empty;
-    await nextTick();
+    await f.update(empty);
     expect(f.panel.snapshot.value).toBe(empty);
-    f.current.value = log('佩丽卡', 100);
-    await nextTick();
+    await f.update(log('佩丽卡', 100));
     expect(f.panel.entries.value).toEqual([]);
     expect(f.panel.dirty.value).toBe(true);
     f.panel.refresh();
@@ -154,8 +125,7 @@ it('relocalizes the retained snapshot without refreshing to a newer publication'
     ],
   });
   try {
-    f.current.value = log('弧光', 500);
-    await nextTick();
+    await f.update(log('弧光', 500));
     language.value = 'en';
     expect(f.panel.sourceLabel(firstEntry(first))).toBe('Perlica · Battle skill');
     expect(f.panel.groupedEntries.value[0].damage).toBe(100);
@@ -168,13 +138,11 @@ it('relocalizes the retained snapshot without refreshing to a newer publication'
 it('clears the retained log when its publication scope is cleared', async () => {
   const f = await mount(log('佩丽卡', 100));
   try {
-    f.current.value = null;
-    await nextTick();
+    await f.update(null);
     expect(f.panel.entries.value).toEqual([]);
     expect(f.panel.castOwners.value).toEqual([]);
     expect(f.panel.dirty.value).toBe(false);
-    f.current.value = log('弧光', 500);
-    await nextTick();
+    await f.update(log('弧光', 500));
     expect(f.panel.groupedEntries.value[0].damage).toBe(500);
     expect(f.panel.sourceLabel(f.panel.entries.value[0])).toBe('弧光 · 战技');
   } finally {

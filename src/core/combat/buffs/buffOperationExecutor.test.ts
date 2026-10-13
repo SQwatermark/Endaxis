@@ -1452,7 +1452,7 @@ describe('BuffOperationExecutor', () => {
       actionOwnerId: 'operator',
       actionSourceId: 'teammate',
     });
-    const action = runtime.createGraphSequence(program, 'aura', 'root');
+    const action = runtime.createSequence({ graph: program, entry: 'aura', callSite: 'root' });
     action.tryExecute({});
     expect(sources).toEqual(['operator']);
     expect(calls).toEqual([]);
@@ -3237,7 +3237,7 @@ describe('BuffOperationExecutor', () => {
       ),
     ).toBe(true);
     expect(active?.finishReason).toBe('other');
-    expect(caster.getCountById('sword-trigger')).toBe(0);
+    expect(caster.getCountByIds(['sword-trigger'])).toBe(0);
   });
 
   it('limits Buff stack queries to the current inherited skill cast', () => {
@@ -3312,14 +3312,15 @@ describe('BuffOperationExecutor', () => {
         actionBuffReferencesState,
       }),
     ).toBe(true);
-    expect(buff.isFinishable).toBe(false);
+    buff.tick(2);
+    expect(buff.isFinished).toBe(false);
 
     executor.end(operation, {
       blackboard: new ActionBlackboard(),
       actionBuffReferencesState,
     });
 
-    expect(buff.isFinishable).toBe(true);
+    expect(buff.finishReason).toBe('lifetime');
   });
 
   it('releases a restored Buff hold by saved instance references', () => {

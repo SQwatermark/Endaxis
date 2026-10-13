@@ -5,13 +5,12 @@ import { createEmptyScenario } from '../../../core/project/createProject';
 import { lifeng, perlica } from '../../../data/operators';
 import * as operators from '../../../data/operators';
 import { gameDataRepository } from '../../../data/gameDataRepository';
-import { skillSettings } from '../../../data/combat/skillSettings';
 import {
   groupPlacedSkillSequence,
   placeSkillGroup,
   placeLibrarySkillGroup,
 } from '../../../ui/timeline/interaction/placeSkillGroup';
-import { ScenarioSimulationService } from '../scenarioSimulationService';
+import { createScenarioSimulationService } from '../createScenarioSimulationService';
 import { resolveCompactSkillSelection } from '../../../ui/timeline/library/compactSkillSelection';
 import { SkillPlacementTransaction } from '../../../ui/timeline/interaction/skillPlacementTransaction';
 import { createScenarioEditorSession } from '../../../test/scenarioEditorSession';
@@ -21,16 +20,7 @@ import {
 } from '../../../core/projection/timelineDisplayTime';
 import { projectTimelineHitOccurrences } from '../../../ui/timeline/results/timelineHitEffects';
 
-const service = new ScenarioSimulationService({
-  index: gameDataRepository,
-  spellInflictionSettings: skillSettings,
-  resources: {
-    sharedSpGain: { baseGainEfficiency: 1 },
-    spRecoveryPauseDuration: 1.5,
-    ultimateEnergySystemUnlocked: true,
-    normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
-  },
-});
+const service = createScenarioSimulationService(gameDataRepository);
 
 function createChain(operator: OperatorDefinition) {
   const scenario = createEmptyScenario(`chain:${operator.slug}`, '正式模拟普攻接续边界');

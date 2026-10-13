@@ -566,11 +566,10 @@ describe('LogicalAbilityEntityRuntime', () => {
       blackboardAssignments: { EntityBB_power: 3 },
     });
     runtime.setRemainingDuration(entity, 0.75);
-    runtime.setTarget(entity, { kind: 'operator', operatorId: 'b' });
     runtime.advanceFrame();
 
     expect(runtime.snapshot(entity)).toMatchObject({
-      target: { kind: 'operator', operatorId: 'b' },
+      target: { kind: 'enemy' },
       remainingDurationSeconds: 0.25,
       elapsedDurationSeconds: 0.25,
       blackboard: { EntityBB_power: 3 },
@@ -580,6 +579,7 @@ describe('LogicalAbilityEntityRuntime', () => {
     });
     restored.setRemainingDuration(entity, 10);
     expect(restored.snapshot(entity)).toMatchObject({
+      target: { kind: 'enemy' },
       remainingDurationSeconds: 0.5,
       elapsedDurationSeconds: 0.25,
     });

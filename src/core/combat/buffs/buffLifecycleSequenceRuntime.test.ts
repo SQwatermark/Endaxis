@@ -22,7 +22,7 @@ import { AbilityEventDispatcher } from '../events/abilityEventDispatcher';
 import { withAbilityEventResponseContext } from '../events/abilityEventResponseContext';
 import type {
   AbilityEventPayloadMap,
-  NativeKillEvent,
+  CombatAbilityEvent,
   SpGainAbilityEvent,
 } from '../events/combatAbilityEvent';
 import { abilityEventSkillCastInfo } from '../events/combatAbilityEvent';
@@ -1690,7 +1690,7 @@ describe('attachBuffLifecycleSequences', () => {
   it('只在 Buff 启用期间订阅原生击杀事件', () => {
     const reached: string[] = [];
     const received: unknown[] = [];
-    let handler: ((event: NativeKillEvent) => void) | undefined;
+    let handler: ((event: CombatAbilityEvent<'afterKillEntity'>) => void) | undefined;
     const definition = attachBuffLifecycleSequences<never>(
       { id: 'kill-listener', stackingType: 'unique' },
       {},

@@ -969,7 +969,6 @@ describe('CombatBuffContainer', () => {
     buff.tick(0.25);
     buff.setTimePaused(true);
     buff.tick(2);
-    expect(buff.isTimePaused).toBe(true);
     expect(buff.remainingDuration).toBeCloseTo(0.75);
     expect(buff.passedTime).toBeCloseTo(0.25);
     expect(buff.isFinished).toBe(false);
@@ -1186,11 +1185,11 @@ describe('CombatBuffContainer', () => {
       ),
     );
 
-    expect(container.getCountById('buff.attack')).toBe(1);
+    expect(container.getCountByIds(['buff.attack'])).toBe(1);
     container.tick(1);
     expect(first.finishReason).toBe('lifetime');
     expect(infinite.isFinished).toBe(false);
-    expect(container.getCountById('buff.attack')).toBe(0);
+    expect(container.getCountByIds(['buff.attack'])).toBe(0);
   });
 
   it('publishes layered Buff changes after finish state refresh with the native signed count', () => {
@@ -1202,7 +1201,7 @@ describe('CombatBuffContainer', () => {
       null,
       undefined,
       buff =>
-        order.push(`finished:${buff.isFinished}:${container.getCountById(buff.definition.id)}`),
+        order.push(`finished:${buff.isFinished}:${container.getCountByIds([buff.definition.id])}`),
       (buff, layerCount, reason) =>
         order.push(`changed:${buff.definition.stackingType}:${layerCount}:${reason ?? 'enhance'}`),
     );
@@ -1282,17 +1281,17 @@ describe('CombatBuffContainer', () => {
       durationSeconds: 2,
       actions: {
         start: () => {
-          observations.push(container.getCountById('parent'));
+          observations.push(container.getCountByIds(['parent']));
           container.add(child, 'source');
         },
-        enable: () => observations.push(container.getCountById('parent')),
+        enable: () => observations.push(container.getCountByIds(['parent'])),
       },
     };
     const first = container.add(parent, 'source');
     expect(observations).toEqual([0, 0]);
     expect(container.buffs.map(buff => buff.definition.id)).toEqual(['child', 'parent']);
     expect(container.add(parent, 'source')).toBe(first);
-    expect(container.getCountById('parent')).toBe(1);
+    expect(container.getCountByIds(['parent'])).toBe(1);
     expect(observations).toEqual([0, 0]);
   });
 
@@ -2725,7 +2724,6 @@ describe('CombatBuffContainer', () => {
     container.tick(1);
 
     expect(held.isFinished).toBe(false);
-    expect(held.isFinishable).toBe(false);
     expect(addedAfterHold.isFinished).toBe(true);
     expect(container.hasEntityTag(extendTag)).toBe(true);
 
@@ -2787,7 +2785,7 @@ describe('CombatBuffContainer', () => {
 
     expect(container.finishCountByIds([definition.id], 1, 'other')).toBe(1);
     expect(finished).toEqual([first.instanceId]);
-    expect(container.getCountById(definition.id)).toBe(2);
+    expect(container.getCountByIds([definition.id])).toBe(2);
   });
 
   it('decreases one enhance layer through a limited tag finish', () => {
@@ -2808,9 +2806,9 @@ describe('CombatBuffContainer', () => {
     container.add(definition, 'operator');
     container.add(definition, 'operator');
 
-    expect(container.getCountById(definition.id)).toBe(3);
+    expect(container.getCountByIds([definition.id])).toBe(3);
     expect(container.finishCountByTags([tag], 'hasAny', 1, 'early')).toBe(1);
-    expect(container.getCountById(definition.id)).toBe(2);
+    expect(container.getCountByIds([definition.id])).toBe(2);
   });
 
   it('publishes absorbed Buff identity with absorber and owner kept separate', () => {
@@ -2994,7 +2992,14 @@ describe('CombatBuffContainer', () => {
     );
 
     expect(buff.shields[0]?.maxValue).toBe(200);
-    attributes.setRawValue('attack', 500);
+    attributes.addModifier(
+      createCombatAttributeModifier(
+        'attack',
+        attributeModifierValues('addition', 300),
+        ATTRIBUTE_MODIFIER_SOURCES.buff,
+        'runtime',
+      ),
+    );
     expect(buff.shields[0]?.maxValue).toBe(200);
   });
 

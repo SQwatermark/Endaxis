@@ -13,7 +13,6 @@ import {
   createCombatAttributeModifier,
 } from '../attributes/combatAttributes';
 import type { BuffDefinitionOperationTarget } from '../buffs/buffDefinitionOperationTarget';
-import { knockDownAbilityEvent } from '../events/combatAbilityEvent';
 import { createEnemyCombatVitals } from '../resources/combatVitalsFactory';
 import { ATTRIBUTE_MODIFIER_SOURCES } from '../state/foundationState';
 import type { OrdinaryKnockDownRuntime } from '../status/ordinaryKnockDownRuntime';
@@ -363,23 +362,4 @@ describe('标准战斗环境的普通倒地显式装配', () => {
     second.assembly.advanceFrames(90);
     expect(first.control.remaining).toBe(1.5);
   });
-
-  it.each(['beforeOutputKnockDown', 'afterOutputKnockDown'] as const)(
-    '%s 载荷必须明确声明是否由浮空转入',
-    event => {
-      const missing = { event, payload: { sourceId: 'operator', targetId: 'enemy' } };
-      const valid = {
-        event,
-        payload: { sourceId: 'operator', targetId: 'enemy', fromAirborne: false },
-      };
-      if (false) {
-        // @ts-expect-error 分类读取器不接收缺失 fromAirborne 的伪造事件。
-        knockDownAbilityEvent(missing);
-      }
-      expect(knockDownAbilityEvent(valid)).toEqual({
-        event,
-        payload: { sourceId: 'operator', targetId: 'enemy', fromAirborne: false },
-      });
-    },
-  );
 });

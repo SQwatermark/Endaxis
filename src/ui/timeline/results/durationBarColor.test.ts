@@ -1,10 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { elementalAttachments } from '../../../data/buffs/elementalAttachments';
-import {
-  durationColorSource,
-  normalizeDurationBarColorPrefs,
-  resolveDurationBarColor,
-} from './durationBarColor';
+import { normalizeDurationBarColorPrefs, resolveDurationBarColor } from './durationBarColor';
 
 describe('duration bar display preferences', () => {
   it('bounds corrupt persisted tuning and keeps independent default maps', () => {
@@ -21,13 +17,6 @@ describe('duration bar display preferences', () => {
     prefs.sources.operator = true;
     expect(normalizeDurationBarColorPrefs(null).sources.operator).toBe(false);
   });
-  it.each([
-    ['equipment:weaponTrait:slug:handler', 'weapon'],
-    ['upgrade-initialization:gear-trait:slug:handler', 'gearSet'],
-    [undefined, 'operator'],
-  ] as const)('classifies provenance %s as %s', (id, expected) =>
-    expect(durationColorSource(id)).toBe(expected),
-  );
   it('keeps equipment distinct from the operator switch and respects surface/master switches', () => {
     const prefs = normalizeDurationBarColorPrefs({ sources: { operator: true } });
     const buff = { buffId: 'buff', sourceActionId: 'equipment:weaponTrait:slug:handler' };

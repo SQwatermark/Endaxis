@@ -4,6 +4,28 @@ import { renderToString } from 'vue/server-renderer';
 import Dialog from './TimelineHitDetailDialog.vue';
 import type { CombatReceiptEntry } from '../../../core/combat/receipt/combatReceipt';
 
+async function inspectDamageDetail(props: Record<string, unknown>) {
+  const component = Dialog as ComponentOptions;
+  let state: any;
+  await renderToString(
+    createSSRApp({
+      render: () =>
+        h(
+          {
+            ...component,
+            setup(props: any, context: any) {
+              state = component.setup!(props, context);
+              return state;
+            },
+            ssrRender: () => {},
+          },
+          props,
+        ),
+    }),
+  );
+  return state;
+}
+
 it('按旧版顺序展示独立乘区，失衡只从独立增伤中拆出一次', async () => {
   const entry: CombatReceiptEntry = {
     sequence: 1,
@@ -73,48 +95,32 @@ it('按旧版顺序展示独立乘区，失衡只从独立增伤中拆出一次'
       },
     ],
   };
-  let state: any;
-  await renderToString(
-    createSSRApp({
-      render: () =>
-        h(
-          {
-            ...(Dialog as ComponentOptions),
-            setup(props: any, context: any) {
-              state = (Dialog as any).setup(props, context);
-              return state;
-            },
-            ssrRender: () => {},
-          },
-          {
-            visible: true,
-            randomMode: 'expected',
-            forceCritical: false,
-            resultForceCritical: false,
-            entries: [entry],
-            contributionSourceLabel: () => '',
-            damageTypeLabel: (s: string) => s,
-            skillTypeLabel: (s: string) => s,
-            damageZoneLabel: (zone: string) => zone,
-            labels: {
-              damageBonus: 'bonus',
-              criticalExpectation: 'critical',
-              directMultiplier: 'direct',
-              damageTaken: 'taken',
-              defenseMultiplier: 'defense',
-              resistanceMultiplier: 'resistance',
-              staggerMultiplier: 'stagger',
-              finisherMultiplier: 'finisher',
-              levelCoefficient: 'level',
-              artsIntensity: 'arts',
-              additionalScale: 'effectiveness',
-              defenseDetail: () => '',
-              stacksDetail: (count: number) => `${count} 层`,
-            },
-          },
-        ),
-    }),
-  );
+  const state = await inspectDamageDetail({
+    visible: true,
+    randomMode: 'expected',
+    forceCritical: false,
+    resultForceCritical: false,
+    entries: [entry],
+    contributionSourceLabel: () => '',
+    damageTypeLabel: (s: string) => s,
+    skillTypeLabel: (s: string) => s,
+    damageZoneLabel: (zone: string) => zone,
+    labels: {
+      damageBonus: 'bonus',
+      criticalExpectation: 'critical',
+      directMultiplier: 'direct',
+      damageTaken: 'taken',
+      defenseMultiplier: 'defense',
+      resistanceMultiplier: 'resistance',
+      staggerMultiplier: 'stagger',
+      finisherMultiplier: 'finisher',
+      levelCoefficient: 'level',
+      artsIntensity: 'arts',
+      additionalScale: 'effectiveness',
+      defenseDetail: () => '',
+      stacksDetail: (count: number) => `${count} 层`,
+    },
+  });
   const rows = state.damageDetails.value[0].multiplierRows;
   expect(rows.map((row: any) => row.label)).toEqual([
     'bonus',
@@ -207,43 +213,27 @@ it('keeps flat, additive percentage and independent attack sources separate with
     ],
   };
   const before = structuredClone(entry);
-  let state: any;
-  await renderToString(
-    createSSRApp({
-      render: () =>
-        h(
-          {
-            ...(Dialog as ComponentOptions),
-            setup(props: any, context: any) {
-              state = (Dialog as any).setup(props, context);
-              return state;
-            },
-            ssrRender: () => {},
-          },
-          {
-            visible: true,
-            randomMode: 'expected',
-            forceCritical: false,
-            resultForceCritical: false,
-            entries: [entry],
-            contributionSourceLabel: () => '武器词条',
-            damageTypeLabel: (s: string) => s,
-            skillTypeLabel: (s: string) => s,
-            labels: {
-              attack: 'ATK',
-              criticalRate: 'CRIT',
-              levelCoefficient: '等级系数',
-              defenseMultiplier: '防御修正',
-              artsIntensity: '源石技艺强度',
-              levelDetail: (value: number) => `等级 ${value}`,
-              artsIntensityDetail: (value: number) => `${value} 点`,
-              directMultiplier: '其他倍率',
-              defenseDetail: () => '',
-            },
-          },
-        ),
-    }),
-  );
+  const state = await inspectDamageDetail({
+    visible: true,
+    randomMode: 'expected',
+    forceCritical: false,
+    resultForceCritical: false,
+    entries: [entry],
+    contributionSourceLabel: () => '武器词条',
+    damageTypeLabel: (s: string) => s,
+    skillTypeLabel: (s: string) => s,
+    labels: {
+      attack: 'ATK',
+      criticalRate: 'CRIT',
+      levelCoefficient: '等级系数',
+      defenseMultiplier: '防御修正',
+      artsIntensity: '源石技艺强度',
+      levelDetail: (value: number) => `等级 ${value}`,
+      artsIntensityDetail: (value: number) => `${value} 点`,
+      directMultiplier: '其他倍率',
+      defenseDetail: () => '',
+    },
+  });
   const detail = state.damageDetails.value[0];
   expect(detail.contextRows.some((row: any) => row.value === 'battleSkill')).toBe(false);
   expect(detail.canForceCritical).toBe(true);
@@ -311,40 +301,24 @@ it('projects the full attack breakdown from the frozen hit receipt instead of a 
       attackDetailWillCoefficient: 0,
     },
   };
-  let state: any;
-  await renderToString(
-    createSSRApp({
-      render: () =>
-        h(
-          {
-            ...(Dialog as ComponentOptions),
-            setup(props: any, context: any) {
-              state = (Dialog as any).setup(props, context);
-              return state;
-            },
-            ssrRender: () => {},
-          },
-          {
-            visible: true,
-            randomMode: 'expected',
-            forceCritical: false,
-            resultForceCritical: false,
-            entries: [entry],
-            contributionSourceLabel: () => '',
-            damageTypeLabel: (s: string) => s,
-            skillTypeLabel: (s: string) => s,
-            labels: {
-              attack: 'ATK',
-              basicTotal: 'Basic Total',
-              attributeBonus: 'Attribute Bonus',
-              attributeLabel: (s: string) => s,
-              criticalRate: 'CRIT',
-              defenseDetail: () => '',
-            },
-          },
-        ),
-    }),
-  );
+  const state = await inspectDamageDetail({
+    visible: true,
+    randomMode: 'expected',
+    forceCritical: false,
+    resultForceCritical: false,
+    entries: [entry],
+    contributionSourceLabel: () => '',
+    damageTypeLabel: (s: string) => s,
+    skillTypeLabel: (s: string) => s,
+    labels: {
+      attack: 'ATK',
+      basicTotal: 'Basic Total',
+      attributeBonus: 'Attribute Bonus',
+      attributeLabel: (s: string) => s,
+      criticalRate: 'CRIT',
+      defenseDetail: () => '',
+    },
+  });
   const detail = state.damageDetails.value[0].attackDetail;
   expect(detail).toMatchObject({
     basicTotal: 319,
@@ -421,62 +395,46 @@ it('projects expandable crit rows from the frozen hit facts', async () => {
       },
     ],
   };
-  let state: any;
-  await renderToString(
-    createSSRApp({
-      render: () =>
-        h(
-          {
-            ...(Dialog as ComponentOptions),
-            setup(props: any, context: any) {
-              state = (Dialog as any).setup(props, context);
-              return state;
-            },
-            ssrRender: () => {},
-          },
-          {
-            visible: true,
-            randomMode: 'expected',
-            forceCritical: false,
-            resultForceCritical: false,
-            entries: [entry],
-            contributionSourceLabel: () => '',
-            damageTypeLabel: (s: string) => s,
-            skillTypeLabel: (s: string) => s,
-            labels: {
-              skillMultiplier: 'Skill Multiplier',
-              baseMultiplier: '基础倍率',
-              fixedMultiplier: '额外倍率',
-              hitFraction: '本次命中占比',
-              fromSource: (name: string) => `from ${name}`,
-              skillMultiplierKeyLabel: (key: string) =>
-                (
-                  ({
-                    atk_scale: '基础倍率',
-                    atk_scale_enhence: '强化倍率',
-                    damage_enhence: '伤害强化',
-                    atk_scale_final: '计算后倍率',
-                    atk_up_per_conduct: '每层导电倍率加成',
-                    conductCnt: '导电层数',
-                    atk_up_final: '导电倍率加成',
-                    final_rate: '末段雷击倍率',
-                  }) as Record<string, string>
-                )[key],
-              multiplierAddition: '倍率加算',
-              buffStackSourceLabel: (kind: string, key: string) =>
-                kind === 'tag' && key === 'Skill/Character/Common/SpellInflict/CrystInflict'
-                  ? '寒冷附着'
-                  : undefined,
-              artsIntensity: '技艺强度',
-              stacksDetail: (stacks: number) => `${stacks} 层`,
-              criticalRate: 'CRIT',
-              criticalDamage: 'CRIT DMG',
-              defenseDetail: () => '',
-            },
-          },
-        ),
-    }),
-  );
+  const state = await inspectDamageDetail({
+    visible: true,
+    randomMode: 'expected',
+    forceCritical: false,
+    resultForceCritical: false,
+    entries: [entry],
+    contributionSourceLabel: () => '',
+    damageTypeLabel: (s: string) => s,
+    skillTypeLabel: (s: string) => s,
+    labels: {
+      skillMultiplier: 'Skill Multiplier',
+      baseMultiplier: '基础倍率',
+      fixedMultiplier: '额外倍率',
+      hitFraction: '本次命中占比',
+      fromSource: (name: string) => `from ${name}`,
+      skillMultiplierKeyLabel: (key: string) =>
+        (
+          ({
+            atk_scale: '基础倍率',
+            atk_scale_enhence: '强化倍率',
+            damage_enhence: '伤害强化',
+            atk_scale_final: '计算后倍率',
+            atk_up_per_conduct: '每层导电倍率加成',
+            conductCnt: '导电层数',
+            atk_up_final: '导电倍率加成',
+            final_rate: '末段雷击倍率',
+          }) as Record<string, string>
+        )[key],
+      multiplierAddition: '倍率加算',
+      buffStackSourceLabel: (kind: string, key: string) =>
+        kind === 'tag' && key === 'Skill/Character/Common/SpellInflict/CrystInflict'
+          ? '寒冷附着'
+          : undefined,
+      artsIntensity: '技艺强度',
+      stacksDetail: (stacks: number) => `${stacks} 层`,
+      criticalRate: 'CRIT',
+      criticalDamage: 'CRIT DMG',
+      defenseDetail: () => '',
+    },
+  });
   const detail = state.damageDetails.value[0];
   for (const layers of [0, 1, 3]) {
     expect(

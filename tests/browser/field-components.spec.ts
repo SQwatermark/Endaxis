@@ -613,7 +613,7 @@ for (const field of ['instantAttributeModifiers', 'instantDamageScaleModifiers']
   });
 }
 
-for (const field of ['keywordEnhancements', 'onActionEndBuffs', 'items']) {
+for (const field of ['items']) {
   test(`nested ${field} repairs and stages typed values through real graph history`, async ({
     page,
   }) => {
@@ -623,21 +623,11 @@ for (const field of ['keywordEnhancements', 'onActionEndBuffs', 'items']) {
     for (const details of await structure.locator('details').all())
       if ((await details.getAttribute('open')) === null)
         await details.locator(':scope > summary').click();
-    const mapping = structure.locator('[data-mapping-destination="exitBuff"]');
-    if (field === 'onActionEndBuffs')
-      await mapping.getByRole('button', { name: 'Edit mappings', exact: true }).click();
     const number = structure.locator('[data-mapping-value="operand"] input[type="number"]').last();
     await number.fill('');
-    if (field === 'onActionEndBuffs') {
-      await mapping.getByRole('button', { name: 'Apply mappings', exact: true }).click();
-      await expect(mapping.getByRole('alert')).toBeVisible();
-    } else {
-      await structure.getByRole('button', { name: 'Stage field', exact: true }).click();
-      await expect(structure.getByRole('alert')).toBeVisible();
-    }
+    await structure.getByRole('button', { name: 'Stage field', exact: true }).click();
+    await expect(structure.getByRole('alert')).toBeVisible();
     await number.fill('3');
-    if (field === 'onActionEndBuffs')
-      await mapping.getByRole('button', { name: 'Apply mappings', exact: true }).click();
     await structure.getByRole('button', { name: 'Stage field', exact: true }).click();
     await expect(panel.getByTestId('graph-operand-commits')).toHaveText('0');
     await panel.getByRole('button', { name: 'Apply', exact: true }).click();
@@ -720,7 +710,7 @@ test('spawn field preserves unstaged work and opens an independent child resourc
   page,
 }) => {
   const panel = page.getByTestId('spawn-resource');
-  const structure = panel.locator('[data-structured-value]');
+  const structure = panel.locator('[data-structured-path="parameters.definition"]');
   await structure.getByRole('button', { name: 'Edit structure', exact: true }).click();
   await expect(
     structure.getByRole('button', { name: 'Open action graph', exact: true }),

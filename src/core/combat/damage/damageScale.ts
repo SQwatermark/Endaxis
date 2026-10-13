@@ -11,21 +11,6 @@ import {
   type DamageScaleZone,
 } from '../../../../packages/game-data-contract/src/modifiers.ts';
 export type { AppliedDamageModifier, DamageModifierResult } from '../state/foundationState';
-interface DamageScaleZoneDefinition {
-  readonly multiplyWithinSide: boolean;
-  readonly mergeSidesAdditively: boolean;
-}
-
-const ZONE_DEFINITIONS: Readonly<Record<DamageScaleZone, DamageScaleZoneDefinition>> = {
-  product: { multiplyWithinSide: true, mergeSidesAdditively: false },
-  normal: { multiplyWithinSide: false, mergeSidesAdditively: false },
-  abnormalAndBurst: { multiplyWithinSide: false, mergeSidesAdditively: false },
-  enhanced: { multiplyWithinSide: false, mergeSidesAdditively: false },
-  combo: { multiplyWithinSide: false, mergeSidesAdditively: false },
-  vulnerable: { multiplyWithinSide: false, mergeSidesAdditively: false },
-  race: { multiplyWithinSide: false, mergeSidesAdditively: false },
-};
-
 function createInitialValues(): Record<DamageScaleZone, number> {
   return Object.fromEntries(DAMAGE_SCALE_ZONES.map(zone => [zone, 1])) as Record<
     DamageScaleZone,
@@ -40,10 +25,7 @@ export class DamageScaleAccumulator {
 
   modify(side: DamageScaleSide, zone: DamageScaleZone, addition: number): void {
     const values = side === 'attacker' ? this.#attacker : this.#defender;
-    const definition = ZONE_DEFINITIONS[zone];
-    values[zone] = definition.multiplyWithinSide
-      ? values[zone] * (1 + addition)
-      : values[zone] + addition;
+    values[zone] = zone === 'product' ? values[zone] * (1 + addition) : values[zone] + addition;
   }
 
   getSideValue(side: DamageScaleSide, zone: DamageScaleZone): number {
@@ -51,13 +33,8 @@ export class DamageScaleAccumulator {
   }
 
   getZoneValue(zone: DamageScaleZone): number {
-    const definition = ZONE_DEFINITIONS[zone];
-    const attacker = this.#attacker[zone];
-    const defender = this.#defender[zone];
-    const value =
-      !definition.multiplyWithinSide && definition.mergeSidesAdditively
-        ? attacker + defender - 1
-        : attacker * defender;
+    // 同侧仅独立乘区连乘，其余乘区加算；攻防双方在所有乘区中均相乘。
+    const value = this.#attacker[zone] * this.#defender[zone];
     return value < 0 || Number.isNaN(value) ? 0 : value;
   }
 

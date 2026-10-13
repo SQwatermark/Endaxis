@@ -1,3 +1,4 @@
+import { writeFieldValue } from '../../core/editor/writeFieldValue';
 /** 根据节点字段元数据构造可新建的空节点；需要资源或变量身份的节点必须由对应选择器提供。 */
 import type {
   ActionGraphDataNode,
@@ -5,7 +6,6 @@ import type {
 } from '../../../packages/game-data-contract/src/actionGraph';
 import { actionNodeSchemas, dataNodeSchemas } from './actionNodeSchemas.generated';
 import type { NodeFieldSchema } from './nodeSchema';
-import { writeNodeField } from './nodeFieldValues';
 import { validateActionGraphActions } from '../../core/game-data/validation/actionPrograms';
 
 export type NodeCreation =
@@ -128,7 +128,7 @@ function instantiate(base: unknown, fields: readonly NodeFieldSchema[]): unknown
     if (field.valueSchema.optional) continue;
     const initial = initialValue(field);
     if (initial === unavailable) return undefined;
-    value = writeNodeField(value, field.path, initial);
+    value = writeFieldValue(value, field.path, initial);
   }
   return value;
 }

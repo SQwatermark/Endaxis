@@ -1,11 +1,12 @@
 import { expect, it } from 'vitest';
 import { createLowStarShareRegressionScenario } from '../testSupport/publicShareRegressionFixture';
-import { ScenarioSimulationService } from '../scenarioSimulationService';
+import { createScenarioSimulationService } from '../createScenarioSimulationService';
 import { gameDataRepository } from '../../../data/gameDataRepository';
-import { skillSettings } from '../../../data/combat/skillSettings';
-import { projectBuffTimelineViz } from '../../../core/projection/buffTimelineViz';
+import {
+  findBuffTimelineSegmentForDamage,
+  projectBuffTimelineViz,
+} from '../../../core/projection/buffTimelineViz';
 import { projectEnemyEffectViz } from '../../../core/projection/enemyEffectViz';
-import { findBuffDamageSegment } from '../../../ui/timeline/results/enemyBuffDamageHits';
 import { layoutEnemyDamageHits } from '../../../ui/timeline/results/enemyDamageHitLayout';
 import { ActionExecutionTrace } from '../../../core/combat/actions/actionExecutionTrace';
 import { indexExecutionTrace, directTraceReceipts } from '../executionTraceNavigation';
@@ -28,16 +29,7 @@ it('伊冯重击的同步连携检查可进入，但不插入本图步进且不�
   ];
   for (const other of scenario.tracks.slice(1)) if (other) other.skillCasts = [];
   scenario.battle.durationFrames = 90;
-  const service = new ScenarioSimulationService({
-    index: gameDataRepository,
-    spellInflictionSettings: skillSettings,
-    resources: {
-      sharedSpGain: { baseGainEfficiency: 1 },
-      spRecoveryPauseDuration: 1.5,
-      ultimateEnergySystemUnlocked: true,
-      normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
-    },
-  });
+  const service = createScenarioSimulationService(gameDataRepository);
   const trace = new ActionExecutionTrace('trace-heavy');
   const result = service.diagnoseExecution(scenario, trace);
   const index = indexExecutionTrace(
@@ -89,16 +81,7 @@ it('runs the public low-star action sequence with native definitions without rew
   const { scenario, quantization } = createLowStarShareRegressionScenario();
   expect(quantization.every(row => Math.abs(row.errorSeconds) <= 1 / 60 + 1e-12)).toBe(true);
   const before = JSON.stringify(scenario);
-  const service = new ScenarioSimulationService({
-    index: gameDataRepository,
-    spellInflictionSettings: skillSettings,
-    resources: {
-      sharedSpGain: { baseGainEfficiency: 1 },
-      spRecoveryPauseDuration: 1.5,
-      ultimateEnergySystemUnlocked: true,
-      normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
-    },
-  });
+  const service = createScenarioSimulationService(gameDataRepository);
   const run = await service.simulate(scenario, scenario.battle.durationFrames);
   const trace = new ActionExecutionTrace(scenario.tracks[0]!.skillCasts[0]!.id);
   const diagnosed = service.diagnoseExecution(scenario, trace);
@@ -124,7 +107,7 @@ it('runs the public low-star action sequence with native definitions without rew
     expect(positionedSequences.has(hit.sequence), JSON.stringify(hit)).toBe(true);
     // 隐藏子 Buff 的伤害可以挂到可见父 Buff；只有二者都没有时才独立显示。
     const displayOwner = viz.damageDisplayOwners?.[hit.sequence];
-    if (findBuffDamageSegment(hit, segments) === undefined && displayOwner === undefined)
+    if (findBuffTimelineSegmentForDamage(hit, segments) === undefined && displayOwner === undefined)
       expect(
         positionedHits.some(
           position =>
@@ -150,16 +133,7 @@ it('runs the public low-star action sequence with native definitions without rew
 
 it('公开轴动作序列从中途检查点续算与从头运行完全一致', () => {
   const { scenario } = createLowStarShareRegressionScenario();
-  const service = new ScenarioSimulationService({
-    index: gameDataRepository,
-    spellInflictionSettings: skillSettings,
-    resources: {
-      sharedSpGain: { baseGainEfficiency: 1 },
-      spRecoveryPauseDuration: 1.5,
-      ultimateEnergySystemUnlocked: true,
-      normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
-    },
-  });
+  const service = createScenarioSimulationService(gameDataRepository);
   const original = service.createCombatSession(scenario);
   const checkpointFrame = Math.floor(scenario.battle.durationFrames / 2);
   original.advanceToFrame(checkpointFrame);

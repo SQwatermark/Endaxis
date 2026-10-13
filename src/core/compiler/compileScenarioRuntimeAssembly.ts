@@ -316,7 +316,7 @@ function bindOperatorRuntimes(
 
 /**
  * 编译可直接传给 `CombatRuntimeAssembly` 的完整参数对象。
- * 子编译器的限制会原样向上传播：场景继承、养成效果或逐次技能编辑还没做通时必定失败。
+ * 子编译器的错误原样向上传播，不忽略非法输入或缺失定义。
  */
 export function compileScenarioRuntimeAssembly(
   scenario: ScenarioDocument,
@@ -338,16 +338,6 @@ export function compileScenarioRuntimeAssembly(
       ? [{ ...entry, contribution: entry.contribution }]
       : [],
   );
-  const unsupportedMechanicContribution = mechanics.contributions.find(
-    entry =>
-      entry.contribution.kind !== 'battleInitializationSequence' &&
-      entry.contribution.kind !== 'enemyProgramStatMultiplier',
-  );
-  if (unsupportedMechanicContribution !== undefined) {
-    throw new Error(
-      `mechanic '${unsupportedMechanicContribution.mechanicId}' produced an event contribution before scenario event installation is assembled`,
-    );
-  }
   const builds = resolveScenarioBuilds(scenario, options.index);
   const commonDefinitionSources = options.index.getCommonDefinitionSources();
   const commonDefinitions = options.index.getCommonAbilityEntityDefinitions?.();

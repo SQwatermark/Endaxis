@@ -1,4 +1,8 @@
 import { expect, it } from 'vitest';
+import { writeFieldValue } from '../../core/editor/writeFieldValue';
+import { actionNodeSchemas } from './actionNodeSchemas.generated';
+import { containsActionGraph, parseNodeField, readNodeField } from './nodeFieldValues';
+
 it('替换短路条件的第一个数据输入时保留数组与后续条件', () => {
   const value = {
     conditions: [
@@ -6,7 +10,7 @@ it('替换短路条件的第一个数据输入时保留数组与后续条件', (
       { kind: 'constant', value: true },
     ],
   };
-  const changed = writeNodeField(value, ['conditions', '0'], {
+  const changed = writeFieldValue(value, ['conditions', '0'], {
     kind: 'conditionNode',
     nodeId: 'check',
   });
@@ -14,8 +18,12 @@ it('替换短路条件的第一个数据输入时保留数组与后续条件', (
     conditions: [{ kind: 'conditionNode', nodeId: 'check' }, value.conditions[1]],
   });
   expect(value.conditions[0]!.value).toBe(false);
+  expect(writeFieldValue(value, ['conditions', 0], value.conditions[1])).toEqual({
+    conditions: [value.conditions[1], value.conditions[1]],
+  });
+  expect(() => writeFieldValue(value, ['conditions', 2], {})).toThrow('数组输入位置不存在');
+  expect(() => writeFieldValue(value, ['__proto__', 'polluted'], true)).toThrow('原型字段');
 });
-import { actionNodeSchemas } from './actionNodeSchemas.generated';
 
 it('枚举列表保留空选择与未设置的区别，并拒绝未知选项', () => {
   const field = actionNodeSchemas.dealDamage.fields.find(field => field.path.at(-1) === 'tags')!;
@@ -28,13 +36,6 @@ it('枚举列表保留空选择与未设置的区别，并拒绝未知选项', (
   expect(() => parseNodeField('["unknown"]', field)).toThrow();
   expect(() => parseNodeField('"plungingAttack"', field)).toThrow();
 });
-import {
-  containsActionGraph,
-  formatNodeField,
-  parseNodeField,
-  readNodeField,
-  writeNodeField,
-} from './nodeFieldValues';
 
 it('字段更新保留兄弟参数与执行出口，不修改输入定义', () => {
   const action = {
@@ -42,7 +43,7 @@ it('字段更新保留兄弟参数与执行出口，不修改输入定义', () =
     parameters: { value: 2, targets: ['enemy'] },
     key: 'stable',
   };
-  const changed = writeNodeField(action, ['parameters', 'value'], 0);
+  const changed = writeFieldValue(action, ['parameters', 'value'], 0);
   expect(changed).toEqual({ ...action, parameters: { ...action.parameters, value: 0 } });
   expect(action.parameters.value).toBe(2);
   expect(readNodeField(changed, ['parameters', 'targets'])).toBe(action.parameters.targets);
@@ -55,16 +56,7 @@ it('可选字段清空会删除字段，数值零仍保留', () => {
   expect(parseNodeField('0', field)).toBe(0);
   const key = actionNodeSchemas.dealStagger.fields.find(field => field.path[0] === 'key')!;
   expect(parseNodeField('', key)).toBeUndefined();
-  expect(writeNodeField({ key: 'old' }, key.path, undefined)).toEqual({});
-});
-
-it('复杂联合字段完整读写，不把数组改成对象或丢失合法字段', () => {
-  const field = actionNodeSchemas.switch.fields.find(field => field.path[0] === 'options')!;
-  const value = [
-    { value: 2, sequence: { $sequence: 'a' } },
-    { value: 3, sequence: { $sequence: null } },
-  ];
-  expect(parseNodeField(formatNodeField(value, field), field)).toEqual(value);
+  expect(writeFieldValue({ key: 'old' }, key.path, undefined)).toEqual({});
 });
 
 it('识别藏在实体模板和回调数组中的独立图，不把普通控制引用当成资源', () => {

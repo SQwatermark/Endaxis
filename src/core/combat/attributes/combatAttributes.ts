@@ -17,7 +17,6 @@ import {
   defineCombatAttribute,
   readCombatAttribute,
   removeCombatAttributeModifier,
-  setCombatAttributeRawValue,
 } from './combatAttributeExecution';
 export {
   ATTRIBUTE_MODIFIER_SLOTS,
@@ -65,9 +64,6 @@ export class CombatAttributeSet<Key extends string> {
   }
   define(attribute: Key, rawValue: number, definition: CombatAttributeDefinition): void {
     defineCombatAttribute(this.#state, attribute, rawValue, definition);
-  }
-  setRawValue(attribute: Key, value: number): void {
-    setCombatAttributeRawValue(this.#state, attribute, value);
   }
   has(attribute: string): boolean {
     return this.#state.rawValues.has(attribute as Key);

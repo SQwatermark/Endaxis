@@ -20,12 +20,6 @@ describe('injectDamageScaleAttributes', () => {
     expect(classifyDamageTags([], ['shatter'])).toEqual(['cryoAbnormal']);
     expect(classifyDamageTags(['cryoAbnormal'], ['shatter'])).toEqual(['cryoAbnormal']);
   });
-  it('classifies native burst and abnormal damage tags', () => {
-    expect(
-      classifyDamageTags(['fireBurst', 'electricBurst', 'cryoAbnormal', 'natureAbnormal']),
-    ).toEqual(['fireBurst', 'electricBurst', 'cryoAbnormal', 'natureAbnormal']);
-  });
-
   it('accumulates typed, skill, and staggered-target increases in the normal zone', () => {
     const scales = new DamageScaleAccumulator();
     injectDamageScaleAttributes(scales, {

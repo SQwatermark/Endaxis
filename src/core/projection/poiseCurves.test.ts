@@ -3,15 +3,14 @@ import type { CombatReceiptEntry } from '../combat/receipt/combatReceipt';
 import type { PoiseChangePoint } from './poiseChangePoints';
 import {
   projectPoiseBrokenSegments,
-  projectPoiseCurve,
   projectPoiseCurveFromReceipt,
   projectPoiseKnotSegments,
 } from './poiseCurves';
 
 const INITIAL = { poise: 300, maxPoise: 300 };
 
-function change(overrides: Partial<PoiseChangePoint> = {}): PoiseChangePoint {
-  return {
+function change(overrides: Partial<PoiseChangePoint> = {}): CombatReceiptEntry {
+  const { frame, time, sequence, sourceId, targetId, ...data } = {
     frame: 10,
     time: 1 / 3,
     sequence: 3,
@@ -32,9 +31,10 @@ function change(overrides: Partial<PoiseChangePoint> = {}): PoiseChangePoint {
     hasPoiseBrokenTag: false,
     ...overrides,
   };
+  return { frame, time, sequence, sourceId, targetId, event: 'PoiseApplied', data };
 }
 
-describe('projectPoiseCurve', () => {
+describe('projectPoiseCurveFromReceipt', () => {
   it('从初始失衡生成稀疏曲线并保留被拦截的结算事实', () => {
     const changes = [
       change(),
@@ -59,7 +59,7 @@ describe('projectPoiseCurve', () => {
         cancelledByImmunity: true,
       }),
     ];
-    const curve = projectPoiseCurve(INITIAL, changes);
+    const curve = projectPoiseCurveFromReceipt(INITIAL, changes);
     expect(curve.resource).toBe('poise');
     expect(curve.maxValue).toBe(300);
     expect(curve.points).toEqual([
@@ -72,35 +72,22 @@ describe('projectPoiseCurve', () => {
 
   it('拒绝与事实不连续的失衡变化', () => {
     expect(() =>
-      projectPoiseCurve(INITIAL, [change({ actualDelta: -120, currentPoise: 200 })]),
+      projectPoiseCurveFromReceipt(INITIAL, [change({ actualDelta: -120, currentPoise: 200 })]),
     ).toThrow('discontinuous');
   });
 
   it('把失衡恢复事实与结算交错投影为同一条曲线', () => {
     const entries: CombatReceiptEntry[] = [
-      {
-        sequence: 3,
-        frame: 10,
-        time: 1 / 3,
-        event: 'PoiseApplied',
-        sourceId: 'perlica',
-        targetId: 'enemy',
-        data: {
-          calculationValue: 300,
-          calculatedDamage: 300,
-          requestedDelta: -300,
-          actualDelta: -300,
-          previousPoise: 300,
-          currentPoise: 0,
-          cancelled: false,
-          cancelledByImmunity: false,
-          poiseImmune: false,
-          ignorePoiseImmune: false,
-          brokePoise: true,
-          inPoiseRecovery: true,
-          hasPoiseBrokenTag: true,
-        },
-      },
+      change({
+        calculationValue: 300,
+        calculatedDamage: 300,
+        requestedDelta: -300,
+        actualDelta: -300,
+        currentPoise: 0,
+        brokePoise: true,
+        inPoiseRecovery: true,
+        hasPoiseBrokenTag: true,
+      }),
       {
         sequence: 4,
         frame: 310,
@@ -109,29 +96,16 @@ describe('projectPoiseCurve', () => {
         targetId: 'enemy',
         data: { poise: 300, hasPoiseBrokenTag: false },
       },
-      {
+      change({
         sequence: 5,
         frame: 320,
         time: 32 / 3,
-        event: 'PoiseApplied',
-        sourceId: 'perlica',
-        targetId: 'enemy',
-        data: {
-          calculationValue: 50,
-          calculatedDamage: 50,
-          requestedDelta: -50,
-          actualDelta: -50,
-          previousPoise: 300,
-          currentPoise: 250,
-          cancelled: false,
-          cancelledByImmunity: false,
-          poiseImmune: false,
-          ignorePoiseImmune: false,
-          brokePoise: false,
-          inPoiseRecovery: false,
-          hasPoiseBrokenTag: false,
-        },
-      },
+        calculationValue: 50,
+        calculatedDamage: 50,
+        requestedDelta: -50,
+        actualDelta: -50,
+        currentPoise: 250,
+      }),
     ];
 
     const curve = projectPoiseCurveFromReceipt(INITIAL, entries);

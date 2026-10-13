@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import type { CombatReceiptEntry } from '../../../core/combat/receipt/combatReceipt';
 import { createEmptyScenario } from '../../../core/project/createProject';
+import type { TrackDocument } from '../../../core/project/schema';
 import {
   projectTimelineDamageAnalysis,
   projectPublishedTimelineDamageAnalysis,
 } from './timelineDamageAnalysis';
 import { computed, shallowRef } from 'vue';
 import type { PublishedScenarioSimulation } from '../useScenarioSimulation';
-import { createTimelineSampleScenario } from '../timelineSampleScenario';
 import { CombatReceiptCollector } from '../../../core/combat/receipt/combatReceipt';
 
 function historyOf(entries: readonly CombatReceiptEntry[]) {
@@ -16,11 +16,30 @@ function historyOf(entries: readonly CombatReceiptEntry[]) {
   return receipt.history.snapshot();
 }
 
+function track(id: string, operatorSlug: string): TrackDocument {
+  return {
+    id,
+    operator: {
+      operatorSlug,
+      level: 90,
+      promoted: true,
+      potential: 0,
+      trustLevel: 0,
+      skillLevels: { basicAttack: 1, battleSkill: 1, comboSkill: 1, ultimate: 1 },
+      talentStates: {},
+    },
+    weapon: null,
+    gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+    initialState: { ultimateEnergy: 0 },
+    skillCasts: [],
+  };
+}
+
 describe('projectTimelineDamageAnalysis', () => {
   it('按直接提供者汇总贡献，保留负贡献并与攻击者总伤害守恒', () => {
-    const scenario = createTimelineSampleScenario();
-    const attacker = scenario.tracks[0]!;
-    const provider = scenario.tracks[1]!;
+    const scenario = createEmptyScenario('contribution', 'contribution');
+    const attacker = (scenario.tracks[0] = track('attacker', 'perlica'));
+    const provider = (scenario.tracks[1] = track('provider', 'arclight'));
     const result = projectTimelineDamageAnalysis(
       [
         {
@@ -59,22 +78,7 @@ describe('projectTimelineDamageAnalysis', () => {
   it('keeps owner and analysis range paired with the published receipt across edits and publication', () => {
     const original = createEmptyScenario('snapshot', 'snapshot');
     original.battle.simulationRange = { startFrame: 0, endFrame: 300 };
-    original.tracks[0] = {
-      id: 'track:1',
-      operator: {
-        operatorSlug: 'perlica',
-        level: 90,
-        promoted: true,
-        potential: 0,
-        trustLevel: 0,
-        skillLevels: { basicAttack: 1, battleSkill: 1, comboSkill: 1, ultimate: 1 },
-        talentStates: {},
-      },
-      weapon: null,
-      gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
-      initialState: { ultimateEnergy: 0 },
-      skillCasts: [],
-    };
+    original.tracks[0] = track('track:1', 'perlica');
     const receipt: CombatReceiptEntry = {
       sequence: 1,
       frame: 90,

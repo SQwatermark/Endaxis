@@ -26,15 +26,11 @@ export interface PoiseDamageModifier {
   cancelled: boolean;
 }
 
-/** 纯失衡公式所需的基础值、倍率和目标状态。 */
-export interface CalculatePoiseDamageInput {
+/** 计算并写入一次失衡伤害所需的完整运行时端口。 */
+export interface ExecutePoiseDamageInput {
   readonly calculationValue: number;
   readonly outputMultiplier: number;
   readonly takenMultiplier: number;
-}
-
-/** 计算并写入一次失衡伤害所需的完整运行时端口。 */
-export interface ExecutePoiseDamageInput extends CalculatePoiseDamageInput {
   readonly sourceId: string;
   readonly targetId: string;
   readonly target: CombatVitals;
@@ -58,14 +54,9 @@ export interface PoiseDamageExecutionResult {
   readonly currentPoise: number;
 }
 
-/** 事件监听器修改最终变化量前使用的、已还原的失衡公式。 */
-export function calculatePoiseDamage(input: CalculatePoiseDamageInput): number {
-  return input.calculationValue * input.outputMultiplier * input.takenMultiplier;
-}
-
 /** 按已还原的来源方与目标方事件顺序应用一个失衡单元。 */
 export function executePoiseDamage(input: ExecutePoiseDamageInput): PoiseDamageExecutionResult {
-  const calculatedDamage = calculatePoiseDamage(input);
+  const calculatedDamage = input.calculationValue * input.outputMultiplier * input.takenMultiplier;
   const modifier: PoiseDamageModifier = {
     sourceId: input.sourceId,
     targetId: input.targetId,

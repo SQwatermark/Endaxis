@@ -1,10 +1,8 @@
 import { expect, it } from 'vitest';
 import { createEmptyScenario } from '../../../core/project/createProject';
-import { elementalAttachments } from '../../../data/buffs/elementalAttachments';
-import { skillSettings } from '../../../data/combat/skillSettings';
 import { gameDataRepository } from '../../../data/gameDataRepository';
 import { placeSkillGroup } from '../../../ui/timeline/interaction/placeSkillGroup';
-import { ScenarioSimulationService } from '../scenarioSimulationService';
+import { createScenarioSimulationService } from '../createScenarioSimulationService';
 
 it.each([
   ['perlica', 52],
@@ -43,17 +41,7 @@ it.each([
     startFrame: 1,
     ids: { allocate: kind => `${kind}:${slug}:ultimate` },
   }).scenario;
-  const service = new ScenarioSimulationService({
-    index: gameDataRepository,
-    resources: {
-      sharedSpGain: { baseGainEfficiency: 1 },
-      spRecoveryPauseDuration: 1.5,
-      ultimateEnergySystemUnlocked: true,
-      normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
-    },
-    elementalInflictionDocument: elementalAttachments,
-    spellInflictionSettings: skillSettings,
-  });
+  const service = createScenarioSimulationService(gameDataRepository);
 
   const result = await service.simulate(placed, 180);
   expect(

@@ -1,27 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import type { OperationType } from '../../../core/game-data/operatorDefinition';
-import type { TimelineSkillLibraryEntryViewModel } from '../timelineEditorViewModel';
 import { orderTimelineSkillLibrary } from './skillLibraryOrder';
 
-function entry(
-  key: string,
-  operationType: OperationType,
-  nameKey?: TimelineSkillLibraryEntryViewModel['nameKey'],
-): TimelineSkillLibraryEntryViewModel {
-  return {
-    entryKey: key,
-    skillGroupKey: key,
-    operationType,
-    ...(nameKey === undefined ? {} : { nameKey }),
-    groupPlacementSkillKeys: [key],
-    skills: [
-      {
-        skillKey: key,
-        timelineBlockFrames: 1,
-        source: { kind: 'operatorSkill', skillGroupKey: key, skillKey: key },
-      },
-    ],
-  };
+function entry(key: string, operationType: OperationType, nameKey?: string) {
+  return { entryKey: key, operationType, nameKey };
 }
 
 describe('skill library presentation order', () => {
@@ -39,7 +21,11 @@ describe('skill library presentation order', () => {
       entry('basic-enhanced', 'basicAttack', 'skillNames.enhanced'),
     ];
 
-    expect(orderTimelineSkillLibrary(source).map(value => value.entryKey)).toEqual([
+    const original = [...source];
+    const ordered = orderTimelineSkillLibrary(source);
+    expect(source).toEqual(original);
+    expect(ordered.every(value => source.includes(value))).toBe(true);
+    expect(ordered.map(value => value.entryKey)).toEqual([
       'basic-2',
       'basic-1',
       'basic-enhanced',

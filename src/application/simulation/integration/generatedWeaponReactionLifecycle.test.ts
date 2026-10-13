@@ -30,11 +30,10 @@ function chainNodes(
 }
 import { createEmptyScenario } from '../../../core/project/createProject';
 import type { TrackDocument, TrackIndex } from '../../../core/project/schema';
-import { skillSettings } from '../../../data/combat/skillSettings';
 import { generatedWeaponDefinitions } from '../../../data/equipment/generated-weapons/index.generated';
 import { gameDataRepository } from '../../../data/gameDataRepository';
 import { placeSkillGroup } from '../../../ui/timeline/interaction/placeSkillGroup';
-import { ScenarioSimulationService } from '../scenarioSimulationService';
+import { createScenarioSimulationService } from '../createScenarioSimulationService';
 import { staticEquipmentContribution } from '../testSupport/staticEquipmentContribution';
 
 // 边界测试使用受控技能排程，不冒充真实干员动作时序。武器、公共反应定义、装备安装、
@@ -315,19 +314,10 @@ async function simulatePair(slug: string, tier: number, plans: readonly ActorPla
         ids: { allocate: kind => `${kind}:reaction:${nextId++}` },
       }).scenario;
     }
-    const result = await new ScenarioSimulationService({
-      index: {
-        ...gameDataRepository,
-        getOperator: slug => operators.find(operator => operator.slug === slug) ?? null,
-        getWeapon: requested => (requested === slug ? definition : null),
-      },
-      resources: {
-        sharedSpGain: { baseGainEfficiency: 1 },
-        spRecoveryPauseDuration: 1.5,
-        ultimateEnergySystemUnlocked: true,
-        normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
-      },
-      spellInflictionSettings: skillSettings,
+    const result = await createScenarioSimulationService({
+      ...gameDataRepository,
+      getOperator: slug => operators.find(operator => operator.slug === slug) ?? null,
+      getWeapon: requested => (requested === slug ? definition : null),
     }).simulate(scenario, 1100);
     return result.receiptEntries;
   };

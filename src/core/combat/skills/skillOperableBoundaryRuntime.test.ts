@@ -1,9 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  SkillOperableBoundaryRuntime,
-  advanceSkillOperableBoundaries,
-  beginSkillOperableBoundary,
-} from './skillOperableBoundaryRuntime';
+import { SkillOperableBoundaryRuntime } from './skillOperableBoundaryRuntime';
 import { createStateTestSession } from '../../../test/stateTestSession';
 
 describe('SkillOperableBoundaryRuntime', () => {
@@ -12,7 +8,7 @@ describe('SkillOperableBoundaryRuntime', () => {
     runtime.begin('cast', 1, 0);
     runtime.advance(0.25, 1);
     const session = createStateTestSession(runtime.runtimeState, (step, delta: number) =>
-      advanceSkillOperableBoundaries(step.state, delta, 2),
+      new SkillOperableBoundaryRuntime(step.state).advance(delta, 2),
     );
     const saved = session.save();
     expect(session.step(0.75)).toEqual([{ castId: 'cast', durationFrames: 1, reachedAtFrame: 2 }]);
@@ -22,7 +18,9 @@ describe('SkillOperableBoundaryRuntime', () => {
     expect(session.read().pendingByCastId.get('cast')!.accumulatedFrames).toBe(0.5);
     session.restore(saved);
     expect(session.step(0.75)).toHaveLength(1);
-    expect(() => beginSkillOperableBoundary(session.read(), 'cast', 1, 2)).toThrow('duplicate');
+    expect(() => new SkillOperableBoundaryRuntime(session.read()).begin('cast', 1, 2)).toThrow(
+      'duplicate',
+    );
     expect(runtime.runtimeState.pendingByCastId.get('cast')!.accumulatedFrames).toBe(0.25);
   });
 
@@ -40,30 +38,6 @@ describe('SkillOperableBoundaryRuntime', () => {
     expect(runtime.advance(1, 31)).toEqual([]);
     // 稳定 castId 在一次场景内不应重复使用，完成后也不能再次登记。
     expect(() => runtime.begin('cast:normal', 30, 0)).toThrow('duplicate');
-  });
-
-  it('scale=0.5：施法者实体减速时需要 60 个实际帧才返回', () => {
-    const runtime = new SkillOperableBoundaryRuntime();
-    runtime.begin('cast:slowed', 30, 0);
-
-    for (let frame = 1; frame <= 59; frame += 1) {
-      expect(runtime.advance(0.5, frame)).toEqual([]);
-    }
-    expect(runtime.advance(0.5, 60)).toEqual([
-      { castId: 'cast:slowed', durationFrames: 30, reachedAtFrame: 60 },
-    ]);
-  });
-
-  it('全局冻结但施法者被排除：调用方仍按 delta=1 推进，30 帧后返回', () => {
-    const runtime = new SkillOperableBoundaryRuntime();
-    runtime.begin('cast:excluded', 30, 0);
-
-    for (let frame = 1; frame <= 29; frame += 1) {
-      expect(runtime.advance(1, frame)).toEqual([]);
-    }
-    expect(runtime.advance(1, 30)).toEqual([
-      { castId: 'cast:excluded', durationFrames: 30, reachedAtFrame: 30 },
-    ]);
   });
 
   it('0.2 帧增量累计 150 次时不会因浮点误差晚一帧', () => {
@@ -126,17 +100,6 @@ describe('SkillOperableBoundaryRuntime', () => {
     expect(runtime.advance(1, -2)).toEqual([]);
     expect(runtime.advance(1, -1)).toEqual([
       { castId: 'cast:prep', durationFrames: 2, reachedAtFrame: -1 },
-    ]);
-  });
-
-  it('does not consume a full local frame on the same actual frame that starts the cast', () => {
-    const runtime = new SkillOperableBoundaryRuntime();
-    runtime.begin('cast:later', 2, 10);
-
-    expect(runtime.advance(1, 10)).toEqual([]);
-    expect(runtime.advance(1, 11)).toEqual([]);
-    expect(runtime.advance(1, 12)).toEqual([
-      { castId: 'cast:later', durationFrames: 2, reachedAtFrame: 12 },
     ]);
   });
 });

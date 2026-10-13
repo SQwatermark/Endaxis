@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { writeNodeField } from '../action-graph/nodeFieldValues';
+import { writeFieldValue } from '../../core/editor/writeFieldValue';
 import { globalBuffBlackboardContext } from '../../application/editor/globalBuffFieldContext';
 import { blackboardFieldContextKey } from '../field-editor/blackboardFieldContext';
 import { useBlackboardFieldContext } from '../field-editor/blackboardFieldContext';
@@ -73,7 +73,7 @@ const structuredContext =
     ...inheritedStructuredContext.value,
     ...(inheritedStructuredContext.value.ownedResources
       ? {
-          spawnDefinition: writeNodeField(
+          spawnDefinition: writeFieldValue(
             inheritedStructuredContext.value.spawnDefinition,
             [...inheritedStructuredContext.value.path.slice(2), ...(props.fieldPath ?? [])].map(
               String,

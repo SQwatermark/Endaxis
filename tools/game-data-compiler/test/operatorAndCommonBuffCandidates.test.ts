@@ -49,13 +49,13 @@ import {
 import { generateOperatorDefinition } from '../scripts/generateOperatorDefinition.ts';
 import {
   createCommonBuffCollector,
-  readSystemBuffRoots,
+  readSystemBuffRootDeclarations,
 } from '../scripts/generateCommonBuffDefinitions.ts';
 
 const roots: string[] = [];
-const systemRoots = readSystemBuffRoots(
+const systemRoots = readSystemBuffRootDeclarations(
   path.resolve('tools/game-data-compiler/config/systemBuffRoots.json'),
-);
+).map(root => root.buffId);
 const guardedBuff: SkillBuffDefinition = {
   stackingType: 'unlimited',
   lifecycleSequences: {
@@ -90,8 +90,8 @@ const guardedBuff: SkillBuffDefinition = {
 };
 
 function planned(slug: string, definitions: OperatorBuffDefinitions = {}) {
-  // 生成管线仍是树侧消费；avywenna 生成产物是图形态，剔除图专属字段后作为树夹具基座。
-  const { dodgeSkill: _dodgeSkill, eventHandlers: _eventHandlers, ...base } = avywenna;
+  // 仅保留干员元数据，技能与 Buff 由各用例独立提供。
+  const { dodgeSkill: _dodgeSkill, ...base } = avywenna;
   return {
     activeSkills: [{ key: `${slug}-skill` }],
     operator: {
@@ -100,7 +100,6 @@ function planned(slug: string, definitions: OperatorBuffDefinitions = {}) {
       talents: [],
       potentials: [],
       passiveSkills: [],
-      eventHandlers: [],
       comboSkillConditions: [],
       abilityEntityDefinitions: {},
       buffDefinitions: {},

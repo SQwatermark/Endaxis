@@ -22,7 +22,7 @@ import {
 } from '../../src/compiler/optimization/definitionUsageAnalysis.ts';
 import {
   analyzeGraphSequenceUsage,
-  optimizeActionGraphDefinition,
+  optimizeActionGraphEntries,
 } from '../../src/compiler/optimization/graphSequenceOptimization.ts';
 import { pruneUnusedGraphSkillValues } from '../../src/compiler/optimization/graphValueOptimization.ts';
 import { extractGraphDataNodes } from '../../src/compiler/extractGraphDataNodes.ts';
@@ -69,7 +69,7 @@ describe('黑板用途的读取对象', () => {
       expect(allocated).toBe(query.kind === 'fixedPoint' ? 1 : 0);
       for (const condition of [distance, angle]) {
         expect(analyzeConditionUsage(condition).observable).toBe(allocated > 0);
-        const optimized = optimizeActionGraphDefinition(
+        const optimized = optimizeActionGraphEntries(
           {
             nodes: {
               branch: {
@@ -88,7 +88,7 @@ describe('黑板用途的读取对象', () => {
               },
             },
           },
-          { $sequence: 'branch' },
+          [{ $sequence: 'branch' }],
           { mode: 'apply', definitionId: 'query' },
         );
         expect(

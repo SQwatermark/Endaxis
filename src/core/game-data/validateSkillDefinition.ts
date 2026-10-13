@@ -20,7 +20,6 @@ import {
   validateActionGraphReference,
   validateActionGraphActions,
   validateScheduledSequence,
-  validateEventHandler,
 } from './validation/actionPrograms';
 export type { SkillDefinitionValidationIssue } from './validation/definitionValues';
 
@@ -104,29 +103,6 @@ export function validateSkillDefinition(
         reference: route.sequence,
         path: `${path}.switchToBuffCast.sequence`,
         currentTargetAvailable: false,
-      });
-    if (Array.isArray(record.eventHandlers))
-      record.eventHandlers.forEach((handler, index) => {
-        const row =
-          handler !== null && typeof handler === 'object' && !Array.isArray(handler)
-            ? (handler as Record<string, unknown>)
-            : null;
-        if (row === null || !Array.isArray(row.scheduledSequences)) return;
-        row.scheduledSequences.forEach((sequence, sequenceIndex) => {
-          const sequencePath = `${path}.eventHandlers[${index}].scheduledSequences[${sequenceIndex}]`;
-          const item =
-            sequence !== null && typeof sequence === 'object' && !Array.isArray(sequence)
-              ? (sequence as Record<string, unknown>)
-              : null;
-          entries.push({
-            reference: item === null ? undefined : item.sequence,
-            path: sequencePath,
-            currentTargetAvailable: false,
-            ...(item !== null && item.endFrame === undefined
-              ? { missingListenerEndFramePath: `${sequencePath}.endFrame` }
-              : {}),
-          });
-        });
       });
     validateActionGraphContexts(record.actionGraph, `${path}.actionGraph`, entries, out);
   }
@@ -291,15 +267,8 @@ export function validateSkillDefinition(
     push(out, `${path}.scheduledSequences`, 'expected an array');
   }
 
-  if (record.eventHandlers !== undefined) {
-    if (!Array.isArray(record.eventHandlers)) {
-      push(out, `${path}.eventHandlers`, 'expected an array');
-    } else {
-      record.eventHandlers.forEach((handler, index) => {
-        validateEventHandler(handler, `${path}.eventHandlers[${index}]`, out);
-      });
-    }
-  }
+  if ('eventHandlers' in record)
+    push(out, `${path}.eventHandlers`, 'use action graph listeners with an explicit lifetime');
 
   return out;
 }

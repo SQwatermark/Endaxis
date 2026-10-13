@@ -376,22 +376,6 @@ export interface OperatorUpgradeDefinition {
   passiveSkills?: readonly OperatorPassiveSkillDefinition[];
 }
 
-/** 干员定义可以监听的构筑事件。 */
-export const OPERATOR_EVENTS = ['deckAttributesChanged'] as const;
-
-/** 一种干员构筑事件。 */
-export type OperatorEvent = (typeof OPERATOR_EVENTS)[number];
-
-/** 干员对一项构筑事件的响应。 */
-export interface OperatorEventHandlerDefinition {
-  /** 响应在此干员定义中的唯一名称。 */
-  key: string;
-  /** 要监听的构筑事件。 */
-  event: OperatorEvent;
-  /** 事件发生后执行的动作序列。 */
-  sequence: ActionGraphReference;
-}
-
 /** 由静态构筑条件派生、在本场战斗创建技能实例前写入的原生实体黑板值。 */
 export interface OperatorEntityBlackboardInitializerDefinition {
   /** 要初始化的实体黑板键。 */
@@ -557,8 +541,6 @@ export interface OperatorDefinition {
   entityBlackboardInitializers?: readonly OperatorEntityBlackboardInitializerDefinition[];
   /** 角色自身始终安装的隐藏基础被动；与受构筑开关控制的天赋/潜能被动分开。 */
   passiveSkills?: readonly OperatorPassiveSkillDefinition[];
-  /** 构筑属性变化时执行的干员级响应。 */
-  eventHandlers?: readonly OperatorEventHandlerDefinition[];
   /** 固定两个按顺序排列的天赋槽；只修改槽内内容，不改变槽位数量。 */
   talents: readonly OperatorUpgradeDefinition[];
   /** 固定五个按顺序排列的潜能槽；校验器会报告数量不正确的草稿。 */

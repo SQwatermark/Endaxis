@@ -1,6 +1,5 @@
 import type { SkillDefinition } from '../../../packages/game-data-contract/src/skills.ts';
 import type { SkillBuffDefinition } from '../../../packages/game-data-contract/src/buffs.ts';
-import type { AbilityEntityDefinition } from '../../../packages/game-data-contract/src/skills.ts';
 import type {
   ActionGraphDefinitionRepository,
   ImportedAbilityEntityDefinitions,
@@ -8,10 +7,9 @@ import type {
 
 import { compileSkillProgram } from './compileSkillProgram';
 import { createProgramDefinitionCompiler } from './compileProgramDefinitions';
-import { createIndependentAbilityEntityImportResolver } from './compileCommonAbilityEntityImports';
 export { compileSkillCosts } from './compileSkillProgram';
 import type { SkillType, OperatorAbilityEntityDefinitions } from '../game-data/operatorDefinition';
-import type { ResolvedSkillBuffDefinition, ResolvedAbilityEntityDefinition } from './combatProgram';
+import type { ResolvedSkillBuffDefinition } from './combatProgram';
 import type { StaticBuffDefinition } from '../../../packages/game-data-contract/src/buffs';
 
 interface CompileSkillMetadata {
@@ -43,21 +41,6 @@ export function compileIndependentBuffResource(
     graph => programs.compile(graph, 0, undefined, imports).compileEntry,
   );
   return compiler.buff(definition, `buffDefinitions.${JSON.stringify(id)}`);
-}
-
-/** 能力实体只绑定自己图内的入口，外部引用仍由定义目录解析。 */
-export function compileIndependentAbilityEntityResource(
-  definition: AbilityEntityDefinition,
-  id: string,
-  level: number,
-  programs: ActionGraphDefinitionRepository,
-  imports?: ImportedAbilityEntityDefinitions,
-): ResolvedAbilityEntityDefinition {
-  return createIndependentAbilityEntityImportResolver(
-    { [id]: definition },
-    programs,
-    () => imports ?? {},
-  )(level)[id]!;
 }
 
 export function compileSkill(input: CompileSkillInput) {

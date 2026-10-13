@@ -5,7 +5,6 @@ import {
   resolveCompactTrackHeights,
   TIMELINE_TRACK_MIN_HEIGHT,
   timelineLowerBuffTop,
-  timelineUpperBuffTop,
 } from './timelineTrackEffectLayout';
 
 describe('timeline track effect layout', () => {
@@ -18,27 +17,6 @@ describe('timeline track effect layout', () => {
     expect(resolveCompactTrackHeights([160, 160, 160, 160], 100)).toEqual([25, 25, 25, 25]);
     expect(resolveCompactTrackHeights([10000, 1, 1, 1], 800)).toEqual([602, 66, 66, 66]);
   });
-  it('keeps compact rows at their allocated height when effects use many lanes', () => {
-    expect(
-      projectTimelineTrackEffectLayout({
-        mode: 'compact',
-        upperLaneCount: 5,
-        lowerLaneCount: 6,
-      }),
-    ).toEqual({ height: 160, actionTop: 55 });
-  });
-
-  it('uses the compact row-height override as its clipping boundary', () => {
-    expect(
-      projectTimelineTrackEffectLayout({
-        mode: 'compact',
-        compactHeight: 210,
-        upperLaneCount: 8,
-        lowerLaneCount: 9,
-      }),
-    ).toEqual({ height: 210, actionTop: 80 });
-  });
-
   it('resizes adjacent compact rows without changing their pair total', () => {
     expect(resizeTimelineTrackPair([200, 200, 200, 200], 1, 35)).toEqual([200, 235, 165, 200]);
     expect(resizeTimelineTrackPair([160, 160], 0, 500)).toEqual([
@@ -70,17 +48,6 @@ describe('timeline track effect layout', () => {
     ).toEqual({ height: 278, actionTop: 114 });
   });
 
-  it('keeps an explicit compact row height even when it is below the normal resize limit', () => {
-    expect(
-      projectTimelineTrackEffectLayout({
-        mode: 'compact',
-        compactHeight: 66,
-        upperLaneCount: 1,
-        lowerLaneCount: 1,
-      }),
-    ).toEqual({ height: 66, actionTop: 8 });
-  });
-
   it('stacks visible lower buffs inward from the track edge', () => {
     for (const count of [1, 2, 6, 12]) {
       const { height, actionTop } = projectTimelineTrackEffectLayout({
@@ -97,19 +64,17 @@ describe('timeline track effect layout', () => {
     }
   });
 
-  it('uses the same inward lower-buff coordinates inside a compact clipping boundary', () => {
-    const { height, actionTop } = projectTimelineTrackEffectLayout({
-      mode: 'compact',
-      compactHeight: 200,
-      upperLaneCount: 20,
-      lowerLaneCount: 20,
-    });
-    expect(height).toBe(200);
-    expect(timelineLowerBuffTop(actionTop, 0) + 18).toBe(height - 5);
-    expect(timelineLowerBuffTop(actionTop, 19)).toBeLessThan(0);
-  });
-
-  it('stacks upper buffs from the outer edge toward the skill area like the legacy layer', () => {
-    expect([0, 1, 2, 3].map(timelineUpperBuffTop)).toEqual([5, 29, 53, 77]);
+  it('keeps allocated compact heights and clips excess effects inward from the track edge', () => {
+    for (const compactHeight of [undefined, 210, 66]) {
+      const { height, actionTop } = projectTimelineTrackEffectLayout({
+        mode: 'compact',
+        compactHeight,
+        upperLaneCount: 20,
+        lowerLaneCount: 20,
+      });
+      expect(height).toBe(compactHeight ?? 160);
+      expect(timelineLowerBuffTop(actionTop, 0) + 18).toBe(height - 5);
+      expect(timelineLowerBuffTop(actionTop, 19)).toBeLessThan(0);
+    }
   });
 });

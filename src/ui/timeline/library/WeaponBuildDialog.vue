@@ -16,11 +16,7 @@ import {
   getWeaponSkillName,
   getWeaponUiLabel,
 } from '../../gameText';
-import {
-  getWeaponTraitBounds,
-  type WeaponLevel,
-  type WeaponTraitLevelBounds,
-} from '../../progression';
+import { getWeaponTraitBounds, type WeaponLevel } from '../../progression';
 import { GameRichTextRenderer } from '../../presentation';
 import type { WeaponInstanceChanges } from './loadoutBuildCommands';
 import type { WeaponInstanceViewModel } from './loadoutBuildViewModel';
@@ -85,10 +81,6 @@ const canTune = computed(() => {
   return level !== undefined && level !== 1 && level !== 90;
 });
 
-const traitKeys = computed<readonly string[]>(() =>
-  (props.weapon?.definition.traits ?? []).map(trait => trait.key),
-);
-
 function isWeaponTraitKey(value: string): value is WeaponTraitKey {
   return value === 'skill1' || value === 'skill2' || value === 'skill3';
 }
@@ -97,32 +89,40 @@ function currentLevelNode(): WeaponLevel | null {
   return LEVELS.find(level => level === props.weapon?.level) ?? null;
 }
 
-function boundsFor(level: WeaponLevel, tuned: boolean, potential: number) {
-  return getWeaponTraitBounds(level, tuned, potential);
-}
-
-function currentBounds(): Record<WeaponTraitKey, WeaponTraitLevelBounds> | null {
+const currentBounds = computed(() => {
   const weapon = props.weapon;
   const level = currentLevelNode();
-  return weapon && level ? boundsFor(level, weapon.tuned, weapon.potential) : null;
-}
+  return weapon && level ? getWeaponTraitBounds(level, weapon.tuned, weapon.potential) : null;
+});
 
-function traitIndex(key: string): number {
-  return props.weapon?.definition.traits.findIndex(trait => trait.key === key) ?? -1;
-}
-
-function traitLevel(key: string): number {
-  const index = traitIndex(key);
-  return index < 0 ? 1 : (props.weapon?.traitLevels[index] ?? 1);
-}
-
-function traitBounds(key: string): WeaponTraitLevelBounds {
-  const bounds = isWeaponTraitKey(key) ? currentBounds()?.[key] : undefined;
-  if (bounds) return bounds;
-  const index = traitIndex(key);
-  const levelCount = index < 0 ? 1 : (props.weapon?.definition.traits[index]?.levelCount ?? 1);
-  return { min: 1, max: levelCount };
-}
+const traitRows = computed(() =>
+  (props.weapon?.definition.traits ?? []).map((trait, index) => {
+    const key = trait.key;
+    const current = props.weapon?.traitLevels[index] ?? 1;
+    const bounds = (isWeaponTraitKey(key) ? currentBounds.value?.[key] : undefined) ?? {
+      min: 1,
+      max: trait.levelCount,
+    };
+    return {
+      key,
+      current,
+      bounds,
+      name: isWeaponTraitKey(key)
+        ? getWeaponSkillName(weaponTextSlug.value, key, locale.value, t(`armory.weapon.${key}`))
+        : key,
+      description: isWeaponTraitKey(key)
+        ? (getWeaponSkillDescription(weaponTextSlug.value, key, locale.value, current) ?? '')
+        : '',
+      valueText: getWeaponTraitValueText(trait, current),
+      slots: Array.from({ length: Math.max(1, trait.levelCount) }, (_, offset): LevelSlotState => {
+        const level = offset + 1;
+        if (level <= bounds.min) return 'base';
+        if (level <= current) return 'active';
+        return level <= bounds.max ? 'empty' : 'locked';
+      }),
+    };
+  }),
+);
 
 function emitChange(changes: WeaponInstanceChanges): void {
   emit('change', changes);
@@ -148,50 +148,14 @@ function setPotential(potential: number): void {
   emitChange(projectWeaponPotentialChange(weapon, nextPotential));
 }
 
-function setTraitLevel(key: string, selectedLevel: number): void {
+function setTraitLevel(index: number, selectedLevel: number): void {
   const weapon = props.weapon;
-  const index = traitIndex(key);
-  const bounds = traitBounds(key);
-  if (!weapon || index < 0 || selectedLevel <= bounds.min || selectedLevel > bounds.max) return;
-  const current = traitLevel(key);
+  const row = traitRows.value[index];
+  if (!weapon || !row || selectedLevel <= row.bounds.min || selectedLevel > row.bounds.max) return;
   const traitLevels = [...weapon.traitLevels];
   traitLevels[index] =
-    selectedLevel === current ? Math.max(bounds.min, current - 1) : selectedLevel;
+    selectedLevel === row.current ? Math.max(row.bounds.min, row.current - 1) : selectedLevel;
   emitChange({ traitLevels });
-}
-
-function slotState(key: string, level: number): LevelSlotState {
-  const bounds = traitBounds(key);
-  if (level <= bounds.min) return 'base';
-  if (level <= traitLevel(key)) return 'active';
-  if (level <= bounds.max) return 'empty';
-  return 'locked';
-}
-
-function traitName(key: string): string {
-  const weapon = props.weapon;
-  if (!isWeaponTraitKey(key)) return key;
-  if (!weapon) return t(`armory.weapon.${key}`);
-  return getWeaponSkillName(weaponTextSlug.value, key, locale.value, t(`armory.weapon.${key}`));
-}
-
-function traitDescription(key: string): string {
-  const weapon = props.weapon;
-  if (!weapon || !isWeaponTraitKey(key)) return '';
-  return getWeaponSkillDescription(weaponTextSlug.value, key, locale.value, traitLevel(key)) ?? '';
-}
-
-function traitValueText(key: string): string {
-  const weapon = props.weapon;
-  const index = traitIndex(key);
-  const trait = index < 0 ? undefined : weapon?.definition.traits[index];
-  return trait ? getWeaponTraitValueText(trait, traitLevel(key)) : '';
-}
-
-function traitDisplayLevels(key: string): readonly number[] {
-  const index = traitIndex(key);
-  const count = index < 0 ? 1 : (props.weapon?.definition.traits[index]?.levelCount ?? 1);
-  return Array.from({ length: Math.max(1, count) }, (_, level) => level + 1);
 }
 
 function tuningLabel(): string {
@@ -304,33 +268,29 @@ function maxOut(): void {
 
           <div class="section">
             <div class="section-title">{{ t('armory.common.skills') }}</div>
-            <div v-for="key in traitKeys" :key="key" class="skill-row">
+            <div v-for="(row, index) in traitRows" :key="row.key" class="skill-row">
               <div class="skill-row-main">
                 <div class="skill-info">
-                  <span class="skill-name">{{ traitName(key) }}</span>
-                  <span v-if="traitValueText(key)" class="skill-value">{{
-                    traitValueText(key)
-                  }}</span>
+                  <span class="skill-name">{{ row.name }}</span>
+                  <span v-if="row.valueText" class="skill-value">{{ row.valueText }}</span>
                 </div>
                 <div class="skill-bar-area">
                   <div class="skill-slots">
                     <ArmoryLevelSlot
-                      v-for="level in traitDisplayLevels(key)"
-                      :key="level"
-                      :state="slotState(key, level)"
-                      :label="`${traitName(key)} ${level}`"
-                      @click="setTraitLevel(key, level)"
+                      v-for="(state, offset) in row.slots"
+                      :key="offset"
+                      :state="state"
+                      :label="`${row.name} ${offset + 1}`"
+                      @click="setTraitLevel(index, offset + 1)"
                     />
                   </div>
-                  <span class="skill-counter"
-                    >{{ traitLevel(key) }}/{{ traitBounds(key).max }}</span
-                  >
+                  <span class="skill-counter">{{ row.current }}/{{ row.bounds.max }}</span>
                 </div>
               </div>
               <GameRichTextRenderer
-                v-if="traitDescription(key)"
+                v-if="row.description"
                 class="skill-description"
-                :text="traitDescription(key)"
+                :text="row.description"
                 :locale="locale"
               />
             </div>

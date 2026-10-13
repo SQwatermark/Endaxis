@@ -40,7 +40,7 @@ import { DamageCalculationSnapshots } from '../damage/damageCalculationSnapshots
 import type { CombatSemanticEventRuntime } from '../events/combatSemanticEventRuntime';
 import { operationProducer } from '../receipt/combatObjectIdentity';
 import type { CombatOperationContext, CombatOperationExecutor } from '../skills/skillRuntime';
-import type { ActionGraphExecutionState, TimelineRuntimeState } from '../state/actionState';
+import type { TimelineRuntimeState } from '../state/actionState';
 import {
   bindTimelineProgram,
   type TimelineActionLifecycleSink,
@@ -375,23 +375,6 @@ export class CombatActionSequenceRuntime {
     sequenceHostState = createActionSequenceHostState(),
   ) {
     this.#sequenceHostState = sequenceHostState;
-  }
-
-  /** 图入口直接绑定现有操作执行器；不经过序列树或展开器。 */
-  createGraphSequence(
-    program: CompiledActionGraph,
-    entry: string | null,
-    invocation: string,
-    operationContext: CombatOperationContext = this.context,
-    state?: ActionGraphExecutionState,
-  ): ActionGraphExecution {
-    return new ActionGraphExecution(
-      program,
-      entry,
-      invocation,
-      this.#graphHost(operationContext),
-      state,
-    );
   }
 
   #graphHost(operationContext: CombatOperationContext): ActionGraphExecutionHost {

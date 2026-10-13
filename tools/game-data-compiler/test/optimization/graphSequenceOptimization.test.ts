@@ -10,7 +10,7 @@ import type {
   ActionGraphStep,
 } from '../../src/compiler/intermediateDefinitions.ts';
 import type { CombatCondition } from '../../src/compiler/intermediateDefinitions.ts';
-import { optimizeActionGraphDefinition } from '../../src/compiler/optimization/graphSequenceOptimization.ts';
+import { optimizeActionGraphEntries } from '../../src/compiler/optimization/graphSequenceOptimization.ts';
 
 const literal = (value: number) => ({ kind: 'constant' as const, value });
 const constant = (value: boolean): CombatCondition => ({ kind: 'constant', value });
@@ -54,7 +54,11 @@ function fixture() {
 }
 
 function optimize(graph: ActionGraphDefinition, entry: ActionGraphReference) {
-  return optimizeActionGraphDefinition(graph, entry, { mode: 'apply', definitionId: 'fixture' });
+  const result = optimizeActionGraphEntries(graph, [entry], {
+    mode: 'apply',
+    definitionId: 'fixture',
+  });
+  return { ...result, entry: result.entries[0]! };
 }
 
 describe('图侧序列优化', () => {
@@ -258,12 +262,12 @@ describe('图侧序列优化', () => {
     const graph: ActionGraphDefinition = { nodes: f.nodes };
     const before = structuredClone(f.nodes);
 
-    const reported = optimizeActionGraphDefinition(graph, entry, {
+    const reported = optimizeActionGraphEntries(graph, [entry], {
       mode: 'report',
       definitionId: 'fixture',
     });
     expect(reported.graph).toBe(graph);
-    expect(reported.entry).toBe(entry);
+    expect(reported.entries[0]).toBe(entry);
     expect(reported.report.before).toEqual({ steps: 2, conditions: 1 });
     expect(reported.report.after).toEqual({ steps: 1, conditions: 0 });
     expect(reported.report.changes.map(change => change.rule)).toEqual([
@@ -286,7 +290,7 @@ describe('图侧序列优化', () => {
     expect(f.nodes).toEqual(before);
     expect(optimize(applied.graph, applied.entry).report.changes).toEqual([]);
     expect(
-      optimizeActionGraphDefinition(graph, entry, { mode: 'off', definitionId: 'fixture' }).report
+      optimizeActionGraphEntries(graph, [entry], { mode: 'off', definitionId: 'fixture' }).report
         .changes,
     ).toEqual([]);
   });
@@ -729,7 +733,7 @@ describe('图侧序列优化', () => {
     const guardedGraph: ActionGraphDefinition = { nodes: guarded.nodes };
     const rewritten = optimize(guardedGraph, guardedEntry);
     expect(Object.keys(rewritten.graph.nodes)).not.toContain('orphan');
-    const reported = optimizeActionGraphDefinition(guardedGraph, guardedEntry, {
+    const reported = optimizeActionGraphEntries(guardedGraph, [guardedEntry], {
       mode: 'report',
       definitionId: 'fixture',
     });

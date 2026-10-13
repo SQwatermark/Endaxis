@@ -33,7 +33,10 @@ import { WorkerScenarioSimulationService } from '../../application/simulation/wo
 import { ActionExecutionTrace } from '../../core/combat/actions/actionExecutionTrace';
 import type { OperatorPanelContributionReceipt } from '../../core/compiler/resolveOperatorPanel';
 import type { SkillGraphPresentation } from '../../core/project/graphPresentation';
-import { getSkillCastPlacementAnchor } from '../../core/project/skillCastPlacement';
+import {
+  getSkillCastPlacementAnchor,
+  resolveScenarioInitialFrame,
+} from '../../core/project/skillCastPlacement';
 import { projectCombatHudSnapshot } from '../../core/projection/combatHudSnapshot';
 import { projectDodgeMarkerDiagnostics } from '../../core/projection/dodgeMarkerDiagnostics';
 import { projectDodgeMarkerEffects } from '../../core/projection/dodgeMarkerEffects';
@@ -435,10 +438,6 @@ import {
   toggleTimelineViewLayerState,
   type TimelineViewLayerId,
 } from './results/timelineViewLayers';
-import {
-  ABILITY_ENTITY_SAMPLE_CAST_ID,
-  ABILITY_ENTITY_SAMPLE_TRACK_INDEX,
-} from './timelineSampleScenario';
 
 // 定义编辑器只在用户明确打开时加载。它们会引入完整的行为编辑组件树，常驻在
 // 时间轴首页既浪费内存，也会让 Vite 在首次打开页面时转换大量不会使用的源码。
@@ -457,6 +456,27 @@ const SkillGraphEditorDialog = defineLazyDialog(
 const ExecutionTraceDialog = defineLazyDialog(
   () => import('../action-graph/ExecutionTraceDialog.vue'),
 );
+const CombatStateInspectionDialog = defineLazyDialog(
+  () => import('./results/CombatStateInspectionDialog.vue'),
+);
+const stateInspectionScenario = shallowRef<ScenarioDocument | null>(null);
+const stateInspectionFrame = ref(0);
+const stateInspectionMinFrame = ref(0);
+function openStateInspection() {
+  if (!import.meta.env.DEV || markerContextTarget.value === null) return;
+  stateInspectionMinFrame.value = resolveScenarioInitialFrame(scenario.value);
+  stateInspectionFrame.value = markerContextTarget.value.frame;
+  stateInspectionScenario.value = structuredClone(toRaw(scenario.value));
+  markerContextTarget.value = null;
+}
+function captureInspectionState(frame: number) {
+  const source = stateInspectionScenario.value;
+  if (source === null) throw new Error('No scenario selected for state inspection');
+  const service = createEditorSimulationService(editorGameDataRepository);
+  const session = service.createCombatSession(source);
+  session.advanceToFrame(frame);
+  return session.runtime.readState();
+}
 const executionTraceRequest = shallowRef<{
   label: string;
   definition: SkillDefinition;
@@ -678,12 +698,7 @@ async function selectTimelineLocale(next: 'zh-CN' | 'en'): Promise<void> {
   if (locale.value === next) return;
   await setLocale(next, ALL_GAME_TEXT_FAMILIES);
 }
-const timelineSelection = shallowRef(
-  createTimelineEditorSelection(ABILITY_ENTITY_SAMPLE_TRACK_INDEX, {
-    selectedIds: new Set([ABILITY_ENTITY_SAMPLE_CAST_ID]),
-    primaryId: ABILITY_ENTITY_SAMPLE_CAST_ID,
-  }),
-);
+const timelineSelection = shallowRef(createTimelineEditorSelection(0));
 const selectedTrack = computed<TrackIndex>({
   get: () => timelineSelection.value.activeTrackIndex,
   set: trackIndex => {
@@ -3083,23 +3098,6 @@ const mobilePhysicalStatusSegments = computed(() => {
   return physical.filter(segment => !hiddenIcons.has(segment));
 });
 
-/** 光标快照只消费已经生成的生命周期段，不回查或重算 Buff 运行时。 */
-const combatHudInitialSkillSlots = computed(() =>
-  viewModel.value.tracks.flatMap(track => {
-    if (track.operatorInstanceId === null || track.operatorSlug === null) return [];
-    const definition = editorGameDataRepository.getOperator(track.operatorSlug);
-    return [
-      {
-        operatorId: track.operatorInstanceId,
-        slots: (definition?.skillSlots ?? []).map(slot => ({
-          skillSlotKey: slot.key,
-          currentSkillKey: slot.baseSkillKey,
-        })),
-      },
-    ];
-  }),
-);
-
 const operatorStatusTimelineSources = computed(() =>
   viewModel.value.tracks.flatMap(track => {
     if (track.operatorInstanceId === null || track.operatorSlug === null) return [];
@@ -3126,14 +3124,6 @@ const operatorStatusTimelineSources = computed(() =>
   }),
 );
 
-/** 专属 UI 不只采样光标快照；非零状态还要保留完整生命周期供轨道展示。 */
-const combatHudOperatorPassiveUis = computed(() =>
-  viewModel.value.tracks.flatMap(track => {
-    if (track.operatorInstanceId === null || track.operatorSlug === null) return [];
-    const definition = editorGameDataRepository.getOperator(track.operatorSlug)?.passiveUi;
-    return definition ? [{ operatorId: track.operatorInstanceId, definition }] : [];
-  }),
-);
 const operatorPassiveUiTimelineSegments = computed(() => {
   const current = simulationRun.value;
   return current === null
@@ -3165,8 +3155,6 @@ const combatHudSnapshot = computed(() => {
     poiseCurve: current.poiseCurve,
     resourceCurves: current.resourceCurves,
     receiptEntries: publishedReceiptEntries.value,
-    operatorSkillSlots: combatHudInitialSkillSlots.value,
-    operatorPassiveUis: combatHudOperatorPassiveUis.value,
   });
 });
 
@@ -3757,8 +3745,6 @@ const cursorGuideMetrics = computed(() => {
           poiseCurve: current.poiseCurve,
           resourceCurves: current.resourceCurves,
           receiptEntries: publishedReceiptEntries.value,
-          operatorSkillSlots: combatHudInitialSkillSlots.value,
-          operatorPassiveUis: combatHudOperatorPassiveUis.value,
         });
   if (current !== null && snapshot !== null) {
     sp = String(Math.floor(Number(snapshot.sp.current) || 0));
@@ -7960,6 +7946,7 @@ function setMobileGuideFrame(frame: number | null): void {
       projectScenarios.some(item => item.id === scenario.inheritance?.sourceScenarioId)
     "
     @open-source="openInheritedSource"
+    @inspect-state="openStateInspection"
     :read-only="
       markerContextTarget?.existing
         ? selectedItems.some(item => item.blocked)
@@ -8094,6 +8081,19 @@ function setMobileGuideFrame(frame: number | null): void {
     @select="selectGear"
     @clear="clearGear"
     @change-refine-tier="changeGearRefineTier"
+  />
+  <CombatStateInspectionDialog
+    v-if="stateInspectionScenario"
+    :initial-frame="
+      Math.max(
+        stateInspectionMinFrame,
+        Math.min(stateInspectionScenario.battle.durationFrames, Math.round(stateInspectionFrame)),
+      )
+    "
+    :min-frame="stateInspectionMinFrame"
+    :max-frame="stateInspectionScenario.battle.durationFrames"
+    :capture="captureInspectionState"
+    @close="stateInspectionScenario = null"
   />
   <ExecutionTraceDialog
     :definition="executionTraceRequest!.definition"

@@ -212,8 +212,6 @@ function applyNode(value: unknown) {
     <NativeIdHarness />
     <GraphOperandHarness field="instantAttributeModifiers" />
     <GraphOperandHarness field="instantDamageScaleModifiers" />
-    <GraphOperandHarness field="keywordEnhancements" />
-    <GraphOperandHarness field="onActionEndBuffs" />
     <GraphOperandHarness field="items" />
     <StringGraphHarness />
     <GlobalBuffHarness />

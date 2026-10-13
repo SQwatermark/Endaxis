@@ -5,7 +5,6 @@ import {
   createDefaultWeaponInstance,
 } from '../../../application/editor/loadoutBuildFactory';
 import type { OperatorInstanceViewModel, WeaponInstanceViewModel } from './loadoutBuildViewModel';
-import type { OperatorLevel, WeaponLevel } from '../../progression';
 import {
   projectMaxOperatorChanges,
   projectMaxWeaponChanges,
@@ -25,23 +24,8 @@ function weaponView(slug: string): WeaponInstanceViewModel {
 }
 
 describe('loadout build progression projection', () => {
-  it('lowering an operator clamps promotion, skill levels and trust in one change', () => {
-    const operator = operatorView('perlica');
-    expect(projectOperatorProgressionChange(operator, 1, true)).toMatchObject({
-      level: 1,
-      promoted: false,
-      trustLevel: 0,
-      skillLevels: {
-        basicAttack: 3,
-        battleSkill: 3,
-        comboSkill: 3,
-        ultimate: 3,
-      },
-    });
-  });
-
   it.each([
-    [1, false, false, 3, 0],
+    [1, true, false, 3, 0],
     [20, true, true, 3, 1],
     [40, true, true, 6, 2],
     [60, true, true, 9, 3],
@@ -51,19 +35,17 @@ describe('loadout build progression projection', () => {
     'projects operator level %i promoted=%s to native limits',
     (level, requestedPromoted, promoted, skillMaximum, trustMaximum) => {
       const operator = operatorView('perlica');
-      const projected = projectOperatorProgressionChange(
-        operator,
-        level as OperatorLevel,
-        requestedPromoted,
-      );
-      expect(projected.promoted).toBe(promoted);
-      expect(projected.trustLevel).toBe(trustMaximum);
-      expect(Object.values(projected.skillLevels ?? {})).toEqual(
-        expect.arrayContaining([skillMaximum]),
-      );
-      expect(
-        Object.values(projected.skillLevels ?? {}).every(value => value === skillMaximum),
-      ).toBe(true);
+      expect(projectOperatorProgressionChange(operator, level, requestedPromoted)).toEqual({
+        level,
+        promoted,
+        trustLevel: trustMaximum,
+        skillLevels: {
+          basicAttack: skillMaximum,
+          battleSkill: skillMaximum,
+          comboSkill: skillMaximum,
+          ultimate: skillMaximum,
+        },
+      });
     },
   );
 
@@ -115,11 +97,7 @@ describe('loadout build progression projection', () => {
         potential: 0,
         traitLevels: [9, 9, 9],
       };
-      const projected = projectWeaponProgressionChange(
-        weapon,
-        level as WeaponLevel,
-        requestedTuned,
-      );
+      const projected = projectWeaponProgressionChange(weapon, level, requestedTuned);
       expect(projected.tuned).toBe(tuned);
       expect(projected.traitLevels).toEqual(expectedLevels);
     },

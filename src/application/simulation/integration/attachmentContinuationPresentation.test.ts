@@ -2,8 +2,7 @@ import { expect, it } from 'vitest';
 import { createEmptyScenario } from '../../../core/project/createProject';
 import { gameDataRepository } from '../../../data/gameDataRepository';
 import { elementalAttachments } from '../../../data/buffs/elementalAttachments';
-import { skillSettings } from '../../../data/combat/skillSettings';
-import { ScenarioSimulationService } from '../scenarioSimulationService';
+import { createScenarioSimulationService } from '../createScenarioSimulationService';
 import {
   mergeOverlappingBuffTimelineSegments,
   projectBuffTimelineViz,
@@ -68,16 +67,7 @@ it.each(['repeat', 'convert', 'consume'])(
         scenario.tracks[2] = third;
       }
     }
-    const service = new ScenarioSimulationService({
-      index: gameDataRepository,
-      spellInflictionSettings: skillSettings,
-      resources: {
-        sharedSpGain: { baseGainEfficiency: 1 },
-        spRecoveryPauseDuration: 1.5,
-        ultimateEnergySystemUnlocked: true,
-        normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
-      },
-    });
+    const service = createScenarioSimulationService(gameDataRepository);
     const run = await service.simulate(scenario, 240);
     if (mode !== 'repeat') {
       const viz = projectEnemyEffectViz(run.receiptEntries, 240);

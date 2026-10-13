@@ -63,7 +63,7 @@ export function normalizeDurationBarColorPrefs(value: unknown): DurationBarColor
 }
 
 /** Classify emitted provenance, never translated labels or guessed buff names. */
-export function durationColorSource(
+function durationColorSource(
   sourceActionId: string | undefined,
 ): 'weapon' | 'gearSet' | 'operator' {
   const kind = /^(?:equipment:|upgrade-initialization:)([^:]+):/.exec(sourceActionId ?? '')?.[1];

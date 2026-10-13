@@ -75,15 +75,6 @@ function appendRecoveredPoint(
   });
 }
 
-/** 从初始失衡按事实顺序投影失衡曲线；被取消或免疫拦截的结算仍保留其事实点。 */
-export function projectPoiseCurve(
-  initial: PoiseCurveInitial,
-  changes: readonly PoiseChangePoint[],
-  initialFrame = 0,
-): PoiseCurve {
-  return projectPoiseCurvePoints(initial, changes, initialFrame);
-}
-
 /** 从回执直接投影失衡曲线，并在应用结算与恢复之间保持严格连续。 */
 export function projectPoiseCurveFromReceipt(
   initial: PoiseCurveInitial,

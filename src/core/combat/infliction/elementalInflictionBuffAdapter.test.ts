@@ -254,7 +254,7 @@ describe('ElementalInflictionBuffAdapter', () => {
       adapter.apply(operation);
     }
     expect(adapter.getExistingAttachment()).toEqual({ element: 'heat', layers: 2 });
-    expect(target.getCountById('burst.heat')).toBe(1);
+    expect(target.getCountByIds(['burst.heat'])).toBe(1);
   });
 
   it('consumes a different attachment and assigns native compound-status values', () => {

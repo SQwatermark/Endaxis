@@ -431,10 +431,6 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
     return this.#requireInstance(target).timedMarkers;
   }
 
-  setTarget(entity: RuntimeTargetRef, target: RuntimeTargetRef): void {
-    this.#requireInstance(entity).state.target = target;
-  }
-
   isMarkedDead(target: RuntimeTargetRef): boolean {
     return this.runtimeState.deadSources.some(dead => this.#sameTarget(dead, target));
   }

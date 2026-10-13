@@ -1,6 +1,5 @@
 import type { CombatReceiptEntry } from '../../../core/combat/receipt/combatReceipt';
 import {
-  findBuffTimelineSegmentForDamage,
   projectBuffIconTimelineMetadata,
   type BuffTimelineSegment,
 } from '../../../core/projection/buffTimelineViz';
@@ -38,12 +37,4 @@ export function groupEnemyBuffDamageHits(
     groups.set(key, group);
   }
   return [...groups.values()];
-}
-
-/** 仅使用执行实例的可见段；末帧伤害可归属结束段，叠层边界优先使用新段。 */
-export function findBuffDamageSegment<T extends BuffTimelineSegment>(
-  entry: CombatReceiptEntry,
-  segments: readonly T[],
-): T | undefined {
-  return findBuffTimelineSegmentForDamage(entry, segments);
 }

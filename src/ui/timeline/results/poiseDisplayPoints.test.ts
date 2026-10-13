@@ -1,32 +1,21 @@
 import { expect, it } from 'vitest';
 import { poiseDisplayPoints } from './resourceCurveDisplay';
 
-it('holds buildup until the hit, jumps vertically and extends the last known value', () => {
+it('holds buildup between hits, preserves same-frame changes and extends recovery through the axis end', () => {
   const input = [
     { frame: -30, value: 0 },
-    { frame: 66, value: 10 },
-  ];
-  expect(poiseDisplayPoints(input, 300)).toEqual([
-    input[0],
-    { frame: 66, value: 0 },
-    input[1],
-    { frame: 300, value: 10 },
-  ]);
-  expect(input).toHaveLength(2);
-});
-it('preserves ordered same-frame changes and holds full buildup until recovery', () => {
-  const input = [
-    { frame: 0, value: 0 },
     { frame: 30, value: 100 },
     { frame: 30, value: 300 },
     { frame: 90, value: 0 },
   ];
-  expect(poiseDisplayPoints(input, 90)).toEqual([
+  expect(poiseDisplayPoints(input, 300)).toEqual([
     input[0],
     { frame: 30, value: 0 },
     input[1],
     input[2],
     { frame: 90, value: 300 },
     input[3],
+    { frame: 300, value: 0 },
   ]);
+  expect(input).toHaveLength(4);
 });

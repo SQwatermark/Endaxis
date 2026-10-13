@@ -14,7 +14,6 @@ import {
   registerVitalsHealthFloor,
   removeVitalsHealthFloor,
 } from './combatVitalsExecution';
-import { isPeriodicTimerValid, readPeriodicTimerProgress } from '../time/periodicTimerExecution';
 
 /** 创建一个实体生命与失衡账本所需的完整初始状态。 */
 export interface CombatVitalsSnapshot {
@@ -109,11 +108,6 @@ export class CombatVitals {
   get inPoiseRecovery(): boolean {
     return inVitalsPoiseRecovery(this.runtimeState);
   }
-  get poiseRecoveryProgress(): number {
-    return isPeriodicTimerValid(this.runtimeState.poiseRecoveryTimer)
-      ? readPeriodicTimerProgress(this.runtimeState.poiseRecoveryTimer)
-      : 0;
-  }
   get hasPoiseBrokenTag(): boolean {
     return this.runtimeState.hasPoiseBrokenTag;
   }
@@ -142,16 +136,6 @@ export class CombatVitals {
   ): readonly PoiseTimerTransition[] {
     return tickVitals(this.runtimeState, deltaTime, onTransition);
   }
-  registerHealthFloor(value: number): () => void {
-    const id = this.requestHealthFloor(value);
-    let active = true;
-    return () => {
-      if (!active) return;
-      active = false;
-      this.removeHealthFloor(id);
-    };
-  }
-
   /** 动作宿主保存编号并在当前分支结束时移除，不保存闭包。 */
   requestHealthFloor(value: number): number {
     return registerVitalsHealthFloor(this.runtimeState, value);

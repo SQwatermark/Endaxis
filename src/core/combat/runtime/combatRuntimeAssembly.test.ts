@@ -1767,7 +1767,7 @@ describe('CombatRuntimeAssembly', () => {
 
     expect(assembly.tryStartSkill('operator', 'placed', 'placed-cast')).toBe(true);
     assembly.advanceFrame();
-    expect(container.getCountById('hidden-buff')).toBe(1);
+    expect(container.getCountByIds(['hidden-buff'])).toBe(1);
   });
 
   it('emits native owner switch events exactly when the control timeline changes', () => {
@@ -2074,9 +2074,9 @@ describe('CombatRuntimeAssembly', () => {
     });
 
     expect(assembly.tryStartSkill('source', 'support', 'support-cast')).toBe(true);
-    expect(allyBuffs.getCountById('source-parent')).toBe(1);
-    expect(allyBuffs.getCountById('source-child')).toBe(1);
-    expect(sourceBuffs.getCountById('source-child')).toBe(0);
+    expect(allyBuffs.getCountByIds(['source-parent'])).toBe(1);
+    expect(allyBuffs.getCountByIds(['source-child'])).toBe(1);
+    expect(sourceBuffs.getCountByIds(['source-child'])).toBe(0);
   });
 
   it('emits before-cast events for both direct and deferred skill starts', () => {
@@ -3504,21 +3504,21 @@ describe('CombatRuntimeAssembly', () => {
 
     assembly.advanceFrame();
 
-    expect(enemyBuffs.getCountById('default-clock')).toBe(1);
-    expect(enemyBuffs.getCountById('global-clock')).toBe(1);
-    expect(enemyBuffs.getCountById('self-clock')).toBe(1);
+    expect(enemyBuffs.getCountByIds(['default-clock'])).toBe(1);
+    expect(enemyBuffs.getCountByIds(['global-clock'])).toBe(1);
+    expect(enemyBuffs.getCountByIds(['self-clock'])).toBe(1);
     expect(Object.fromEntries(triggerCounts)).toEqual({ default: 1, global: 0, self: 0 });
 
     assembly.advanceFrame();
 
-    expect(enemyBuffs.getCountById('default-clock')).toBe(0);
-    expect(enemyBuffs.getCountById('global-clock')).toBe(1);
-    expect(enemyBuffs.getCountById('self-clock')).toBe(1);
+    expect(enemyBuffs.getCountByIds(['default-clock'])).toBe(0);
+    expect(enemyBuffs.getCountByIds(['global-clock'])).toBe(1);
+    expect(enemyBuffs.getCountByIds(['self-clock'])).toBe(1);
     expect(Object.fromEntries(triggerCounts)).toEqual({ default: 2, global: 1, self: 1 });
 
     assembly.advanceFrames(2);
-    expect(enemyBuffs.getCountById('global-clock')).toBe(0);
-    expect(enemyBuffs.getCountById('self-clock')).toBe(0);
+    expect(enemyBuffs.getCountByIds(['global-clock'])).toBe(0);
+    expect(enemyBuffs.getCountByIds(['self-clock'])).toBe(0);
     expect(Object.fromEntries(triggerCounts)).toEqual({ default: 2, global: 2, self: 2 });
   });
 
@@ -5154,7 +5154,7 @@ describe('CombatRuntimeAssembly', () => {
     expect(assembly.tryStartSkill('operator', 'skill')).toBe(true);
     expect(observedValue).toBe(4);
     assembly.advanceFrame();
-    expect(enemyBuffs.getCountById('conduct')).toBe(0);
+    expect(enemyBuffs.getCountByIds(['conduct'])).toBe(0);
   });
 
   it('evaluates action blackboard comparisons inside the assembled executor chain', () => {

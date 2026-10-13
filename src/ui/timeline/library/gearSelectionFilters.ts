@@ -1,6 +1,5 @@
 import type { GearDefinition } from '../../../core/game-data/equipmentDefinition';
 import type { OperatorDefinition } from '../../../core/game-data/operatorDefinition';
-import { getGearDefinitionSelectionAffixRows } from './gearAffixPresentation';
 
 export interface GearAffixFilterOption {
   readonly value: string;
@@ -57,21 +56,6 @@ export const GEAR_AFFIX_FILTER_GROUPS = Object.freeze([
     ],
   },
 ] satisfies readonly GearAffixFilterGroup[]);
-
-export function getGearAffixModifierIds(
-  definition: GearDefinition,
-  t: (key: string, named?: Record<string, unknown>) => string,
-): ReadonlySet<string> {
-  return new Set(getGearDefinitionSelectionAffixRows(definition, t).map(row => row.modifierId));
-}
-
-export function gearMatchesAffixFilter(
-  definition: GearDefinition,
-  filterId: string,
-  t: (key: string, named?: Record<string, unknown>) => string,
-): boolean {
-  return filterId === 'ALL' || getGearAffixModifierIds(definition, t).has(filterId);
-}
 
 export function gearMatchesOperatorAttributes(
   definition: GearDefinition,

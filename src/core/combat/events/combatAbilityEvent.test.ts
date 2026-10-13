@@ -7,22 +7,16 @@ import type {
   ExternalOperatorHitPayload,
 } from './combatAbilityEvent';
 import {
-  buffEnhanceAbilityEvent,
   characterInflictionAbilityEvent,
   customAbilityEvent,
   damageAbilityEvent,
   healAbilityEvent,
   inflictionAbilityEvent,
-  killAbilityEvent,
-  knockDownAbilityEvent,
-  lifecycleAbilityEvent,
   physicalAbilityEvent,
-  poiseAbilityEvent,
   shieldAbilityEvent,
   skillAbilityEvent,
   spellBurstAbilityEvent,
   spGainAbilityEvent,
-  weaknessAbilityEvent,
 } from './combatAbilityEvent';
 
 it('分类器只收窄统一事件，不读取或重新解释载荷，手工标记不冒充原生事件', () => {
@@ -36,19 +30,13 @@ it('分类器只收窄统一事件，不读取或重新解释载荷，手工标�
     spellBurstAbilityEvent,
     characterInflictionAbilityEvent,
     skillAbilityEvent,
-    lifecycleAbilityEvent,
-    weaknessAbilityEvent,
     customAbilityEvent,
-    poiseAbilityEvent,
     shieldAbilityEvent,
-    killAbilityEvent,
     inflictionAbilityEvent,
     spGainAbilityEvent,
     healAbilityEvent,
     damageAbilityEvent,
     physicalAbilityEvent,
-    knockDownAbilityEvent,
-    buffEnhanceAbilityEvent,
   ];
   for (const classify of classifiers) {
     expect(classify(published)).toBe(classify === shieldAbilityEvent ? published : undefined);
@@ -99,14 +87,6 @@ it('发布、数据动作、技能与连携共享同一事件和原始操作端�
     onAbilityEvent: event => check(event, 'combo'),
   });
   expect(calls).toEqual(['callback', 'action', 'attach', 'skill', 'combo']);
-});
-
-it('同载荷不同发布阶段仍保留真实事件身份', () => {
-  const payload = { sourceId: 'operator', targetId: 'enemy', buffId: 'buff', buffTags: [] };
-  const before: CombatAbilityEvent<'beforeAddedBuff'> = { event: 'beforeAddedBuff', payload };
-  const after: CombatAbilityEvent<'addedBuff'> = { event: 'addedBuff', payload };
-  expect(before.event).not.toBe(after.event);
-  expect(before.payload).toBe(after.payload);
 });
 
 // 类型回归：不能把另一种载荷挂到同一个事件名上，也不通过 Extract 得到空集后假通过。

@@ -774,11 +774,6 @@ describe('compileScenarioRuntimeAssembly', () => {
     expect(createOperationExecutor.mock.calls[0]![0].panel).toBe(compiled.operators[0]!.panel);
   });
 
-  it('does not require empty runtime binding records', () => {
-    const settings = options();
-    expect(() => compileScenarioRuntimeAssembly(createScenario(), settings)).not.toThrow();
-  });
-
   it('merges active equipment Buff blueprints and frame-zero installation programs', () => {
     const scenario = createScenario();
     const makeGear = (slug: string, slotType: GearDefinition['slotType']): GearDefinition => ({
@@ -928,7 +923,6 @@ it('无干员总图时，完整运行时使用独立技能和声明式附着 Buf
     abilityEntityDefinitions: {},
     comboSkillConditions: [],
     passiveSkills: [],
-    eventHandlers: [],
     talents: [{ levels: 2, attachedBuffs: [{ buffId: 'native-buff' }] }],
     potentials: [],
     dodgeSkill: undefined,

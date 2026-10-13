@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import { graphEntry } from '../../../test/compiledGraphEntry';
 import type {
   ActionGraphDefinition,
   ActionGraphNode,
@@ -138,16 +139,14 @@ describe('直接图执行', () => {
           },
           context,
         );
-      let action = makeRuntime().createGraphSequence(program, 'animation', 'root');
+      let action = makeRuntime().createSequence(graphEntry(program, 'animation', 'root'));
       action.tryExecute({});
       action.tick(0.5, {});
       expect(calls).toEqual([]);
       context.actionInputTarget = { kind: 'operator', operatorId: 'later' };
       if (mode === 'restored')
-        action = makeRuntime().createGraphSequence(
-          program,
-          'animation',
-          'root',
+        action = makeRuntime().createSequence(
+          graphEntry(program, 'animation', 'root'),
           undefined,
           structuredClone(action.runtimeState),
         );
@@ -210,7 +209,7 @@ describe('直接图执行', () => {
         },
         context,
       );
-    let action = makeRuntime().createGraphSequence(program, 'qte', 'root');
+    let action = makeRuntime().createSequence(graphEntry(program, 'qte', 'root'));
     action.tryExecute({});
     context.actionInputTarget = { kind: 'operator', operatorId: 'later' };
     if (restore) {
@@ -221,10 +220,8 @@ describe('直接图执行', () => {
         [],
         structuredClone(windows.runtimeState),
       );
-      action = makeRuntime().createGraphSequence(
-        program,
-        'qte',
-        'root',
+      action = makeRuntime().createSequence(
+        graphEntry(program, 'qte', 'root'),
         undefined,
         structuredClone(action.runtimeState),
       );
@@ -298,15 +295,13 @@ describe('直接图执行', () => {
     const runtime = new CombatActionSequenceRuntime(operations, {
       blackboard: new ActionBlackboard(),
     });
-    const action = runtime.createGraphSequence(program, 'aura', 'root');
+    const action = runtime.createSequence(graphEntry(program, 'aura', 'root'));
     stop = () => action.end({});
     action.tryExecute({});
     if (mode === 'empty') {
       expect(events).toEqual(['apply:a', 'apply:b']);
-      const restored = runtime.createGraphSequence(
-        program,
-        'aura',
-        'root',
+      const restored = runtime.createSequence(
+        graphEntry(program, 'aura', 'root'),
         undefined,
         structuredClone(action.runtimeState),
       );
@@ -327,10 +322,8 @@ describe('直接图执行', () => {
       return;
     }
     expect(events).toEqual(['apply:a', 'enter:a', 'apply:b', 'enter:b']);
-    const restored = runtime.createGraphSequence(
-      program,
-      'aura',
-      'root',
+    const restored = runtime.createSequence(
+      graphEntry(program, 'aura', 'root'),
       undefined,
       structuredClone(action.runtimeState),
     );
@@ -373,15 +366,18 @@ describe('直接图执行', () => {
       blackboard: board,
       executionActionId: 'cast',
     });
-    runtime.createGraphSequence(program, 'first', 'first-call').executeInstant({});
-    runtime.createGraphSequence(program, 'first', 'second-call').executeInstant({});
+    const first = runtime.createSequence(graphEntry(program, 'first', 'first-call'));
+    const second = runtime.createSequence(graphEntry(program, 'first', 'second-call'));
+    first.executeInstant({});
+    second.executeInstant({});
     const executed = trace.records.filter(r => r.phase === 'execute');
     expect(executions).toBe(4);
+    expect(first.runtimeState.invocation).not.toBe(second.runtimeState.invocation);
     expect(executed.map(r => r.invocation)).toEqual([
-      'first-call',
-      'first-call',
-      'second-call',
-      'second-call',
+      first.runtimeState.invocation,
+      first.runtimeState.invocation,
+      second.runtimeState.invocation,
+      second.runtimeState.invocation,
     ]);
     expect(executed.every(r => r.receiptEnd - r.receiptStart === 1)).toBe(true);
     expect(executed[0]!.observations).toEqual([{ kind: 'blackboard', input: 'value', result: 3 }]);
@@ -396,13 +392,13 @@ describe('直接图执行', () => {
       },
       { blackboard: board, executionActionId: 'cast' },
     );
-    expect(() => broken.createGraphSequence(program, 'first', 'broken').tryExecute({})).toThrow(
-      'stop',
-    );
+    expect(() =>
+      broken.createSequence(graphEntry(program, 'first', 'broken')).tryExecute({}),
+    ).toThrow('stop');
     expect(trace.records.at(-1)?.failed).toBe(true);
     const count = trace.records.length;
     new CombatActionSequenceRuntime(operations, { blackboard: board, executionActionId: 'other' })
-      .createGraphSequence(program, 'first', 'other')
+      .createSequence(graphEntry(program, 'first', 'other'))
       .executeInstant({});
     expect(trace.records).toHaveLength(count);
   });
@@ -598,13 +594,11 @@ describe('直接图执行', () => {
       requestTimelineJump: jump,
     };
     const runtime = new CombatActionSequenceRuntime({ execute, evaluate: () => true }, context);
-    const jumping = runtime.createGraphSequence(program, 'jump', 'jump-root');
+    const jumping = runtime.createSequence(graphEntry(program, 'jump', 'jump-root'));
     jumping.tryExecute({});
     expect(jump).toHaveBeenCalledExactlyOnceWith(30);
-    const resumed = runtime.createGraphSequence(
-      program,
-      'jump',
-      'jump-root',
+    const resumed = runtime.createSequence(
+      graphEntry(program, 'jump', 'jump-root'),
       context,
       structuredClone(jumping.runtimeState),
     );
@@ -661,7 +655,7 @@ describe('直接图执行', () => {
       };
     };
     const first = make();
-    const execution = first.runtime.createGraphSequence(program, 'loop', 'root');
+    const execution = first.runtime.createSequence(graphEntry(program, 'loop', 'root'));
     execution.tryExecute({});
     expect(first.seen).toEqual([
       'execute:first:1',
@@ -676,10 +670,8 @@ describe('直接图执行', () => {
     expect(loop.body).not.toBeNull();
     targets.set('items', []);
     const restored = make();
-    const resumed = restored.runtime.createGraphSequence(
-      program,
-      'loop',
-      'root',
+    const resumed = restored.runtime.createSequence(
+      graphEntry(program, 'loop', 'root'),
       undefined,
       structuredClone(execution.runtimeState),
     );
@@ -735,7 +727,7 @@ describe('直接图执行', () => {
       blackboard: new ActionBlackboard(),
       targetContext: targets,
     });
-    runtime.createGraphSequence(program, 'loop', 'root').tryExecute({});
+    runtime.createSequence(graphEntry(program, 'loop', 'root')).tryExecute({});
     const calls = vi.mocked(operations.execute).mock.calls.map(([step, context]) => ({
       key: (step as { key?: string }).key,
       target:
@@ -816,10 +808,12 @@ describe('直接图执行', () => {
         },
       },
     };
-    const execution = runtime.createGraphSequence(
-      createActionGraphCompilation(source, 1, 'listener').compileAll(),
-      'listener',
-      'root',
+    const execution = runtime.createSequence(
+      graphEntry(
+        createActionGraphCompilation(source, 1, 'listener').compileAll(),
+        'listener',
+        'root',
+      ),
     );
     execution.tryExecute({});
     emit('first');
@@ -848,15 +842,13 @@ describe('直接图执行', () => {
         { blackboard: new ActionBlackboard() },
       );
     const runtime = make();
-    const first = runtime.createGraphSequence(program, 'damage', 'first');
-    const second = runtime.createGraphSequence(program, 'damage', 'second');
+    const first = runtime.createSequence(graphEntry(program, 'damage', 'first'));
+    const second = runtime.createSequence(graphEntry(program, 'damage', 'second'));
     first.tryExecute({});
     second.tryExecute({});
     expect(slots[0]).not.toBe(slots[1]);
-    const resumed = make().createGraphSequence(
-      program,
-      'damage',
-      'first',
+    const resumed = make().createSequence(
+      graphEntry(program, 'damage', 'first'),
       undefined,
       structuredClone(first.runtimeState),
     );
@@ -864,10 +856,8 @@ describe('直接图执行', () => {
     expect(slots[2]).toBe(slots[0]);
     expect(program.nodes.size).toBe(3);
     expect(() =>
-      make().createGraphSequence(
-        createActionGraphCompilation(graph, 1, 'slots').compileAll(),
-        'damage',
-        'first',
+      make().createSequence(
+        graphEntry(createActionGraphCompilation(graph, 1, 'slots').compileAll(), 'damage', 'first'),
         undefined,
         structuredClone(first.runtimeState),
       ),
@@ -892,7 +882,7 @@ describe('直接图执行', () => {
     const { runtime, operations } = fixture();
     for (const entry of ['shared', 'local']) {
       for (const call of ['first', 'second']) {
-        const execution = runtime.createGraphSequence(program, entry, call);
+        const execution = runtime.createSequence(graphEntry(program, entry, call));
         execution.reset({});
         execution.tryExecute({});
         execution.end({});
@@ -917,15 +907,13 @@ describe('直接图执行', () => {
     };
     const program = createActionGraphCompilation(source, 1, 'repeat').compileAll();
     const first = fixture();
-    const execution = first.runtime.createGraphSequence(program, 'repeat', 'root');
+    const execution = first.runtime.createSequence(graphEntry(program, 'repeat', 'root'));
     execution.reset({});
     execution.tryExecute({});
     execution.tick(1 / 30, {});
     const restored = fixture();
-    const resumed = restored.runtime.createGraphSequence(
-      program,
-      'repeat',
-      'root',
+    const resumed = restored.runtime.createSequence(
+      graphEntry(program, 'repeat', 'root'),
       undefined,
       structuredClone(execution.runtimeState),
     );
@@ -1002,10 +990,12 @@ describe('直接图执行', () => {
         },
         { blackboard: new ActionBlackboard() },
       );
-      const execution = runtime.createGraphSequence(
-        createActionGraphCompilation(source, 1, 'controls').compileAll(),
-        'entry',
-        'root',
+      const execution = runtime.createSequence(
+        graphEntry(
+          createActionGraphCompilation(source, 1, 'controls').compileAll(),
+          'entry',
+          'root',
+        ),
       );
       execution.reset({});
       events.push(`result:${execution.tryExecute({})}`);
@@ -1076,7 +1066,7 @@ describe('直接图执行', () => {
     };
     const program = createActionGraphCompilation(source, 1, 'branches').compileAll();
     const original = fixture();
-    const first = original.runtime.createGraphSequence(program, 'entry', 'root');
+    const first = original.runtime.createSequence(graphEntry(program, 'entry', 'root'));
     first.reset({});
     first.tryExecute({});
     const branch = first.runtimeState.nodes.get('entry')!.data;
@@ -1085,10 +1075,8 @@ describe('直接图执行', () => {
     expect(branch.branches.get(0)!.nodes.get('damage')!.lifecycle.state).toBe('started');
     expect(branch.branches.get(1)!.nodes.get('damage')!.lifecycle.state).toBe('pending');
     const restored = fixture();
-    const resumed = restored.runtime.createGraphSequence(
-      program,
-      'entry',
-      'root',
+    const resumed = restored.runtime.createSequence(
+      graphEntry(program, 'entry', 'root'),
       undefined,
       structuredClone(first.runtimeState),
     );
@@ -1124,8 +1112,8 @@ describe('直接图执行', () => {
       );
     const firstBoard = new ActionBlackboard({ count: 1 });
     const secondBoard = new ActionBlackboard({ count: 10 });
-    const first = create(firstBoard).createGraphSequence(program, 'add', 'first');
-    const second = create(secondBoard).createGraphSequence(program, 'add', 'second');
+    const first = create(firstBoard).createSequence(graphEntry(program, 'add', 'first'));
+    const second = create(secondBoard).createSequence(graphEntry(program, 'add', 'second'));
     first.tryExecute({});
     second.tryExecute({});
     expect(firstBoard.getNumber('count')).toBe(2);
@@ -1135,10 +1123,8 @@ describe('直接图执行', () => {
       blackboard: firstBoard.runtimeState,
     });
     const restoredBoard = ActionBlackboard.bindRuntimeState(saved.blackboard);
-    const restored = create(restoredBoard).createGraphSequence(
-      program,
-      'add',
-      'first',
+    const restored = create(restoredBoard).createSequence(
+      graphEntry(program, 'add', 'first'),
       undefined,
       saved.execution,
     );
@@ -1155,8 +1141,8 @@ describe('直接图执行', () => {
     expect(program.nodes.size).toBe(3);
     expect(program.nodes.get('damage')!.action).toMatchObject({ parameters: { attackScale: 2 } });
     const { runtime, operations } = fixture();
-    const first = runtime.createGraphSequence(program, 'first', 'interval-1');
-    const second = runtime.createGraphSequence(program, 'second', 'interval-2');
+    const first = runtime.createSequence(graphEntry(program, 'first', 'interval-1'));
+    const second = runtime.createSequence(graphEntry(program, 'second', 'interval-2'));
     expect(first.runtimeState.nodes.size).toBe(0);
     first.tryExecute({});
     expect(second.runtimeState.nodes.size).toBe(0);
@@ -1176,14 +1162,12 @@ describe('直接图执行', () => {
   it('恢复只重绑，结束调用恢复后的宿主且不重复执行', () => {
     const program = createActionGraphCompilation(graph, 1, 'revision-1').compileAll();
     const original = fixture();
-    const running = original.runtime.createGraphSequence(program, 'first', 'interval');
+    const running = original.runtime.createSequence(graphEntry(program, 'first', 'interval'));
     running.tryExecute({});
     const saved = structuredClone(running.runtimeState);
     const restored = fixture();
-    const resumed = restored.runtime.createGraphSequence(
-      program,
-      'first',
-      'interval',
+    const resumed = restored.runtime.createSequence(
+      graphEntry(program, 'first', 'interval'),
       undefined,
       saved,
     );
@@ -1205,7 +1189,7 @@ describe('直接图执行', () => {
       finish();
       return true;
     });
-    const running = runtime.createGraphSequence(program, 'first', 'interval');
+    const running = runtime.createSequence(graphEntry(program, 'first', 'interval'));
     finish = () => running.end({});
     running.tryExecute({});
     expect(operations.execute).toHaveBeenCalledTimes(1);
@@ -1219,12 +1203,12 @@ describe('直接图执行', () => {
   it('逐节点读取许可，未获许可的节点不执行 End，短路不创建尾部', () => {
     const { runtime, operations } = fixture(() => false);
     const program = createActionGraphCompilation(graph, 1, 'revision-1').compileAll();
-    const running = runtime.createGraphSequence(program, 'first', 'interval');
+    const running = runtime.createSequence(graphEntry(program, 'first', 'interval'));
     expect(running.tryExecute({})).toBe(false);
     expect(running.runtimeState.nodes.size).toBe(1);
     running.end({});
     expect(operations.end).toHaveBeenCalledTimes(1);
-    const blocked = runtime.createGraphSequence(program, 'first', 'blocked', {
+    const blocked = runtime.createSequence(graphEntry(program, 'first', 'blocked'), {
       blackboard: new ActionBlackboard(),
       canExecuteAction: () => false,
     });
@@ -1237,27 +1221,27 @@ describe('直接图执行', () => {
   it('拒绝不匹配的程序修订、入口及调用位置', () => {
     const program = createActionGraphCompilation(graph, 1, 'revision-1').compileAll();
     const { runtime } = fixture();
-    const saved = runtime.createGraphSequence(program, 'first', 'interval').runtimeState;
+    const saved = runtime.createSequence(graphEntry(program, 'first', 'interval')).runtimeState;
     expect(() =>
-      runtime.createGraphSequence(
-        { ...program, revision: 'revision-2' },
-        'first',
-        'interval',
+      runtime.createSequence(
+        graphEntry({ ...program, revision: 'revision-2' }, 'first', 'interval'),
         undefined,
         saved,
       ),
     ).toThrow('checkpoint');
     expect(() =>
-      runtime.createGraphSequence(program, 'second', 'interval', undefined, saved),
+      runtime.createSequence(graphEntry(program, 'second', 'interval'), undefined, saved),
     ).toThrow('checkpoint');
-    expect(() => runtime.createGraphSequence(program, 'first', 'other', undefined, saved)).toThrow(
-      'checkpoint',
-    );
     expect(() =>
-      runtime.createGraphSequence(
-        createActionGraphCompilation(graph, 2, 'revision-1').compileAll(),
-        'first',
-        'interval',
+      runtime.createSequence(graphEntry(program, 'first', 'other'), undefined, saved),
+    ).toThrow('checkpoint');
+    expect(() =>
+      runtime.createSequence(
+        graphEntry(
+          createActionGraphCompilation(graph, 2, 'revision-1').compileAll(),
+          'first',
+          'interval',
+        ),
         undefined,
         saved,
       ),
@@ -1267,7 +1251,7 @@ describe('直接图执行', () => {
   it('Reset 中的同步结束不会跳过后续准备，与序列重置顺序一致', () => {
     const program = createActionGraphCompilation(graph, 1, 'revision-1').compileAll();
     const { runtime, operations } = fixture();
-    const running = runtime.createGraphSequence(program, 'first', 'interval');
+    const running = runtime.createSequence(graphEntry(program, 'first', 'interval'));
     running.tryExecute({});
     vi.mocked(operations.prepare!).mockImplementationOnce(() => running.end({}));
     running.reset({});
@@ -1317,17 +1301,15 @@ describe('直接图执行', () => {
     ).compileAll();
     const ability = new AbilitySystemRuntime(options);
     const original = bind(ability);
-    const execution = original.runtime.createGraphSequence(program, 'mode', 'interval');
+    const execution = original.runtime.createSequence(graphEntry(program, 'mode', 'interval'));
     execution.tryExecute({});
     const saved = structuredClone({
       ability: ability.runtimeState,
       execution: execution.runtimeState,
     });
     const restored = bind(new AbilitySystemRuntime(options, saved.ability));
-    const resumed = restored.runtime.createGraphSequence(
-      program,
-      'mode',
-      'interval',
+    const resumed = restored.runtime.createSequence(
+      graphEntry(program, 'mode', 'interval'),
       undefined,
       saved.execution,
     );
@@ -1397,7 +1379,7 @@ describe('直接图执行', () => {
       'unsupported-host',
     ).compileAll();
     const runtime = fixture().runtime;
-    expect(runtime.createGraphSequence(program, 'spawn', 'root').tryExecute({})).toBe(true);
+    expect(runtime.createSequence(graphEntry(program, 'spawn', 'root')).tryExecute({})).toBe(true);
   });
 });
 

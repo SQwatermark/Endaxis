@@ -106,7 +106,7 @@ export function projectPhysicalStatusDisplay(
   endFrame: number,
   options: PhysicalStatusDisplayOptions,
 ): readonly DisplayBuffTimelineSegment[] {
-  const physicalEntries = [...entries]
+  const physicalEntries = entries
     .filter(
       entry =>
         typeof entry.data?.buffId === 'string' &&

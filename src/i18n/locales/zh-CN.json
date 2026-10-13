@@ -5733,6 +5733,20 @@
     "help": "执行目标通过图连线修改。删除此行前请先断开连接。",
     "conditionHelp": "通过图布尔输入设置常量或连接条件节点。行编辑会保留此条件。"
   },
+  "stateInspection": {
+    "enter": "查看字段或实例",
+    "search": "搜索当前内容",
+    "next": "下一个匹配",
+    "notFound": "未找到",
+    "title": "查看切面",
+    "frame": "帧",
+    "capture": "读取切面",
+    "loading": "计算中…",
+    "section": "状态模块",
+    "all": "全部",
+    "hint": "显示该帧输入与战斗更新完成后的运行状态。Map / Set 保留内容，$ref 指向同一模块内已显示的共享对象。此窗口打开时固定方案输入，读取不会改变时间轴。",
+    "invalidFrame": "请输入 {min} 到 {max} 之间的整数帧。"
+  },
   "spawnDefinitionField": {
     "resourceReadonly": "此槽拥有独立技能。已有技能请进入其资源图编辑；此处不创建、删除、替换或重排资源。",
     "absent": "没有已有子资源。",

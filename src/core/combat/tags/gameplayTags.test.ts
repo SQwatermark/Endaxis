@@ -17,6 +17,7 @@ describe('GameplayTag', () => {
 
     expect(registry.matches(child, parent)).toBe(true);
     expect(registry.matches(child, parent, true)).toBe(false);
+    expect(registry.matches('Combat/BuffOther', parent)).toBe(false);
   });
 
   it('支持原生四种容器查询语义', () => {

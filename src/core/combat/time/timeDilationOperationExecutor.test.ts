@@ -52,8 +52,8 @@ describe('TimeDilationOperationExecutor', () => {
         currentTarget: { kind: 'abilityEntity', instanceId: 7 },
       },
     );
-    expect(timeDilation.getOperatorScale(logicalAbilityEntityRuntimeId(4))).toBe(0.5);
-    expect(timeDilation.getOperatorScale(logicalAbilityEntityRuntimeId(7))).toBe(1);
+    expect(timeDilation.getEntityScale(logicalAbilityEntityRuntimeId(4))).toBe(0.5);
+    expect(timeDilation.getEntityScale(logicalAbilityEntityRuntimeId(7))).toBe(1);
   });
 
   it('starts a named global curve and lets the caster ignore it', () => {
@@ -83,8 +83,8 @@ describe('TimeDilationOperationExecutor', () => {
     );
     expect(timeDilation.currentGlobalScale).toBe(0.5);
     expect(timeDilation.globalInstances[0]?.source?.curveKey).toBe('constant-half');
-    expect(timeDilation.getOperatorScale('operator')).toBe(1);
-    expect(timeDilation.getOperatorScale('enemy')).toBe(0.5);
+    expect(timeDilation.getEntityScale('operator')).toBe(1);
+    expect(timeDilation.getEntityScale('enemy')).toBe(0.5);
   });
 
   it('resolves the controlled operator when the global action executes', () => {
@@ -116,8 +116,8 @@ describe('TimeDilationOperationExecutor', () => {
     executor.execute(step, { blackboard: new ActionBlackboard() });
 
     expect(resolvedTargets).toEqual(['controlled']);
-    expect(timeDilation.getOperatorScale('active-operator')).toBe(1);
-    expect(timeDilation.getOperatorScale('operator')).toBe(0.5);
+    expect(timeDilation.getEntityScale('active-operator')).toBe(1);
+    expect(timeDilation.getEntityScale('operator')).toBe(0.5);
   });
 
   it('creates one entity instance per target and stops action-scoped instances', () => {
@@ -368,8 +368,8 @@ describe('TimeDilationOperationExecutor', () => {
 
     executor.execute(step, context);
     expect(timeDilation.currentGlobalScale).toBe(0);
-    expect(timeDilation.getOperatorScale('operator')).toBe(1);
-    expect(timeDilation.getOperatorScale('enemy')).toBe(0);
+    expect(timeDilation.getEntityScale('operator')).toBe(1);
+    expect(timeDilation.getEntityScale('enemy')).toBe(0);
     executor.end(step, context);
     expect(timeDilation.currentGlobalScale).toBe(1);
     // 同内容的两个程序节点必须持有不同关系；被替换的旧动作不能停止新实例。

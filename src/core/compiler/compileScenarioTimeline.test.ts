@@ -918,7 +918,6 @@ it('不含过渡总图的干员能分别编译主动技能与常驻被动', () =
     abilityEntityDefinitions: {},
     comboSkillConditions: [],
     passiveSkills: [independentPassive],
-    eventHandlers: [],
     talents: [
       {
         levels: 2,

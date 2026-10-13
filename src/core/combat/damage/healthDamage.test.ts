@@ -6,7 +6,19 @@ import type { PlayerActiveDamageResult } from './playerActiveDamage';
 import { executeHealthDamage } from './healthDamage';
 import type { DamageTag } from '../../game-data/operatorDefinition';
 import { CombatReceiptCollector } from '../receipt/combatReceipt';
-import { groupEnemyBurstDamageHits } from '../../../ui/timeline/results/enemyBurstDamageGroups';
+
+function createTarget(): CombatVitals {
+  return new CombatVitals({
+    health: 100,
+    maxHealth: 100,
+    maxPoise: 0,
+    poise: 0,
+    poiseRecoveryTime: 0,
+    poiseRecoveryTimeMultiplier: 1,
+    poiseBrokenEndTime: 0,
+    poiseImmune: false,
+  });
+}
 
 function createDamageResult(value: number): PlayerActiveDamageResult {
   return {
@@ -34,16 +46,7 @@ describe('executeHealthDamage', () => {
     [[], undefined],
   ] as const)('伤害标签 %j 决定爆发回执分类，不依赖伤害元素或技能类型', (tags, expected) => {
     const receipt = new CombatReceiptCollector();
-    const target = new CombatVitals({
-      health: 100,
-      maxHealth: 100,
-      maxPoise: 0,
-      poise: 0,
-      poiseRecoveryTime: 0,
-      poiseRecoveryTimeMultiplier: 1,
-      poiseBrokenEndTime: 0,
-      poiseImmune: false,
-    });
+    const target = createTarget();
     executeHealthDamage({
       sourceId: 'operator',
       targetId: 'enemy',
@@ -59,7 +62,6 @@ describe('executeHealthDamage', () => {
     });
     expect(receipt.entries).toHaveLength(1);
     expect(receipt.entries[0]!.data?.spellBurstType).toBe(expected);
-    expect(groupEnemyBurstDamageHits(receipt.entries)).toHaveLength(expected === undefined ? 0 : 1);
     expect(target.health).toBe(99);
   });
   it.each([
@@ -73,16 +75,7 @@ describe('executeHealthDamage', () => {
     },
   ])('preserves source identity %j without adding it to target contexts', skillCastInfo => {
     const output: unknown[] = [];
-    const target = new CombatVitals({
-      health: 100,
-      maxHealth: 100,
-      maxPoise: 0,
-      poise: 0,
-      poiseRecoveryTime: 0,
-      poiseRecoveryTimeMultiplier: 1,
-      poiseBrokenEndTime: 0,
-      poiseImmune: false,
-    });
+    const target = createTarget();
     executeHealthDamage({
       sourceId: 'operator',
       targetId: 'enemy',
@@ -104,16 +97,7 @@ describe('executeHealthDamage', () => {
     const receipt: CombatReceiptSink = {
       record: entry => order.push(`receipt:${entry.event}`),
     };
-    const target = new CombatVitals({
-      health: 100,
-      maxHealth: 100,
-      maxPoise: 0,
-      poise: 0,
-      poiseRecoveryTime: 0,
-      poiseRecoveryTimeMultiplier: 1,
-      poiseBrokenEndTime: 0,
-      poiseImmune: false,
-    });
+    const target = createTarget();
 
     const result = executeHealthDamage({
       sourceId: 'operator',
@@ -147,16 +131,7 @@ describe('executeHealthDamage', () => {
 
   it('does not emit kill events for non-lethal damage or an already defeated target', () => {
     const sourceEvents: string[] = [];
-    const target = new CombatVitals({
-      health: 100,
-      maxHealth: 100,
-      maxPoise: 0,
-      poise: 0,
-      poiseRecoveryTime: 0,
-      poiseRecoveryTimeMultiplier: 1,
-      poiseBrokenEndTime: 0,
-      poiseImmune: false,
-    });
+    const target = createTarget();
     const execute = (value: number) =>
       executeHealthDamage({
         sourceId: 'operator',
@@ -184,16 +159,7 @@ describe('executeHealthDamage', () => {
   it('runs shield absorption after before events and exposes the reduced value afterwards', () => {
     const values: number[] = [];
     let eligible = true;
-    const target = new CombatVitals({
-      health: 100,
-      maxHealth: 100,
-      maxPoise: 0,
-      poise: 0,
-      poiseRecoveryTime: 0,
-      poiseRecoveryTimeMultiplier: 1,
-      poiseBrokenEndTime: 0,
-      poiseImmune: false,
-    });
+    const target = createTarget();
 
     executeHealthDamage({
       sourceId: 'operator',

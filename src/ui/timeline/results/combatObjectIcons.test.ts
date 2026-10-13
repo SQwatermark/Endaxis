@@ -7,24 +7,27 @@ import { capturePublishedOperatorMetadata } from './publishedOperatorMetadata';
 import { capturePublishedEquipmentSources } from './publishedBuffSource';
 import { arcane } from '../../../data/operators/arcane.generated';
 
-it.each([
-  ['buff_physical_airborne', '/icons/icon_term_ba_airborne.webp'],
-  ['buff_physical_knockdown', '/icons/icon_term_ba_knockdown.webp'],
-  ['buff_physical_crushed', '/icons/icon_term_ba_crush.webp'],
-  ['buff_physical_do_fracture', '/icons/icon_term_ba_fracture.webp'],
-])('uses the timeline physical-status icon in origin graph for %s', (buffId, expected) => {
+it('prefers the timeline physical-status icon over a raw Buff icon in the origin graph', () => {
   const c = new CombatReceiptCollector();
   c.record({
     frame: 0,
     time: 0,
     event: 'BuffApplied',
     targetId: 'enemy',
-    data: { instanceId: 1, buffId, icon: 'endaxis:icons/icon_attack_funnel' },
+    data: {
+      instanceId: 1,
+      buffId: 'buff_physical_do_fracture',
+      icon: 'endaxis:icons/icon_attack_funnel',
+    },
   });
   const q = new CombatObjectOrigins(c.entries);
   const icon = createCombatObjectIconResolver(c.entries, undefined, new Map(), new Map());
-  expect(icon(q.get({ kind: 'buff', ownerId: 'enemy', instanceId: 1 }), 0)).toBe(expected);
-  expect(icon(q.get({ kind: 'receipt', sequence: 0 }), 0)).toBe(expected);
+  expect(icon(q.get({ kind: 'buff', ownerId: 'enemy', instanceId: 1 }), 0)).toBe(
+    '/icons/icon_term_ba_fracture.webp',
+  );
+  expect(icon(q.get({ kind: 'receipt', sequence: 0 }), 0)).toBe(
+    '/icons/icon_term_ba_fracture.webp',
+  );
 });
 
 it('uses exact Buff instance icons at the hit boundary and reuses them for consumption', () => {

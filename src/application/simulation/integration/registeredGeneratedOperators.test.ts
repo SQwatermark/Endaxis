@@ -1993,11 +1993,7 @@ describe('registered generated operators', () => {
         .find(skill => skill.key === 'chr_0033_camille_combo_skill');
       if (camilleComboDefinition === undefined)
         throw new Error('missing Camille combo skill definition');
-      const {
-        eventHandlers: _comboEvents,
-        switchToBuffCast: _comboBypass,
-        ...comboBase
-      } = camilleComboDefinition;
+      const { switchToBuffCast: _comboBypass, ...comboBase } = camilleComboDefinition;
       placed.tracks[0]!.skillCasts = [
         {
           ...camilleCast,

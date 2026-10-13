@@ -24,19 +24,14 @@ const scaleAttributes = Object.fromEntries(
 function executeSpellBurst(
   input: Omit<ExecuteSpellBurstInput, 'damage'> & {
     sourceId: string;
-    attack: number;
     criticalRate: number;
     criticalDamageIncrease: number;
-    weaknessDamageMultiplier: number;
-    criticalSample: number;
     defender: PlayerDamageDefenderSnapshot;
     target: CombatVitals;
     clock: CombatClock;
     receipt: CombatReceiptCollector;
     skillCastInfo?: PlayerDamageOperationDependencies['skillCastInfo'];
     attackDetail?: PlayerDamageOperationDependencies['attackDetail'];
-    emitSourceEvent: PlayerDamageOperationDependencies['emitHealthSourceEvent'];
-    emitTargetEvent: PlayerDamageOperationDependencies['emitHealthTargetEvent'];
   },
 ) {
   return executeBurst({
@@ -59,16 +54,16 @@ function executeSpellBurst(
       captureAttributeSnapshots: () => ({
         attacker: {
           ...scaleAttributes,
-          attack: input.attack,
+          attack: 1000,
           criticalRate: input.criticalRate,
           criticalDamageIncrease: input.criticalDamageIncrease,
-          weaknessDamageMultiplier: input.weaknessDamageMultiplier,
+          weaknessDamageMultiplier: 1,
           igniteDamageMultiplier: 1,
           physicalInflictionDamageMultiplier: 1,
         },
         defender: { ...scaleAttributes, ...input.defender },
       }),
-      criticalSamples: { nextCriticalSample: () => input.criticalSample },
+      criticalSamples: { nextCriticalSample: () => 1 },
       resolveNonRandomRuntimeSnapshot: () => ({
         runtimeExtensionMultiplier: 1,
         appliesIgniteDamageMultiplier: false,
@@ -79,8 +74,8 @@ function executeSpellBurst(
       addInstantAttributeModifier: () => undefined,
       emitPreparationEvent: () => undefined,
       resolvePoiseMultipliers: () => ({ output: 1, taken: 1 }),
-      emitHealthSourceEvent: input.emitSourceEvent,
-      emitHealthTargetEvent: input.emitTargetEvent,
+      emitHealthSourceEvent: () => undefined,
+      emitHealthTargetEvent: () => undefined,
       emitPoiseSourceEvent: () => undefined,
       emitPoiseTargetEvent: () => undefined,
       delegate: { execute: () => false, evaluate: () => false },
@@ -138,21 +133,12 @@ function createVitals() {
 }
 
 describe('resolveSpellBurstEnhanceFactor', () => {
-  it('按线性与饱和公式计算增强倍率，无公式退化为 1', () => {
+  it('按线性公式计算增强倍率，无公式退化为 1', () => {
     const source = createSkillSettingSource(settings());
     expect(resolveSpellBurstEnhanceFactor(source, 'linear', 0)).toBe(1);
     expect(resolveSpellBurstEnhanceFactor(source, 'linear', 2)).toBe(2);
     expect(resolveSpellBurstEnhanceFactor(source, 'missing', 3)).toBe(1);
     expect(resolveSpellBurstEnhanceFactor(source, '', 3)).toBe(1);
-  });
-
-  it('增强公式存在但来源增强属性不可用时明确失败', () => {
-    const source = createSkillSettingSource(settings());
-    expect(() => resolveSpellBurstEnhanceFactor(source, 'linear', null)).toThrow(
-      'requires the source infliction-enhance attribute',
-    );
-    // 无增强公式的倍率不需要来源属性。
-    expect(resolveSpellBurstEnhanceFactor(source, '', null)).toBe(1);
   });
 });
 
@@ -188,19 +174,14 @@ describe('executeSpellBurst', () => {
           attributes: { strength: 0, agility: 0, intellect: 0, will: 0 },
           coefficients: { strength: 0, agility: 0, intellect: 0.005, will: 0.002 },
         },
-        attack: 1000,
         enhance: 2,
         criticalRate: 0.5,
         criticalDamageIncrease: 0.5,
-        weaknessDamageMultiplier: 1,
-        criticalSample: 1,
         settings: createSkillSettingSource(settings()),
         defender: defender(),
         target,
         clock: new CombatClock(),
         receipt,
-        emitSourceEvent: () => undefined,
-        emitTargetEvent: () => undefined,
       });
       const hits = receipt.entries.filter(entry => entry.event === 'DamageApplied');
       expect(hits).toHaveLength(1);
@@ -230,19 +211,14 @@ describe('executeSpellBurst', () => {
     const result = executeSpellBurst({
       definition,
       sourceId: 'perlica',
-      attack: 1000,
       enhance: 0,
       criticalRate: 0,
       criticalDamageIncrease: 0,
-      weaknessDamageMultiplier: 1,
-      criticalSample: 1,
       settings: createSkillSettingSource(settings()),
       defender: defender(),
       target,
       clock,
       receipt,
-      emitSourceEvent: () => undefined,
-      emitTargetEvent: () => undefined,
     });
 
     // 倍率 1.5 × 增强 1 = 1.5，伤害 = 1000 × 1.5。
@@ -260,29 +236,6 @@ describe('executeSpellBurst', () => {
     expect(receipt.entries.some(entry => entry.event === 'DamageApplied')).toBe(true);
   });
 
-  it('来源附着增强属性按公式放大倍率', () => {
-    const target = createVitals();
-    const result = executeSpellBurst({
-      definition,
-      sourceId: 'perlica',
-      attack: 1000,
-      enhance: 2,
-      criticalRate: 0,
-      criticalDamageIncrease: 0,
-      weaknessDamageMultiplier: 1,
-      criticalSample: 1,
-      settings: createSkillSettingSource(settings()),
-      defender: defender(),
-      target,
-      clock: new CombatClock(),
-      receipt: new CombatReceiptCollector(),
-      emitSourceEvent: () => undefined,
-      emitTargetEvent: () => undefined,
-    });
-    // 线性公式：0.5 × 2 + 1 = 2，倍率 1.5 × 2 = 3。
-    expect(result).toMatchObject({ enhanceFactor: 2, value: 3000 });
-  });
-
   it('SkillSetting 缺少倍率数据时严格失败', () => {
     const missing: SkillSettingsDocument = {
       schemaVersion: 1,
@@ -294,19 +247,14 @@ describe('executeSpellBurst', () => {
       executeSpellBurst({
         definition,
         sourceId: 'perlica',
-        attack: 1000,
         enhance: 0,
         criticalRate: 0,
         criticalDamageIncrease: 0,
-        weaknessDamageMultiplier: 1,
-        criticalSample: 1,
         settings: createSkillSettingSource(missing),
         defender: defender(),
         target: createVitals(),
         clock: new CombatClock(),
         receipt: new CombatReceiptCollector(),
-        emitSourceEvent: () => undefined,
-        emitTargetEvent: () => undefined,
       }),
     ).toThrow("requires SkillSetting '法术爆发伤害倍率'");
   });
@@ -316,19 +264,14 @@ describe('executeSpellBurst', () => {
       executeSpellBurst({
         definition,
         sourceId: 'perlica',
-        attack: 1000,
         enhance: null,
         criticalRate: 0,
         criticalDamageIncrease: 0,
-        weaknessDamageMultiplier: 1,
-        criticalSample: 1,
         settings: createSkillSettingSource(settings()),
         defender: defender(),
         target: createVitals(),
         clock: new CombatClock(),
         receipt: new CombatReceiptCollector(),
-        emitSourceEvent: () => undefined,
-        emitTargetEvent: () => undefined,
       }),
     ).toThrow('requires the source infliction-enhance attribute');
   });
@@ -343,19 +286,14 @@ describe('executeSpellBurst', () => {
     const result = executeSpellBurst({
       definition,
       sourceId: 'perlica',
-      attack: 1000,
       enhance: null,
       criticalRate: 0,
       criticalDamageIncrease: 0,
-      weaknessDamageMultiplier: 1,
-      criticalSample: 1,
       settings: createSkillSettingSource(noEnhance),
       defender: defender(),
       target: createVitals(),
       clock: new CombatClock(),
       receipt: new CombatReceiptCollector(),
-      emitSourceEvent: () => undefined,
-      emitTargetEvent: () => undefined,
     });
     expect(result).toMatchObject({ skillScale: 2, enhanceFactor: 1, value: 2000 });
   });

@@ -16,7 +16,6 @@ import type { BoundCombatBattleRuntimes } from './combatRuntimeAssembly';
 import { AbilitySystemRuntime } from '../abilities/abilitySystemRuntime';
 import { resolveAbilityEventActionContextBinding } from '../events/abilityEventActionContext';
 import type { AbilityEventPayloadMap } from '../events/combatAbilityEvent';
-import { buffEnhanceAbilityEvent } from '../events/combatAbilityEvent';
 import { SimulationRandomSource } from '../random/simulationRandom';
 import { createSimulationRandomState } from '../state/environmentState';
 
@@ -599,18 +598,15 @@ it('Buff 层数变化在 owner 发布，载荷不伪造目标且消费同一原�
   if (!(target instanceof BuffDefinitionOperationTarget)) throw new Error('fixture');
   const received: number[] = [];
   environment.eventsFor('enemy').registerCallback('buffEnhanceChanged', event => {
-    const published = buffEnhanceAbilityEvent(event);
-    if (published === undefined) throw new Error('fixture event');
-    expect(published).toBe(event);
-    expect(published.payload.sourceId).toBe('enemy');
-    expect('targetId' in published.payload).toBe(false);
+    expect(event.payload.sourceId).toBe('enemy');
+    expect('targetId' in event.payload).toBe(false);
     const context: CombatOperationContext = {
       blackboard: new ActionBlackboard(),
     };
     withAbilityEventResponseContext(context, event, undefined, () => {
       expect(context.event).toBe(event);
     });
-    received.push(published.payload.layerCount);
+    received.push(event.payload.layerCount);
   });
   const definition = {
     id: 'layer-test',

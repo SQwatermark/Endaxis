@@ -330,28 +330,14 @@ describe('正式时间线与图入口编辑', () => {
         { startFrame: 5, endFrame: 10, sequence: { $sequence: 'b' } },
         { startFrame: 20, endFrame: 25, sequence: { $sequence: 'b' } },
       ],
-      eventHandlers: [
-        {
-          key: 'hit-response',
-          event: { kind: 'operatorHit' },
-          scheduledSequences: [{ startFrame: 3, endFrame: 9, sequence: { $sequence: 'b' } }],
-        },
-        {
-          key: 'heal-response',
-          event: { kind: 'operatorHealed', role: 'target' },
-          scheduledSequences: [{ startFrame: 3, sequence: { $sequence: null } }],
-        },
-      ],
     });
   }
 
-  it('入口按正式调度路径投影，事件来源独立成组，同目标调度保留全部调用', () => {
+  it('入口按正式调度路径投影，同目标调度保留全部调用', () => {
     const skill = scheduledFixture();
     const groups = listGraphEntryGroups(skill, main);
     expect(groups.map(({ id, label }) => ({ id, label }))).toEqual([
       { id: 'timeline', label: '施放时间线' },
-      { id: 'event:0', label: '事件 · hit-response' },
-      { id: 'event:1', label: '事件 · heal-response' },
       { id: 'switch', label: '切换为 Buff 施放' },
     ]);
     expect(groups[0]!.entries).toEqual([
@@ -359,9 +345,7 @@ describe('正式时间线与图入口编辑', () => {
       { id: 'timeline:1', label: '调度 2', targetId: 'b', startFrame: 5, endFrame: 10 },
       { id: 'timeline:2', label: '调度 3', targetId: 'b', startFrame: 20, endFrame: 25 },
     ]);
-    expect(groups[1]!.entries[0]!.id).toBe('event:0:0');
-    expect(groups[2]!.entries[0]!.id).toBe('event:1:0');
-    expect(groups[3]!.entries).toEqual([{ id: 'switch', label: '切换入口', targetId: 'a' }]);
+    expect(groups[1]!.entries).toEqual([{ id: 'switch', label: '切换入口', targetId: 'a' }]);
     expect(listGraphEntryGroups(skill, macro)).toEqual([
       {
         id: 'macro',
@@ -376,13 +360,12 @@ describe('正式时间线与图入口编辑', () => {
     const changed = editGraphEntries(skill, main, ['timeline:0'], { targetId: 'b' });
     expect(changed.scheduledSequences[0]).toEqual({ startFrame: 0, sequence: { $sequence: 'b' } });
     expect(changed.scheduledSequences[1]).toBe(skill.scheduledSequences[1]);
-    expect(changed.eventHandlers).toBe(skill.eventHandlers);
     expect(changed.actionGraph).toBe(skill.actionGraph);
     expect(skill.scheduledSequences[0]!.sequence).toEqual({ $sequence: null });
     expect(editGraphEntries(changed, main, ['timeline:0'], { targetId: 'b' })).toBe(changed);
   });
 
-  it('批量重接同目标时间段保持独立调用和各自帧范围，不改动事件调度', () => {
+  it('批量重接同目标时间段保持独立调用和各自帧范围', () => {
     const skill = scheduledFixture();
     const changed = editGraphEntries(skill, main, ['timeline:1', 'timeline:2'], { targetId: 'a' });
     expect(changed.scheduledSequences).toHaveLength(3);
@@ -391,27 +374,20 @@ describe('正式时间线与图入口编辑', () => {
       { startFrame: 20, endFrame: 25, sequence: { $sequence: 'a' } },
     ]);
     expect(changed.scheduledSequences[1]).not.toBe(changed.scheduledSequences[2]);
-    expect(changed.eventHandlers).toBe(skill.eventHandlers);
   });
 
-  it('事件入口保持触发来源，帧相对原事件修改，null 删除可选结束帧', () => {
+  it('调度入口使用 null 删除可选结束帧，保留其他调度', () => {
     const skill = scheduledFixture();
-    const changed = editGraphEntries(skill, main, ['event:0:0'], {
+    const changed = editGraphEntries(skill, main, ['timeline:1'], {
       targetId: 'a',
       startFrame: 6,
       endFrame: null,
     });
-    expect(changed.eventHandlers![0]!.event).toBe(skill.eventHandlers![0]!.event);
-    expect(changed.eventHandlers![0]!.key).toBe('hit-response');
-    expect(changed.eventHandlers![0]!.scheduledSequences).toEqual([
-      { startFrame: 6, sequence: { $sequence: 'a' } },
-    ]);
-    expect(Object.hasOwn(changed.eventHandlers![0]!.scheduledSequences[0]!, 'endFrame')).toBe(
-      false,
-    );
-    expect(changed.eventHandlers![1]).toBe(skill.eventHandlers![1]);
-    expect(changed.scheduledSequences).toBe(skill.scheduledSequences);
-    expect(skill.eventHandlers![0]!.scheduledSequences[0]!.endFrame).toBe(9);
+    expect(changed.scheduledSequences[1]).toEqual({ startFrame: 6, sequence: { $sequence: 'a' } });
+    expect(Object.hasOwn(changed.scheduledSequences[1]!, 'endFrame')).toBe(false);
+    expect(changed.scheduledSequences[0]).toBe(skill.scheduledSequences[0]);
+    expect(changed.scheduledSequences[2]).toBe(skill.scheduledSequences[2]);
+    expect(skill.scheduledSequences[1]!.endFrame).toBe(10);
   });
 
   it('宏与切换入口可断开再连接，宏只能指向自身图且不接受帧编辑', () => {

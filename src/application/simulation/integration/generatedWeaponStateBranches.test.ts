@@ -11,10 +11,9 @@ import type { WeaponDefinition } from '../../../core/game-data/equipmentDefiniti
 import { createEmptyScenario } from '../../../core/project/createProject';
 import { generatedWeaponDefinitions } from '../../../data/equipment/generated-weapons/index.generated';
 import { gameDataRepository } from '../../../data/gameDataRepository';
-import { skillSettings } from '../../../data/combat/skillSettings';
 import { daPan } from '../../../data/operators/da-pan.generated';
 import { placeSkillGroup } from '../../../ui/timeline/interaction/placeSkillGroup';
-import { ScenarioSimulationService } from '../scenarioSimulationService';
+import { createScenarioSimulationService } from '../createScenarioSimulationService';
 
 function findSkill(operator: OperatorDefinition, key: string): SkillDefinition {
   for (const group of operator.skillGroups) {
@@ -57,7 +56,10 @@ describe('生成武器的目标状态与层数伤害分支', () => {
           startFrame: 1,
           steps: Array.from({ length: layers }, () => ({
             kind: 'applyBuff' as const,
-            parameters: { buffs: [{ buffId: 'buff_physical_no_guard' }], targets: { kind: 'fixed', target: 'enemy' } as const },
+            parameters: {
+              buffs: [{ buffId: 'buff_physical_no_guard' }],
+              targets: { kind: 'fixed', target: 'enemy' } as const,
+            },
           })),
         },
         { startFrame: 60, steps: [crush] },
@@ -89,7 +91,10 @@ describe('生成武器的目标状态与层数伤害分支', () => {
         steps: [
           {
             kind: 'applyBuff',
-            parameters: { buffs: [{ buffId: 'buff_physical_no_guard' }], targets: { kind: 'fixed', target: 'caster' } },
+            parameters: {
+              buffs: [{ buffId: 'buff_physical_no_guard' }],
+              targets: { kind: 'fixed', target: 'caster' },
+            },
           },
         ],
       },
@@ -294,19 +299,10 @@ async function simulate(slug: string, tier: number, sequences: readonly ProbeSeq
   }).scenario;
   const run = async (definition: WeaponDefinition) =>
     (
-      await new ScenarioSimulationService({
-        index: {
-          ...gameDataRepository,
-          getOperator: key => (key === operator.slug ? operator : null),
-          getWeapon: key => (key === slug ? definition : null),
-        },
-        resources: {
-          sharedSpGain: { baseGainEfficiency: 1 },
-          spRecoveryPauseDuration: 1.5,
-          ultimateEnergySystemUnlocked: true,
-          normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
-        },
-        spellInflictionSettings: skillSettings,
+      await createScenarioSimulationService({
+        ...gameDataRepository,
+        getOperator: key => (key === operator.slug ? operator : null),
+        getWeapon: key => (key === slug ? definition : null),
       }).simulate(scenario, 1100)
     ).receiptEntries;
   return {

@@ -5,6 +5,7 @@ import { EaButton } from '../../../design-system/index';
 import { useInteractionSession } from '../../interaction/interactionSessionContext';
 import { usePopoverInteractionBoundary } from '../../interaction/usePopoverInteractionBoundary';
 const { t } = useI18n({ useScope: 'global' });
+const isDev = import.meta.env.DEV;
 
 const props = defineProps<{
   readOnly?: boolean;
@@ -54,6 +55,7 @@ const emit = defineEmits<{
   delete: [];
   inherit: [];
   openSource: [];
+  inspectState: [];
 }>();
 const menu = ref<HTMLElement | null>(null);
 usePopoverInteractionBoundary(
@@ -97,6 +99,16 @@ onBeforeUnmount(() => {
       @contextmenu.prevent
     >
       <header v-if="!inheritanceBoundary">{{ existingLabel ?? t('contextMenu.globalOps') }}</header>
+      <EaButton
+        v-if="isDev"
+        type="button"
+        role="menuitem"
+        class="menu-item"
+        @click="$emit('inspectState')"
+      >
+        <span class="menu-icon" aria-hidden="true">⌕</span>
+        <span>{{ t('stateInspection.title') }}</span>
+      </EaButton>
       <template v-if="inheritanceBoundary">
         <EaButton
           type="button"

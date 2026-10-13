@@ -382,11 +382,11 @@ it('edited switch rows execute the first float32 match and preserve an empty mat
       },
       { blackboard: new ActionBlackboard() },
     );
-    const sequence = runtime.createGraphSequence(
-      createActionGraphCompilation(current, 1, 'edited-switch').compileAll(),
-      'source',
-      'root',
-    );
+    const sequence = runtime.createSequence({
+      graph: createActionGraphCompilation(current, 1, 'edited-switch').compileAll(),
+      entry: 'source',
+      callSite: 'root',
+    });
     sequence.reset({});
     sequence.tryExecute({});
     return calls;

@@ -1,11 +1,9 @@
 import { expect, it } from 'vitest';
 
 import { createEmptyScenario } from '../../../core/project/createProject';
-import { elementalAttachments } from '../../../data/buffs/elementalAttachments';
-import { skillSettings } from '../../../data/combat/skillSettings';
 import { gameDataRepository } from '../../../data/gameDataRepository';
 import { placeSkillGroup } from '../../../ui/timeline/interaction/placeSkillGroup';
-import { ScenarioSimulationService } from '../scenarioSimulationService';
+import { createScenarioSimulationService } from '../createScenarioSimulationService';
 
 it('同一饰品放入任一槽位产生相同属性和伤害', async () => {
   const operator = gameDataRepository
@@ -66,17 +64,7 @@ it('同一饰品放入任一槽位产生相同属性和伤害', async () => {
       startFrame: 1,
       ids: { allocate: kind => `${kind}:${slot}:${++nextId}` },
     }).scenario;
-    return new ScenarioSimulationService({
-      index: gameDataRepository,
-      resources: {
-        sharedSpGain: { baseGainEfficiency: 1 },
-        spRecoveryPauseDuration: 1.5,
-        ultimateEnergySystemUnlocked: true,
-        normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
-      },
-      elementalInflictionDocument: elementalAttachments,
-      spellInflictionSettings: skillSettings,
-    }).simulate(placed, 300);
+    return createScenarioSimulationService(gameDataRepository).simulate(placed, 300);
   };
 
   const first = await simulate('accessory1');

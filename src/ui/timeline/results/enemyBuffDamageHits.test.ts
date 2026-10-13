@@ -1,11 +1,14 @@
 import { expect, it } from 'vitest';
 import type { CombatReceiptEntry } from '../../../core/combat/receipt/combatReceipt';
-import type { BuffTimelineSegment } from '../../../core/projection/buffTimelineViz';
+import {
+  findBuffTimelineSegmentForDamage,
+  type BuffTimelineSegment,
+} from '../../../core/projection/buffTimelineViz';
 import {
   projectEnemyEffectViz,
   projectBuffDamageDisplayOwners,
 } from '../../../core/projection/enemyEffectViz';
-import { findBuffDamageSegment, groupEnemyBuffDamageHits } from './enemyBuffDamageHits';
+import { groupEnemyBuffDamageHits } from './enemyBuffDamageHits';
 
 const hit = (sequence = 1): CombatReceiptEntry => ({
   sequence,
@@ -121,14 +124,14 @@ it('keeps hidden airborne damage and its icon without requiring a headbar row', 
   };
   const result = projectEnemyEffectViz([start, hit()], 30);
   expect(result.damageHits).toEqual([hit()]);
-  expect(findBuffDamageSegment(hit(), result.damageBuffs ?? [])?.icon).toBe(
+  expect(findBuffTimelineSegmentForDamage(hit(), result.damageBuffs ?? [])?.icon).toBe(
     'endaxis:icons/airborne',
   );
   expect(projectEnemyEffectViz([hit()], 30).damageHits).toEqual([hit()]);
 });
 
 it('does not confuse instance, owner, target, frame or hidden helper identities', () => {
-  expect(findBuffDamageSegment(hit(), [segment])).toBe(segment);
+  expect(findBuffTimelineSegmentForDamage(hit(), [segment])).toBe(segment);
   for (const changed of [
     { instanceId: 3 },
     { targetId: 'operator' },
@@ -136,15 +139,16 @@ it('does not confuse instance, owner, target, frame or hidden helper identities'
     { startFrame: 11 },
     { endFrame: 9 },
   ]) {
-    expect(findBuffDamageSegment(hit(), [{ ...segment, ...changed }])).toBeUndefined();
+    expect(findBuffTimelineSegmentForDamage(hit(), [{ ...segment, ...changed }])).toBeUndefined();
   }
   expect(
-    findBuffDamageSegment({ ...hit(), data: { ...hit().data, buffOwnerId: 'operator' } }, [
-      segment,
-    ]),
+    findBuffTimelineSegmentForDamage(
+      { ...hit(), data: { ...hit().data, buffOwnerId: 'operator' } },
+      [segment],
+    ),
   ).toBeUndefined();
   const next = { ...segment, startFrame: 10, endFrame: 20, enhanceCount: 2, layers: 2 };
-  expect(findBuffDamageSegment(hit(), [segment, next])).toBe(next);
+  expect(findBuffTimelineSegmentForDamage(hit(), [segment, next])).toBe(next);
   const others = [
     { ...hit(2), frame: 11 },
     { ...hit(3), data: { ...hit().data, buffInstanceId: 3 } },

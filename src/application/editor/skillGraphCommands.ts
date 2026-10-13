@@ -143,21 +143,3 @@ export function replaceSkillCastDefinition(
     return { ...scenario, tracks: [tracks[0]!, tracks[1]!, tracks[2]!, tracks[3]!] };
   };
 }
-
-/** 修改一个已放置技能的局部覆盖；提交、撤销和继承边界由 ScenarioEditingSession 管理。 */
-export function editSkillCastGraph(
-  repository: Pick<GameDataRepository, 'getOperator'>,
-  castId: string,
-  address: SkillGraphAddress,
-  update: (graph: ActionGraphDefinition) => ActionGraphDefinition,
-): ScenarioCommand {
-  return scenario => {
-    if (findSkillCast(repository, scenario, castId).cast.customDefinition === undefined)
-      throw new Error('库图只读，请先选择自定义。');
-    const { definition } = findSkillCast(repository, scenario, castId);
-    requireSkillActionGraph(definition);
-    const changed = updateSkillGraph(definition, address, update);
-    if (changed === definition) return scenario;
-    return replaceSkillCastDefinition(repository, castId, changed, definition)(scenario);
-  };
-}

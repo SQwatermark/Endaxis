@@ -27,11 +27,7 @@ import type { OperatorDefinition } from '../../../core/game-data/operatorDefinit
 import EquipmentSelectionTooltip from './EquipmentSelectionTooltip.vue';
 import './selectionDialog.css';
 import { getGearDefinitionSelectionAffixRows } from './gearAffixPresentation';
-import {
-  GEAR_AFFIX_FILTER_GROUPS,
-  gearMatchesAffixFilter,
-  gearMatchesOperatorAttributes,
-} from './gearSelectionFilters';
+import { GEAR_AFFIX_FILTER_GROUPS, gearMatchesOperatorAttributes } from './gearSelectionFilters';
 import { getEquipmentModifierLabel } from '../../../utils/equipmentEffectDisplay';
 import { DEFAULT_GAME_ICON_PATH } from '../../gameAssetPaths';
 import { matchesLocalizedNameSearch } from './localizedNameSearch';
@@ -80,12 +76,6 @@ interface GearListItem {
   readonly gearSetSlug: string | null;
   readonly gearSetName: string;
   readonly matchesOperatorAttributes: boolean;
-  readonly legacyPreviewIdentity: {
-    readonly id: string;
-    readonly canonicalId: string;
-    readonly name: string;
-    readonly category: string;
-  };
   readonly previewRows: ReturnType<typeof getGearDefinitionSelectionAffixRows>;
 }
 
@@ -137,12 +127,6 @@ const gearItems = computed<readonly GearListItem[]>(() =>
         definition,
         props.operatorDefinition,
       ),
-      legacyPreviewIdentity: {
-        id: definition.slug,
-        canonicalId: definition.slug,
-        name: definition.displayName ?? getGearPieceGameName(definition.slug, locale.value),
-        category: gearSetSlug ?? '',
-      },
       previewRows: getGearDefinitionSelectionAffixRows(definition, t),
     };
   }),
@@ -187,7 +171,11 @@ const groups = computed<readonly GearLevelGroup[]>(() => {
     if (levelFilter.value !== 'ALL' && item.definition.levelRequirement !== levelFilter.value) {
       return false;
     }
-    if (!gearMatchesAffixFilter(item.definition, affixFilter.value, t)) return false;
+    if (
+      affixFilter.value !== 'ALL' &&
+      !item.previewRows.some(row => row.modifierId === affixFilter.value)
+    )
+      return false;
     return matchesLocalizedNameSearch(item.name, searchQuery.value);
   });
   const byLevel = new Map<number, GearListItem[]>();
@@ -371,8 +359,8 @@ function clearGear(): void {
               >
                 <template #content>
                   <EquipmentSelectionTooltip
-                    :equipment="gear.legacyPreviewIdentity"
-                    :affix-rows="[...gear.previewRows]"
+                    :name="gear.name"
+                    :affix-rows="gear.previewRows"
                     :gear-set-name="gear.gearSetName === labels.noSet ? '' : gear.gearSetName"
                     :gear-set-description="
                       gear.gearSetSlug

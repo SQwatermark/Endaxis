@@ -29,7 +29,6 @@ beforeEach(() => {
       talents: [],
       potentials: [],
       passiveSkills: [],
-      eventHandlers: [],
       comboSkillConditions: [],
       abilityEntityDefinitions: {},
       buffDefinitions: {},

@@ -22,7 +22,7 @@ describe('ComboWindowRuntime', () => {
     let callbacks = 0;
     runtime.bindRingQte(registration, () => {
       callbacks++;
-      expect(runtime.tryConsume('rossi', 'combo')).toBe(true);
+      expect(runtime.consume('rossi', 'combo', result => result.consumed)).toBe(true);
     });
     expect(runtime.consume('rossi', 'combo', result => result)).toEqual({
       consumed: false,
@@ -47,7 +47,7 @@ describe('ComboWindowRuntime', () => {
       runtime.open('rossi', 'combo');
     });
     advance(clock, runtime, 15);
-    expect(runtime.tryConsume('rossi', 'combo')).toBe(true);
+    expect(runtime.consume('rossi', 'combo', result => result.consumed)).toBe(true);
     expect(
       receipt.entries
         .filter(entry => entry.event === 'ComboRingQtePressed')
@@ -92,9 +92,10 @@ describe('ComboWindowRuntime', () => {
     runtime.open('operator', 'combo');
     runtime.registerRingQte('operator', 15, 15);
     advance(clock, runtime, 15);
-    runtime.setGloballyPaused(true);
-    advance(clock, runtime, 20);
-    runtime.setGloballyPaused(false);
+    for (let i = 0; i < 20; i++) {
+      clock.advanceFrame();
+      runtime.advance(0);
+    }
     advance(clock, runtime, 15);
     expect(
       runtime.consume('operator', 'combo', result => result, undefined, 1, 'cast').consumed,
@@ -161,7 +162,7 @@ describe('ComboWindowRuntime', () => {
       true,
     );
   });
-  it('replays independent QTE branches with pause state and candidate order preserved', () => {
+  it('replays independent QTE branches with candidate order preserved', () => {
     const clock = new CombatClock();
     const original = new ComboWindowRuntime(clock, new CombatReceiptCollector(), 5, [
       'rossi',
@@ -170,7 +171,6 @@ describe('ComboWindowRuntime', () => {
     original.open('perlica', 'comboSkill');
     original.open('rossi', 'comboSkillStage2');
     original.registerRingQte('rossi', 2, 2);
-    original.setOperatorPaused('perlica', true);
     const checkpoint = structuredClone(original.runtimeState);
 
     const branch = (frames: number) => {
@@ -186,7 +186,7 @@ describe('ComboWindowRuntime', () => {
       advance(branchClock, runtime, frames);
       expect(runtime.first?.operatorId).toBe('rossi');
       expect(runtime.pending.find(window => window.operatorId === 'perlica')?.remainingFrames).toBe(
-        TEST_WINDOW_FRAMES,
+        TEST_WINDOW_FRAMES - frames,
       );
       expect(
         runtime.consume('rossi', 'comboSkillStage2', result => result, undefined, 7).consumed,
@@ -230,24 +230,6 @@ describe('ComboWindowRuntime', () => {
     ]);
   });
 
-  it('freezes remaining time while globally or individually paused', () => {
-    const clock = new CombatClock();
-    const receipt = new CombatReceiptCollector();
-    const runtime = new ComboWindowRuntime(clock, receipt, 5);
-
-    const perlica = runtime.open('perlica', 'comboSkill');
-    const rossi = runtime.open('rossi', 'comboSkill');
-    runtime.setOperatorPaused('perlica', true);
-    advance(clock, runtime, 10);
-    expect(perlica.remainingFrames).toBe(150);
-    expect(rossi.remainingFrames).toBe(140);
-
-    runtime.setGloballyPaused(true);
-    advance(clock, runtime, 10);
-    expect(perlica.remainingFrames).toBe(150);
-    expect(rossi.remainingFrames).toBe(140);
-  });
-
   it('orders same-frame records by configured track order', () => {
     const clock = new CombatClock();
     const receipt = new CombatReceiptCollector();
@@ -257,8 +239,8 @@ describe('ComboWindowRuntime', () => {
     runtime.open('perlica', 'comboSkill');
 
     expect(runtime.first?.operatorId).toBe('perlica');
-    expect(runtime.tryConsume('rossi', 'comboSkill')).toBe(false);
-    expect(runtime.tryConsume('perlica', 'comboSkill')).toBe(true);
+    expect(runtime.consume('rossi', 'comboSkill', result => result.consumed)).toBe(false);
+    expect(runtime.consume('perlica', 'comboSkill', result => result.consumed)).toBe(true);
     expect(runtime.first?.operatorId).toBe('rossi');
   });
 
@@ -271,7 +253,7 @@ describe('ComboWindowRuntime', () => {
     runtime.open('perlica', 'comboSkill');
 
     expect(runtime.pending).toHaveLength(2);
-    expect(runtime.tryConsume('perlica', 'comboSkill')).toBe(true);
+    expect(runtime.consume('perlica', 'comboSkill', result => result.consumed)).toBe(true);
     expect(runtime.pending).toHaveLength(0);
   });
 
@@ -283,10 +265,10 @@ describe('ComboWindowRuntime', () => {
     runtime.open('perlica', 'comboSkill');
     runtime.open('rossi', 'comboSkillStage2');
 
-    expect(runtime.tryConsume('rossi', 'comboSkillStage2')).toBe(false);
-    expect(runtime.tryConsume('perlica', 'battleSkill')).toBe(false);
-    expect(runtime.tryConsume('perlica', 'comboSkill')).toBe(true);
-    expect(runtime.tryConsume('rossi', 'comboSkillStage2')).toBe(true);
+    expect(runtime.consume('rossi', 'comboSkillStage2', result => result.consumed)).toBe(false);
+    expect(runtime.consume('perlica', 'battleSkill', result => result.consumed)).toBe(false);
+    expect(runtime.consume('perlica', 'comboSkill', result => result.consumed)).toBe(true);
+    expect(runtime.consume('rossi', 'comboSkillStage2', result => result.consumed)).toBe(true);
     expect(runtime.pending).toHaveLength(0);
   });
 
@@ -332,9 +314,10 @@ describe('ComboWindowRuntime', () => {
     runtime.open('rossi', 'comboSkillStage2');
     runtime.registerRingQte('rossi', 15, 15);
     advance(clock, runtime, 10);
-    runtime.setOperatorPaused('rossi', true);
-    advance(clock, runtime, 30);
-    runtime.setOperatorPaused('rossi', false);
+    for (let i = 0; i < 30; i++) {
+      clock.advanceFrame();
+      runtime.advance(0);
+    }
     advance(clock, runtime, 5);
 
     runtime.consume('rossi', 'comboSkillStage2', result => result, undefined, 42);

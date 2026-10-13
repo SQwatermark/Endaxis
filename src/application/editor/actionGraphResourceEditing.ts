@@ -1,3 +1,4 @@
+import { writeFieldValue } from '../../core/editor/writeFieldValue';
 import type {
   ActionGraphDefinition,
   ActionGraphNode,
@@ -60,23 +61,6 @@ function node(graph: ActionGraphDefinition, id: string): ActionGraphNode {
   return value;
 }
 
-export function replaceGraphField(
-  value: unknown,
-  path: readonly (string | number)[],
-  replacement: unknown,
-): unknown {
-  if (!path.length) return replacement;
-  const [key, ...rest] = path;
-  const record = (value === undefined ? {} : value) as Record<string | number, unknown>;
-  const child = replaceGraphField(record[key!], rest, replacement);
-  if (Array.isArray(value)) {
-    const result = [...value];
-    result[Number(key)] = child;
-    return result;
-  }
-  return { ...record, [key!]: child };
-}
-
 function requireUnboundMacroStructure(
   owner: ActionGraphResourceOwner,
   address: ActionGraphAddress,
@@ -114,7 +98,7 @@ export function connectResourceNode<T extends ActionGraphResourceOwner>(
   if (!port) throw new Error(`node '${nodeId}' has no control port '${path.join('.')}'`);
   if (targetId !== null) node(graph, targetId);
   if (port.target === targetId) return owner;
-  const changed = replaceGraphField(source, path, targetId) as ActionGraphNode;
+  const changed = writeFieldValue(source, path, targetId) as ActionGraphNode;
   return updateResourceGraph(owner, address, previous => ({
     ...previous,
     nodes: { ...previous.nodes, [nodeId]: changed },
@@ -169,7 +153,7 @@ function disconnect(value: unknown, nodeId: string): unknown {
   for (const [key, child] of Object.entries(value as object)) {
     if (key === 'nodeBindings') continue;
     const changed = disconnect(child, nodeId);
-    if (changed !== child) result = replaceGraphField(result, [key], changed);
+    if (changed !== child) result = writeFieldValue(result, [key], changed);
   }
   return result;
 }
@@ -189,7 +173,7 @@ export function removeResourceNode<T extends ActionGraphResourceOwner>(
         let changed = source;
         for (const port of listGraphPorts(source))
           if (port.target === nodeId)
-            changed = replaceGraphField(changed, port.path, null) as ActionGraphNode;
+            changed = writeFieldValue(changed, port.path, null) as ActionGraphNode;
         return [id, changed];
       }),
   );
@@ -273,7 +257,7 @@ export function connectResourceEntry<T extends ActionGraphResourceOwner>(
   if (!entry) throw new Error(`missing graph entry '${entryId}'`);
   if (targetId !== null) node(resourceGraph(owner, address), targetId);
   if (entry.targetId === targetId) return owner;
-  const changed = replaceGraphField(owner, [...entry.path, '$sequence'], targetId) as T;
+  const changed = writeFieldValue(owner, [...entry.path, '$sequence'], targetId) as T;
   validateActionGraphOwner(changed, 'resource');
   return changed;
 }

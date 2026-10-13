@@ -6,7 +6,7 @@
  */
 import type { AbilityEventResponse } from './abilityEvents.ts';
 import type { ActionGraphReference, ActionGraphResourceDefinition } from './actionGraph.ts';
-import type { CombatEventHandlerDefinition, ScheduledSequenceDefinition } from './actions.ts';
+import type { ScheduledSequenceDefinition } from './actions.ts';
 import type { BuildCondition, CombatCondition } from './conditions.ts';
 import type { GameplayTag } from './gameplayTags.ts';
 import type {
@@ -292,6 +292,7 @@ export type ComboSkillPriority = (typeof COMBO_SKILL_PRIORITIES)[number];
 /**
  * 一个可独立释放或触发的执行技能定义，不是玩家的操作段或轴上段实例。
  * 它描述战斗身份和时序，不承载翻译后的名称或编辑器布局。
+ * 事件响应由图内监听节点注册并限定寿命，不使用顶层事件调度表。
  */
 export interface SkillDefinitionProperties extends SkillActionProgramDefinition {
   /** 该技能完整的节点和宏；所有入口均在此图中解析。 */
@@ -368,8 +369,6 @@ export interface SkillDefinitionProperties extends SkillActionProgramDefinition 
     /** 命中旁路后直接执行的动作序列。 */
     readonly sequence: ActionGraphReference;
   };
-  /** 技能启用期间注册的战斗事件响应。 */
-  eventHandlers?: readonly CombatEventHandlerDefinition[];
 }
 
 /** 闪避不参与技能养成；其他干员技能必须明确等级来源。 */

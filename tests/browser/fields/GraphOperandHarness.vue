@@ -7,12 +7,7 @@ import ActionNodeInspector from '../../../src/ui/action-graph/ActionNodeInspecto
 import { useResourceGraphEditor } from '../../../src/ui/action-graph/useResourceGraphEditor';
 import { createResourceEditorView } from '../../../src/ui/editor/resourceEditorView';
 const props = defineProps<{
-  field:
-    | 'instantAttributeModifiers'
-    | 'instantDamageScaleModifiers'
-    | 'keywordEnhancements'
-    | 'onActionEndBuffs'
-    | 'items';
+  field: 'instantAttributeModifiers' | 'instantDamageScaleModifiers' | 'items';
 }>();
 const referenceChoices = {
   buff: {
@@ -46,25 +41,12 @@ const action = (connected: boolean): ActionGraphStep => {
         }
       : props.field === 'instantDamageScaleModifiers'
         ? { side: 'attacker', zone: 'normal', addition: value }
-        : props.field === 'keywordEnhancements'
-          ? { triggerBuffIds: ['buff'], operation: 'add', value }
-          : props.field === 'onActionEndBuffs'
-            ? { buffId: 'buff', target: 'caster', blackboardAssignments: { amount: value } }
-            : { values: [1, 2, 3, 4], column: value, storeKey: 'result' };
-  const kind =
-    props.field === 'items'
-      ? 'readSkillSettingData'
-      : ['keywordEnhancements', 'onActionEndBuffs'].includes(props.field)
-        ? 'applyBuff'
-        : 'dealDamage';
+        : { values: [1, 2, 3, 4], column: value, storeKey: 'result' };
+  const kind = props.field === 'items' ? 'readSkillSettingData' : 'dealDamage';
   return {
     kind,
     parameters: {
-      ...(kind === 'applyBuff'
-        ? { buffId: 'buff', target: 'caster', finishByAction: true }
-        : kind === 'dealDamage'
-          ? { damageType: 'physical', attackScale: 1, tags: [] }
-          : {}),
+      ...(kind === 'dealDamage' ? { damageType: 'physical', attackScale: 1, tags: [] } : {}),
       [props.field]: [row],
     },
   } as ActionGraphStep;

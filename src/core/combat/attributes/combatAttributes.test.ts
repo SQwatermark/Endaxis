@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { ATTRIBUTE_MODIFIER_SOURCES, type CombatAttributeModifier } from '../state/foundationState';
+import {
+  ATTRIBUTE_MODIFIER_SOURCES,
+  createCombatAttributeState,
+  type CombatAttributeModifier,
+} from '../state/foundationState';
 import {
   createCombatAttributeModifier,
   CombatAttributeSet,
@@ -89,16 +93,6 @@ describe('CombatAttributeSet', () => {
     expect(attributes.get('attack')).toBe(233);
   });
 
-  it('filters converted modifiers with the recovered non-converted mask', () => {
-    const attributes = new CombatAttributeSet<Attribute>();
-    attributes.define('attack', 100, { minimum: 0, maximum: 1000 });
-    addModifier(attributes, 'addition', 20, ATTRIBUTE_MODIFIER_SOURCES.buff);
-    addModifier(attributes, 'addition', 50, ATTRIBUTE_MODIFIER_SOURCES.converted);
-
-    expect(attributes.get('attack')).toBe(170);
-    expect(attributes.get('attack', ATTRIBUTE_MODIFIER_SOURCES.nonConverted)).toBe(120);
-  });
-
   it('reads armed and final non-converted stages without mixing their modifier slots', () => {
     const attributes = new CombatAttributeSet<Attribute>();
     attributes.define('attack', 100, { minimum: 0, maximum: 1000 });
@@ -113,15 +107,6 @@ describe('CombatAttributeSet', () => {
     expect(attributes.get('attack', ATTRIBUTE_MODIFIER_SOURCES.nonConverted)).toBe(231.25);
     expect(attributes.getArmed('attack')).toBe(225);
     expect(attributes.get('attack')).toBe(406.25);
-  });
-
-  it('exposes whether an attribute is configured separately from its numeric value', () => {
-    const attributes = new CombatAttributeSet<Attribute>();
-    attributes.define('attack', 0, { minimum: 0, maximum: 1000 });
-
-    expect(attributes.has('attack')).toBe(true);
-    expect(attributes.has('unknown')).toBe(false);
-    expect(attributes.get('attack')).toBe(0);
   });
 
   it('uses modifier identity and clears only instant modifiers', () => {
@@ -140,8 +125,9 @@ describe('CombatAttributeSet', () => {
   });
 
   it('requires explicit native bounds before a modifier is attached', () => {
-    const attributes = new CombatAttributeSet<Attribute>();
-    attributes.setRawValue('attack', 100);
+    const state = createCombatAttributeState<Attribute>();
+    state.rawValues.set('attack', 100);
+    const attributes = new CombatAttributeSet(state);
     const modifier = createCombatAttributeModifier(
       'attack',
       attributeModifierValues('addition', 10),

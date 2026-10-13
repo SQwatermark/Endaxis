@@ -64,14 +64,13 @@ export interface TrackLoadoutInstanceViewModel {
   readonly gears: GearSlotsViewModel;
 }
 
-function requireDefinition<T>(
+function requireDefinition<T extends { readonly slug: string }>(
   definition: T | null,
   expectedSlug: string,
   kind: string,
-  identity: (value: T) => string,
 ): T {
   if (definition === null) throw new Error(`${kind} definition '${expectedSlug}' does not exist`);
-  const actualSlug = identity(definition);
+  const actualSlug = definition.slug;
   if (actualSlug !== expectedSlug) {
     throw new Error(
       `${kind} definition '${expectedSlug}' resolved definition identity '${actualSlug}'`,
@@ -88,7 +87,6 @@ function projectOperator(
     repository.getOperator(instance.operatorSlug),
     instance.operatorSlug,
     'operator',
-    value => value.slug,
   );
   return {
     operatorSlug: instance.operatorSlug,
@@ -119,7 +117,6 @@ function projectWeapon(
       repository.getWeapon(instance.weaponSlug),
       instance.weaponSlug,
       'weapon',
-      value => value.slug,
     ),
   };
 }
@@ -133,12 +130,7 @@ function projectGear(
     slot,
     gearSlug: instance.gearSlug,
     artificingLevels: [...instance.artificingLevels],
-    definition: requireDefinition(
-      repository.getGear(instance.gearSlug),
-      instance.gearSlug,
-      'gear',
-      value => value.slug,
-    ),
+    definition: requireDefinition(repository.getGear(instance.gearSlug), instance.gearSlug, 'gear'),
   };
 }
 

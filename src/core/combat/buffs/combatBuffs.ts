@@ -728,14 +728,6 @@ export class CombatBuff<Key extends string> {
     return this.#state.lifecycle.finishReason;
   }
 
-  get isFinishable(): boolean {
-    return this.#state.lifecycle.finishable;
-  }
-
-  get isTimePaused(): boolean {
-    return this.#state.lifecycle.timePaused;
-  }
-
   get enhanceCount(): number {
     return this.#state.lifecycle.enhanceCount;
   }
@@ -774,13 +766,6 @@ export class CombatBuff<Key extends string> {
 
   get attributeModifiers(): readonly CombatAttributeModifier<Key>[] {
     return this.#state.attributes.modifiers;
-  }
-
-  /** 按原生 Buff.ContainsTag 语义查询定义携带的 applyTags。 */
-  containsTag(tag: GameplayTag, exact = false): boolean {
-    return (this.definition.applyTags ?? []).some(candidate =>
-      this.owner.tagRegistry.matches(candidate, tag, exact),
-    );
   }
 
   enable(): void {
@@ -1207,9 +1192,6 @@ export class CombatShield<Key extends string> {
   get infiniteValue(): boolean {
     return this.definition.infinityValue;
   }
-  get infiniteAbsorbCount(): boolean {
-    return this.maxAbsorbCount < 0;
-  }
 
   absorb(damageType: DamageType, inputValue: number): number {
     return absorbShieldDamage(this.runtimeState, this.definition, damageType, inputValue, () => {
@@ -1582,15 +1564,6 @@ export class CombatBuffContainer<Key extends string> {
     this.#state.instances.set(buff.instanceId, buff.runtimeState);
     this.onBuffCreated?.(buff, options?.producedBy);
     return buff;
-  }
-
-  getCountById(id: string): number {
-    let count = 0;
-    for (const instanceId of this.#state.memberIds) {
-      const buff = this.#requireMember(instanceId);
-      if (!buff.isFinished && buff.definition.id === id) count += buff.enhanceCount;
-    }
-    return count;
   }
 
   /** 统计所有未结束且 ID 命中任一候选项的 Buff 层数。 */

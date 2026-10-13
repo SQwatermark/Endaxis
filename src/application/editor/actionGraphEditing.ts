@@ -20,7 +20,7 @@ import {
 
 /** 入口只投影正式定义，不写入额外节点或入口表；数组下标始终对应源调度项。 */
 export interface GraphEntry {
-  /** timeline:{index}、event:{handlerIndex}:{sequenceIndex}、switch 或 macro。 */
+  /** timeline:{index}、switch 或 macro。 */
   readonly id: string;
   readonly label: string;
   readonly targetId: string | null;
@@ -29,7 +29,7 @@ export interface GraphEntry {
 }
 
 export interface GraphEntryGroup {
-  /** timeline、event:{handlerIndex}、switch 或 macro。 */
+  /** timeline、switch 或 macro。 */
   readonly id: string;
   readonly label: string;
   readonly entries: readonly GraphEntry[];
@@ -62,7 +62,7 @@ function scheduleEntries(
   }));
 }
 
-/** 施放时间线与每个事件来源分别成组；共享目标不会合并调度调用及其帧范围。 */
+/** 施放时间线与旁路入口分别成组；共享目标不会合并调度调用及其帧范围。 */
 export function listGraphEntryGroups(
   skill: SkillDefinition,
   address: SkillGraphAddress,
@@ -89,13 +89,6 @@ export function listGraphEntryGroups(
       entries: scheduleEntries(skill.scheduledSequences, 'timeline'),
     },
   ];
-  skill.eventHandlers?.forEach((handler, index) =>
-    groups.push({
-      id: `event:${index}`,
-      label: `事件 · ${handler.key}`,
-      entries: scheduleEntries(handler.scheduledSequences, `event:${index}`),
-    }),
-  );
   if (skill.switchToBuffCast !== undefined)
     groups.push({
       id: 'switch',
@@ -135,7 +128,7 @@ function editSchedules(
 }
 
 /**
- * 将画布入口编辑写回正式字段；批量连接仍保留每个独立调度及事件来源。
+ * 将画布入口编辑写回正式字段；批量连接仍保留每个独立调度。
  * 非时间入口只接受 targetId，目标节点始终属于 address 指定的图。
  */
 export function editGraphEntries(
@@ -190,19 +183,6 @@ export function editGraphEntries(
     const schedules = editSchedules(skill.scheduledSequences, 'timeline', selected, patch);
     if (schedules !== skill.scheduledSequences)
       changed = { ...changed, scheduledSequences: schedules };
-    const handlers = skill.eventHandlers?.map((handler, index) => {
-      const schedules = editSchedules(
-        handler.scheduledSequences,
-        `event:${index}`,
-        selected,
-        patch,
-      );
-      return schedules === handler.scheduledSequences
-        ? handler
-        : { ...handler, scheduledSequences: schedules };
-    });
-    if (handlers?.some((handler, index) => handler !== skill.eventHandlers![index]))
-      changed = { ...changed, eventHandlers: handlers };
     const route = skill.switchToBuffCast;
     if (
       selected.has('switch') &&

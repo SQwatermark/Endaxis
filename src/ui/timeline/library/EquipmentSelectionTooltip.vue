@@ -1,25 +1,21 @@
-<script setup>
-import { computed } from 'vue';
+<script setup lang="ts">
 import { useI18n } from 'vue-i18n';
 import GameRichTextRenderer from '../../components/GameRichTextRenderer.vue';
+import type { GearAffixPresentationRow } from './gearAffixPresentation';
 
-const props = defineProps({
-  equipment: { type: Object, required: true },
-  affixRows: { type: Array, default: () => [] },
-  gearSetName: { type: String, default: '' },
-  gearSetDescription: { type: String, default: '' },
-});
+defineProps<{
+  name: string;
+  affixRows: readonly GearAffixPresentationRow[];
+  gearSetName: string;
+  gearSetDescription: string;
+}>();
 
 const { t, locale } = useI18n();
-
-const setPreview = computed(() =>
-  props.gearSetName ? { name: props.gearSetName, description: props.gearSetDescription } : null,
-);
 </script>
 
 <template>
   <div class="equipment-selection-preview">
-    <div class="equipment-selection-preview__name">{{ equipment.name }}</div>
+    <div class="equipment-selection-preview__name">{{ name }}</div>
     <div v-if="affixRows.length" class="equipment-selection-preview__affixes">
       <div
         v-for="row in affixRows"
@@ -39,16 +35,12 @@ const setPreview = computed(() =>
         <strong class="equipment-selection-preview__value">{{ row.valueText }}</strong>
       </div>
     </div>
-    <div v-if="setPreview" class="equipment-selection-preview__set-bonus">
+    <div v-if="gearSetName" class="equipment-selection-preview__set-bonus">
       <div class="equipment-selection-preview__set-heading">
         <span>{{ t('timelineGrid.equipmentDialog.setBonusTitle') }}</span>
-        <strong>{{ setPreview.name }}</strong>
+        <strong>{{ gearSetName }}</strong>
       </div>
-      <GameRichTextRenderer
-        v-if="setPreview.description"
-        :text="setPreview.description"
-        :locale="locale"
-      />
+      <GameRichTextRenderer v-if="gearSetDescription" :text="gearSetDescription" :locale="locale" />
     </div>
   </div>
 </template>

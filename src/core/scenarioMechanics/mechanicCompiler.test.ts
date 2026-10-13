@@ -37,10 +37,8 @@ function adapter(overrides: Partial<MechanicAdapter> = {}): MechanicAdapter {
     revision: 'adapter:1',
     compile: input => [
       {
-        kind: 'combatEventSequence',
-        event: 'outputDamage',
-        priority: 10,
-        sequence: chainEntry('mechanic-output-damage', [
+        kind: 'battleInitializationSequence',
+        sequence: chainEntry('mechanic-initialize', [
           {
             kind: 'changeResource',
             parameters: {
@@ -85,7 +83,7 @@ describe('compileMechanics', () => {
       mechanicId: definition.id,
       selectionIndex: 0,
       contributionIndex: 0,
-      contribution: { kind: 'combatEventSequence', priority: 10 },
+      contribution: { kind: 'battleInitializationSequence' },
     });
   });
 
@@ -125,39 +123,17 @@ describe('compileMechanics', () => {
     ).toThrow('unknown mechanic parameter');
   });
 
-  it('rejects unresolved equal-priority and level-event ordering', () => {
-    const duplicateAbility = adapter({
-      compile: input => [...adapter().compile(input), ...adapter().compile(input)],
+  it('rejects contributions that have no battle runtime consumer', () => {
+    const invalid = adapter({
+      compile: () => [{ kind: 'unhandled' }] as never,
     });
     expect(() =>
       compileMechanics(
         document(),
         { getMechanic: () => definition },
-        new MechanicAdapterRegistry([duplicateAbility]),
+        new MechanicAdapterRegistry([invalid]),
       ),
-    ).toThrow('equal-priority event ordering is not recovered');
-
-    const duplicateLevel = adapter({
-      compile: () => [
-        {
-          kind: 'gameLevelEventSequence',
-          event: { kind: 'spellInflictionStarted' },
-          sequence: chainEntry('mechanic-spell-infliction-1', []),
-        },
-        {
-          kind: 'gameLevelEventSequence',
-          event: { kind: 'spellInflictionStarted' },
-          sequence: chainEntry('mechanic-spell-infliction-2', []),
-        },
-      ],
-    });
-    expect(() =>
-      compileMechanics(
-        document(),
-        { getMechanic: () => definition },
-        new MechanicAdapterRegistry([duplicateLevel]),
-      ),
-    ).toThrow('cross-mechanic level-event registration order is not recovered');
+    ).toThrow('unsupported mechanic contribution');
   });
 
   it('rejects runtime adapter output that is not finite data', () => {
@@ -165,9 +141,7 @@ describe('compileMechanics', () => {
       compile: () =>
         [
           {
-            kind: 'combatEventSequence',
-            event: 'outputDamage',
-            priority: 1,
+            kind: 'battleInitializationSequence',
             sequence: { $sequence: null, callback: () => undefined },
           },
         ] as never,

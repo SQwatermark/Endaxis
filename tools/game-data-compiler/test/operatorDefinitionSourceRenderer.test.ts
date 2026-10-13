@@ -19,8 +19,8 @@ import type { SkillBuffDefinition } from '../../../packages/game-data-contract/s
 import {
   compileSkill,
   compileIndependentBuffResource,
-  compileIndependentAbilityEntityResource,
 } from '../../../src/core/compiler/compileSkill.ts';
+import { createIndependentAbilityEntityImportResolver } from '../../../src/core/compiler/compileCommonAbilityEntityImports.ts';
 import { rootActionSteps } from '../../../src/core/compiler/actionProgramInspection.ts';
 import { perlica } from '../../../src/data/operators/perlica.generated.ts';
 
@@ -367,12 +367,10 @@ it('干员能力实体保存自己的图，不进入干员过渡图', () => {
   const entity = operator.abilityEntityDefinitions!.owned as AbilityEntityDefinition;
   expect('actionGraph' in operator).toBe(false);
   expect(Object.keys(entity.childSkill!.actionGraph.main.nodes)).toHaveLength(1);
-  const compiled = compileIndependentAbilityEntityResource(
-    entity,
-    'owned',
-    1,
+  const compiled = createIndependentAbilityEntityImportResolver(
+    { owned: entity },
     new ActionGraphDefinitionRepository(),
-  );
+  )(1).owned!;
   const entry = compiled.childSkill!.timelineActions[0]!.sequence;
   const entryNode = entry.graph.nodes.get(entry.entry!)!;
   if (entryNode.action.kind !== 'dealStagger') throw new Error('expected a dealStagger node');
@@ -399,7 +397,7 @@ it('真实佩丽卡生成定义直接编译战技，不重新当作来源树渲�
   expect(compiled.timelineActions.every(action => !('steps' in action.sequence))).toBe(true);
 });
 
-it('养成初始化和事件响应属于养成局部图，未归属程序阻止发布', () => {
+it('养成初始化和事件响应属于养成局部图，干员顶层事件响应阻止发布', () => {
   const write: graph.ActionGraphStep = {
     kind: 'modifyActionValue',
     parameters: {
@@ -433,20 +431,15 @@ it('养成初始化和事件响应属于养成局部图，未归属程序阻止�
     const compiled = compilation.compileEntry(entry, 'upgrade');
     expect(compiled.graph.nodes.get(compiled.entry!)!.action.kind).toBe('modifyActionValue');
   }
-  // 渲染层不再在投影期发现未归属程序；裸引用照常落盘，悬空入口在编译期被拒绝。
-  const unowned = renderOperatorDefinitionSource({
-    operator: {
-      slug: 'sample',
-      skillGroups: [],
-      eventHandlers: [
-        { key: 'unowned', event: 'deckAttributesChanged', sequence: entryOf('write') },
-      ],
-    },
-  });
-  const unownedOperator = evaluate(unowned).default as OperatorDefinition;
   expect(() =>
-    new ActionGraphDefinitionRepository()
-      .compile({ main: { nodes: {} }, macros: {} }, 1)
-      .compileEntry(unownedOperator.eventHandlers![0]!.sequence, 'upgrade'),
-  ).toThrow('missing action graph node');
+    renderOperatorDefinitionSource({
+      operator: {
+        slug: 'sample',
+        skillGroups: [],
+        eventHandlers: [
+          { key: 'unowned', event: 'deckAttributesChanged', sequence: entryOf('write') },
+        ],
+      },
+    }),
+  ).toThrow('operator event responses require a passive or upgrade program');
 });

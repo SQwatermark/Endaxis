@@ -89,12 +89,10 @@ export interface ComboRingQteRegistration {
   readonly activeDurationFrames: number;
 }
 
-/** 全场连携候选、暂停状态和 QTE 结果。 */
+/** 全场连携候选和 QTE 结果。 */
 export interface ComboWindowState {
   readonly records: Map<string, PendingComboRecord>;
-  readonly pausedOperators: Set<string>;
   readonly ringQtes: Map<number, ComboRingQteRegistration>;
-  globallyPaused: boolean;
   nextSequence: number;
   nextRingQteSequence: number;
 }
@@ -102,9 +100,7 @@ export interface ComboWindowState {
 export function createComboWindowState(): ComboWindowState {
   return {
     records: new Map(),
-    pausedOperators: new Set(),
     ringQtes: new Map(),
-    globallyPaused: false,
     nextSequence: 0,
     nextRingQteSequence: 0,
   };

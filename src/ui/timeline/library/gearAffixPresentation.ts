@@ -10,7 +10,6 @@ import {
 
 export interface GearAffixPresentationRow {
   readonly key: string;
-  readonly traitIndex: number;
   readonly modifierId: string;
   readonly label: string;
   readonly valueText: string;
@@ -26,25 +25,16 @@ function formatRows(
 ): readonly GearAffixPresentationRow[] {
   return definition.traits.map((trait, traitIndex) => {
     const projection = projectEquipmentTraitDisplay(trait.display);
-    const values =
+    const valueText =
       selectedLevels === undefined
         ? projection.values
-        : [
-            projection.values[
-              Math.max(
-                0,
-                Math.min(projection.values.length - 1, Math.trunc(selectedLevels[traitIndex] ?? 0)),
-              )
-            ] ?? 0,
-          ];
+            .map((_, index) => formatProjectedEquipmentModifierValue(projection, index))
+            .join(' / ')
+        : formatProjectedEquipmentModifierValue(projection, selectedLevels[traitIndex] ?? 0);
     const label = getEquipmentModifierLabel(projection.modifierId, t);
-    const valueText = values
-      .map((_, index) => formatProjectedEquipmentModifierValue({ ...projection, values }, index))
-      .join(' / ');
     const src = getEquipmentModifierIconPath(projection.modifierId) ?? '';
     return {
       key: `${definition.slug}-${traitIndex}-${projection.modifierId}`,
-      traitIndex,
       modifierId: projection.modifierId,
       label,
       valueText,

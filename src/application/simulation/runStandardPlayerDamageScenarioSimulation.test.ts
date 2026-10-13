@@ -15,7 +15,10 @@ import type {
 } from '../../core/game-data/operatorDefinition';
 import { MechanicAdapterRegistry } from '../../core/scenarioMechanics/mechanicCompiler';
 import { createEmptyScenario } from '../../core/project/createProject';
-import { projectBuffTimelineViz } from '../../core/projection/buffTimelineViz';
+import {
+  findBuffTimelineSegmentForDamage,
+  projectBuffTimelineViz,
+} from '../../core/projection/buffTimelineViz';
 import { commonBuffDefinitions } from '../../data/buffs/commonDefinitions';
 import { elementalAttachments } from '../../data/buffs/elementalAttachments';
 import { gameDataRepository } from '../../data/gameDataRepository';
@@ -41,7 +44,6 @@ import { rossi as rossiGeneratedOperator } from '../../data/operators/rossi.gene
 import { tangtang as tangtangGeneratedOperator } from '../../data/operators/tangtang.generated';
 import { skillFixture, type SkillFixtureProperties } from '../../test/skillFixture';
 import { placeSkillGroup } from '../../ui/timeline/interaction/placeSkillGroup';
-import { findBuffDamageSegment } from '../../ui/timeline/results/enemyBuffDamageHits';
 import { projectPhysicalStatusDisplay } from '../../ui/timeline/results/physicalStatusDisplay';
 import { projectTimelineHitOccurrences } from '../../ui/timeline/results/timelineHitEffects';
 import { runStandardPlayerDamageScenarioSimulation } from './runStandardPlayerDamageScenarioSimulation';
@@ -1539,7 +1541,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
       for (const hit of hits) {
         expect(hit.sourceId).toBe('track:rossi');
         expect(hit.data?.buffId).toBe('buff_chr_0028_wulfa_normal_bleed');
-        expect(findBuffDamageSegment(hit, segments)).toBeDefined();
+        expect(findBuffTimelineSegmentForDamage(hit, segments)).toBeDefined();
         expect(skillHits.some(item => item.hitId === hit.data?.hitId)).toBe(false);
       }
       return hits;

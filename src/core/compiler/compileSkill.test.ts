@@ -1,4 +1,4 @@
-import { describe, expect, expectTypeOf, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import type {
   ActionGraphDefinition,
   ActionGraphNode,
@@ -15,14 +15,8 @@ import { skillFixture, type SkillFixtureProperties } from '../../test/skillFixtu
 import { validateSkillDefinition } from '../game-data/validateSkillDefinition';
 import { ActionGraphDefinitionRepository } from './actionGraphDefinitionRepository';
 import { rootActionSteps } from './actionProgramInspection';
-import type { ResolvedCombatStep, ResolvedCombatStepForKind } from './combatProgram';
-import { createActionGraphCompilation } from './compileActionGraph';
 import { createIndependentAbilityEntityImportResolver } from './compileCommonAbilityEntityImports';
-import {
-  compileIndependentAbilityEntityResource,
-  compileIndependentBuffResource,
-  compileSkill,
-} from './compileSkill';
+import { compileIndependentBuffResource, compileSkill } from './compileSkill';
 
 /**
  * 把一条纯线性 ActionGraphStep 链铺成同图节点并返回入口身份。
@@ -70,34 +64,6 @@ function emptyGraphSkill(
   });
 }
 
-it('keeps step kind, parameters and sequence fields correlated through the public member type', () => {
-  type Selected = ResolvedCombatStepForKind<'conditional' | 'once' | 'dealDamage'>;
-  expectTypeOf<Selected>().toEqualTypeOf<
-    Extract<ResolvedCombatStep, { kind: 'conditional' | 'once' | 'dealDamage' }>
-  >();
-  expectTypeOf<ResolvedCombatStepForKind<'once'>>().not.toBeNever();
-  const emptyBody = {
-    graph: createActionGraphCompilation({ nodes: {} }, 1, 'test').compileAll(),
-    entry: null,
-    callSite: 'test',
-  };
-  const once: ResolvedCombatStepForKind<'once'> = {
-    kind: 'once',
-    parameters: { scopeKey: 'test' },
-    body: emptyBody,
-  };
-  expect(rootActionSteps(once.body)).toEqual([]);
-  // @ts-expect-error once requires its child sequence.
-  const missingBody: ResolvedCombatStepForKind<'once'> = {
-    kind: 'once',
-    parameters: { scopeKey: 'test' },
-  };
-  void missingBody;
-  // @ts-expect-error unknown kinds cannot silently resolve to never.
-  type UnknownStep = ResolvedCombatStepForKind<'unknownStep'>;
-  expectTypeOf<UnknownStep>();
-});
-
 function findPerlicaSkill(key: string): SkillDefinition {
   for (const group of perlica.skillGroups) {
     const skills = Array.isArray(group.skills) ? group.skills : [group.skills];
@@ -138,7 +104,10 @@ describe('compileSkill', () => {
     };
     const programs = new ActionGraphDefinitionRepository();
     const compiledBuff = compileIndependentBuffResource(buff, 'buff', programs);
-    const compiledEntity = compileIndependentAbilityEntityResource(entity, 'entity', 1, programs);
+    const compiledEntity = createIndependentAbilityEntityImportResolver(
+      { entity },
+      programs,
+    )(1).entity!;
     const buffEntry = compiledBuff.lifecycleSequences?.start?.[0];
     const entityEntry = compiledEntity.childSkill?.timelineActions[0]?.sequence;
     expect(buffEntry?.entry).not.toBeNull();
@@ -689,10 +658,11 @@ describe('compileSkill', () => {
   });
 
   it('rejects legacy top-level handlers because they do not preserve listener lifetime', () => {
-    const skill: SkillDefinition = skillFixture({
-      key: 'legacy-listener',
-      timelineBlockFrames: 1,
-      scheduledSequences: [],
+    const skill = {
+      ...emptyGraphSkill({
+        key: 'legacy-listener',
+        timelineBlockFrames: 1,
+      }),
       eventHandlers: [
         {
           key: 'legacy',
@@ -700,8 +670,7 @@ describe('compileSkill', () => {
           scheduledSequences: [{ startFrame: 0, sequence: { $sequence: null } }],
         },
       ],
-      actionGraph: { main: { nodes: {} }, macros: {} },
-    });
+    };
 
     expect(() =>
       compileSkill({

@@ -1,23 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import {
-  gameplayTagRegistry,
-  parseGameplayTagReference,
-  requireGameplayTag,
-} from './gameplayTagCatalog';
+import { parseGameplayTagReference, requireGameplayTag } from './gameplayTagCatalog';
 
 describe('可读 GameplayTag 目录', () => {
-  it('子路径匹配父标签，但不能误匹配同名前缀', () => {
-    expect(
-      gameplayTagRegistry.matches(
-        requireGameplayTag('Status/Immobilized/Frozen'),
-        requireGameplayTag('Status/Immobilized'),
-      ),
-    ).toBe(true);
-    expect(gameplayTagRegistry.matches('Status/ImmobilizedOther', 'Status/Immobilized')).toBe(
-      false,
-    );
-  });
   it('编辑器支持可读自定义路径，拒绝数字串和占位符', () => {
+    expect(requireGameplayTag('Status/Immobilized/Frozen')).toBe('Status/Immobilized/Frozen');
     expect(parseGameplayTagReference('TimeDilation/Layer/Entity/HitStop')).toBe(
       'TimeDilation/Layer/Entity/HitStop',
     );

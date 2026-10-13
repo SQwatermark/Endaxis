@@ -38,7 +38,7 @@ export function isLevelValues(value: unknown): value is number | readonly number
         value.every(item => typeof item === 'number' && Number.isFinite(item));
 }
 
-export function isActionValueOperand(value: unknown): boolean {
+function isActionValueOperand(value: unknown): boolean {
   if (!isMappingRecord(value)) return false;
   switch (value.kind) {
     case 'constant':
@@ -61,7 +61,7 @@ export function defaultMappingValue(mode: BlackboardMappingValue): unknown {
   return mode === 'string' || mode === 'copy' ? '' : undefined;
 }
 
-export function unchangedMappingRow(row: BlackboardMappingRow, original: unknown): boolean {
+function unchangedMappingRow(row: BlackboardMappingRow, original: unknown): boolean {
   return (
     isMappingRecord(original) &&
     row.originalKey !== undefined &&

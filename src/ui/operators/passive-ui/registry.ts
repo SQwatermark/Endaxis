@@ -1,8 +1,5 @@
 import type { Component } from 'vue';
-import type {
-  OperatorPassiveUiAppearance,
-  NumericPassiveUiDefinition,
-} from '../../../../packages/game-data-contract/src/operators';
+import type { OperatorPassiveUiAppearance } from '../../../../packages/game-data-contract/src/operators';
 import TangtangPassiveUi from './TangtangPassiveUi.vue';
 import LaevatainPassiveUi from './LaevatainPassiveUi.vue';
 import ZhuangFangyiPassiveUi from './ZhuangFangyiPassiveUi.vue';
@@ -16,45 +13,32 @@ export const passiveUiSkins = {
     component: TangtangPassiveUi,
     width: 48,
     height: 44,
-    label: '涡流',
-    numeric: true,
   },
   laevatainCounter: {
     component: LaevatainPassiveUi,
     width: 32,
     height: 32,
-    label: '熔火',
-    numeric: true,
   },
   zhuangFangyiThunder: {
     component: ZhuangFangyiPassiveUi,
     width: 56,
     height: 56,
-    label: '青霆剑',
-    numeric: true,
   },
-  arcaneSigils: { component: ArcanePassiveUi, width: 44, height: 36, label: '破晦', numeric: true },
+  arcaneSigils: { component: ArcanePassiveUi, width: 44, height: 36 },
   liinoMusic: {
     component: LiinoPassiveUi,
     width: 68,
     height: 60,
-    label: '演唱姿态',
-    numeric: false,
   },
   typhoeaArrows: {
     component: TyphoeaPassiveUi,
     width: 76,
     height: 56,
-    label: '猎物清点',
-    numeric: false,
   },
 } as const satisfies {
   [Appearance in OperatorPassiveUiAppearance]: {
     component: Component;
     width: number;
     height: number;
-    label: string;
-    /** 仅接受原生数值通知的外观可以出现在数值型指示器选项中。 */
-    numeric: Appearance extends NumericPassiveUiDefinition['appearance'] ? true : false;
   };
 };

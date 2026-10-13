@@ -45,7 +45,7 @@ export function compileSkillProgram(
       `skill '${input.skill.key}' must use positive integer naturalDurationFrames`,
     );
   }
-  if (input.skill.eventHandlers?.length) {
+  if ('eventHandlers' in input.skill) {
     throw new Error(
       `skill '${input.skill.key}' uses legacy eventHandlers without a listener interval`,
     );

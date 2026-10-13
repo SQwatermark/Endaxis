@@ -4,7 +4,7 @@ import os from 'node:os';
 import { describe, expect, it } from 'vitest';
 import {
   createCommonBuffCollector,
-  readSystemBuffRoots,
+  readSystemBuffRootDeclarations,
 } from '../scripts/generateCommonBuffDefinitions.ts';
 
 describe('公共 Buff 独立所有权', () => {
@@ -29,7 +29,7 @@ describe('公共 Buff 独立所有权', () => {
     try {
       const file = path.join(directory, 'roots.json');
       fs.writeFileSync(file, JSON.stringify(roots));
-      expect(() => readSystemBuffRoots(file)).toThrow(message);
+      expect(() => readSystemBuffRootDeclarations(file)).toThrow(message);
     } finally {
       fs.rmSync(directory, { recursive: true, force: true });
     }

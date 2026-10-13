@@ -5716,6 +5716,20 @@
     "help": "Execution targets are changed with graph connections. Disconnect before removing this row.",
     "conditionHelp": "Use the graph boolean input to set a constant or connect a condition node. Row edits preserve this condition."
   },
+  "stateInspection": {
+    "enter": "Inspect field or instance",
+    "search": "Search current content",
+    "next": "Next match",
+    "notFound": "Not found",
+    "title": "Inspect combat state",
+    "frame": "Frame",
+    "capture": "Capture state",
+    "loading": "Computing…",
+    "section": "State section",
+    "all": "All",
+    "hint": "Runtime state after this frame's inputs and updates. Map / Set contents are preserved; $ref points to a shared object already shown in this section. Scenario inputs are captured when this window opens; inspection does not change the timeline.",
+    "invalidFrame": "Enter an integer frame between {min} and {max}."
+  },
   "spawnDefinitionField": {
     "resourceReadonly": "This slot owns independent skills. Edit an existing skill in its own resource graph; adding, removing, replacing, or reordering it here is not supported.",
     "absent": "No owned resource is present.",

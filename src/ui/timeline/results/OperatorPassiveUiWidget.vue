@@ -11,7 +11,6 @@ const props = withDefaults(
     maximum?: number;
     active?: boolean;
     mode?: 'normal' | 'ultimate';
-    ratio?: number | null;
     points?: number;
     height?: number;
     maxWidth?: number | null;
@@ -21,7 +20,6 @@ const props = withDefaults(
     maximum: 0,
     active: false,
     mode: 'normal',
-    ratio: null,
     points: 0,
     height: 20,
     maxWidth: null,
@@ -59,7 +57,6 @@ const canvasStyle = computed(() => ({
         :maximum="maximum"
         :active="active"
         :mode="mode"
-        :ratio="ratio"
         :points="points"
       />
     </span>

@@ -1,10 +1,38 @@
-import type { AbilityEntityDefinition } from '../../../packages/game-data-contract/src/skills.ts';
+import type { ActionGraphResourceDefinition } from '../../../packages/game-data-contract/src/actionGraph';
+import type {
+  AbilityEntityDefinition,
+  AbilityEntityChildSkillDefinition,
+} from '../../../packages/game-data-contract/src/skills.ts';
 import type { SkillBuffDefinition } from '../../../packages/game-data-contract/src/buffs.ts';
 import { expect, it } from 'vitest';
 
 import type { CommonDefinitionSource } from '../game-data/gameDataRepository';
 import { ActionGraphDefinitionRepository } from './actionGraphDefinitionRepository';
 import { compileCommonDefinitionSources } from './compileCommonDefinitionSources';
+
+const childSkillMetadata: Pick<
+  AbilityEntityChildSkillDefinition,
+  'nativeSkillType' | 'naturalDurationFrames' | 'castResource'
+> = {
+  nativeSkillType: 'normalSkill',
+  naturalDurationFrames: 30,
+  castResource: {
+    costFrame: 0,
+    cooldownSeconds: 0,
+    maxChargeTime: 1,
+    cost: { resource: 'sp', value: 0, availabilityThreshold: 0 },
+  },
+};
+
+// 节点名相同但图身份独立，避免夹具本身把跨资源引用混在一起。
+function staggerGraph(value: number): ActionGraphResourceDefinition {
+  return {
+    main: {
+      nodes: { entry: { action: { kind: 'dealStagger', parameters: { value } }, next: null } },
+    },
+    macros: {},
+  };
+}
 
 it('纯静态资源不编译空图，并拒绝没有所属图的程序入口', () => {
   const source: CommonDefinitionSource = {
@@ -36,26 +64,12 @@ it('同一来源的两个公共 Buff 使用各自完整的图', () => {
         first: {
           stackingType: 'unlimited',
           lifecycleSequences: { start: [{ $sequence: 'entry' }] },
-          actionGraph: {
-            main: {
-              nodes: {
-                entry: { action: { kind: 'dealStagger', parameters: { value: 1 } }, next: null },
-              },
-            },
-            macros: {},
-          },
+          actionGraph: staggerGraph(1),
         } as SkillBuffDefinition,
         second: {
           stackingType: 'unlimited',
           lifecycleSequences: { start: [{ $sequence: 'entry' }] },
-          actionGraph: {
-            main: {
-              nodes: {
-                entry: { action: { kind: 'dealStagger', parameters: { value: 2 } }, next: null },
-              },
-            },
-            macros: {},
-          },
+          actionGraph: staggerGraph(2),
         } as SkillBuffDefinition,
         pure: { stackingType: 'unlimited' },
       },
@@ -87,14 +101,7 @@ it('不同资源不能共享同一份图对象', () => {
               lifetime: { kind: 'infinite' },
               childSkill: {
                 skillId: 'child',
-                nativeSkillType: 'normalSkill' as const,
-                naturalDurationFrames: 30,
-                castResource: {
-                  costFrame: 0,
-                  cooldownSeconds: 0,
-                  maxChargeTime: 1,
-                  cost: { resource: 'sp' as const, value: 0, availabilityThreshold: 0 },
-                },
+                ...childSkillMetadata,
                 scheduledSequences: [],
                 actionGraph,
               },
@@ -138,24 +145,10 @@ it('独立公共 Buff 通过实体目录引用另一来源的能力实体', () =
         child: {
           lifetime: { kind: 'infinite' },
           childSkill: {
-            nativeSkillType: 'normalSkill' as const,
-            naturalDurationFrames: 30,
-            castResource: {
-              costFrame: 0,
-              cooldownSeconds: 0,
-              maxChargeTime: 1,
-              cost: { resource: 'sp' as const, value: 0, availabilityThreshold: 0 },
-            },
+            ...childSkillMetadata,
             skillId: 'child',
             scheduledSequences: [{ startFrame: 0, sequence: { $sequence: 'entry' } }],
-            actionGraph: {
-              main: {
-                nodes: {
-                  entry: { action: { kind: 'dealStagger', parameters: { value: 2 } }, next: null },
-                },
-              },
-              macros: {},
-            },
+            actionGraph: staggerGraph(2),
           },
         } satisfies AbilityEntityDefinition,
       },
@@ -174,14 +167,7 @@ it('公共 Buff 和能力实体分别绑定所属图的同名节点', () => {
         first: {
           stackingType: 'unlimited',
           lifecycleSequences: { start: [{ $sequence: 'entry' }] },
-          actionGraph: {
-            main: {
-              nodes: {
-                entry: { action: { kind: 'dealStagger', parameters: { value: 1 } }, next: null },
-              },
-            },
-            macros: {},
-          },
+          actionGraph: staggerGraph(1),
         },
         secondBuff: {
           stackingType: 'unlimited',
@@ -213,24 +199,10 @@ it('公共 Buff 和能力实体分别绑定所属图的同名节点', () => {
         second: {
           lifetime: { kind: 'infinite' },
           childSkill: {
-            nativeSkillType: 'normalSkill' as const,
-            naturalDurationFrames: 30,
-            castResource: {
-              costFrame: 0,
-              cooldownSeconds: 0,
-              maxChargeTime: 1,
-              cost: { resource: 'sp' as const, value: 0, availabilityThreshold: 0 },
-            },
+            ...childSkillMetadata,
             skillId: 'child',
             scheduledSequences: [{ startFrame: 0, sequence: { $sequence: 'entry' } }],
-            actionGraph: {
-              main: {
-                nodes: {
-                  entry: { action: { kind: 'dealStagger', parameters: { value: 2 } }, next: null },
-                },
-              },
-              macros: {},
-            },
+            actionGraph: staggerGraph(2),
           },
         } satisfies AbilityEntityDefinition,
       },
@@ -259,14 +231,7 @@ it('能力实体模板按实际可达节点导入其他来源的实体', () => {
         first: {
           lifetime: { kind: 'infinite' },
           childSkill: {
-            nativeSkillType: 'normalSkill' as const,
-            naturalDurationFrames: 30,
-            castResource: {
-              costFrame: 0,
-              cooldownSeconds: 0,
-              maxChargeTime: 1,
-              cost: { resource: 'sp' as const, value: 0, availabilityThreshold: 0 },
-            },
+            ...childSkillMetadata,
             skillId: 'first-child',
             scheduledSequences: [{ startFrame: 0, sequence: { $sequence: 'entry' } }],
             actionGraph: {
@@ -297,24 +262,10 @@ it('能力实体模板按实际可达节点导入其他来源的实体', () => {
         second: {
           lifetime: { kind: 'infinite' },
           childSkill: {
-            nativeSkillType: 'normalSkill' as const,
-            naturalDurationFrames: 30,
-            castResource: {
-              costFrame: 0,
-              cooldownSeconds: 0,
-              maxChargeTime: 1,
-              cost: { resource: 'sp' as const, value: 0, availabilityThreshold: 0 },
-            },
+            ...childSkillMetadata,
             skillId: 'second-child',
             scheduledSequences: [{ startFrame: 0, sequence: { $sequence: 'entry' } }],
-            actionGraph: {
-              main: {
-                nodes: {
-                  entry: { action: { kind: 'dealStagger', parameters: { value: 2 } }, next: null },
-                },
-              },
-              macros: {},
-            },
+            actionGraph: staggerGraph(2),
           },
         } satisfies AbilityEntityDefinition,
       },
@@ -336,62 +287,7 @@ it('跨来源能力实体循环引用仍保留各自图和对象身份', () => {
     const entity: AbilityEntityDefinition = {
       lifetime: { kind: 'infinite' },
       childSkill: {
-        nativeSkillType: 'normalSkill' as const,
-        naturalDurationFrames: 30,
-        castResource: {
-          costFrame: 0,
-          cooldownSeconds: 0,
-          maxChargeTime: 1,
-          cost: { resource: 'sp' as const, value: 0, availabilityThreshold: 0 },
-        },
-        skillId: `${id}-child`,
-        scheduledSequences: [{ startFrame: 0, sequence: { $sequence: 'entry' } }],
-        actionGraph: {
-          main: {
-            nodes: {
-              entry: {
-                action: {
-                  kind: 'spawnAbilityEntity',
-                  parameters: {
-                    bornAt: { kind: 'owner' as const },
-                    abilityEntityId: next,
-                    dieWhenSourceDies: false,
-                  },
-                },
-                next: null,
-              },
-            },
-          },
-          macros: {},
-        },
-      },
-    };
-    return { id, abilityEntityDefinitions: { [id]: entity } };
-  };
-  const compiled = compileCommonDefinitionSources(
-    [source('first', 'second'), source('second', 'first')],
-    new ActionGraphDefinitionRepository(),
-  );
-  const first = compiled.importsForLevel(0).first!.childSkill!.timelineActions[0]!.sequence;
-  const second = compiled.importsForLevel(0).second!.childSkill!.timelineActions[0]!.sequence;
-  expect(first.graph).not.toBe(second.graph);
-  expect(first.graph.abilityEntityDefinitions.second).toBe(compiled.importsForLevel(0).second);
-  expect(second.graph.abilityEntityDefinitions.first).toBe(compiled.importsForLevel(0).first);
-});
-
-it('无来源总图时，独立实体跨来源互相引用并保持局部节点身份', () => {
-  const source = (id: string, next: string): CommonDefinitionSource => {
-    const entity: AbilityEntityDefinition = {
-      lifetime: { kind: 'infinite' },
-      childSkill: {
-        nativeSkillType: 'normalSkill' as const,
-        naturalDurationFrames: 30,
-        castResource: {
-          costFrame: 0,
-          cooldownSeconds: 0,
-          maxChargeTime: 1,
-          cost: { resource: 'sp' as const, value: 0, availabilityThreshold: 0 },
-        },
+        ...childSkillMetadata,
         skillId: `${id}-child`,
         scheduledSequences: [{ startFrame: 0, sequence: { $sequence: 'entry' } }],
         actionGraph: {

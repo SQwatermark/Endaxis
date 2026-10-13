@@ -1,5 +1,3 @@
-import { getGameAttributeName } from '@/data/gameText';
-
 type TranslateFn = (key: string, named?: Record<string, unknown>) => string;
 
 /**
@@ -46,44 +44,11 @@ export function getEquipmentModifierIconPath(modifierId: string): string | null 
   return EQUIPMENT_MODIFIER_ICON_PATHS[modifierId] ?? null;
 }
 
-interface EquipmentStatLike {
-  modifier?: string;
-  elements?: string | string[] | null;
-  skillTypes?: string | string[] | null;
-  attribute?: string | string[] | null;
-}
-
-interface EquipmentEffectLike {
-  stat?: EquipmentStatLike | null;
-  condition?: { kind?: string } | null;
-  [key: string]: unknown;
-}
-
-export function normalizeEquipmentStatArray(value: string | string[] | null | undefined): string[] {
-  if (Array.isArray(value)) return value.filter(Boolean);
-  return value ? [value] : [];
-}
-
 export function normalizeEquipmentAttributeId(attribute: string): string {
   if (attribute === 'main') return 'primary_ability';
   if (attribute === 'sub' || attribute === 'secondary') return 'secondary_ability';
   if (['strength', 'agility', 'intellect', 'will'].includes(attribute)) return attribute;
   return '';
-}
-
-function getEquipmentElementPairId(elements: string[]): string {
-  const set = new Set(elements);
-  if (set.size !== 2) return '';
-  if (set.has('heat') && set.has('nature')) return 'heat_nature_dmg_bonus';
-  if (set.has('cryo') && set.has('electric')) return 'cryo_electric_dmg_bonus';
-  return '';
-}
-
-function isEquipmentArtsDmgElements(elements: string | string[] | null | undefined): boolean {
-  const set = new Set(normalizeEquipmentStatArray(elements));
-  return (
-    set.size === 4 && set.has('heat') && set.has('cryo') && set.has('electric') && set.has('nature')
-  );
 }
 
 const ELEMENT_DMG_MODIFIER_IDS: Record<string, string> = {
@@ -101,78 +66,37 @@ const SKILL_TYPE_DMG_MODIFIER_IDS: Record<string, string> = {
   ultimate: 'ultimate_dmg_bonus',
 };
 
-function getEquipmentDmgBonusModifierIds(
-  stat: EquipmentStatLike,
-  condition?: { kind?: string } | null,
-): string[] {
-  if (condition?.kind === 'enemyStaggered') return ['broken_dmg_bonus'];
-
-  const elements = normalizeEquipmentStatArray(stat?.elements);
-
+/** 装备摘要保留一个分类：优先元素组合，再取首个元素，未限定元素时按技能类型分类。 */
+export function getEquipmentDamageBonusModifierId(
+  damageTypes: string | readonly string[],
+  skills?: string | readonly string[],
+): string {
+  const elements = typeof damageTypes === 'string' ? [damageTypes] : damageTypes;
   if (elements.length > 0) {
-    if (isEquipmentArtsDmgElements(elements)) {
-      return ['arts_dmg'];
-    }
-
-    const pairId = getEquipmentElementPairId(elements);
-    if (pairId) return [pairId];
-
-    const mapped = elements
-      .map(element => ELEMENT_DMG_MODIFIER_IDS[element])
-      .filter((id): id is string => Boolean(id));
-
-    return mapped.length > 0 ? mapped : ['all_skill_dmg_bonus'];
-  }
-
-  const skillTypes = normalizeEquipmentStatArray(stat?.skillTypes);
-
-  if (skillTypes.length > 0) {
-    if (skillTypes.length === 1) {
-      return [SKILL_TYPE_DMG_MODIFIER_IDS[skillTypes[0]!] || 'all_skill_dmg_bonus'];
-    }
-
+    const set = new Set(elements);
     if (
-      skillTypes.includes('battleSkill') &&
-      skillTypes.includes('comboSkill') &&
-      skillTypes.includes('ultimate')
+      set.size === 4 &&
+      set.has('heat') &&
+      set.has('cryo') &&
+      set.has('electric') &&
+      set.has('nature')
     ) {
-      return ['all_skill_dmg_bonus'];
+      return 'arts_dmg';
     }
+    if (set.size === 2) {
+      if (set.has('heat') && set.has('nature')) return 'heat_nature_dmg_bonus';
+      if (set.has('cryo') && set.has('electric')) return 'cryo_electric_dmg_bonus';
+    }
+    for (const element of elements) {
+      const modifierId = ELEMENT_DMG_MODIFIER_IDS[element];
+      if (modifierId) return modifierId;
+    }
+    return 'all_skill_dmg_bonus';
   }
-
-  return ['all_skill_dmg_bonus'];
-}
-
-export function getEquipmentEffectModifierIds(
-  stat: EquipmentStatLike | null | undefined,
-  condition?: { kind?: string } | null,
-): string[] {
-  if (!stat?.modifier) return [];
-
-  if (stat.modifier === 'attributeFlat' || stat.modifier === 'attributePercent') {
-    return normalizeEquipmentStatArray(stat.attribute)
-      .map(normalizeEquipmentAttributeId)
-      .filter(Boolean);
-  }
-
-  if (stat.modifier === 'atkFlat' || stat.modifier === 'atkPercent') return ['attack'];
-  if (stat.modifier === 'flatHp' || stat.modifier === 'hpPercent') return ['hp'];
-  if (stat.modifier === 'critRate') return ['crit_rate'];
-  if (stat.modifier === 'critDmg') return ['crit_dmg'];
-  if (stat.modifier === 'artsIntensity') return ['originium_arts_power'];
-  if (stat.modifier === 'ultimateGainEfficiency') return ['ult_charge_eff'];
-  if (stat.modifier === 'heal') return ['healing_effect'];
-  if (stat.modifier === 'protection') return ['final_dmg_reduction'];
-  if (stat.modifier === 'dmgBonus') return getEquipmentDmgBonusModifierIds(stat, condition);
-
-  if (stat.modifier === 'susceptibility') {
-    const elements = normalizeEquipmentStatArray(stat.elements);
-    return elements.length > 0
-      ? elements.map(element => `susceptibility_${element}`)
-      : ['susceptibility'];
-  }
-
-  return [stat.modifier];
+  const skillTypes = typeof skills === 'string' ? [skills] : (skills ?? []);
+  return skillTypes.length === 1
+    ? (SKILL_TYPE_DMG_MODIFIER_IDS[skillTypes[0]!] ?? 'all_skill_dmg_bonus')
+    : 'all_skill_dmg_bonus';
 }
 
 function trOrFallback(t: TranslateFn | undefined, key: string, fallback: string): string {
@@ -185,56 +109,6 @@ export function getEquipmentModifierLabel(modifierId: string, t: TranslateFn | u
   const filterLabel = typeof t === 'function' ? t(filterKey) : filterKey;
   if (filterLabel !== filterKey) return filterLabel;
   return trOrFallback(t, `stats.${modifierId}`, modifierId);
-}
-
-export function formatEquipmentEffectLabel(
-  effect: EquipmentEffectLike | null | undefined,
-  t: TranslateFn | undefined,
-  locale?: string,
-): string {
-  const stat = effect?.stat;
-  if (!stat) return trOrFallback(t, 'common.unknown', 'Unknown');
-
-  const modifierId =
-    getEquipmentEffectModifierIds(stat, effect?.condition)[0] || stat.modifier || '';
-
-  if (stat.modifier === 'attributeFlat' || stat.modifier === 'attributePercent') {
-    const attr = normalizeEquipmentStatArray(stat.attribute)[0];
-    const normalizedAttr = normalizeEquipmentAttributeId(attr ?? '');
-
-    if (normalizedAttr === 'primary_ability' || normalizedAttr === 'secondary_ability') {
-      return getEquipmentModifierLabel(normalizedAttr, t);
-    }
-
-    if (attr) return getGameAttributeName(attr, locale);
-  }
-
-  if (stat.modifier === 'dmgBonus') {
-    return getEquipmentModifierLabel(modifierId, t);
-  }
-
-  if (stat.modifier === 'susceptibility') {
-    const elements = normalizeEquipmentStatArray(stat.elements);
-
-    if (elements.length === 1) {
-      return trOrFallback(
-        t,
-        `game.stat.susceptibility:${elements[0]}`,
-        trOrFallback(t, 'game.stat.susceptibility', '脆弱'),
-      );
-    }
-
-    return trOrFallback(t, 'game.stat.susceptibility', '脆弱');
-  }
-
-  if (stat.modifier === 'artsIntensity')
-    return getEquipmentModifierLabel('originium_arts_power', t);
-  if (stat.modifier === 'ultimateGainEfficiency')
-    return getEquipmentModifierLabel('ult_charge_eff', t);
-  if (stat.modifier === 'heal') return getEquipmentModifierLabel('healing_effect', t);
-  if (stat.modifier === 'protection') return getEquipmentModifierLabel('final_dmg_reduction', t);
-
-  return getEquipmentModifierLabel(modifierId, t);
 }
 
 export function formatEquipmentNumber(value: unknown): string {

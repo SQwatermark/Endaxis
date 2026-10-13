@@ -14,7 +14,6 @@
 import {
   createSkillOperableBoundaryState,
   type SkillOperableBoundaryFact,
-  type SkillOperableBoundaryState,
 } from '../state/abilityState';
 
 /** 浮点帧增量累计到整数边界时允许的误差；避免 0.2 × 150 这类情况晚一帧。 */
@@ -32,75 +31,54 @@ export class SkillOperableBoundaryRuntime {
    * `durationFrames` 必须为正有限数；稳定 castId 一旦登记过，无论 pending 或已完成都不能再次登记。
    */
   begin(castId: string, durationFrames: number, actualStartFrame: number): void {
-    return beginSkillOperableBoundary(this.runtimeState, castId, durationFrames, actualStartFrame);
+    const state = this.runtimeState;
+    if (typeof castId !== 'string' || castId.length === 0) {
+      throw new TypeError('castId must be a non-empty string');
+    }
+    if (!Number.isFinite(durationFrames) || durationFrames <= 0) {
+      throw new RangeError('durationFrames must be a positive finite number');
+    }
+    if (!Number.isInteger(actualStartFrame)) {
+      throw new RangeError('actualStartFrame must be an integer');
+    }
+    if (state.registeredCastIds.has(castId)) {
+      throw new Error(`duplicate skill operable boundary registration for cast '${castId}'`);
+    }
+    state.registeredCastIds.add(castId);
+    state.pendingByCastId.set(castId, {
+      castId,
+      durationFrames,
+      actualStartFrame,
+      accumulatedFrames: 0,
+    });
   }
 
-  /**
-   * 用本帧施法者 self-scaled 的逻辑帧增量推进全部 pending 项。
-   * `deltaFrames` 为 0 时不推进任何项；`updateFrame` 仍会被校验。
-   * 返回按 begin 登记顺序排列的本帧到达事实；每个 pending 项最多返回一次。
-   */
+  /** 按施法者局部时间推进，依登记顺序发布本帧到达的边界；零增量不推进。 */
   advance(deltaFrames: number, updateFrame: number): readonly SkillOperableBoundaryFact[] {
-    return advanceSkillOperableBoundaries(this.runtimeState, deltaFrames, updateFrame);
-  }
-}
+    const state = this.runtimeState;
+    if (!Number.isFinite(deltaFrames) || deltaFrames < 0) {
+      throw new RangeError('deltaFrames must be a non-negative finite number');
+    }
+    if (!Number.isInteger(updateFrame)) {
+      throw new RangeError('updateFrame must be an integer');
+    }
+    if (deltaFrames === 0) return [];
 
-/** 登记已经开始的技能边界；拒绝重复身份。 */
-export function beginSkillOperableBoundary(
-  state: SkillOperableBoundaryState,
-  castId: string,
-  durationFrames: number,
-  actualStartFrame: number,
-): void {
-  if (typeof castId !== 'string' || castId.length === 0) {
-    throw new TypeError('castId must be a non-empty string');
+    const reached: SkillOperableBoundaryFact[] = [];
+    for (const [castId, pending] of state.pendingByCastId) {
+      // 输入发生在本帧 AbilitySystem 推进之前；本帧启动的技能从下一实际帧区间开始累计。
+      if (pending.actualStartFrame >= updateFrame) continue;
+      pending.accumulatedFrames += deltaFrames;
+      if (pending.accumulatedFrames + BOUNDARY_EPSILON_FRAMES < pending.durationFrames) continue;
+      reached.push(
+        Object.freeze({
+          castId,
+          durationFrames: pending.durationFrames,
+          reachedAtFrame: updateFrame,
+        }),
+      );
+      state.pendingByCastId.delete(castId);
+    }
+    return reached;
   }
-  if (!Number.isFinite(durationFrames) || durationFrames <= 0) {
-    throw new RangeError('durationFrames must be a positive finite number');
-  }
-  if (!Number.isInteger(actualStartFrame)) {
-    throw new RangeError('actualStartFrame must be an integer');
-  }
-  if (state.registeredCastIds.has(castId)) {
-    throw new Error(`duplicate skill operable boundary registration for cast '${castId}'`);
-  }
-  state.registeredCastIds.add(castId);
-  state.pendingByCastId.set(castId, {
-    castId,
-    durationFrames,
-    actualStartFrame,
-    accumulatedFrames: 0,
-  });
-}
-
-/** 按局部时间推进，依登记顺序发布本帧到达的边界。 */
-export function advanceSkillOperableBoundaries(
-  state: SkillOperableBoundaryState,
-  deltaFrames: number,
-  updateFrame: number,
-): readonly SkillOperableBoundaryFact[] {
-  if (!Number.isFinite(deltaFrames) || deltaFrames < 0) {
-    throw new RangeError('deltaFrames must be a non-negative finite number');
-  }
-  if (!Number.isInteger(updateFrame)) {
-    throw new RangeError('updateFrame must be an integer');
-  }
-  if (deltaFrames === 0) return [];
-
-  const reached: SkillOperableBoundaryFact[] = [];
-  for (const [castId, pending] of state.pendingByCastId) {
-    // 输入发生在本帧 AbilitySystem 推进之前；本帧启动的技能从下一实际帧区间开始累计。
-    if (pending.actualStartFrame >= updateFrame) continue;
-    pending.accumulatedFrames += deltaFrames;
-    if (pending.accumulatedFrames + BOUNDARY_EPSILON_FRAMES < pending.durationFrames) continue;
-    reached.push(
-      Object.freeze({
-        castId,
-        durationFrames: pending.durationFrames,
-        reachedAtFrame: updateFrame,
-      }),
-    );
-    state.pendingByCastId.delete(castId);
-  }
-  return reached;
 }

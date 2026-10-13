@@ -10,7 +10,8 @@ import type {
 } from '../../../packages/game-data-contract/src/actionGraph';
 import type { AbilityEntityDefinition } from '../game-data/operatorDefinition';
 import { ActionGraphDefinitionRepository } from './actionGraphDefinitionRepository';
-import { compileSkill, compileIndependentAbilityEntityResource } from './compileSkill';
+import { compileSkill } from './compileSkill';
+import { createIndependentAbilityEntityImportResolver } from './compileCommonAbilityEntityImports';
 import { createActionGraphCompilation, type CompiledActionGraph } from './compileActionGraph';
 
 function expectEntry(
@@ -333,7 +334,7 @@ describe('嵌套宿主直接图编译', () => {
     };
     // 递归与交叉引用经生产登记的导入解析器绑定；直接对内嵌目录编译不是递归入口。
     const programs = new ActionGraphDefinitionRepository();
-    const compiled = compileIndependentAbilityEntityResource(entity, 'entity', 2, programs);
+    const compiled = createIndependentAbilityEntityImportResolver({ entity }, programs)(2).entity!;
     expect(compiled.childSkill?.initialBlackboard).toEqual({ scale: 3 });
     const childEntry = compiled.childSkill?.timelineActions[0]?.sequence;
     // 子资源图内仍解析到自己的 spawn 节点，递归实体引用沿登记的占位身份保留。

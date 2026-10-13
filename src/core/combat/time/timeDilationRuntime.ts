@@ -326,11 +326,6 @@ export class TimeDilationRuntime implements FrameRuntime {
     refreshInheritedEntityScales(this.runtimeState);
   }
 
-  /** AbilitySystem 的兼容入口；干员也是具有稳定运行时身份的实体。 */
-  getOperatorScale(operatorId: string): number {
-    return this.getEntityScale(operatorId);
-  }
-
   /** 按原生 AbilitySystem.PreLateTick 分支生成本实体使用的时钟。 */
   getAbilityTickDeltas(operatorId: string, rawDeltaSeconds: number): AbilityTickDeltas {
     if (!Number.isFinite(rawDeltaSeconds) || rawDeltaSeconds < 0) {

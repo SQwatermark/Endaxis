@@ -461,7 +461,7 @@ describe('BuffDefinitionOperationTarget', () => {
     }
 
     expect(compiledEntries[0]).not.toHaveProperty('maxStackCount');
-    expect(container.getCountById('dynamic-stack')).toBe(2);
+    expect(container.getCountByIds(['dynamic-stack'])).toBe(2);
   });
 
   it('rejects an unknown identity instead of creating an empty definition', () => {
@@ -490,10 +490,10 @@ describe('BuffDefinitionOperationTarget', () => {
     });
 
     target.apply({ buffId: definition.id, sourceId: 'operator', blackboardValues: {} });
-    expect(container.getCountById(definition.id)).toBe(1);
+    expect(container.getCountByIds([definition.id])).toBe(1);
 
     target.advanceFrame();
-    expect(container.getCountById(definition.id)).toBe(0);
+    expect(container.getCountByIds([definition.id])).toBe(0);
   });
 
   it('保留施法来源，并隔离连续施法的 Buff 计数', () => {

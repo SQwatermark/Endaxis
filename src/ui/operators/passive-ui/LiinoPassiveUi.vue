@@ -1,9 +1,6 @@
 <script setup lang="ts">
-import { computed } from 'vue';
 import type { PassiveUiWidgetState } from './state';
-const props = defineProps<PassiveUiWidgetState>();
-const progressRatio = computed(() => Math.max(0, Math.min(1, props.ratio ?? 1)));
-const progressClip = computed(() => `inset(${(1 - progressRatio.value) * 100}% 0 0 0)`);
+defineProps<PassiveUiWidgetState>();
 </script>
 <template>
   <span class="passive-ui-skin">
@@ -25,19 +22,6 @@ const progressClip = computed(() => `inset(${(1 - progressRatio.value) * 100}% 0
           ? '/next/passive-ui/liino-ultimate-bar.webp'
           : '/next/passive-ui/liino-normal-bar.webp'
       "
-      :style="{ clipPath: progressClip }"
-      alt=""
-    />
-    <img
-      v-if="ratio !== null"
-      class="liino-star liino-star--big"
-      src="/next/passive-ui/liino-big-star.webp"
-      alt=""
-    />
-    <img
-      v-if="ratio !== null"
-      class="liino-star liino-star--small"
-      src="/next/passive-ui/liino-small-star.webp"
       alt=""
     />
   </span>
@@ -49,12 +33,6 @@ const progressClip = computed(() => `inset(${(1 - progressRatio.value) * 100}% 0
 img {
   position: absolute;
   display: block;
-}
-.native-fill {
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
 }
 .liino-ring {
   position: absolute;
@@ -98,19 +76,5 @@ img {
   left: 8.75px;
   width: 44px;
   height: 40px;
-}
-
-.liino-star--big {
-  top: 24px;
-  left: 14px;
-  width: 28px;
-  height: 28px;
-}
-
-.liino-star--small {
-  top: 2px;
-  left: 43px;
-  width: 28px;
-  height: 28px;
 }
 </style>

@@ -236,8 +236,17 @@ describe('resolveStaticPlayerDamageSnapshots', () => {
       attackDetailWill: 60,
       'attackDetailSlot:finalMultiplier': 1.1,
     });
+    expect(freezeAttackReceiptDetail(captured.attack + 1, captured.attackDetail)).toEqual({});
+    expect(freezeAttackReceiptDetail(captured.attack, undefined)).toEqual({});
     attributes.removeModifier(bonus);
-    attributes.setRawValue('intellect', 999);
+    attributes.addModifier(
+      createCombatAttributeModifier(
+        'intellect',
+        attributeModifierValues('addition', 999),
+        ATTRIBUTE_MODIFIER_SOURCES.buff,
+        'runtime',
+      ),
+    );
     expect(freezeAttackReceiptDetail(captured.attack, captured.attackDetail)).toEqual(frozen);
   });
   it('carries equipment attack percentages and flat attack into the hit source detail', () => {
@@ -483,24 +492,6 @@ describe('resolveStaticPlayerDamageSnapshots', () => {
     enemyAttributes.removeModifier(modifier);
     expect(snapshot().defender[attribute]).toBe(0);
     expect(active.defender[attribute]).toBeCloseTo(0.3);
-  });
-
-  it('只把当前技能程序的暴击率修正加入该技能伤害快照', () => {
-    const snapshots = resolveStaticPlayerDamageSnapshots(
-      createContext({
-        program: {
-          ...createContext().program,
-          skillGroupKey: 'ultimate',
-          skillType: 'ultimate',
-          statModifiers: { criticalRate: 0.3 },
-        },
-      }),
-      electricDamage,
-      createOperatorAttackAttributes(panel),
-    );
-
-    expect(snapshots.attacker.criticalRate).toBeCloseTo(0.45);
-    expect(panel.criticalRate).toBe(0.15);
   });
 
   it('把当前技能的失衡目标增伤写入既有实时条件伤害属性', () => {

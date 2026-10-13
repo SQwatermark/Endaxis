@@ -2252,28 +2252,6 @@ export function validateCombatEventTriggerDefinition(
   return out;
 }
 
-/** CombatEventHandlerDefinition：事件处理器的完整结构。 */
-export function validateEventHandler(
-  value: unknown,
-  path: string,
-  out: SkillDefinitionValidationIssue[],
-): void {
-  const record = asRecord(value, path, out);
-  if (record === null) return;
-  requireString(record, 'key', path, out);
-  validateEventTrigger(record.event, `${path}.event`, out);
-  if (record.condition !== undefined) {
-    validateCombatCondition(record.condition, `${path}.condition`, out);
-  }
-  if (!Array.isArray(record.scheduledSequences) || record.scheduledSequences.length === 0) {
-    push(out, `${path}.scheduledSequences`, 'expected a non-empty array');
-  } else {
-    record.scheduledSequences.forEach((sequence, index) => {
-      validateScheduledSequence(sequence, `${path}.scheduledSequences[${index}]`, out);
-    });
-  }
-}
-
 /** 校验单个图动作及其子入口字段，不展开引用程序；调用上下文留给编译阶段检查。 */
 export function validateActionGraphStepDefinition(
   value: unknown,

@@ -27,30 +27,6 @@ export function readNodeField(value: unknown, path: readonly string[]): unknown 
   return value;
 }
 
-export function writeNodeField(
-  value: unknown,
-  path: readonly string[],
-  fieldValue: unknown,
-): unknown {
-  if (path.length === 0) return fieldValue;
-  const [key, ...rest] = path;
-  if (key === '__proto__' || key === 'prototype' || key === 'constructor')
-    throw new Error('不能编辑对象原型字段');
-  if (Array.isArray(value)) {
-    if (!/^(0|[1-9]\d*)$/.test(key!) || Number(key) >= value.length)
-      throw new Error('数组输入位置不存在');
-    const result = [...value];
-    result[Number(key)] = writeNodeField(value[Number(key)], rest, fieldValue);
-    return result;
-  }
-  const record = value !== null && typeof value === 'object' ? value : {};
-  const result: Record<string, unknown> = { ...record };
-  const child = writeNodeField(readNodeField(record, [key!]), rest, fieldValue);
-  if (child === undefined) delete result[key!];
-  else result[key!] = child;
-  return result;
-}
-
 export function formatNodeField(value: unknown, field: NodeFieldSchema): string {
   if (value === undefined) return '';
   return field.control === 'string' ? String(value) : JSON.stringify(value, null, 2);

@@ -3,7 +3,6 @@ import { describe, expect, it } from 'vitest';
 import { createEmptyScenario } from '../../../core/project/createProject';
 import { projectBuffTimelineViz } from '../../../core/projection/buffTimelineViz';
 import { gameDataRepository } from '../../../data/gameDataRepository';
-import { skillSettings } from '../../../data/combat/skillSettings';
 import {
   contingencyContractMechanicId,
   contingencyContractTags,
@@ -12,7 +11,7 @@ import {
   contingencyContractBuffDefinitions,
   contingencyContractInitializationPlans,
 } from '../../../data/contingencyContract/generated/contingencyContractDefinitions.generated';
-import { ScenarioSimulationService } from '../scenarioSimulationService';
+import { createScenarioSimulationService } from '../createScenarioSimulationService';
 
 const supportedTags = contingencyContractTags.filter(tag => tag.support === 'supported');
 const initializationTagIds = new Set(
@@ -21,22 +20,11 @@ const initializationTagIds = new Set(
 const contractBuffIds = new Set(Object.keys(contingencyContractBuffDefinitions));
 const operator = gameDataRepository.getOperator('perlica');
 
-const resources = {
-  sharedSpGain: { baseGainEfficiency: 1 },
-  spRecoveryPauseDuration: 1.5,
-  ultimateEnergySystemUnlocked: true,
-  normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
-} as const;
-
 describe('危机合约生效词条的开局装配', () => {
   it('逐项建立真实 Buff 和来源回执，并将可见状态投影到时间轴', async () => {
     if (!operator) throw new Error('repository has no operator');
     expect(supportedTags.length).toBeGreaterThan(0);
-    const service = new ScenarioSimulationService({
-      index: gameDataRepository,
-      resources,
-      spellInflictionSettings: skillSettings,
-    });
+    const service = createScenarioSimulationService(gameDataRepository);
     let visibleContractBuffCount = 0;
 
     for (const tag of supportedTags) {

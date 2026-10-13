@@ -244,13 +244,12 @@ export function validateOperatorDefinition(
   (definition.passiveSkills ?? []).forEach((passive, index) =>
     validatePassiveSkill(passive, `${path}.passiveSkills[${index}]`, issues),
   );
-  (definition.eventHandlers ?? []).forEach((handler, index) => {
-    const handlerPath = `${path}.eventHandlers[${index}]`;
-    if (handler.key.length === 0) push(issues, `${handlerPath}.key`, 'expected a non-empty string');
-    issues.push(
-      ...validateActionGraphReferenceDefinition(handler.sequence, `${handlerPath}.sequence`),
+  if ('eventHandlers' in definition)
+    push(
+      issues,
+      `${path}.eventHandlers`,
+      'operator event responses require a passive or upgrade program',
     );
-  });
   for (const collection of ['talents', 'potentials'] as const) {
     const count = OPERATOR_PROGRESSION_SLOTS[collection];
     if (definition[collection].length !== count)

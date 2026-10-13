@@ -19,8 +19,6 @@ import type {
   EndaxisProjectDocument,
   ProjectDefinitionLibraryDocument,
   ScenarioDocument,
-  TrackDocument,
-  TrackIndex,
 } from './schema';
 
 export const EMPTY_PROJECT_DEFINITION_LIBRARY: ProjectDefinitionLibraryDocument = Object.freeze({
@@ -288,29 +286,6 @@ export function deriveProjectGearSetTemplate(
   };
 }
 
-/** A derived weapon keeps the equipped build while changing only its template identity. */
-export function switchTrackToCompatibleWeaponTemplate(
-  scenario: ScenarioDocument,
-  trackIndex: TrackIndex,
-  nextTemplateId: string,
-  nextDefinition: WeaponDefinition,
-): ScenarioDocument {
-  const track = scenario.tracks[trackIndex];
-  if (track?.weapon === null || track === null)
-    throw new Error(`track ${trackIndex} has no weapon`);
-  if (track.weapon.traitLevels.length !== nextDefinition.traits.length) {
-    throw new Error(
-      `weapon template '${nextTemplateId}' cannot preserve ${track.weapon.traitLevels.length} trait levels with ${nextDefinition.traits.length} traits`,
-    );
-  }
-  const tracks = [...scenario.tracks] as ScenarioDocument['tracks'];
-  tracks[trackIndex] = {
-    ...track,
-    weapon: { ...track.weapon, weaponSlug: nextTemplateId },
-  };
-  return { ...scenario, tracks };
-}
-
 /** Replace one materialized weapon definition and keep every referencing build structurally valid. */
 export function replaceProjectWeaponTemplateDefinition(
   project: EndaxisProjectDocument,
@@ -361,31 +336,6 @@ export function replaceProjectWeaponTemplateDefinition(
       }) as ScenarioDocument['tracks'],
     })),
   };
-}
-
-/** A derived gear template preserves the selected slot and its artificing state. */
-export function switchTrackToCompatibleGearTemplate(
-  scenario: ScenarioDocument,
-  trackIndex: TrackIndex,
-  slot: keyof TrackDocument['gears'],
-  nextTemplateId: string,
-  nextDefinition: GearDefinition,
-): ScenarioDocument {
-  const track = scenario.tracks[trackIndex];
-  const gear = track?.gears[slot];
-  if (track === null || gear == null)
-    throw new Error(`track ${trackIndex} slot '${slot}' has no gear`);
-  if (gear.artificingLevels.length !== nextDefinition.traits.length) {
-    throw new Error(
-      `gear template '${nextTemplateId}' cannot preserve ${gear.artificingLevels.length} artificing levels with ${nextDefinition.traits.length} traits`,
-    );
-  }
-  const tracks = [...scenario.tracks] as ScenarioDocument['tracks'];
-  tracks[trackIndex] = {
-    ...track,
-    gears: { ...track.gears, [slot]: { ...gear, gearSlug: nextTemplateId } },
-  };
-  return { ...scenario, tracks };
 }
 
 /** Replace one materialized gear definition and normalize every referencing slot. */

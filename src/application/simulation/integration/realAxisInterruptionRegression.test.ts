@@ -2,17 +2,9 @@ import { expect, it } from 'vitest';
 import { createEmptyScenario } from '../../../core/project/createProject';
 import type { TrackDocument } from '../../../core/project/schema';
 import { gameDataRepository } from '../../../data/gameDataRepository';
-import { skillSettings } from '../../../data/combat/skillSettings';
-import { ScenarioSimulationService } from '../scenarioSimulationService';
+import { createScenarioSimulationService } from '../createScenarioSimulationService';
 import { createEditorSimulationService } from '../testSupport/editorSimulationService';
 import { spDisplayPoints } from '../../../ui/timeline/results/resourceCurveDisplay';
-
-const resources = {
-  sharedSpGain: { baseGainEfficiency: 1 },
-  spRecoveryPauseDuration: 1.5,
-  ultimateEnergySystemUnlocked: true,
-  normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
-};
 
 it('正式编辑器装配从导出SkillSetting读取技力恢复暂停', async () => {
   const scenario = createEmptyScenario('native-resource-settings', '导出恢复暂停');
@@ -131,11 +123,7 @@ it('艾尔黛拉非主控连携的投射物命中仍回复终结技能量', asyn
   scenario.tracks[0] = track('arcane', []);
   scenario.tracks[1] = track('ardelia', [['comboSkill', 'comboSkill', 10]]);
   const before = JSON.stringify(scenario);
-  const result = await new ScenarioSimulationService({
-    index: gameDataRepository,
-    spellInflictionSettings: skillSettings,
-    resources,
-  }).simulate(scenario, 150);
+  const result = await createScenarioSimulationService(gameDataRepository).simulate(scenario, 150);
   expect(JSON.stringify(scenario)).toBe(before);
   expect(result.executionDiagnostics).toEqual([]);
   const gains = result.receiptEntries.filter(
@@ -154,11 +142,7 @@ it('卡缪基础被动在蝠翼实体结束时清理持续时间图标', async (
   scenario.tracks[0] = track('arcane', []);
   scenario.tracks[1] = track('camille', [['battleSkill', 'battleSkill', 16]]);
   const before = JSON.stringify(scenario);
-  const result = await new ScenarioSimulationService({
-    index: gameDataRepository,
-    spellInflictionSettings: skillSettings,
-    resources,
-  }).simulate(scenario, 2000);
+  const result = await createScenarioSimulationService(gameDataRepository).simulate(scenario, 2000);
   expect(result.executionDiagnostics).toEqual([]);
   expect(JSON.stringify(scenario)).toBe(before);
   const entries = result.receiptEntries;
@@ -189,11 +173,7 @@ it('别礼原生基础被动拒绝通用回能，保留专属回能与不足能�
     ['ultimate', 'ultimate', 100],
   ]);
   const before = JSON.stringify(scenario);
-  const result = await new ScenarioSimulationService({
-    index: gameDataRepository,
-    spellInflictionSettings: skillSettings,
-    resources,
-  }).simulate(scenario, 110);
+  const result = await createScenarioSimulationService(gameDataRepository).simulate(scenario, 110);
   expect(JSON.stringify(scenario)).toBe(before);
   expect(result.executionDiagnostics).toEqual([]);
   expect(result.receiptEntries).toContainEqual(
@@ -248,11 +228,7 @@ it.each([true, false])('赛希晶体仅被主控重击消费且正确保留来�
     { id: 'control:actor', frame: 0, trackIndex: controlled ? 0 : 1 },
   ];
   const before = JSON.stringify(scenario);
-  const result = await new ScenarioSimulationService({
-    index: gameDataRepository,
-    spellInflictionSettings: skillSettings,
-    resources,
-  }).simulate(scenario, 300);
+  const result = await createScenarioSimulationService(gameDataRepository).simulate(scenario, 300);
   expect(JSON.stringify(scenario)).toBe(before);
   expect(result.executionDiagnostics).toEqual([]);
   const entries = result.receiptEntries;
@@ -317,11 +293,10 @@ it('诀直接创建腐蚀时，天赋与潜能只延长一次寿命', async () =
     operator.operator!.potential = upgraded ? 5 : 0;
     operator.operator!.talentStates = upgraded ? { '0': 2, '1': 2 } : {};
     scenario.tracks[0] = operator;
-    const result = await new ScenarioSimulationService({
-      index: gameDataRepository,
-      spellInflictionSettings: skillSettings,
-      resources,
-    }).simulate(scenario, 1500);
+    const result = await createScenarioSimulationService(gameDataRepository).simulate(
+      scenario,
+      1500,
+    );
     const entries = result.receiptEntries.filter(
       e => e.data?.buffId === 'buff_common_natural_natural_corrupt_do',
     );
@@ -344,11 +319,7 @@ it('动火用十秒增伤按全局时钟推进，被另一干员的终结技膨�
   };
   scenario.tracks[0] = operator;
   scenario.tracks[1] = track('tangtang', [['ultimate', 'ultimate', 120]]);
-  const result = await new ScenarioSimulationService({
-    index: gameDataRepository,
-    spellInflictionSettings: skillSettings,
-    resources,
-  }).simulate(scenario, 600);
+  const result = await createScenarioSimulationService(gameDataRepository).simulate(scenario, 600);
   const buffs = result.receiptEntries.filter(
     e => e.data?.buffId === 'buff_equipsuit_fninflict_01_poisedamageadd',
   );
@@ -459,11 +430,10 @@ it.each([
       'tangtang',
       ultimateFrame === undefined ? [] : [['ultimate', 'ultimate', ultimateFrame]],
     );
-    const result = await new ScenarioSimulationService({
-      index: gameDataRepository,
-      spellInflictionSettings: skillSettings,
-      resources,
-    }).simulate(scenario, 700);
+    const result = await createScenarioSimulationService(gameDataRepository).simulate(
+      scenario,
+      700,
+    );
     expect(result.executionDiagnostics).toEqual([]);
     const entries = result.receiptEntries;
     const start = entries.find(e => e.event === 'BuffApplied' && e.data?.buffId === buffId);
@@ -635,11 +605,10 @@ it('赫拉芬格战技附着增益使用全局时钟，被全屏终结技顺延'
     scenario.tracks[0] = owner;
     scenario.tracks[1] = track('tangtang', withUltimate ? [['ultimate', 'ultimate', 200]] : []);
     const before = JSON.stringify(scenario);
-    const result = await new ScenarioSimulationService({
-      index: gameDataRepository,
-      spellInflictionSettings: skillSettings,
-      resources,
-    }).simulate(scenario, 700);
+    const result = await createScenarioSimulationService(gameDataRepository).simulate(
+      scenario,
+      700,
+    );
     expect(result.executionDiagnostics).toEqual([]);
     expect(JSON.stringify(scenario)).toBe(before);
     const buffs = result.receiptEntries.filter(
@@ -681,11 +650,10 @@ it('别礼连携后的残留停帧可使连续A2第二击晚于后续A3输入', 
       ['basicAttack', 'basicAttack3', a3Frame],
     ]);
     const before = JSON.stringify(scenario);
-    const result = await new ScenarioSimulationService({
-      index: gameDataRepository,
-      spellInflictionSettings: skillSettings,
-      resources,
-    }).simulate(scenario, 180);
+    const result = await createScenarioSimulationService(gameDataRepository).simulate(
+      scenario,
+      180,
+    );
     expect(result.executionDiagnostics).toEqual([]);
     expect(JSON.stringify(scenario)).toBe(before);
     return result.receiptEntries;
@@ -782,11 +750,7 @@ it('秘仪在本地58帧命中，队友即时连携的全局膨胀仍可延后�
     };
     if (withCombo) scenario.tracks[1] = track('last-rite', [['comboSkill', 'comboSkill', 50]]);
     const before = JSON.stringify(scenario);
-    const run = await new ScenarioSimulationService({
-      index: gameDataRepository,
-      spellInflictionSettings: skillSettings,
-      resources,
-    }).simulate(scenario, 160);
+    const run = await createScenarioSimulationService(gameDataRepository).simulate(scenario, 160);
     expect(run.executionDiagnostics).toEqual([]);
     expect(JSON.stringify(scenario)).toBe(before);
     const hits = run.receiptEntries.filter(
@@ -832,11 +796,7 @@ it('低温症的15秒寿命按全局时钟推进，被队友终结技全屏膨�
     });
     if (withUltimate) scenario.tracks[2] = track('tangtang', [['ultimate', 'ultimate', 850]]);
     const before = JSON.stringify(scenario);
-    const run = await new ScenarioSimulationService({
-      index: gameDataRepository,
-      spellInflictionSettings: skillSettings,
-      resources,
-    }).simulate(scenario, 1500);
+    const run = await createScenarioSimulationService(gameDataRepository).simulate(scenario, 1500);
     expect(JSON.stringify(scenario)).toBe(before);
     expect(run.executionDiagnostics).toEqual([]);
     const start = run.receiptEntries.find(
@@ -862,11 +822,10 @@ it('诀秘仪命中时，负时长的筹谋增幅仍然生效', async () => {
     const scenario = createEmptyScenario('arcana-enhance', '筹谋');
     scenario.tracks[0] = track('arcane', [['ultimate', 'arcana', 1]]);
     scenario.tracks[0]!.operator!.talentStates = { '0': talentLevel };
-    const result = await new ScenarioSimulationService({
-      index: gameDataRepository,
-      spellInflictionSettings: skillSettings,
-      resources,
-    }).simulate(scenario, 150);
+    const result = await createScenarioSimulationService(gameDataRepository).simulate(
+      scenario,
+      150,
+    );
     const hit = result.receiptEntries.find(
       e => e.event === 'DamageApplied' && e.data?.skillType === 'ultimate',
     );
@@ -893,13 +852,8 @@ it('洛茜在敌人破防但未失衡时仍执行战技后续并施加流血', a
     );
     scenario.tracks[0]!.operator!.talentStates = { '0': 2, '1': 2 };
     if (withNoGuard) scenario.tracks[0]!.skillCasts[0]!.id = 'prepare-no-guard';
-    return (
-      await new ScenarioSimulationService({
-        index: gameDataRepository,
-        spellInflictionSettings: skillSettings,
-        resources,
-      }).simulate(scenario, 600)
-    ).receiptEntries;
+    return (await createScenarioSimulationService(gameDataRepository).simulate(scenario, 600))
+      .receiptEntries;
   }
   const ready = await simulate(true);
   const unprepared = await simulate(false);
@@ -933,11 +887,7 @@ it('opens Xaihi window, not the controlled teammate window, when both crystal us
     placement: { startFrame },
   }));
   scenario.tracks[1] = track('xaihi', [['battleSkill', 'battleSkill', 1]]);
-  const result = await new ScenarioSimulationService({
-    index: gameDataRepository,
-    spellInflictionSettings: skillSettings,
-    resources,
-  }).simulate(scenario, 240);
+  const result = await createScenarioSimulationService(gameDataRepository).simulate(scenario, 240);
   const depleted = result.receiptEntries.find(
     entry =>
       entry.event === 'BuffFinished' &&
@@ -966,11 +916,7 @@ it('keeps Tangtang Qingbo cooldown at 10.2 seconds through ordinary combo dilati
   scenario.tracks[0] = tangtang;
   // 另一干员的连携与汤汤冷却重叠，不能把普通全局膨胀计入冷却时长。
   scenario.tracks[1] = track('perlica', [['comboSkill', 'comboSkill', 60]]);
-  const result = await new ScenarioSimulationService({
-    index: gameDataRepository,
-    spellInflictionSettings: skillSettings,
-    resources,
-  }).simulate(scenario, 400);
+  const result = await createScenarioSimulationService(gameDataRepository).simulate(scenario, 400);
   const entries = result.receiptEntries.filter(
     entry =>
       entry.sourceId === 'tangtang' && entry.data?.skillId === 'chr_0027_tangtang_combo_skill',
@@ -1072,11 +1018,10 @@ it('retains inputs but interrupts A4 before its first hit during another operato
     ]);
     scenario.tracks[1] = track('tangtang', withCombo ? [['comboSkill', 'comboSkill', 12]] : []);
     const before = JSON.stringify(scenario);
-    const result = await new ScenarioSimulationService({
-      index: gameDataRepository,
-      spellInflictionSettings: skillSettings,
-      resources,
-    }).simulate(scenario, 100);
+    const result = await createScenarioSimulationService(gameDataRepository).simulate(
+      scenario,
+      100,
+    );
     expect(JSON.stringify(scenario)).toBe(before);
     return result.receiptEntries;
   }

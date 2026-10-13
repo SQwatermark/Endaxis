@@ -1,11 +1,12 @@
 import { expect, it } from 'vitest';
 import { createEmptyScenario } from '../../../core/project/createProject';
 import { gameDataRepository } from '../../../data/gameDataRepository';
-import { skillSettings } from '../../../data/combat/skillSettings';
-import { ScenarioSimulationService } from '../scenarioSimulationService';
-import { projectBuffTimelineViz } from '../../../core/projection/buffTimelineViz';
+import { createScenarioSimulationService } from '../createScenarioSimulationService';
+import {
+  findBuffTimelineSegmentForDamage,
+  projectBuffTimelineViz,
+} from '../../../core/projection/buffTimelineViz';
 import { projectEnemyEffectViz } from '../../../core/projection/enemyEffectViz';
-import { findBuffDamageSegment } from '../../../ui/timeline/results/enemyBuffDamageHits';
 
 it('links real Perlica then Wulfgard burning damage to visible status segments', async () => {
   const scenario = createEmptyScenario('burn-qa', 'burn-qa');
@@ -39,19 +40,10 @@ it('links real Perlica then Wulfgard burning damage to visible status segments',
       ],
     };
   }
-  const run = await new ScenarioSimulationService({
-    index: gameDataRepository,
-    spellInflictionSettings: skillSettings,
-    resources: {
-      sharedSpGain: { baseGainEfficiency: 1 },
-      spRecoveryPauseDuration: 1.5,
-      ultimateEnergySystemUnlocked: true,
-      normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
-    },
-  }).simulate(scenario, 600);
+  const run = await createScenarioSimulationService(gameDataRepository).simulate(scenario, 600);
   const segments = projectBuffTimelineViz(run.receiptEntries, 600);
   const hits = projectEnemyEffectViz(run.receiptEntries, 600).damageHits ?? [];
   expect(hits.length).toBeGreaterThan(1);
   for (const hit of hits)
-    expect(findBuffDamageSegment(hit, segments), JSON.stringify(hit)).toBeDefined();
+    expect(findBuffTimelineSegmentForDamage(hit, segments), JSON.stringify(hit)).toBeDefined();
 });

@@ -40,8 +40,3 @@ export function setAppearance(appearance: Appearance): Appearance {
   writeStoredAppearance(next);
   return next;
 }
-
-export function toggleAppearance(current?: Appearance): Appearance {
-  const from = normalizeAppearance(current ?? readStoredAppearance());
-  return setAppearance(from === 'dark' ? 'light' : 'dark');
-}

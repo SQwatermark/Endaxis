@@ -1,5 +1,5 @@
+import { writeFieldValue } from '../../core/editor/writeFieldValue';
 import { nextTick, ref, shallowRef } from 'vue';
-import { writeNodeField } from '../action-graph/nodeFieldValues';
 import { sameStructuredValue } from './structuredValue';
 
 /** 整值草稿只在宿主接受后关闭；取消或重开会使旧的异步确认失效。 */
@@ -39,7 +39,7 @@ export function useStructuredDraft(
     if (!props.editable || !editing.value || awaitingAcceptance.value) return;
     if (error.value === 'structuredValue.rejected') callbacks.discard();
     error.value = '';
-    draft.value = writeNodeField(draft.value, path.map(String), value);
+    draft.value = writeFieldValue(draft.value, path, value);
   }
   async function stage() {
     if (!props.editable || !editing.value || awaitingAcceptance.value) return;

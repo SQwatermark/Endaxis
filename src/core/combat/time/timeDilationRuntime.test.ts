@@ -163,8 +163,8 @@ describe('TimeDilationRuntime', () => {
     });
 
     expect(runtime.currentGlobalScale).toBeCloseTo(0.01);
-    expect(runtime.getOperatorScale('caster')).toBe(1);
-    expect(runtime.getOperatorScale('other')).toBeCloseTo(0.01);
+    expect(runtime.getEntityScale('caster')).toBe(1);
+    expect(runtime.getEntityScale('other')).toBeCloseTo(0.01);
 
     runtime.advanceFrame();
 
@@ -283,8 +283,8 @@ describe('TimeDilationRuntime', () => {
       curve: () => 0.4,
     });
 
-    expect(runtime.getOperatorScale('ignored')).toBeCloseTo(0.4);
-    expect(runtime.getOperatorScale('other')).toBeCloseTo(0.2);
+    expect(runtime.getEntityScale('ignored')).toBeCloseTo(0.4);
+    expect(runtime.getEntityScale('other')).toBeCloseTo(0.2);
   });
 
   it('removes a naturally expired instance on the tick after it crosses duration', () => {
@@ -326,7 +326,7 @@ describe('TimeDilationRuntime', () => {
     const id = runtime.startUltimate(HIGH, 0, ['caster']);
 
     expect(runtime.currentGlobalScale).toBe(0);
-    expect(runtime.getOperatorScale('caster')).toBe(1);
+    expect(runtime.getEntityScale('caster')).toBe(1);
     expect(runtime.getAbilityTickDeltas('caster', 1 / 30)).toEqual({
       defaultDeltaSeconds: 1 / 30,
       globalScaledDeltaSeconds: 0,

@@ -179,14 +179,6 @@ export class ComboWindowRuntime implements FrameRuntime {
   }
 
   /**
-   * 正常输入只允许消费当前激活干员的匹配阶段。
-   * 原生释放入口会清空该干员的整条候选记录，而不是只移除选中的目标候选。
-   */
-  tryConsume(operatorId: string, skillKey: string): boolean {
-    return this.consume(operatorId, skillKey, result => result.consumed);
-  }
-
-  /**
    * 先通知 QTE，再读取候选并同步施放，返回后清除候选。
    * 不满足窗口条件时仍调用 cast，由时间轴记录诊断并执行已放置的技能。
    */
@@ -267,29 +259,15 @@ export class ComboWindowRuntime implements FrameRuntime {
     return result;
   }
 
-  setGloballyPaused(paused: boolean): void {
-    this.runtimeState.globallyPaused = paused;
-  }
-
-  setOperatorPaused(operatorId: string, paused: boolean): void {
-    if (paused) this.runtimeState.pausedOperators.add(operatorId);
-    else this.runtimeState.pausedOperators.delete(operatorId);
-  }
-
   advanceFrame(): void {
     this.advance(COMBAT_FRAME_INTERVAL);
   }
 
-  /** BattleManager 的候选剩余时间随全局缩放；显式暂停仍优先。 */
+  /** BattleManager 的候选剩余时间随全局缩放；零增量同时冻结窗口与 QTE。 */
   advance(deltaSeconds: number): void {
-    if (this.runtimeState.globallyPaused) return;
     const previous = this.#perfectOperators();
     for (const record of [...this.runtimeState.records.values()]) {
-      if (
-        record.candidates.length === 0 ||
-        this.runtimeState.pausedOperators.has(record.operatorId)
-      )
-        continue;
+      if (record.candidates.length === 0) continue;
       for (const candidate of record.candidates)
         candidate.remainingFrames -= deltaSeconds * COMBAT_FRAMES_PER_SECOND;
       // 原生只在 remainTime < 0 时移除；恰好归零的候选在本帧仍然存在。

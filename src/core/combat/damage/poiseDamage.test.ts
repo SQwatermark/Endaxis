@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { CombatReceiptCollector } from '../receipt/combatReceipt';
 import { CombatClock } from '../time/combatClock';
 import { CombatVitals } from '../resources/combatVitals';
-import { calculatePoiseDamage, executePoiseDamage } from './poiseDamage';
+import { executePoiseDamage } from './poiseDamage';
 
 function createTarget(overrides: Partial<ConstructorParameters<typeof CombatVitals>[0]> = {}) {
   return new CombatVitals({
@@ -75,16 +75,6 @@ describe('poise damage', () => {
     });
     expect(events).not.toContain('poiseKnotBreak');
     expect(target.brokenPoiseKnotCount).toBe(0);
-  });
-
-  it('multiplies the recovered calculation, output, and taken values', () => {
-    expect(
-      calculatePoiseDamage({
-        calculationValue: 20,
-        outputMultiplier: 1.5,
-        takenMultiplier: 0.8,
-      }),
-    ).toBeCloseTo(24);
   });
 
   it('allows before-events to modify the delta and preserves native event order', () => {

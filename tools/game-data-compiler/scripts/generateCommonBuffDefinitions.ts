@@ -216,10 +216,6 @@ export function readSystemBuffRootDeclarations(sourcePath: string): SystemBuffRo
   return roots;
 }
 
-export function readSystemBuffRoots(sourcePath: string): string[] {
-  return readSystemBuffRootDeclarations(sourcePath).map(item => item.buffId);
-}
-
 export interface CommonBuffCollector<T> {
   readonly definitions: Readonly<Record<string, T>>;
   add(slug: string, definitions: Readonly<Record<string, T>>): void;

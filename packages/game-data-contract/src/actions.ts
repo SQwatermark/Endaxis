@@ -1645,15 +1645,3 @@ export const COMBAT_EVENT_TRIGGER_KINDS = [
   'skillHit',
   'enemyDefeated',
 ] as const satisfies readonly CombatEventTrigger['kind'][];
-
-/** 一个技能在战斗事件发生后调度的条件化行为。 */
-export interface CombatEventHandlerDefinition {
-  /** 事件响应在当前技能中的唯一名称。 */
-  key: string;
-  /** 要监听的战斗事件及其筛选参数。 */
-  event: CombatEventTrigger;
-  /** 事件发生后还需满足的条件。 */
-  condition?: CombatCondition;
-  /** 相对事件时刻调度的动作序列。 */
-  scheduledSequences: readonly ScheduledSequenceDefinition[];
-}

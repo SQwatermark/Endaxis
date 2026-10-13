@@ -154,13 +154,19 @@ it('shares a burst and an explicitly visible attachment hit without counting a r
   const a = hit(1, 1);
   const burst = { ...hit(2, 1), data: { ...hit(2, 1).data, spellBurstType: 'Fire' } };
   const other = { ...burst, sequence: 3, targetId: 'other' };
+  const sibling = { ...burst, sequence: 4, sourceId: 'ally' };
+  const later = { ...burst, sequence: 5, frame: 11, time: 11 / 30 };
+  const ordinary = { ...hit(6, 1), data: { value: 999 } };
+  const audit = { ...burst, sequence: 7, event: 'BuffDamageApplied' };
   const positions = layoutEnemyDamageHits(
-    [burst, a, other],
+    [burst, a, other, sibling, later, ordinary, audit],
     [buff(1, 0, 20)],
     [],
     new Set(['status']),
   );
-  expect(positions).toHaveLength(2);
-  expect(positions[0]!.group).toEqual([a, burst]);
+  expect(positions).toHaveLength(3);
+  expect(positions[0]!.group).toEqual([a, burst, sibling]);
   expect(positions[1]!.group).toEqual([other]);
+  expect(positions[2]!.group).toEqual([later]);
+  expect(positions[0]!.group[2]).toBe(sibling);
 });

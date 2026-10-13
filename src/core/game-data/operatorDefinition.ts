@@ -75,7 +75,6 @@ export {
   type CombatEventResponseDefinition,
   type CombatEventTrigger,
   COMBAT_EVENT_TRIGGER_KINDS,
-  type CombatEventHandlerDefinition,
 } from '../../../packages/game-data-contract/src/actions.ts';
 export {
   type CombatCondition,
@@ -145,9 +144,6 @@ export {
   type UpgradeEventHandlerDefinition,
   type OperatorPassiveSkillDefinition,
   type OperatorUpgradeDefinition,
-  OPERATOR_EVENTS,
-  type OperatorEvent,
-  type OperatorEventHandlerDefinition,
   type OperatorEntityBlackboardInitializerDefinition,
   type OperatorPassiveUiDefinition,
   type ComboSkillConditionDefinition,

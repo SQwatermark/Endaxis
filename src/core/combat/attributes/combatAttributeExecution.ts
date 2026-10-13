@@ -37,15 +37,6 @@ export function defineCombatAttribute<Key extends string>(
   state.definitions.set(attribute, definition);
 }
 
-export function setCombatAttributeRawValue<Key extends string>(
-  state: CombatAttributeState<Key>,
-  attribute: Key,
-  value: number,
-): void {
-  assertFinite(value, 'raw attribute value');
-  state.rawValues.set(attribute, value);
-}
-
 export function readCombatAttribute<Key extends string>(
   state: CombatAttributeState<Key>,
   attribute: Key,

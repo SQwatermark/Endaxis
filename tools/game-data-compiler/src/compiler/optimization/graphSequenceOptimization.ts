@@ -50,27 +50,6 @@ interface GraphOptimizationContext {
   dirty: boolean;
 }
 
-/**
- * 优化单个定义的主图及其内部全部嵌套子序列引用。off 保持原图；report 报告候选但不替换；
- * apply 返回优化后的新图与新入口，未改动的图原样返回同一对象。
- */
-export function optimizeActionGraphDefinition(
-  graph: ActionGraphDefinition,
-  entry: ActionGraphReference,
-  options: {
-    readonly mode: DefinitionOptimizationMode;
-    readonly definitionId: string;
-    readonly path?: string;
-  },
-): {
-  readonly entry: ActionGraphReference;
-  readonly graph: ActionGraphDefinition;
-  readonly report: DefinitionOptimizationReport;
-} {
-  const result = optimizeActionGraphEntries(graph, [entry], options);
-  return { entry: result.entries[0]!, graph: result.graph, report: result.report };
-}
-
 /** 一次优化资源的所有入口，避免处理单个入口时误删其他时间点或事件的节点。 */
 export function optimizeActionGraphEntries(
   graph: ActionGraphDefinition,

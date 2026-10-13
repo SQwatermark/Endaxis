@@ -1,6 +1,6 @@
 import { expect, it } from 'vitest';
 import { createScenarioEditorSession } from '../../test/scenarioEditorSession';
-import { editSkillCastGraph } from '../editor/skillGraphCommands';
+import { replaceSkillCastDefinition, updateSkillGraph } from '../editor/skillGraphCommands';
 import { projectTimelineEditor } from '../../ui/timeline/timelineEditorViewModel';
 import { listSkillGroupDefinitionBindings } from '../../core/game-data/operatorSkillDefinitions';
 import { gameDataRepository } from '../../data/gameDataRepository';
@@ -114,21 +114,27 @@ it('方案自定义局部图保存重开、Worker 传输和执行中切面恢复
     ],
   };
   const session = createScenarioEditorSession(scenario);
+  const definition = scenario.tracks[0]!.skillCasts[0]!.customDefinition!;
   session.commit(
     'edit-damage-macro',
-    editSkillCastGraph(repository, 'custom-cast', { kind: 'macro', macroId: 'damage' }, graph => ({
-      ...graph,
-      nodes: {
-        ...graph.nodes,
-        hit: {
-          action: {
-            kind: 'dealDamage',
-            parameters: { damageType: 'physical', attackScale: 456, tags: ['normalSkill'] },
+    replaceSkillCastDefinition(
+      repository,
+      'custom-cast',
+      updateSkillGraph(definition, { kind: 'macro', macroId: 'damage' }, graph => ({
+        ...graph,
+        nodes: {
+          ...graph.nodes,
+          hit: {
+            action: {
+              kind: 'dealDamage',
+              parameters: { damageType: 'physical', attackScale: 456, tags: ['normalSkill'] },
+            },
+            next: null,
           },
-          next: null,
         },
-      },
-    })),
+      })),
+      definition,
+    ),
   );
   project.scenarios[0] = session.snapshot.scenario;
   const loaded = parseProjectDocument(serializeProjectDocument(project));

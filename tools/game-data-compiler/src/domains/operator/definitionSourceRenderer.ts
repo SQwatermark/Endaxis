@@ -15,6 +15,8 @@ type RecordValue = Readonly<Record<string, unknown>>;
 export function renderOperatorDefinitionSource(input: { readonly operator: object }): string {
   assertFiniteNumbers(input, '$');
   const operator = { ...input.operator } as Record<string, unknown>;
+  if ('eventHandlers' in operator)
+    throw new Error('operator event responses require a passive or upgrade program');
   const context = createRenderContext();
   const skillDeclarations: string[] = [];
   const renderedSkills = new Map<string, string>();

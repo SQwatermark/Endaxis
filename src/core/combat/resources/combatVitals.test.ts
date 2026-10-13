@@ -72,18 +72,18 @@ describe('CombatVitals', () => {
       poiseBrokenEndTime: 0,
       poiseImmune: false,
     });
-    const removeLow = vitals.registerHealthFloor(500);
-    const removeHigh = vitals.registerHealthFloor(650);
+    const low = vitals.requestHealthFloor(500);
+    const high = vitals.requestHealthFloor(650);
 
     expect(vitals.takeDamage(300).currentHealth).toBe(650);
-    removeHigh();
+    vitals.removeHealthFloor(high);
     expect(vitals.takeDamage(300).currentHealth).toBe(500);
-    removeLow();
+    vitals.removeHealthFloor(low);
     expect(vitals.takeDamage(300).currentHealth).toBe(200);
 
-    const removeAboveCurrent = vitals.registerHealthFloor(900);
+    const aboveCurrent = vitals.requestHealthFloor(900);
     expect(vitals.takeDamage(10).currentHealth).toBe(200);
-    removeAboveCurrent();
+    vitals.removeHealthFloor(aboveCurrent);
   });
 
   it('requires a positive maximum health that covers current health', () => {
@@ -124,10 +124,10 @@ describe('CombatVitals', () => {
     expect(vitals.applyPoiseDelta(-120)).toBe(-80);
     expect(vitals.beginPoiseBreakIfZero()).toBe(true);
     vitals.tick(COMBAT_FRAME_INTERVAL);
-    const progress = vitals.poiseRecoveryProgress;
+    const remaining = vitals.runtimeState.poiseRecoveryTimer.remaining;
     vitals.stopPoiseRecovery = true;
     vitals.tick(COMBAT_FRAME_INTERVAL * 10);
-    expect(vitals.poiseRecoveryProgress).toBe(progress);
+    expect(vitals.runtimeState.poiseRecoveryTimer.remaining).toBe(remaining);
     vitals.stopPoiseRecovery = false;
     expect(vitals.tick(COMBAT_FRAME_INTERVAL * 14)).toEqual(['poiseRecovered']);
     expect(vitals.poise).toBe(100);

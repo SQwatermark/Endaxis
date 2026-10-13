@@ -1,3 +1,4 @@
+import { writeFieldValue } from '../../core/editor/writeFieldValue';
 import { actionNodeSchemas } from '../action-graph/actionNodeSchemas.generated';
 import { createSSRApp, h } from 'vue';
 import { ID_INJECTION_KEY, ZINDEX_INJECTION_KEY } from 'element-plus';
@@ -233,7 +234,6 @@ it('renders every generated typed collection with readonly structure and no JSON
   const { actionNodeSchemas, dataNodeSchemas } =
     await import('../action-graph/actionNodeSchemas.generated');
   const { stringCollectionDescriptor } = await import('./stringCollectionSchema');
-  const { writeNodeField } = await import('../action-graph/nodeFieldValues');
   let covered = 0;
   for (const [kind, schema] of [
     ...Object.entries(actionNodeSchemas),
@@ -246,7 +246,7 @@ it('renders every generated typed collection with readonly structure and no JSON
       const html = await render(NodeInspectorFields, {
         kind,
         fields: [field],
-        value: writeNodeField({}, field.path, [item, item]),
+        value: writeFieldValue({}, field.path, [item, item]),
         readonly: true,
         applyValue: () => false,
       });

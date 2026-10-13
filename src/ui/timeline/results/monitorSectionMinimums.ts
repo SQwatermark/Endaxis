@@ -111,39 +111,25 @@ export function resolveMonitorSectionLayout(
       sp: Math.max(0.1, Number(weights.sp) || DEFAULT_MONITOR_SECTION_WEIGHTS.sp),
     };
     const totalWeight = expanded.reduce((sum, key) => sum + normalizedWeights[key], 0);
-    const minimumSum = expanded.reduce((sum, key) => sum + minimums[key], 0);
+    // 可分配空间已保证不小于展开区最小高度之和。
+    for (const key of expanded) {
+      bodies[key] = Math.max(
+        minimums[key],
+        Math.round(expandedBodySpace * (normalizedWeights[key] / totalWeight)),
+      );
+    }
 
-    if (expandedBodySpace < minimumSum) {
-      const scale = expandedBodySpace / Math.max(1, minimumSum);
-      let remaining = expandedBodySpace;
-      expanded.forEach((key, index) => {
-        const proposed =
-          index === expanded.length - 1
-            ? remaining
-            : Math.max(8, Math.floor(minimums[key] * scale));
-        bodies[key] = proposed;
-        remaining -= proposed;
-      });
-    } else {
+    const assigned = expanded.reduce((sum, key) => sum + bodies[key], 0);
+    if (assigned > expandedBodySpace) {
+      let overflow = assigned - expandedBodySpace;
       for (const key of expanded) {
-        bodies[key] = Math.max(
-          minimums[key],
-          Math.round(expandedBodySpace * (normalizedWeights[key] / totalWeight)),
-        );
+        if (overflow <= 0) break;
+        const reduction = Math.min(overflow, Math.max(0, bodies[key] - minimums[key]));
+        bodies[key] -= reduction;
+        overflow -= reduction;
       }
-
-      const assigned = expanded.reduce((sum, key) => sum + bodies[key], 0);
-      if (assigned > expandedBodySpace) {
-        let overflow = assigned - expandedBodySpace;
-        for (const key of expanded) {
-          if (overflow <= 0) break;
-          const reduction = Math.min(overflow, Math.max(0, bodies[key] - minimums[key]));
-          bodies[key] -= reduction;
-          overflow -= reduction;
-        }
-      } else if (assigned < expandedBodySpace) {
-        bodies[expanded[expanded.length - 1]!] += expandedBodySpace - assigned;
-      }
+    } else if (assigned < expandedBodySpace) {
+      bodies[expanded[expanded.length - 1]!] += expandedBodySpace - assigned;
     }
   }
 

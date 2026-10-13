@@ -40,7 +40,7 @@ describe('ComboWindowOperationExecutor', () => {
     expect(windows.first).toMatchObject({ operatorId: 'owner', nextSkillKey: 'ownerCombo' });
     expect(() => executor.execute(step)).toThrow('requires target context');
   });
-  it('查询本角色候选，不检查队首、槽位、释放资格或暂停状态，消费/过期后变 false', () => {
+  it('查询本角色候选，不检查队首、槽位或释放资格，消费/过期后变 false', () => {
     const delegate = { execute: vi.fn(() => true), evaluate: vi.fn(() => false) };
     const windows = new ComboWindowRuntime(new CombatClock(), new CombatReceiptCollector(), 5);
     const resolveSlot = vi.fn(() => 'differentSkill');
@@ -52,12 +52,8 @@ describe('ComboWindowOperationExecutor', () => {
     windows.open('owner', 'combo');
     expect(windows.first?.operatorId).toBe('other');
     expect(executor.evaluate(condition)).toBe(true);
-    windows.setGloballyPaused(true);
-    windows.advanceFrame();
-    expect(executor.evaluate(condition)).toBe(true);
-    windows.setGloballyPaused(false);
-    windows.tryConsume('other', 'combo');
-    windows.tryConsume('owner', 'combo');
+    windows.consume('other', 'combo', result => result.consumed);
+    windows.consume('owner', 'combo', result => result.consumed);
     expect(executor.evaluate(condition)).toBe(false);
     const candidate = windows.open('owner', 'combo');
     candidate.remainingFrames = 0;

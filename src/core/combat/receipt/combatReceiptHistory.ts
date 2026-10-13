@@ -227,11 +227,7 @@ export class CombatReceiptHistory {
       const entry = this.#tail[index]!;
       if (events === undefined || events.has(entry.event)) entries.push(entry);
     }
-    return { entries: Object.freeze(entries), cursor: this.cursorAtEnd() };
-  }
-
-  private cursorAtEnd(): CombatReceiptCursor {
-    return this.cursor(this.#count);
+    return { entries: Object.freeze(entries), cursor: this.cursor(this.#count) };
   }
 }
 

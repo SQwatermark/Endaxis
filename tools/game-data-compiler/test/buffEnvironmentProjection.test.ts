@@ -191,7 +191,7 @@ describe('公共 Buff 环境读取：来源到正式执行器', () => {
     )!;
     for (let index = 0; index < 4; index++)
       owner.add({ id: 'same', stackingType: 'unlimited' }, 'other');
-    expect(owner.getCountById('same')).toBe(5);
+    expect(owner.getCountByIds(['same'])).toBe(5);
     const reads = vi.fn(() => current.enhanceCount);
     const execute = vi.fn(() => true);
     const operations = new BuffOperationExecutor({

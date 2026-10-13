@@ -1,4 +1,5 @@
 /** A single immutable graph change; hosts retain their normal validation and undo boundary. */
+import { writeFieldValue } from '../../core/editor/writeFieldValue';
 import type { ActionGraphDefinition } from '../../../packages/game-data-contract/src/actionGraph';
 import type { DataInput } from '../../core/action-graph/actionGraphDataNodes';
 
@@ -35,23 +36,7 @@ export function setGraphDataInput(
                 : 'valueNode',
           nodeId: source,
         };
-  function replace(current: unknown, path: readonly string[]): unknown {
-    if (!path.length) return value;
-    const [key, ...rest] = path;
-    if (key === '__proto__' || key === 'prototype' || key === 'constructor')
-      throw new Error('不能编辑对象原型字段');
-    if (Array.isArray(current)) {
-      if (!/^(0|[1-9]\d*)$/.test(key!) || Number(key) >= current.length)
-        throw new Error('数组输入位置不存在');
-      const next = [...current];
-      next[Number(key)] = replace(current[Number(key)], rest);
-      return next;
-    }
-    const record =
-      current && typeof current === 'object' ? (current as Record<string, unknown>) : {};
-    return { ...record, [key!]: replace(record[key!], rest) };
-  }
-  const changed = replace(target, input.path);
+  const changed = writeFieldValue(target, input.path, value);
   // Sources belong to the graph, not this consumer. Never delete a shared source here.
   return owner === 'action'
     ? {

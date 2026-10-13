@@ -1,11 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { ActionGraphDefinitionRepository } from '../../../core/compiler/actionGraphDefinitionRepository';
 import { avywenna } from '../../../data/operators/avywenna.generated';
-import { gameDataRepository } from '../../../data/gameDataRepository';
-import { ScenarioSimulationService } from '../scenarioSimulationService';
+import { createEditorSimulationService } from '../testSupport/editorSimulationService';
 import { createEmptyScenario } from '../../../core/project/createProject';
 import { placeSkillGroup } from '../../../ui/timeline/interaction/placeSkillGroup';
-import { skillSettings } from '../../../data/combat/skillSettings';
 
 describe('艾维文娜技能召回与实体回收', () => {
   it('真实连携→战技能生成枪、召回并造成伤害', async () => {
@@ -69,25 +66,5 @@ async function simulate(casts: readonly (readonly [string, number])[]) {
       startFrame,
       ids: { allocate: kind => `${kind}:full:${serial++}` },
     }).scenario;
-  return new ScenarioSimulationService({
-    index: {
-      actionPrograms: new ActionGraphDefinitionRepository(),
-      getCommonDefinitionSources: () => [
-        { id: 'shared', buffDefinitions: gameDataRepository.getCommonBuffDefinitions!() },
-      ],
-      getOperator: slug => (slug === operator.slug ? operator : null),
-      getCommonBuffDefinitions: () => gameDataRepository.getCommonBuffDefinitions!(),
-      getWeapon: () => null,
-      getGear: () => null,
-      getGearSet: () => null,
-      getGlobalEffect: () => null,
-    },
-    resources: {
-      sharedSpGain: { baseGainEfficiency: 1 },
-      spRecoveryPauseDuration: 1.5,
-      ultimateEnergySystemUnlocked: true,
-      normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
-    },
-    spellInflictionSettings: skillSettings,
-  }).simulate(scenario, 600);
+  return createEditorSimulationService().simulate(scenario, 600);
 }

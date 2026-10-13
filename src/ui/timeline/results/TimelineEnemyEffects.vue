@@ -35,7 +35,7 @@ import TimelineMonitorGrid from './TimelineMonitorGrid.vue';
 import { summarizeLastHitBuffs } from './lastHitBuffSummary';
 import { layoutEnemyStatusRows } from './enemyStatusRows';
 import { layoutEnemyDamageHits } from './enemyDamageHitLayout';
-import { findBuffDamageSegment } from './enemyBuffDamageHits';
+import { findBuffTimelineSegmentForDamage } from '../../../core/projection/buffTimelineViz';
 import { isPhysicalStatusRowBuff } from './physicalStatusDisplay';
 import { enemyStatusRowSize } from './monitorSectionMinimums';
 import { projectAttachmentConversionLinks } from '../../../core/projection/attachmentContinuations';
@@ -222,7 +222,7 @@ const damageHits = computed(() =>
     props.entitySegments,
   ).map(({ group, row, standalone }) => {
     const entry = group[0]!;
-    const buff = findBuffDamageSegment(entry, props.viz.damageBuffs ?? []);
+    const buff = findBuffTimelineSegmentForDamage(entry, props.viz.damageBuffs ?? []);
     return {
       sequence: entry.sequence,
       standaloneIcon: standalone

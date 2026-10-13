@@ -111,7 +111,7 @@ type ScheduledSkillValues = Pick<
   SkillDefinition,
   'actionGraph' | 'blackboard' | 'scheduledSequences'
 > &
-  Partial<Pick<SkillDefinition, 'availability' | 'eventHandlers' | 'switchToBuffCast'>> &
+  Partial<Pick<SkillDefinition, 'availability' | 'switchToBuffCast'>> &
   ({ readonly key: string } | { readonly skillId: string });
 
 /** 同一变量作用域的入口清单；资源适配器负责声明调用和返回值边界。 */
@@ -807,16 +807,6 @@ export function pruneUnusedGraphSkillValues<T extends ScheduledSkillValues>(
       analyzeControlFlow: true,
     }),
   );
-  skill.eventHandlers?.forEach((handler, handlerIndex) =>
-    handler.scheduledSequences.forEach((item, index) =>
-      entries.push({
-        sequence: item.sequence,
-        path: `eventHandlers[${handlerIndex}].scheduledSequences[${index}].sequence`,
-        resultIsConsumed: false,
-        analyzeControlFlow: false,
-      }),
-    ),
-  );
   if (skill.switchToBuffCast)
     entries.push({
       sequence: skill.switchToBuffCast.sequence,
@@ -829,11 +819,9 @@ export function pruneUnusedGraphSkillValues<T extends ScheduledSkillValues>(
     actionGraph: skill.actionGraph,
     blackboard: skill.blackboard,
     entries,
-    conditions: [
-      skill.availability,
-      skill.switchToBuffCast?.condition,
-      ...(skill.eventHandlers?.map(handler => handler.condition) ?? []),
-    ].filter(condition => condition !== undefined),
+    conditions: [skill.availability, skill.switchToBuffCast?.condition].filter(
+      condition => condition !== undefined,
+    ),
   };
   const result = pruneGraphValues(scope, protectedKeys, usageContext, retainedInitialKeys);
   if (result.scope === scope) return { skill, report: result.report };
@@ -849,14 +837,6 @@ export function pruneUnusedGraphSkillValues<T extends ScheduledSkillValues>(
       actionGraph: result.scope.actionGraph,
       ...(result.scope.blackboard === undefined ? {} : { blackboard: result.scope.blackboard }),
       scheduledSequences: mapScheduled(skill.scheduledSequences),
-      ...(skill.eventHandlers === undefined
-        ? {}
-        : {
-            eventHandlers: skill.eventHandlers.map(handler => ({
-              ...handler,
-              scheduledSequences: mapScheduled(handler.scheduledSequences),
-            })),
-          }),
       ...(skill.switchToBuffCast === undefined
         ? {}
         : {
@@ -1103,10 +1083,6 @@ export function createGraphSharedEntityValueUsageCollector(
       condition(value.switchToBuffCast.condition);
       sequence({ graph, entry: value.switchToBuffCast.sequence });
     }
-    value.eventHandlers?.forEach(handler => {
-      condition(handler.condition);
-      handler.scheduledSequences.forEach(item => sequence({ graph, entry: item.sequence }));
-    });
   };
   const skills = (values: SkillDefinition | readonly SkillDefinition[]) => {
     if ('key' in values) skill(values);
@@ -1137,10 +1113,6 @@ export function createGraphSharedEntityValueUsageCollector(
     value.talents.forEach(upgrade);
     value.potentials.forEach(upgrade);
     value.passiveSkills?.forEach(item => passive(item));
-    // 图形态干员的顶级 eventHandlers 没有独立图宿主（渲染期禁止残留）；残缺输入保守处理。
-    value.eventHandlers?.forEach(() => {
-      unknownAccess = true;
-    });
     value.comboSkillConditions?.forEach(item => {
       program(item.actionGraph?.main, item.sequence);
     });

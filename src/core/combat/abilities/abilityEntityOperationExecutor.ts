@@ -92,43 +92,6 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
     this.programs = restored?.programs ?? new CombatOperationPrograms();
   }
 
-  /** 按实体定义和保存的 skillId 重建子技能程序绑定，不执行 Start。 */
-  bindRestoredChildSkill(
-    entity: RuntimeTargetRef,
-    entityBlackboard: ActionBlackboard,
-    state: AbilityEntityChildSkillState,
-  ): AbilityEntityChildSkillRuntime {
-    if (this.#childRuntimeDependencies === undefined || this.#resolveDefinition === undefined) {
-      throw new Error('AbilityEntity child skill restore is not configured');
-    }
-    const snapshot = this.#entities.snapshot(entity);
-    const definition = this.#resolveDefinition(snapshot.abilityEntityId);
-    if (definition === undefined) {
-      throw new Error(`AbilityEntity definition '${snapshot.abilityEntityId}' does not exist`);
-    }
-    const childSkill = this.#resolveSpawnChildSkill(definition, state.skillId);
-    if (childSkill === undefined) {
-      throw new Error(`AbilityEntity child skill '${state.skillId}' does not exist`);
-    }
-    const binding = this.#childSkillPrograms.resolve(state.programId);
-    if (binding.program.skillId !== childSkill.skillId) {
-      throw new Error(
-        `AbilityEntity child program '${state.programId}' belongs to '${binding.program.skillId}', expected '${childSkill.skillId}'`,
-      );
-    }
-    return this.#createChildRuntime(
-      binding.program,
-      entity,
-      entityBlackboard,
-      {
-        blackboard: entityBlackboard,
-        ...(snapshot.skillCastInfo == null ? {} : { skillCastInfo: snapshot.skillCastInfo }),
-      },
-      snapshot.skillCastInfo != null,
-      { state },
-    );
-  }
-
   execute(step: RuntimeOperation, context?: CombatOperationContext): boolean {
     if (step.kind === 'findOwnerSpawnedAbilityEntities') {
       if (context?.targetContext === undefined) {

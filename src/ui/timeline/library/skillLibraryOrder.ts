@@ -20,10 +20,5 @@ export function orderTimelineSkillLibrary<T extends TimelineSkillLibraryOrderEnt
     return 5;
   };
 
-  return entries
-    .map((entry, sourceIndex) => ({ entry, sourceIndex }))
-    .sort(
-      (left, right) => rank(left.entry) - rank(right.entry) || left.sourceIndex - right.sourceIndex,
-    )
-    .map(value => value.entry);
+  return [...entries].sort((left, right) => rank(left) - rank(right));
 }

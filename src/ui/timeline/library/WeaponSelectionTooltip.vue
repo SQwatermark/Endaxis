@@ -8,10 +8,7 @@ import { primaryModifier } from '../../keyboard/primaryModifier';
 import { useI18n } from 'vue-i18n';
 import { getWeaponSkillDescription, getWeaponSkillName } from '../../gameText';
 import { GameRichTextRenderer } from '../../presentation';
-import type {
-  WeaponDefinition,
-  WeaponTraitDefinition,
-} from '../../../core/game-data/equipmentDefinition';
+import type { WeaponDefinition } from '../../../core/game-data/equipmentDefinition';
 import { resolveMaxWeaponTraitLevels } from '../../../application/editor/loadoutBuildFactory';
 
 const props = defineProps<{
@@ -22,31 +19,30 @@ const props = defineProps<{
 
 const { t, locale } = useI18n({ useScope: 'global' });
 const modifier = primaryModifier();
-const textSlug = computed(() => props.weapon.assetSlug ?? props.weapon.slug);
-function traitLevel(trait: WeaponTraitDefinition): number {
-  const index = props.weapon.traits.indexOf(trait);
-  return resolveMaxWeaponTraitLevels(props.weapon, props.fullPotential ? 5 : 0)[index] ?? 1;
-}
 
 function isWeaponSkillKey(value: string): value is 'skill1' | 'skill2' | 'skill3' {
   return value === 'skill1' || value === 'skill2' || value === 'skill3';
 }
 
-const preview = computed(() => ({
-  baseAttack: props.weapon.baseAttackAtLevelNodes.at(-1) ?? 0,
-  skills: props.weapon.traits.flatMap(trait => {
-    if (!isWeaponSkillKey(trait.key)) return [];
-    const level = traitLevel(trait);
-    return [
-      {
-        key: trait.key,
-        level,
-        name: getWeaponSkillName(textSlug.value, trait.key, locale.value),
-        description: getWeaponSkillDescription(textSlug.value, trait.key, locale.value, level),
-      },
-    ];
-  }),
-}));
+const preview = computed(() => {
+  const textSlug = props.weapon.assetSlug ?? props.weapon.slug;
+  const levels = resolveMaxWeaponTraitLevels(props.weapon, props.fullPotential ? 5 : 0);
+  return {
+    baseAttack: props.weapon.baseAttackAtLevelNodes.at(-1) ?? 0,
+    skills: props.weapon.traits.flatMap((trait, index) => {
+      if (!isWeaponSkillKey(trait.key)) return [];
+      const level = levels[index] ?? 1;
+      return [
+        {
+          key: trait.key,
+          level,
+          name: getWeaponSkillName(textSlug, trait.key, locale.value),
+          description: getWeaponSkillDescription(textSlug, trait.key, locale.value, level),
+        },
+      ];
+    }),
+  };
+});
 </script>
 
 <template>

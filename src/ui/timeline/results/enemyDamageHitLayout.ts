@@ -1,5 +1,6 @@
 import type { CombatReceiptEntry } from '../../../core/combat/receipt/combatReceipt';
 import {
+  findBuffTimelineSegmentForDamage,
   projectBuffIconTimelineMetadata,
   type BuffTimelineSegment,
 } from '../../../core/projection/buffTimelineViz';
@@ -8,7 +9,7 @@ import {
   type EnemyEffectMarker,
 } from '../../../core/projection/enemyEffectViz';
 import { groupEnemyBurstDamageHits } from './enemyBurstDamageGroups';
-import { findBuffDamageSegment, groupEnemyBuffDamageHits } from './enemyBuffDamageHits';
+import { groupEnemyBuffDamageHits } from './enemyBuffDamageHits';
 import { layoutEnemyStatusRows } from './enemyStatusRows';
 
 /** 共用屏幕入口，不合并战斗身份：每笔回执保留原对象和 sequence。 */
@@ -44,7 +45,7 @@ export function layoutEnemyDamageHits(
         buff.endFrame >= owner.endFrame;
       const displaySegment =
         owner === undefined
-          ? findBuffDamageSegment(entry, buffs)
+          ? findBuffTimelineSegmentForDamage(entry, buffs)
           : buffs.find(
               buff =>
                 containsOwner(buff) ||

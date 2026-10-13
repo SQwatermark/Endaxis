@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { writeFieldValue } from '../../core/editor/writeFieldValue';
 import ImageReferenceField from '../field-editor/ImageReferenceField.vue';
 import { spawnDefinitionResources } from '../field-editor/spawnDefinitionSchema';
 import { graphSequenceBoundaries } from '../field-editor/graphSequenceContainerSchema';
@@ -51,7 +52,6 @@ import {
   formatNodeField,
   parseNodeField,
   readNodeField,
-  writeNodeField,
 } from './nodeFieldValues';
 
 const props = defineProps<{
@@ -226,7 +226,7 @@ function proposalValue(): unknown {
         text === committedText(field))
     )
       continue;
-    value = writeNodeField(
+    value = writeFieldValue(
       value,
       field.path,
       typed
@@ -374,7 +374,7 @@ function apply(): boolean {
         error.value = t('actionGraphEditor.invalid');
         return false;
       }
-      value = writeNodeField(value, field.path, parsed);
+      value = writeFieldValue(value, field.path, parsed);
     }
     // Creation overrides can invalidate an unchanged inner read. Recheck the complete
     // local definition after every sibling proposal, not only when its own field staged.

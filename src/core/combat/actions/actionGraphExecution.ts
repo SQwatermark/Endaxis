@@ -237,9 +237,6 @@ export class ActionGraphExecution
     }
   }
 
-  get isEmpty(): boolean {
-    return this.runtimeState.entry === null;
-  }
   override get executionData() {
     return { kind: 'graph' as const, graph: this.runtimeState };
   }

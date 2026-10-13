@@ -4,11 +4,10 @@ import type { WeaponDefinition } from '../../../core/game-data/equipmentDefiniti
 import type { OperatorDefinition } from '../../../core/game-data/operatorDefinition';
 import { createEmptyScenario } from '../../../core/project/createProject';
 import type { TrackDocument } from '../../../core/project/schema';
-import { skillSettings } from '../../../data/combat/skillSettings';
 import { generatedWeaponDefinitions } from '../../../data/equipment/generated-weapons/index.generated';
 import { createGameDataRepository, gameDataRepository } from '../../../data/gameDataRepository';
 import { placeSkillGroup } from '../../../ui/timeline/interaction/placeSkillGroup';
-import { ScenarioSimulationService } from '../scenarioSimulationService';
+import { createScenarioSimulationService } from '../createScenarioSimulationService';
 import { staticEquipmentContribution } from '../testSupport/staticEquipmentContribution';
 
 // 候选定义必须实际经过生产编译/战斗环境；不借用旧武器行为，也不依赖本地原始资源。
@@ -620,18 +619,9 @@ async function simulateWeapon(
       ids: { allocate: kind => `${kind}:generated-audit:${id++}` },
     }).scenario;
   }
-  return new ScenarioSimulationService({
-    index: {
-      ...repository,
-      getWeapon: slug => (slug === weapon.slug ? weapon : repository.getWeapon(slug)),
-      getOperator: slug => (slug === operator.slug ? operator : repository.getOperator(slug)),
-    },
-    resources: {
-      sharedSpGain: { baseGainEfficiency: 1 },
-      spRecoveryPauseDuration: 1.5,
-      ultimateEnergySystemUnlocked: true,
-      normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
-    },
-    spellInflictionSettings: skillSettings,
+  return createScenarioSimulationService({
+    ...repository,
+    getWeapon: slug => (slug === weapon.slug ? weapon : repository.getWeapon(slug)),
+    getOperator: slug => (slug === operator.slug ? operator : repository.getOperator(slug)),
   }).simulate(scenario, 1800);
 }

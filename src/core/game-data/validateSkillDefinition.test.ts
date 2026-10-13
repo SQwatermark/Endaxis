@@ -4,6 +4,7 @@ import {
   validateActionGraphContexts,
   validateActionGraphReference,
   validateScheduledSequence,
+  validateCombatEventTriggerDefinition,
 } from './validation/actionPrograms';
 import type { SkillDefinitionValidationIssue } from './validation/definitionValues';
 import { describe, expect, it } from 'vitest';
@@ -102,20 +103,12 @@ describe('validateSkillDefinition', () => {
   });
 
   it('原生事件触发器使用公共迁移准入，拒绝缺失及未支持身份', () => {
-    const skill = (event: unknown) => ({
-      ...baseSkill(),
-      eventHandlers: [
-        {
-          key: 'native',
-          event: { kind: 'abilityEvent', event },
-          scheduledSequences: [{ startFrame: 0, sequence: { $sequence: null } }],
-        },
-      ],
-    });
-    expect(validateSkillDefinition(skill('addedBuff'))).toEqual([]);
-    expect(validateSkillDefinition(skill('outputBuff'))).toEqual([]);
-    expect(validateSkillDefinition(skill('unknown'))).not.toEqual([]);
-    expect(validateSkillDefinition(skill(undefined))).not.toEqual([]);
+    const trigger = (event: unknown) =>
+      validateCombatEventTriggerDefinition({ kind: 'abilityEvent', event });
+    expect(trigger('addedBuff')).toEqual([]);
+    expect(trigger('outputBuff')).toEqual([]);
+    expect(trigger('unknown')).not.toEqual([]);
+    expect(trigger(undefined)).not.toEqual([]);
   });
   it('requires a positive native natural duration', () => {
     expect(validateSkillDefinition({ ...baseSkill(), naturalDurationFrames: 1 })).toEqual([]);
@@ -451,36 +444,32 @@ describe('validateSkillDefinition', () => {
   it.each(['unknownTrigger', 'statusExpired', 'statusConsumed'])(
     'rejects an unsupported event trigger kind: %s',
     kind => {
-      const skill = baseSkill();
-      skill.eventHandlers = [
-        {
-          key: 'handler:1',
-          event: { kind, statusKey: 'status', target: 'enemy' },
-          scheduledSequences: [{ startFrame: 0, sequence: { $sequence: null } }],
-        },
-      ];
-      const issues = validateSkillDefinition(skill);
+      const issues = validateCombatEventTriggerDefinition({
+        kind,
+        statusKey: 'status',
+        target: 'enemy',
+      });
       expect(
         issues.some(
-          issue =>
-            issue.path === '$.eventHandlers[0].event.kind' &&
-            issue.message.includes('unknown event trigger'),
+          issue => issue.path === '$.kind' && issue.message.includes('unknown event trigger'),
         ),
       ).toBe(true);
     },
   );
 
   it('rejects an event trigger with an invalid scope', () => {
-    const skill = baseSkill();
-    skill.eventHandlers = [
-      {
-        key: 'handler:1',
-        event: { kind: 'skillHit', skillKey: 'battleSkill', scope: 'all' },
-        scheduledSequences: [{ startFrame: 0, sequence: { $sequence: null } }],
-      },
-    ];
-    const issues = validateSkillDefinition(skill);
-    expect(issues.some(issue => issue.path === '$.eventHandlers[0].event.scope')).toBe(true);
+    const issues = validateCombatEventTriggerDefinition({
+      kind: 'skillHit',
+      skillKey: 'battleSkill',
+      scope: 'all',
+    });
+    expect(issues.some(issue => issue.path === '$.scope')).toBe(true);
+  });
+
+  it('拒绝技能顶层事件处理器，事件响应必须通过图监听节点表达', () => {
+    expect(validateSkillDefinition({ ...baseSkill(), eventHandlers: [] })).toEqual([
+      { path: '$.eventHandlers', message: 'use action graph listeners with an explicit lifetime' },
+    ]);
   });
 
   it('rejects invalid LevelValues: NaN and empty array', () => {

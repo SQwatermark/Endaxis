@@ -3,7 +3,6 @@ import { describe, expect, it } from 'vitest';
 import { createEmptyScenario } from '../../../core/project/createProject';
 import { perlica, arclight } from '../../../data/operators';
 import { gameDataRepository } from '../../../data/gameDataRepository';
-import { skillSettings } from '../../../data/combat/skillSettings';
 import { placeSkillGroup } from '../../../ui/timeline/interaction/placeSkillGroup';
 import {
   createSkillCastGroup,
@@ -13,7 +12,7 @@ import {
   projectSkillCastActualDurationFrames,
   projectSkillCastActualStartFrames,
 } from '../../../core/projection/timelineDisplayTime';
-import { ScenarioSimulationService } from '../scenarioSimulationService';
+import { createScenarioSimulationService } from '../createScenarioSimulationService';
 
 function fixture() {
   let scenario = createEmptyScenario('continuous-groups', '连续组回归样本');
@@ -51,16 +50,7 @@ function fixture() {
     placed.scenario.tracks[0]!.skillCasts.map(cast => [cast.id, cast.placement.startFrame!]),
   );
   scenario = createSkillCastGroup(placed.scenario, new Set(castIds), startFrames);
-  const service = new ScenarioSimulationService({
-    index: gameDataRepository,
-    spellInflictionSettings: skillSettings,
-    resources: {
-      sharedSpGain: { baseGainEfficiency: 1 },
-      spRecoveryPauseDuration: 1.5,
-      ultimateEnergySystemUnlocked: true,
-      normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
-    },
-  });
+  const service = createScenarioSimulationService(gameDataRepository);
   return { scenario, service, castIds, ids };
 }
 

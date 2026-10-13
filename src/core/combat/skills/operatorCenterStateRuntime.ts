@@ -28,14 +28,6 @@ export interface DashInput {
   readonly direction: 'forward' | 'backward';
 }
 
-/** 原生 _DashToFree 从移动层读取的事实；模拟器未接入移动系统时不得自行伪造这些值。 */
-export interface DashToFreeFacts {
-  readonly hasMoveCommand: boolean;
-  readonly sharedExitCondition: boolean;
-  readonly movementModeIsDash: boolean;
-  readonly movementBlocksFreeTransition: boolean;
-}
-
 export interface DashInterruptionFact {
   readonly skillId: string;
   readonly castId?: string;
@@ -188,14 +180,6 @@ export class OperatorCenterStateRuntime {
     state.state = type === 'attack' ? 'attack' : 'skill';
     state.perfectDodgeActive = false;
     state.dashId = null;
-  }
-
-  /** 复现原生分支顺序；攻击窗口和 Dash Buff 寿命都不参与 Dash→Free。 */
-  shouldLeaveDashForFree(state: OperatorCenterState, facts: DashToFreeFacts): boolean {
-    if (state.state !== 'dash') return false;
-    if (facts.hasMoveCommand || facts.sharedExitCondition) return true;
-    if (facts.movementModeIsDash) return false;
-    return !facts.movementBlocksFreeTransition;
   }
 
   /** 原生 CenterBlackboard.Tick 接收角色缩放后的 deltaTime；这里用 30Hz 帧数表示同一增量。 */

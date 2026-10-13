@@ -176,7 +176,7 @@ const fixtureOperator = (
   definitions: OperatorDefinition['abilityEntityDefinitions'],
 ): OperatorDefinition => {
   // avywenna 生成产物是图形态；剔除与夹具冲突的运行时字段后作为基座。
-  const { dodgeSkill: _dodgeSkill, eventHandlers: _eventHandlers, ...base } = avywenna;
+  const { dodgeSkill: _dodgeSkill, ...base } = avywenna;
   return {
     ...base,
     talents: [],

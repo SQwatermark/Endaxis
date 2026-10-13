@@ -27,8 +27,6 @@ import {
   replaceProjectGlobalEffectTemplateDefinition,
   replaceProjectOperatorTemplateDefinition,
   replaceProjectWeaponTemplateDefinition,
-  switchTrackToCompatibleGearTemplate,
-  switchTrackToCompatibleWeaponTemplate,
 } from './projectDefinitionLibrary';
 
 function operatorInstance(operatorSlug: string) {
@@ -145,7 +143,7 @@ describe('projectDefinitionLibrary', () => {
     expect(library.gearSets['project:gearSet:copy']?.definition.slug).toBe('project:gearSet:copy');
   });
 
-  it('derives and atomically switches an equipped weapon template', () => {
+  it('replaces a derived weapon across scenarios and clamps trait levels without mutating builds', () => {
     const weapon = weaponDefinitions[0]!;
     const project = deriveProjectWeaponTemplate(createEmptyProject({ createdWith: 'test' }), {
       id: 'project:weapon:1',
@@ -158,7 +156,7 @@ describe('projectDefinitionLibrary', () => {
       id: 'track:weapon',
       operator: operatorInstance(perlica.slug),
       weapon: {
-        weaponSlug: weapon.slug,
+        weaponSlug: 'project:weapon:1',
         level: 90,
         tuned: true,
         potential: 2,
@@ -170,17 +168,10 @@ describe('projectDefinitionLibrary', () => {
     };
     const custom = getProjectDefinitionLibrary(project).weapons['project:weapon:1']!.definition;
 
-    const next = switchTrackToCompatibleWeaponTemplate(scenario, 0, custom.slug, custom);
-
-    expect(next.tracks[0]!.weapon).toEqual({
-      ...scenario.tracks[0]!.weapon,
-      weaponSlug: 'project:weapon:1',
-    });
-
-    const secondScenario = structuredClone(next);
+    const secondScenario = structuredClone(scenario);
     secondScenario.id = 'scenario:second';
     secondScenario.tracks[0]!.id = 'track:weapon:second';
-    const projectWithScenario = { ...project, scenarios: [next, secondScenario] };
+    const projectWithScenario = { ...project, scenarios: [scenario, secondScenario] };
     const replacement: WeaponDefinition = {
       ...custom,
       displayName: '调整后的武器',
@@ -201,7 +192,7 @@ describe('projectDefinitionLibrary', () => {
     expect(projectWithScenario.scenarios[1]?.tracks[0]?.weapon?.traitLevels[0]).toBe(9);
   });
 
-  it('derives, switches and replaces a project gear template across referencing slots', () => {
+  it('replaces a derived gear across scenarios and clamps artificing without mutating builds', () => {
     const gear = gearDefinitions[0]!;
     const project = deriveProjectGearTemplate(createEmptyProject({ createdWith: 'test' }), {
       id: 'project:gear:1',
@@ -215,7 +206,7 @@ describe('projectDefinitionLibrary', () => {
       operator: operatorInstance(perlica.slug),
       weapon: null,
       gears: {
-        armor: { gearSlug: gear.slug, artificingLevels: gear.traits.map(() => 3) },
+        armor: { gearSlug: 'project:gear:1', artificingLevels: gear.traits.map(() => 3) },
         gloves: null,
         accessory1: null,
         accessory2: null,
@@ -224,7 +215,6 @@ describe('projectDefinitionLibrary', () => {
       skillCasts: [],
     };
     const custom = getProjectDefinitionLibrary(project).gears['project:gear:1']!.definition;
-    const switched = switchTrackToCompatibleGearTemplate(scenario, 0, 'armor', custom.slug, custom);
     const replacement: GearDefinition = {
       ...custom,
       displayName: '调整后的装备',
@@ -246,10 +236,10 @@ describe('projectDefinitionLibrary', () => {
           : trait,
       ),
     };
-    const secondScenario = structuredClone(switched);
+    const secondScenario = structuredClone(scenario);
     secondScenario.id = 'scenario:gear:second';
     secondScenario.tracks[0]!.id = 'track:gear:second';
-    const projectWithScenarios = { ...project, scenarios: [switched, secondScenario] };
+    const projectWithScenarios = { ...project, scenarios: [scenario, secondScenario] };
     const replaced = replaceProjectGearTemplateDefinition(
       projectWithScenarios,
       custom.slug,

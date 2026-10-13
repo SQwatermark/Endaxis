@@ -5,11 +5,7 @@
  * 用它们展示并选择装备，构筑解析器和模拟器则读取修正、事件响应、Buff 与初始化动作。
  */
 import type { AbilityEvent } from './abilityEvents.ts';
-import type {
-  ActionGraphDefinition,
-  ActionGraphReference,
-  ActionGraphResourceDefinition,
-} from './actionGraph.ts';
+import type { ActionGraphReference, ActionGraphResourceDefinition } from './actionGraph.ts';
 import type { CombatEventTrigger } from './actions.ts';
 import type { OperatorBuffDefinitions } from './buffs.ts';
 import type { BuildModifierDefinition } from './buildModifiers.ts';
@@ -121,9 +117,7 @@ export type EquipmentEventHandlerDefinition = EquipmentEventHandlerDefinitionBas
 /** 武器被动与套装效果的声明式贡献集合；普通装备词条只有静态修正。 */
 export interface EquipmentContributionDefinition {
   /** 当前武器词条或套装效果自己的程序图；不按原生 ID 跨对象共享。 */
-  readonly actionGraph?: ActionGraphReference extends ActionGraphReference
-    ? ActionGraphResourceDefinition
-    : ActionGraphDefinition | ActionGraphResourceDefinition;
+  readonly actionGraph?: ActionGraphResourceDefinition;
   /** 构筑阶段持续生效的属性修正。 */
   readonly modifiers?: readonly EquipmentModifierDefinition[];
   /** 装备能力注册的战斗事件响应。 */

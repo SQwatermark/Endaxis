@@ -7,7 +7,7 @@ import { parseProjectDocument, serializeProjectDocument } from '../../core/proje
 import { createGameDataRepository } from '../../data/createGameDataRepository';
 import { perlica } from '../../data/operators/perlica.generated';
 import { createScenarioEditorSession } from '../../test/scenarioEditorSession';
-import { editSkillCastGraph, replaceSkillCastDefinition } from './skillGraphCommands';
+import { replaceSkillCastDefinition, updateSkillGraph } from './skillGraphCommands';
 import {
   readGraphPresentation,
   sameScenarioExceptGraphPresentation,
@@ -73,14 +73,6 @@ it('存档中的无效坐标被忽略，主图和宏的同名节点互不覆盖'
 
 it('库图命令不能隐式开启自定义，显式自定义产生独立不可变副本', () => {
   const { scenario, repository, definition } = fixture(false);
-  let called = false;
-  expect(() =>
-    editSkillCastGraph(repository, 'first', { kind: 'main' }, graph => {
-      called = true;
-      return graph;
-    })(scenario),
-  ).toThrow('只读');
-  expect(called).toBe(false);
   expect(() =>
     replaceSkillCastDefinition(repository, 'first', { ...definition, timelineBlockFrames: 31 })(
       scenario,
@@ -166,117 +158,29 @@ function fixture(custom = true) {
       placement: { startFrame: 0 },
     })),
   };
-  const command = editSkillCastGraph(
-    repository,
-    'first',
-    { kind: 'macro', macroId: 'damage' },
-    graph => ({
-      ...graph,
-      nodes: {
-        ...graph.nodes,
-        hit: { action: { kind: 'dealStagger', parameters: { value: 5 } }, next: null },
-      },
-    }),
-  );
-  return { project, scenario, repository, definition, command };
+  return { project, scenario, repository, definition };
 }
 
-it('正式图直接进入场景事务，保留共享宏及元数据，编辑只影响选中的技能块', () => {
-  const { project, scenario, definition, command } = fixture();
-  const session = createScenarioEditorSession(scenario);
-  expect(session.commit('edit-skill-graph', command)).toBe(true);
-  const edited = session.snapshot.scenario;
-  const skill = edited.tracks[0]!.skillCasts[0]!.customDefinition!;
-  expect(skill.actionGraph.main).toEqual(definition.actionGraph.main);
-  expect(skill.actionGraph.main).not.toBe(definition.actionGraph.main);
-  expect(skill.blackboard).toEqual(definition.blackboard);
-  expect(skill.actionGraph.macros.damage!.graph.nodes.hit!.action).toMatchObject({
-    parameters: { value: 5 },
-  });
-  expect(definition.actionGraph.macros.damage!.graph.nodes.hit!.action).toMatchObject({
-    parameters: { value: 2 },
-  });
-  expect(edited.tracks[0]!.skillCasts[1]!.customDefinition).toBeUndefined();
-  expect(
-    parseProjectDocument(serializeProjectDocument({ ...project, scenarios: [edited] })),
-  ).toEqual({ ok: true, value: { ...project, scenarios: [edited] } });
-  session.undo();
-  expect(session.snapshot.scenario).toBe(scenario);
-  session.redo();
-  expect(session.snapshot.scenario).toBe(edited);
-});
-
 it('非法回边和删除被引用节点均不能进入历史', () => {
-  const { scenario, repository } = fixture();
+  const { scenario, repository, definition } = fixture();
   const session = createScenarioEditorSession(scenario);
   const invalidGraphs: ActionGraphDefinition[] = [
     { nodes: { hit: { action: { kind: 'dealStagger', parameters: { value: 1 } }, next: 'hit' } } },
     { nodes: {} },
   ];
   for (const graph of invalidGraphs) {
-    const command = editSkillCastGraph(
-      repository,
-      'first',
-      { kind: 'macro', macroId: 'damage' },
-      () => graph,
-    );
+    const changed: SkillDefinition = {
+      ...definition,
+      actionGraph: {
+        ...definition.actionGraph,
+        macros: { damage: { ...definition.actionGraph.macros.damage!, graph } },
+      },
+    };
+    const command = replaceSkillCastDefinition(repository, 'first', changed, definition);
     expect(() => session.commit('invalid', command)).toThrow();
     expect(session.snapshot.scenario).toBe(scenario);
     expect(session.canUndo).toBe(false);
   }
-});
-
-it('复用场景继承边界，禁止通过编辑图改变冻结的历史输入', () => {
-  const { scenario, command } = fixture();
-  const session = createScenarioEditorSession(scenario, 50, { inputBeforeFrame: 30 });
-  expect(() => session.commit('edit-history', command)).toThrow();
-  expect(session.snapshot.scenario).toBe(scenario);
-  expect(session.canUndo).toBe(false);
-});
-
-it('无改动不创建覆盖，不增加撤销记录', () => {
-  const { scenario, repository } = fixture();
-  const session = createScenarioEditorSession(scenario);
-  expect(
-    session.commit(
-      'noop',
-      editSkillCastGraph(repository, 'first', { kind: 'main' }, graph => graph),
-    ),
-  ).toBe(false);
-  expect(session.snapshot.scenario).toBe(scenario);
-  expect(session.canUndo).toBe(false);
-});
-
-it('重接边与删除节点可以原子提交，缺失的宏不能误编辑主图', () => {
-  const { scenario, repository } = fixture();
-  const session = createScenarioEditorSession(scenario);
-  expect(() =>
-    session.commit(
-      'missing',
-      editSkillCastGraph(
-        repository,
-        'first',
-        {
-          kind: 'macro',
-          macroId: 'toString',
-        },
-        graph => graph,
-      ),
-    ),
-  ).toThrow('has no macro');
-  session.commit(
-    'remove-second-call',
-    editSkillCastGraph(repository, 'first', { kind: 'main' }, graph => ({
-      nodes: { a: { ...graph.nodes.a!, next: null } },
-    })),
-  );
-  expect(
-    Object.keys(
-      session.snapshot.scenario.tracks[0]!.skillCasts[0]!.customDefinition!.actionGraph.main.nodes,
-    ),
-  ).toEqual(['a']);
-  session.undo();
-  expect(session.snapshot.scenario).toBe(scenario);
 });
 
 it('完整技能保存一次提交元数据和图，克隆的打开快照支持撤销、重做与序列化', () => {
@@ -414,21 +318,18 @@ it('自由展示块没有技能来源身份，携带完整定义也不能通过�
   cast.source = { kind: 'custom', actionType: 'note', name: '自由展示块' };
   cast.customDefinition = definition;
   const session = createScenarioEditorSession(scenario);
-  const commands = [
-    replaceSkillCastDefinition(repository, 'first', definition),
-    editSkillCastGraph(repository, 'first', { kind: 'main' }, graph => graph),
-  ];
-  for (const command of commands) {
-    expect(() => session.commit('unsupported-source', command)).toThrow(
-      "uses unsupported source kind 'custom'",
-    );
-    expect(session.snapshot.scenario).toBe(scenario);
-    expect(session.canUndo).toBe(false);
-  }
+  expect(() =>
+    session.commit(
+      'unsupported-source',
+      replaceSkillCastDefinition(repository, 'first', definition),
+    ),
+  ).toThrow("uses unsupported source kind 'custom'");
+  expect(session.snapshot.scenario).toBe(scenario);
+  expect(session.canUndo).toBe(false);
 });
 
 it('curve graph commands preserve both infinite tangent signs through real undo, redo and project reopening', () => {
-  const { project, scenario, repository } = fixture();
+  const { project, scenario, repository, definition } = fixture();
   const session = createScenarioEditorSession(scenario);
   const before = session.snapshot.scenario;
   const curve = {
@@ -447,27 +348,32 @@ it('curve graph commands preserve both infinite tangent signs through real undo,
   };
   session.commit(
     'curve',
-    editSkillCastGraph(repository, 'first', { kind: 'main' }, graph => ({
-      ...graph,
-      nodes: {
-        ...graph.nodes,
-        a: {
-          ...graph.nodes.a!,
-          action: {
-            kind: 'startTimeDilation',
-            parameters: {
-              scope: 'global',
-              slot: 'Test/Time',
-              priority: 1,
-              durationSeconds: { kind: 'constant', value: 1 },
-              finishByAction: false,
-              ignoredTargets: [],
-              curve,
+    replaceSkillCastDefinition(
+      repository,
+      'first',
+      updateSkillGraph(definition, { kind: 'main' }, graph => ({
+        ...graph,
+        nodes: {
+          ...graph.nodes,
+          a: {
+            ...graph.nodes.a!,
+            action: {
+              kind: 'startTimeDilation',
+              parameters: {
+                scope: 'global',
+                slot: 'Test/Time',
+                priority: 1,
+                durationSeconds: { kind: 'constant', value: 1 },
+                finishByAction: false,
+                ignoredTargets: [],
+                curve,
+              },
             },
           },
         },
-      },
-    })),
+      })),
+      definition,
+    ),
   );
   const after = session.snapshot.scenario;
   expect(after).not.toBe(before);

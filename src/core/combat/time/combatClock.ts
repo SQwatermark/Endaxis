@@ -15,10 +15,6 @@ export function initializeCombatFrame(state: CombatClockState, frame: number): v
   state.frame = frame;
 }
 
-export function advanceCombatFrame(state: CombatClockState): void {
-  state.frame += 1;
-}
-
 /** 一次模拟的可推进帧时钟；同一实例不得被多个模拟共享。 */
 export class CombatClock {
   constructor(readonly runtimeState: CombatClockState = { frame: 0 }) {}
@@ -37,6 +33,6 @@ export class CombatClock {
   }
 
   advanceFrame(): void {
-    advanceCombatFrame(this.runtimeState);
+    this.runtimeState.frame += 1;
   }
 }

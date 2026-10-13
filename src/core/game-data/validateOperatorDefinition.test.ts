@@ -37,6 +37,13 @@ function graphOperator(overrides: Partial<OperatorDefinition> = {}): OperatorDef
 }
 
 describe('validateOperatorDefinition', () => {
+  it('拒绝没有局部程序宿主的干员顶层事件响应', () => {
+    const definition = { ...graphOperator(), eventHandlers: [] };
+    expect(validateOperatorDefinition(definition)).toContainEqual({
+      path: '$.eventHandlers',
+      message: 'operator event responses require a passive or upgrade program',
+    });
+  });
   it('完整技能缺少必填时序或身份时拒绝保存，扣费帧随消耗必填', () => {
     const skill = skillFixture({
       key: 'required-fields',

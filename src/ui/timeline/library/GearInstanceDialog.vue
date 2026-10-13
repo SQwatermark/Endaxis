@@ -54,7 +54,7 @@ const traitSlots = computed(() =>
     traitIndex,
     current: Math.max(0, Math.trunc(props.gear?.artificingLevels[traitIndex] ?? 0)),
     maximum: Math.max(0, trait.levelCount - 1),
-    rows: affixRows.value.filter(row => row.traitIndex === traitIndex),
+    row: affixRows.value[traitIndex],
   })),
 );
 
@@ -118,9 +118,9 @@ function maxOut(): void {
             <div class="section-title">{{ t('armory.common.artificing') }}</div>
             <div v-for="slot in traitSlots" :key="slot.traitIndex" class="stat-row">
               <div class="stat-info">
-                <span v-for="row in slot.rows" :key="row.key" class="stat-name">
-                  {{ row.label }}
-                  <span class="stat-value-inline">{{ row.valueText }}</span>
+                <span v-if="slot.row" class="stat-name">
+                  {{ slot.row.label }}
+                  <span class="stat-value-inline">{{ slot.row.valueText }}</span>
                 </span>
               </div>
               <div v-if="isArtificable" class="stat-bar-area">
@@ -129,7 +129,7 @@ function maxOut(): void {
                     v-for="level in slot.maximum"
                     :key="level"
                     :state="level <= slot.current ? 'active' : 'empty'"
-                    :label="`${slot.rows[0]?.label ?? t('armory.common.artificing')} ${level}`"
+                    :label="`${slot.row?.label ?? t('armory.common.artificing')} ${level}`"
                     @click="setArtificingLevel(slot.traitIndex, level)"
                   />
                 </div>
