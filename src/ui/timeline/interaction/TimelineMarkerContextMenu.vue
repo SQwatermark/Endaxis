@@ -121,7 +121,7 @@ onBeforeUnmount(() => {
         </EaButton>
       </template>
       <EaButton
-        v-if="cycleBoundary && !inheritanceBoundary"
+        v-if="isDev && cycleBoundary && !inheritanceBoundary"
         type="button"
         role="menuitem"
         class="menu-item"
@@ -131,7 +131,7 @@ onBeforeUnmount(() => {
         <span class="menu-icon" aria-hidden="true">⟲</span>
         <span>{{ t('inheritance.createHere') }}</span>
       </EaButton>
-      <div v-if="cycleBoundary && !inheritanceBoundary" class="divider"></div>
+      <div v-if="isDev && cycleBoundary && !inheritanceBoundary" class="divider"></div>
       <EaButton
         v-if="existingLabel && canCopy && !inheritanceBoundary"
         type="button"
