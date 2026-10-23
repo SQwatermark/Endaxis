@@ -66,6 +66,7 @@ function startDesktop(electron, argv = process.argv.slice(1), services = {}) {
   let editor = null;
   let server = null;
   let clickThrough = false;
+  let hudHidden = false;
   let clickThroughAvailable = false;
   let playbackShortcutsAvailable = true;
   let topmostTimer = null;
@@ -145,6 +146,7 @@ function startDesktop(electron, argv = process.argv.slice(1), services = {}) {
       .catch(error => console.error('[endaxis]', error));
     editor.on('closed', () => {
       editor = null;
+      if (hudHidden && !quitting) app.quit();
     });
   }
 
@@ -162,11 +164,18 @@ function startDesktop(electron, argv = process.argv.slice(1), services = {}) {
     if (!hud || hud.isDestroyed() || !size) return null;
     const bounds = hud.getBounds();
     const next = fitBounds(
-      { ...bounds, width: size.width, height: size.height },
+      {
+        ...bounds,
+        x: size.anchor === 'right' ? bounds.x + bounds.width - size.width : bounds.x,
+        width: size.width,
+        height: size.height,
+      },
       screen.getDisplayMatching(bounds).workArea,
     );
     if (!next) return null;
-    hud.setBounds(next, false);
+    if (['x', 'y', 'width', 'height'].some(key => bounds[key] !== next[key])) {
+      hud.setBounds(next, false);
+    }
     return hud.getBounds();
   }
 
@@ -256,18 +265,28 @@ function startDesktop(electron, argv = process.argv.slice(1), services = {}) {
       if (!window.isDestroyed()) window.setAlwaysOnTop(true, 'screen-saver');
     }, 2000);
     window.once('ready-to-show', () => window.showInactive());
-    window.on('close', () => {
+    window.on('close', event => {
       try {
         const { x, y } = window.getBounds();
         fs.mkdirSync(path.dirname(stateFile), { recursive: true });
         fs.writeFileSync(stateFile, JSON.stringify({ x, y }), 'utf8');
       } catch {
-        // 位置无法保存时仍允许正常退出。
+        // 位置无法保存时仍允许关闭窗口。
       }
+      if (quitting) return;
+      if (!editor || editor.isDestroyed()) {
+        app.quit();
+        return;
+      }
+      event.preventDefault();
+      countdownTrigger?.disarm();
+      cancelRegionPicker();
+      setClickThrough(false);
+      hudHidden = true;
+      window.hide();
     });
     window.on('closed', () => {
       hud = null;
-      if (!quitting) app.quit();
     });
     if (args.has('capture')) {
       window.webContents.once('did-finish-load', () => {
@@ -367,6 +386,7 @@ function startDesktop(electron, argv = process.argv.slice(1), services = {}) {
       handle('endaxis:set-click-through', setClickThrough);
       handle('endaxis:open-editor', openEditor);
       handle('endaxis:quit', () => app.quit());
+      handle('endaxis:close-overlay', () => hud?.close());
       handle('endaxis:resize', resize);
       handle('endaxis:countdown-info', () => countdown().info());
       handle('endaxis:countdown-select', selectCountdownRegion);
@@ -376,7 +396,10 @@ function startDesktop(electron, argv = process.argv.slice(1), services = {}) {
       channels.push('endaxis:show-overlay');
       ipcMain.handle('endaxis:show-overlay', event => {
         if (!editor || editor.isDestroyed() || event.sender !== editor.webContents) return null;
-        if (hud && !hud.isDestroyed()) hud.showInactive();
+        if (hud && !hud.isDestroyed()) {
+          hudHidden = false;
+          hud.showInactive();
+        }
       });
       createHud();
       screen.on('display-removed', fitCurrentDisplay);

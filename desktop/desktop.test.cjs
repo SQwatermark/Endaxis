@@ -53,8 +53,24 @@ function desktopFixture({ lock = true, unlockShortcut = true, unavailableShortcu
       this.focused = true;
     }
     show() {}
+    hide() {
+      this.hidden = true;
+    }
+    close() {
+      let prevented = false;
+      this.emit('close', {
+        preventDefault() {
+          prevented = true;
+        },
+      });
+      if (!prevented) {
+        this.destroyed = true;
+        this.emit('closed');
+      }
+    }
     showInactive() {
       this.shownInactive = true;
+      this.hidden = false;
     }
     setMenuBarVisibility() {}
     setAlwaysOnTop() {}
@@ -281,6 +297,17 @@ test('resizing remains on a secondary display, rejects malformed IPC, and clamps
       width: 1400,
       height: 500,
     });
+    // 左侧手柄改变宽度时保持右侧屏幕坐标不变。
+    hud.setBounds({ x: -1400, y: 100, width: 1000, height: 300 });
+    assert.deepEqual(
+      fixture.call('endaxis:resize', { width: 1200, height: 300, anchor: 'right' }),
+      {
+        x: -1600,
+        y: 100,
+        width: 1200,
+        height: 300,
+      },
+    );
     const before = { ...hud.getBounds() };
     for (const size of [
       { width: Infinity, height: 200 },
@@ -448,4 +475,30 @@ test('global playback shortcuts send enumerated commands only to the live HUD wi
   } finally {
     partial.app.quit();
   }
+});
+
+test('closing HUD keeps editor alive, editor can restore it, and closing the last visible window quits', async () => {
+  const fixture = desktopFixture();
+  await startDesktop(fixture.electron, ['--url=http://127.0.0.1:5173/overlay']);
+  try {
+    const [hud, editor] = fixture.windows;
+    fixture.call('endaxis:close-overlay');
+    assert.equal(hud.hidden, true);
+    assert.equal(hud.isDestroyed(), false);
+    assert.equal(fixture.app.quits, 0);
+    fixture.call('endaxis:show-overlay', undefined, editor.webContents);
+    assert.equal(hud.hidden, false);
+    hud.close();
+    editor.close();
+    assert.equal(fixture.app.quits, 1);
+  } finally {
+    fixture.app.quit();
+  }
+});
+
+test('closing HUD without an editor exits instead of leaving a background process', async () => {
+  const fixture = desktopFixture();
+  await startDesktop(fixture.electron, ['--url=http://127.0.0.1:5173/overlay', '--no-editor']);
+  fixture.windows[0].close();
+  assert.equal(fixture.app.quits, 1);
 });

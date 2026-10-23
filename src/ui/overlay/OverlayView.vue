@@ -34,6 +34,51 @@ const { t } = useOverlayI18n();
 const { preferences, patch, reset: resetPreferences } = useOverlayPreferences();
 
 const settingsOpen = ref(false);
+const settingsPanel = ref<HTMLElement | null>(null);
+const settingsPosition = ref<{ left: number; top: number } | null>(null);
+let settingsDrag: { pointerId: number; x: number; y: number; left: number; top: number } | null =
+  null;
+
+function keepSettingsVisible() {
+  const position = settingsPosition.value;
+  const panel = settingsPanel.value;
+  if (!position || !panel) return;
+  settingsPosition.value = {
+    left: Math.max(8, Math.min(position.left, window.innerWidth - panel.offsetWidth - 8)),
+    top: Math.max(8, Math.min(position.top, window.innerHeight - panel.offsetHeight - 8)),
+  };
+}
+
+function beginSettingsDrag(event: PointerEvent) {
+  if (event.button !== 0 || (event.target as HTMLElement).closest('button')) return;
+  const bounds = settingsPanel.value?.getBoundingClientRect();
+  if (!bounds) return;
+  settingsDrag = {
+    pointerId: event.pointerId,
+    x: event.clientX,
+    y: event.clientY,
+    left: bounds.left,
+    top: bounds.top,
+  };
+  (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
+  event.preventDefault();
+}
+
+function moveSettingsDrag(event: PointerEvent) {
+  if (settingsDrag?.pointerId !== event.pointerId) return;
+  settingsPosition.value = {
+    left: settingsDrag.left + event.clientX - settingsDrag.x,
+    top: settingsDrag.top + event.clientY - settingsDrag.y,
+  };
+  keepSettingsVisible();
+}
+
+function finishSettingsDrag(event: PointerEvent) {
+  if (settingsDrag?.pointerId !== event.pointerId) return;
+  settingsDrag = null;
+  (event.currentTarget as HTMLElement).releasePointerCapture?.(event.pointerId);
+}
+
 const controlsVisible = ref(true);
 let hideTimer: number | null = null;
 const feedback = ref('');
@@ -48,6 +93,20 @@ const scenarioName = ref('');
 const plan = ref<OverlayPlan>(emptyOverlayPlan());
 const hudAnchor = ref<HTMLElement | null>(null);
 let hudObserver: ResizeObserver | null = null;
+const controlsPosition = ref<{ right: number; top: number } | null>(null);
+
+function syncControlsPosition() {
+  const bounds = hudAnchor.value?.querySelector('.ov-hud')?.getBoundingClientRect();
+  controlsPosition.value = bounds
+    ? { right: bounds.right, top: Math.max(8, bounds.top - 44) }
+    : null;
+}
+
+function onWindowResize() {
+  keepSettingsVisible();
+  syncControlsPosition();
+}
+
 let snapshotChannel: BroadcastChannel | null = null;
 const pendingExport = ref(false);
 
@@ -262,14 +321,21 @@ function onHudPointerUp(event: PointerEvent) {
 }
 
 const hudStyle = computed(() => ({
-  left: isDesktop ? '50%' : `calc(50% + ${preferences.value.offsetX + (drag.value?.dx ?? 0)}px)`,
+  left: isDesktop ? '16px' : `calc(50% + ${preferences.value.offsetX + (drag.value?.dx ?? 0)}px)`,
   top: isDesktop ? '40px' : `${preferences.value.offsetY + (drag.value?.dy ?? 0)}px`,
-  transform: 'translateX(-50%)',
+  transform: isDesktop ? 'none' : 'translateX(-50%)',
 }));
+
+watch(hudStyle, async () => {
+  await nextTick();
+  if (!disposed) syncControlsPosition();
+});
 
 /* ── 设置 ───────────────────────────────────────────────────────────── */
 
 function patchNumber(key: keyof OverlayPreferences, value: unknown) {
+  if (value === '' || !Number.isFinite(Number(value))) return;
+  resizeAnchor = 'left';
   patch({ [key]: Number(value) } as Partial<OverlayPreferences>);
 }
 
@@ -279,13 +345,103 @@ function resetPosition() {
 
 /* ── 桌面悬浮窗 ─────────────────────────────────────────────────────── */
 
+type ResizeSide = 'left' | 'right';
+const sizeDrag = ref<{
+  pointerId: number;
+  kind: 'width' | 'scale';
+  side: ResizeSide;
+  startX: number;
+  startY: number;
+  width: number;
+  height: number;
+  scale: number;
+  offsetX: number;
+} | null>(null);
+let resizeFrame: number | null = null;
+let requestedSize = '';
+let resizeAnchor: ResizeSide = 'left';
+
+function beginSizeDrag(event: PointerEvent, kind: 'width' | 'scale', side: ResizeSide) {
+  if (event.button !== 0 || clickThrough.value || sizeDrag.value) return;
+  const bounds = hudAnchor.value?.querySelector('.ov-hud')?.getBoundingClientRect();
+  if (!bounds) return;
+  sizeDrag.value = {
+    pointerId: event.pointerId,
+    kind,
+    side,
+    startX: event.screenX,
+    startY: event.screenY,
+    width: bounds.width,
+    height: bounds.height,
+    scale: preferences.value.scale,
+    offsetX: preferences.value.offsetX,
+  };
+  resizeAnchor = side === 'left' ? 'right' : 'left';
+  (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
+}
+
+function moveSizeDrag(event: PointerEvent) {
+  const state = sizeDrag.value;
+  if (!state || event.pointerId !== state.pointerId) return;
+  const dx = (event.screenX - state.startX) * (state.side === 'right' ? 1 : -1);
+  const dy = event.screenY - state.startY;
+  const next: Partial<OverlayPreferences> =
+    state.kind === 'width'
+      ? { width: Math.round((state.width + dx) / state.scale) }
+      : {
+          scale:
+            Math.round(
+              state.scale *
+                (1 +
+                  (dx * state.width + dy * state.height) / (state.width ** 2 + state.height ** 2)) *
+                100,
+            ) / 100,
+        };
+  patch(next);
+  // 浏览器保持另一侧边缘不动；桌面端由主进程移动原生窗口的边缘。
+  if (!isDesktop) {
+    const actualWidth = preferences.value.width * preferences.value.scale;
+    patch({
+      offsetX:
+        state.offsetX + ((actualWidth - state.width) / 2) * (state.side === 'right' ? 1 : -1),
+    });
+  }
+}
+
+function finishSizeDrag(event: PointerEvent) {
+  if (sizeDrag.value?.pointerId !== event.pointerId) return;
+  sizeDrag.value = null;
+  (event.currentTarget as HTMLElement).releasePointerCapture?.(event.pointerId);
+}
+
+function sizeDragKey(event: KeyboardEvent, kind: 'width' | 'scale') {
+  if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+  event.preventDefault();
+  const direction = event.key === 'ArrowRight' ? 1 : -1;
+  resizeAnchor = 'left';
+  patch(
+    kind === 'width'
+      ? { width: preferences.value.width + direction * 20 }
+      : { scale: Math.round((preferences.value.scale + direction * 0.05) * 100) / 100 },
+  );
+}
+
 function syncDesktopWindow() {
-  if (!isDesktop || !desktopApi?.resize) return;
-  const width = Math.round(preferences.value.width * preferences.value.scale) + 32;
-  const bottom = 40 + (hudAnchor.value?.getBoundingClientRect().height ?? 180) + 16;
-  const height = Math.ceil(Math.max(bottom, settingsOpen.value ? 420 : 0));
-  void desktopApi.resize({ width, height }).catch(error => {
-    errorCode.value = error instanceof Error ? error.message : String(error);
+  if (!isDesktop || !desktopApi?.resize || disposed) return;
+  if (resizeFrame !== null) return;
+  resizeFrame = window.requestAnimationFrame(() => {
+    resizeFrame = null;
+    if (disposed) return;
+    const width = Math.round(preferences.value.width * preferences.value.scale) + 32;
+    const bottom = 40 + (hudAnchor.value?.getBoundingClientRect().height ?? 180) + 16;
+    const height = Math.ceil(Math.max(bottom, settingsOpen.value ? 420 : 0));
+    const key = `${width}:${height}`;
+    if (requestedSize === key) return;
+    requestedSize = key;
+    void desktopApi.resize({ width, height, anchor: resizeAnchor }).catch(error => {
+      requestedSize = '';
+      errorCode.value = error instanceof Error ? error.message : String(error);
+    });
   });
 }
 
@@ -294,8 +450,8 @@ async function toggleClickThrough() {
   clickThrough.value = await desktopApi.toggleClickThrough();
 }
 
-function quitDesktop() {
-  desktopApi?.quit?.();
+function closeDesktopOverlay() {
+  desktopApi?.closeOverlay?.();
 }
 
 const desktopHintText = computed(() =>
@@ -308,13 +464,23 @@ const desktopHintText = computed(() =>
 
 watch([() => preferences.value.width, () => preferences.value.scale, settingsOpen], async () => {
   await nextTick();
-  if (!disposed) syncDesktopWindow();
+  if (!disposed) {
+    syncDesktopWindow();
+    keepSettingsVisible();
+  }
 });
 watch(hudAnchor, element => {
   hudObserver?.disconnect();
-  if (!element || !isDesktop) return;
-  hudObserver = new ResizeObserver(syncDesktopWindow);
+  if (!element) {
+    syncControlsPosition();
+    return;
+  }
+  hudObserver = new ResizeObserver(() => {
+    syncControlsPosition();
+    syncDesktopWindow();
+  });
   hudObserver.observe(element);
+  syncControlsPosition();
   syncDesktopWindow();
 });
 
@@ -399,6 +565,7 @@ onMounted(() => {
   // v3 的启动遮罩由首个编辑器移除；叠加页必须自己清掉，否则一直白屏。
   document.getElementById('boot-loader')?.remove();
   window.addEventListener('keydown', onKeyDown);
+  window.addEventListener('resize', onWindowResize);
   window.addEventListener('pointermove', revealControls, { passive: true });
   revealControls();
   document.title = `${t('overlay.title')} · Endaxis`;
@@ -453,6 +620,8 @@ onBeforeUnmount(() => {
   disposed = true;
   loadGeneration++;
   window.removeEventListener('keydown', onKeyDown);
+  window.removeEventListener('resize', onWindowResize);
+  if (resizeFrame !== null) window.cancelAnimationFrame(resizeFrame);
   window.removeEventListener('pointermove', revealControls);
   unsubscribeClickThrough?.();
   unsubscribePlayback?.();
@@ -481,7 +650,7 @@ onBeforeUnmount(() => {
         v-if="!loading && !empty && plan.hasCasts"
         ref="hudAnchor"
         class="overlay-hud-anchor"
-        :class="{ 'is-desktop': isDesktop }"
+        :class="{ 'is-desktop': isDesktop, 'is-resizing': sizeDrag !== null }"
         :style="hudStyle"
         @pointerdown="onHudPointerDown"
         @pointermove="onHudPointerMove"
@@ -491,17 +660,49 @@ onBeforeUnmount(() => {
         <div class="overlay-source-label">
           {{ demoMode ? t('overlay.demoBadge') : scenarioName }}
         </div>
-        <GameOverlayHud
-          :plan="plan"
-          :preferences="effectivePreferences"
-          :now="now"
-          :is-playing="isPlaying"
-          :finished="isFinished"
-          :waiting-remaining="waitingRemaining"
-          :has-started="hasStarted"
-          :loading="loading"
-          @toggle-play="togglePlayback"
-        />
+        <div class="overlay-hud-surface">
+          <GameOverlayHud
+            :plan="plan"
+            :preferences="effectivePreferences"
+            :now="now"
+            :is-playing="isPlaying"
+            :finished="isFinished"
+            :waiting-remaining="waitingRemaining"
+            :has-started="hasStarted"
+            :loading="loading"
+            @toggle-play="togglePlayback"
+          />
+          <template v-if="!clickThrough">
+            <template v-for="side in ['left', 'right'] as const" :key="side">
+              <button
+                type="button"
+                class="overlay-resize-handle overlay-resize-edge"
+                :class="`is-${side}`"
+                :title="t('overlay.controls.resizeWidth')"
+                :aria-label="`${t('overlay.controls.resizeWidth')} (${side})`"
+                @pointerdown.stop.prevent="beginSizeDrag($event, 'width', side)"
+                @pointermove.stop="moveSizeDrag"
+                @pointerup.stop="finishSizeDrag"
+                @pointercancel.stop="finishSizeDrag"
+                @lostpointercapture="finishSizeDrag"
+                @keydown.stop="sizeDragKey($event, 'width')"
+              ></button>
+              <button
+                type="button"
+                class="overlay-resize-handle overlay-resize-corner"
+                :class="`is-${side}`"
+                :title="t('overlay.controls.resizeScale')"
+                :aria-label="`${t('overlay.controls.resizeScale')} (${side})`"
+                @pointerdown.stop.prevent="beginSizeDrag($event, 'scale', side)"
+                @pointermove.stop="moveSizeDrag"
+                @pointerup.stop="finishSizeDrag"
+                @pointercancel.stop="finishSizeDrag"
+                @lostpointercapture="finishSizeDrag"
+                @keydown.stop="sizeDragKey($event, 'scale')"
+              ></button>
+            </template>
+          </template>
+        </div>
         <div v-if="!isPlaying && now === plan.startTime" class="overlay-ready-hint">
           {{ isDesktop ? desktopHintText : t('overlay.readyHint') }}
         </div>
@@ -543,7 +744,15 @@ onBeforeUnmount(() => {
       </div>
     </div>
 
-    <div class="overlay-controls" :class="{ 'is-visible': controlsVisible || settingsOpen }">
+    <div
+      class="overlay-controls"
+      :class="{ 'is-visible': controlsVisible || settingsOpen }"
+      :style="
+        controlsPosition
+          ? { right: `calc(100vw - ${controlsPosition.right}px)`, top: `${controlsPosition.top}px` }
+          : undefined
+      "
+    >
       <button
         type="button"
         class="overlay-control"
@@ -649,8 +858,8 @@ onBeforeUnmount(() => {
         v-if="isDesktop"
         type="button"
         class="overlay-control"
-        :title="t('overlay.controls.quit')"
-        @click="quitDesktop"
+        :title="t('overlay.controls.closeOverlay')"
+        @click="closeDesktopOverlay"
       >
         <svg
           viewBox="0 0 24 24"
@@ -668,8 +877,24 @@ onBeforeUnmount(() => {
       </button>
     </div>
 
-    <div v-if="settingsOpen" class="overlay-settings">
-      <header class="overlay-settings__head">
+    <div
+      v-if="settingsOpen"
+      ref="settingsPanel"
+      class="overlay-settings"
+      :style="
+        settingsPosition
+          ? { left: `${settingsPosition.left}px`, top: `${settingsPosition.top}px`, right: 'auto' }
+          : undefined
+      "
+    >
+      <header
+        class="overlay-settings__head"
+        @pointerdown="beginSettingsDrag"
+        @pointermove="moveSettingsDrag"
+        @pointerup="finishSettingsDrag"
+        @pointercancel="finishSettingsDrag"
+        @lostpointercapture="finishSettingsDrag"
+      >
         <h2>{{ t('overlay.settings.title') }}</h2>
         <button
           type="button"
@@ -712,32 +937,6 @@ onBeforeUnmount(() => {
           @input="patchNumber('secondsAhead', ($event.target as HTMLInputElement).value)"
         />
         <span class="overlay-field__value">{{ preferences.secondsAhead }}s</span>
-      </label>
-
-      <label class="overlay-field">
-        <span>{{ t('overlay.settings.scale') }}</span>
-        <input
-          type="range"
-          :min="OVERLAY_LIMITS.scale.min"
-          :max="OVERLAY_LIMITS.scale.max"
-          step="0.05"
-          :value="preferences.scale"
-          @input="patchNumber('scale', ($event.target as HTMLInputElement).value)"
-        />
-        <span class="overlay-field__value">{{ preferences.scale.toFixed(2) }}×</span>
-      </label>
-
-      <label class="overlay-field">
-        <span>{{ t('overlay.settings.width') }}</span>
-        <input
-          type="range"
-          :min="OVERLAY_LIMITS.width.min"
-          :max="OVERLAY_LIMITS.width.max"
-          step="20"
-          :value="preferences.width"
-          @input="patchNumber('width', ($event.target as HTMLInputElement).value)"
-        />
-        <span class="overlay-field__value">{{ preferences.width }}</span>
       </label>
 
       <label class="overlay-field">
@@ -1081,6 +1280,7 @@ onBeforeUnmount(() => {
   flex-direction: column;
   gap: 7px;
   width: 276px;
+  max-width: calc(100vw - 16px);
   max-height: calc(100vh - 16px);
   overflow-y: auto;
   padding: 11px 12px;
@@ -1095,9 +1295,16 @@ onBeforeUnmount(() => {
 }
 
 .overlay-settings__head {
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+.overlay-settings__head:active {
+  cursor: grabbing;
 }
 
 .overlay-settings__head h2 {
@@ -1216,5 +1423,82 @@ onBeforeUnmount(() => {
   font-size: 11px;
   line-height: 1.7;
   color: rgba(255, 255, 255, 0.45);
+}
+</style>
+
+<style scoped>
+.overlay-hud-surface {
+  position: relative;
+}
+.overlay-resize-handle {
+  -webkit-app-region: no-drag;
+  position: absolute;
+  z-index: 2;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #ffd166;
+  opacity: 0;
+  touch-action: none;
+}
+.overlay-resize-handle:hover,
+.overlay-resize-handle:focus-visible,
+.is-resizing .overlay-resize-handle {
+  opacity: 1;
+}
+.overlay-resize-handle:focus-visible {
+  outline: 1px solid currentColor;
+}
+.overlay-resize-edge {
+  top: 12px;
+  bottom: 16px;
+  width: 10px;
+  cursor: ew-resize;
+}
+.overlay-resize-edge.is-left {
+  left: -4px;
+}
+.overlay-resize-edge.is-right {
+  right: -4px;
+}
+.overlay-resize-edge::after {
+  content: '';
+  position: absolute;
+  top: 25%;
+  bottom: 25%;
+  left: 4px;
+  width: 2px;
+  background: currentColor;
+  border-radius: 1px;
+}
+.overlay-resize-corner {
+  bottom: -5px;
+  width: 18px;
+  height: 18px;
+}
+.overlay-resize-corner.is-right {
+  right: -5px;
+  cursor: nwse-resize;
+}
+.overlay-resize-corner.is-left {
+  left: -5px;
+  cursor: nesw-resize;
+}
+.overlay-resize-corner::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  width: 8px;
+  height: 8px;
+  border-bottom: 2px solid currentColor;
+}
+.overlay-resize-corner.is-right::after {
+  right: 4px;
+  border-right: 2px solid currentColor;
+}
+.overlay-resize-corner.is-left::after {
+  left: 4px;
+  border-left: 2px solid currentColor;
 }
 </style>

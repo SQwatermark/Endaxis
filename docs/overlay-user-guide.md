@@ -10,6 +10,8 @@ Windows 需要 Node.js 22.12 或更新版本。若依赖尚未安装，在项目
 
 桌面版与浏览器使用不同的本地存档。第一次使用桌面版时，先在原浏览器导出项目 JSON，再在桌面编辑器导入。选好角色与方案，等待模拟完成并检查输入告警，然后点击「游戏内提示」导出快照。修改方案后再次导出；正在播放的 HUD 保留当前快照，暂停后载入新快照。
 
+关闭提示条只会隐藏悬浮窗，编辑器仍可使用；点击编辑器的「游戏内提示」可重新显示。关闭最后一个可见窗口，或按 `Ctrl+Alt+Q`，会退出桌面版。
+
 ### 开战与计时
 
 1. 在设置中按怪物实际出现的延迟调整「开始前等待」，默认 2 秒，可设为 0–10 秒；设为 0 会关闭额外等待。
@@ -40,7 +42,7 @@ Windows 需要 Node.js 22.12 或更新版本。若依赖尚未安装，在项目
 
 ### 显示与鼠标
 
-在设置中调整显示范围、宽度、缩放、不透明度、技能图标或头像、普攻和资源条。HUD 窗口可拖动；设置面板和按钮可直接点击。开启鼠标穿透后，HUD 不会挡住游戏点击，按 `Ctrl+Alt+O` 解除后再操作控件。
+拖动提示条左右边缘调整宽度，拖动下方两角调整整体缩放，拖动主体移动提示条。调整手柄在鼠标靠近时显示；工具栏与提示条右侧对齐。设置中可调整显示范围、不透明度、技能图标或头像、普攻和资源条；拖动设置面板标题栏可单独移动面板。开启鼠标穿透后，调整手柄隐藏，HUD 不会挡住游戏点击，按 `Ctrl+Alt+O` 解除后再操作控件。
 
 桌面悬浮窗适用于无边框或窗口模式，不能保证覆盖独占全屏。请在实际显示器和游戏窗口中确认置顶、缩放及快捷键行为。
 
@@ -80,6 +82,8 @@ Desktop and browser saves are separate. Export your project as JSON from the bro
 3. The left timer shows the delay countdown before the axis starts. Pausing preserves the remaining delay. Reset returns to the start and pauses; the next play waits the full delay again.
 4. Negative-time preparation actions in the axis remain intact. Time adjustment shortcuts also work during the delay.
 
+Closing the overlay hides it while the editor remains open. Select **In-game overlay** in the editor to show it again. Closing the last visible window, or pressing `Ctrl+Alt+Q`, quits the desktop app.
+
 ### Shortcut reference
 
 | Environment     | Shortcut         | 中文操作                               | English                                       |
@@ -103,7 +107,7 @@ Global desktop shortcuts work while the game stays in the foreground. For timing
 
 ### Display and mouse
 
-Settings include display range, width, scale, opacity, skill icons or portraits, basic attacks, and resource bars. Drag the HUD to move it; settings and controls remain clickable. Turn click-through on to avoid blocking game input, then press `Ctrl+Alt+O` again before using HUD controls.
+Drag either side of the HUD to change its width, drag a bottom corner to scale it, and drag its body to move it. Resize handles appear on hover; the toolbar stays aligned with the right edge. Settings cover display range, opacity, icon mode, basic attacks, and resource bars. Drag the settings title bar to move the panel independently. Click-through hides the resize handles and passes mouse input to the game; press `Ctrl+Alt+O` again before using HUD controls.
 
 The desktop overlay is intended for borderless-windowed or windowed play. Exclusive fullscreen, always-on-top behavior, display scaling, and shortcut conflicts must be checked on your setup.
 

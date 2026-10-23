@@ -39,9 +39,10 @@ export interface OverlayDesktopApi {
     alwaysOnTop: boolean;
   }>;
   toggleClickThrough(): Promise<boolean>;
-  resize(size: { width: number; height: number }): Promise<unknown>;
+  resize(size: { width: number; height: number; anchor?: 'left' | 'right' }): Promise<unknown>;
   openEditor(): Promise<void>;
   quit(): Promise<void>;
+  closeOverlay(): Promise<void>;
   onClickThrough(callback: (value: boolean) => void): () => void;
   onPlaybackCommand(
     callback: (command: 'toggle' | 'restart' | 'backward' | 'forward') => void,

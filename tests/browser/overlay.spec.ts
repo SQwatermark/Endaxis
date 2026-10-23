@@ -64,7 +64,7 @@ test('空快照有导出指引，示例可播放并可返回真实导出', async
   await expect(page.locator('.overlay-message--empty')).toBeVisible();
 });
 
-test('桌面最大缩放不裁切，播放按钮、设置面板及其滑块可交互', async ({ page }) => {
+test('桌面最大缩放不裁切，设置面板只保留其他显示选项', async ({ page }) => {
   await page.setViewportSize({ width: 1000, height: 400 });
   await page.addInitScript(() => {
     localStorage.setItem(
@@ -83,10 +83,15 @@ test('桌面最大缩放不裁切，播放按钮、设置面板及其滑块可�
       }),
       resize: async size => {
         localStorage.setItem('overlay-test-size', JSON.stringify(size));
+        localStorage.setItem(
+          'overlay-test-resizes',
+          String(Number(localStorage.getItem('overlay-test-resizes') ?? 0) + 1),
+        );
       },
-      toggleClickThrough: async () => false,
+      toggleClickThrough: async () => true,
       openEditor: async () => {},
       quit: async () => {},
+      closeOverlay: async () => {},
       onClickThrough: () => () => {},
       onPlaybackCommand: () => () => {},
     };
@@ -126,7 +131,8 @@ test('桌面最大缩放不裁切，播放按钮、设置面板及其滑块可�
   await portrait.click();
   await expect(portrait).toHaveClass('is-active');
   const sliders = settings.locator('input[type="range"]');
-  const expectedValues = ['12', '1.25', '1320', '0.6', '5'];
+  const expectedValues = ['12', '0.6', '5'];
+  await expect(settings.getByRole('spinbutton')).toHaveCount(0);
   for (const [index, expectedValue] of expectedValues.entries()) {
     const slider = sliders.nth(index);
     const bounds = (await slider.boundingBox())!;
@@ -147,11 +153,14 @@ test('桌面最大缩放不裁切，播放按钮、设置面板及其滑块可�
   expect(preferences).toMatchObject({
     iconMode: 'portrait',
     secondsAhead: 12,
-    scale: 1.25,
-    width: 1320,
+    scale: 1.8,
+    width: 1920,
     hudOpacity: 0.6,
     startDelaySeconds: 5,
   });
+  await settings.getByRole('button', { name: '关闭', exact: true }).click();
+  await page.getByTitle('开启鼠标穿透（不挡游戏点击）', { exact: true }).click();
+  await expect(page.locator('.overlay-resize-handle')).toHaveCount(0);
 });
 
 test('默认等待显示在左侧，暂停保留剩余时间，归零后推进原轴，重播保持暂停', async ({ page }) => {
@@ -209,6 +218,7 @@ test('自动监测需明确开启，确认后跳过额外等待，回起点和�
       toggleClickThrough: async () => false,
       openEditor: async () => {},
       quit: async () => {},
+      closeOverlay: async () => {},
       onClickThrough: () => () => {},
       onPlaybackCommand: () => () => {},
       countdownTrigger: {
@@ -270,4 +280,89 @@ test('自动监测需明确开启，确认后跳过额外等待，回起点和�
   await trigger();
   await expect(page.locator('.ov-playback')).toHaveText('等待中');
   await expect(page.locator('.ov-cap__value')).toHaveText('2.0');
+});
+
+test('拖两侧调宽度、拖角缩放，固定另一侧且不会变成窗口移动', async ({ page }) => {
+  await page.setViewportSize({ width: 1600, height: 1000 });
+  await page.addInitScript(() =>
+    localStorage.setItem('endaxis_overlay_prefs_v1', JSON.stringify({ width: 900, scale: 1 })),
+  );
+  await page.goto('/overlay?demo=1');
+  const hud = page.locator('.ov-hud');
+  await expect(hud).toBeVisible();
+  const readPreferences = () =>
+    page.evaluate(() => JSON.parse(localStorage.getItem('endaxis_overlay_prefs_v1')!));
+  const dragHandle = async (selector: string, dx: number, dy = 0) => {
+    const handle = page.locator(selector);
+    const box = (await handle.boundingBox())!;
+    const x = box.x + box.width / 2,
+      y = box.y + box.height / 2;
+    await page.mouse.move(x, y);
+    await expect(handle).toHaveCSS('opacity', '1');
+    await page.mouse.down();
+    await page.mouse.move(x + dx, y + dy, { steps: 8 });
+    await page.mouse.up();
+  };
+  const expectControlsAligned = async () => {
+    await expect
+      .poll(async () => {
+        const hudBox = (await hud.boundingBox())!;
+        const toolbar = (await page.locator('.overlay-controls').boundingBox())!;
+        return Math.abs(toolbar.x + toolbar.width - hudBox.x - hudBox.width);
+      })
+      .toBeLessThan(1);
+  };
+  await expectControlsAligned();
+  const original = (await hud.boundingBox())!;
+  await dragHandle('.overlay-resize-edge.is-right', 120);
+  await expect.poll(readPreferences).toMatchObject({ width: 1020, scale: 1 });
+  const wider = (await hud.boundingBox())!;
+  expect(wider.x).toBeCloseTo(original.x, 0);
+  expect(wider.width).toBeCloseTo(original.width + 120, 0);
+  await dragHandle('.overlay-resize-edge.is-left', -80);
+  await expect.poll(readPreferences).toMatchObject({ width: 1100, scale: 1 });
+  const leftWider = (await hud.boundingBox())!;
+  expect(leftWider.x + leftWider.width).toBeCloseTo(wider.x + wider.width, 0);
+  await dragHandle('.overlay-resize-corner.is-right', 120, 25);
+  await expect.poll(async () => (await readPreferences()).scale).toBeGreaterThan(1);
+  expect((await readPreferences()).width).toBe(1100);
+  const scaled = (await hud.boundingBox())!;
+  expect(scaled.height).toBeGreaterThan(leftWider.height);
+  expect(scaled.x).toBeCloseTo(leftWider.x, 0);
+  await expectControlsAligned();
+  const released = await readPreferences();
+  await page.mouse.move(50, 50);
+  expect(await readPreferences()).toEqual(released);
+  await dragHandle('.overlay-resize-edge.is-right', -1000);
+  await expect.poll(async () => (await readPreferences()).width).toBe(720);
+});
+
+test('设置面板标题栏可独立拖动，窗口缩小时保持可见且关闭重开保留位置', async ({ page }) => {
+  await page.setViewportSize({ width: 1600, height: 1000 });
+  await page.goto('/overlay?demo=1');
+  await expect(page.locator('.ov-hud')).toBeVisible();
+  await page.getByTitle('设置', { exact: true }).click();
+  const panel = page.locator('.overlay-settings');
+  const header = page.locator('.overlay-settings__head');
+  const initial = (await panel.boundingBox())!;
+  const hudBefore = (await page.locator('.ov-hud').boundingBox())!;
+  const bounds = (await header.boundingBox())!;
+  await page.mouse.move(bounds.x + 40, bounds.y + bounds.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(bounds.x - 220, bounds.y + bounds.height / 2 + 120, { steps: 8 });
+  await page.mouse.up();
+  const moved = (await panel.boundingBox())!;
+  expect(moved.x).toBeCloseTo(initial.x - 260, 0);
+  expect(moved.y).toBeCloseTo(initial.y + 120, 0);
+  expect(await page.locator('.ov-hud').boundingBox()).toEqual(hudBefore);
+  await panel.getByRole('button', { name: '关闭', exact: true }).click();
+  await page.getByTitle('设置', { exact: true }).click();
+  expect(await panel.boundingBox()).toEqual(moved);
+  await page.setViewportSize({ width: 700, height: 350 });
+  await expect
+    .poll(async () => {
+      const box = (await panel.boundingBox())!;
+      return box.x >= 8 && box.y >= 8 && box.x + box.width <= 692 && box.y + box.height <= 342;
+    })
+    .toBe(true);
 });

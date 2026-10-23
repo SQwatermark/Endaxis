@@ -29,6 +29,7 @@ contextBridge.exposeInMainWorld('endaxisDesktop', {
   resize: size => ipcRenderer.invoke('endaxis:resize', size),
   openEditor: () => ipcRenderer.invoke('endaxis:open-editor'),
   quit: () => ipcRenderer.invoke('endaxis:quit'),
+  closeOverlay: () => ipcRenderer.invoke('endaxis:close-overlay'),
   onPlaybackCommand: callback => {
     const listener = (_event, command) => {
       if (['toggle', 'restart', 'backward', 'forward'].includes(command)) callback(command);
