@@ -39,6 +39,14 @@ export class CombatVitalsConditionExecutor implements CombatOperationExecutor {
     );
     if (condition.kind === 'healthCompare') {
       const threshold = resolveActionValueOperand(condition.value, context.blackboard);
+      // 普通敌人归零后仍走存活分支；缺失目标或生命账本保持原有比较语义。
+      if (
+        target?.kind === 'enemy' &&
+        vitals !== undefined &&
+        condition.operator === 'lessOrEqual' &&
+        threshold === 0
+      )
+        return false;
       // 木桩既有存活门禁简化保持不变；空目标不放行，其他比较照常读取真实账本。
       if (vitals !== undefined && condition.operator === 'greater' && threshold === 0) return true;
       const health = vitals?.health ?? 0;
