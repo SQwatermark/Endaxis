@@ -1,3 +1,4 @@
+import { compileScenarioBuffInterventions } from './compileBuffInterventions';
 /**
  * 将场景的时间轴、初始资源和应用层提供的运行环境组合成运行时装配参数。
  *
@@ -515,6 +516,7 @@ export function compileScenarioRuntimeAssembly(
   );
   // 准备区只是可编辑范围，不应让空白负时间凭空推进资源恢复和 Buff 计时。
   // 只有确实放置了负帧技能时，战斗运行时才从最早的输入帧启动。
+  const interventions = compileScenarioBuffInterventions(scenario, options.index, operators);
   const initialFrame = options.liveInputInitialFrame ?? resolveScenarioInitialFrame(scenario);
   const controlTimeline = resolveControlTimeline(
     scenario.tracks,
@@ -557,7 +559,8 @@ export function compileScenarioRuntimeAssembly(
     ...(options.liveInputInitialFrame === undefined ? {} : { deferInitialInput: true }),
     resources,
     enemy: compileScenarioEnemy(scenario.enemy),
-    operators,
+    operators: interventions.operators,
+    ...(interventions.program === undefined ? {} : { buffInterventions: interventions.program }),
     consumables: options.index.getConsumables?.() ?? [],
     consumableUses:
       options.liveInputInitialFrame === undefined

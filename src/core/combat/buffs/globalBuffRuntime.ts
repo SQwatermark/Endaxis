@@ -31,6 +31,7 @@ import { createGlobalBuffState, type GlobalBuffState } from '../state/instanceSt
 import { COMBAT_FRAME_INTERVAL } from '../time/combatClock';
 import type { BuffApplicationHandle, BuffOperationTarget } from './buffOperationExecutor';
 import { buffReferenceKey } from './buffReference';
+import type { BuffApplicationAdmission } from './combatBuffs';
 
 type CreateStep = ResolvedCombatStepForKind<'createGlobalBuff'>;
 
@@ -51,6 +52,8 @@ interface GlobalBuffInstance {
  * 投影到队员 AbilitySystem；任何一个子节点消费父层时都清理同一父实例的全部镜像。
  */
 export class GlobalBuffRuntime {
+  /** 在父层共享效果、替换旧层及创建任何子镜像之前预检整次请求。 */
+  admission?: BuffApplicationAdmission;
   readonly runtimeState: GlobalBuffState;
   readonly #bindings = new WeakMap<GlobalBuffInstanceState, GlobalBuffInstance>();
 
@@ -134,11 +137,36 @@ export class GlobalBuffRuntime {
     readonly sourceActionOwnerId?: string;
     readonly sourceActionId?: string;
     readonly blackboardValues: Readonly<Record<string, number>>;
-  }): GlobalBuffInstance {
+  }): GlobalBuffInstance | null {
     const { id, definition, sourceId, sourceActionId, sourceActionOwnerId, blackboardValues } =
       input;
     if (definition.children.length === 0) {
       throw new Error(`global buff '${id}' requires at least one child Buff`);
+    }
+    const targets = this.resolvePartyTargets();
+    if (this.admission !== undefined) {
+      for (const target of targets) {
+        for (const child of definition.children) {
+          const childDefinition = this.resolveBuffDefinition(
+            sourceActionOwnerId ?? sourceId,
+            child.buffId,
+          );
+          if (childDefinition === undefined)
+            throw new Error(`global buff '${id}' child definition '${child.buffId}' is missing`);
+          if (
+            !this.admission({
+              buffId: child.buffId,
+              targetId: target.ownerId,
+              sourceId,
+              definition: childDefinition,
+              definitionOwnerId: sourceActionOwnerId ?? sourceId,
+              sourceActionId,
+              globalBuffId: id,
+            })
+          )
+            return null;
+        }
+      }
     }
     const group = this.runtimeState.groups.get(id) ?? [];
     const active = group.filter(instance => !instance.finished);
@@ -199,7 +227,7 @@ export class GlobalBuffRuntime {
     this.runtimeState.groups.set(id, group);
     this.onCreated?.(state, input.producedBy);
     try {
-      for (const target of this.resolvePartyTargets()) {
+      for (const target of targets) {
         if (target.applyScoped === undefined) {
           throw new Error(`global buff child target '${target.ownerId}' is not scoped`);
         }
@@ -412,33 +440,32 @@ export class GlobalBuffOperationExecutor implements CombatOperationExecutor {
           : resolveGlobalBuffSource(step.parameters.source, this.dependencies.sourceId, context);
     const created: GlobalBuffInstance[] = [];
     for (let index = 0; index < count; index += 1) {
-      created.push(
-        this.dependencies.runtime.add({
-          producedBy: operationProducer(context, {
-            ownerId: this.dependencies.sourceId,
-            actionId: this.dependencies.sourceActionId,
-          }),
-          id: step.parameters.globalBuffId,
-          definition: step.parameters.definition,
-          definitionProgramId,
-          sourceId,
-          sourceActionOwnerId: this.dependencies.sourceId,
-          sourceActionId: this.dependencies.sourceActionId,
-          blackboardValues: Object.fromEntries(
-            Object.entries(step.parameters.blackboardAssignments ?? {}).map(([key, value]) => [
-              key,
-              resolveActionValueOperand(value, context.blackboard),
-            ]),
-          ),
+      const instance = this.dependencies.runtime.add({
+        producedBy: operationProducer(context, {
+          ownerId: this.dependencies.sourceId,
+          actionId: this.dependencies.sourceActionId,
         }),
-      );
+        id: step.parameters.globalBuffId,
+        definition: step.parameters.definition,
+        definitionProgramId,
+        sourceId,
+        sourceActionOwnerId: this.dependencies.sourceId,
+        sourceActionId: this.dependencies.sourceActionId,
+        blackboardValues: Object.fromEntries(
+          Object.entries(step.parameters.blackboardAssignments ?? {}).map(([key, value]) => [
+            key,
+            resolveActionValueOperand(value, context.blackboard),
+          ]),
+        ),
+      });
+      if (instance !== null) created.push(instance);
     }
-    if (step.parameters.finishByAction)
+    if (step.parameters.finishByAction && created.length > 0)
       this.runtimeState.active.set(
         definitionProgramId,
         created.map(instance => instance.runtimeState),
       );
-    return true;
+    return count <= 0 || created.length > 0;
   }
 
   end(step: ResolvedCombatOperationStep, context?: CombatOperationContext): void {

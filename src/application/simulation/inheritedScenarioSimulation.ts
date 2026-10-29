@@ -31,6 +31,8 @@ export class InheritedScenarioSimulation {
       readonly mode: 'continuation' | 'compact';
     },
   ) {
+    if ((scenario.buffInterventions?.length ?? 0) > 0)
+      throw new Error('Buff 干预暂不支持继承方案：不能重放历史施加或丢弃已保存的实例引用');
     const boundary = scenario.inheritance!.frame;
     if (boundary < resolveScenarioInitialFrame(scenario))
       throw new RangeError('inheritance precedes the source simulation');

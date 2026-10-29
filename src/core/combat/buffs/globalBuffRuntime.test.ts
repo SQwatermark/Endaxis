@@ -628,3 +628,90 @@ it('全局层数按父实例跨来源统计，叠层替换和恢复后仍从同�
   expect(runtime.getCount('global')).toBe(0);
   expect(restored.getCount('global')).toBe(2);
 });
+
+it('atomically rejects a GlobalBuff before replacing an old parent or registering shared effects', () => {
+  const first = target('first');
+  const second = target('second');
+  const recovery = new SharedSpRecoveryModifierSet();
+  const runtime = new GlobalBuffRuntime(
+    () => [first.value, second.value],
+    () => childDefinition,
+    null,
+    recovery,
+  );
+  const sharedDefinition: CompiledGlobalBuffDefinition = {
+    ...definition,
+    maxStackCount: 1,
+    sharedSpModifiers: [
+      {
+        attribute: 'spRecovery',
+        operation: 'multiplier',
+        value: { kind: 'constant', value: 0.5 },
+        applyToReturnSpGain: true,
+      },
+    ],
+  };
+  const add = () =>
+    runtime.add({
+      id: 'global',
+      definition: sharedDefinition,
+      sourceId: 'battle',
+      sourceActionOwnerId: 'operator',
+      sourceActionId: 'passive',
+      blackboardValues: {},
+    });
+  const old = add()!;
+  const modifiers = [...recovery.runtimeState.modifiers];
+  const nextInstanceId = runtime.runtimeState.nextInstanceId;
+  const admission: unknown[] = [];
+  runtime.admission = request => {
+    admission.push(request);
+    return request.targetId !== 'second';
+  };
+  expect(add()).toBeNull();
+  expect(old.runtimeState.finished).toBe(false);
+  expect(runtime.runtimeState.nextInstanceId).toBe(nextInstanceId);
+  expect(runtime.runtimeState.groups.get('global')).toEqual([old.runtimeState]);
+  expect(recovery.runtimeState.modifiers).toEqual(modifiers);
+  expect(first.requests).toHaveLength(1);
+  expect(second.requests).toHaveLength(1);
+  expect(first.finished).toEqual([]);
+  expect(second.finished).toEqual([]);
+  expect(admission).toEqual(
+    ['first', 'second'].map(targetId => ({
+      buffId: 'child',
+      targetId,
+      sourceId: 'battle',
+      definition: childDefinition,
+      definitionOwnerId: 'operator',
+      sourceActionId: 'passive',
+      globalBuffId: 'global',
+    })),
+  );
+});
+
+it('a suppressed GlobalBuff action returns false without keeping a phantom action-duration instance', () => {
+  const member = target('member');
+  const runtime = new GlobalBuffRuntime(
+    () => [member.value],
+    () => childDefinition,
+  );
+  runtime.admission = () => false;
+  const executor = new GlobalBuffOperationExecutor({
+    sourceId: 'caster',
+    runtime,
+    delegate: { execute: () => false, evaluate: () => false },
+  });
+  expect(
+    executor.execute(
+      {
+        kind: 'createGlobalBuff',
+        parameters: { globalBuffId: 'global', definition, finishByAction: true },
+      },
+      { blackboard: new ActionBlackboard() },
+    ),
+  ).toBe(false);
+  expect(executor.runtimeState.active.size).toBe(0);
+  expect(runtime.runtimeState.groups.size).toBe(0);
+  expect(member.requests).toEqual([]);
+});

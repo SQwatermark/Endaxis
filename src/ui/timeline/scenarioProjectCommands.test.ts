@@ -156,3 +156,33 @@ describe('scenario project commands', () => {
     expect(deleted.activeScenarioId).toBe(source.id);
   });
 });
+
+it('复制、撤销和重做保留 Buff 干预的来源引用、实例引用及独立可编辑副本', () => {
+  const original = project();
+  original.scenarios[0]!.buffInterventions = [
+    {
+      id: 'suppression',
+      kind: 'suppress',
+      startFrame: 0,
+      endFrame: 30,
+      buff: { kind: 'common', sourceId: 'shared', buffId: 'buff' },
+      target: { kind: 'enemy' },
+    },
+  ];
+  const session = new ProjectEditorSession(original);
+  expect(session.commit('duplicateScenario', value => duplicateActiveScenario(value, '副本'))).toBe(
+    true,
+  );
+  const copy = session.snapshot.project.scenarios[1]!;
+  expect(copy.buffInterventions).toEqual(original.scenarios[0]!.buffInterventions);
+  expect(copy.buffInterventions).not.toBe(original.scenarios[0]!.buffInterventions);
+  const copied = copy.buffInterventions![0]!;
+  const source = original.scenarios[0]!.buffInterventions![0]!;
+  if (copied.kind !== 'suppress' || source.kind !== 'suppress')
+    throw new Error('expected suppression');
+  expect(copied.buff).not.toBe(source.buff);
+  expect(session.undo()).toBe(true);
+  expect(session.snapshot.project).toBe(original);
+  expect(session.redo()).toBe(true);
+  expect(session.snapshot.project.scenarios[1]!.buffInterventions).toEqual(copy.buffInterventions);
+});

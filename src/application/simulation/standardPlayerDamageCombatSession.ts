@@ -94,6 +94,7 @@ function createRestoreAssembly(
     CombatRuntimeAssembly.restore({
       receiptHistory,
       graph,
+      buffInterventions: compiled.buffInterventions,
       resources: compiled.resources,
       enemy: compiled.enemy,
       operators: compiled.operators,

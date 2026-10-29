@@ -16,6 +16,7 @@ import { placeSkillGroup } from '../../ui/timeline/interaction/placeSkillGroup';
 import {
   captureScenarioSimulationGameData,
   restoreScenarioSimulationGameData,
+  scenarioSimulationGameDataSelectionKey,
 } from './scenarioSimulationGameData';
 
 it('后台数据包只携带一次公共定义，并在恢复后保留其来源', () => {
@@ -291,4 +292,47 @@ it('同 ID 定义更新后新捕获使用新版本，已捕获数据包保持旧
       'project:globalEffect:shared',
     )?.buff.attributeModifiers![0]?.value,
   ).toBe(0.2);
+});
+
+it('Buff 干预的 Worker 数据包保留未上场来源与同 ID 碰撞，时间编辑不重新发送目录', () => {
+  const first = {
+    ...perlica,
+    slug: 'unselected:first',
+    buffDefinitions: { collision: { stackingType: 'unique' as const } },
+  };
+  const second = {
+    ...perlica,
+    slug: 'unselected:second',
+    buffDefinitions: { collision: { stackingType: 'unique' as const, durationSeconds: 3 } },
+  };
+  const repository = createGameDataRepository({
+    revision: 'intervention-transfer',
+    operators: [first, second],
+  });
+  const scenario = createEmptyScenario('intervention', 'intervention');
+  expect(captureScenarioSimulationGameData(scenario, repository).operators).toEqual([]);
+  scenario.buffInterventions = [
+    {
+      id: 'suppression',
+      kind: 'suppress',
+      startFrame: 0,
+      endFrame: 30,
+      buff: { kind: 'operator', sourceId: first.slug, buffId: 'collision' },
+      target: { kind: 'enemy' },
+    },
+  ];
+  const packet = captureScenarioSimulationGameData(scenario, repository);
+  expect(packet.operators.map(value => value.slug)).toEqual([first.slug, second.slug]);
+  const restored = restoreScenarioSimulationGameData(structuredClone(packet));
+  expect(
+    restored.getOperator(first.slug)!.buffDefinitions!.collision!.durationSeconds,
+  ).toBeUndefined();
+  expect(restored.getOperator(second.slug)!.buffDefinitions!.collision!.durationSeconds).toBe(3);
+  const originalKey = scenarioSimulationGameDataSelectionKey(scenario);
+  const suppression = scenario.buffInterventions[0]!;
+  if (suppression.kind !== 'suppress') throw new Error('expected suppression');
+  suppression.endFrame = 60;
+  expect(scenarioSimulationGameDataSelectionKey(scenario)).toBe(originalKey);
+  suppression.buff = { ...suppression.buff, sourceId: second.slug };
+  expect(scenarioSimulationGameDataSelectionKey(scenario)).not.toBe(originalKey);
 });

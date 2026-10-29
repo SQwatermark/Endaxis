@@ -1,3 +1,4 @@
+import type { ActionGraphResourceDefinition } from '../../../packages/game-data-contract/src/actionGraph';
 import type { ActionGraphDefinitionRepository } from '../compiler/actionGraphDefinitionRepository';
 
 /**
@@ -40,6 +41,8 @@ export interface MechanicDefinitionRef {
 /** 公共定义的来源目录；可执行资源各自持有局部图。 */
 export interface CommonDefinitionSource {
   readonly id: string;
+  /** 仅用于可发现目录，保留初始化图中的全局父 Buff 等资源来源；不自动执行。 */
+  readonly catalogGraphs?: readonly ActionGraphResourceDefinition[];
   readonly buffDefinitions?: OperatorBuffDefinitions;
   readonly abilityEntityDefinitions?: OperatorAbilityEntityDefinitions;
 }

@@ -1,3 +1,9 @@
+import {
+  BuffInterventionRuntime,
+  createBuffInterventionState,
+  type BuffInterventionProgram,
+  type BuffInterventionState,
+} from './buffInterventionRuntime';
 import { sampleFloatRange, type RangeSampleSource } from '../random/simulationRandom';
 import type { CompiledAbilityEntityChildSkillProgram } from '../../compiler/combatProgram';
 import { isAntiFaction, isFactionTargetUnmarkable } from '../abilities/targetFaction';
@@ -484,6 +490,7 @@ export type CombatDamageExecutorContext =
 
 /** 场景编译器拥有的战斗输入，不属于外部运行环境。 */
 export interface CombatRuntimeScenarioOptions {
+  readonly buffInterventions?: BuffInterventionProgram;
   /** 所有干员与敌人的固定端点距离，旧方案为 0 米。 */
   readonly operatorEnemyDistanceMeters?: number;
   readonly resources: CombatResourceSnapshot;
@@ -678,6 +685,7 @@ export interface CombatRuntimeEnvironmentOptions extends CombatRuntimeInputRules
 
 /** 从同一切面树的固定程序与标准环境配置建立完整的当前分支装配。 */
 export interface CombatRuntimeAssemblyRestoreOptions extends CombatRuntimeInputRules {
+  readonly buffInterventions?: BuffInterventionProgram;
   readonly operatorEnemyDistanceMeters?: number;
   readonly operatorControl?: OperatorControlConfiguration;
   readonly receiptHistory: CombatReceiptView;
@@ -778,6 +786,7 @@ function withTerminalPreparation(
 
 /** 一次战斗的时钟、账本、实体能力系统与回执的唯一装配根。 */
 export class CombatRuntimeAssembly {
+  #buffInterventions: BuffInterventionRuntime | undefined;
   /** 全场共享数据的内部装配入口；不等于完整战斗切面。 */
   readonly sharedState: CombatSharedState;
   readonly stateGraph: CombatStateGraph;
@@ -973,6 +982,7 @@ export class CombatRuntimeAssembly {
           this.#projectileRuntimeDependencies(definitionOperatorId),
       });
       options = {
+        buffInterventions: restoreOptions.buffInterventions,
         operatorEnemyDistanceMeters: restoreOptions.operatorEnemyDistanceMeters,
         resources: restoreOptions.resources,
         enemy: restoreOptions.enemy,
@@ -1169,6 +1179,9 @@ export class CombatRuntimeAssembly {
         this.#abilityEntityBuffs.set(instanceId, target as AbilityEntityBuffRuntime);
       }
       configureRestoredCombatObjectReferences({ entities, projectiles: this.projectileLifetimes });
+      this.#installBuffInterventions(options, preparation.graph.inputs.buffInterventions);
+      if (this.#buffInterventions)
+        preparation.graph.inputs.buffInterventions = this.#buffInterventions.state;
       for (const target of entities.targets.values()) this.#configureBuffLifecycle(target, options);
 
       // 新建装配通过 #requirePartyBuffTargets 使用 CharacterTeamFinder 的逆序。
@@ -1197,6 +1210,9 @@ export class CombatRuntimeAssembly {
         preparation.graph.instances.globalBuffs,
         (state, producedBy) => this.#recordGlobalBuffCreated(state, producedBy),
       );
+
+      if (this.#buffInterventions)
+        this.globalBuffs.admission = request => this.#buffInterventions!.admit(request);
 
       const buffs = bindRestoredCombatBuffInstances({
         preparation,
@@ -1469,6 +1485,7 @@ export class CombatRuntimeAssembly {
         preparation,
         foundation,
         entities,
+        beforeFrame: this.#buffInterventionFrame(),
         objects: {
           projectiles: this.projectileLifetimes,
           buffs,
@@ -1825,6 +1842,9 @@ export class CombatRuntimeAssembly {
         this.#operatorUpgradeEventStates.set(operator.operatorId, runtime.runtimeState);
       }
 
+      this.#installBuffInterventions(options);
+      if (this.#buffInterventions)
+        this.globalBuffs.admission = request => this.#buffInterventions!.admit(request);
       this.#configureBuffLifecycle(this.#enemyBuffRuntime, options);
       for (const target of this.#operatorBuffs.values())
         this.#configureBuffLifecycle(target, options);
@@ -2006,6 +2026,7 @@ export class CombatRuntimeAssembly {
       options.emitAbilityEvent?.('enemy', 'enemyEnterFight', { sourceId: 'enemy' });
 
       bindCombatFramePipeline(this.simulation, {
+        beforeFrame: this.#buffInterventionFrame(),
         timeDilation: this.timeDilation,
         control: this.#operatorControl,
         frameEndEvents: boundBattleRuntimes.frameEndEvents,
@@ -2042,6 +2063,7 @@ export class CombatRuntimeAssembly {
         externalEvents: () => this.#externalEventRuntime.applyCurrentFrame(),
       };
       if (!options.deferInitialInput) {
+        this.#buffInterventions?.applyCurrentFrame();
         this.#operatorControl.advanceFrame();
         this.#scheduledFrameInputs.skillInputs?.();
         this.#scheduledFrameInputs.externalEvents?.();
@@ -2057,6 +2079,7 @@ export class CombatRuntimeAssembly {
     this.stateGraph = {
       shared: this.sharedState,
       inputs: {
+        ...(this.#buffInterventions ? { buffInterventions: this.#buffInterventions.state } : {}),
         castParameters: this.#castParameters,
         initialInputPending: options.deferInitialInput === true,
         control: this.#operatorControl.runtimeState,
@@ -2827,6 +2850,7 @@ export class CombatRuntimeAssembly {
     }
     const phases = this.#liveFrameInputs(input);
     this.stateGraph.inputs.initialInputPending = false;
+    this.#buffInterventions?.applyCurrentFrame();
     phases.controlInputs!();
     phases.skillInputs();
     phases.externalEvents();
@@ -2962,6 +2986,39 @@ export class CombatRuntimeAssembly {
     const applyBuff = target.apply?.bind(target);
     if (applyBuff === undefined) {
       throw new Error(`operator '${input.operatorId}' Buff runtime cannot apply consumables`);
+    }
+
+    // A rejected replacement must not remove the currently active consumable group.
+    // Preflight the whole request before any finish/refresh/layer or successful-use event.
+    if (this.#buffInterventions) {
+      for (const application of definition.applications) {
+        const buffDefinition = operator.buffDefinitions?.[application.buffId];
+        if (buffDefinition === undefined) {
+          throw new Error(
+            `consumable '${definition.id}' requires missing Buff '${application.buffId}' on operator '${input.operatorId}'`,
+          );
+        }
+        if (
+          !this.#buffInterventions.admit({
+            buffId: application.buffId,
+            definition: buffDefinition,
+            targetId: input.operatorId,
+            sourceId: input.operatorId,
+            definitionOwnerId: input.operatorId,
+            sourceActionId: `consumable:${input.useId}`,
+          })
+        ) {
+          this.receipt.record({
+            frame: this.clock.frame,
+            time: this.clock.time,
+            event: 'ConsumableUseRejected',
+            sourceId: input.operatorId,
+            targetId: input.operatorId,
+            data: { useId: input.useId, consumableId: definition.id, reason: 'suppressed' },
+          });
+          return;
+        }
+      }
     }
 
     const replacedBuffIds = [...this.#consumables.values()]
@@ -5957,10 +6014,38 @@ export class CombatRuntimeAssembly {
     });
   }
 
+  #installBuffInterventions(
+    options: CombatRuntimeAssemblyOptions,
+    state?: BuffInterventionState,
+  ): void {
+    if (!options.buffInterventions?.plans.length) return;
+    this.#buffInterventions = new BuffInterventionRuntime(
+      options.buffInterventions,
+      state ?? createBuffInterventionState(),
+      () => this.clock.frame,
+      id => (id === 'enemy' ? this.#enemyBuffRuntime : this.#operatorBuffs.get(id)),
+      this.receipt,
+    );
+    this.#buffInterventions.updateSuppression();
+  }
+
+  #buffInterventionFrame(): FrameRuntime | undefined {
+    return this.#buffInterventions === undefined
+      ? undefined
+      : {
+          advanceFrame: () => this.#buffInterventions!.applyCurrentFrame(),
+        };
+  }
+
   #configureBuffLifecycle(
     target: BuffOperationTarget,
     options: CombatRuntimeAssemblyOptions,
   ): void {
+    if (this.#buffInterventions) {
+      if (target.configureAdmission === undefined)
+        throw new Error(`Buff 干预不支持缺少统一准入端口的容器 '${target.ownerId}'`);
+      target.configureAdmission(request => this.#buffInterventions!.admit(request));
+    }
     target.configureSourceEntityBlackboard?.(sourceId => {
       if (sourceId === 'enemy') {
         const state = this.#enemyBuffRuntime.runtimeState?.entityBlackboard;

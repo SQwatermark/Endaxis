@@ -945,3 +945,46 @@ it.each(['source', 'recipient'] as const)(
     ).toBe(true);
   },
 );
+
+it('user admission rejects scoped applications before native immunity events or cooldown', () => {
+  const container = new CombatBuffContainer('enemy', new CombatAttributeSet());
+  const definition: CombatBuffDefinition<string> = {
+    id: 'blocked',
+    stackingType: 'unlimited',
+    addingCooldownSeconds: 10,
+  };
+  const published = vi.fn();
+  const target = new BuffDefinitionOperationTarget(
+    container,
+    { get: () => definition },
+    undefined,
+    undefined,
+    published,
+  );
+  const beforeOutput = vi.fn();
+  const beforeAdded = vi.fn();
+  target.configureBeforeImmunityEvents({ beforeOutput, beforeAdded });
+  const admission = vi.fn(() => false);
+  target.configureAdmission(admission);
+  expect(
+    target.applyScoped({
+      buffId: 'blocked',
+      sourceId: 'source',
+      definitionOwnerId: 'owner',
+      blackboardValues: {},
+    }),
+  ).toBeNull();
+  expect(admission).toHaveBeenCalledWith(
+    expect.objectContaining({
+      buffId: 'blocked',
+      targetId: 'enemy',
+      sourceId: 'source',
+      definitionOwnerId: 'owner',
+      definition,
+    }),
+  );
+  expect(beforeOutput).not.toHaveBeenCalled();
+  expect(beforeAdded).not.toHaveBeenCalled();
+  expect(published).not.toHaveBeenCalled();
+  expect(container.runtimeState.addingCooldowns.size).toBe(0);
+});

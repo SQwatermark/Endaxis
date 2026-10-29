@@ -6,6 +6,7 @@ import {
   getSkillCastPlacementAnchor,
   getSkillCastPlacementChains,
   resolveSkillCastStartFrames,
+  resolveScenarioInitialFrame,
 } from './skillCastPlacement';
 import { validateProjectDocument } from './validation';
 import { parseProjectDocument, serializeProjectDocument } from './serialization';
@@ -162,4 +163,19 @@ describe('手动技能放置链', () => {
     if (!dual.ok)
       expect(dual.issues.some(issue => issue.message.includes('mutually exclusive'))).toBe(true);
   });
+});
+
+it('Buff 干预的负帧输入决定真实初始化帧，抑制结束不制造额外历史', () => {
+  const scenario = createEmptyProject({ createdWith: 'test' }).scenarios[0]!;
+  scenario.buffInterventions = [
+    {
+      id: 'suppression',
+      kind: 'suppress',
+      startFrame: -30,
+      endFrame: 60,
+      buff: { kind: 'common', sourceId: 'shared', buffId: 'buff' },
+      target: { kind: 'enemy' },
+    },
+  ];
+  expect(resolveScenarioInitialFrame(scenario)).toBe(-30);
 });

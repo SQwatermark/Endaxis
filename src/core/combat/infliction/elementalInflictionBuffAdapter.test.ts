@@ -366,3 +366,45 @@ it('元素状态Buff同样经过可取消阶段，取消后没有普通添加事
   expect(ordinary).not.toHaveBeenCalled();
   expect(recipient).not.toHaveBeenCalled();
 });
+
+it('suppresses elemental attachment before immunity events and preserves existing layers', () => {
+  const { target, adapter: initial } = createAdapter();
+  initial.apply({ kind: 'addAttachment', element: 'heat' });
+  target.tick(1);
+  const existing = target.buffs[0]!;
+  const remaining = existing.remainingDuration;
+  const before = vi.fn();
+  const applied = vi.fn();
+  const admission = vi.fn(() => false);
+  target.admission = admission;
+  const adapter = new ElementalInflictionBuffAdapter(
+    target,
+    'operator',
+    index,
+    { definitionOwnerId: 'owner' },
+    applied,
+    undefined,
+    before,
+    undefined,
+    before,
+    { beforeOutput: before, beforeAdded: before },
+  );
+  expect(adapter.apply({ kind: 'addAttachment', element: 'heat' })).toBeUndefined();
+  expect(admission).toHaveBeenCalledWith(
+    expect.objectContaining({
+      buffId: 'attachment.heat',
+      targetId: 'enemy',
+      sourceId: 'operator',
+      definitionOwnerId: 'owner',
+    }),
+  );
+  expect(before).not.toHaveBeenCalled();
+  expect(applied).not.toHaveBeenCalled();
+  expect(existing.enhanceCount).toBe(1);
+  expect(existing.remainingDuration).toBe(remaining);
+  expect(existing.isFinished).toBe(false);
+  target.admission = () => true;
+  adapter.apply({ kind: 'addAttachment', element: 'heat' });
+  expect(existing.enhanceCount).toBe(2);
+  expect(applied).toHaveBeenCalledOnce();
+});

@@ -4,6 +4,7 @@ import { ActionGraphDefinitionRepository } from '../compiler/actionGraphDefiniti
 import { createEmptyProject } from './createProject';
 import { parseProjectDocument, serializeProjectDocument } from './serialization';
 import { validateProjectWithGameData } from './definitionValidation';
+import { gameDataRepository } from '../../data/gameDataRepository';
 
 function createMissingRepository(): GameDataRepository {
   return {
@@ -50,6 +51,53 @@ function createProjectWithDefinitionReferences() {
 }
 
 describe('validateProjectWithGameData', () => {
+  it('keeps old projects and declared zero overrides, and rejects undeclared overrides on import', () => {
+    const project = createEmptyProject({ createdWith: 'test' });
+    expect(validateProjectWithGameData(project, gameDataRepository).ok).toBe(true);
+    const scenario = project.scenarios[0]!;
+    scenario.tracks[0] = {
+      id: 'source',
+      operator: {
+        operatorSlug: 'perlica',
+        level: 90,
+        promoted: true,
+        potential: 0,
+        trustLevel: 4,
+        skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+        talentStates: {},
+      },
+      weapon: null,
+      gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+      initialState: { ultimateEnergy: 0 },
+      skillCasts: [],
+    };
+    const plan = {
+      id: 'manual',
+      kind: 'apply' as const,
+      frame: 0,
+      buff: {
+        kind: 'common' as const,
+        sourceId: 'contingency-contracts',
+        buffId: 'buff_cc_enemy_common_hp_up',
+      },
+      target: { kind: 'enemy' as const },
+      sourceOperatorId: 'source',
+      parameters: { hp_up: 0 },
+    };
+    scenario.buffInterventions = [plan];
+    expect(parseProjectDocument(serializeProjectDocument(project), { gameDataRepository }).ok).toBe(
+      true,
+    );
+    scenario.buffInterventions = [{ ...plan, parameters: { undeclared: 0 } }];
+    const result = parseProjectDocument(serializeProjectDocument(project), { gameDataRepository });
+    expect(result.ok).toBe(false);
+    if (!result.ok && result.kind === 'invalid-document')
+      expect(result.issues).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ message: expect.stringContaining('未声明') }),
+        ]),
+      );
+  });
   it('does not access the repository when structural validation fails', () => {
     const getWeapon = vi.fn(() => {
       throw new Error('repository must not be accessed');

@@ -44,6 +44,9 @@ export function resolveScenarioInitialFrame(scenario: ScenarioDocument): number 
             ...(track.consumableUses ?? []).map(use => use.frame),
           ],
     ),
+    ...(scenario.buffInterventions ?? []).map(plan =>
+      plan.kind === 'suppress' ? plan.startFrame : plan.frame,
+    ),
     ...scenario.battle.controlSwitches.map(marker => marker.frame),
     ...(scenario.battle.dodgeMarkers ?? []).map(marker => marker.frame),
   );

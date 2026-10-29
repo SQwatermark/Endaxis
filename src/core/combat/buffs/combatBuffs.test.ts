@@ -3328,3 +3328,82 @@ it('标签免疫在添加冷却和前置事件之前拒绝 Buff，显式忽略�
   expect(before).toBe(1);
   expect(container.hasEntityTag('Status/Frozen')).toBe(true);
 });
+
+it('rejects a suppressed direct application before cooldown, lifecycle and publication', () => {
+  const container = new CombatBuffContainer('enemy', new CombatAttributeSet<Attribute>());
+  const calls: string[] = [];
+  const definition: CombatBuffDefinition<Attribute> = {
+    id: 'suppressed',
+    stackingType: 'refresh',
+    addingCooldownSeconds: 10,
+    actions: { start: () => calls.push('start') },
+  };
+  const requests: unknown[] = [];
+  let suppressed = true;
+  container.admission = request => {
+    requests.push(request);
+    return !suppressed;
+  };
+  const add = () =>
+    container.add(
+      definition,
+      'caster',
+      {
+        definitionOwnerId: 'definition-owner',
+        sourceActionId: 'passive',
+      },
+      () => calls.push('published'),
+      () => calls.push('before-stack'),
+    );
+  expect(add()).toBeNull();
+  expect(container.runtimeState.addingCooldowns.size).toBe(0);
+  expect(container.buffs).toHaveLength(0);
+  expect(calls).toEqual([]);
+  expect(requests[0]).toEqual({
+    buffId: 'suppressed',
+    targetId: 'enemy',
+    sourceId: 'caster',
+    definition,
+    definitionOwnerId: 'definition-owner',
+    sourceActionId: 'passive',
+  });
+  suppressed = false;
+  expect(add()).not.toBeNull();
+  expect(calls).toEqual(['before-stack', 'start', 'published']);
+});
+
+it.each(['refresh', 'enhanceAndRefresh', 'stack'] as const)(
+  'suppression blocks %s reapplication without pausing or ending an existing Buff',
+  stackingType => {
+    const container = new CombatBuffContainer('enemy', new CombatAttributeSet<Attribute>());
+    let triggers = 0;
+    const definition: CombatBuffDefinition<Attribute> = {
+      id: 'ongoing',
+      stackingType,
+      maxStackCount: 1,
+      durationSeconds: 10,
+      triggerIntervalSeconds: 1,
+      maxTriggerCount: -1,
+      waitFirstTriggerInterval: true,
+      actions: {
+        trigger: () => {
+          triggers++;
+        },
+      },
+    };
+    const first = requireAddedBuff(container.add(definition, 'caster'));
+    container.tick(1);
+    const remaining = first.remainingDuration;
+    const layers = first.enhanceCount;
+    container.admission = () => false;
+    expect(container.add(definition, 'caster')).toBeNull();
+    expect(first.remainingDuration).toBe(remaining);
+    expect(first.enhanceCount).toBe(layers);
+    expect(first.isFinished).toBe(false);
+    expect(container.buffs).toEqual([first]);
+    const before = triggers;
+    container.tick(1);
+    expect(triggers).toBeGreaterThan(before);
+    expect(first.remainingDuration).toBe((remaining ?? 0) - 1);
+  },
+);

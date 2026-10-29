@@ -221,6 +221,20 @@ export interface BuffLifecycleActions<Key extends string> {
   readonly duringEnable?: BuffDuringEnableAction<Key>;
 }
 
+/** 用户干预的施加准入，与游戏标签免疫分开；恢复时由当前战斗状态重新绑定策略。 */
+export interface BuffApplicationAdmissionRequest {
+  readonly buffId: string;
+  readonly targetId: string;
+  readonly sourceId: string;
+  readonly definition: object;
+  readonly definitionOwnerId?: string;
+  readonly sourceActionId?: string;
+  /** 全局父请求预检其镜像时保留父身份；拒绝任何镜像会原子拒绝整个父请求。 */
+  readonly globalBuffId?: string;
+}
+
+export type BuffApplicationAdmission = (request: BuffApplicationAdmissionRequest) => boolean;
+
 /** 可复用、不可变的 Buff 定义；实例状态不应写回这里。 */
 export interface CombatBuffDefinition<Key extends string> {
   readonly id: string;
@@ -1257,6 +1271,26 @@ export class CombatShield<Key extends string> {
 
 /** 按实体隔离的 Buff 存储与活动伤害修正注册表。 */
 export class CombatBuffContainer<Key extends string> {
+  /** 策略只读取宿主保存的战斗状态；不把抑制规则藏在容器回调中。 */
+  admission?: BuffApplicationAdmission;
+
+  admit(
+    definition: CombatBuffDefinition<Key>,
+    sourceId: string,
+    options?: CombatBuffAddOptions,
+  ): boolean {
+    return (
+      this.admission?.({
+        buffId: definition.id,
+        targetId: this.ownerId,
+        sourceId,
+        definition,
+        definitionOwnerId: options?.definitionOwnerId,
+        sourceActionId: options?.sourceActionId,
+      }) !== false
+    );
+  }
+
   resolveSourceEntityBlackboard?: (sourceId: string) => ActionBlackboard | undefined;
 
   sourceEntityBlackboard(sourceId: string): ActionBlackboard | undefined {
@@ -1570,6 +1604,8 @@ export class CombatBuffContainer<Key extends string> {
     afterPublished?: (buff: CombatBuff<Key>) => void,
     beforeStack?: () => void,
   ): CombatBuff<Key> | null {
+    // 包括元素附着等绕过操作执行器、直接进入容器的请求。必须早于添加冷却和叠层。
+    if (!this.admit(definition, sourceId, options)) return null;
     if (
       !definition.ignoreTagImmune &&
       definition.applyTags?.some(tag => this.tagPredefine?.canAddTag(this, tag) === false)

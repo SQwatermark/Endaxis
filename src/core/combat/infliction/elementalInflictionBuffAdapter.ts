@@ -167,6 +167,7 @@ export class ElementalInflictionBuffAdapter<Key extends string> {
     definition: CombatBuffDefinition<Key>,
     options: CombatBuffAddOptions | undefined = this.addOptions,
   ): ElementalInflictionBuffIdentity | void {
+    if (!this.target.admit(definition, this.sourceId, options)) return;
     const event: ElementalBuffAppliedPayload = {
       targetId: this.target.ownerId,
       buffId: definition.id,

@@ -185,6 +185,9 @@ export async function createProjectGameDataRepository(
       {
         id: 'contingency-contracts',
         buffDefinitions: contingency.contingencyContractBuffDefinitions,
+        catalogGraphs: contingency.contingencyContractInitializationPlans.map(
+          plan => plan.actionGraph,
+        ),
       },
       { id: 'consumables', buffDefinitions: consumables.consumableBuffDefinitions },
     ],

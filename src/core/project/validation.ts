@@ -477,6 +477,144 @@ function validateEndpoint(
   }
 }
 
+const buffSourceKinds = new Set(['operator', 'weapon', 'gear', 'gearSet', 'common']);
+const unsafeParameterKeys = new Set(['__proto__', 'prototype', 'constructor']);
+
+/** 不可信计划只接受明确的引用、目标与整数帧，不把多余字段当作执行输入。 */
+function validateBuffInterventions(
+  scenario: Record<string, unknown>,
+  path: string,
+  issues: ValidationIssue[],
+): void {
+  const plans = scenario.buffInterventions;
+  if (plans === undefined) return;
+  const planPath = `${path}.buffInterventions`;
+  if (!Array.isArray(plans)) {
+    issues.push({ path: planPath, message: 'expected an array' });
+    return;
+  }
+  const operators = new Set(
+    (Array.isArray(scenario.tracks) ? scenario.tracks : [])
+      .filter(track => isObject(track) && isObject(track.operator))
+      .map(track => track.id),
+  );
+  const prep = isObject(scenario.battle) ? scenario.battle.prepFrames : undefined;
+  const end = isObject(scenario.battle) ? scenario.battle.durationFrames : undefined;
+  const frame = (value: unknown, at: string) => {
+    if (typeof value !== 'number' || !Number.isSafeInteger(value)) {
+      issues.push({ path: at, message: 'expected a safe integer frame' });
+      return;
+    }
+    if ((typeof prep === 'number' && value < -prep) || (typeof end === 'number' && value > end))
+      issues.push({ path: at, message: 'must be inside the preparation and battle range' });
+  };
+  const fields = (record: Record<string, unknown>, allowed: string[], at: string) => {
+    for (const key of Object.keys(record))
+      if (!allowed.includes(key))
+        issues.push({ path: `${at}.${key}`, message: 'unsupported field' });
+  };
+  const operator = (value: unknown, at: string) => {
+    if (typeof value !== 'string' || !operators.has(value))
+      issues.push({ path: at, message: 'expected an occupied operator track reference' });
+  };
+  const applications = new Map<string, { frame: number; index: number }>();
+  const ids = new Set<string>();
+  plans.forEach((plan, index) => {
+    const at = `${planPath}[${index}]`;
+    if (!isObject(plan)) {
+      issues.push({ path: at, message: 'expected an object' });
+      return;
+    }
+    const id = requireString(plan, 'id', at, issues);
+    if (id !== null) {
+      if (ids.has(id)) issues.push({ path: `${at}.id`, message: 'duplicate Buff intervention id' });
+      ids.add(id);
+    }
+    if (plan.kind === 'finish') {
+      fields(plan, ['id', 'kind', 'frame', 'applicationId'], at);
+      frame(plan.frame, `${at}.frame`);
+      requireString(plan, 'applicationId', at, issues);
+      return;
+    }
+    if (plan.kind !== 'apply' && plan.kind !== 'suppress') {
+      issues.push({ path: `${at}.kind`, message: 'expected apply, finish or suppress' });
+      return;
+    }
+    fields(
+      plan,
+      plan.kind === 'apply'
+        ? ['id', 'kind', 'frame', 'buff', 'target', 'sourceOperatorId', 'parameters']
+        : ['id', 'kind', 'startFrame', 'endFrame', 'buff', 'target', 'sourceOperatorId'],
+      at,
+    );
+    if (!isObject(plan.buff))
+      issues.push({ path: `${at}.buff`, message: 'expected a source-qualified Buff reference' });
+    else {
+      fields(plan.buff, ['kind', 'sourceId', 'buffId', 'resourceKind'], `${at}.buff`);
+      requireEnum(plan.buff.kind, buffSourceKinds, `${at}.buff.kind`, issues);
+      requireString(plan.buff, 'sourceId', `${at}.buff`, issues);
+      requireString(plan.buff, 'buffId', `${at}.buff`, issues);
+      if (plan.buff.resourceKind !== undefined && plan.buff.resourceKind !== 'global')
+        issues.push({ path: `${at}.buff.resourceKind`, message: 'expected global or omitted' });
+    }
+    if (!isObject(plan.target))
+      issues.push({ path: `${at}.target`, message: 'expected an explicit target' });
+    else if (plan.target.kind === 'enemy') fields(plan.target, ['kind'], `${at}.target`);
+    else if (plan.target.kind === 'operator') {
+      fields(plan.target, ['kind', 'operatorId'], `${at}.target`);
+      operator(plan.target.operatorId, `${at}.target.operatorId`);
+    } else issues.push({ path: `${at}.target.kind`, message: 'expected enemy or operator' });
+    if (plan.kind === 'apply' || plan.sourceOperatorId !== undefined)
+      operator(plan.sourceOperatorId, `${at}.sourceOperatorId`);
+    if (plan.kind === 'apply') {
+      frame(plan.frame, `${at}.frame`);
+      if (id !== null && typeof plan.frame === 'number')
+        applications.set(id, { frame: plan.frame, index });
+      if (plan.parameters !== undefined) {
+        if (!isObject(plan.parameters))
+          issues.push({ path: `${at}.parameters`, message: 'expected a numeric parameter record' });
+        else
+          for (const [key, value] of Object.entries(plan.parameters)) {
+            if (unsafeParameterKeys.has(key))
+              issues.push({ path: `${at}.parameters.${key}`, message: 'unsafe parameter key' });
+            requireFiniteNumber(value, `${at}.parameters.${key}`, issues);
+          }
+      }
+    } else {
+      frame(plan.startFrame, `${at}.startFrame`);
+      frame(plan.endFrame, `${at}.endFrame`);
+      if (
+        typeof plan.startFrame === 'number' &&
+        typeof plan.endFrame === 'number' &&
+        plan.endFrame <= plan.startFrame
+      )
+        issues.push({
+          path: `${at}.endFrame`,
+          message: 'suppression requires a non-empty [start, end) interval',
+        });
+    }
+  });
+  plans.forEach((plan, index) => {
+    if (!isObject(plan) || plan.kind !== 'finish') return;
+    const application =
+      typeof plan.applicationId === 'string' ? applications.get(plan.applicationId) : undefined;
+    if (!application)
+      issues.push({
+        path: `${planPath}[${index}].applicationId`,
+        message: 'expected an apply intervention reference',
+      });
+    else if (
+      typeof plan.frame === 'number' &&
+      (plan.frame < application.frame ||
+        (plan.frame === application.frame && index < application.index))
+    )
+      issues.push({
+        path: `${planPath}[${index}].frame`,
+        message: 'finish must follow its application, including same-frame array order',
+      });
+  });
+}
+
 export function validateProjectDocument(value: unknown): ValidationResult {
   const issues: ValidationIssue[] = [];
   if (!isObject(value)) {
@@ -701,9 +839,33 @@ export function validateProjectDocument(value: unknown): ValidationResult {
           }
         });
       }
+      validateBuffInterventions(scenario, path, issues);
       validateMechanics(scenario.mechanics, `${path}.mechanics`, issues);
       validateGlobalConfig(scenario.globalConfig, `${path}.globalConfig`, issues);
       validateEditor(scenario.editor, `${path}.editor`, issues);
+    });
+
+    // 干预实例和抑制规则尚不能跨继承边界迁移；导入也必须拒绝，不能等到模拟时才报错。
+    const byId = new Map(
+      value.scenarios.filter(isObject).map(scenario => [scenario.id, scenario] as const),
+    );
+    value.scenarios.forEach((scenario, index) => {
+      if (!isObject(scenario) || !isObject(scenario.inheritance)) return;
+      const visited = new Set<object>();
+      let current: ReturnType<typeof byId.get> = scenario;
+      while (current !== undefined && !visited.has(current)) {
+        visited.add(current);
+        if (Array.isArray(current.buffInterventions) && current.buffInterventions.length > 0) {
+          issues.push({
+            path: `$.scenarios[${index}].inheritance`,
+            message: 'Buff 干预暂不支持继承方案：本方案或祖先来源含干预计划，请复制完整方案',
+          });
+          break;
+        }
+        current = isObject(current.inheritance)
+          ? byId.get(current.inheritance.sourceScenarioId)
+          : undefined;
+      }
     });
 
     if (activeScenarioId !== null && !scenarioIds.has(activeScenarioId)) {

@@ -434,6 +434,9 @@ import { timelineVisibleSkillEnds } from './timelineVisibleSkillEnds';
 import { useTimelineEnemyEditor } from './useTimelineEnemyEditor';
 
 import ConsumableSelectionDialog from './components/ConsumableSelectionDialog.vue';
+import BuffInterventionPanel from './components/BuffInterventionPanel.vue';
+import { listBuffInterventionCatalog } from '../../core/game-data/buffInterventionCatalog';
+import type { BuffInterventionDocument } from '../../core/project/schema';
 import TimelineMarkerContextMenu from './interaction/TimelineMarkerContextMenu.vue';
 import { projectPublishedTimelineDamageAnalysis } from './results/timelineDamageAnalysis';
 import {
@@ -1027,6 +1030,31 @@ onScopeDispose(() => {
   cancelConnectionDrag();
   cancelItemMove();
 });
+
+const buffInterventionsOpen = ref(false);
+const buffInterventionCatalog = computed(() => {
+  void operatorDefinitionRevision.value;
+  return listBuffInterventionCatalog(editorGameDataRepository);
+});
+const buffInterventionOperators = computed(() =>
+  scenario.value.tracks.flatMap((track, index) =>
+    track?.operator
+      ? [{ id: track.id, label: `${index + 1}. ${operatorName(track.operator.operatorSlug)}` }]
+      : [],
+  ),
+);
+async function openBuffInterventions(): Promise<void> {
+  await openAfterGameDataLoad(['operators', 'weapons', 'gears'], () => {
+    buffInterventionsOpen.value = true;
+  });
+}
+function updateBuffInterventions(interventions: BuffInterventionDocument[]): void {
+  if (configurationReadOnly.value || !gameDataRepository.hasAllDefinitions()) return;
+  commitScenario('setBuffInterventions', current => ({
+    ...current,
+    buffInterventions: interventions,
+  }));
+}
 
 function commitScenario(
   commandName: string,
@@ -6544,6 +6572,26 @@ function setMobileGuideFrame(frame: number | null): void {
 
 <template>
   <EaDialog
+    v-model="buffInterventionsOpen"
+    :title="locale === 'en' ? 'Buff interventions · Experimental' : 'Buff 干预 · 实验'"
+    size="lg"
+  >
+    <BuffInterventionPanel
+      v-if="buffInterventionsOpen"
+      :interventions="scenario.buffInterventions ?? []"
+      :catalog="buffInterventionCatalog"
+      :operators="buffInterventionOperators"
+      :duration-frames="scenario.battle.durationFrames"
+      :minimum-frame="-scenario.battle.prepFrames"
+      :fps="PROJECT_FPS"
+      :receipts="publishedReceiptEntries"
+      :locale="locale"
+      :read-only="configurationReadOnly"
+      :inherited="scenario.inheritance !== undefined"
+      @update="updateBuffInterventions"
+    />
+  </EaDialog>
+  <EaDialog
     :model-value="legacyConversionConfirmation !== null"
     :title="t('timeline.legacyConversion.title')"
     align-center
@@ -6623,6 +6671,7 @@ function setMobileGuideFrame(frame: number | null): void {
     @open-project="requestOpenProject"
     @receive-project="requestReceiveProject"
     @export-project="showExportDialog = true"
+    @buff-interventions="openBuffInterventions"
     @reset-project="resetDialogVisible = true"
     @select-track="selectTrack"
     @swap-tracks="swapTrackOrder"
@@ -6890,6 +6939,7 @@ function setMobileGuideFrame(frame: number | null): void {
         :cursor-guide-enabled="showCursorGuide"
         :box-select-enabled="boxSelectEnabled"
         :connection-tool-enabled="connectionToolEnabled"
+        @buff-interventions="openBuffInterventions"
         @toggle-box-select="toggleBoxSelect"
         @toggle-connection-tool="toggleConnectionTool"
         :buff-layout-mode="buffLayoutMode"

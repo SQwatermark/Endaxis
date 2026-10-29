@@ -18,6 +18,8 @@ export function createInheritedScenario(
     resolveSkillFrame: (source: ScenarioDocument, castId: string) => number | undefined;
   },
 ): ScenarioDocument {
+  if ((source.buffInterventions?.length ?? 0) > 0)
+    throw new Error('Buff 干预暂不支持创建继承方案；请复制完整方案后模拟');
   const { frame } = options;
   // 与正式编译器的初始化范围一致：可见准备区不是已经发生的战斗历史。
   const initialFrame = resolveScenarioInitialFrame(source);

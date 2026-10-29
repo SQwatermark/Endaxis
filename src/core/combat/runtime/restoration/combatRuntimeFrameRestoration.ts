@@ -14,6 +14,7 @@ import type { RestoredCombatRuntimeFoundation } from './combatRuntimeRestoreFoun
 import type { CombatRuntimeRestorePreparation } from './combatRuntimeRestorePreparation';
 
 export interface RestoreCombatRuntimeFrameOptions {
+  readonly beforeFrame?: FrameRuntime;
   /** 已绑定当前切面身份的主控运行时；此层只负责安排推进顺序。 */
   readonly control: OperatorControlRuntime;
   readonly preparation: CombatRuntimeRestorePreparation;
@@ -47,6 +48,7 @@ export function bindRestoredCombatRuntimeFrame(
   const cores = [...options.objects.operators.cores.values()];
   const multiDash = new PlayerMultiDashRuntime();
   bindCombatFramePipeline(simulation, {
+    beforeFrame: options.beforeFrame,
     timeDilation: shared.timeDilation,
     frameEndEvents: options.foundation.boundEnvironment.frameEndEvents,
     control,

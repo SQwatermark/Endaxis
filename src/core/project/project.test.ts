@@ -729,3 +729,124 @@ describe('current project document', () => {
     });
   });
 });
+
+it('Buff 干预计划保存完整来源、同帧顺序和实例引用，旧方案省略时仍可读取', () => {
+  const project = createEmptyProject({ createdWith: 'test' });
+  const scenario = project.scenarios[0]!;
+  scenario.tracks[0] = createTrack();
+  expect(parseProjectDocument(serializeProjectDocument(project)).ok).toBe(true);
+  scenario.buffInterventions = [
+    {
+      id: 'apply:1',
+      kind: 'apply',
+      frame: 0,
+      buff: { kind: 'operator', sourceId: 'perlica', buffId: 'local-buff' },
+      target: { kind: 'enemy' },
+      sourceOperatorId: 'track:0',
+      parameters: { amount: 2 },
+    },
+    { id: 'finish:1', kind: 'finish', frame: 0, applicationId: 'apply:1' },
+    {
+      id: 'suppress:1',
+      kind: 'suppress',
+      startFrame: 1,
+      endFrame: 30,
+      buff: { kind: 'common', sourceId: 'consumables', buffId: 'local-buff' },
+      target: { kind: 'operator', operatorId: 'track:0' },
+    },
+  ];
+  const result = parseProjectDocument(serializeProjectDocument(project));
+  expect(result.ok).toBe(true);
+  if (result.ok)
+    expect(result.value.scenarios[0]!.buffInterventions).toEqual(scenario.buffInterventions);
+});
+
+it('Buff 干预拒绝非法帧、空轨道、无效结束引用、原型参数和同帧逆序结束', () => {
+  const project = createEmptyProject({ createdWith: 'test' });
+  const scenario = project.scenarios[0]!;
+  scenario.tracks[0] = createTrack();
+  const apply = {
+    id: 'apply:1',
+    kind: 'apply' as const,
+    frame: 0,
+    buff: { kind: 'operator' as const, sourceId: 'perlica', buffId: 'local-buff' },
+    target: { kind: 'enemy' as const },
+    sourceOperatorId: 'track:0',
+  };
+  const finish = { id: 'finish:1', kind: 'finish' as const, frame: 0, applicationId: 'apply:1' };
+  const invalidPlans: unknown[][] = [
+    [{ ...apply, frame: 0.5 }],
+    [{ ...apply, frame: scenario.battle.durationFrames + 1 }],
+    [{ ...apply, sourceOperatorId: 'empty-track' }],
+    [{ ...apply, target: { kind: 'operator', operatorId: 'empty-track' } }],
+    [{ ...apply, parameters: { amount: Infinity } }],
+    [{ ...apply, parameters: JSON.parse('{"__proto__":1}') }],
+    [apply, apply],
+    [finish],
+    [finish, apply],
+    [apply, { ...finish, frame: -1 }],
+    [{ ...apply, kind: 'unknown' }],
+    [{ ...apply, unwanted: true }],
+    [
+      {
+        id: 'suppressed',
+        kind: 'suppress',
+        buff: apply.buff,
+        target: apply.target,
+        startFrame: 0,
+        endFrame: 0,
+      },
+    ],
+  ];
+  for (const plans of invalidPlans) {
+    expect(
+      validateProjectDocument({
+        ...project,
+        scenarios: [{ ...scenario, buffInterventions: plans }],
+      }).ok,
+      JSON.stringify(plans),
+    ).toBe(false);
+  }
+  expect(scenario.buffInterventions).toBeUndefined();
+});
+
+it('导入校验拒绝本身或祖先带 Buff 干预的继承方案，普通方案和旧继承不受影响', () => {
+  const project = createEmptyProject({ createdWith: 'test' });
+  const root = project.scenarios[0]!;
+  const child = createEmptyScenario('child', 'Child');
+  child.inheritance = { sourceScenarioId: root.id, frame: 0 };
+  const grandchild = createEmptyScenario('grandchild', 'Grandchild');
+  grandchild.inheritance = { sourceScenarioId: child.id, frame: 0 };
+  project.scenarios.push(child, grandchild);
+  expect(parseProjectDocument(project).ok).toBe(true);
+  const plans = [
+    {
+      id: 'suppress',
+      kind: 'suppress' as const,
+      startFrame: 0,
+      endFrame: 30,
+      buff: { kind: 'common' as const, sourceId: 'shared', buffId: 'buff' },
+      target: { kind: 'enemy' as const },
+    },
+  ];
+  const rejectedPaths = () => {
+    const parsed = parseProjectDocument(project);
+    expect(parsed.ok).toBe(false);
+    if (parsed.ok || parsed.kind !== 'invalid-document')
+      throw new Error('expected invalid document');
+    return parsed.issues
+      .filter(issue => issue.message.includes('Buff 干预暂不支持继承方案'))
+      .map(issue => issue.path);
+  };
+  child.buffInterventions = structuredClone(plans);
+  expect(rejectedPaths()).toEqual(['$.scenarios[1].inheritance', '$.scenarios[2].inheritance']);
+  delete child.buffInterventions;
+  root.buffInterventions = plans;
+  expect(rejectedPaths()).toEqual(['$.scenarios[1].inheritance', '$.scenarios[2].inheritance']);
+  expect(parseProjectDocument({ ...project, scenarios: [root] }).ok).toBe(true);
+  delete root.buffInterventions;
+  expect(parseProjectDocument(project).ok).toBe(true);
+  // 不可信输入有缺失来源或循环也不会令遍历抛错。
+  child.inheritance.sourceScenarioId = grandchild.id;
+  expect(() => validateProjectDocument(project)).not.toThrow();
+});

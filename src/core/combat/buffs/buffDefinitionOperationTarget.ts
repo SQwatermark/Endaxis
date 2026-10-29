@@ -45,6 +45,7 @@ import {
   type CombatBuff,
   type CombatBuffAddOptions,
   type CombatBuffDefinition,
+  type BuffApplicationAdmission,
 } from './combatBuffs';
 
 export interface CombatBuffDefinitionResolver<Key extends string> {
@@ -92,6 +93,10 @@ export class BuffDefinitionOperationTarget<Key extends string>
     return this.container.ownerId;
   }
 
+  configureAdmission(admission: BuffApplicationAdmission): void {
+    this.container.admission = admission;
+  }
+
   get runtimeState() {
     return this.container.runtimeState;
   }
@@ -124,6 +129,7 @@ export class BuffDefinitionOperationTarget<Key extends string>
     resolveDefinition: (
       id: string,
       definitionOwnerId: string,
+      sourceActionId: string,
     ) => ResolvedSkillBuffDefinition | undefined,
     resolveOptions?: (state: BuffInstanceState<Key>) => CombatBuffAddOptions | undefined,
   ): void {
@@ -136,7 +142,7 @@ export class BuffDefinitionOperationTarget<Key extends string>
       ) {
         return configured;
       }
-      const source = resolveDefinition(id, state.definitionOwnerId);
+      const source = resolveDefinition(id, state.definitionOwnerId, state.sourceActionId);
       return source === undefined ? configured : this.#compileInlineDefinition(id, source);
     }, resolveOptions);
   }
@@ -234,6 +240,14 @@ export class BuffDefinitionOperationTarget<Key extends string>
         : { iconDurationSourceTargetId: request.iconDurationSourceTargetId }),
     };
     try {
+      // 用户抑制先于原生免疫前事件；容器仍再次准入以覆盖直达请求及事件重入。
+      if (
+        !this.container.admit(definition, request.sourceId, {
+          definitionOwnerId: request.definitionOwnerId ?? request.sourceId,
+          sourceActionId: request.sourceActionId ?? request.buffId,
+        })
+      )
+        return null;
       if (!publishBeforeBuffImmunity(event, this.#beforeImmunityEvents)) return null;
       return this.container.add(
         definition,

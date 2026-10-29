@@ -132,6 +132,7 @@ const emit = defineEmits<{
   redo: [];
   openProject: [];
   exportProject: [];
+  buffInterventions: [];
   resetProject: [];
   selectTrack: [index: TrackIndex];
   swapTracks: [from: TrackIndex, to: TrackIndex];
@@ -941,6 +942,17 @@ function setScenario(value: EaSelectValue | EaSelectValue[]): void {
                     ><span>{{ t('common.export') }}</span></EaButton
                   >
                 </div>
+              </section>
+              <section class="mobile-more-section">
+                <EaButton
+                  size="sm"
+                  @click="
+                    moreOpen = false;
+                    emit('buffInterventions');
+                  "
+                >
+                  {{ locale === 'en' ? 'Buff interventions' : 'Buff 干预' }}
+                </EaButton>
               </section>
               <section class="mobile-more-section">
                 <h4 class="mobile-more-section__title">{{ t('timeline.mobile.display.title') }}</h4>

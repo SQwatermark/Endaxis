@@ -6,6 +6,7 @@ import type { ProjectileLifecycleRuntime } from '../abilities/projectileLifecycl
 import { COMBAT_FRAME_INTERVAL } from '../time/combatClock';
 
 export interface CombatFramePipeline {
+  readonly beforeFrame?: FrameRuntime;
   readonly frameEndEvents?: FrameRuntime;
   readonly timeDilation: TimeDilationRuntime | null;
   readonly control: FrameRuntime;
@@ -32,6 +33,7 @@ export function bindCombatFramePipeline(
   systems: CombatFramePipeline,
 ): void {
   const { timeDilation, enemyBuffs, enemyControl, enemyVitals, projectiles } = systems;
+  if (systems.beforeFrame) simulation.add(systems.beforeFrame);
   if (timeDilation !== null) simulation.add(timeDilation);
   simulation.addInputPhase('controlInputs', systems.control);
   // 控制组件 FixedTick 早于 AbilitySystem 的 Buff PreLateTick。

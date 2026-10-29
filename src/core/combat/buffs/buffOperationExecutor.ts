@@ -32,7 +32,7 @@ import type {
 } from '../state/foundationState';
 import type { BuffContainerState, BuffInstanceState } from '../state/instanceState';
 import type { BindRestoredSkillAffixObjectReference } from './buffLifecycleSequenceRuntime';
-import type { CombatBuffAddOptions } from './combatBuffs';
+import type { BuffApplicationAdmission, CombatBuffAddOptions } from './combatBuffs';
 /**
  * 执行技能序列中面向施法者或敌方 Buff 容器的查询与结束操作。
  * 这里只暴露动作需要的最小端口；目标身份到具体容器的映射由战斗装配层决定。
@@ -98,6 +98,8 @@ export interface BuffLifecycleOperationSource {
 
 /** 技能动作对目标 Buff 容器使用的最小稳定端口。 */
 export interface BuffOperationTarget {
+  /** 用户干预准入必须早于原生事件、免疫和添加冷却；恢复时重新绑定当前战斗策略。 */
+  configureAdmission?(admission: BuffApplicationAdmission): void;
   findMatching?(query: BuffLookupQuery): Iterable<BuffQueryResult>;
   setRemainingDuration?(
     query: BuffLookupQuery,
@@ -114,6 +116,7 @@ export interface BuffOperationTarget {
     resolveDefinition: (
       id: string,
       definitionOwnerId: string,
+      sourceActionId: string,
     ) => ResolvedSkillBuffDefinition | undefined,
     resolveOptions?: (state: BuffInstanceState<string>) => CombatBuffAddOptions | undefined,
   ): void;

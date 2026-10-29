@@ -91,6 +91,7 @@ const emit = defineEmits<{
   open: [];
   receive: [];
   assetWorkspace: [];
+  buffInterventions: [];
   export: [];
   rename: [name: string];
   duplicate: [];
@@ -179,7 +180,7 @@ function cancelRename(): void {
 }
 
 function runProjectAction(
-  action: 'open' | 'receive' | 'export' | 'reset' | 'assetWorkspace',
+  action: 'open' | 'receive' | 'export' | 'reset' | 'assetWorkspace' | 'buffInterventions',
 ): void {
   projectMenuOpen.value = false;
   moreMenuOpen.value = false;
@@ -187,6 +188,7 @@ function runProjectAction(
   else if (action === 'receive') emit('receive');
   else if (action === 'export') emit('export');
   else if (action === 'assetWorkspace') emit('assetWorkspace');
+  else if (action === 'buffInterventions') emit('buffInterventions');
   else emit('reset');
 }
 
@@ -401,6 +403,15 @@ onBeforeUnmount(() => {
                 <span>{{ labels.export }}</span>
               </EaButton>
             </div>
+          </section>
+          <section class="header-more-section">
+            <EaButton
+              size="sm"
+              class="header-more-action"
+              @click="runProjectAction('buffInterventions')"
+            >
+              {{ locale === 'en' ? 'Buff interventions' : 'Buff 干预' }}
+            </EaButton>
           </section>
           <section class="header-more-section">
             <EaButton

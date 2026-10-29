@@ -9,7 +9,10 @@ import { operatorDefinitions } from './operators';
 import { gearDefinitions, gearSetDefinitions, weaponDefinitions } from './equipment';
 import { generatedEnemyDefinitions } from './enemies/generated/index.generated';
 import { commonBuffDefinitions } from './buffs/commonDefinitions';
-import { contingencyContractBuffDefinitions } from './contingencyContract/definitions';
+import {
+  contingencyContractBuffDefinitions,
+  contingencyContractInitializationPlans,
+} from './contingencyContract/definitions';
 import { contingencyContractMechanicDefinitions } from './contingencyContract/contingencyContractAdapter';
 import { consumableBuffDefinitions, consumableDefinitions } from './consumables';
 import { GLOBAL_EFFECT_PRESETS } from './globalEffectPresets';
@@ -22,7 +25,11 @@ export const gameDataRepository = createGameDataRepository({
   revision: generatedSkillSettings.revision,
   commonDefinitionSources: [
     { id: 'common-buffs', buffDefinitions: commonBuffDefinitions },
-    { id: 'contingency-contracts', buffDefinitions: contingencyContractBuffDefinitions },
+    {
+      id: 'contingency-contracts',
+      buffDefinitions: contingencyContractBuffDefinitions,
+      catalogGraphs: contingencyContractInitializationPlans.map(plan => plan.actionGraph),
+    },
     { id: 'consumables', buffDefinitions: consumableBuffDefinitions },
   ],
   operators: operatorDefinitions,

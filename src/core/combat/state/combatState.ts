@@ -1,3 +1,4 @@
+import type { BuffInterventionState } from '../runtime/buffInterventionRuntime';
 /**
  * 完整帧边界上的战斗数据根。
  *
@@ -56,6 +57,7 @@ export interface CombatStateGraph {
   readonly shared: CombatSharedState;
   readonly inputs: {
     initialInputPending: boolean;
+    buffInterventions?: BuffInterventionState;
     readonly castParameters: Map<string, SkillSimulationInputs>;
     readonly control: Map<string, boolean>;
     readonly skills: CombatInputRuntimeState;

@@ -1,3 +1,4 @@
+import type { BuffInterventionReference } from '../game-data/buffInterventionCatalog';
 import type { SkillBuffDefinition } from '../../../packages/game-data-contract/src/buffs';
 import type { SimulationRandomMode } from '../combat/random/simulationRandom';
 import type { GlobalEffectDefinition } from '../game-data/globalEffectDefinition';
@@ -393,6 +394,31 @@ export interface ScenarioEditorDocument {
   };
 }
 
+/** 干预目标使用轨道稳定身份；不以可变化的队伍序号或模板 slug 指代实例。 */
+export type BuffInterventionTarget = { kind: 'enemy' } | { kind: 'operator'; operatorId: string };
+
+/** 用户显式安排的外部 Buff 输入；数组顺序确定同帧施加和结束的执行顺序。 */
+export type BuffInterventionDocument =
+  | {
+      id: string;
+      kind: 'apply';
+      frame: number;
+      buff: BuffInterventionReference;
+      target: BuffInterventionTarget;
+      sourceOperatorId: string;
+      parameters?: Record<string, number>;
+    }
+  | { id: string; kind: 'finish'; frame: number; applicationId: string }
+  | {
+      id: string;
+      kind: 'suppress';
+      startFrame: number;
+      endFrame: number;
+      buff: BuffInterventionReference;
+      target: BuffInterventionTarget;
+      sourceOperatorId?: string;
+    };
+
 /** 一个可独立编辑、模拟或从其他场景边界继承的完整场景。 */
 export interface ScenarioDocument {
   id: string;
@@ -404,6 +430,8 @@ export interface ScenarioDocument {
   battle: BattleDocument;
   mechanics: ScenarioMechanicsDocument;
   globalConfig: GlobalConfigDocument;
+  /** 旧方案省略时等价于空计划。 */
+  buffInterventions?: BuffInterventionDocument[];
   editor: ScenarioEditorDocument;
 }
 

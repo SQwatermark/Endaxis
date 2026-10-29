@@ -8,6 +8,7 @@ import { getEnemySourceDefinitionId } from '../../core/game-data/enemyDefinition
 import type {
   CommonDefinitionSource,
   GameDataRepository,
+  GameDataBrowser,
   MechanicDefinitionRef,
 } from '../../core/game-data/gameDataRepository';
 import type {
@@ -53,6 +54,14 @@ function addDefinition<T>(target: Map<string, T>, id: string, definition: T): vo
  */
 export function scenarioSimulationGameDataSelectionKey(scenario: ScenarioDocument): string {
   const identities = new Set<string>();
+  if ((scenario.buffInterventions?.length ?? 0) > 0) {
+    identities.add('buffInterventions:full-catalog');
+    for (const plan of scenario.buffInterventions ?? [])
+      if (plan.kind !== 'finish')
+        identities.add(
+          `buffSource:${JSON.stringify([plan.buff.kind, plan.buff.sourceId, plan.buff.buffId, plan.buff.resourceKind ?? 'buff'])}`,
+        );
+  }
   for (const track of scenario.tracks) {
     if (track?.operator !== null && track?.operator !== undefined)
       identities.add(`operator:${track.operator.operatorSlug}`);
@@ -107,6 +116,18 @@ export function captureScenarioSimulationGameData(
         );
       }
     }
+  }
+
+  // 抑制按来源限定引用匹配；只传已上场来源会把同 ID 碰撞误判成唯一来源。
+  // 首版为有干预的场景保留完整来源目录，未装备/未上场的 Buff 同样可以被发现和编译。
+  if ((scenario.buffInterventions?.length ?? 0) > 0) {
+    const browser = repository as GameDataRepository & Partial<GameDataBrowser>;
+    if (!browser.getOperators || !browser.getWeapons || !browser.getGears || !browser.getGearSets)
+      throw new Error('Buff 干预需要完整来源目录，当前数据仓库无法枚举全部干员和装备');
+    for (const value of browser.getOperators()) addDefinition(operators, value.slug, value);
+    for (const value of browser.getWeapons()) addDefinition(weapons, value.slug, value);
+    for (const value of browser.getGears()) addDefinition(gears, value.slug, value);
+    for (const value of browser.getGearSets()) addDefinition(gearSets, value.slug, value);
   }
 
   const enemyId = getEnemySourceDefinitionId(scenario.enemy.source);

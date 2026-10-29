@@ -224,3 +224,25 @@ it('继承文档自动启用通用配置与历史约束，不能清除元数据�
     })),
   ).toBe(true);
 });
+
+it('首版明确拒绝把 Buff 干预历史复制成继承切面', () => {
+  const scenario = createEmptyScenario('intervention', 'Intervention');
+  scenario.buffInterventions = [
+    {
+      id: 'suppression',
+      kind: 'suppress',
+      startFrame: 0,
+      endFrame: 60,
+      buff: { kind: 'common', sourceId: 'shared', buffId: 'buff' },
+      target: { kind: 'enemy' },
+    },
+  ];
+  expect(() =>
+    createInheritedScenario(scenario, {
+      id: 'copy',
+      name: 'Copy',
+      frame: 30,
+      resolveSkillFrame: () => undefined,
+    }),
+  ).toThrow('Buff 干预暂不支持创建继承方案');
+});

@@ -6,6 +6,10 @@ import { validateProjectBuildDefinitionReferences } from '../game-data/buildDefi
 import { validateProjectEnemyDefinitionReferences } from '../game-data/enemyDefinitionValidation';
 import type { GameDataRepository } from '../game-data/gameDataRepository';
 import { validateMechanicSelections } from '../game-data/mechanicValidation';
+import {
+  assertBuffInterventionParameters,
+  resolveBuffInterventionEntry,
+} from '../game-data/buffInterventionCatalog';
 import { validateProjectDocument, type ValidationResult } from './validation';
 import {
   createProjectGameDataIndex,
@@ -31,6 +35,23 @@ export function validateProjectWithGameData(
   const issues = validateProjectBuildDefinitionReferences(project, projectRepository);
   issues.push(...validateProjectEnemyDefinitionReferences(project, projectRepository));
   project.scenarios.forEach((scenario, scenarioIndex) => {
+    scenario.buffInterventions?.forEach((plan, planIndex) => {
+      if (plan.kind !== 'apply') return;
+      const path = `$.scenarios[${scenarioIndex}].buffInterventions[${planIndex}]`;
+      const entry = resolveBuffInterventionEntry(projectRepository, plan.buff);
+      if (!entry?.definition) {
+        issues.push({ path: `${path}.buff`, message: 'unknown ordinary Buff definition' });
+        return;
+      }
+      try {
+        assertBuffInterventionParameters(entry, plan.parameters);
+      } catch (error) {
+        issues.push({
+          path: `${path}.parameters`,
+          message: error instanceof Error ? error.message : String(error),
+        });
+      }
+    });
     issues.push(
       ...validateMechanicSelections(
         scenario.mechanics,
