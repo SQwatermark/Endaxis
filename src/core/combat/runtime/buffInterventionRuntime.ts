@@ -3,7 +3,8 @@ import type { BuffInterventionReference } from '../../game-data/buffIntervention
 import type { ResolvedSkillBuffDefinition } from '../../compiler/combatProgram';
 import type { BuffOperationTarget } from '../buffs/buffOperationExecutor';
 import type { BuffApplicationAdmissionRequest } from '../buffs/combatBuffs';
-import type { BuffReference } from '../state/foundationState';
+import type { BuffInterventionState } from '../state/combatState';
+export type { BuffInterventionState } from '../state/combatState';
 import type { CombatReceiptSink } from '../receipt/combatReceipt';
 
 export type CompiledBuffIntervention =
@@ -19,13 +20,6 @@ export interface BuffInterventionProgram {
     readonly reference: BuffInterventionReference;
     readonly definitionOwnerIds: readonly string[];
   }[];
-}
-
-/** Only data is copied into a checkpoint; fixed plans remain in the application program. */
-export interface BuffInterventionState {
-  readonly processedIds: Set<string>;
-  readonly applications: Map<string, BuffReference>;
-  readonly activeSuppressionIds: Set<string>;
 }
 
 export function createBuffInterventionState(): BuffInterventionState {

@@ -1,4 +1,3 @@
-import type { BuffInterventionState } from '../runtime/buffInterventionRuntime';
 /**
  * 完整帧边界上的战斗数据根。
  *
@@ -26,6 +25,7 @@ import {
 } from './environmentState';
 import {
   type AbilityEventState,
+  type BuffReference,
   type ActionBlackboardState,
   type SkillSimulationInputs,
 } from './foundationState';
@@ -50,6 +50,13 @@ export interface CombatOperatorState {
   readonly cooldowns: Map<string, SkillCooldownState>;
   readonly timedMarkers: TimedMarkerState;
   readonly buffs: BuffContainerState | null;
+}
+
+/** 干预切面只保存数据；固定计划和执行器由恢复阶段重新绑定。 */
+export interface BuffInterventionState {
+  readonly processedIds: Set<string>;
+  readonly applications: Map<string, BuffReference>;
+  readonly activeSuppressionIds: Set<string>;
 }
 
 /** 一场战斗在完整帧边界可保存和恢复的全部可变数据。 */
